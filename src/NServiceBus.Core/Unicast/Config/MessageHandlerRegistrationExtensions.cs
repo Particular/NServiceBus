@@ -14,7 +14,7 @@ public static class MessageHandlerRegistrationExtensions
     /// Registers a message handler.
     /// </summary>
     [RequiresUnreferencedCode(MessageHandlerRegistry.TrimmingMessage)]
-    public static void AddHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler>(this EndpointConfiguration config) where THandler : IHandleMessages
+    public static void AddHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler>(this EndpointConfiguration config)
     {
         ArgumentNullException.ThrowIfNull(config);
 

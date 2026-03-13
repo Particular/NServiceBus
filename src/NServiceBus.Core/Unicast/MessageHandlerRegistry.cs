@@ -67,13 +67,21 @@ public class MessageHandlerRegistry
     /// Registers the handler type.
     /// </summary>
     [RequiresUnreferencedCode(TrimmingMessage)]
-    public void AddHandler<THandler>() where THandler : IHandleMessages
+    public void AddHandler<THandler>()
     {
         var handlerType = typeof(THandler);
 
         if (handlerType.IsAbstract)
         {
             return;
+        }
+
+        if (!typeof(IHandleMessages).IsAssignableFrom(handlerType))
+        {
+            throw new ArgumentException(
+                $"Type '{handlerType.FullName}' does not implement {nameof(IHandleMessages)} and cannot be registered via the reflection-based AddHandler<THandler>() path. " +
+                "Convention-based handlers require source generation/interception.",
+                nameof(THandler));
         }
 
         foreach (var interfaceType in handlerType.GetInterfaces())
@@ -101,17 +109,23 @@ public class MessageHandlerRegistry
     /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
     public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
+        => AddMessageHandlerForMessage<THandler, TMessage, THandler>();
+
+    /// <summary>
+    /// Add a handler for a specific message type using an explicit original handler identity for deduplication. Should only be called by a source generator.
+    /// </summary>
+    public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage, TOriginalHandler>() where THandler : class, IHandleMessages<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
-        if (!deduplicationSet.Add(HandlerAndMessage.New<THandler, TMessage>()))
+        if (!deduplicationSet.Add(HandlerAndMessage.New<TOriginalHandler, TMessage>()))
         {
             return;
         }
 
-        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
-        var handlerFactories = GetOrCreate<THandler>();
-        handlerFactories.Add(new MessageHandlerFactory<THandler, TMessage>());
+        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(TOriginalHandler));
+        var handlerFactories = GetOrCreate<TOriginalHandler>();
+        handlerFactories.Add(new MessageHandlerFactory<THandler, TMessage, TOriginalHandler>());
     }
 
     /// <summary>
@@ -186,10 +200,14 @@ public class MessageHandlerRegistry
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
+        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+        .SingleOrDefault(m => m.Name == nameof(AddMessageHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
 
     static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
+        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+        .SingleOrDefault(m => m.Name == nameof(AddTimeoutHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     readonly HashSet<HandlerAndMessage> deduplicationSet = [];
@@ -237,7 +255,7 @@ public class MessageHandlerRegistry
     }
 
     // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
-    sealed class MessageHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage> : IMessageHandlerFactory
+    sealed class MessageHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage, TOriginalHandler> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
@@ -248,7 +266,7 @@ public class MessageHandlerRegistry
                 InvokeHandler, // This needs to stay a method group to wipe it out from the stack trace
                 isTimeoutHandler: false)
             {
-                HandlerType = typeof(THandler)
+                HandlerType = typeof(TOriginalHandler)
             };
 
         [DebuggerNonUserCode]

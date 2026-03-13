@@ -3,7 +3,6 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Utility;
 
@@ -15,7 +14,8 @@ public sealed partial class AddHandlerInterceptor
 
         static void Emit(SourceProductionContext context, InterceptableHandlerSpecs handlerSpecs)
         {
-            var interceptableHandlers = handlerSpecs.Handlers;
+            // Filter out mixed-style handlers
+            var interceptableHandlers = handlerSpecs.Handlers.Where(h => !h.HandlerSpec.IsMixed).ToImmutableEquatableArray();
             if (interceptableHandlers.Count == 0)
             {
                 return;
@@ -83,23 +83,34 @@ public sealed partial class AddHandlerInterceptor
 
             sourceWriter.CloseCurlies();
 
+            var adapterHandlers = interceptableHandlers
+                .Where(h => h.HandlerSpec.ConventionBasedMethods.Count > 0)
+                .GroupBy(h => h.HandlerSpec.FullyQualifiedName, StringComparer.Ordinal)
+                .Select(g => g.First().HandlerSpec)
+                .ToArray();
+
+            if (adapterHandlers.Length > 0)
+            {
+                sourceWriter.WriteLine();
+
+                for (var index = 0; index < adapterHandlers.Length; index++)
+                {
+                    Handlers.Emitter.EmitAdapterTypes(sourceWriter, adapterHandlers[index]);
+
+                    if (index < adapterHandlers.Length - 1)
+                    {
+                        sourceWriter.WriteLine();
+                    }
+                }
+            }
+
             context.AddSource("InterceptionsOfAddHandlerMethod.g.cs", sourceWriter.ToSourceText());
         }
 
         static string AddMethodName(string name, string handlerType)
         {
             const string NamePrefix = "AddHandler_";
-
-            var sb = new StringBuilder(NamePrefix.Length + name.Length + 1 + 16)
-                .Append(NamePrefix)
-                .Append(name)
-                .Append('_');
-
-            var hash = NonCryptographicHash.GetHash(handlerType);
-
-            sb.Append(hash.ToString("x16"));
-
-            return sb.ToString();
+            return InterceptorMethodNameBuilder.Build(NamePrefix, name, handlerType);
         }
     }
 }

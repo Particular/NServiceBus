@@ -19,34 +19,9 @@ public sealed partial class AddHandlerInterceptor
 
     internal static class Parser
     {
-        public static bool SyntaxLooksLikeAddHandlerMethod(SyntaxNode node) => node is InvocationExpressionSyntax
-        {
-            Expression: MemberAccessExpressionSyntax
-            {
-                Name: GenericNameSyntax
-                {
-                    Identifier.ValueText: AddHandlerMethodName,
-                    TypeArgumentList.Arguments.Count: 1
-                }
-            },
-            ArgumentList.Arguments.Count: 0
-        };
+        public static bool SyntaxLooksLikeAddHandlerMethod(SyntaxNode node) => HandlerSyntaxConventions.SyntaxLooksLikeAddHandlerMethod(node);
 
-        internal static bool IsAddHandlerMethod(IMethodSymbol method) => method is
-        {
-            Name: AddHandlerMethodName,
-            IsGenericMethod: true,
-            TypeArguments.Length: 1,
-            ContainingType:
-            {
-                Name: AddHandlerClassName,
-                ContainingNamespace:
-                {
-                    Name: "NServiceBus",
-                    ContainingNamespace.IsGlobalNamespace: true
-                }
-            }
-        };
+        internal static bool IsAddHandlerMethod(IMethodSymbol method) => HandlerSyntaxConventions.IsAddHandlerMethod(method);
 
         public static InterceptableHandlerSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
         {
@@ -75,10 +50,11 @@ public sealed partial class AddHandlerInterceptor
             }
 
             var handlerSpec = Handlers.Parser.Parse(semanticModel, handlerType, BaseParser.SpecKind.Handler, cancellationToken: cancellationToken);
+            if (handlerSpec is null)
+            {
+                return null;
+            }
             return new InterceptableHandlerSpec(InterceptLocationSpec.From(location), handlerSpec);
         }
-
-        const string AddHandlerMethodName = "AddHandler";
-        const string AddHandlerClassName = "MessageHandlerRegistrationExtensions";
     }
 }

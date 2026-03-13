@@ -17,7 +17,8 @@ public sealed partial class AddHandlerGenerator
 
         static void Emit(SourceProductionContext context, HandlerSpecs handlerSpecs, BaseParser.RootTypeSpec rootTypeSpec)
         {
-            var handlers = handlerSpecs.Handlers;
+            // Filter out mixed-style handlers (they have an error diagnostic and should not generate)
+            var handlers = handlerSpecs.Handlers.Where(h => !h.IsMixed).ToImmutableEquatableArray();
             if (handlers.Count == 0)
             {
                 return;
@@ -30,7 +31,28 @@ public sealed partial class AddHandlerGenerator
             EmitHandlers(sourceWriter, handlers, rootTypeSpec);
             sourceWriter.CloseCurlies();
 
+            // Emit file-scoped adapter types for convention-based handlers (outside the partial class)
+            bool hasAdapters = handlers.Any(h => h.ConventionBasedMethods.Count > 0);
+            if (hasAdapters)
+            {
+                sourceWriter.WriteLine();
+                EmitAdapterTypesSection(sourceWriter, handlers);
+            }
+
             context.AddSource("HandlerRegistrations.Handlers.g.cs", sourceWriter.ToSourceText());
+        }
+
+        static void EmitAdapterTypesSection(SourceWriter sourceWriter, ImmutableEquatableArray<HandlerSpec> handlers)
+        {
+            foreach (var handler in handlers)
+            {
+                if (handler.ConventionBasedMethods.Count == 0)
+                {
+                    continue;
+                }
+
+                Handlers.Emitter.EmitAdapterTypes(sourceWriter, handler);
+            }
         }
 
         static void EmitHandlers(SourceWriter sourceWriter, ImmutableEquatableArray<HandlerSpec> handlers, BaseParser.RootTypeSpec rootTypeSpec)
@@ -105,5 +127,6 @@ public sealed partial class AddHandlerGenerator
                 }
             }
         }
+
     }
 }

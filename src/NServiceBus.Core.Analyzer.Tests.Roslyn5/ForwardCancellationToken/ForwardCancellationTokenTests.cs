@@ -349,6 +349,83 @@ public class Foo : IHandleMessages<TestMessage>
 public class TestMessage : ICommand {}");
 
     [Test]
+    public Task NoDiagnosticWhenConventionBasedHandlerPassesBoundCancellationToken() => Assert(
+        @"using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+
+[Handler]
+public class Foo
+{
+    public Task Handle(TestMessage message, IMessageHandlerContext context, CancellationToken cancellationToken = default)
+    {
+        return TestMethod(cancellationToken);
+    }
+
+    static Task TestMethod(CancellationToken token = default) { return Task.CompletedTask; }
+}
+
+public class TestMessage : ICommand {}");
+
+    [Test]
+    public Task NoDiagnosticWhenConventionBasedHandlerExposesBoundCancellationTokenWithoutForwardingContextToken() => Assert(
+        @"using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+
+[Handler]
+public class Foo
+{
+    public Task Handle(TestMessage message, IMessageHandlerContext context, CancellationToken cancellationToken = default)
+    {
+        return TestMethod();
+    }
+
+    static Task TestMethod(CancellationToken token = default) { return Task.CompletedTask; }
+}
+
+public class TestMessage : ICommand {}");
+
+    [Test]
+    public Task NoDiagnosticWhenConventionBasedHandlerHasOptionalBoundCancellationToken() => Assert(
+        @"using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+
+[Handler]
+public class Foo
+{
+    public Task Handle(TestMessage message, IMessageHandlerContext context, CancellationToken cancellationToken = default)
+    {
+        return TestMethod();
+    }
+
+    static Task TestMethod(CancellationToken token = default) { return Task.CompletedTask; }
+}
+
+public class TestMessage : ICommand {}");
+
+    [Test]
+    public Task NoDiagnosticWhenConventionBasedHandlerHasBoundCancellationTokenBeforeOtherDependencies() => Assert(
+        @"using NServiceBus;
+using System.Threading;
+using System.Threading.Tasks;
+
+[Handler]
+public class Foo
+{
+    public Task Handle(TestMessage message, IMessageHandlerContext context, CancellationToken cancellationToken, IMyDependency dependency)
+    {
+        return TestMethod();
+    }
+
+    static Task TestMethod(CancellationToken token = default) { return Task.CompletedTask; }
+}
+
+public interface IMyDependency {}
+public class TestMessage : ICommand {}");
+
+    [Test]
     public Task NoDiagnosticWhenMemberMethodDoesNotSupportToken() => Assert(
         @"using NServiceBus;
 using System.Threading;
