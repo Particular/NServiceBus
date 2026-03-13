@@ -147,7 +147,8 @@ public static partial class Handlers
             }
 
             // Ctor params of the handler type (for instance methods)
-            var ctorParams = GetCtorParams(handlerType, cancellationTokenType, activatorUtilitiesConstructorAttributeType);
+            var selectedConstructor = SelectConstructor(handlerType, activatorUtilitiesConstructorAttributeType);
+            var ctorParams = GetCtorParams(selectedConstructor, cancellationTokenType);
 
             foreach (var method in GetHandleMethods(handlerType, includeInheritedMethods))
             {
@@ -187,6 +188,12 @@ public static partial class Handlers
                 }
 
                 var messageTypeFqn = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+                if (!method.IsStatic && selectedConstructor is null)
+                {
+                    // Convention-based instance handlers require an accessible constructor.
+                    continue;
+                }
 
                 // If the class implements IHandleMessages<T> for this exact message type with exactly 2 params,
                 // this Handle method is the interface implementation — not a convention-based method.
@@ -261,21 +268,18 @@ public static partial class Handlers
             RefKind RefKind);
 
         static ImmutableEquatableArray<InjectedParamSpec> GetCtorParams(
-            INamedTypeSymbol handlerType,
-            INamedTypeSymbol? cancellationTokenType,
-            INamedTypeSymbol? activatorUtilitiesConstructorAttributeType)
+            IMethodSymbol? constructor,
+            INamedTypeSymbol? cancellationTokenType)
         {
-            var ctor = SelectConstructor(handlerType, activatorUtilitiesConstructorAttributeType);
-
-            if (ctor is null || ctor.Parameters.Length == 0)
+            if (constructor is null || constructor.Parameters.Length == 0)
             {
                 return ImmutableEquatableArray<InjectedParamSpec>.Empty;
             }
 
-            var specs = new InjectedParamSpec[ctor.Parameters.Length];
-            for (int i = 0; i < ctor.Parameters.Length; i++)
+            var specs = new InjectedParamSpec[constructor.Parameters.Length];
+            for (int i = 0; i < constructor.Parameters.Length; i++)
             {
-                var p = ctor.Parameters[i];
+                var p = constructor.Parameters[i];
                 bool isCt = cancellationTokenType is not null &&
                             SymbolEqualityComparer.Default.Equals(p.Type, cancellationTokenType);
                 specs[i] = new InjectedParamSpec(p.Name, p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), isCt);

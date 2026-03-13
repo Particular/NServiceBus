@@ -123,6 +123,48 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task DoesNotReportForHelperClassWithNonPublicHandleMethod()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            class MyHelper
+            {
+                private Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportForHelperClassWithSingleParameterHandleMethod()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            class MyHelper
+            {
+                public Task Handle(MyMessage message) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+            }
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task DoesNotReportForConventionBasedHandlerReturningValueTask()
     {
         var source =

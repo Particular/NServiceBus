@@ -298,6 +298,42 @@ public class AddHandlerInterceptorTests
     }
 
     [Test]
+    public void ConventionBasedHandlerWithOnlyPrivateConstructorProducesNoInterception()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using Orders;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddHandler<OrderShippedHandler>();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             private OrderShippedHandler() { }
+
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void ConventionBasedHandlerWithActivatorUtilitiesConstructorAttributeUsesMarkedConstructor()
     {
         var source = """

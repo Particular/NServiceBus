@@ -339,6 +339,42 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void ConventionBasedHandlerWithOnlyPrivateConstructorProducesNoRegistration()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.ConventionBasedHandlerWithOnlyPrivateConstructorProducesNoRegistrationAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderShippedHandler
+                         {
+                             private OrderShippedHandler() { }
+
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void ConventionBasedHandlerWithActivatorUtilitiesConstructorAttributeUsesMarkedConstructor()
     {
         var source = """
