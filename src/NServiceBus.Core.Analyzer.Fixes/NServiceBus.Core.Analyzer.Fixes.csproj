@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(RoslynPackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 
@@ -23,6 +24,7 @@
     <Compile Include="..\NServiceBus.Core.Analyzer\TypeSymbolExtensions.cs" />
     <Compile Include="..\NServiceBus.Core.Analyzer\NamespaceSymbolExtensions.cs" />
     <Compile Include="..\NServiceBus.Core.Analyzer\Handlers\HandlerKnownTypes.cs" LinkBase="Handlers" />
+    <Compile Include="..\NServiceBus.Core.Analyzer\Handlers\MarkerTypes.cs" LinkBase="Handlers" />
     <Compile Include="..\NServiceBus.Core.Analyzer\Handlers\ConventionBasedHandlerHelper.cs" LinkBase="Handlers" />
     <Compile Include="..\NServiceBus.Core.Analyzer\Handlers\HandlerConventions.cs" LinkBase="Handlers" />
     <Compile Include="..\NServiceBus.Core.Analyzer\Sagas\SagaKnownTypes.cs" LinkBase="Sagas" />

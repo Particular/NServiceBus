@@ -2,13 +2,13 @@
 
 namespace NServiceBus.Core.Analyzer.Sagas;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NServiceBus.Core.Analyzer.Handlers;
 using static NServiceBus.Core.Analyzer.Handlers.Handlers;
 using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
@@ -41,6 +41,12 @@ public static partial class Sagas
     {
         public static SagaSpec? Parse(SemanticModel semanticModel, INamedTypeSymbol sagaType, CancellationToken cancellationToken = default)
         {
+            var compilation = semanticModel.Compilation;
+            return !HandlerKnownTypes.TryGet(compilation, out var knownTypes) ? null : Parse(compilation, sagaType, knownTypes, cancellationToken);
+        }
+
+        static SagaSpec? Parse(Compilation compilation, INamedTypeSymbol sagaType, HandlerKnownTypes knownTypes, CancellationToken cancellationToken)
+        {
             // Extract saga data type from Saga<TSagaData>
             var sagaDataType = GetSagaDataType(sagaType);
             if (sagaDataType == null)
@@ -48,13 +54,14 @@ public static partial class Sagas
                 return null;
             }
 
-            var sagaSemanticModel = semanticModel;
-            if (sagaType.DeclaringSyntaxReferences.FirstOrDefault()?.SyntaxTree is { } sagaSyntaxTree && sagaSyntaxTree != semanticModel.SyntaxTree)
+            if (sagaType.DeclaringSyntaxReferences.FirstOrDefault()?.SyntaxTree is not { } sagaSyntaxTree)
             {
-                sagaSemanticModel = semanticModel.Compilation.GetSemanticModel(sagaSyntaxTree);
+                return null;
             }
 
-            var sagaBaseSpec = Handlers.Handlers.Parser.Parse(sagaSemanticModel, sagaType, BaseParser.SpecKind.Saga, cancellationToken);
+            var sagaSemanticModel = compilation.GetSemanticModel(sagaSyntaxTree);
+
+            var sagaBaseSpec = Handlers.Parser.Parse(sagaType, BaseParser.SpecKind.Saga, knownTypes, cancellationToken);
             var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             // Analyze ConfigureHowToFindSaga to extract mappings

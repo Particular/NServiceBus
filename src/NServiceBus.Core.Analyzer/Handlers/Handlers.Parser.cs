@@ -54,10 +54,22 @@ public static partial class Handlers
 
     public static class Parser
     {
-        public static HandlerSpec Parse(SemanticModel semanticModel, INamedTypeSymbol handlerType, BaseParser.SpecKind specKind, CancellationToken cancellationToken = default)
+        public static HandlerSpec? Parse(
+            SemanticModel semanticModel,
+            INamedTypeSymbol handlerType,
+            BaseParser.SpecKind specKind,
+            CancellationToken cancellationToken = default)
+        {
+            var compilation = semanticModel.Compilation;
+            return !HandlerKnownTypes.TryGet(compilation, out var knownTypes) ? null : Parse(handlerType, specKind, knownTypes, cancellationToken);
+        }
+
+        public static HandlerSpec Parse(INamedTypeSymbol handlerType,
+            BaseParser.SpecKind specKind,
+            HandlerKnownTypes knownTypes,
+            CancellationToken cancellationToken = default)
         {
             var baseHandlerSpec = BaseParser.Parse(handlerType, specKind, cancellationToken: cancellationToken);
-            var markers = new MarkerTypes(semanticModel.Compilation);
 
             var allRegistrations = new List<RegistrationSpec>();
             var startedMessageTypes = new HashSet<string>();
@@ -87,7 +99,7 @@ public static partial class Handlers
                     continue;
                 }
 
-                var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, markers).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
+                var hierarchy = new ImmutableEquatableArray<string>(GetTypeHierarchy(messageType, knownTypes.MarkerTypes).Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
                 var spec = new RegistrationSpec(registrationType.Value, messageTypeName, hierarchy, baseHandlerSpec.FullyQualifiedName);
                 allRegistrations.Add(spec);
 
@@ -116,7 +128,12 @@ public static partial class Handlers
                 }
             }
 
-            var conventionBasedMethods = ParseConventionBasedMethods(semanticModel, handlerType, markers, interfaceMessageTypes, includeInheritedMethods: !isInterfaceBased, cancellationToken);
+            var conventionBasedMethods = ParseConventionBasedMethods(
+                handlerType,
+                knownTypes,
+                interfaceMessageTypes,
+                includeInheritedMethods: !isInterfaceBased,
+                cancellationToken);
             bool isMixed = isInterfaceBased && conventionBasedMethods.Count > 0;
 
             // For pure convention-based only (not interface-based, not mixed)
@@ -128,26 +145,18 @@ public static partial class Handlers
         }
 
         static List<ConventionBasedMethodSpec> ParseConventionBasedMethods(
-            SemanticModel semanticModel,
             INamedTypeSymbol handlerType,
-            MarkerTypes markers,
+            HandlerKnownTypes knownTypes,
             HashSet<string> interfaceMessageTypes,
             bool includeInheritedMethods,
             CancellationToken cancellationToken)
         {
             var result = new List<ConventionBasedMethodSpec>();
             var handlerTypeFqn = handlerType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var iMessageHandlerContext = semanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
-            var cancellationTokenType = semanticModel.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
-            var activatorUtilitiesConstructorAttributeType = semanticModel.Compilation.GetTypeByMetadataName("Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructorAttribute");
-            if (!HandlerKnownTypes.TryGet(semanticModel.Compilation, out var knownTypes) || iMessageHandlerContext is null)
-            {
-                return result;
-            }
 
             // Ctor params of the handler type (for instance methods)
-            var selectedConstructor = SelectConstructor(handlerType, activatorUtilitiesConstructorAttributeType);
-            var ctorParams = GetCtorParams(selectedConstructor, cancellationTokenType);
+            var selectedConstructor = SelectConstructor(handlerType, knownTypes.ActivatorUtilitiesConstructorAttributeType);
+            var ctorParams = GetCtorParams(selectedConstructor, knownTypes.CancellationTokenType);
 
             foreach (var method in GetHandleMethods(handlerType, includeInheritedMethods))
             {
@@ -173,8 +182,8 @@ public static partial class Handlers
                 for (int i = 2; i < method.Parameters.Length; i++)
                 {
                     var param = method.Parameters[i];
-                    bool isCt = cancellationTokenType is not null &&
-                                SymbolEqualityComparer.Default.Equals(param.Type, cancellationTokenType);
+                    bool isCt = knownTypes.CancellationTokenType is not null &&
+                                SymbolEqualityComparer.Default.Equals(param.Type, knownTypes.CancellationTokenType);
                     methodParams.Add(new InjectedParamSpec(
                         param.Name,
                         param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
@@ -182,7 +191,7 @@ public static partial class Handlers
                 }
 
                 var hierarchy = new ImmutableEquatableArray<string>(
-                    GetTypeHierarchy(messageType, markers)
+                    GetTypeHierarchy(messageType, knownTypes.MarkerTypes)
                         .Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
 
                 var adapterName = BuildAdapterName(handlerType, method, handlerTypeFqn);
@@ -425,18 +434,6 @@ public static partial class Handlers
             }
 
             return result;
-        }
-
-        class MarkerTypes(Compilation compilation)
-        {
-            readonly INamedTypeSymbol IMessage = compilation.GetTypeByMetadataName("NServiceBus.IMessage")!;
-            readonly INamedTypeSymbol ICommand = compilation.GetTypeByMetadataName("NServiceBus.ICommand")!;
-            readonly INamedTypeSymbol IEvent = compilation.GetTypeByMetadataName("NServiceBus.IEvent")!;
-
-            public bool IsMarkerInterface(INamedTypeSymbol type) =>
-                SymbolEqualityComparer.Default.Equals(type, IMessage) ||
-                SymbolEqualityComparer.Default.Equals(type, ICommand) ||
-                SymbolEqualityComparer.Default.Equals(type, IEvent);
         }
     }
 }

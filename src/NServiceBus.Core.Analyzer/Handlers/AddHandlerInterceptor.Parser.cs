@@ -50,6 +50,10 @@ public sealed partial class AddHandlerInterceptor
             }
 
             var handlerSpec = Handlers.Parser.Parse(semanticModel, handlerType, BaseParser.SpecKind.Handler, cancellationToken: cancellationToken);
+            if (handlerSpec is null)
+            {
+                return null;
+            }
             return new InterceptableHandlerSpec(InterceptLocationSpec.From(location), handlerSpec);
         }
     }
