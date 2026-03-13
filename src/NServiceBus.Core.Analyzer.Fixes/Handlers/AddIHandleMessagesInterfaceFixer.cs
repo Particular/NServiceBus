@@ -57,6 +57,8 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
             return document;
         }
 
+        var workingClassDeclaration = NormalizeClassBody(classDeclaration);
+
         var interfaceType =
             SyntaxFactory.GenericName(
                     SyntaxFactory.Identifier("IHandleMessages"),
@@ -67,12 +69,12 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
 
         var baseType = SyntaxFactory.SimpleBaseType(interfaceType);
 
-        var updatedClass = classDeclaration.BaseList is null
-            ? classDeclaration.WithBaseList(
+        var updatedClass = workingClassDeclaration.BaseList is null
+            ? workingClassDeclaration.WithBaseList(
                 SyntaxFactory.BaseList(
                     SyntaxFactory.SingletonSeparatedList<BaseTypeSyntax>(baseType)))
-            : classDeclaration.WithBaseList(
-                classDeclaration.BaseList.WithTypes(classDeclaration.BaseList.Types.Add(baseType)));
+            : workingClassDeclaration.WithBaseList(
+                workingClassDeclaration.BaseList.WithTypes(workingClassDeclaration.BaseList.Types.Add(baseType)));
 
         updatedClass = AnnotateMyMessageRename(updatedClass)
             .WithAdditionalAnnotations(Formatter.Annotation);
@@ -124,6 +126,20 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
 
         editor.ReplaceNode(classDeclaration, updatedClass);
         return editor.GetChangedDocument();
+    }
+
+    static ClassDeclarationSyntax NormalizeClassBody(ClassDeclarationSyntax classDeclaration)
+    {
+        if (!classDeclaration.OpenBraceToken.IsKind(SyntaxKind.None) &&
+            !classDeclaration.CloseBraceToken.IsKind(SyntaxKind.None))
+        {
+            return classDeclaration;
+        }
+
+        return classDeclaration
+            .WithOpenBraceToken(SyntaxFactory.Token(SyntaxKind.OpenBraceToken))
+            .WithCloseBraceToken(SyntaxFactory.Token(SyntaxKind.CloseBraceToken))
+            .WithSemicolonToken(default);
     }
 
     static MethodDeclarationSyntax AnnotateMyMessageRename(MethodDeclarationSyntax method)
