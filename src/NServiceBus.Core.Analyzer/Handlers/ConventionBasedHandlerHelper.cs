@@ -48,7 +48,6 @@ static class ConventionBasedHandlerHelper
                 method.IsExtensionMethod ||
                 method.IsVirtual ||
                 method.ReturnsVoid ||
-                !method.IsAsync ||
                 method.Parameters.Length < 2)
             {
                 continue;
