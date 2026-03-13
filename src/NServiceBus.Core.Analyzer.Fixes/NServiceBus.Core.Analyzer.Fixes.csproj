@@ -14,8 +14,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(RoslynPackageVersion)" PrivateAssets="All" />
-    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
+    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
