@@ -56,8 +56,14 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
             return document;
         }
 
-        var interfaceType = SyntaxFactory.ParseTypeName("IHandleMessages<MyMessage>")
-            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
+        var interfaceType =
+            SyntaxFactory.GenericName(
+                    SyntaxFactory.Identifier("IHandleMessages"),
+                    SyntaxFactory.TypeArgumentList(
+                        SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
+                            SyntaxFactory.IdentifierName("MyMessage"))))
+                .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
+
         var baseType = SyntaxFactory.SimpleBaseType(interfaceType);
 
         var updatedClass = classDeclaration.BaseList is null
