@@ -5,6 +5,7 @@ using System.Composition;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -51,7 +52,7 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
     static async Task<Document> AddInterface(Document document, int classPosition, CancellationToken cancellationToken)
     {
         var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-        if (editor.OriginalRoot.FindToken(classPosition).Parent?.FirstAncestorOrSelf<ClassDeclarationSyntax>() is not { } classDeclaration)
+        if (editor.OriginalRoot.FindToken(classPosition).Parent?.FirstAncestorOrSelf<ClassDeclarationSyntax>() is not { } classDeclaration || !HandlerKnownTypes.TryGet(editor.SemanticModel.Compilation, out var knownTypes))
         {
             return document;
         }
@@ -76,19 +77,72 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
         updatedClass = AnnotateMyMessageRename(updatedClass)
             .WithAdditionalAnnotations(Formatter.Annotation);
 
+        var taskTypeSymbol = editor.SemanticModel.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
+        if (taskTypeSymbol is null)
+        {
+            return document;
+        }
+
+        var taskType = ((TypeSyntax)editor.Generator.TypeExpression(taskTypeSymbol))
+            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
+
+        var messageType = SyntaxFactory.IdentifierName("MyMessage")
+            .WithAdditionalAnnotations(RenameAnnotation.Create());
+
+        var contextType = ((TypeSyntax)editor.Generator.TypeExpression(knownTypes.IMessageHandlerContext))
+            .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
+
+        var messageParameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("message"))
+            .WithType(messageType);
+
+        var contextParameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("context"))
+            .WithType(contextType);
+
+        var completedTaskExpression = (ExpressionSyntax)editor.Generator.MemberAccessExpression(
+            editor.Generator.TypeExpression(taskTypeSymbol),
+            "CompletedTask");
+
+        var awaitCompletedTask = SyntaxFactory.ExpressionStatement(
+            SyntaxFactory.AwaitExpression(completedTaskExpression));
+
+        var method = SyntaxFactory.MethodDeclaration(taskType, "Handle")
+            .AddModifiers(
+                SyntaxFactory.Token(SyntaxKind.PublicKeyword),
+                SyntaxFactory.Token(SyntaxKind.AsyncKeyword))
+            .WithParameterList(
+                SyntaxFactory.ParameterList(
+                    SyntaxFactory.SeparatedList(
+                        [messageParameter, contextParameter])))
+            .WithBody(SyntaxFactory.Block(awaitCompletedTask));
+
+        method = AnnotateMyMessageRename(method)
+            .WithAdditionalAnnotations(Formatter.Annotation, Simplifier.AddImportsAnnotation);
+
+        updatedClass = AnnotateMyMessageRename(updatedClass)
+            .AddMembers(method)
+            .WithAdditionalAnnotations(Formatter.Annotation);
+
         editor.ReplaceNode(classDeclaration, updatedClass);
         return editor.GetChangedDocument();
     }
 
-    static ClassDeclarationSyntax AnnotateMyMessageRename(ClassDeclarationSyntax classDeclaration)
+    static MethodDeclarationSyntax AnnotateMyMessageRename(MethodDeclarationSyntax method)
     {
-        var token = classDeclaration
+        var token = method
             .DescendantTokens()
             .FirstOrDefault(static t => t.IsKind(SyntaxKind.IdentifierToken) && t.ValueText == "MyMessage");
 
-        return token.RawKind == 0
-            ? classDeclaration
-            : classDeclaration.ReplaceToken(token, token.WithAdditionalAnnotations(RenameAnnotation.Create()));
+        return token.RawKind == 0 ? method : method.ReplaceToken(token, token.WithAdditionalAnnotations(RenameAnnotation.Create()));
+    }
+
+    static ClassDeclarationSyntax AnnotateMyMessageRename(ClassDeclarationSyntax classDeclaration)
+    {
+        var myMessageNode = classDeclaration
+            .DescendantNodes()
+            .OfType<IdentifierNameSyntax>()
+            .FirstOrDefault(static n => n.Identifier.ValueText == "MyMessage");
+
+        return myMessageNode is null ? classDeclaration : classDeclaration.ReplaceNode(myMessageNode, myMessageNode.WithAdditionalAnnotations(RenameAnnotation.Create()));
     }
 
     static readonly string EquivalenceKey = $"{typeof(AddIHandleMessagesInterfaceFixer).FullName}.AddInterface";

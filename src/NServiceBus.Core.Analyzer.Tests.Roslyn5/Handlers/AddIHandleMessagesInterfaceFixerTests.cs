@@ -24,12 +24,17 @@ public class AddIHandleMessagesInterfaceFixerTests : CodeFixTestFixture<HandlerA
 
         var expected =
             """
+            using System.Threading.Tasks;
             using NServiceBus;
 
             [Handler]
             class NonHandler
             : IHandleMessages<MyMessage>
             {
+                public async Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    await Task.CompletedTask;
+                }
             }
             """;
 
