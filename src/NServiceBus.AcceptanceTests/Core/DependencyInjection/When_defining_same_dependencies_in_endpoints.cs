@@ -52,7 +52,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
             b.EnableFeature<MyFeatureProvidingMoreDependencies>();
 
             // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>());
+            b.Services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>();
         });
 
         [Handler]

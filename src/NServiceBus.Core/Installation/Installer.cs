@@ -23,10 +23,11 @@ public static class Installer
         // does not overwrite installer usernames configured by the user.
         configuration.EnableInstallers();
 
-        var serviceCollection = new ServiceCollection();
-        var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
+        var services = new ServiceCollection();
+        var endpointCreator = EndpointCreator.Create(configuration, services);
+        configuration.ApplyUserServicesTo(services);
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
         await using var provider = serviceProvider.ConfigureAwait(false);
 
         var creationStrategy = new InternalContainerEndpointCreationStrategy(endpointCreator, NoOpAsyncDisposable.Instance);

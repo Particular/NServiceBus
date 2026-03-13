@@ -92,9 +92,10 @@ public class EndpointRunner(
     {
         ArgumentNullException.ThrowIfNull(scenarioContext);
 
+        var settings = endpointConfiguration.GetSettings();
         for (var type = scenarioContext.GetType(); type != null && type != typeof(object); type = type.BaseType)
         {
-            endpointConfiguration.GetSettings().Set(type.FullName!, scenarioContext);
+            settings.Set(type.FullName!, scenarioContext);
         }
     }
 

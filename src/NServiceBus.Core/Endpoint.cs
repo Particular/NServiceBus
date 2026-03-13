@@ -22,6 +22,7 @@ public static class Endpoint
         ArgumentNullException.ThrowIfNull(configuration);
         var serviceCollection = new ServiceCollection();
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
+        configuration.ApplyUserServicesTo(serviceCollection);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var host = new InternallyManagedContainerHost(endpointCreator, serviceProvider);

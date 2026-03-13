@@ -1,5 +1,4 @@
-﻿
-namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
 using System.Threading.Tasks;
@@ -39,7 +38,7 @@ public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
             b.EnableFeature<MyFeatureProvidingMoreDependencies>();
 
             // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>());
+            b.Services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>();
         });
 
         [Handler]

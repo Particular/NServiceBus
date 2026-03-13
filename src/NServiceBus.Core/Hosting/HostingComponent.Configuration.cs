@@ -24,7 +24,6 @@ partial class HostingComponent
             settings.EndpointName,
             serviceCollection,
             settings.ShouldRunInstallers,
-            settings.UserRegistrations,
             new ActivityFactory(),
             persistenceConfiguration,
             installerComponent);
@@ -44,7 +43,6 @@ partial class HostingComponent
             string endpointName,
             IServiceCollection services,
             bool shouldRunInstallers,
-            List<Action<IServiceCollection>> userRegistrations,
             IActivityFactory activityFactory,
             PersistenceComponent.Configuration persistenceConfiguration,
             InstallerComponent installerComponent)
@@ -58,7 +56,6 @@ partial class HostingComponent
             EndpointName = endpointName;
             Services = services;
             ShouldRunInstallers = shouldRunInstallers;
-            UserRegistrations = userRegistrations;
             ActivityFactory = activityFactory;
             PersistenceConfiguration = persistenceConfiguration;
             InstallerComponent = installerComponent;
@@ -88,8 +85,6 @@ partial class HostingComponent
         public HostInformation HostInformation { get; }
 
         public bool ShouldRunInstallers { get; }
-
-        public List<Action<IServiceCollection>> UserRegistrations { get; }
 
         public IActivityFactory ActivityFactory { get; }
 

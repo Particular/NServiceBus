@@ -80,6 +80,7 @@ public static class ServiceCollectionExtensions
         {
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
             var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, services);
+            endpointConfiguration.ApplyUserServicesTo(services);
 
             services.AddSingleton(externallyManagedContainerHost);
             services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp));
@@ -92,6 +93,7 @@ public static class ServiceCollectionExtensions
 
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
             var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, keyedServices);
+            endpointConfiguration.ApplyUserServicesTo(keyedServices);
 
             services.AddKeyedSingleton(endpointIdentifier, externallyManagedContainerHost);
             services.AddKeyedSingleton<IEndpointLifecycle>(endpointIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, endpointIdentifier, keyedServices));
