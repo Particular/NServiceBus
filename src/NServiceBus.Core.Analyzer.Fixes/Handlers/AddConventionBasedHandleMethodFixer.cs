@@ -65,6 +65,8 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
             return document;
         }
 
+        var workingClassDeclaration = NormalizeClassBody(classDeclaration);
+
         var taskType = ((TypeSyntax)editor.Generator.TypeExpression(taskTypeSymbol))
             .WithAdditionalAnnotations(Simplifier.AddImportsAnnotation, Formatter.Annotation);
 
@@ -107,11 +109,25 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
         method = AnnotateMyMessageRename(method)
             .WithAdditionalAnnotations(Formatter.Annotation, Simplifier.AddImportsAnnotation);
 
-        var updatedClass = classDeclaration.AddMembers(method)
+        var updatedClass = workingClassDeclaration.AddMembers(method)
             .WithAdditionalAnnotations(Formatter.Annotation);
 
         editor.ReplaceNode(classDeclaration, updatedClass);
         return editor.GetChangedDocument();
+    }
+
+    static ClassDeclarationSyntax NormalizeClassBody(ClassDeclarationSyntax classDeclaration)
+    {
+        if (!classDeclaration.OpenBraceToken.IsKind(SyntaxKind.None) &&
+            !classDeclaration.CloseBraceToken.IsKind(SyntaxKind.None))
+        {
+            return classDeclaration;
+        }
+
+        return classDeclaration
+            .WithOpenBraceToken(SyntaxFactory.Token(SyntaxKind.OpenBraceToken))
+            .WithCloseBraceToken(SyntaxFactory.Token(SyntaxKind.CloseBraceToken))
+            .WithSemicolonToken(default);
     }
 
     static MethodDeclarationSyntax AnnotateMyMessageRename(MethodDeclarationSyntax method)
