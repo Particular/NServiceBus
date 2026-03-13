@@ -43,6 +43,12 @@ static class ConventionBasedHandlerHelper
             if (method.Name != "Handle" ||
                 method.DeclaredAccessibility != Accessibility.Public ||
                 method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
+                method.IsAbstract ||
+                method.IsGenericMethod ||
+                method.IsExtensionMethod ||
+                method.IsVirtual ||
+                method.ReturnsVoid ||
+                !method.IsAsync ||
                 method.Parameters.Length < 2)
             {
                 continue;
