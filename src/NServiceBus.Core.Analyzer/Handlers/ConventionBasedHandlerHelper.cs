@@ -40,44 +40,56 @@ static class ConventionBasedHandlerHelper
                 continue;
             }
 
-            if (method.Name != "Handle" ||
-                method.DeclaredAccessibility != Accessibility.Public ||
-                method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
-                method.IsAbstract ||
-                method.IsGenericMethod ||
-                method.IsExtensionMethod ||
-                method.IsVirtual ||
-                method.ReturnsVoid ||
-                method.Parameters.Length < 2)
+            if (IsValidConventionBasedHandleMethod(method, knownTypes, interfaceMessageTypes))
             {
-                continue;
+                return true;
             }
-
-            if (method.Parameters[0].Type is not INamedTypeSymbol)
-            {
-                continue;
-            }
-
-            if (!SymbolEqualityComparer.Default.Equals(method.Parameters[1].Type, knownTypes.IMessageHandlerContext))
-            {
-                continue;
-            }
-
-            if (!HandlerConventions.IsSupportedHandlerReturnType(method.ReturnType))
-            {
-                continue;
-            }
-
-            var firstParamFqn = method.Parameters[0].Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            if (method.Parameters.Length == 2 && interfaceMessageTypes.Contains(firstParamFqn))
-            {
-                continue;
-            }
-
-            return true;
         }
 
         return false;
+    }
+
+    public static bool IsValidConventionBasedHandleMethod(IMethodSymbol method, HandlerKnownTypes knownTypes, HashSet<string> interfaceMessageTypes)
+    {
+        if (method.Name != "Handle" ||
+            method.DeclaredAccessibility != Accessibility.Public ||
+            method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
+            method.IsAbstract ||
+            method.IsGenericMethod ||
+            method.IsExtensionMethod ||
+            method.IsVirtual ||
+            method.ReturnsVoid ||
+            method.Parameters.Length < 2)
+        {
+            return false;
+        }
+
+        if (method.Parameters[0].Type is not INamedTypeSymbol messageType)
+        {
+            return false;
+        }
+
+        // Second param must be IMessageHandlerContext
+        var secondParam = method.Parameters[1];
+        if (!SymbolEqualityComparer.Default.Equals(secondParam.Type.OriginalDefinition, knownTypes.IMessageHandlerContext) &&
+            !SymbolEqualityComparer.Default.Equals(secondParam.Type, knownTypes.IMessageHandlerContext))
+        {
+            return false;
+        }
+
+        if (!HandlerConventions.IsSupportedHandlerReturnType(method.ReturnType))
+        {
+            return false;
+        }
+
+        // If the class implements IHandleMessages<T> for this exact message type with exactly 2 params,
+        // this Handle method is the interface implementation — not a convention-based method.
+        var messageTypeFqn = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        if (method.Parameters.Length == 2 && interfaceMessageTypes.Contains(messageTypeFqn))
+        {
+            return false;
+        }
+        return true;
     }
 
     public static bool IsConventionBasedHandlerWithBoundCancellationToken(IMethodSymbol method, Compilation compilation)

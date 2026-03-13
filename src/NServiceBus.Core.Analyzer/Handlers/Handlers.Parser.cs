@@ -140,8 +140,7 @@ public static partial class Handlers
             var iMessageHandlerContext = semanticModel.Compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
             var cancellationTokenType = semanticModel.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
             var activatorUtilitiesConstructorAttributeType = semanticModel.Compilation.GetTypeByMetadataName("Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructorAttribute");
-
-            if (iMessageHandlerContext is null)
+            if (!HandlerKnownTypes.TryGet(semanticModel.Compilation, out var knownTypes) || iMessageHandlerContext is null)
             {
                 return result;
             }
@@ -154,40 +153,10 @@ public static partial class Handlers
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (method.Name != "Handle" ||
-                    method.DeclaredAccessibility != Accessibility.Public ||
-                    method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
-                    method.IsAbstract)
+                if (!ConventionBasedHandlerHelper.IsValidConventionBasedHandleMethod(method, knownTypes, interfaceMessageTypes))
                 {
                     continue;
                 }
-
-                if (method.Parameters.Length < 2)
-                {
-                    continue;
-                }
-
-                // Second param must be IMessageHandlerContext
-                var secondParam = method.Parameters[1];
-                if (!SymbolEqualityComparer.Default.Equals(secondParam.Type.OriginalDefinition, iMessageHandlerContext) &&
-                    !SymbolEqualityComparer.Default.Equals(secondParam.Type, iMessageHandlerContext))
-                {
-                    continue;
-                }
-
-                // First param must be a named type (the message)
-                if (method.Parameters[0].Type is not INamedTypeSymbol messageType)
-                {
-                    continue;
-                }
-
-                // Return type must be Task
-                if (!HandlerConventions.IsSupportedHandlerReturnType(method.ReturnType))
-                {
-                    continue;
-                }
-
-                var messageTypeFqn = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 if (!method.IsStatic && selectedConstructor is null)
                 {
@@ -195,12 +164,9 @@ public static partial class Handlers
                     continue;
                 }
 
-                // If the class implements IHandleMessages<T> for this exact message type with exactly 2 params,
-                // this Handle method is the interface implementation — not a convention-based method.
-                if (method.Parameters.Length == 2 && interfaceMessageTypes.Contains(messageTypeFqn))
-                {
-                    continue;
-                }
+                // Cast is safe here due to the validation above.
+                var messageType = (INamedTypeSymbol)method.Parameters[0].Type;
+                var messageTypeFqn = messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 // Collect extra method params (beyond message + context)
                 var methodParams = new List<InjectedParamSpec>();
@@ -334,7 +300,7 @@ public static partial class Handlers
             return false;
         }
 
-        static IMethodSymbol PickMostGreedy(IEnumerable<IMethodSymbol> candidates)
+        static IMethodSymbol? PickMostGreedy(IEnumerable<IMethodSymbol> candidates)
         {
             IMethodSymbol? best = null;
             var bestLocation = int.MaxValue;
@@ -359,7 +325,7 @@ public static partial class Handlers
                 }
             }
 
-            return best!;
+            return best;
         }
 
         static int GetDeclarationLocation(IMethodSymbol method)
