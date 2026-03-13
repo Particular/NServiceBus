@@ -22,8 +22,8 @@ public class When_sending_ensure_proper_headers : NServiceBusAcceptanceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(context.ReceivedHeaders[Headers.OriginatingEndpoint], Is.EqualTo("SenderForEnsureProperHeadersTest"), "Message should contain the Originating endpoint");
-            Assert.That(context.ReceivedHeaders[Headers.OriginatingHostId], Is.Not.Null.Or.Empty, "OriginatingHostId cannot be null or empty");
-            Assert.That(context.ReceivedHeaders[Headers.OriginatingMachine], Is.Not.Null.Or.Empty, "Endpoint machine name cannot be null or empty");
+            Assert.That(context.ReceivedHeaders[Headers.OriginatingHostId], Is.Not.Null.And.Not.Empty, "OriginatingHostId cannot be null or empty");
+            Assert.That(context.ReceivedHeaders[Headers.OriginatingMachine], Is.Not.Null.And.Not.Empty, "Endpoint machine name cannot be null or empty");
         }
     }
 
