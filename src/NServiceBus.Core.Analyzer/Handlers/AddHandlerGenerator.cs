@@ -20,8 +20,16 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
                 predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
                 transform: static (ctx, _) => (INamedTypeSymbol)ctx.TargetSymbol)
             .Combine(knownTypes)
-            .Where(static pair => pair.Right is not null)
-            .Select(static (pair, cancellationToken) => Parser.Parse(pair.Left, pair.Right!, cancellationToken))
+            .Where(static pair =>
+            {
+                var (_, knownTypes) = pair;
+                return knownTypes is not null;
+            })
+            .Select(static (pair, cancellationToken) =>
+            {
+                var (handlerType, knownTypes) = pair;
+                return Parser.Parse(handlerType, knownTypes!, cancellationToken);
+            })
             .WithTrackingName(TrackingNames.HandlerSpec);
 
         var collected = addHandlers.Collect()

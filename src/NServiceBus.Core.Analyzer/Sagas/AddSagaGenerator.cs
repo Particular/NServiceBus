@@ -19,7 +19,11 @@ public sealed partial class AddSagaGenerator : IIncrementalGenerator
                 predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
                 transform: static (ctx, _) => (sagaType: (INamedTypeSymbol)ctx.TargetSymbol, semanticModel: ctx.SemanticModel))
             .Combine(knownTypes)
-            .Where(static pair => pair.Right is not null)
+            .Where(static pair =>
+            {
+                var (_, knownTypes) = pair;
+                return knownTypes is not null;
+            })
             .Select(static (pair, cancellationToken) =>
             {
                 var ((sagaType, semanticModel), knownTypes) = pair;

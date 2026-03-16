@@ -14,10 +14,12 @@ public sealed partial class AddSagaInterceptor : IIncrementalGenerator
         var addSagas = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, _) => Parser.SyntaxLooksLikeAddSagaMethod(node),
-                transform: static (ctx, _) => ctx.Node is InvocationExpressionSyntax invocationExpression
-                    ? (invocation: invocationExpression, semanticModel: ctx.SemanticModel)
-                    : default)
-            .Where(static tuple => tuple.invocation is not null)
+                transform: static (ctx, _) => (invocation: (InvocationExpressionSyntax)ctx.Node, semanticModel: ctx.SemanticModel))
+            .Where(static pair =>
+            {
+                var (_, knownTypes) = pair;
+                return knownTypes is not null;
+            })
             .Combine(knownTypes)
             .Select(static (pair, cancellationToken) =>
             {

@@ -16,12 +16,13 @@ public sealed partial class AddHandlerInterceptor : IIncrementalGenerator
         var addHandlers = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, _) => Parser.SyntaxLooksLikeAddHandlerMethod(node),
-                transform: static (ctx, _) => ctx.Node is InvocationExpressionSyntax invocationExpression
-                    ? (invocation: invocationExpression, semanticModel: ctx.SemanticModel)
-                    : default)
-            .Where(static tuple => tuple.invocation is not null && tuple.semanticModel is not null)
+                transform: static (ctx, _) => (invocation: (InvocationExpressionSyntax)ctx.Node, semanticModel: ctx.SemanticModel))
             .Combine(knownTypes)
-            .Where(static pair => pair.Right is not null)
+            .Where(static pair =>
+            {
+                var (_, knownTypes) = pair;
+                return knownTypes is not null;
+            })
             .Select(static (pair, cancellationToken) =>
             {
                 var ((invocation, semanticModel), knownTypes) = pair;
