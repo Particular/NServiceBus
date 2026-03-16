@@ -110,54 +110,6 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
-    public void Should_flush_deferred_logs_and_fall_back_to_default_logger_when_slot_factory_is_unavailable()
-    {
-        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
-        LogManager.UseFactory(defaultLoggerFactory);
-
-        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
-        var logger = LogManager.GetLogger(loggerName);
-
-        using (LogManager.BeginSlotScope(slot))
-        {
-            logger.Info("before-fallback");
-        }
-
-        LogManager.MarkSlotFactoryAsUnavailable(slot);
-
-        using (LogManager.BeginSlotScope(slot))
-        {
-            logger.Info("after-fallback");
-        }
-
-        var expectedMessages = new[] { "before-fallback", "after-fallback" };
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(expectedMessages));
-    }
-
-    [Test]
-    public void Should_not_duplicate_deferred_logs_when_slot_factory_is_marked_unavailable_multiple_times()
-    {
-        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
-        LogManager.UseFactory(defaultLoggerFactory);
-
-        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
-        var logger = LogManager.GetLogger(loggerName);
-
-        using (LogManager.BeginSlotScope(slot))
-        {
-            logger.Info("before-fallback");
-        }
-
-        LogManager.MarkSlotFactoryAsUnavailable(slot);
-        LogManager.MarkSlotFactoryAsUnavailable(slot);
-
-        var expectedMessages = new[] { "before-fallback" };
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(expectedMessages));
-    }
-
-    [Test]
     public void Should_self_flush_deferred_logs_on_next_write_when_logger_was_not_present_during_explicit_flush()
     {
         var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();

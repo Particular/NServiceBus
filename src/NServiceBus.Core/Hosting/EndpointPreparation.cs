@@ -5,6 +5,9 @@ namespace NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Logging;
+using Microsoft.Extensions.DependencyInjection;
+using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 static class EndpointPreparation
 {
@@ -16,9 +19,10 @@ static class EndpointPreparation
         ArgumentNullException.ThrowIfNull(creationStrategy);
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
-        LoggingBridge.ResolveSlotFactory(serviceProvider, creationStrategy.EndpointLogSlot);
+        var microsoftLoggerFactory = serviceProvider.GetRequiredService<MicrosoftLoggerFactory>();
+        LogManager.RegisterSlotFactory(creationStrategy.EndpointLogSlot, new MicrosoftLoggerFactoryAdapter(microsoftLoggerFactory));
 
-        using var _ = Logging.LogManager.BeginSlotScope(creationStrategy.EndpointLogSlot);
+        using var _ = LogManager.BeginSlotScope(creationStrategy.EndpointLogSlot);
         var endpoint = creationStrategy.CreateStartableEndpoint(serviceProvider);
         await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
         await endpoint.Setup(cancellationToken).ConfigureAwait(false);
