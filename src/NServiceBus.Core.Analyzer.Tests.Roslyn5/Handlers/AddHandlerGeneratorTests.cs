@@ -677,4 +677,81 @@ public class AddHandlerGeneratorTests
             .Approve()
             .AssertRunsAreEqual();
     }
+
+    [Test]
+    public void ConventionBasedHandlerWithMultipleHandleMethodsSameMessageType()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.ConventionBasedHandlerWithMultipleHandleMethodsSameMessageTypeAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class OrderHandler
+                         {
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IServiceA serviceA) => Task.CompletedTask;
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context, IServiceA serviceA, IServiceB serviceB) => Task.CompletedTask;
+                         }
+                     }
+
+                     public interface IServiceA {}
+                     public interface IServiceB {}
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void ConventionBasedHandlerHidingBaseClassMethodWithNew()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.ConventionBasedHandlerHidingBaseClassMethodWithNewAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         public abstract class HandlerBase
+                         {
+                             public Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+
+                         [Handler]
+                         public class OrderHandler : HandlerBase
+                         {
+                             public new Task Handle(Cmd1 message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class Cmd1 : ICommand {}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Approve()
+            .AssertRunsAreEqual();
+    }
 }
