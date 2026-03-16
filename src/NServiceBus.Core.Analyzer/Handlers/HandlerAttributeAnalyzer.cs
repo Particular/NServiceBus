@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, ConventionBasedHandlerMissingAttribute, ConventionBasedHandlerMissingAttributeImmediate, ConventionBasedHandlerMisplacedAttribute, ConventionBasedHandlerMisplacedAttributeImmediate, HandlerAttributeOnNonHandlerType, ConventionBasedHandlerMixedStyleDescriptor, ConventionBasedHandlerNoAccessibleConstructorDescriptor];
+        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, ConventionBasedHandlerMissingAttribute, ConventionBasedHandlerMissingAttributeImmediate, ConventionBasedHandlerMisplacedAttribute, ConventionBasedHandlerMisplacedAttributeImmediate, HandlerAttributeOnNonHandlerType, ConventionBasedHandlerMixedStyleDescriptor, ConventionBasedHandlerNoAccessibleConstructorDescriptor, ConventionBasedHandlerAmbiguousConstructorDescriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -118,6 +118,20 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             if (classLocation is not null)
                             {
                                 context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerNoAccessibleConstructorDescriptor, classLocation, classType.Name));
+                            }
+                        }
+
+                        // Check for ambiguous constructor selection
+                        if (hasInstanceHandleMethod)
+                        {
+                            var ambiguousParamCount = ConventionBasedHandlerHelper.GetAmbiguousConstructorParameterCount(classType, knownTypes.ActivatorUtilitiesConstructorAttributeType);
+                            if (ambiguousParamCount is not null)
+                            {
+                                var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                                if (classLocation is not null)
+                                {
+                                    context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerAmbiguousConstructorDescriptor, classLocation, classType.Name, ambiguousParamCount));
+                                }
                             }
                         }
                     }
@@ -310,6 +324,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         id: DiagnosticIds.ConventionBasedHandlerNoAccessibleConstructor,
         title: "Convention-based handler requires an accessible constructor",
         messageFormat: "Convention-based handler '{0}' has no accessible constructor. Make at least one constructor public or internal.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor ConventionBasedHandlerAmbiguousConstructorDescriptor = new(
+        id: DiagnosticIds.ConventionBasedHandlerAmbiguousConstructor,
+        title: "Convention-based handler has ambiguous constructor selection",
+        messageFormat: "Convention-based handler '{0}' has multiple constructors with {1} parameters. Use [ActivatorUtilitiesConstructor] attribute to specify which constructor to use.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);

@@ -126,4 +126,58 @@ static class ConventionBasedHandlerHelper
         classType.Constructors.Any(ctor =>
             !ctor.IsStatic &&
             ctor.DeclaredAccessibility != Accessibility.Private);
+
+    public static int? GetAmbiguousConstructorParameterCount(INamedTypeSymbol classType, INamedTypeSymbol? activatorUtilitiesConstructorAttributeType)
+    {
+        var candidates = classType.Constructors
+            .Where(ctor => !ctor.IsStatic && ctor.DeclaredAccessibility != Accessibility.Private)
+            .ToArray();
+
+        if (candidates.Length == 0)
+        {
+            return null;
+        }
+
+        // If any constructor has [ActivatorUtilitiesConstructor], use that set
+        if (activatorUtilitiesConstructorAttributeType is not null)
+        {
+            var markedConstructors = candidates
+                .Where(ctor => HasAttribute(ctor, activatorUtilitiesConstructorAttributeType))
+                .ToArray();
+
+            if (markedConstructors.Length > 0)
+            {
+                candidates = markedConstructors;
+            }
+        }
+
+        // Find the maximum parameter count
+        var maxParamCount = candidates.Max(ctor => ctor.Parameters.Length);
+
+        // Check if multiple constructors have this max count
+        var constructorsWithMaxCount = candidates
+            .Where(ctor => ctor.Parameters.Length == maxParamCount)
+            .ToArray();
+
+        if (constructorsWithMaxCount.Length > 1)
+        {
+            return maxParamCount;
+        }
+
+        return null;
+    }
+
+    static bool HasAttribute(IMethodSymbol method, INamedTypeSymbol attributeType)
+    {
+        foreach (var attr in method.GetAttributes())
+        {
+            if (attr.AttributeClass is not null &&
+                (SymbolEqualityComparer.Default.Equals(attr.AttributeClass, attributeType) ||
+                 SymbolEqualityComparer.Default.Equals(attr.AttributeClass.OriginalDefinition, attributeType)))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

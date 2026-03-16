@@ -733,4 +733,100 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
 
         return Assert(source);
     }
+
+    [Test]
+    public Task ReportsConventionBasedHandlerWithAmbiguousConstructors()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class [|MyHandler|]
+            {
+                public MyHandler(IServiceA serviceA) { }
+                public MyHandler(IServiceB serviceB) { }
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            interface IServiceA {}
+            interface IServiceB {}
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source, DiagnosticIds.ConventionBasedHandlerAmbiguousConstructor);
+    }
+
+    [Test]
+    public Task DoesNotReportConventionBasedHandlerWithDifferentLengthConstructors()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                public MyHandler() { }
+                public MyHandler(IServiceA serviceA) { }
+                public MyHandler(IServiceA serviceA, IServiceB serviceB) { }
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            interface IServiceA {}
+            interface IServiceB {}
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportConventionBasedHandlerWithAmbiguousConstructors_MarkedWithActivatorUtilitiesConstructor()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                public MyHandler(IServiceA serviceA) { }
+                [Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructor]
+                public MyHandler(IServiceB serviceB) { }
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            interface IServiceA {}
+            interface IServiceB {}
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportConventionBasedHandlerWithSingleConstructor()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                public MyHandler(IServiceA serviceA) { }
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            interface IServiceA {}
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
 }
