@@ -13,7 +13,7 @@
         public async Task Should_work()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointUsingInterfaceLessHandlers>(b =>
+                .WithEndpoint<EndpointUsingConventionBasedHandlers>(b =>
                     b.When(async (session, _) => await session.SendLocal(new ComplexMessage())))
                 .Run();
 
@@ -25,9 +25,9 @@
             }
         }
 
-        public class EndpointUsingInterfaceLessHandlers : EndpointConfigurationBuilder
+        public class EndpointUsingConventionBasedHandlers : EndpointConfigurationBuilder
         {
-            public EndpointUsingInterfaceLessHandlers() => EndpointSetup<NonScanningServer>(config =>
+            public EndpointUsingConventionBasedHandlers() => EndpointSetup<NonScanningServer>(config =>
             {
                 var testingAssembly = config.Handlers.All;
                 testingAssembly.Shipping.AddAll();

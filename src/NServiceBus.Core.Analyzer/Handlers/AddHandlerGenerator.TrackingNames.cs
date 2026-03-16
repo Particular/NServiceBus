@@ -16,7 +16,8 @@ public sealed partial class AddHandlerGenerator
             HandlerSpecs,
             BaseTrackingNames.AssemblyInfo,
             BaseTrackingNames.ExplicitRootTypeSpec,
-            BaseTrackingNames.RootTypeSpec
+            BaseTrackingNames.RootTypeSpec,
+            BaseTrackingNames.HandlerKnownTypes
         ];
     }
 }

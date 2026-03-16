@@ -20,7 +20,7 @@ using NServiceBus.Core.Analyzer.Handlers;
 public class HandlerAttributeFixer : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds =>
-        [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced, DiagnosticIds.HandlerAttributeOnNonHandler];
+        [DiagnosticIds.HandlerAttributeMissing, DiagnosticIds.HandlerAttributeMisplaced, DiagnosticIds.ConventionBasedHandlerMissingAttribute, DiagnosticIds.ConventionBasedHandlerMisplacedAttribute, DiagnosticIds.HandlerAttributeOnNonHandler];
 
     public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -44,6 +44,7 @@ public class HandlerAttributeFixer : CodeFixProvider
             switch (diagnostic.Id)
             {
                 case DiagnosticIds.HandlerAttributeMissing:
+                case DiagnosticIds.ConventionBasedHandlerMissingAttribute:
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Add HandlerAttribute",
@@ -52,6 +53,7 @@ public class HandlerAttributeFixer : CodeFixProvider
                         diagnostic);
                     break;
                 case DiagnosticIds.HandlerAttributeMisplaced:
+                case DiagnosticIds.ConventionBasedHandlerMisplacedAttribute:
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Move HandlerAttribute to concrete handlers",
@@ -60,6 +62,12 @@ public class HandlerAttributeFixer : CodeFixProvider
                         diagnostic);
                     break;
                 case DiagnosticIds.HandlerAttributeOnNonHandler:
+                    if (HandlerFixerGuards.IsEmptyHandlerShell(classDecl))
+                    {
+                        // Dedicated scaffold fixers handle this case.
+                        break;
+                    }
+
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Remove HandlerAttribute",
@@ -132,7 +140,8 @@ public class HandlerAttributeFixer : CodeFixProvider
 
         var solutionEditor = new SolutionEditor(solution);
 
-        var handlerTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        var allClassTypes = new List<INamedTypeSymbol>();
+        var directlyHandlerTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
         var baseTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
 
         foreach (var type in compilation.Assembly.GlobalNamespace.GetAllNamedTypes())
@@ -147,7 +156,33 @@ public class HandlerAttributeFixer : CodeFixProvider
                 continue;
             }
 
-            if (!type.ImplementsGenericInterface(knownTypes.IHandleMessages))
+            allClassTypes.Add(type);
+
+            if (type.ImplementsGenericType(knownTypes.SagaBase))
+            {
+                continue;
+            }
+
+            var isInterfaceBasedHandler = type.ImplementsGenericInterface(knownTypes.IHandleMessages);
+            var isConventionBasedHandler = !isInterfaceBasedHandler && ConventionBasedHandlerHelper.HasValidConventionBasedHandleMethods(type, knownTypes);
+
+            if (!isInterfaceBasedHandler && !isConventionBasedHandler)
+            {
+                continue;
+            }
+
+            directlyHandlerTypes.Add(type);
+        }
+
+        var handlerTypes = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        foreach (var type in allClassTypes)
+        {
+            if (type.ImplementsGenericType(knownTypes.SagaBase))
+            {
+                continue;
+            }
+
+            if (!IsHandlerType(type, directlyHandlerTypes))
             {
                 continue;
             }
@@ -223,6 +258,19 @@ public class HandlerAttributeFixer : CodeFixProvider
         }
 
         return solutionEditor.GetChangedSolution();
+    }
+
+    static bool IsHandlerType(INamedTypeSymbol type, HashSet<INamedTypeSymbol> directlyHandlerTypes)
+    {
+        for (var current = type; current is not null; current = current.BaseType)
+        {
+            if (directlyHandlerTypes.Contains(current.OriginalDefinition))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static ClassDeclarationSyntax AddAttributeToClass(

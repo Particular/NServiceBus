@@ -18,16 +18,15 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.RegisterSymbolAction(static context =>
         {
-            var iHandleMessages = context.Compilation.GetTypeByMetadataName("NServiceBus.IHandleMessages`1");
             var iMessageSession = context.Compilation.GetTypeByMetadataName("NServiceBus.IMessageSession");
 
             // because this is an analyzer, we want to be a bit more defensive and bail out if types are missing
-            if (iHandleMessages is null || iMessageSession is null)
+            if (iMessageSession is null || !HandlerKnownTypes.TryGet(context.Compilation, out var handlerKnownTypes))
             {
                 return;
             }
 
-            var knownTypes = new KnownTypes(iHandleMessages, iMessageSession);
+            var knownTypes = new KnownTypes(handlerKnownTypes, iMessageSession);
 
             Analyze(context, knownTypes);
         }, SymbolKind.NamedType);
@@ -40,7 +39,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (classType.ImplementsGenericInterface(knownTypes.IHandleMessages))
+        if (classType.ImplementsGenericInterface(knownTypes.HandlerTypes.IHandleMessages) || ConventionBasedHandlerHelper.IsConventionBasedHandlerType(classType, knownTypes.HandlerTypes))
         {
             AnalyzeMessageHandlerClass(context, classType, knownTypes);
         }
@@ -97,7 +96,7 @@ public class HandlerInjectsMessageSessionAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    readonly record struct KnownTypes(INamedTypeSymbol IHandleMessages, INamedTypeSymbol IMessageSession);
+    readonly record struct KnownTypes(HandlerKnownTypes HandlerTypes, INamedTypeSymbol IMessageSession);
 
     public static readonly DiagnosticDescriptor HandlerInjectsMessageSession = new(
         id: DiagnosticIds.HandlerInjectsMessageSession,

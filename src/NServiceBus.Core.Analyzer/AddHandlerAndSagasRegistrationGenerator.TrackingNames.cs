@@ -10,6 +10,7 @@ public sealed partial class AddHandlerAndSagasRegistrationGenerator
         public const string ExplicitRootTypeSpec = nameof(ExplicitRootTypeSpec);
         public const string RootTypeSpec = nameof(RootTypeSpec);
         public const string HandlerAndSagaSpecs = nameof(HandlerAndSagaSpecs);
+        public const string HandlerKnownTypes = nameof(HandlerKnownTypes);
 
         public static readonly string[] All =
         [
@@ -18,7 +19,8 @@ public sealed partial class AddHandlerAndSagasRegistrationGenerator
             HandlerAndSagaSpecs,
             AssemblyInfo,
             ExplicitRootTypeSpec,
-            RootTypeSpec
+            RootTypeSpec,
+            HandlerKnownTypes
         ];
     }
 }

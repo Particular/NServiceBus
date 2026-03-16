@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using NServiceBus;
 using UniformSession;
 using NUnit.Framework;
@@ -22,7 +23,8 @@ public class SetUpFixture
         MetadataReference.CreateFromFile(Assembly.Load("System.Private.CoreLib").Location),
         MetadataReference.CreateFromFile(typeof(EndpointConfiguration).GetTypeInfo().Assembly.Location),
         MetadataReference.CreateFromFile(typeof(IUniformSession).GetTypeInfo().Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(IMessage).GetTypeInfo().Assembly.Location)
+        MetadataReference.CreateFromFile(typeof(IMessage).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(ActivatorUtilities).GetTypeInfo().Assembly.Location)
     ];
 
     internal static readonly ImmutableList<PortableExecutableReference> ProjectReferences;

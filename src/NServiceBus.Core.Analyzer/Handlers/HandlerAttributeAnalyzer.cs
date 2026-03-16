@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -11,7 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, HandlerAttributeOnNonHandlerType];
+        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, ConventionBasedHandlerMissingAttribute, ConventionBasedHandlerMissingAttributeImmediate, ConventionBasedHandlerMisplacedAttribute, ConventionBasedHandlerMisplacedAttributeImmediate, HandlerAttributeOnNonHandlerType, ConventionBasedHandlerMixedStyleDescriptor, ConventionBasedHandlerNoAccessibleConstructorDescriptor, ConventionBasedHandlerAmbiguousConstructorDescriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -34,21 +35,120 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     return;
                 }
 
-                if (!classType.ImplementsGenericInterface(knownTypes.IHandleMessages) || classType.ImplementsGenericType(knownTypes.SagaBase))
+                var isInterfaceBasedHandler = classType.ImplementsGenericInterface(knownTypes.IHandleMessages);
+                var isSaga = classType.ImplementsGenericType(knownTypes.SagaBase);
+                var isConventionBasedHandler = !isSaga && ConventionBasedHandlerHelper.IsConventionBasedHandlerType(classType, knownTypes);
+
+                if (!isInterfaceBasedHandler || isSaga)
                 {
-                    if (!classType.HasAttribute(knownTypes.HandlerAttribute))
+                    // A saga with [Handler] is always invalid
+                    if (isSaga)
                     {
+                        foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
+                        {
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeOnNonHandlerType, location, classType.Name));
+                            }
+                        }
                         return;
                     }
 
-                    foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
+                    // Non-handler class (no IHandleMessages<T>): valid only if it has convention-based Handle methods
+                    if (!isConventionBasedHandler)
                     {
-                        if (location is not null)
+                        if (!classType.HasAttribute(knownTypes.HandlerAttribute))
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeOnNonHandlerType, location, classType.Name));
+                            return;
+                        }
+
+                        foreach (var location in classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken))
+                        {
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeOnNonHandlerType, location, classType.Name));
+                            }
+                        }
+                        return;
+                    }
+
+                    // Convention-based handlers participate in the same attribute-presence tracking
+                    if (classType.BaseType is { SpecialType: not SpecialType.System_Object } handlerBaseType)
+                    {
+                        baseTypes.TryAdd(handlerBaseType.OriginalDefinition, 0);
+                    }
+
+                    var conventionBasedAttributeLocations = classType.GetAttributeLocations(knownTypes.HandlerAttribute, context.CancellationToken);
+                    if (classType.IsAbstract && !conventionBasedAttributeLocations.IsDefaultOrEmpty)
+                    {
+                        foreach (var location in conventionBasedAttributeLocations)
+                        {
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerMisplacedAttributeImmediate, location, classType.Name));
+                            }
+                        }
+                    }
+                    else if (!classType.IsAbstract && conventionBasedAttributeLocations.IsDefaultOrEmpty)
+                    {
+                        var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
+                        var inheritsDirectlyFromObject = classType.BaseType?.SpecialType == SpecialType.System_Object;
+                        var isDefinitelyLeaf = classType.IsSealed || !isUsedAsBase || inheritsDirectlyFromObject;
+
+                        if (isDefinitelyLeaf)
+                        {
+                            var location = classType.GetClassIdentifierLocation(context.CancellationToken);
+                            if (location is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerMissingAttributeImmediate, location, classType.Name));
+                            }
                         }
                     }
 
+                    // Check for accessible constructor on non-static convention-based handlers
+                    if (!classType.IsAbstract)
+                    {
+                        var hasInstanceHandleMethod = classType.GetMembers(ConventionBasedHandlerHelper.HandleMethodName)
+                            .OfType<IMethodSymbol>()
+                            .Any(m => !m.IsStatic && ConventionBasedHandlerHelper.IsValidConventionBasedHandleMethod(m, knownTypes, []));
+
+                        if (hasInstanceHandleMethod)
+                        {
+                            var ctorAnalysis = ConventionBasedHandlerHelper.AnalyzeConstructors(classType, knownTypes.ActivatorUtilitiesConstructorAttributeType);
+
+                            if (!ctorAnalysis.HasAccessibleConstructor)
+                            {
+                                var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                                if (classLocation is not null)
+                                {
+                                    context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerNoAccessibleConstructorDescriptor, classLocation, classType.Name));
+                                }
+                            }
+
+                            if (ctorAnalysis.AmbiguousParameterCount is not null)
+                            {
+                                var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                                if (classLocation is not null)
+                                {
+                                    context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerAmbiguousConstructorDescriptor, classLocation, classType.Name, ctorAnalysis.AmbiguousParameterCount));
+                                }
+                            }
+                        }
+                    }
+
+                    var info2 = new HandlerTypeSpec(classType.IsAbstract, conventionBasedAttributeLocations, IsConventionBased: true);
+                    _ = handlerTypes.TryAdd(classType.OriginalDefinition, info2);
+                    return;
+                }
+
+                // Interface-based handler: check for mixed-style (also has convention-based Handle methods)
+                if (ConventionBasedHandlerHelper.HasValidConventionBasedHandleMethods(classType, knownTypes))
+                {
+                    var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                    if (classLocation is not null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerMixedStyleDescriptor, classLocation, classType.Name));
+                    }
                     return;
                 }
 
@@ -92,7 +192,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                     }
                 }
 
-                var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations);
+                var info = new HandlerTypeSpec(classType.IsAbstract, attributeLocations, IsConventionBased: false);
                 _ = handlerTypes.TryAdd(classType.OriginalDefinition, info);
             }, SymbolKind.NamedType);
 
@@ -111,7 +211,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             var location = type.GetClassIdentifierLocation(context.CancellationToken);
                             if (location is not null)
                             {
-                                context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMissing, location, type.Name));
+                                context.ReportDiagnostic(Diagnostic.Create(handlerType.IsConventionBased ? ConventionBasedHandlerMissingAttribute : HandlerAttributeMissing, location, type.Name));
                             }
                         }
 
@@ -127,14 +227,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                     foreach (var location in handlerType.AttributeLocations)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMisplaced, location, type.Name));
+                        context.ReportDiagnostic(Diagnostic.Create(handlerType.IsConventionBased ? ConventionBasedHandlerMisplacedAttribute : HandlerAttributeMisplaced, location, type.Name));
                     }
                 }
             });
         });
     }
 
-    readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations);
+    readonly record struct HandlerTypeSpec(bool IsAbstract, ImmutableArray<Location> AttributeLocations, bool IsConventionBased);
 
     static readonly DiagnosticDescriptor HandlerAttributeMissingImmediate = new(
         id: DiagnosticIds.HandlerAttributeMissing,
@@ -170,10 +270,68 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         customTags: ["CompilationEnd"]);
 
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMissingAttributeImmediate = new(
+        id: DiagnosticIds.ConventionBasedHandlerMissingAttribute,
+        title: "Mark convention-based handlers with HandlerAttribute to enable source generation",
+        messageFormat: "Mark convention-based handler {0} with HandlerAttribute to enable generation of handler registration methods.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMissingAttribute = new(
+        id: DiagnosticIds.ConventionBasedHandlerMissingAttribute,
+        title: "Mark convention-based handlers with HandlerAttribute to enable source generation",
+        messageFormat: "Mark convention-based handler {0} with HandlerAttribute to enable generation of handler registration methods.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Info,
+        isEnabledByDefault: true,
+        customTags: ["CompilationEnd"]);
+
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMisplacedAttributeImmediate = new(
+        id: DiagnosticIds.ConventionBasedHandlerMisplacedAttribute,
+        title: "HandlerAttribute should be applied to concrete convention-based handler classes",
+        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete convention-based handler class.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMisplacedAttribute = new(
+        id: DiagnosticIds.ConventionBasedHandlerMisplacedAttribute,
+        title: "HandlerAttribute should be applied to concrete convention-based handler classes",
+        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on the concrete convention-based handler class.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        customTags: ["CompilationEnd"]);
+
     static readonly DiagnosticDescriptor HandlerAttributeOnNonHandlerType = new(
         id: DiagnosticIds.HandlerAttributeOnNonHandler,
-        title: "HandlerAttribute should be applied to classes implementing IHandleMessages",
-        messageFormat: "HandlerAttribute is applied to base class {0}, but should be placed on a concrete handler class implementing IHandleMessages<T>.",
+        title: "HandlerAttribute should be applied only to handler classes",
+        messageFormat: "HandlerAttribute is applied to non-handler type {0}. Apply it only to concrete handler classes.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor ConventionBasedHandlerMixedStyleDescriptor = new(
+        id: DiagnosticIds.ConventionBasedHandlerMixedStyle,
+        title: "Handler class must use a single handler style",
+        messageFormat: "Handler class {0} mixes interface-based (IHandleMessages<T>) and convention-based (Handle method) styles. Choose one approach: remove IHandleMessages<T> implementation and keep the Handle method, or implement IHandleMessages<T> and remove the Handle method.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor ConventionBasedHandlerNoAccessibleConstructorDescriptor = new(
+        id: DiagnosticIds.ConventionBasedHandlerNoAccessibleConstructor,
+        title: "Convention-based handler requires an accessible constructor",
+        messageFormat: "Convention-based handler '{0}' has no accessible constructor. Make at least one constructor public or internal.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor ConventionBasedHandlerAmbiguousConstructorDescriptor = new(
+        id: DiagnosticIds.ConventionBasedHandlerAmbiguousConstructor,
+        title: "Convention-based handler has ambiguous constructor selection",
+        messageFormat: "Convention-based handler '{0}' has multiple constructors with {1} parameters. Use [ActivatorUtilitiesConstructor] attribute to specify which constructor to use.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);

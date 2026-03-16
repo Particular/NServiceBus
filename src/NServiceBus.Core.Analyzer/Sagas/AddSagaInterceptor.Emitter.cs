@@ -3,7 +3,6 @@ namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Utility;
 
@@ -96,17 +95,7 @@ public sealed partial class AddSagaInterceptor
         static string AddMethodName(string name, string handlerType)
         {
             const string NamePrefix = "AddSaga_";
-
-            var sb = new StringBuilder(NamePrefix.Length + name.Length + 1 + 16)
-                .Append(NamePrefix)
-                .Append(name)
-                .Append('_');
-
-            var hash = NonCryptographicHash.GetHash(handlerType);
-
-            sb.Append(hash.ToString("x16"));
-
-            return sb.ToString();
+            return InterceptorMethodNameBuilder.Build(NamePrefix, name, handlerType);
         }
     }
 }

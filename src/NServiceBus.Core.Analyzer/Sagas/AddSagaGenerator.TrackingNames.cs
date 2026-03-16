@@ -17,7 +17,8 @@ public sealed partial class AddSagaGenerator
             SagaSpecs,
             BaseTrackingNames.AssemblyInfo,
             BaseTrackingNames.ExplicitRootTypeSpec,
-            BaseTrackingNames.RootTypeSpec
+            BaseTrackingNames.RootTypeSpec,
+            BaseTrackingNames.HandlerKnownTypes
         ];
     }
 }

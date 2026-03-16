@@ -43,4 +43,11 @@ public static class DiagnosticIds
     public const string HandlerRegistryExtensionsEntryPointInvalid = "NSB0030";
     public const string HandlerRegistryExtensionsPatternFormatInvalid = "NSB0031";
     public const string HandlerRegistryExtensionsPatternRegexInvalid = "NSB0032";
+
+    // HandlerAttributeAnalyzer (convention-based style)
+    public const string ConventionBasedHandlerMixedStyle = "NSB0033";
+    public const string ConventionBasedHandlerMissingAttribute = "NSB0034";
+    public const string ConventionBasedHandlerMisplacedAttribute = "NSB0035";
+    public const string ConventionBasedHandlerNoAccessibleConstructor = "NSB0036";
+    public const string ConventionBasedHandlerAmbiguousConstructor = "NSB0037";
 }
