@@ -628,4 +628,109 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
 
         return Assert(source, DiagnosticIds.HandlerAttributeMisplaced);
     }
+
+    [Test]
+    public Task ReportsConventionBasedHandlerWithOnlyPrivateConstructors()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class [|MyHandler|]
+            {
+                private MyHandler() { }
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source, DiagnosticIds.ConventionBasedHandlerNoAccessibleConstructor);
+    }
+
+    [Test]
+    public Task DoesNotReportConventionBasedHandlerWithPublicConstructor()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                public MyHandler() { }
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportConventionBasedHandlerWithInternalConstructor()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                internal MyHandler() { }
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportConventionBasedHandlerWithMixedAccessibilityConstructors()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler
+            {
+                private MyHandler(string _) { }
+                public MyHandler() { }
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportStaticConventionBasedHandlerWithPrivateConstructor()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            static class MyHandler
+            {
+                public static Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
 }

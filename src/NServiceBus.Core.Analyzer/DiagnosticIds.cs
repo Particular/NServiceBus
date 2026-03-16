@@ -48,4 +48,5 @@ public static class DiagnosticIds
     public const string ConventionBasedHandlerMixedStyle = "NSB0033";
     public const string ConventionBasedHandlerMissingAttribute = "NSB0034";
     public const string ConventionBasedHandlerMisplacedAttribute = "NSB0035";
+    public const string ConventionBasedHandlerNoAccessibleConstructor = "NSB0036";
 }

@@ -8,6 +8,8 @@ using Microsoft.CodeAnalysis;
 
 static class ConventionBasedHandlerHelper
 {
+    public const string HandleMethodName = "Handle";
+
     public static bool IsConventionBasedHandlerType(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
     {
         for (var current = classType; current is not null; current = current.BaseType)
@@ -51,7 +53,7 @@ static class ConventionBasedHandlerHelper
 
     public static bool IsValidConventionBasedHandleMethod(IMethodSymbol method, HandlerKnownTypes knownTypes, HashSet<string> interfaceMessageTypes)
     {
-        if (method.Name != "Handle" ||
+        if (method.Name != HandleMethodName ||
             method.DeclaredAccessibility != Accessibility.Public ||
             method.MethodKind == MethodKind.ExplicitInterfaceImplementation ||
             method.IsAbstract ||
@@ -99,7 +101,7 @@ static class ConventionBasedHandlerHelper
         var cancellationTokenType = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
 
         if (method.MethodKind != MethodKind.Ordinary ||
-            method.Name != "Handle" ||
+            method.Name != HandleMethodName ||
             method.Parameters.Length < 3 ||
             method.ContainingType is null ||
             handlerAttribute is null ||
@@ -119,4 +121,9 @@ static class ConventionBasedHandlerHelper
         return method.Parameters.Skip(2)
             .Any(param => param.Type.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability));
     }
+
+    public static bool HasAccessibleConstructor(INamedTypeSymbol classType) =>
+        classType.Constructors.Any(ctor =>
+            !ctor.IsStatic &&
+            ctor.DeclaredAccessibility != Accessibility.Private);
 }

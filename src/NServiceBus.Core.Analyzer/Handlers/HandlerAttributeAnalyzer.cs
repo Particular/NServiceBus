@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -11,7 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, ConventionBasedHandlerMissingAttribute, ConventionBasedHandlerMissingAttributeImmediate, ConventionBasedHandlerMisplacedAttribute, ConventionBasedHandlerMisplacedAttributeImmediate, HandlerAttributeOnNonHandlerType, ConventionBasedHandlerMixedStyleDescriptor];
+        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, ConventionBasedHandlerMissingAttribute, ConventionBasedHandlerMissingAttributeImmediate, ConventionBasedHandlerMisplacedAttribute, ConventionBasedHandlerMisplacedAttributeImmediate, HandlerAttributeOnNonHandlerType, ConventionBasedHandlerMixedStyleDescriptor, ConventionBasedHandlerNoAccessibleConstructorDescriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -100,6 +101,23 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             if (location is not null)
                             {
                                 context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerMissingAttributeImmediate, location, classType.Name));
+                            }
+                        }
+                    }
+
+                    // Check for accessible constructor on non-static convention-based handlers
+                    if (!classType.IsAbstract)
+                    {
+                        var hasInstanceHandleMethod = classType.GetMembers(ConventionBasedHandlerHelper.HandleMethodName)
+                            .OfType<IMethodSymbol>()
+                            .Any(m => !m.IsStatic && ConventionBasedHandlerHelper.IsValidConventionBasedHandleMethod(m, knownTypes, []));
+
+                        if (hasInstanceHandleMethod && !ConventionBasedHandlerHelper.HasAccessibleConstructor(classType))
+                        {
+                            var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                            if (classLocation is not null)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerNoAccessibleConstructorDescriptor, classLocation, classType.Name));
                             }
                         }
                     }
@@ -283,7 +301,15 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
     static readonly DiagnosticDescriptor ConventionBasedHandlerMixedStyleDescriptor = new(
         id: DiagnosticIds.ConventionBasedHandlerMixedStyle,
         title: "Handler class must use a single handler style",
-        messageFormat: "Handler class {0} mixes interface-based (IHandleMessages<T>) and convention-based (Handle method) styles. Split into separate classes — one per style.",
+        messageFormat: "Handler class {0} mixes interface-based (IHandleMessages<T>) and convention-based (Handle method) styles. Choose one approach: remove IHandleMessages<T> implementation and keep the Handle method, or implement IHandleMessages<T> and remove the Handle method.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor ConventionBasedHandlerNoAccessibleConstructorDescriptor = new(
+        id: DiagnosticIds.ConventionBasedHandlerNoAccessibleConstructor,
+        title: "Convention-based handler requires an accessible constructor",
+        messageFormat: "Convention-based handler '{0}' has no accessible constructor. Make at least one constructor public or internal.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
