@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -114,18 +115,19 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific message type using an explicit original handler identity for deduplication. Should only be called by a source generator.
     /// </summary>
-    public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage, TOriginalHandler>() where THandler : class, IHandleMessages<TMessage>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandlerAdapter, TMessage, THandler>() where THandlerAdapter : class, IHandleMessages<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
-        if (!deduplicationSet.Add(HandlerAndMessage.New<TOriginalHandler, TMessage>()))
+        if (!deduplicationSet.Add(HandlerAndMessage.New<THandler, TMessage>()))
         {
             return;
         }
 
-        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(TOriginalHandler));
-        var handlerFactories = GetOrCreate<TOriginalHandler>();
-        handlerFactories.Add(new MessageHandlerFactory<THandler, TMessage, TOriginalHandler>());
+        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
+        var handlerFactories = GetOrCreate<THandler>();
+        handlerFactories.Add(new MessageHandlerFactory<THandlerAdapter, TMessage, THandler>());
     }
 
     /// <summary>
