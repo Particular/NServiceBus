@@ -122,12 +122,7 @@ static class ConventionBasedHandlerHelper
             .Any(param => param.Type.Equals(cancellationTokenType, SymbolEqualityComparer.IncludeNullability));
     }
 
-    public static bool HasAccessibleConstructor(INamedTypeSymbol classType) =>
-        classType.Constructors.Any(ctor =>
-            !ctor.IsStatic &&
-            ctor.DeclaredAccessibility != Accessibility.Private);
-
-    public static int? GetAmbiguousConstructorParameterCount(INamedTypeSymbol classType, INamedTypeSymbol? activatorUtilitiesConstructorAttributeType)
+    public static ConstructorAnalysis AnalyzeConstructors(INamedTypeSymbol classType, INamedTypeSymbol? activatorUtilitiesConstructorAttributeType)
     {
         var candidates = classType.Constructors
             .Where(ctor => !ctor.IsStatic && ctor.DeclaredAccessibility != Accessibility.Private)
@@ -135,7 +130,7 @@ static class ConventionBasedHandlerHelper
 
         if (candidates.Length == 0)
         {
-            return null;
+            return new ConstructorAnalysis(HasAccessibleConstructor: false, AmbiguousParameterCount: null);
         }
 
         // If any constructor has [ActivatorUtilitiesConstructor], use that set
@@ -159,13 +154,14 @@ static class ConventionBasedHandlerHelper
             .Where(ctor => ctor.Parameters.Length == maxParamCount)
             .ToArray();
 
-        if (constructorsWithMaxCount.Length > 1)
-        {
-            return maxParamCount;
-        }
-
-        return null;
+        return new ConstructorAnalysis(
+            HasAccessibleConstructor: true,
+            AmbiguousParameterCount: constructorsWithMaxCount.Length > 1 ? maxParamCount : null);
     }
+
+    public readonly record struct ConstructorAnalysis(
+        bool HasAccessibleConstructor,
+        int? AmbiguousParameterCount);
 
     static bool HasAttribute(IMethodSymbol method, INamedTypeSymbol attributeType)
     {

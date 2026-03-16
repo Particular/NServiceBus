@@ -112,25 +112,25 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             .OfType<IMethodSymbol>()
                             .Any(m => !m.IsStatic && ConventionBasedHandlerHelper.IsValidConventionBasedHandleMethod(m, knownTypes, []));
 
-                        if (hasInstanceHandleMethod && !ConventionBasedHandlerHelper.HasAccessibleConstructor(classType))
-                        {
-                            var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
-                            if (classLocation is not null)
-                            {
-                                context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerNoAccessibleConstructorDescriptor, classLocation, classType.Name));
-                            }
-                        }
-
-                        // Check for ambiguous constructor selection
                         if (hasInstanceHandleMethod)
                         {
-                            var ambiguousParamCount = ConventionBasedHandlerHelper.GetAmbiguousConstructorParameterCount(classType, knownTypes.ActivatorUtilitiesConstructorAttributeType);
-                            if (ambiguousParamCount is not null)
+                            var ctorAnalysis = ConventionBasedHandlerHelper.AnalyzeConstructors(classType, knownTypes.ActivatorUtilitiesConstructorAttributeType);
+
+                            if (!ctorAnalysis.HasAccessibleConstructor)
                             {
                                 var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
                                 if (classLocation is not null)
                                 {
-                                    context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerAmbiguousConstructorDescriptor, classLocation, classType.Name, ambiguousParamCount));
+                                    context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerNoAccessibleConstructorDescriptor, classLocation, classType.Name));
+                                }
+                            }
+
+                            if (ctorAnalysis.AmbiguousParameterCount is not null)
+                            {
+                                var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                                if (classLocation is not null)
+                                {
+                                    context.ReportDiagnostic(Diagnostic.Create(ConventionBasedHandlerAmbiguousConstructorDescriptor, classLocation, classType.Name, ctorAnalysis.AmbiguousParameterCount));
                                 }
                             }
                         }
