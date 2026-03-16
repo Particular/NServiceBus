@@ -54,16 +54,6 @@ public static partial class Handlers
 
     public static class Parser
     {
-        public static HandlerSpec? Parse(
-            SemanticModel semanticModel,
-            INamedTypeSymbol handlerType,
-            BaseParser.SpecKind specKind,
-            CancellationToken cancellationToken = default)
-        {
-            var compilation = semanticModel.Compilation;
-            return !HandlerKnownTypes.TryGet(compilation, out var knownTypes) ? null : Parse(handlerType, specKind, knownTypes, cancellationToken);
-        }
-
         public static HandlerSpec Parse(INamedTypeSymbol handlerType,
             BaseParser.SpecKind specKind,
             HandlerKnownTypes knownTypes,

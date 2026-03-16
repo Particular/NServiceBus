@@ -39,13 +39,9 @@ public static partial class Sagas
 
     public static class Parser
     {
-        public static SagaSpec? Parse(SemanticModel semanticModel, INamedTypeSymbol sagaType, CancellationToken cancellationToken = default)
-        {
-            var compilation = semanticModel.Compilation;
-            return !HandlerKnownTypes.TryGet(compilation, out var knownTypes) ? null : Parse(compilation, sagaType, knownTypes, cancellationToken);
-        }
+        public static SagaSpec? Parse(SemanticModel semanticModel, INamedTypeSymbol sagaType, HandlerKnownTypes knownTypes, CancellationToken cancellationToken = default) => ParseCore(semanticModel.Compilation, sagaType, knownTypes, cancellationToken);
 
-        static SagaSpec? Parse(Compilation compilation, INamedTypeSymbol sagaType, HandlerKnownTypes knownTypes, CancellationToken cancellationToken)
+        static SagaSpec? ParseCore(Compilation compilation, INamedTypeSymbol sagaType, HandlerKnownTypes knownTypes, CancellationToken cancellationToken)
         {
             // Extract saga data type from Saga<TSagaData>
             var sagaDataType = GetSagaDataType(sagaType);
@@ -87,7 +83,7 @@ public static partial class Sagas
             return null;
         }
 
-        static (CorrelationPropertyMappingSpec? CorrelationProperty, ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings) ExtractPropertyMappings(
+        static (CorrelationPropertyMappingSpec?, ImmutableEquatableArray<PropertyMappingSpec>) ExtractPropertyMappings(
             INamedTypeSymbol sagaType,
             SemanticModel semanticModel,
             CancellationToken cancellationToken)

@@ -23,11 +23,8 @@ public sealed partial class AddHandlerInterceptor
 
         internal static bool IsAddHandlerMethod(IMethodSymbol method) => HandlerSyntaxConventions.IsAddHandlerMethod(method);
 
-        public static InterceptableHandlerSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
+        public static InterceptableHandlerSpec? Parse(InvocationExpressionSyntax invocation, SemanticModel semanticModel, HandlerKnownTypes knownTypes, CancellationToken cancellationToken = default)
         {
-            var invocation = (InvocationExpressionSyntax)ctx.Node;
-
-            var semanticModel = ctx.SemanticModel;
             if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
             {
                 return null;
@@ -49,11 +46,7 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
-            var handlerSpec = Handlers.Parser.Parse(semanticModel, handlerType, BaseParser.SpecKind.Handler, cancellationToken: cancellationToken);
-            if (handlerSpec is null)
-            {
-                return null;
-            }
+            var handlerSpec = Handlers.Parser.Parse(handlerType, BaseParser.SpecKind.Handler, knownTypes, cancellationToken);
             return new InterceptableHandlerSpec(InterceptLocationSpec.From(location), handlerSpec);
         }
     }

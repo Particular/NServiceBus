@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System.Threading;
+using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -47,11 +48,8 @@ public sealed partial class AddSagaInterceptor
             }
         };
 
-        public static InterceptableSagaSpec? Parse(GeneratorSyntaxContext ctx, CancellationToken cancellationToken = default)
+        public static InterceptableSagaSpec? Parse(InvocationExpressionSyntax invocation, SemanticModel semanticModel, HandlerKnownTypes knownTypes, CancellationToken cancellationToken = default)
         {
-            var invocation = (InvocationExpressionSyntax)ctx.Node;
-
-            var semanticModel = ctx.SemanticModel;
             if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation operation)
             {
                 return null;
@@ -73,7 +71,7 @@ public sealed partial class AddSagaInterceptor
                 return null;
             }
 
-            var sagaSpec = Sagas.Parser.Parse(semanticModel, sagaType, cancellationToken: cancellationToken);
+            var sagaSpec = Sagas.Parser.Parse(semanticModel, sagaType, knownTypes, cancellationToken: cancellationToken);
             if (sagaSpec is null)
             {
                 return null;
