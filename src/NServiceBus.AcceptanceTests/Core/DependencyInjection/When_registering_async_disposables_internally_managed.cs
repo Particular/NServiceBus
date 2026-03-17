@@ -15,7 +15,13 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
     public async Task Should_dispose()
     {
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithAsyncDisposable>(b => b.When(e => e.SendLocal(new SomeMessage())))
+            .WithEndpoint<EndpointWithAsyncDisposable>(b =>
+            {
+                b.ToCreateInstance(
+                    (_, configuration) => Endpoint.Create(configuration),
+                    (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
+                b.When(e => e.SendLocal(new SomeMessage()));
+            })
             .Run();
 
         using (Assert.EnterMultipleScope())
