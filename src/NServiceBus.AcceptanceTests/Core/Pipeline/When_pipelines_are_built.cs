@@ -17,8 +17,7 @@ public class When_pipelines_are_built : NServiceBusAcceptanceTest
         var context = await Scenario.Define<Context>()
             .WithEndpoint<RegularEndpoint>()
             .Done(c => c.EndpointsStarted)
-            .Run()
-            .ConfigureAwait(false);
+            .Run();
 
         var pipelineLogs = context.Logs.Where(x => x.LoggerName.StartsWith("NServiceBus.Pipeline"))
             .Distinct(LoggerNameComparer.Instance).Select(x => $"{x.Message}{Environment.NewLine}");

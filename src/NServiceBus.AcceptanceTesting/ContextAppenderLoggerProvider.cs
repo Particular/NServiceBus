@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 sealed class ContextAppenderLoggerProvider(ScenarioContext scenarioContext) : ILoggerProvider, ISupportExternalScope
 {
     readonly ConcurrentDictionary<string, ContextAppenderMicrosoftLogger> loggers = new();
-    readonly IExternalScopeProvider scopeProvider = new LoggerExternalScopeProvider();
+    IExternalScopeProvider scopeProvider = new LoggerExternalScopeProvider();
 
     public void Dispose() => loggers.Clear();
 
