@@ -82,7 +82,12 @@ class EndpointCreator
 
         var pipelineSettings = settings.Get<PipelineSettings>();
 
-        hostingConfiguration.Services.AddSingleton<IReadOnlySettings>(settings);
+        var services = hostingConfiguration.Services;
+        services.AddSingleton<IReadOnlySettings>(settings);
+
+        // Logging is a global service concern
+        var globalServices = services.Unwrap();
+        globalServices.AddLogging();
 
         var featureSettings = settings.Get<FeatureComponent.Settings>();
 
@@ -110,7 +115,7 @@ class EndpointCreator
         SagaComponent.Configure(sagaSettings, hostingConfiguration.PersistenceConfiguration);
 
         featureComponent = new FeatureComponent(featureSettings);
-        var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
+        var featureConfigurationContext = new FeatureConfigurationContext(settings, services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
         featureComponent.Initialize(featureConfigurationContext, settings);
 
         hostingConfiguration.PersistenceConfiguration.AssertSagaAndOutboxUseSamePersistence();
@@ -158,7 +163,7 @@ class EndpointCreator
         );
 
         // Make Metrics a first class citizen in Core by enabling once and for all them when creating the endpoint
-        _ = hostingConfiguration.Services.AddMetrics();
+        _ = services.AddMetrics();
 
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
         MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot);

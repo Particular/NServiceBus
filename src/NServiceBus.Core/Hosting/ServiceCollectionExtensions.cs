@@ -101,6 +101,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
     }
 
+    internal static IServiceCollection Unwrap(this IServiceCollection services) => (services as KeyedServiceCollectionAdapter)?.Inner ?? services;
+
     static void ValidateEndpointIdentifier(object? endpointIdentifier, List<EndpointRegistration> registrations)
     {
         if (registrations.Count == 0)

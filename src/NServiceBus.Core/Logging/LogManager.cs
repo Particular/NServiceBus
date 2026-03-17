@@ -81,33 +81,13 @@ public static class LogManager
         // that lands between the two assignments still finds the factory via TryGetLogger
         // and routes to it rather than falling through to the default logger.
         slotLoggerFactories[slotKey] = loggerFactory;
-        slotFactoryStates[slotKey] = SlotFactoryState.ResolvedWithFactory;
+        slotFactoryStates[slotKey] = SlotFactoryState.Resolved;
         var slotContext = GetOrAddSlotContext(slotKey);
 
         using var _ = new SlotScope(slotContext, activateExternalScope: true);
         foreach (var logger in loggers.Values)
         {
             logger.Flush(slotKey, loggerFactory);
-        }
-    }
-
-    internal static void MarkSlotFactoryAsUnavailable(object slot)
-    {
-        ArgumentNullException.ThrowIfNull(slot);
-
-        var slotKey = new SlotKey(slot);
-        var state = slotFactoryStates.AddOrUpdate(slotKey,
-            SlotFactoryState.ResolvedWithoutFactory,
-            static (_, existing) => existing == SlotFactoryState.ResolvedWithFactory ? existing : SlotFactoryState.ResolvedWithoutFactory);
-
-        if (state == SlotFactoryState.ResolvedWithFactory)
-        {
-            return;
-        }
-
-        foreach (var logger in loggers.Values)
-        {
-            logger.FlushToDefault(slotKey);
         }
     }
 
@@ -416,8 +396,7 @@ public static class LogManager
     enum SlotFactoryState
     {
         Pending,
-        ResolvedWithoutFactory,
-        ResolvedWithFactory
+        Resolved
     }
 
     sealed class DeferredLogs

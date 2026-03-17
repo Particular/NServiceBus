@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using Support;
 using static Support.ScenarioRunner;
-using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
+using LogLevel = Logging.LogLevel;
 
 public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScenarioWithEndpointBehavior<TContext>
     where TContext : ScenarioContext, new()
@@ -24,17 +24,26 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         initializer(scenarioContext);
 
         AddScenarioContext(scenarioContext, services);
-        // By registering a logger factory the multi hosting support will push logger scopes
-        // similar to what would happen in a hosted scenario
-        services.AddSingleton<ILoggerFactory, ContextAppenderMicrosoftLoggerFactory>();
+        services.AddLogging(builder =>
+        {
+            builder.AddProvider(new ContextAppenderLoggerProvider(scenarioContext));
+
+            builder.SetMinimumLevel(scenarioContext.LogLevel switch
+            {
+                LogLevel.Debug => Microsoft.Extensions.Logging.LogLevel.Debug,
+                LogLevel.Info => Microsoft.Extensions.Logging.LogLevel.Information,
+                LogLevel.Warn => Microsoft.Extensions.Logging.LogLevel.Warning,
+                LogLevel.Error => Microsoft.Extensions.Logging.LogLevel.Error,
+                LogLevel.Fatal => Microsoft.Extensions.Logging.LogLevel.Critical,
+                _ => Microsoft.Extensions.Logging.LogLevel.Debug,
+            });
+        });
 
         var runDescriptor = new RunDescriptor(scenarioContext, services);
         runDescriptor.Settings.Merge(settings);
 
         TestExecutionContext.CurrentContext.AddRunDescriptor(runDescriptor);
         ScenarioContext.Current = scenarioContext;
-
-        LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
 
         if (doneFunc is not null)
         {
