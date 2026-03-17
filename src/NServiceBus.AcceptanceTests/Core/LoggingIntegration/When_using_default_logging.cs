@@ -9,6 +9,7 @@ using AcceptanceTesting;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Logging;
 using NUnit.Framework;
 
 public class When_using_default_logging : NServiceBusAcceptanceTest
@@ -21,7 +22,7 @@ public class When_using_default_logging : NServiceBusAcceptanceTest
 
         try
         {
-            Logging.LogManager.Use<Logging.DefaultFactory>().Directory(logDirectory);
+            LogManager.Use<DefaultFactory>().Directory(logDirectory);
 
             await Scenario.Define<Context>()
                 // clearing out the context appender to ensure that only the default logging is used and we can verify the output
