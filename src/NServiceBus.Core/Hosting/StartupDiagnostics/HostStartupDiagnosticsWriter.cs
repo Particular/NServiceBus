@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnosticsWriter, bool isCustomWriter)
+class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnosticsWriter, bool isCustomWriter, bool disableWritingDiagnosticsToLog)
 {
     public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries, CancellationToken cancellationToken = default)
     {
@@ -26,6 +26,10 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
         try
         {
             data = JsonSerializer.Serialize(dictionary, diagnosticsOptions);
+            if (!disableWritingDiagnosticsToLog)
+            {
+                Logger.InfoFormat("Startup diagnostics: {0}.", data);
+            }
         }
         catch (Exception exception)
         {
@@ -92,7 +96,6 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
 
         public override void Write(Utf8JsonWriter writer, Type value, JsonSerializerOptions options) => writer.WriteStringValue(value.FullName);
     }
-
 
     static readonly ILog Logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
 }

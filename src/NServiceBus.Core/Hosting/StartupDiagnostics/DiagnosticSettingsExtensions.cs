@@ -40,6 +40,16 @@ public static class DiagnosticSettingsExtensions
     }
 
     /// <summary>
+    /// Disables writing diagnostics to log.
+    /// </summary>
+    /// <param name="config">Configuration object to extend.</param>
+    public static void DisableWritingDiagnosticsToLog(this EndpointConfiguration config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        config.GetSettings().Get<HostingComponent.Settings>().DisableWritingDiagnosticsToLog = true;
+    }
+
+    /// <summary>
     /// Allows full control over how diagnostics data is persisted.
     /// </summary>
     /// <param name="config">Configuration object to extend.</param>

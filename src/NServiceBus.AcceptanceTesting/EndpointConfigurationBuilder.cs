@@ -2,8 +2,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Configuration.AdvancedExtensibility;
-using Features;
 using Support;
 
 public abstract class EndpointConfigurationBuilder : IEndpointConfigurationFactory
@@ -66,7 +64,8 @@ public abstract class EndpointConfigurationBuilder : IEndpointConfigurationFacto
 
             if (configuration.DisableStartupDiagnostics)
             {
-                endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
+                endpointConfiguration.DisableWritingDiagnosticsToLog();
+                endpointConfiguration.CustomDiagnosticsWriter((_, _) => Task.CompletedTask);
             }
 
             return endpointConfiguration;
@@ -92,7 +91,8 @@ public abstract class EndpointConfigurationBuilder : IEndpointConfigurationFacto
 
             if (configuration.DisableStartupDiagnostics)
             {
-                endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
+                endpointConfiguration.DisableWritingDiagnosticsToLog();
+                endpointConfiguration.CustomDiagnosticsWriter((_, _) => Task.CompletedTask);
             }
 
             return endpointConfiguration;
