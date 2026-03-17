@@ -14,7 +14,7 @@ public class When_configuring_transport_twice
     public async Task Last_one_wins()
     {
         var config = new EndpointConfiguration("Endpoint");
-        config.AssemblyScanner().ExcludeAssemblies("NServiceBus.Core.Tests.dll");
+        config.AssemblyScanner().Disable = true;
         config.UseSerialization<SystemJsonSerializer>();
         var transport1 = new FakeTransportDefinition();
         var transport2 = new FakeTransportDefinition();
@@ -32,15 +32,10 @@ public class When_configuring_transport_twice
         }
     }
 
-    class FakeTransportDefinition : TransportDefinition, IMessageDrivenSubscriptionTransport
+    class FakeTransportDefinition() : TransportDefinition(TransportTransactionMode.ReceiveOnly, true, false, false), IMessageDrivenSubscriptionTransport
     {
         public bool Initialized { get; private set; }
 
-
-        public FakeTransportDefinition()
-            : base(TransportTransactionMode.ReceiveOnly, true, false, false)
-        {
-        }
 
         public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses,
             CancellationToken cancellationToken = default)
@@ -65,14 +60,8 @@ public class When_configuring_transport_twice
                     Task.CompletedTask;
             }
 
-            class FakeReceiver : IMessageReceiver
+            class FakeReceiver(ReceiveSettings receiveSettings) : IMessageReceiver
             {
-                public FakeReceiver(ReceiveSettings receiveSettings)
-                {
-                    ReceiveAddress = receiveSettings.ReceiveAddress.BaseAddress;
-                    Id = receiveSettings.Id;
-                }
-
                 public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError,
                     CancellationToken cancellationToken = default) => Task.CompletedTask;
 
@@ -83,8 +72,8 @@ public class When_configuring_transport_twice
                 public Task StopReceive(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
                 public ISubscriptionManager Subscriptions { get; }
-                public string Id { get; }
-                public string ReceiveAddress { get; }
+                public string Id { get; } = receiveSettings.Id;
+                public string ReceiveAddress { get; } = receiveSettings.ReceiveAddress.BaseAddress;
             }
 
 
