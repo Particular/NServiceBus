@@ -4,17 +4,29 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 [TestFixture]
 public class RollingLoggerProviderTests
 {
+    static ServiceProvider CreateServiceProvider(params ILoggerProvider[] providers)
+    {
+        var services = new ServiceCollection();
+        foreach (var provider in providers)
+        {
+            services.AddSingleton(provider);
+        }
+        return services.BuildServiceProvider();
+    }
+
     [Test]
     public void When_line_is_written_line_appears_in_file()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("Foo");
@@ -32,7 +44,7 @@ public class RollingLoggerProviderTests
     public void When_multiple_lines_are_written_lines_appear_in_file()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("Foo");
@@ -53,7 +65,7 @@ public class RollingLoggerProviderTests
     public void When_exception_is_logged_exception_appears_in_file()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         var exception = new InvalidOperationException("Test exception");
@@ -73,7 +85,7 @@ public class RollingLoggerProviderTests
     public void When_exception_with_data_is_logged_data_appears_in_file()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         var exception = new InvalidOperationException("Test exception");
@@ -94,7 +106,7 @@ public class RollingLoggerProviderTests
     public void When_log_level_is_filtered_lower_levels_are_not_written()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogDebug("Debug message");
@@ -115,7 +127,7 @@ public class RollingLoggerProviderTests
     public void When_critical_level_is_used_fatal_is_written()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogCritical("Critical message");
@@ -129,7 +141,7 @@ public class RollingLoggerProviderTests
     public void When_multiple_loggers_write_they_use_same_file()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory);
         var logger1 = provider.CreateLogger("Category1");
         var logger2 = provider.CreateLogger("Category2");
 
@@ -151,7 +163,7 @@ public class RollingLoggerProviderTests
     public void When_file_is_too_large_new_sequence_file_is_created()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory, maxFileSize: 50);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory, maxFileSize: 50);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("Some long text that exceeds the limit");
@@ -169,7 +181,7 @@ public class RollingLoggerProviderTests
     public void When_file_name_is_created_it_follows_nservicebus_convention()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("Test");
@@ -185,21 +197,23 @@ public class RollingLoggerProviderTests
     }
 
     [Test]
-    public void When_scope_is_used_provider_supports_external_scope()
+    public void When_external_provider_is_present_provider_returns_null_logger()
     {
         using var tempPath = new TempPath();
-        using var provider = new RollingLoggerProvider(tempPath.TempDirectory);
-        var scopeProvider = new LoggerExternalScopeProvider();
-        provider.SetScopeProvider(scopeProvider);
-
+        var externalProvider = new CustomTestProvider();
+        using var provider = new RollingLoggerProvider(CreateServiceProvider(externalProvider), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
-        using var scope = logger.BeginScope("TestScope");
-        logger.LogInformation("Message in scope");
+        logger.LogInformation("This should not be logged");
 
-        var singleFile = tempPath.GetSingle();
-        var contents = NonLockingFileReader.ReadAllTextWithoutLocking(singleFile);
-        Assert.That(contents, Does.Contain("Message in scope"));
+        var files = tempPath.GetFiles();
+        Assert.That(files, Has.Count.EqualTo(0));
+    }
+
+    sealed class CustomTestProvider : ILoggerProvider
+    {
+        public ILogger CreateLogger(string categoryName) => NullLogger.Instance;
+        public void Dispose() { }
     }
 
     class TempPath : IDisposable

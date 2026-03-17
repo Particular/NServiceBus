@@ -30,6 +30,10 @@ public class DefaultFactory : LoggingFactoryDefinition
         level = new Lazy<LogLevel>(() => LogLevel.Info);
     }
 
+    internal string LoggingDirectory => directory.Value;
+
+    internal LogLevel LoggingLevel => level.Value;
+
     /// <summary>
     /// <see cref="LoggingFactoryDefinition.GetLoggingFactory" />.
     /// </summary>

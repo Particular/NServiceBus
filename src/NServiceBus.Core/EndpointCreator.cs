@@ -8,6 +8,7 @@ using Features;
 using MessageInterfaces;
 using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Settings;
 using Unicast.Messages;
@@ -87,7 +88,21 @@ class EndpointCreator
 
         // Logging is a global service concern
         var globalServices = services.Unwrap();
-        globalServices.AddLogging();
+        var defaultFactory = Logging.LogManager.GetCurrentDefaultFactory();
+        var loggingDirectory = defaultFactory?.LoggingDirectory ?? Host.GetOutputDirectory();
+        var nsbLevel = defaultFactory?.LoggingLevel ?? Logging.LogLevel.Info;
+        var msLevel = ConvertLogLevel(nsbLevel);
+
+        globalServices.AddLogging(builder =>
+        {
+            builder.Services.AddSingleton<ILoggerProvider>(sp => new RollingLoggerProvider(sp, loggingDirectory));
+            builder.Services.AddSingleton<ILoggerProvider, ColoredConsoleLoggerProvider>();
+
+            if (msLevel != LogLevel.Information)
+            {
+                builder.SetMinimumLevel(msLevel);
+            }
+        });
 
         var featureSettings = settings.Get<FeatureComponent.Settings>();
 
@@ -236,6 +251,17 @@ class EndpointCreator
     readonly SettingsHolder settings;
     readonly HostingComponent.Configuration hostingConfiguration;
     readonly Conventions conventions;
+
+    static LogLevel ConvertLogLevel(Logging.LogLevel nsbLevel) =>
+        nsbLevel switch
+        {
+            Logging.LogLevel.Debug => LogLevel.Debug,
+            Logging.LogLevel.Info => LogLevel.Information,
+            Logging.LogLevel.Warn => LogLevel.Warning,
+            Logging.LogLevel.Error => LogLevel.Error,
+            Logging.LogLevel.Fatal => LogLevel.Critical,
+            _ => LogLevel.Information
+        };
 
     internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
 }

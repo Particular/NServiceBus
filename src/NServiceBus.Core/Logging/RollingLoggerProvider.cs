@@ -4,33 +4,69 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections;
+using System.Linq;
 using System.Text;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 [ProviderAlias("NServiceBusRollingFile")]
-sealed class RollingLoggerProvider(
-    string loggingDirectory,
-    int numberOfArchiveFilesToKeep = 10,
-    long maxFileSize = 10L * 1024 * 1024) : ILoggerProvider, ISupportExternalScope
+sealed class RollingLoggerProvider : ILoggerProvider
 {
-    readonly ConcurrentDictionary<string, RollingMicrosoftLogger> loggers = new();
-    readonly RollingLogger rollingLogger = new(loggingDirectory, numberOfArchiveFilesToKeep, maxFileSize);
+    readonly IServiceProvider serviceProvider;
+    readonly string loggingDirectory;
+    readonly int numberOfArchiveFilesToKeep;
+    readonly long maxFileSize;
+    readonly ConcurrentDictionary<string, ILogger> loggers = new();
+    readonly Lazy<bool> isEnabled;
+    RollingLogger? rollingLogger;
     readonly Lock locker = new();
-    IExternalScopeProvider scopeProvider = new LoggerExternalScopeProvider();
+
+    public RollingLoggerProvider(
+        IServiceProvider serviceProvider,
+        string loggingDirectory,
+        int numberOfArchiveFilesToKeep = 10,
+        long maxFileSize = 10L * 1024 * 1024)
+    {
+        this.serviceProvider = serviceProvider;
+        this.loggingDirectory = loggingDirectory;
+        this.numberOfArchiveFilesToKeep = numberOfArchiveFilesToKeep;
+        this.maxFileSize = maxFileSize;
+        isEnabled = new Lazy<bool>(ShouldBeEnabled);
+    }
 
     public void Dispose() => loggers.Clear();
 
-    public ILogger CreateLogger(string categoryName) =>
-        loggers.GetOrAdd(categoryName, static (_, provider) => new RollingMicrosoftLogger(provider), this);
+    public ILogger CreateLogger(string categoryName)
+    {
+        if (!isEnabled.Value)
+        {
+            return NullLogger.Instance;
+        }
 
-    public void SetScopeProvider(IExternalScopeProvider externalScopeProvider) => scopeProvider = externalScopeProvider;
+        lock (locker)
+        {
+            rollingLogger ??= new RollingLogger(loggingDirectory, numberOfArchiveFilesToKeep, maxFileSize);
+        }
+        return loggers.GetOrAdd(categoryName, static (_, provider) => new RollingMicrosoftLogger(provider), this);
+    }
+
+    bool ShouldBeEnabled()
+    {
+        var providers = serviceProvider.GetServices<ILoggerProvider>();
+        return providers.All(p => p is RollingLoggerProvider or ColoredConsoleLoggerProvider);
+    }
 
     void Write(LogLevel logLevel, string? message, Exception? exception)
     {
+        if (!isEnabled.Value || rollingLogger == null)
+        {
+            return;
+        }
+
         var stringBuilder = new StringBuilder();
-#pragma warning disable PS0023 // Logging should use local time because logging with UTC can cause confusion and the assumption is the server runs in a timezone that makes sense (most likely UTC)
+#pragma warning disable PS0023
         var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
 #pragma warning restore PS0023
         var paddedLevel = LogLevelName(logLevel);
@@ -46,7 +82,7 @@ sealed class RollingLoggerProvider(
                 stringBuilder.AppendLine();
                 stringBuilder.Append("Exception details:");
 
-                foreach (DictionaryEntry exceptionData in exception.Data)
+                foreach (System.Collections.DictionaryEntry exceptionData in exception.Data)
                 {
                     stringBuilder.AppendLine();
                     stringBuilder.Append('\t').Append(exceptionData.Key).Append(": ").Append(exceptionData.Value);
@@ -54,10 +90,9 @@ sealed class RollingLoggerProvider(
             }
         }
 
-        var fullMessage = stringBuilder.ToString();
         lock (locker)
         {
-            rollingLogger.WriteLine(fullMessage);
+            rollingLogger.WriteLine(stringBuilder.ToString());
         }
     }
 
@@ -87,9 +122,14 @@ sealed class RollingLoggerProvider(
             provider.Write(logLevel, message, exception);
         }
 
-        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
+        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None && provider.isEnabled.Value;
 
-        public IDisposable BeginScope<TState>(TState state) where TState : notnull =>
-            provider.scopeProvider.Push(state);
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
+
+        sealed class NullScope : IDisposable
+        {
+            public static readonly NullScope Instance = new();
+            public void Dispose() { }
+        }
     }
 }

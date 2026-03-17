@@ -29,6 +29,7 @@ public static class LogManager
         var loggingDefinition = new T();
 
         defaultLoggerFactory = new Lazy<ILoggerFactory>(loggingDefinition.GetLoggingFactory);
+        defaultLoggerFactoryDefinition = loggingDefinition;
         _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
 
         return loggingDefinition;
@@ -45,8 +46,14 @@ public static class LogManager
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         defaultLoggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
+        defaultLoggerFactoryDefinition = null;
         _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
     }
+
+    /// <summary>
+    /// Gets the current <see cref="DefaultFactory" /> if one was configured via <see cref="Use{T}" />, otherwise null.
+    /// </summary>
+    internal static DefaultFactory? GetCurrentDefaultFactory() => defaultLoggerFactoryDefinition as DefaultFactory;
 
     /// <summary>
     /// Construct a <see cref="ILog" /> using <typeparamref name="T" /> as the name.
@@ -523,6 +530,7 @@ public static class LogManager
     }
 
     static Lazy<ILoggerFactory> defaultLoggerFactory = new(new DefaultFactory().GetLoggingFactory);
+    static LoggingFactoryDefinition? defaultLoggerFactoryDefinition = new DefaultFactory();
     static readonly AsyncLocal<SlotContext?> currentSlot = new();
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
