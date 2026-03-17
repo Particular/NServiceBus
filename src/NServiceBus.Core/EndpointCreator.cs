@@ -85,6 +85,10 @@ class EndpointCreator
         var services = hostingConfiguration.Services;
         services.AddSingleton<IReadOnlySettings>(settings);
 
+        // Logging is a global service concern
+        var globalServices = services.Unwrap();
+        globalServices.AddLogging();
+
         var featureSettings = settings.Get<FeatureComponent.Settings>();
 
         // This needs to happen here to make sure that features enabled state is present in settings so both

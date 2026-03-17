@@ -75,7 +75,6 @@ public static class ServiceCollectionExtensions
         ValidateTransportReuse(transport, registrations);
 
         hostingSettings.ConfigureMultiHostLogging(endpointIdentifier is not null, endpointIdentifier);
-        services.AddLogging();
 
         if (endpointIdentifier is null)
         {
@@ -101,6 +100,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
     }
+
+    internal static IServiceCollection Unwrap(this IServiceCollection services) => (services as KeyedServiceCollectionAdapter)?.Inner ?? services;
 
     static void ValidateEndpointIdentifier(object? endpointIdentifier, List<EndpointRegistration> registrations)
     {

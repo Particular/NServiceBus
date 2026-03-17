@@ -26,7 +26,11 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
     public IServiceCollection Inner
     {
-        get;
+        get
+        {
+            using var _ = gate.EnterScope();
+            return field;
+        }
     }
 
     public ServiceDescriptor this[int index]
