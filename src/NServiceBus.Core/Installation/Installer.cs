@@ -24,6 +24,9 @@ public static class Installer
         configuration.EnableInstallers();
 
         var serviceCollection = new ServiceCollection();
+
+        serviceCollection.AddLogging();
+
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
