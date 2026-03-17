@@ -7,9 +7,9 @@ using System.IO;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Logging;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NUnit.Framework;
 
 public class When_using_default_logging : NServiceBusAcceptanceTest
@@ -25,8 +25,11 @@ public class When_using_default_logging : NServiceBusAcceptanceTest
             LogManager.Use<DefaultFactory>().Directory(logDirectory);
 
             await Scenario.Define<Context>()
-                // clearing out the context appender to ensure that only the default logging is used and we can verify the output
-                .WithServices(services => services.AddLogging(l => l.ClearProviders()))
+                .WithServices(services =>
+                {
+                    // clearing out the context appender to ensure that only the default logging is used and we can verify the output
+                    services.RemoveAll<ILoggerProvider>();
+                })
                 .WithEndpoint<EndpointWithDefaultLogging>()
                 .Done(c => c.EndpointsStarted)
                 .Run();
@@ -54,7 +57,6 @@ public class When_using_default_logging : NServiceBusAcceptanceTest
 
     class EndpointWithDefaultLogging : EndpointConfigurationBuilder
     {
-        public EndpointWithDefaultLogging() =>
-            EndpointSetup<DefaultServer>();
+        public EndpointWithDefaultLogging() => EndpointSetup<DefaultServer>();
     }
 }

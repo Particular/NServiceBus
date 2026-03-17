@@ -2,12 +2,11 @@
 
 namespace NServiceBus.AcceptanceTests.Core.LoggingIntegration;
 
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
@@ -19,7 +18,11 @@ public class When_external_logging_provider_configured : NServiceBusAcceptanceTe
         var customProvider = new CollectingLoggerProvider();
 
         await Scenario.Define<Context>()
-            .WithServices(services => services.AddSingleton<ILoggerProvider>(customProvider))
+            .WithServices(services =>
+            {
+                services.RemoveAll<ILoggerProvider>();
+                services.AddSingleton<ILoggerProvider>(customProvider);
+            })
             .WithEndpoint<EndpointWithExternalLogging>()
             .Done(c => c.EndpointsStarted)
             .Run();
@@ -32,31 +35,6 @@ public class When_external_logging_provider_configured : NServiceBusAcceptanceTe
 
     class EndpointWithExternalLogging : EndpointConfigurationBuilder
     {
-        public EndpointWithExternalLogging() =>
-            EndpointSetup<DefaultServer>();
-    }
-
-    class CollectingLoggerProvider : ILoggerProvider
-    {
-        public readonly List<(string Category, LogLevel Level, string Message)> LogEntries = [];
-
-        public ILogger CreateLogger(string categoryName) => new CollectingLogger(this, categoryName);
-
-        public void Dispose() { }
-
-        class CollectingLogger(CollectingLoggerProvider provider, string category) : ILogger
-        {
-            public IDisposable BeginScope<TState>(TState state) where TState : notnull => null!;
-
-            public bool IsEnabled(LogLevel logLevel) => true;
-
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
-            {
-                lock (provider.LogEntries)
-                {
-                    provider.LogEntries.Add((category, logLevel, formatter(state, exception)));
-                }
-            }
-        }
+        public EndpointWithExternalLogging() => EndpointSetup<DefaultServer>();
     }
 }

@@ -9,6 +9,7 @@ using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Logging;
 using NUnit.Framework;
 
@@ -25,18 +26,19 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
             LogManager.Use<DefaultFactory>().Directory(logDirectory);
 
             await Scenario.Define<Context>()
+                // clearing out the context appender to ensure that only the default logging is used and we can verify the output
+                .WithServices(services => services.AddLogging(l => l.ClearProviders()))
                 .WithEndpoint<EndpointWithDefaultLogging>(b =>
                 {
                     b.ToCreateInstance(
                         (_, configuration) => Endpoint.Create(configuration),
                         (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
-                    b.When(e => e.SendLocal(new SomeMessage()));
                 })
-                .Done(c => c.MessageReceived)
+                .Done(c => c.EndpointsStarted)
                 .Run();
 
             var logFiles = Directory.GetFiles(logDirectory, "nsb_log_*.txt");
-            Assert.That(logFiles.Length, Is.Not.Empty, "Should have created at least one log file");
+            Assert.That(logFiles, Is.Not.Empty, "Should have created at least one log file");
 
             var logContent = await File.ReadAllTextAsync(logFiles[0]);
             using (Assert.EnterMultipleScope())
@@ -54,30 +56,10 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
         }
     }
 
-    public class Context : ScenarioContext
-    {
-        public bool MessageReceived { get; set; }
-    }
+    public class Context : ScenarioContext;
 
     public class EndpointWithDefaultLogging : EndpointConfigurationBuilder
     {
-        public EndpointWithDefaultLogging() =>
-            EndpointSetup<DefaultServer>(c =>
-            {
-                c.RegisterComponents(s => s.AddSingleton(c.GetSettings().Get<Context>()));
-            });
-
-        [Handler]
-        public class Handler(Context testContext) : IHandleMessages<SomeMessage>
-        {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
-            {
-                testContext.MessageReceived = true;
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
+        public EndpointWithDefaultLogging() => EndpointSetup<DefaultServer>();
     }
-
-    public class SomeMessage : IMessage;
 }

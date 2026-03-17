@@ -51,9 +51,37 @@ public static class LogManager
     }
 
     /// <summary>
-    /// Gets the current <see cref="DefaultFactory" /> if one was configured via <see cref="Use{T}" />, otherwise null.
+    /// Gets the logging configuration for default providers.
+    /// Returns null if an external logger factory was configured via <see cref="UseFactory(ILoggerFactory)"/>.
     /// </summary>
-    internal static DefaultFactory? GetCurrentDefaultFactory() => defaultLoggerFactoryDefinition as DefaultFactory;
+    internal static DefaultLoggingConfiguration? GetLoggingConfiguration()
+    {
+        // If external factory was set via UseFactory, don't use default providers
+        if (defaultLoggerFactoryDefinition is null)
+        {
+            return null;
+        }
+
+        var factory = defaultLoggerFactoryDefinition as DefaultFactory;
+        return new DefaultLoggingConfiguration(factory?.LoggingDirectory ?? Host.GetOutputDirectory(), factory?.LoggingLevel ?? LogLevel.Info);
+    }
+
+    internal sealed class DefaultLoggingConfiguration(string loggingDirectory, LogLevel nsbLogLevel)
+    {
+        public string LoggingDirectory { get; } = loggingDirectory;
+        public Microsoft.Extensions.Logging.LogLevel MicrosoftLogLevel => ConvertLogLevel(nsbLogLevel);
+
+        static Microsoft.Extensions.Logging.LogLevel ConvertLogLevel(LogLevel level) =>
+            level switch
+            {
+                LogLevel.Debug => Microsoft.Extensions.Logging.LogLevel.Debug,
+                LogLevel.Info => Microsoft.Extensions.Logging.LogLevel.Information,
+                LogLevel.Warn => Microsoft.Extensions.Logging.LogLevel.Warning,
+                LogLevel.Error => Microsoft.Extensions.Logging.LogLevel.Error,
+                LogLevel.Fatal => Microsoft.Extensions.Logging.LogLevel.Critical,
+                _ => Microsoft.Extensions.Logging.LogLevel.Information
+            };
+    }
 
     /// <summary>
     /// Construct a <see cref="ILog" /> using <typeparamref name="T" /> as the name.
