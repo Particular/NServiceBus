@@ -8,6 +8,7 @@ using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
 using Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
@@ -27,11 +28,16 @@ public class When_using_extensions_logging_bridge : NServiceBusAcceptanceTest
         LogManager.UseFactory(new BridgeLoggerFactory(externalLoggerFactory));
 
         await Scenario.Define<Context>()
+            // clearing out the context appender to ensure that only the default logging is used and we can verify the output
+            .WithServices(services => services.AddLogging(l => l.ClearProviders()))
             .WithEndpoint<EndpointWithBridge>(b => b.CustomConfig(c => c.GetSettings().Set(c.GetSettings().Get<Context>())))
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.That(customProvider.LogEntries, Is.Not.Empty, "External provider should receive logs via the bridge");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(customProvider.LogEntries, Is.Not.Empty, "External provider should receive logs");
+        }
     }
 
     [TearDown]
