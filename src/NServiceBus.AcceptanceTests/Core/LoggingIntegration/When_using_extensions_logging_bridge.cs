@@ -22,7 +22,11 @@ public class When_using_extensions_logging_bridge : NServiceBusAcceptanceTest
     {
         var customProvider = new CollectingLoggerProvider();
 
-        using var externalLoggerFactory = LoggerFactory.Create(builder => builder.AddProvider(customProvider));
+        using var externalLoggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder.AddProvider(customProvider);
+            builder.SetMinimumLevel(LogLevel.Debug);
+        });
 
         // User bridges it to NServiceBus via LogManager.UseFactory (simulating ExtensionsLoggerFactory usage)
         LogManager.UseFactory(new BridgeLoggerFactory(externalLoggerFactory));
@@ -37,6 +41,10 @@ public class When_using_extensions_logging_bridge : NServiceBusAcceptanceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(customProvider.LogEntries, Is.Not.Empty, "External provider should receive logs");
+
+            var logContent = string.Join("\n", customProvider.LogEntries);
+            Assert.That(logContent, Does.Contain("EndpointWithBridge"));
+            Assert.That(logContent, Does.Contain("Debug"));
         }
     }
 
