@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace NServiceBus.Logging;
+namespace NServiceBus;
 
 using System;
 
