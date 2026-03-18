@@ -155,7 +155,7 @@ public static class LogManager
         }
     }
 
-    internal static IDisposable BeginSlotScope(object slot)
+    internal static SlotScope BeginSlotScope(object slot)
     {
         ArgumentNullException.ThrowIfNull(slot);
 
@@ -519,9 +519,9 @@ public static class LogManager
         }
     }
 
-    sealed class SlotScope : IDisposable
+    internal readonly struct SlotScope : IDisposable
     {
-        public SlotScope(SlotContext slot, bool activateExternalScope)
+        internal SlotScope(SlotContext slot, bool activateExternalScope)
         {
             previousSlot = currentSlot.Value;
             currentSlot.Value = slot;
@@ -542,13 +542,13 @@ public static class LogManager
         readonly IDisposable? activeScope;
     }
 
-    sealed class SlotContext(object identifier, LogScopeState scopeState)
+    internal sealed class SlotContext(object identifier, LogScopeState scopeState)
     {
         public SlotKey Key { get; } = new(identifier);
         public LogScopeState ScopeState { get; } = scopeState;
     }
 
-    readonly struct SlotKey(object value) : IEquatable<SlotKey>
+    internal readonly struct SlotKey(object value) : IEquatable<SlotKey>
     {
         public object Value { get; } = value;
 
@@ -557,7 +557,6 @@ public static class LogManager
         public override bool Equals(object? obj) => obj is SlotKey other && Equals(other);
 
         public override int GetHashCode() => Value.GetHashCode();
-
     }
 
     static Lazy<ILoggerFactory> defaultLoggerFactory = new(new DefaultFactory().GetLoggingFactory);
