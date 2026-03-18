@@ -19,8 +19,10 @@ static class EndpointPreparation
         ArgumentNullException.ThrowIfNull(creationStrategy);
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
-        var slotLoggerFactory = LogManager.TryGetExternalFactory()
-            ?? new MicrosoftLoggerFactoryAdapter(serviceProvider.GetRequiredService<MicrosoftLoggerFactory>());
+        var microsoftLoggerFactory = serviceProvider.GetRequiredService<MicrosoftLoggerFactory>();
+        ILoggerFactory slotLoggerFactory = LogManager.TryGetExternalFactory() is { } externalFactory
+            ? new ExternalLoggerFactoryAdapter(externalFactory, microsoftLoggerFactory)
+            : new MicrosoftLoggerFactoryAdapter(microsoftLoggerFactory);
         LogManager.RegisterSlotFactory(creationStrategy.EndpointLogSlot, slotLoggerFactory);
 
         using var _ = LogManager.BeginSlotScope(creationStrategy.EndpointLogSlot);
