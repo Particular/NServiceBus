@@ -125,11 +125,5 @@ sealed class RollingLoggerProvider : ILoggerProvider
         public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None && provider.isEnabled.Value;
 
         public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
-
-        sealed class NullScope : IDisposable
-        {
-            public static readonly NullScope Instance = new();
-            public void Dispose() { }
-        }
     }
 }
