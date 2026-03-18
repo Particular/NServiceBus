@@ -56,8 +56,7 @@ public static class LogManager
     /// </summary>
     internal static DefaultLoggingConfiguration? GetLoggingConfiguration()
     {
-        // If external factory was set via UseFactory, don't use default providers
-        if (defaultLoggerFactoryDefinition is null)
+        if (IsExternalFactoryConfigured)
         {
             return null;
         }
@@ -65,6 +64,16 @@ public static class LogManager
         var factory = defaultLoggerFactoryDefinition as DefaultFactory;
         return new DefaultLoggingConfiguration(factory?.LoggingDirectory ?? Host.GetOutputDirectory(), factory?.LoggingLevel ?? LogLevel.Info);
     }
+
+    /// <summary>
+    /// Returns the externally configured logger factory when <see cref="UseFactory"/> was called,
+    /// or null when using the default factory configured via <see cref="Use{T}"/>.
+    /// </summary>
+    internal static ILoggerFactory? TryGetExternalFactory() =>
+        IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
+
+    // True when UseFactory() was called with an external factory; false when Use<T>() set a built-in definition.
+    static bool IsExternalFactoryConfigured => defaultLoggerFactoryDefinition is null;
 
     internal sealed class DefaultLoggingConfiguration(string loggingDirectory, LogLevel nsbLogLevel)
     {

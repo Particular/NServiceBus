@@ -32,7 +32,6 @@ public class When_using_extensions_logging_bridge : NServiceBusAcceptanceTest
             .Run();
 
         Assert.That(customProvider.LogEntries, Is.Not.Empty, "External provider should receive logs via the bridge");
-
     }
 
     public class Context : ScenarioContext;

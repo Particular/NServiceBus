@@ -23,7 +23,9 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
 
         try
         {
-            LogManager.Use<DefaultFactory>().Directory(logDirectory);
+            var defaultFactory = LogManager.Use<DefaultFactory>();
+            defaultFactory.Directory(logDirectory);
+            defaultFactory.Level(Logging.LogLevel.Debug);
 
             await Scenario.Define<Context>()
                 // clearing out the context appender to ensure that only the default logging is used and we can verify the output
