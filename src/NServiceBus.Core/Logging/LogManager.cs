@@ -60,14 +60,8 @@ public static class LogManager
         return new DefaultLoggingConfiguration(factory?.LoggingDirectory ?? Host.GetOutputDirectory(), factory?.LoggingLevel ?? LogLevel.Info);
     }
 
-    /// <summary>
-    /// Returns the externally configured logger factory when <see cref="UseFactory"/> was called,
-    /// or null when using the default factory configured via <see cref="Use{T}"/>.
-    /// </summary>
-    internal static ILoggerFactory? TryGetExternalFactory() =>
-        IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
+    static ILoggerFactory? TryGetExternalFactory() => IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
 
-    // True when UseFactory() was called with an external factory; false when Use<T>() set a built-in definition.
     static bool IsExternalFactoryConfigured => defaultLoggerFactoryDefinition is null;
 
     internal sealed class DefaultLoggingConfiguration(string loggingDirectory, LogLevel nsbLogLevel)
@@ -109,6 +103,11 @@ public static class LogManager
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return loggers.GetOrAdd(name, static loggerName => new SlotAwareLogger(loggerName));
     }
+
+    internal static ILoggerFactory Adapt(Microsoft.Extensions.Logging.ILoggerFactory microsoftLoggerFactory) =>
+        TryGetExternalFactory() is { } externalFactory
+            ? new ExternalLoggerFactoryAdapter(externalFactory, microsoftLoggerFactory)
+            : new MicrosoftLoggerFactoryAdapter(microsoftLoggerFactory);
 
     internal static void RegisterSlotFactory(object slot, ILoggerFactory loggerFactory)
     {
