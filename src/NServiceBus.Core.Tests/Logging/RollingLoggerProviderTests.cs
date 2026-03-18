@@ -1,9 +1,8 @@
 namespace NServiceBus.Core.Tests.Logging;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -25,7 +24,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_line_is_written_line_appears_in_file()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
         using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
@@ -44,7 +43,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_multiple_lines_are_written_lines_appear_in_file()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
         using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
@@ -66,7 +65,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_exception_is_logged_exception_appears_in_file()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
         using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
@@ -87,7 +86,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_exception_with_data_is_logged_data_appears_in_file()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
         using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
@@ -109,7 +108,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_log_level_is_filtered_lower_levels_are_not_written()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
         using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
@@ -131,7 +130,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_critical_level_is_used_fatal_is_written()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
         using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
@@ -146,7 +145,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_multiple_loggers_write_they_use_same_file()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
         using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
         var logger1 = provider.CreateLogger("Category1");
@@ -158,7 +157,7 @@ public class RollingLoggerProviderTests
         var files = tempPath.GetFiles();
         Assert.That(files, Has.Count.EqualTo(1));
 
-        var contents = NonLockingFileReader.ReadAllTextWithoutLocking(files.First());
+        var contents = NonLockingFileReader.ReadAllTextWithoutLocking(files[0]);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(contents, Does.Contain("From logger1"));
@@ -169,7 +168,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_file_is_too_large_new_sequence_file_is_created()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory, maxFileSize: 50);
         var logger = provider.CreateLogger("TestCategory");
 
@@ -187,7 +186,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_file_name_is_created_it_follows_nservicebus_convention()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
         using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
@@ -207,7 +206,7 @@ public class RollingLoggerProviderTests
     [Test]
     public void When_external_provider_is_present_provider_returns_null_logger()
     {
-        using var tempPath = new TempPath();
+        using var tempPath = new TempPath("RollingLoggerTests");
         var externalProvider = new CustomTestProvider();
         using var provider = new RollingLoggerProvider(CreateServiceProvider(externalProvider), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
@@ -222,32 +221,5 @@ public class RollingLoggerProviderTests
     {
         public ILogger CreateLogger(string categoryName) => NullLogger.Instance;
         public void Dispose() { }
-    }
-
-    class TempPath : IDisposable
-    {
-        public TempPath()
-        {
-            TempDirectory = Path.Combine(Path.GetTempPath(), "nsbLoggingProvider", Guid.NewGuid().ToString());
-            Directory.CreateDirectory(TempDirectory);
-        }
-
-        public readonly string TempDirectory;
-
-        public List<string> GetFiles() => [.. Directory.GetFiles(TempDirectory).OrderBy(x => x)];
-
-        public string GetSingle() => GetFiles().Single();
-
-        public void Dispose() => Directory.Delete(TempDirectory, true);
-    }
-
-    static class NonLockingFileReader
-    {
-        internal static string ReadAllTextWithoutLocking(string path)
-        {
-            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var textReader = new StreamReader(fileStream);
-            return textReader.ReadToEnd();
-        }
     }
 }
