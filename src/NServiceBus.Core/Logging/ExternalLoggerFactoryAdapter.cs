@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using ILoggerFactory = Logging.ILoggerFactory;
 
 sealed class ExternalLoggerFactoryAdapter(ILoggerFactory externalFactory, Microsoft.Extensions.Logging.ILoggerFactory microsoftLoggerFactory)
-    : ILoggerFactory, LogManager.ISlotScopedLoggerFactory
+    : ILoggerFactory, ISlotScopedLoggerFactory
 {
     readonly ILogger scopeLogger = microsoftLoggerFactory.CreateLogger(MicrosoftLoggerFactoryAdapter.ScopeLoggerName);
 

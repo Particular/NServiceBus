@@ -7,8 +7,7 @@ using Logging;
 using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using MicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 
-sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory) : ILoggerFactory
-    , LogManager.ISlotScopedLoggerFactory
+sealed class MicrosoftLoggerFactoryAdapter(MicrosoftLoggerFactory loggerFactory) : ILoggerFactory, ISlotScopedLoggerFactory
 {
     public const string ScopeLoggerName = "NServiceBus.Logging.Scope";
 

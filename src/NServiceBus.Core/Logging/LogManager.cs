@@ -16,11 +16,6 @@ using System.Threading;
 /// </remarks>
 public static class LogManager
 {
-    internal interface ISlotScopedLoggerFactory
-    {
-        IDisposable BeginScope(LogScopeState scopeState);
-    }
-
     /// <summary>
     /// Used to inject an instance of <see cref="ILoggerFactory" /> into <see cref="LogManager" />.
     /// </summary>
