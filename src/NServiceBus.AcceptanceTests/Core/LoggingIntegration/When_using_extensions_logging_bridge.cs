@@ -34,6 +34,12 @@ public class When_using_extensions_logging_bridge : NServiceBusAcceptanceTest
         Assert.That(customProvider.LogEntries, Is.Not.Empty, "External provider should receive logs via the bridge");
     }
 
+    [TearDown]
+    public void Teardown() =>
+        // Reset LogManager to the default factory so the disposed externalLoggerFactory
+        // is no longer referenced and subsequent tests start with a clean slate.
+        LogManager.Use<DefaultFactory>();
+
     public class Context : ScenarioContext;
 
     public class EndpointWithBridge : EndpointConfigurationBuilder
