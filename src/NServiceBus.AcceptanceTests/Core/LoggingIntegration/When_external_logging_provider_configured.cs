@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
+[NonParallelizable]
 public class When_external_logging_provider_configured : NServiceBusAcceptanceTest
 {
     [Test]

@@ -12,6 +12,7 @@ using Logging;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NUnit.Framework;
 
+[NonParallelizable]
 public class When_using_default_logging : NServiceBusAcceptanceTest
 {
     [Test]

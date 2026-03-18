@@ -13,6 +13,7 @@ using NUnit.Framework;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
+[NonParallelizable]
 public class When_using_extensions_logging_bridge : NServiceBusAcceptanceTest
 {
     [Test]

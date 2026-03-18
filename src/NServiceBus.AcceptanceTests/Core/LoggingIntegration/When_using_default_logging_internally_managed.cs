@@ -6,13 +6,13 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Logging;
 using NUnit.Framework;
 
+[NonParallelizable]
 public class When_using_default_logging_internally_managed : NServiceBusAcceptanceTest
 {
     [Test]
