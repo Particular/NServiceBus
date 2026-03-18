@@ -60,7 +60,7 @@ public static class LogManager
         return new DefaultLoggingConfiguration(factory?.LoggingDirectory ?? Host.GetOutputDirectory(), factory?.LoggingLevel ?? LogLevel.Info);
     }
 
-    static ILoggerFactory? TryGetExternalFactory() => IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
+    static ILoggerFactory? GetExternalFactoryIfAvailable() => IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
 
     static bool IsExternalFactoryConfigured => defaultLoggerFactoryDefinition is null;
 
@@ -105,7 +105,7 @@ public static class LogManager
     }
 
     internal static ILoggerFactory Adapt(Microsoft.Extensions.Logging.ILoggerFactory microsoftLoggerFactory) =>
-        TryGetExternalFactory() is { } externalFactory
+        GetExternalFactoryIfAvailable() is { } externalFactory
             ? new ExternalLoggerFactoryAdapter(externalFactory, microsoftLoggerFactory)
             : new MicrosoftLoggerFactoryAdapter(microsoftLoggerFactory);
 
