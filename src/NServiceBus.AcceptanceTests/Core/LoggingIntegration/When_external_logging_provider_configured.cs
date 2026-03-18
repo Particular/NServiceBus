@@ -28,8 +28,14 @@ public class When_external_logging_provider_configured : NServiceBusAcceptanceTe
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        // The custom provider should have received logs
-        Assert.That(customProvider.LogEntries, Is.Not.Empty, "External provider should receive logs");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(customProvider.LogEntries, Is.Not.Empty, "External provider should receive logs");
+
+            var logContent = string.Join("\n", customProvider.LogEntries);
+            Assert.That(logContent, Does.Contain("EndpointWithExternalLogging"));
+            Assert.That(logContent, Does.Contain("Debug"));
+        }
     }
 
     class Context : ScenarioContext;
