@@ -29,7 +29,9 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
     {
         // Reset LogManager to the default factory so the disposed externalLoggerFactory
         // is no longer referenced and subsequent tests start with a clean slate.
+#pragma warning disable CS0618 // Test exercises deprecated DefaultFactory API intentionally
         LogManager.Use<DefaultFactory>();
+#pragma warning restore CS0618
 
         if (Directory.Exists(logDirectory))
         {
@@ -40,9 +42,11 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
     [Test]
     public async Task Should_write_to_rolling_file()
     {
+#pragma warning disable CS0618 // Test exercises deprecated DefaultFactory API intentionally
         var defaultFactory = LogManager.Use<DefaultFactory>();
         defaultFactory.Directory(logDirectory);
         defaultFactory.Level(Logging.LogLevel.Debug);
+#pragma warning restore CS0618
 
         await Scenario.Define<Context>()
             // clearing out the context appender to ensure that only the default logging is used and we can verify the output

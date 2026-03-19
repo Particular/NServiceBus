@@ -1567,11 +1567,17 @@ namespace NServiceBus.Installation
 }
 namespace NServiceBus.Logging
 {
+    [System.Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in " +
+        "rolling file logging provider. Will be treated as an error from version 11.0.0. " +
+        "Will be removed in version 12.0.0.", false)]
     public class DefaultFactory : NServiceBus.Logging.LoggingFactoryDefinition
     {
         public DefaultFactory() { }
+        [System.Obsolete("Set RollingLoggerProviderOptions.Directory instead. Will be treated as an error f" +
+            "rom version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void Directory(string directory) { }
         protected override NServiceBus.Logging.ILoggerFactory GetLoggingFactory() { }
+        [System.Obsolete(@"Set RollingLoggerProviderOptions.LogLevel instead. Note: NServiceBus.Logging.LogLevel.Info maps to Microsoft.Extensions.Logging.LogLevel.Information, Warn to Warning, Fatal to Critical. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void Level(NServiceBus.Logging.LogLevel level) { }
     }
     public interface ILog
@@ -1615,10 +1621,18 @@ namespace NServiceBus.Logging
         public static NServiceBus.Logging.ILog GetLogger(System.Type type) { }
         public static NServiceBus.Logging.ILog GetLogger(string name) { }
         public static NServiceBus.Logging.ILog GetLogger<T>() { }
+        [System.Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in " +
+            "rolling file logging provider. Will be treated as an error from version 11.0.0. " +
+            "Will be removed in version 12.0.0.", false)]
         public static T Use<T>()
             where T : NServiceBus.Logging.LoggingFactoryDefinition, new () { }
+        [System.Obsolete("Configure logging through Microsoft.Extensions.Logging directly. Will be treated " +
+            "as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static void UseFactory(NServiceBus.Logging.ILoggerFactory loggerFactory) { }
     }
+    [System.Obsolete("Implement Microsoft.Extensions.Logging.ILoggerProvider directly and register via " +
+        "services.AddSingleton<ILoggerProvider, YourProvider>(). Will be treated as an er" +
+        "ror from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public abstract class LoggingFactoryDefinition
     {
         protected LoggingFactoryDefinition() { }

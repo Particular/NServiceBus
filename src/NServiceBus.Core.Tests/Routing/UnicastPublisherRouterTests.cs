@@ -125,8 +125,10 @@ public class UnicastPublisherRouterTests
     [OneTimeSetUp]
     public void LoggerSetup()
     {
+#pragma warning disable CS0618 // Use<T> and TestingLoggerFactory (via LoggingFactoryDefinition) are deprecated; test setup uses them intentionally
         LogManager.Use<TestingLoggerFactory>()
             .WriteTo(new StringWriter(logStatements));
+#pragma warning restore CS0618
     }
 
     [SetUp]

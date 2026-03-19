@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Responsible for the creation of <see cref="ILog" /> instances and used as an extension point to redirect log events to
@@ -19,6 +20,12 @@ public static class LogManager
     /// <summary>
     /// Used to inject an instance of <see cref="ILoggerFactory" /> into <see cref="LogManager" />.
     /// </summary>
+    [ObsoleteMetadata(
+        Message = "Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in rolling file logging provider",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in rolling file logging provider. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+#pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
     public static T Use<T>() where T : LoggingFactoryDefinition, new()
     {
         var loggingDefinition = new T();
@@ -29,6 +36,7 @@ public static class LogManager
 
         return loggingDefinition;
     }
+#pragma warning restore CS0618
 
     /// <summary>
     /// An instance of <see cref="ILoggerFactory" /> that will be used to construct <see cref="ILog" />s for static fields.
@@ -36,6 +44,11 @@ public static class LogManager
     /// <remarks>
     /// Replace this instance at application startup to redirect log events to the custom logging library.
     /// </remarks>
+    [ObsoleteMetadata(
+        Message = "Configure logging through Microsoft.Extensions.Logging directly",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("Configure logging through Microsoft.Extensions.Logging directly. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static void UseFactory(ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(loggerFactory);
@@ -56,8 +69,10 @@ public static class LogManager
             return null;
         }
 
+#pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
         var factory = defaultLoggerFactoryDefinition as DefaultFactory;
         return new DefaultLoggingConfiguration(factory?.LoggingDirectory ?? Host.GetOutputDirectory(), factory?.LoggingLevel ?? LogLevel.Info);
+#pragma warning restore CS0618
     }
 
     static ILoggerFactory? GetExternalFactoryIfAvailable() => IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
@@ -559,8 +574,10 @@ public static class LogManager
         public override int GetHashCode() => Value.GetHashCode();
     }
 
+#pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
     static Lazy<ILoggerFactory> defaultLoggerFactory = new(new DefaultFactory().GetLoggingFactory);
     static LoggingFactoryDefinition? defaultLoggerFactoryDefinition = new DefaultFactory();
+#pragma warning restore CS0618
     static readonly AsyncLocal<SlotContext?> currentSlot = new();
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
