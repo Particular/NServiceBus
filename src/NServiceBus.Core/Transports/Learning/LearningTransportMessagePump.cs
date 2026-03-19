@@ -310,19 +310,18 @@ class LearningTransportMessagePump : IMessageReceiver
         var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
         var headers = HeaderSerializer.Deserialize(message);
 
+        var fileCreatedAt = File.GetCreationTimeUtc(transaction.FileToProcess);
+
         if (headers.Remove(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
         {
             var ttbr = TimeSpan.Parse(ttbrString);
 
-            //file.move preserves create time
-            var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
-
             var utcNow = DateTime.UtcNow;
 
-            if (sentTime + ttbr < utcNow)
+            if (fileCreatedAt + ttbr < utcNow)
             {
                 await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
-                log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
+                log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, fileCreatedAt, utcNow);
                 return;
             }
         }
@@ -337,8 +336,12 @@ class LearningTransportMessagePump : IMessageReceiver
         }
 
         var processingContext = new ContextBag();
+        var receiveProperties = new ReceiveProperties
+        {
+            ["LearningTransport.FileCreatedAt"] = fileCreatedAt.ToString("O")
+        };
 
-        var messageContext = new MessageContext(messageId, headers, body, transportTransaction, ReceiveAddress, processingContext);
+        var messageContext = new MessageContext(messageId, headers, body, transportTransaction, ReceiveAddress, processingContext, receiveProperties);
 
         try
         {
