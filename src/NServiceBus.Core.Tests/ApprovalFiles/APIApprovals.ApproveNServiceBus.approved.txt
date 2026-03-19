@@ -890,6 +890,14 @@ namespace NServiceBus
         public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
         public NServiceBus.RetryFailedSettings OnMessageSentToErrorQueue(System.Func<NServiceBus.Faults.FailedMessage, System.Threading.CancellationToken, System.Threading.Tasks.Task> notificationCallback) { }
     }
+    public class RollingLoggerProviderOptions
+    {
+        public RollingLoggerProviderOptions() { }
+        public string? Directory { get; set; }
+        public Microsoft.Extensions.Logging.LogLevel LogLevel { get; set; }
+        public long MaxFileSizeInBytes { get; set; }
+        public int NumberOfArchiveFilesToKeep { get; set; }
+    }
     public static class RoutingFeatureSettingsExtensions
     {
         public static void OverridePublicReturnAddress(this NServiceBus.EndpointConfiguration configuration, string address) { }

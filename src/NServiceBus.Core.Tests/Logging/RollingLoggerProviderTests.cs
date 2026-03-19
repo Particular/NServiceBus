@@ -21,12 +21,23 @@ public class RollingLoggerProviderTests
         return services.BuildServiceProvider();
     }
 
+    static RollingLoggerProvider CreateProvider(IServiceProvider serviceProvider, string directory, int numberOfArchiveFilesToKeep = 10, long maxFileSize = 10L * 1024 * 1024)
+    {
+        var options = Microsoft.Extensions.Options.Options.Create(new RollingLoggerProviderOptions
+        {
+            Directory = directory,
+            NumberOfArchiveFilesToKeep = numberOfArchiveFilesToKeep,
+            MaxFileSizeInBytes = maxFileSize
+        });
+        return new RollingLoggerProvider(serviceProvider, options);
+    }
+
     [Test]
     public void When_line_is_written_line_appears_in_file()
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
-        using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
+        using var provider = CreateProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("Foo");
@@ -45,7 +56,7 @@ public class RollingLoggerProviderTests
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
-        using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
+        using var provider = CreateProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("Foo");
@@ -67,7 +78,7 @@ public class RollingLoggerProviderTests
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
-        using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
+        using var provider = CreateProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         var exception = new InvalidOperationException("Test exception");
@@ -88,7 +99,7 @@ public class RollingLoggerProviderTests
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
-        using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
+        using var provider = CreateProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         var exception = new InvalidOperationException("Test exception");
@@ -110,7 +121,7 @@ public class RollingLoggerProviderTests
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
-        using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
+        using var provider = CreateProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogDebug("Debug message");
@@ -132,7 +143,7 @@ public class RollingLoggerProviderTests
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
-        using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
+        using var provider = CreateProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogCritical("Critical message");
@@ -147,7 +158,7 @@ public class RollingLoggerProviderTests
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
-        using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
+        using var provider = CreateProvider(serviceProvider, tempPath.TempDirectory);
         var logger1 = provider.CreateLogger("Category1");
         var logger2 = provider.CreateLogger("Category2");
 
@@ -169,7 +180,7 @@ public class RollingLoggerProviderTests
     public void When_file_is_too_large_new_sequence_file_is_created()
     {
         using var tempPath = new TempPath("RollingLoggerTests");
-        using var provider = new RollingLoggerProvider(CreateServiceProvider(), tempPath.TempDirectory, maxFileSize: 50);
+        using var provider = CreateProvider(CreateServiceProvider(), tempPath.TempDirectory, maxFileSize: 50);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("Some long text that exceeds the limit");
@@ -188,7 +199,7 @@ public class RollingLoggerProviderTests
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         using var serviceProvider = CreateServiceProvider();
-        using var provider = new RollingLoggerProvider(serviceProvider, tempPath.TempDirectory);
+        using var provider = CreateProvider(serviceProvider, tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("Test");
@@ -208,7 +219,7 @@ public class RollingLoggerProviderTests
     {
         using var tempPath = new TempPath("RollingLoggerTests");
         var externalProvider = new CustomTestProvider();
-        using var provider = new RollingLoggerProvider(CreateServiceProvider(externalProvider), tempPath.TempDirectory);
+        using var provider = CreateProvider(CreateServiceProvider(externalProvider), tempPath.TempDirectory);
         var logger = provider.CreateLogger("TestCategory");
 
         logger.LogInformation("This should not be logged");

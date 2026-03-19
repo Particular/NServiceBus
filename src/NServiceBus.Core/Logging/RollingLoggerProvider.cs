@@ -10,12 +10,13 @@ using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 [ProviderAlias("NServiceBusRollingFile")]
 sealed class RollingLoggerProvider : ILoggerProvider
 {
     readonly IServiceProvider serviceProvider;
-    readonly string loggingDirectory;
+    readonly string? loggingDirectory;
     readonly int numberOfArchiveFilesToKeep;
     readonly long maxFileSize;
     readonly ConcurrentDictionary<string, ILogger> loggers = new();
@@ -23,16 +24,13 @@ sealed class RollingLoggerProvider : ILoggerProvider
     RollingLogger? rollingLogger;
     readonly Lock locker = new();
 
-    public RollingLoggerProvider(
-        IServiceProvider serviceProvider,
-        string loggingDirectory,
-        int numberOfArchiveFilesToKeep = 10,
-        long maxFileSize = 10L * 1024 * 1024)
+    public RollingLoggerProvider(IServiceProvider serviceProvider, IOptions<RollingLoggerProviderOptions> options)
     {
         this.serviceProvider = serviceProvider;
-        this.loggingDirectory = loggingDirectory;
-        this.numberOfArchiveFilesToKeep = numberOfArchiveFilesToKeep;
-        this.maxFileSize = maxFileSize;
+        var o = options.Value;
+        loggingDirectory = o.Directory;
+        numberOfArchiveFilesToKeep = o.NumberOfArchiveFilesToKeep;
+        maxFileSize = o.MaxFileSizeInBytes;
         isEnabled = new Lazy<bool>(ShouldBeEnabled);
     }
 
@@ -47,7 +45,7 @@ sealed class RollingLoggerProvider : ILoggerProvider
 
         lock (locker)
         {
-            rollingLogger ??= new RollingLogger(loggingDirectory, numberOfArchiveFilesToKeep, maxFileSize);
+            rollingLogger ??= new RollingLogger(loggingDirectory ?? Host.GetOutputDirectory(), numberOfArchiveFilesToKeep, maxFileSize);
         }
         return loggers.GetOrAdd(categoryName, static (_, provider) => new RollingMicrosoftLogger(provider), this);
     }
