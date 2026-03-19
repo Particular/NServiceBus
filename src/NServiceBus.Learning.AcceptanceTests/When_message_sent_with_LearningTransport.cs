@@ -14,12 +14,14 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new TestMessage())))
-            .Done(c => c.MessageReceived)
             .Run();
 
-        Assert.That(context.MessageReceived, Is.True, "Message was not received");
-        Assert.That(context.FileCreatedAt, Is.Not.Null, "FileCreatedAt property should be present");
-        Assert.That(DateTime.TryParse(context.FileCreatedAt, out _), Is.True, "FileCreatedAt should be a valid datetime");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.MessageReceived, Is.True, "Message was not received");
+            Assert.That(context.FileCreatedAt, Is.Not.Null, "FileCreatedAt property should be present");
+            Assert.That(DateTime.TryParse(context.FileCreatedAt, out _), Is.True, "FileCreatedAt should be a valid datetime");
+        }
     }
 
     class Context : ScenarioContext
@@ -45,8 +47,12 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
                         testContext.FileCreatedAt = fileCreatedAt;
                     }
                 }
+                else
+                {
+                    testContext.MarkAsFailed(new Exception("Failed to retrieve receive properties from the message context."));
+                }
 
-                testContext.MarkAsCompleted();
+                testContext.MarkAsCompleted(testContext.MessageReceived, testContext.FileCreatedAt != null);
                 return Task.CompletedTask;
             }
         }
