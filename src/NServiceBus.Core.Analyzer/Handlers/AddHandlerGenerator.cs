@@ -17,7 +17,7 @@ public sealed partial class AddHandlerGenerator : IIncrementalGenerator
 
         var addHandlers = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.HandlerAttribute",
-                predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
+                predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword) && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword),
                 transform: static (ctx, _) => (INamedTypeSymbol)ctx.TargetSymbol)
             .Combine(knownTypes)
             .Where(static pair =>

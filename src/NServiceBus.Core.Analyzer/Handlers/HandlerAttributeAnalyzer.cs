@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, ConventionBasedHandlerMissingAttribute, ConventionBasedHandlerMissingAttributeImmediate, ConventionBasedHandlerMisplacedAttribute, ConventionBasedHandlerMisplacedAttributeImmediate, HandlerAttributeOnNonHandlerType, ConventionBasedHandlerMixedStyleDescriptor, ConventionBasedHandlerNoAccessibleConstructorDescriptor, ConventionBasedHandlerAmbiguousConstructorDescriptor];
+        [HandlerAttributeMissing, HandlerAttributeMissingImmediate, HandlerAttributeMisplaced, HandlerAttributeMisplacedImmediate, ConventionBasedHandlerMissingAttribute, ConventionBasedHandlerMissingAttributeImmediate, ConventionBasedHandlerMisplacedAttribute, ConventionBasedHandlerMisplacedAttributeImmediate, HandlerAttributeOnNonHandlerType, ConventionBasedHandlerMixedStyleDescriptor, ConventionBasedHandlerNoAccessibleConstructorDescriptor, ConventionBasedHandlerAmbiguousConstructorDescriptor, HandlerClassCannotBeStaticDescriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -89,7 +89,15 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                             }
                         }
                     }
-                    else if (!classType.IsAbstract && conventionBasedAttributeLocations.IsDefaultOrEmpty)
+                    else if (classType.IsStatic && !conventionBasedAttributeLocations.IsDefaultOrEmpty)
+                    {
+                        var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                        if (classLocation is not null)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(HandlerClassCannotBeStaticDescriptor, classLocation, classType.Name));
+                        }
+                    }
+                    else if (!classType.IsAbstract && !classType.IsStatic && conventionBasedAttributeLocations.IsDefaultOrEmpty)
                     {
                         var isUsedAsBase = baseTypes.ContainsKey(classType.OriginalDefinition);
                         var inheritsDirectlyFromObject = classType.BaseType?.SpecialType == SpecialType.System_Object;
@@ -167,6 +175,15 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                         {
                             context.ReportDiagnostic(Diagnostic.Create(HandlerAttributeMisplacedImmediate, location, classType.Name));
                         }
+                    }
+                }
+                // Static classes can't be used as generic type arguments for handler registration
+                else if (classType.IsStatic && !attributeLocations.IsDefaultOrEmpty)
+                {
+                    var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
+                    if (classLocation is not null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(HandlerClassCannotBeStaticDescriptor, classLocation, classType.Name));
                     }
                 }
                 // concrete classes that are used as base classes
@@ -332,6 +349,14 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
         id: DiagnosticIds.ConventionBasedHandlerAmbiguousConstructor,
         title: "Convention-based handler has ambiguous constructor selection",
         messageFormat: "Convention-based handler '{0}' has multiple constructors with {1} parameters. Use [ActivatorUtilitiesConstructor] attribute to specify which constructor to use.",
+        category: "NServiceBus.Handlers",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
+    static readonly DiagnosticDescriptor HandlerClassCannotBeStaticDescriptor = new(
+        id: DiagnosticIds.HandlerClassCannotBeStatic,
+        title: "Handler class cannot be static",
+        messageFormat: "Handler class '{0}' is static. Static handler classes cannot be used as generic type arguments for handler registration.",
         category: "NServiceBus.Handlers",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
