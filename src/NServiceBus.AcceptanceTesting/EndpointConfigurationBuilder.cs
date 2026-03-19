@@ -64,7 +64,6 @@ public abstract class EndpointConfigurationBuilder : IEndpointConfigurationFacto
 
             if (configuration.DisableStartupDiagnostics)
             {
-                endpointConfiguration.DisableWritingDiagnosticsToLog();
                 endpointConfiguration.CustomDiagnosticsWriter((_, _) => Task.CompletedTask);
             }
 
@@ -91,7 +90,6 @@ public abstract class EndpointConfigurationBuilder : IEndpointConfigurationFacto
 
             if (configuration.DisableStartupDiagnostics)
             {
-                endpointConfiguration.DisableWritingDiagnosticsToLog();
                 endpointConfiguration.CustomDiagnosticsWriter((_, _) => Task.CompletedTask);
             }
 

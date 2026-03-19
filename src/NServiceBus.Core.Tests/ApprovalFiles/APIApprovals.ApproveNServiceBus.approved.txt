@@ -244,8 +244,8 @@ namespace NServiceBus
     {
         public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.IReadOnlySettings settings, string sectionName, object section) { }
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
-        public static void DisableWritingDiagnosticsToLog(this NServiceBus.EndpointConfiguration config) { }
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
+        public static void WriteDiagnosticsToLog(this NServiceBus.EndpointConfiguration config) { }
     }
     public class Discard : NServiceBus.RecoverabilityAction
     {

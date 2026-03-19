@@ -14,7 +14,7 @@ static class HostStartupDiagnosticsWriterFactory
         var diagnosticsWriter = configuration.HostDiagnosticsWriter;
         diagnosticsWriter ??= BuildDefaultDiagnosticsWriter(configuration);
 
-        return new HostStartupDiagnosticsWriter(diagnosticsWriter, configuration.HostDiagnosticsWriter != null, configuration.DisableWritingDiagnosticsToLog);
+        return new HostStartupDiagnosticsWriter(diagnosticsWriter, configuration.HostDiagnosticsWriter != null, configuration.WriteDiagnosticsToLog);
     }
 
     static Func<string, CancellationToken, Task> BuildDefaultDiagnosticsWriter(HostingComponent.Configuration configuration)

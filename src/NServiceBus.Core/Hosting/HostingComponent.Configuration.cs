@@ -20,7 +20,7 @@ partial class HostingComponent
             settings.StartupDiagnostics,
             settings.DiagnosticsPath,
             settings.HostDiagnosticsWriter,
-            settings.DisableWritingDiagnosticsToLog,
+            settings.WriteDiagnosticsToLog,
             settings.GetOrCreateEndpointLogSlot(),
             settings.EndpointName,
             serviceCollection,
@@ -41,7 +41,7 @@ partial class HostingComponent
             StartupDiagnosticEntries startupDiagnostics,
             string? diagnosticsPath,
             Func<string, CancellationToken, Task>? hostDiagnosticsWriter,
-            bool disableWritingDiagnosticsToLog,
+            bool writeDiagnosticsToLog,
             EndpointLogSlot endpointLogSlot,
             string endpointName,
             IServiceCollection services,
@@ -56,7 +56,7 @@ partial class HostingComponent
             StartupDiagnostics = startupDiagnostics;
             DiagnosticsPath = diagnosticsPath;
             HostDiagnosticsWriter = hostDiagnosticsWriter;
-            DisableWritingDiagnosticsToLog = disableWritingDiagnosticsToLog;
+            WriteDiagnosticsToLog = writeDiagnosticsToLog;
             EndpointLogSlot = endpointLogSlot;
             EndpointName = endpointName;
             Services = services;
@@ -70,7 +70,7 @@ partial class HostingComponent
             HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
         }
 
-        public bool DisableWritingDiagnosticsToLog { get; set; }
+        public bool WriteDiagnosticsToLog { get; }
 
         public ICollection<Type> AvailableTypes { get; }
 

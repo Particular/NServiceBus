@@ -95,7 +95,7 @@ partial class HostingComponent
             set => settings.Set("Installers.Enable", value);
         }
 
-        public bool DisableWritingDiagnosticsToLog
+        public bool WriteDiagnosticsToLog
         {
             get; set;
         }

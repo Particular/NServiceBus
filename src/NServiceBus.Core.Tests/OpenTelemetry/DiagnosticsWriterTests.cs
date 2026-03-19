@@ -23,7 +23,7 @@ public class DiagnosticsWriterTests
         diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointTwo" });
         diagnostics.Add("Version", new { Version = "1.0.0.0" });
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, true);
+        var writer = new HostStartupDiagnosticsWriter(testWriter, true, false);
 
         await writer.Write(diagnostics.entries);
 
@@ -42,7 +42,7 @@ public class DiagnosticsWriterTests
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("TypeIndicator", new { SomeType = typeof(DiagnosticsWriterTests) });
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, true);
+        var writer = new HostStartupDiagnosticsWriter(testWriter, true, false);
 
         await writer.Write(diagnostics.entries);
 

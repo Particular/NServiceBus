@@ -11,20 +11,20 @@ public class When_writing_startup_diagnostics : NServiceBusAcceptanceTest
     [Theory]
     [TestCase(true)]
     [TestCase(false)]
-    public async Task Should_add_to_log(bool disable)
+    public async Task Should_add_to_log(bool enable)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<MyEndpoint>(b => b.CustomConfig(c =>
             {
-                if (disable)
+                if (enable)
                 {
-                    c.DisableWritingDiagnosticsToLog();
+                    c.WriteDiagnosticsToLog();
                 }
             }))
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.That(context.Logs.Any(l => l.Message.Contains("Startup diagnostics:")), Is.EqualTo(!disable));
+        Assert.That(context.Logs.Any(l => l.Message.Contains("Startup diagnostics:")), Is.EqualTo(enable));
     }
 
     class Context : ScenarioContext;

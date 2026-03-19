@@ -37,17 +37,15 @@ class AssemblyScanningComponent
         var scannableAssemblies = ScanAssemblies(assemblyScannerSettings);
         var availableTypes = scannableAssemblies.Types.ToList();
 
-        settings.AddStartupDiagnosticsSection("AssemblyScanning", new
-        {
-            Assemblies = scannableAssemblies.Assemblies.Select(a => new
-            {
-                a.FullName,
-                FileVersion = FileVersionRetriever.GetFileVersion(a)
-            }),
+        // Deliberately strongly typed because we need to truncate this super large section when writing to the logs
+        var assemblyScanningDiagnostics = new AssemblyScanningDiagnostics(
+            scannableAssemblies.Assemblies.Select(a => new AssemblyDetails(a.FullName, FileVersionRetriever.GetFileVersion(a))),
+            scannableAssemblies.SkippedFiles.Select(f => new SkippedFile(f.FilePath, f.SkipReason)),
             scannableAssemblies.ErrorsThrownDuringScanning,
-            scannableAssemblies.SkippedFiles,
-            Settings = assemblyScannerSettings
-        });
+            assemblyScannerSettings
+        );
+
+        settings.AddStartupDiagnosticsSection(AssemblyScanningDiagnostics.SectionName, assemblyScanningDiagnostics);
 
         return new AssemblyScanningComponent(availableTypes);
     }
