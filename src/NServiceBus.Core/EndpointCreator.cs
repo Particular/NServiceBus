@@ -133,7 +133,7 @@ class EndpointCreator
             pipelineSettings,
             hostingConfiguration);
 
-        sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
+        sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, transportSeam, routingComponent, messageMapper);
 
         envelopeComponent = new EnvelopeComponent(settings.Get<EnvelopeComponent.Settings>());
 
