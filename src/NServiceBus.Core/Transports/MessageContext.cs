@@ -37,6 +37,22 @@ public partial class MessageContext : IExtendable
     }
 
     /// <summary>
+    /// Initializes the context with receive properties.
+    /// </summary>
+    /// <param name="nativeMessageId">The native message ID.</param>
+    /// <param name="headers">The message headers.</param>
+    /// <param name="body">The message body.</param>
+    /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
+    /// <param name="receiveAddress">The receive address.</param>
+    /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
+    /// <param name="receiveProperties">Properties received from the transport that can be propagated to outgoing messages.</param>
+    public MessageContext(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, string receiveAddress, ContextBag context, ReceiveProperties receiveProperties)
+        : this(nativeMessageId, headers, body, transportTransaction, receiveAddress, context)
+    {
+        Extensions.Set(receiveProperties);
+    }
+
+    /// <summary>
     /// The native message ID.
     /// </summary>
     public string NativeMessageId { get; }

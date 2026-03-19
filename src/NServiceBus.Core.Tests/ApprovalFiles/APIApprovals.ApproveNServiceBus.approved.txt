@@ -2433,6 +2433,7 @@ namespace NServiceBus.Transport
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
         public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, string receiveAddress, NServiceBus.Extensibility.ContextBag context, NServiceBus.Transport.ReceiveProperties receiveProperties) { }
         public System.ReadOnlyMemory<byte> Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
@@ -2480,6 +2481,11 @@ namespace NServiceBus.Transport
         public System.Collections.Generic.IReadOnlyCollection<string> SendingAddresses { get; }
         public void BindSending(string transportAddress) { }
     }
+    public class ReceiveProperties : System.Collections.Generic.Dictionary<string, string>
+    {
+        public ReceiveProperties() { }
+        public ReceiveProperties(System.Collections.Generic.IDictionary<string, string> dictionary) { }
+    }
     public class ReceiveSettings
     {
         public ReceiveSettings(string id, NServiceBus.Transport.QueueAddress receiveAddress, bool usePublishSubscribe, bool purgeOnStartup, string errorQueue) { }
@@ -2492,6 +2498,7 @@ namespace NServiceBus.Transport
     public abstract class TransportDefinition
     {
         protected TransportDefinition(NServiceBus.TransportTransactionMode defaultTransactionMode, bool supportsDelayedDelivery, bool supportsPublishSubscribe, bool supportsTTBR) { }
+        protected virtual System.Collections.Frozen.FrozenSet<string> DispatchPropertyNamesToPreserve { get; }
         public bool SupportsDelayedDelivery { get; }
         public bool SupportsPublishSubscribe { get; }
         public bool SupportsTTBR { get; }

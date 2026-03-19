@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ using Pipeline;
 using Routing;
 using Transport;
 
-class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
+class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreserve) : StageConnector<IRoutingContext, IDispatchContext>
 {
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
@@ -26,14 +27,31 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         // This may not be the outgoing message activity created by NServiceBus.
         ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Message.Headers, context.Extensions);
 
+        ReceiveProperties? receiveProperties = null;
+        var shouldPropagate = dispatchPropertyNamesToPreserve.Count > 0
+            && context.Extensions.TryGet(out receiveProperties);
+
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;
         // when there are more than one routing strategy we want to make sure each transport operation is independent
         var copySharedMutableMessageState = context.RoutingStrategies.Count > 1;
         foreach (var strategy in context.RoutingStrategies)
         {
-            operations[index] = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
-            index++;
+            var transportOperation = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
+
+            if (shouldPropagate && receiveProperties != null)
+            {
+                foreach (var propertyName in dispatchPropertyNamesToPreserve)
+                {
+                    if (receiveProperties.TryGetValue(propertyName, out var propertyValue)
+                        && !transportOperation.Properties.ContainsKey(propertyName))
+                    {
+                        transportOperation.Properties[propertyName] = propertyValue;
+                    }
+                }
+            }
+
+            operations[index++] = transportOperation;
         }
 
         if (isDebugEnabled)
