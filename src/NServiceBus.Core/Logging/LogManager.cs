@@ -58,10 +58,6 @@ public static class LogManager
         _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
     }
 
-    /// <summary>
-    /// Gets the logging configuration for default providers.
-    /// Returns null if an external logger factory was configured via <see cref="UseFactory(ILoggerFactory)"/>.
-    /// </summary>
     internal static DefaultLoggingConfiguration? GetLoggingConfiguration()
     {
         if (IsExternalFactoryConfigured)
