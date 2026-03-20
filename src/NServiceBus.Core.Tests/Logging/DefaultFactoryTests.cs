@@ -19,5 +19,19 @@ public class DefaultFactoryTests
         Assert.Throws<ArgumentException>(() => defaultFactory.Directory(""));
         Assert.Throws<ArgumentException>(() => defaultFactory.Directory(" "));
     }
+
+    [Test]
+    public void Should_throw_meaningful_exception_when_requesting_logger_directly_from_default_factory()
+    {
+        var factory = new TestableDefaultFactory();
+
+        var exception = Assert.Throws<NotSupportedException>(() => factory.ExposeLoggerFactory().GetLogger("SomeLogger"));
+        Assert.That(exception!.Message, Does.Contain("LogManager.GetLogger"));
+    }
+
+    sealed class TestableDefaultFactory : DefaultFactory
+    {
+        public global::NServiceBus.Logging.ILoggerFactory ExposeLoggerFactory() => GetLoggingFactory();
+    }
 }
 #pragma warning restore CS0618

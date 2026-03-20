@@ -81,17 +81,16 @@ public static class LogManager
         lock (defaultFactoryConfigurationLock)
         {
             defaultLoggingConfiguration = new Lazy<DefaultLoggingConfiguration>(() => new DefaultLoggingConfiguration(directory, level));
-            defaultLoggerFactory = new Lazy<ILoggerFactory>(() => CreateDefaultLoggerFactory(directory, level));
+            defaultLoggerFactory = CreateDefaultFactoryLoggerFactory();
             _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
         }
     }
 
-    static DefaultLoggerFactory CreateDefaultLoggerFactory(string directory, LogLevel level)
+    static Lazy<ILoggerFactory> CreateDefaultFactoryLoggerFactory()
     {
-        var loggerFactory = new DefaultLoggerFactory(level, directory);
-        var message = $"Logging to '{directory}' with level {level}";
-        loggerFactory.Write("DefaultFactory", LogLevel.Info, message);
-        return loggerFactory;
+#pragma warning disable CS0618 // DefaultFactory is deprecated; LogManager keeps compatibility wiring during deprecation window
+        return new Lazy<ILoggerFactory>(() => new DefaultFactory().GetLoggingFactory());
+#pragma warning restore CS0618
     }
 
     static ILoggerFactory? GetExternalFactoryIfAvailable() => IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
@@ -375,7 +374,16 @@ public static class LogManager
                 return cached;
             }
 
-            var createdLogger = defaultLoggerFactory.Value.GetLogger(name);
+            ILog createdLogger;
+            try
+            {
+                createdLogger = defaultLoggerFactory.Value.GetLogger(name);
+            }
+            catch (NotSupportedException)
+            {
+                createdLogger = new TraceFallbackLog(name);
+            }
+
             defaultLogger = createdLogger;
             defaultLoggerFactoryVersionSnapshot = currentFactoryVersion;
             return createdLogger;
@@ -433,6 +441,37 @@ public static class LogManager
         {
             public SlotContext Context { get; } = context;
             public ILog Logger { get; } = logger;
+        }
+
+        sealed class TraceFallbackLog(string name) : ILog
+        {
+            public bool IsDebugEnabled => true;
+            public bool IsInfoEnabled => true;
+            public bool IsWarnEnabled => true;
+            public bool IsErrorEnabled => true;
+            public bool IsFatalEnabled => true;
+
+            public void Debug(string? message) => Write(LogLevel.Debug, message, null);
+            public void Debug(string? message, Exception? exception) => Write(LogLevel.Debug, message, exception);
+            public void DebugFormat(string format, params object?[] args) => Write(LogLevel.Debug, string.Format(format, args), null);
+            public void Info(string? message) => Write(LogLevel.Info, message, null);
+            public void Info(string? message, Exception? exception) => Write(LogLevel.Info, message, exception);
+            public void InfoFormat(string format, params object?[] args) => Write(LogLevel.Info, string.Format(format, args), null);
+            public void Warn(string? message) => Write(LogLevel.Warn, message, null);
+            public void Warn(string? message, Exception? exception) => Write(LogLevel.Warn, message, exception);
+            public void WarnFormat(string format, params object?[] args) => Write(LogLevel.Warn, string.Format(format, args), null);
+            public void Error(string? message) => Write(LogLevel.Error, message, null);
+            public void Error(string? message, Exception? exception) => Write(LogLevel.Error, message, exception);
+            public void ErrorFormat(string format, params object?[] args) => Write(LogLevel.Error, string.Format(format, args), null);
+            public void Fatal(string? message) => Write(LogLevel.Fatal, message, null);
+            public void Fatal(string? message, Exception? exception) => Write(LogLevel.Fatal, message, exception);
+            public void FatalFormat(string format, params object?[] args) => Write(LogLevel.Fatal, string.Format(format, args), null);
+
+            void Write(LogLevel level, string? message, Exception? exception)
+            {
+                var formatted = exception is null ? message : $"{message}{Environment.NewLine}{exception}";
+                Trace.WriteLine($"{level} [{name}]: {formatted}");
+            }
         }
     }
 
@@ -601,7 +640,7 @@ public static class LogManager
     }
 
 #pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
-    static Lazy<ILoggerFactory> defaultLoggerFactory = new(new DefaultFactory().GetLoggingFactory);
+    static Lazy<ILoggerFactory> defaultLoggerFactory = CreateDefaultFactoryLoggerFactory();
     static LoggingFactoryDefinition? defaultLoggerFactoryDefinition = new DefaultFactory();
 #pragma warning restore CS0618
     static readonly Lock defaultFactoryConfigurationLock = new();

@@ -43,14 +43,7 @@ public class DefaultFactory : LoggingFactoryDefinition
     /// <summary>
     /// <see cref="LoggingFactoryDefinition.GetLoggingFactory" />.
     /// </summary>
-    protected internal override ILoggerFactory GetLoggingFactory()
-    {
-        var loggerFactory = new DefaultLoggerFactory(LoggingLevel, LoggingDirectory);
-        var message = $"Logging to '{LoggingDirectory}' with level {LoggingLevel}";
-        loggerFactory.Write(GetType().Name, LogLevel.Info, message);
-
-        return loggerFactory;
-    }
+    protected internal override ILoggerFactory GetLoggingFactory() => new UnsupportedDefaultFactoryLoggerFactory();
 
     /// <summary>
     /// Controls the <see cref="LogLevel" />.
@@ -97,4 +90,11 @@ public class DefaultFactory : LoggingFactoryDefinition
     Lazy<string> directory;
     Lazy<LogLevel> level;
     Action<string, LogLevel>? configurationChanged;
+
+    sealed class UnsupportedDefaultFactoryLoggerFactory : ILoggerFactory
+    {
+        public ILog GetLogger(Type type) => GetLogger(type.FullName ?? type.Name);
+
+        public ILog GetLogger(string name) => throw new NotSupportedException("Direct logger retrieval from DefaultFactory is no longer supported. Use LogManager.GetLogger(...) and configure logging via Microsoft.Extensions.Logging providers.");
+    }
 }
