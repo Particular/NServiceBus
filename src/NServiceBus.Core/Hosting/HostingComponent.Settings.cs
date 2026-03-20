@@ -95,6 +95,11 @@ partial class HostingComponent
             set => settings.Set("Installers.Enable", value);
         }
 
+        public bool WriteDiagnosticsToLog
+        {
+            get; set;
+        }
+
         internal void ConfigureMultiHostLogging(bool isMultiHosted, object? endpointIdentifier)
         {
             IsMultiHosted = isMultiHosted;

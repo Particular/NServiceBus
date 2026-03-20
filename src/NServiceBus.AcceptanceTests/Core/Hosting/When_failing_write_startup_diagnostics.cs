@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
+using Particular.Approvals;
 
 public class When_failing_write_startup_diagnostics : NServiceBusAcceptanceTest
 {

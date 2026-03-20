@@ -10,10 +10,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnosticsWriter, bool isCustomWriter)
+class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnosticsWriter, bool isCustomWriter, bool writeDiagnosticsToLog)
 {
     public async Task Write(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries, CancellationToken cancellationToken = default)
     {
+        const int LogSafeThreshold = 30000; // Derived from application insights limits
+
         var deduplicatedEntries = DeduplicateEntries(entries);
         var dictionary = deduplicatedEntries
             .OrderBy(e => e.Name)
@@ -21,11 +23,30 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
             .Select(e => new { e.Name, Data = e.Data is Func<object> func ? func() : e.Data })
             .ToDictionary(e => e.Name, e => e.Data, StringComparer.OrdinalIgnoreCase);
 
+        // Always compact AssemblyScanning section when writing to log
+        if (writeDiagnosticsToLog &&
+            dictionary.TryGetValue(AssemblyScanningDiagnostics.SectionName, out var assemblyScanningSection) &&
+            assemblyScanningSection is AssemblyScanningDiagnostics assemblyScanningDiagnostics)
+        {
+            dictionary[AssemblyScanningDiagnostics.SectionName] = assemblyScanningDiagnostics.CreateCompactedVersion();
+        }
+
         string data;
 
         try
         {
             data = JsonSerializer.Serialize(dictionary, diagnosticsOptions);
+            if (writeDiagnosticsToLog)
+            {
+                // Safety net: truncate if still exceeds threshold (e.g., due to other large sections)
+                if (data.Length > LogSafeThreshold)
+                {
+                    Logger.WarnFormat("Startup diagnostics exceeds safe threshold of {0} bytes and will be truncated. Original size: {1} bytes. Consider using CustomDiagnosticsWriter() for full data.", LogSafeThreshold, data.Length);
+                    data = string.Concat(data.AsSpan(0, LogSafeThreshold), "... (truncated)");
+                }
+                Logger.InfoFormat("Startup diagnostics: {0}.", data);
+                return;
+            }
         }
         catch (Exception exception)
         {
@@ -92,7 +113,6 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
 
         public override void Write(Utf8JsonWriter writer, Type value, JsonSerializerOptions options) => writer.WriteStringValue(value.FullName);
     }
-
 
     static readonly ILog Logger = LogManager.GetLogger<HostStartupDiagnosticsWriter>();
 }
