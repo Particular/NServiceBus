@@ -70,14 +70,6 @@ public class IncomingMessage
     }
 
     /// <summary>
-    /// Captures the current headers so they can be reverted later. Only the first call captures; subsequent calls are no-ops.
-    /// </summary>
-    internal void SnapshotHeaders()
-    {
-        originalHeaders ??= new Dictionary<string, string>(Headers);
-    }
-
-    /// <summary>
     /// Resets body and headers to the exact state as they were when the message was created.
     /// </summary>
     internal void RevertToOriginal()
@@ -92,6 +84,11 @@ public class IncomingMessage
             Headers = originalHeaders;
         }
     }
+
+    /// <summary>
+    /// Captures the current headers so they can be reverted later. Only the first call captures; subsequent calls are no-ops.
+    /// </summary>
+    internal void SnapshotHeaders() => originalHeaders ??= new Dictionary<string, string>(Headers);
 
     ReadOnlyMemory<byte>? originalBody;
     Dictionary<string, string>? originalHeaders;
