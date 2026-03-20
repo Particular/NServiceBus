@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Core.Tests.Logging;
+namespace NServiceBus.Core.Tests.Logging;
 
 using System;
 using System.IO;
 using NServiceBus.Logging;
 using NUnit.Framework;
 
+#pragma warning disable CS0618 // Tests intentionally exercise deprecated DefaultFactory APIs
 [TestFixture]
 public class DefaultFactoryTests
 {
@@ -19,3 +20,4 @@ public class DefaultFactoryTests
         Assert.Throws<ArgumentException>(() => defaultFactory.Directory(" "));
     }
 }
+#pragma warning restore CS0618

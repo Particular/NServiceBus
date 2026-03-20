@@ -146,7 +146,9 @@ public class EndpointLoggingScopeTests
     public void Should_flush_pending_deferred_logs_to_default_logger_when_slot_is_unregistered()
     {
         var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
+#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
         LogManager.UseFactory(defaultLoggerFactory);
+#pragma warning restore CS0618
 
         // Slot is created but its factory is never resolved (simulates a failed endpoint startup).
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
@@ -167,7 +169,9 @@ public class EndpointLoggingScopeTests
     public void Should_not_duplicate_pending_deferred_logs_when_slot_is_unregistered_multiple_times()
     {
         var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
+#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
         LogManager.UseFactory(defaultLoggerFactory);
+#pragma warning restore CS0618
 
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
         var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
@@ -189,7 +193,9 @@ public class EndpointLoggingScopeTests
     {
         var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
         var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
+#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
         LogManager.UseFactory(defaultLoggerFactory);
+#pragma warning restore CS0618
 
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
         var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";

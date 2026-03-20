@@ -19,8 +19,8 @@ static class EndpointPreparation
         ArgumentNullException.ThrowIfNull(creationStrategy);
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
-        var microsoftLoggerFactory = serviceProvider.GetRequiredService<MicrosoftLoggerFactory>();
-        LogManager.RegisterSlotFactory(creationStrategy.EndpointLogSlot, new MicrosoftLoggerFactoryAdapter(microsoftLoggerFactory));
+        var slotLoggerFactory = LogManager.Adapt(serviceProvider.GetRequiredService<MicrosoftLoggerFactory>());
+        LogManager.RegisterSlotFactory(creationStrategy.EndpointLogSlot, slotLoggerFactory);
 
         using var _ = LogManager.BeginSlotScope(creationStrategy.EndpointLogSlot);
         var endpoint = creationStrategy.CreateStartableEndpoint(serviceProvider);

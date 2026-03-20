@@ -17,7 +17,9 @@ public abstract class NServiceBusTransportTest
     static NServiceBusTransportTest()
     {
         LogFactory = new TransportTestLoggerFactory();
+#pragma warning disable CS0618 // UseFactory is deprecated; transport tests use it for test setup
         LogManager.UseFactory(LogFactory);
+#pragma warning restore CS0618
     }
 
     [SetUp]

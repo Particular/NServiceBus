@@ -5,12 +5,16 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Features;
+using Logging;
 using MessageInterfaces;
 using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Pipeline;
 using Settings;
 using Unicast.Messages;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 class EndpointCreator
 {
@@ -86,8 +90,45 @@ class EndpointCreator
         services.AddSingleton<IReadOnlySettings>(settings);
 
         // Logging is a global service concern
+        var loggingConfig = LogManager.GetLoggingConfiguration();
         var globalServices = services.Unwrap();
-        globalServices.AddLogging();
+        globalServices.AddLogging(builder =>
+        {
+            // Only register default providers if no external logging factory is configured
+            // (e.g., via LogManager.UseFactory(new ExtensionsLoggerFactory(...)))
+            if (loggingConfig is not null)
+            {
+                builder.Services.Configure<RollingLoggerProviderOptions>(o =>
+                {
+                    o.Directory = loggingConfig.LoggingDirectory;
+                    o.LogLevel = loggingConfig.MicrosoftLogLevel;
+                });
+                builder.Services.AddSingleton<ILoggerProvider, RollingLoggerProvider>();
+                builder.Services.AddSingleton<ILoggerProvider, ColoredConsoleLoggerProvider>();
+
+                // Register a per-provider filter rule so RollingLoggerProviderOptions.LogLevel
+                // is honoured by the MEL pipeline. This works for both the legacy path
+                // (where o.LogLevel is seeded above from loggingConfig) and the new path
+                // (where users set o.LogLevel via services.PostConfigure<RollingLoggerProviderOptions>()).
+                builder.Services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(sp =>
+                {
+                    var rollingOptions = sp.GetRequiredService<IOptions<RollingLoggerProviderOptions>>();
+                    return new ConfigureOptions<LoggerFilterOptions>(filterOptions =>
+                    {
+                        filterOptions.Rules.Add(new LoggerFilterRule(
+                            providerName: typeof(RollingLoggerProvider).FullName,
+                            categoryName: null,
+                            logLevel: rollingOptions.Value.LogLevel,
+                            filter: null));
+                    });
+                });
+
+                if (loggingConfig.MicrosoftLogLevel != LogLevel.Information)
+                {
+                    builder.SetMinimumLevel(loggingConfig.MicrosoftLogLevel);
+                }
+            }
+        });
 
         var featureSettings = settings.Get<FeatureComponent.Settings>();
 

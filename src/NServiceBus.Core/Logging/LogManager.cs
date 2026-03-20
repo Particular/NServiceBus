@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Responsible for the creation of <see cref="ILog" /> instances and used as an extension point to redirect log events to
@@ -16,23 +17,26 @@ using System.Threading;
 /// </remarks>
 public static class LogManager
 {
-    internal interface ISlotScopedLoggerFactory
-    {
-        IDisposable BeginScope(LogScopeState scopeState);
-    }
-
     /// <summary>
     /// Used to inject an instance of <see cref="ILoggerFactory" /> into <see cref="LogManager" />.
     /// </summary>
+    [ObsoleteMetadata(
+        Message = "Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in rolling file logging provider",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in rolling file logging provider. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+#pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
     public static T Use<T>() where T : LoggingFactoryDefinition, new()
     {
         var loggingDefinition = new T();
 
         defaultLoggerFactory = new Lazy<ILoggerFactory>(loggingDefinition.GetLoggingFactory);
+        defaultLoggerFactoryDefinition = loggingDefinition;
         _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
 
         return loggingDefinition;
     }
+#pragma warning restore CS0618
 
     /// <summary>
     /// An instance of <see cref="ILoggerFactory" /> that will be used to construct <see cref="ILog" />s for static fields.
@@ -40,12 +44,52 @@ public static class LogManager
     /// <remarks>
     /// Replace this instance at application startup to redirect log events to the custom logging library.
     /// </remarks>
+    [ObsoleteMetadata(
+        Message = "Configure logging through Microsoft.Extensions.Logging directly",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("Configure logging through Microsoft.Extensions.Logging directly. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static void UseFactory(ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         defaultLoggerFactory = new Lazy<ILoggerFactory>(() => loggerFactory);
+        defaultLoggerFactoryDefinition = null;
         _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
+    }
+
+    internal static DefaultLoggingConfiguration? GetLoggingConfiguration()
+    {
+        if (IsExternalFactoryConfigured)
+        {
+            return null;
+        }
+
+#pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
+        var factory = defaultLoggerFactoryDefinition as DefaultFactory;
+        return new DefaultLoggingConfiguration(factory?.LoggingDirectory ?? Host.GetOutputDirectory(), factory?.LoggingLevel ?? LogLevel.Info);
+#pragma warning restore CS0618
+    }
+
+    static ILoggerFactory? GetExternalFactoryIfAvailable() => IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
+
+    static bool IsExternalFactoryConfigured => defaultLoggerFactoryDefinition is null;
+
+    internal sealed class DefaultLoggingConfiguration(string loggingDirectory, LogLevel nsbLogLevel)
+    {
+        public string LoggingDirectory { get; } = loggingDirectory;
+        public Microsoft.Extensions.Logging.LogLevel MicrosoftLogLevel => ConvertLogLevel(nsbLogLevel);
+
+        static Microsoft.Extensions.Logging.LogLevel ConvertLogLevel(LogLevel level) =>
+            level switch
+            {
+                LogLevel.Debug => Microsoft.Extensions.Logging.LogLevel.Debug,
+                LogLevel.Info => Microsoft.Extensions.Logging.LogLevel.Information,
+                LogLevel.Warn => Microsoft.Extensions.Logging.LogLevel.Warning,
+                LogLevel.Error => Microsoft.Extensions.Logging.LogLevel.Error,
+                LogLevel.Fatal => Microsoft.Extensions.Logging.LogLevel.Critical,
+                _ => Microsoft.Extensions.Logging.LogLevel.Information
+            };
     }
 
     /// <summary>
@@ -70,6 +114,11 @@ public static class LogManager
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return loggers.GetOrAdd(name, static loggerName => new SlotAwareLogger(loggerName));
     }
+
+    internal static ILoggerFactory Adapt(Microsoft.Extensions.Logging.ILoggerFactory microsoftLoggerFactory) =>
+        GetExternalFactoryIfAvailable() is { } externalFactory
+            ? new ExternalLoggerFactoryAdapter(externalFactory, microsoftLoggerFactory)
+            : new MicrosoftLoggerFactoryAdapter(microsoftLoggerFactory);
 
     internal static void RegisterSlotFactory(object slot, ILoggerFactory loggerFactory)
     {
@@ -117,7 +166,7 @@ public static class LogManager
         }
     }
 
-    internal static IDisposable BeginSlotScope(object slot)
+    internal static SlotScope BeginSlotScope(object slot)
     {
         ArgumentNullException.ThrowIfNull(slot);
 
@@ -481,9 +530,9 @@ public static class LogManager
         }
     }
 
-    sealed class SlotScope : IDisposable
+    internal readonly struct SlotScope : IDisposable
     {
-        public SlotScope(SlotContext slot, bool activateExternalScope)
+        internal SlotScope(SlotContext slot, bool activateExternalScope)
         {
             previousSlot = currentSlot.Value;
             currentSlot.Value = slot;
@@ -504,13 +553,13 @@ public static class LogManager
         readonly IDisposable? activeScope;
     }
 
-    sealed class SlotContext(object identifier, LogScopeState scopeState)
+    internal sealed class SlotContext(object identifier, LogScopeState scopeState)
     {
         public SlotKey Key { get; } = new(identifier);
         public LogScopeState ScopeState { get; } = scopeState;
     }
 
-    readonly struct SlotKey(object value) : IEquatable<SlotKey>
+    internal readonly struct SlotKey(object value) : IEquatable<SlotKey>
     {
         public object Value { get; } = value;
 
@@ -519,10 +568,12 @@ public static class LogManager
         public override bool Equals(object? obj) => obj is SlotKey other && Equals(other);
 
         public override int GetHashCode() => Value.GetHashCode();
-
     }
 
+#pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
     static Lazy<ILoggerFactory> defaultLoggerFactory = new(new DefaultFactory().GetLoggingFactory);
+    static LoggingFactoryDefinition? defaultLoggerFactoryDefinition = new DefaultFactory();
+#pragma warning restore CS0618
     static readonly AsyncLocal<SlotContext?> currentSlot = new();
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
