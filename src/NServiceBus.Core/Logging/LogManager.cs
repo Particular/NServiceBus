@@ -5,6 +5,7 @@ namespace NServiceBus.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Particular.Obsoletes;
@@ -160,6 +161,14 @@ public static class LogManager
         ArgumentNullException.ThrowIfNull(slot);
 
         var slotKey = new SlotKey(slot);
+
+        if (!slotLoggerFactories.ContainsKey(slotKey) && scopedStartupLogsBySlot.TryRemove(slotKey, out var pendingScopedLogs))
+        {
+            while (pendingScopedLogs.TryDequeue(out var entry))
+            {
+                entry.WriteToTrace();
+            }
+        }
 
         slotContexts.TryRemove(slotKey, out _);
         slotLoggerFactories.TryRemove(slotKey, out _);
@@ -456,6 +465,19 @@ public static class LogManager
                 default:
                     throw new InvalidOperationException($"Unsupported deferred log entry kind '{kind}'.");
             }
+        }
+
+        public void WriteToTrace()
+        {
+            var message = kind switch
+            {
+                DeferredLogEntryKind.Message => text,
+                DeferredLogEntryKind.Exception => exception is null ? text : $"{text}{Environment.NewLine}{exception}",
+                DeferredLogEntryKind.Format => args is null ? text : string.Format(text!, args),
+                _ => throw new InvalidOperationException($"Unsupported deferred log entry kind '{kind}'.")
+            };
+
+            Trace.WriteLine($"{level}: {message}");
         }
 
         static void WriteMessage(ILog logger, LogLevel level, string? message)

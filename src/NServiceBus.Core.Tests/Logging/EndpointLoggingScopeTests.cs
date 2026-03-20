@@ -4,6 +4,8 @@ namespace NServiceBus.Core.Tests.Logging;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Logging;
@@ -151,17 +153,15 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
-    public void Should_discard_pending_scoped_startup_logs_when_slot_is_unregistered_without_factory()
+    public void Should_flush_pending_scoped_startup_logs_to_trace_when_slot_is_unregistered_without_factory()
     {
-        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
-#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
-        LogManager.UseFactory(defaultLoggerFactory);
-#pragma warning restore CS0618
+        using var traceOutput = new StringWriter();
+        using var traceListener = new TextWriterTraceListener(traceOutput);
+        Trace.Listeners.Add(traceListener);
 
         // Slot is created but its factory is never resolved (simulates a failed endpoint startup).
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
-        var logger = LogManager.GetLogger(loggerName);
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
 
         using (LogManager.BeginSlotScope(slot))
         {
@@ -170,20 +170,21 @@ public class EndpointLoggingScopeTests
 
         LogManager.UnregisterSlot(slot);
 
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.Empty);
+        traceListener.Flush();
+        Trace.Listeners.Remove(traceListener);
+
+        Assert.That(traceOutput.ToString(), Does.Contain("Info: startup-log"));
     }
 
     [Test]
-    public void Should_not_replay_scoped_startup_logs_when_slot_is_unregistered_multiple_times()
+    public void Should_not_duplicate_trace_flush_when_slot_is_unregistered_multiple_times()
     {
-        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
-#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
-        LogManager.UseFactory(defaultLoggerFactory);
-#pragma warning restore CS0618
+        using var traceOutput = new StringWriter();
+        using var traceListener = new TextWriterTraceListener(traceOutput);
+        Trace.Listeners.Add(traceListener);
 
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
-        var logger = LogManager.GetLogger(loggerName);
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
 
         using (LogManager.BeginSlotScope(slot))
         {
@@ -193,7 +194,15 @@ public class EndpointLoggingScopeTests
         LogManager.UnregisterSlot(slot);
         LogManager.UnregisterSlot(slot);
 
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.Empty);
+        traceListener.Flush();
+        Trace.Listeners.Remove(traceListener);
+
+        var output = traceOutput.ToString();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(output, Does.Contain("Info: startup-log"));
+            Assert.That(CountOccurrences(output, "Info: startup-log"), Is.EqualTo(1));
+        }
     }
 
     [Test]
@@ -400,5 +409,18 @@ public class EndpointLoggingScopeTests
         public void FatalFormat(string format, params object?[] args) => Messages.Enqueue(string.Format(format, args));
 
         public Queue<string?> Messages { get; } = new();
+    }
+
+    static int CountOccurrences(string text, string value)
+    {
+        var count = 0;
+        var index = 0;
+        while ((index = text.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            index += value.Length;
+        }
+
+        return count;
     }
 }
