@@ -285,7 +285,7 @@ public static class LogManager
                 return isEnabled(logger);
             }
 
-            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
+            if (TryGetCurrentSlotContext(out _))
             {
                 return true;
             }
@@ -301,7 +301,7 @@ public static class LogManager
                 return;
             }
 
-            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
+            if (TryGetCurrentSlotContext(out var slotContext))
             {
                 EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Message(name, level, message));
                 return;
@@ -318,7 +318,7 @@ public static class LogManager
                 return;
             }
 
-            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
+            if (TryGetCurrentSlotContext(out var slotContext))
             {
                 EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Exception(name, level, message, exception));
                 return;
@@ -335,7 +335,7 @@ public static class LogManager
                 return;
             }
 
-            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
+            if (TryGetCurrentSlotContext(out var slotContext))
             {
                 EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Format(name, level, format, args));
                 return;
@@ -394,8 +394,6 @@ public static class LogManager
             logger = null!;
             return false;
         }
-
-        static bool ShouldDeferSlotLogs(SlotKey slotKey) => !slotLoggerFactories.ContainsKey(slotKey);
 
         static bool TryGetCurrentSlotContext([NotNullWhen(true)] out SlotContext? slotContext)
         {
