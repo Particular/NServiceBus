@@ -303,7 +303,7 @@ public static class LogManager
 
             if (TryGetCurrentSlotContext(out var slotContext))
             {
-                EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Message(name, level, message));
+                WriteOrEnqueueScopedStartupLog(slotContext, DeferredLogEntry.Message(name, level, message));
                 return;
             }
 
@@ -320,7 +320,7 @@ public static class LogManager
 
             if (TryGetCurrentSlotContext(out var slotContext))
             {
-                EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Exception(name, level, message, exception));
+                WriteOrEnqueueScopedStartupLog(slotContext, DeferredLogEntry.Exception(name, level, message, exception));
                 return;
             }
 
@@ -337,7 +337,7 @@ public static class LogManager
 
             if (TryGetCurrentSlotContext(out var slotContext))
             {
-                EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Format(name, level, format, args));
+                WriteOrEnqueueScopedStartupLog(slotContext, DeferredLogEntry.Format(name, level, format, args));
                 return;
             }
 
@@ -399,6 +399,17 @@ public static class LogManager
         {
             slotContext = currentSlot.Value;
             return slotContext is not null;
+        }
+
+        static void WriteOrEnqueueScopedStartupLog(SlotContext slotContext, DeferredLogEntry entry)
+        {
+            if (slotContexts.ContainsKey(slotContext.Key))
+            {
+                EnqueueScopedStartupLog(slotContext.Key, entry);
+                return;
+            }
+
+            entry.WriteToTrace();
         }
 
         ILog? defaultLogger;

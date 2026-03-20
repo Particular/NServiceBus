@@ -206,6 +206,43 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
+    public void Should_write_to_trace_instead_of_buffering_when_logging_inside_stale_slot_scope_after_unregistration()
+    {
+        using var traceOutput = new StringWriter();
+        using var traceListener = new TextWriterTraceListener(traceOutput);
+        Trace.Listeners.Add(traceListener);
+
+        var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        var staleScope = LogManager.BeginSlotScope(slot);
+        LogManager.UnregisterSlot(slot);
+
+        logger.Info("stale-scope-log");
+
+        staleScope.Dispose();
+
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(slotLoggerFactory));
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.Info("fresh-log");
+        }
+
+        traceListener.Flush();
+        Trace.Listeners.Remove(traceListener);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(traceOutput.ToString(), Does.Contain("Info").And.Contains("stale-scope-log"));
+            Assert.That(slotLoggerFactory.Logger.CapturedMessages, Does.Contain("fresh-log"));
+            Assert.That(slotLoggerFactory.Logger.CapturedMessages, Does.Not.Contain("stale-scope-log"));
+        }
+
+        LogManager.UnregisterSlot(slot);
+    }
+
+    [Test]
     public void Should_route_unscoped_logs_to_default_after_slot_is_unregistered()
     {
         var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
