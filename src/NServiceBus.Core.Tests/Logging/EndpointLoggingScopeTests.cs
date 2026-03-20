@@ -12,6 +12,14 @@ using NUnit.Framework;
 [TestFixture]
 public class EndpointLoggingScopeTests
 {
+    [TearDown]
+    public void Cleanup()
+    {
+#pragma warning disable CS0618 // Test cleanup intentionally resets global LogManager default factory
+        LogManager.Use<DefaultFactory>();
+#pragma warning restore CS0618
+    }
+
     [Test]
     public void Should_include_endpoint_name_and_identifier_for_multi_hosted_endpoints()
     {
@@ -189,31 +197,28 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
-    public void Should_replay_unscoped_logs_to_next_registered_slot_after_slot_is_unregistered()
+    public void Should_route_unscoped_logs_to_default_after_slot_is_unregistered()
     {
-        var firstSlotLoggerFactory = new CollectingMicrosoftLoggerFactory();
-        var secondSlotLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
+#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
+        LogManager.UseFactory(defaultLoggerFactory);
+#pragma warning restore CS0618
 
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var secondSlot = new EndpointLogSlot($"Billing-{Guid.NewGuid():N}", "green");
         var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
         var logger = LogManager.GetLogger(loggerName);
 
-        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(firstSlotLoggerFactory));
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(slotLoggerFactory));
         LogManager.UnregisterSlot(slot);
 
-        // Log outside any slot scope so the entry lands in the unscoped startup buffer.
         logger.Info("after-unregister");
-
-        LogManager.RegisterSlotFactory(secondSlot, new MicrosoftLoggerFactoryAdapter(secondSlotLoggerFactory));
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(firstSlotLoggerFactory.Logger.CapturedLogScopes, Is.Empty);
-            Assert.That(secondSlotLoggerFactory.Logger.CapturedMessages, Does.Contain("after-unregister"));
+            Assert.That(slotLoggerFactory.Logger.CapturedLogScopes, Is.Empty);
+            Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["after-unregister"]));
         }
-
-        LogManager.UnregisterSlot(secondSlot);
     }
 
     [Test]

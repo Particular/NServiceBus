@@ -132,7 +132,6 @@ public static class LogManager
 
         using var _ = new SlotScope(slotContext, activateExternalScope: true);
         DrainScopedStartupLogs(slotKey, loggerFactory);
-        ReplayUnscopedStartupLogs(loggerFactory);
     }
 
     internal static void UnregisterSlot(object slot)
@@ -184,26 +183,6 @@ public static class LogManager
         queue.Enqueue(entry);
     }
 
-    static void EnqueueUnscopedStartupLog(DeferredLogEntry entry)
-    {
-        var now = DateTimeOffset.UtcNow;
-        EvictExpiredUnscopedStartupLogs(now);
-
-        while (Volatile.Read(ref unscopedStartupLogCount) >= MaxUnscopedStartupLogs)
-        {
-            if (!unscopedStartupLogs.TryDequeue(out _))
-            {
-                break;
-            }
-
-            _ = Interlocked.Decrement(ref unscopedStartupLogCount);
-            _ = Interlocked.Increment(ref droppedUnscopedStartupLogs);
-        }
-
-        unscopedStartupLogs.Enqueue(new TimedDeferredLogEntry(entry, now));
-        _ = Interlocked.Increment(ref unscopedStartupLogCount);
-    }
-
     static void DrainScopedStartupLogs(SlotKey slotKey, ILoggerFactory loggerFactory)
     {
         if (!scopedStartupLogsBySlot.TryRemove(slotKey, out var scopedLogs))
@@ -224,47 +203,7 @@ public static class LogManager
         }
     }
 
-    static void ReplayUnscopedStartupLogs(ILoggerFactory loggerFactory)
-    {
-        var now = DateTimeOffset.UtcNow;
-        EvictExpiredUnscopedStartupLogs(now);
 
-        if (Volatile.Read(ref unscopedStartupLogCount) == 0)
-        {
-            return;
-        }
-
-        var cachedLoggers = new Dictionary<string, ILog>(StringComparer.Ordinal);
-        foreach (var entry in unscopedStartupLogs)
-        {
-            if (now - entry.Timestamp > UnscopedStartupLogTtl)
-            {
-                continue;
-            }
-
-            var deferred = entry.Entry;
-            if (!cachedLoggers.TryGetValue(deferred.LoggerName, out var logger))
-            {
-                logger = loggerFactory.GetLogger(deferred.LoggerName);
-                cachedLoggers.Add(deferred.LoggerName, logger);
-            }
-
-            deferred.WriteTo(logger);
-        }
-    }
-
-    static void EvictExpiredUnscopedStartupLogs(DateTimeOffset now)
-    {
-        while (unscopedStartupLogs.TryPeek(out var entry) && now - entry.Timestamp > UnscopedStartupLogTtl)
-        {
-            if (!unscopedStartupLogs.TryDequeue(out _))
-            {
-                break;
-            }
-
-            _ = Interlocked.Decrement(ref unscopedStartupLogCount);
-        }
-    }
 
     sealed class SlotAwareLogger(string name) : ILog
     {
@@ -332,7 +271,20 @@ public static class LogManager
             }
         }
 
-        bool IsEnabled(Func<ILog, bool> isEnabled) => !TryGetLogger(out var logger) || isEnabled(logger);
+        bool IsEnabled(Func<ILog, bool> isEnabled)
+        {
+            if (TryGetLogger(out var logger))
+            {
+                return isEnabled(logger);
+            }
+
+            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
+            {
+                return true;
+            }
+
+            return isEnabled(GetDefaultLogger());
+        }
 
         void Write(LogLevel level, string? message, Action<ILog, string?> writeAction)
         {
@@ -348,7 +300,7 @@ public static class LogManager
                 return;
             }
 
-            EnqueueUnscopedStartupLog(DeferredLogEntry.Message(name, level, message));
+            writeAction(GetDefaultLogger(), message);
         }
 
         void Write(LogLevel level, string? message, Exception? exception, Action<ILog, string?, Exception?> writeAction)
@@ -365,7 +317,7 @@ public static class LogManager
                 return;
             }
 
-            EnqueueUnscopedStartupLog(DeferredLogEntry.Exception(name, level, message, exception));
+            writeAction(GetDefaultLogger(), message, exception);
         }
 
         void Write(LogLevel level, string format, object?[] args, Action<ILog, string, object?[]> writeAction)
@@ -382,7 +334,21 @@ public static class LogManager
                 return;
             }
 
-            EnqueueUnscopedStartupLog(DeferredLogEntry.Format(name, level, format, args));
+            writeAction(GetDefaultLogger(), format, args);
+        }
+
+        ILog GetDefaultLogger()
+        {
+            var currentFactoryVersion = Volatile.Read(ref defaultLoggerFactoryVersion);
+            if (defaultLoggerFactoryVersionSnapshot == currentFactoryVersion && defaultLogger is { } cached)
+            {
+                return cached;
+            }
+
+            var createdLogger = defaultLoggerFactory.Value.GetLogger(name);
+            defaultLogger = createdLogger;
+            defaultLoggerFactoryVersionSnapshot = currentFactoryVersion;
+            return createdLogger;
         }
 
         bool TryGetLogger(out ILog logger)
@@ -426,6 +392,8 @@ public static class LogManager
             return slotContext is not null;
         }
 
+        ILog? defaultLogger;
+        volatile int defaultLoggerFactoryVersionSnapshot = -1;
         CachedSlot? cachedSlot;
         readonly ConcurrentDictionary<SlotKey, ILog> slotLoggers = new();
 
@@ -436,12 +404,6 @@ public static class LogManager
             public SlotContext Context { get; } = context;
             public ILog Logger { get; } = logger;
         }
-    }
-
-    readonly struct TimedDeferredLogEntry(DeferredLogEntry entry, DateTimeOffset timestamp)
-    {
-        public DeferredLogEntry Entry { get; } = entry;
-        public DateTimeOffset Timestamp { get; } = timestamp;
     }
 
     readonly struct DeferredLogEntry(string loggerName, DeferredLogEntryKind kind, LogLevel level, string? text, Exception? exception, object?[]? args)
@@ -604,10 +566,5 @@ public static class LogManager
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
     static readonly ConcurrentDictionary<SlotKey, ILoggerFactory> slotLoggerFactories = new();
     static readonly ConcurrentDictionary<SlotKey, ConcurrentQueue<DeferredLogEntry>> scopedStartupLogsBySlot = new();
-    static readonly ConcurrentQueue<TimedDeferredLogEntry> unscopedStartupLogs = new();
-    static readonly TimeSpan UnscopedStartupLogTtl = TimeSpan.FromMinutes(2);
-    const int MaxUnscopedStartupLogs = 1024;
     static int defaultLoggerFactoryVersion;
-    static int unscopedStartupLogCount;
-    static int droppedUnscopedStartupLogs;
 }
