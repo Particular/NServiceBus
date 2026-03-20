@@ -354,15 +354,10 @@ public static class LogManager
                 return cached;
             }
 
-            ILog createdLogger;
-            try
-            {
-                createdLogger = defaultLoggerFactory.Value.GetLogger(name);
-            }
-            catch (NotSupportedException)
-            {
-                createdLogger = new TraceFallbackLog(name);
-            }
+            var loggerFactory = defaultLoggerFactory.Value;
+            var createdLogger = loggerFactory is IUnsupportedDefaultFactoryLoggerFactory
+                ? new TraceFallbackLog(name)
+                : loggerFactory.GetLogger(name);
 
             defaultLogger = createdLogger;
             defaultLoggerFactoryVersionSnapshot = currentFactoryVersion;
