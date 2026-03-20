@@ -19,6 +19,7 @@ class MutateIncomingTransportMessageBehavior(HashSet<IMutateIncomingTransportMes
     {
         var mutatorsRegisteredInDI = context.Builder.GetServices<IMutateIncomingTransportMessages>();
         var transportMessage = context.Message;
+        transportMessage.SnapshotHeaders();
         var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers, context.CancellationToken);
 
         var hasMutators = false;
