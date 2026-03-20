@@ -143,7 +143,7 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
-    public void Should_flush_pending_deferred_logs_to_default_logger_when_slot_is_unregistered()
+    public void Should_discard_pending_scoped_startup_logs_when_slot_is_unregistered_without_factory()
     {
         var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
 #pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
@@ -162,11 +162,11 @@ public class EndpointLoggingScopeTests
 
         LogManager.UnregisterSlot(slot);
 
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["startup-log"]));
+        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.Empty);
     }
 
     [Test]
-    public void Should_not_duplicate_pending_deferred_logs_when_slot_is_unregistered_multiple_times()
+    public void Should_not_replay_scoped_startup_logs_when_slot_is_unregistered_multiple_times()
     {
         var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
 #pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
@@ -185,34 +185,35 @@ public class EndpointLoggingScopeTests
         LogManager.UnregisterSlot(slot);
         LogManager.UnregisterSlot(slot);
 
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["startup-log"]));
+        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.Empty);
     }
 
     [Test]
-    public void Should_route_logs_to_default_after_slot_is_unregistered()
+    public void Should_replay_unscoped_logs_to_next_registered_slot_after_slot_is_unregistered()
     {
-        var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
-        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
-#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
-        LogManager.UseFactory(defaultLoggerFactory);
-#pragma warning restore CS0618
+        var firstSlotLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var secondSlotLoggerFactory = new CollectingMicrosoftLoggerFactory();
 
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var secondSlot = new EndpointLogSlot($"Billing-{Guid.NewGuid():N}", "green");
         var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
         var logger = LogManager.GetLogger(loggerName);
 
-        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(slotLoggerFactory));
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(firstSlotLoggerFactory));
         LogManager.UnregisterSlot(slot);
 
-        // Log outside any slot scope — BeginSlotScope must not be used here because it
-        // calls GetOrAddSlotContext which re-inserts the slot as Pending, which would
-        // cause ShouldDeferSlotLogs to return true and defer the message instead of
-        // writing it to the default logger.
+        // Log outside any slot scope so the entry lands in the unscoped startup buffer.
         logger.Info("after-unregister");
 
-        // The slot's factory is gone — the message must have gone to the default logger.
-        Assert.That(slotLoggerFactory.Logger.CapturedLogScopes, Is.Empty);
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["after-unregister"]));
+        LogManager.RegisterSlotFactory(secondSlot, new MicrosoftLoggerFactoryAdapter(secondSlotLoggerFactory));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(firstSlotLoggerFactory.Logger.CapturedLogScopes, Is.Empty);
+            Assert.That(secondSlotLoggerFactory.Logger.CapturedMessages, Does.Contain("after-unregister"));
+        }
+
+        LogManager.UnregisterSlot(secondSlot);
     }
 
     [Test]

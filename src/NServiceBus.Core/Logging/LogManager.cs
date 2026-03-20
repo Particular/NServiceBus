@@ -4,6 +4,7 @@ namespace NServiceBus.Logging;
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Particular.Obsoletes;
@@ -126,18 +127,12 @@ public static class LogManager
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         var slotKey = new SlotKey(slot);
-        // Register the factory before updating the state so that any concurrent write
-        // that lands between the two assignments still finds the factory via TryGetLogger
-        // and routes to it rather than falling through to the default logger.
         slotLoggerFactories[slotKey] = loggerFactory;
-        slotFactoryStates[slotKey] = SlotFactoryState.Resolved;
         var slotContext = GetOrAddSlotContext(slotKey);
 
         using var _ = new SlotScope(slotContext, activateExternalScope: true);
-        foreach (var logger in loggers.Values)
-        {
-            logger.Flush(slotKey, loggerFactory);
-        }
+        DrainScopedStartupLogs(slotKey, loggerFactory);
+        ReplayUnscopedStartupLogs(loggerFactory);
     }
 
     internal static void UnregisterSlot(object slot)
@@ -146,19 +141,9 @@ public static class LogManager
 
         var slotKey = new SlotKey(slot);
 
-        // If any logs were deferred but the factory was never resolved, flush them to
-        // the default logger now so they are not silently discarded on cleanup.
-        if (slotFactoryStates.TryGetValue(slotKey, out var state) && state == SlotFactoryState.Pending)
-        {
-            foreach (var logger in loggers.Values)
-            {
-                logger.FlushToDefault(slotKey);
-            }
-        }
-
         slotContexts.TryRemove(slotKey, out _);
         slotLoggerFactories.TryRemove(slotKey, out _);
-        slotFactoryStates.TryRemove(slotKey, out _);
+        scopedStartupLogsBySlot.TryRemove(slotKey, out _);
 
         foreach (var logger in loggers.Values)
         {
@@ -188,14 +173,98 @@ public static class LogManager
     }
 
     static SlotContext GetOrAddSlotContext(SlotKey slotKey) =>
-        slotContexts.GetOrAdd(slotKey, static key =>
-        {
-            _ = slotFactoryStates.TryAdd(key, SlotFactoryState.Pending);
-            return new SlotContext(key.Value, CreateScopeState(key.Value));
-        });
+        slotContexts.GetOrAdd(slotKey, static key => new SlotContext(key.Value, CreateScopeState(key.Value)));
 
     static LogScopeState CreateScopeState(object slot) =>
         slot is LogSlot logSlot ? logSlot.ScopeState : new LogScopeStates(slot, endpointIdentifier: null);
+
+    static void EnqueueScopedStartupLog(SlotKey slotKey, DeferredLogEntry entry)
+    {
+        var queue = scopedStartupLogsBySlot.GetOrAdd(slotKey, static _ => new ConcurrentQueue<DeferredLogEntry>());
+        queue.Enqueue(entry);
+    }
+
+    static void EnqueueUnscopedStartupLog(DeferredLogEntry entry)
+    {
+        var now = DateTimeOffset.UtcNow;
+        EvictExpiredUnscopedStartupLogs(now);
+
+        while (Volatile.Read(ref unscopedStartupLogCount) >= MaxUnscopedStartupLogs)
+        {
+            if (!unscopedStartupLogs.TryDequeue(out _))
+            {
+                break;
+            }
+
+            _ = Interlocked.Decrement(ref unscopedStartupLogCount);
+            _ = Interlocked.Increment(ref droppedUnscopedStartupLogs);
+        }
+
+        unscopedStartupLogs.Enqueue(new TimedDeferredLogEntry(entry, now));
+        _ = Interlocked.Increment(ref unscopedStartupLogCount);
+    }
+
+    static void DrainScopedStartupLogs(SlotKey slotKey, ILoggerFactory loggerFactory)
+    {
+        if (!scopedStartupLogsBySlot.TryRemove(slotKey, out var scopedLogs))
+        {
+            return;
+        }
+
+        var cachedLoggers = new Dictionary<string, ILog>(StringComparer.Ordinal);
+        while (scopedLogs.TryDequeue(out var entry))
+        {
+            if (!cachedLoggers.TryGetValue(entry.LoggerName, out var logger))
+            {
+                logger = loggerFactory.GetLogger(entry.LoggerName);
+                cachedLoggers.Add(entry.LoggerName, logger);
+            }
+
+            entry.WriteTo(logger);
+        }
+    }
+
+    static void ReplayUnscopedStartupLogs(ILoggerFactory loggerFactory)
+    {
+        var now = DateTimeOffset.UtcNow;
+        EvictExpiredUnscopedStartupLogs(now);
+
+        if (Volatile.Read(ref unscopedStartupLogCount) == 0)
+        {
+            return;
+        }
+
+        var cachedLoggers = new Dictionary<string, ILog>(StringComparer.Ordinal);
+        foreach (var entry in unscopedStartupLogs)
+        {
+            if (now - entry.Timestamp > UnscopedStartupLogTtl)
+            {
+                continue;
+            }
+
+            var deferred = entry.Entry;
+            if (!cachedLoggers.TryGetValue(deferred.LoggerName, out var logger))
+            {
+                logger = loggerFactory.GetLogger(deferred.LoggerName);
+                cachedLoggers.Add(deferred.LoggerName, logger);
+            }
+
+            deferred.WriteTo(logger);
+        }
+    }
+
+    static void EvictExpiredUnscopedStartupLogs(DateTimeOffset now)
+    {
+        while (unscopedStartupLogs.TryPeek(out var entry) && now - entry.Timestamp > UnscopedStartupLogTtl)
+        {
+            if (!unscopedStartupLogs.TryDequeue(out _))
+            {
+                break;
+            }
+
+            _ = Interlocked.Decrement(ref unscopedStartupLogCount);
+        }
+    }
 
     sealed class SlotAwareLogger(string name) : ILog
     {
@@ -250,30 +319,8 @@ public static class LogManager
         public void FatalFormat(string format, params object?[] args) => Write(LogLevel.Fatal, format, args,
             static (logger, payload, payloadArgs) => logger.FatalFormat(payload, payloadArgs));
 
-        public void Flush(SlotKey slotKey, ILoggerFactory loggerFactory)
-        {
-            if (!deferredLogsBySlot.TryGetValue(slotKey, out var deferredLogs))
-            {
-                return;
-            }
-
-            var logger = slotLoggers.GetOrAdd(slotKey, static (_, state) => state.loggerFactory.GetLogger(state.name), (loggerFactory, name));
-            deferredLogs.FlushTo(logger);
-        }
-
-        public void FlushToDefault(SlotKey slotKey)
-        {
-            if (!deferredLogsBySlot.TryGetValue(slotKey, out var deferredLogs))
-            {
-                return;
-            }
-
-            deferredLogs.FlushTo(GetDefaultLogger());
-        }
-
         public void RemoveSlot(SlotKey slotKey)
         {
-            deferredLogsBySlot.TryRemove(slotKey, out _);
             slotLoggers.TryRemove(slotKey, out _);
 
             // Invalidate the instance-level cache if it was pointing at the removed slot
@@ -285,20 +332,7 @@ public static class LogManager
             }
         }
 
-        bool IsEnabled(Func<ILog, bool> isEnabled)
-        {
-            if (TryGetLogger(out var logger))
-            {
-                return isEnabled(logger);
-            }
-
-            if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
-            {
-                return true;
-            }
-
-            return isEnabled(GetDefaultLogger());
-        }
+        bool IsEnabled(Func<ILog, bool> isEnabled) => !TryGetLogger(out var logger) || isEnabled(logger);
 
         void Write(LogLevel level, string? message, Action<ILog, string?> writeAction)
         {
@@ -310,12 +344,11 @@ public static class LogManager
 
             if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
             {
-                var deferredLogs = deferredLogsBySlot.GetOrAdd(slotContext.Key, _ => new DeferredLogs());
-                deferredLogs.DeferredMessageLogs.Enqueue((level, message));
+                EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Message(name, level, message));
                 return;
             }
 
-            writeAction(GetDefaultLogger(), message);
+            EnqueueUnscopedStartupLog(DeferredLogEntry.Message(name, level, message));
         }
 
         void Write(LogLevel level, string? message, Exception? exception, Action<ILog, string?, Exception?> writeAction)
@@ -328,12 +361,11 @@ public static class LogManager
 
             if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
             {
-                var deferredLogs = deferredLogsBySlot.GetOrAdd(slotContext.Key, _ => new DeferredLogs());
-                deferredLogs.DeferredExceptionLogs.Enqueue((level, message, exception));
+                EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Exception(name, level, message, exception));
                 return;
             }
 
-            writeAction(GetDefaultLogger(), message, exception);
+            EnqueueUnscopedStartupLog(DeferredLogEntry.Exception(name, level, message, exception));
         }
 
         void Write(LogLevel level, string format, object?[] args, Action<ILog, string, object?[]> writeAction)
@@ -346,32 +378,11 @@ public static class LogManager
 
             if (TryGetCurrentSlotContext(out var slotContext) && ShouldDeferSlotLogs(slotContext.Key))
             {
-                var deferredLogs = deferredLogsBySlot.GetOrAdd(slotContext.Key, _ => new DeferredLogs());
-                deferredLogs.DeferredFormatLogs.Enqueue((level, format, args));
+                EnqueueScopedStartupLog(slotContext.Key, DeferredLogEntry.Format(name, level, format, args));
                 return;
             }
 
-            writeAction(GetDefaultLogger(), format, args);
-        }
-
-        ILog GetDefaultLogger()
-        {
-            var currentFactoryVersion = Volatile.Read(ref defaultLoggerFactoryVersion);
-            // Read the version snapshot first (volatile acquire) before reading defaultLogger
-            // so the subsequent read is guaranteed to observe the value written before the
-            // version was published — required for correctness on weakly-ordered hardware (ARM).
-            if (defaultLoggerFactoryVersionSnapshot == currentFactoryVersion && defaultLogger is { } cached)
-            {
-                return cached;
-            }
-
-            var createdLogger = defaultLoggerFactory.Value.GetLogger(name);
-            // Write defaultLogger first (plain store), then publish via volatile write to
-            // defaultLoggerFactoryVersionSnapshot (release barrier) so any thread that reads
-            // the matching version is guaranteed to observe the updated logger reference.
-            defaultLogger = createdLogger;
-            defaultLoggerFactoryVersionSnapshot = currentFactoryVersion;
-            return createdLogger;
+            EnqueueUnscopedStartupLog(DeferredLogEntry.Format(name, level, format, args));
         }
 
         bool TryGetLogger(out ILog logger)
@@ -396,17 +407,6 @@ public static class LogManager
             {
                 var resolvedLogger = slotLoggers.GetOrAdd(slotContext.Key, static (_, state) => state.loggerFactory.GetLogger(state.name), (name, loggerFactory));
 
-                // Self-flush any deferred logs that accumulated before the factory became
-                // available. This closes the race where RegisterSlotFactory's explicit
-                // flush pass ran before this SlotAwareLogger was inserted into loggers,
-                // or where a write raced the factory assignment and deferred instead of
-                // routing directly. TryRemove ensures each message is delivered exactly once
-                // even if the explicit flush and this path run concurrently.
-                if (deferredLogsBySlot.TryRemove(slotContext.Key, out var deferred))
-                {
-                    deferred.FlushTo(resolvedLogger);
-                }
-
                 logger = resolvedLogger;
                 // Publish both context and logger together as one reference so concurrent
                 // reads either see the old entry or the fully-initialised new one.
@@ -418,8 +418,7 @@ public static class LogManager
             return false;
         }
 
-        static bool ShouldDeferSlotLogs(SlotKey slotKey) =>
-            !slotFactoryStates.TryGetValue(slotKey, out var state) || state == SlotFactoryState.Pending;
+        static bool ShouldDeferSlotLogs(SlotKey slotKey) => !slotLoggerFactories.ContainsKey(slotKey);
 
         static bool TryGetCurrentSlotContext([NotNullWhen(true)] out SlotContext? slotContext)
         {
@@ -427,10 +426,7 @@ public static class LogManager
             return slotContext is not null;
         }
 
-        ILog? defaultLogger;
-        volatile int defaultLoggerFactoryVersionSnapshot = -1;
         CachedSlot? cachedSlot;
-        readonly ConcurrentDictionary<SlotKey, DeferredLogs> deferredLogsBySlot = new();
         readonly ConcurrentDictionary<SlotKey, ILog> slotLoggers = new();
 
         // Bundles SlotContext and its resolved ILog into a single reference so Volatile.Read/Write
@@ -442,92 +438,121 @@ public static class LogManager
         }
     }
 
-    enum SlotFactoryState
+    readonly struct TimedDeferredLogEntry(DeferredLogEntry entry, DateTimeOffset timestamp)
     {
-        Pending,
-        Resolved
+        public DeferredLogEntry Entry { get; } = entry;
+        public DateTimeOffset Timestamp { get; } = timestamp;
     }
 
-    sealed class DeferredLogs
+    readonly struct DeferredLogEntry(string loggerName, DeferredLogEntryKind kind, LogLevel level, string? text, Exception? exception, object?[]? args)
     {
-        public readonly ConcurrentQueue<(LogLevel level, string? message)> DeferredMessageLogs = new();
-        public readonly ConcurrentQueue<(LogLevel level, string? message, Exception? exception)> DeferredExceptionLogs = new();
-        public readonly ConcurrentQueue<(LogLevel level, string format, object?[] args)> DeferredFormatLogs = new();
+        public string LoggerName { get; } = loggerName;
 
-        public void FlushTo(ILog logger)
+        public static DeferredLogEntry Message(string loggerName, LogLevel level, string? message) =>
+            new(loggerName, DeferredLogEntryKind.Message, level, message, exception: null, args: null);
+
+        public static DeferredLogEntry Exception(string loggerName, LogLevel level, string? message, Exception? exception) =>
+            new(loggerName, DeferredLogEntryKind.Exception, level, message, exception, args: null);
+
+        public static DeferredLogEntry Format(string loggerName, LogLevel level, string format, object?[] args) =>
+            new(loggerName, DeferredLogEntryKind.Format, level, format, exception: null, args);
+
+        public void WriteTo(ILog logger)
         {
-            while (DeferredMessageLogs.TryDequeue(out var messageLog))
+            switch (kind)
             {
-                switch (messageLog.level)
-                {
-                    case LogLevel.Debug:
-                        logger.Debug(messageLog.message);
-                        break;
-                    case LogLevel.Info:
-                        logger.Info(messageLog.message);
-                        break;
-                    case LogLevel.Warn:
-                        logger.Warn(messageLog.message);
-                        break;
-                    case LogLevel.Error:
-                        logger.Error(messageLog.message);
-                        break;
-                    case LogLevel.Fatal:
-                        logger.Fatal(messageLog.message);
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Unsupported log level '{messageLog.level}'.");
-                }
-            }
-
-            while (DeferredExceptionLogs.TryDequeue(out var exceptionLog))
-            {
-                switch (exceptionLog.level)
-                {
-                    case LogLevel.Debug:
-                        logger.Debug(exceptionLog.message, exceptionLog.exception);
-                        break;
-                    case LogLevel.Info:
-                        logger.Info(exceptionLog.message, exceptionLog.exception);
-                        break;
-                    case LogLevel.Warn:
-                        logger.Warn(exceptionLog.message, exceptionLog.exception);
-                        break;
-                    case LogLevel.Error:
-                        logger.Error(exceptionLog.message, exceptionLog.exception);
-                        break;
-                    case LogLevel.Fatal:
-                        logger.Fatal(exceptionLog.message, exceptionLog.exception);
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Unsupported log level '{exceptionLog.level}'.");
-                }
-            }
-
-            while (DeferredFormatLogs.TryDequeue(out var formatLog))
-            {
-                switch (formatLog.level)
-                {
-                    case LogLevel.Debug:
-                        logger.DebugFormat(formatLog.format, formatLog.args);
-                        break;
-                    case LogLevel.Info:
-                        logger.InfoFormat(formatLog.format, formatLog.args);
-                        break;
-                    case LogLevel.Warn:
-                        logger.WarnFormat(formatLog.format, formatLog.args);
-                        break;
-                    case LogLevel.Error:
-                        logger.ErrorFormat(formatLog.format, formatLog.args);
-                        break;
-                    case LogLevel.Fatal:
-                        logger.FatalFormat(formatLog.format, formatLog.args);
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Unsupported log level '{formatLog.level}'.");
-                }
+                case DeferredLogEntryKind.Message:
+                    WriteMessage(logger, level, text);
+                    return;
+                case DeferredLogEntryKind.Exception:
+                    WriteException(logger, level, text, exception);
+                    return;
+                case DeferredLogEntryKind.Format:
+                    WriteFormat(logger, level, text!, args!);
+                    return;
+                default:
+                    throw new InvalidOperationException($"Unsupported deferred log entry kind '{kind}'.");
             }
         }
+
+        static void WriteMessage(ILog logger, LogLevel level, string? message)
+        {
+            switch (level)
+            {
+                case LogLevel.Debug:
+                    logger.Debug(message);
+                    break;
+                case LogLevel.Info:
+                    logger.Info(message);
+                    break;
+                case LogLevel.Warn:
+                    logger.Warn(message);
+                    break;
+                case LogLevel.Error:
+                    logger.Error(message);
+                    break;
+                case LogLevel.Fatal:
+                    logger.Fatal(message);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unsupported log level '{level}'.");
+            }
+        }
+
+        static void WriteException(ILog logger, LogLevel level, string? message, Exception? exception)
+        {
+            switch (level)
+            {
+                case LogLevel.Debug:
+                    logger.Debug(message, exception);
+                    break;
+                case LogLevel.Info:
+                    logger.Info(message, exception);
+                    break;
+                case LogLevel.Warn:
+                    logger.Warn(message, exception);
+                    break;
+                case LogLevel.Error:
+                    logger.Error(message, exception);
+                    break;
+                case LogLevel.Fatal:
+                    logger.Fatal(message, exception);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unsupported log level '{level}'.");
+            }
+        }
+
+        static void WriteFormat(ILog logger, LogLevel level, string format, object?[] args)
+        {
+            switch (level)
+            {
+                case LogLevel.Debug:
+                    logger.DebugFormat(format, args);
+                    break;
+                case LogLevel.Info:
+                    logger.InfoFormat(format, args);
+                    break;
+                case LogLevel.Warn:
+                    logger.WarnFormat(format, args);
+                    break;
+                case LogLevel.Error:
+                    logger.ErrorFormat(format, args);
+                    break;
+                case LogLevel.Fatal:
+                    logger.FatalFormat(format, args);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unsupported log level '{level}'.");
+            }
+        }
+    }
+
+    enum DeferredLogEntryKind
+    {
+        Message,
+        Exception,
+        Format
     }
 
     internal readonly struct SlotScope : IDisposable
@@ -578,6 +603,11 @@ public static class LogManager
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
     static readonly ConcurrentDictionary<SlotKey, ILoggerFactory> slotLoggerFactories = new();
-    static readonly ConcurrentDictionary<SlotKey, SlotFactoryState> slotFactoryStates = new();
+    static readonly ConcurrentDictionary<SlotKey, ConcurrentQueue<DeferredLogEntry>> scopedStartupLogsBySlot = new();
+    static readonly ConcurrentQueue<TimedDeferredLogEntry> unscopedStartupLogs = new();
+    static readonly TimeSpan UnscopedStartupLogTtl = TimeSpan.FromMinutes(2);
+    const int MaxUnscopedStartupLogs = 1024;
     static int defaultLoggerFactoryVersion;
+    static int unscopedStartupLogCount;
+    static int droppedUnscopedStartupLogs;
 }
