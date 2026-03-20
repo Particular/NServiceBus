@@ -30,9 +30,15 @@ public static class LogManager
     public static T Use<T>() where T : LoggingFactoryDefinition, new()
     {
         var loggingDefinition = new T();
+        defaultLoggerFactoryDefinition = loggingDefinition;
+
+        if (loggingDefinition is DefaultFactory defaultFactory)
+        {
+            defaultFactory.RegisterConfigurationChangedCallback(ApplyDefaultFactoryConfiguration);
+            return loggingDefinition;
+        }
 
         defaultLoggerFactory = new Lazy<ILoggerFactory>(loggingDefinition.GetLoggingFactory);
-        defaultLoggerFactoryDefinition = loggingDefinition;
         _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
 
         return loggingDefinition;
@@ -66,10 +72,25 @@ public static class LogManager
             return null;
         }
 
-#pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
-        var factory = defaultLoggerFactoryDefinition as DefaultFactory;
-        return new DefaultLoggingConfiguration(factory?.LoggingDirectory ?? Host.GetOutputDirectory(), factory?.LoggingLevel ?? LogLevel.Info);
-#pragma warning restore CS0618
+        return defaultLoggingConfiguration.Value;
+    }
+
+    static void ApplyDefaultFactoryConfiguration(string directory, LogLevel level)
+    {
+        lock (defaultFactoryConfigurationLock)
+        {
+            defaultLoggingConfiguration = new Lazy<DefaultLoggingConfiguration>(() => new DefaultLoggingConfiguration(directory, level));
+            defaultLoggerFactory = new Lazy<ILoggerFactory>(() => CreateDefaultLoggerFactory(directory, level));
+            _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
+        }
+    }
+
+    static DefaultLoggerFactory CreateDefaultLoggerFactory(string directory, LogLevel level)
+    {
+        var loggerFactory = new DefaultLoggerFactory(level, directory);
+        var message = $"Logging to '{directory}' with level {level}";
+        loggerFactory.Write("DefaultFactory", LogLevel.Info, message);
+        return loggerFactory;
     }
 
     static ILoggerFactory? GetExternalFactoryIfAvailable() => IsExternalFactoryConfigured ? defaultLoggerFactory.Value : null;
@@ -561,6 +582,8 @@ public static class LogManager
     static Lazy<ILoggerFactory> defaultLoggerFactory = new(new DefaultFactory().GetLoggingFactory);
     static LoggingFactoryDefinition? defaultLoggerFactoryDefinition = new DefaultFactory();
 #pragma warning restore CS0618
+    static readonly Lock defaultFactoryConfigurationLock = new();
+    static Lazy<DefaultLoggingConfiguration> defaultLoggingConfiguration = new(() => new DefaultLoggingConfiguration(Host.GetOutputDirectory(), LogLevel.Info));
     static readonly AsyncLocal<SlotContext?> currentSlot = new();
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
