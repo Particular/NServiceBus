@@ -285,12 +285,7 @@ public static class LogManager
                 return isEnabled(logger);
             }
 
-            if (TryGetCurrentSlotContext(out _))
-            {
-                return true;
-            }
-
-            return isEnabled(GetDefaultLogger());
+            return TryGetCurrentSlotContext(out _) || isEnabled(GetDefaultLogger());
         }
 
         void Write(LogLevel level, string? message, Action<ILog, string?> writeAction)
