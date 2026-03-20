@@ -41,6 +41,11 @@ public sealed partial class AddHandlerInterceptor
                 return null;
             }
 
+            if (handlerType.IsStatic)
+            {
+                return null;
+            }
+
             if (semanticModel.GetInterceptableLocation(invocation, cancellationToken) is not { } location)
             {
                 return null;

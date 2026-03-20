@@ -50,4 +50,5 @@ public static class DiagnosticIds
     public const string ConventionBasedHandlerMisplacedAttribute = "NSB0035";
     public const string ConventionBasedHandlerNoAccessibleConstructor = "NSB0036";
     public const string ConventionBasedHandlerAmbiguousConstructor = "NSB0037";
+    public const string HandlerClassCannotBeStatic = "NSB0038";
 }

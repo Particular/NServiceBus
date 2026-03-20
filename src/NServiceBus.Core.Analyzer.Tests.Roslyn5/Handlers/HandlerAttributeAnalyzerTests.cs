@@ -715,7 +715,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
-    public Task DoesNotReportStaticConventionBasedHandlerWithPrivateConstructor()
+    public Task ReportsStaticConventionBasedHandlerEvenWithOnlyStaticHandleMethods()
     {
         var source =
             """
@@ -723,7 +723,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             using NServiceBus;
 
             [Handler]
-            static class MyHandler
+            static class [|MyHandler|]
             {
                 public static Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
             }
@@ -731,7 +731,7 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             class MyMessage : IMessage {}
             """;
 
-        return Assert(source);
+        return Assert(source, DiagnosticIds.HandlerClassCannotBeStatic);
     }
 
     [Test]
@@ -828,5 +828,25 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             """;
 
         return Assert(source);
+    }
+
+    [Test]
+    public Task ReportsStaticConventionBasedHandler()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            static class [|MyHandler|]
+            {
+                public static Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source, DiagnosticIds.HandlerClassCannotBeStatic);
     }
 }
