@@ -212,8 +212,6 @@ public static class LogManager
         }
     }
 
-
-
     sealed class SlotAwareLogger(string name) : ILog
     {
         public bool IsDebugEnabled => IsEnabled(static l => l.IsDebugEnabled);
@@ -417,41 +415,42 @@ public static class LogManager
             public SlotContext Context { get; } = context;
             public ILog Logger { get; } = logger;
         }
+    }
 
-        sealed class TraceFallbackLog(string name) : ILog
+    sealed class TraceFallbackLog(string name) : ILog
+    {
+        public bool IsDebugEnabled => true;
+        public bool IsInfoEnabled => true;
+        public bool IsWarnEnabled => true;
+        public bool IsErrorEnabled => true;
+        public bool IsFatalEnabled => true;
+
+        public void Debug(string? message) => Write(LogLevel.Debug, message, null);
+        public void Debug(string? message, Exception? exception) => Write(LogLevel.Debug, message, exception);
+        public void DebugFormat(string format, params object?[] args) => Write(LogLevel.Debug, string.Format(format, args), null);
+        public void Info(string? message) => Write(LogLevel.Info, message, null);
+        public void Info(string? message, Exception? exception) => Write(LogLevel.Info, message, exception);
+        public void InfoFormat(string format, params object?[] args) => Write(LogLevel.Info, string.Format(format, args), null);
+        public void Warn(string? message) => Write(LogLevel.Warn, message, null);
+        public void Warn(string? message, Exception? exception) => Write(LogLevel.Warn, message, exception);
+        public void WarnFormat(string format, params object?[] args) => Write(LogLevel.Warn, string.Format(format, args), null);
+        public void Error(string? message) => Write(LogLevel.Error, message, null);
+        public void Error(string? message, Exception? exception) => Write(LogLevel.Error, message, exception);
+        public void ErrorFormat(string format, params object?[] args) => Write(LogLevel.Error, string.Format(format, args), null);
+        public void Fatal(string? message) => Write(LogLevel.Fatal, message, null);
+        public void Fatal(string? message, Exception? exception) => Write(LogLevel.Fatal, message, exception);
+        public void FatalFormat(string format, params object?[] args) => Write(LogLevel.Fatal, string.Format(format, args), null);
+
+        void Write(LogLevel level, string? message, Exception? exception)
         {
-            public bool IsDebugEnabled => true;
-            public bool IsInfoEnabled => true;
-            public bool IsWarnEnabled => true;
-            public bool IsErrorEnabled => true;
-            public bool IsFatalEnabled => true;
-
-            public void Debug(string? message) => Write(LogLevel.Debug, message, null);
-            public void Debug(string? message, Exception? exception) => Write(LogLevel.Debug, message, exception);
-            public void DebugFormat(string format, params object?[] args) => Write(LogLevel.Debug, string.Format(format, args), null);
-            public void Info(string? message) => Write(LogLevel.Info, message, null);
-            public void Info(string? message, Exception? exception) => Write(LogLevel.Info, message, exception);
-            public void InfoFormat(string format, params object?[] args) => Write(LogLevel.Info, string.Format(format, args), null);
-            public void Warn(string? message) => Write(LogLevel.Warn, message, null);
-            public void Warn(string? message, Exception? exception) => Write(LogLevel.Warn, message, exception);
-            public void WarnFormat(string format, params object?[] args) => Write(LogLevel.Warn, string.Format(format, args), null);
-            public void Error(string? message) => Write(LogLevel.Error, message, null);
-            public void Error(string? message, Exception? exception) => Write(LogLevel.Error, message, exception);
-            public void ErrorFormat(string format, params object?[] args) => Write(LogLevel.Error, string.Format(format, args), null);
-            public void Fatal(string? message) => Write(LogLevel.Fatal, message, null);
-            public void Fatal(string? message, Exception? exception) => Write(LogLevel.Fatal, message, exception);
-            public void FatalFormat(string format, params object?[] args) => Write(LogLevel.Fatal, string.Format(format, args), null);
-
-            void Write(LogLevel level, string? message, Exception? exception)
-            {
-                var formatted = exception is null ? message : $"{message}{Environment.NewLine}{exception}";
-                Trace.WriteLine($"{level} [{name}]: {formatted}");
-            }
+            var formatted = exception is null ? message : $"{message}{Environment.NewLine}{exception}";
+            Trace.WriteLine($"{level} [{name}]: {formatted}");
         }
     }
 
     readonly struct DeferredLogEntry(string loggerName, DeferredLogEntryKind kind, LogLevel level, string? text, Exception? exception, object?[]? args)
     {
+        TraceFallbackLog TraceFallbackLog { get; } = new(loggerName);
         public string LoggerName { get; } = loggerName;
 
         public static DeferredLogEntry Message(string loggerName, LogLevel level, string? message) =>
@@ -481,18 +480,7 @@ public static class LogManager
             }
         }
 
-        public void WriteToTrace()
-        {
-            var message = kind switch
-            {
-                DeferredLogEntryKind.Message => text,
-                DeferredLogEntryKind.Exception => exception is null ? text : $"{text}{Environment.NewLine}{exception}",
-                DeferredLogEntryKind.Format => args is null ? text : string.Format(text!, args),
-                _ => throw new InvalidOperationException($"Unsupported deferred log entry kind '{kind}'.")
-            };
-
-            Trace.WriteLine($"{level}: {message}");
-        }
+        public void WriteToTrace() => WriteTo(TraceFallbackLog);
 
         static void WriteMessage(ILog logger, LogLevel level, string? message)
         {

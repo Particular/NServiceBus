@@ -92,5 +92,3 @@ public class DefaultFactory : LoggingFactoryDefinition
         public ILog GetLogger(string name) => throw new NotSupportedException("Direct logger retrieval from DefaultFactory is no longer supported. Use LogManager.GetLogger(...) and configure logging via Microsoft.Extensions.Logging providers.");
     }
 }
-
-interface IUnsupportedDefaultFactoryLoggerFactory;

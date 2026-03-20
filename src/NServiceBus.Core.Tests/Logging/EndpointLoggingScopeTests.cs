@@ -173,7 +173,7 @@ public class EndpointLoggingScopeTests
         traceListener.Flush();
         Trace.Listeners.Remove(traceListener);
 
-        Assert.That(traceOutput.ToString(), Does.Contain("Info: startup-log"));
+        Assert.That(traceOutput.ToString(), Does.Contain("Info").And.Contains("startup-log"));
     }
 
     [Test]
@@ -200,8 +200,8 @@ public class EndpointLoggingScopeTests
         var output = traceOutput.ToString();
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(output, Does.Contain("Info: startup-log"));
-            Assert.That(CountOccurrences(output, "Info: startup-log"), Is.EqualTo(1));
+            Assert.That(output, Does.Contain("Info").And.Contains("startup-log"));
+            Assert.That(CountOccurrences(output, "startup-log"), Is.EqualTo(1));
         }
     }
 
