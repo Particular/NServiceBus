@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Transport;
 
 using System;
@@ -92,7 +94,5 @@ public class IncomingMessage
     }
 
     ReadOnlyMemory<byte>? originalBody;
-#nullable enable
     Dictionary<string, string>? originalHeaders;
-#nullable restore
 }
