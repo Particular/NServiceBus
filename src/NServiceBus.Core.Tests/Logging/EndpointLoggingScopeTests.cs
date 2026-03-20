@@ -215,6 +215,41 @@ public class EndpointLoggingScopeTests
         Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["after-unregister"]));
     }
 
+    [Test]
+    public void Should_keep_deferred_startup_logs_isolated_per_slot_when_multiple_endpoints_start_concurrently()
+    {
+        var salesLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var billingLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var salesSlot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var billingSlot = new EndpointLogSlot($"Billing-{Guid.NewGuid():N}", "green");
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(salesSlot))
+        {
+            logger.Info("sales-startup-log");
+        }
+
+        using (LogManager.BeginSlotScope(billingSlot))
+        {
+            logger.Info("billing-startup-log");
+        }
+
+        // Register in reverse order to model concurrent multi-endpoint startup races.
+        LogManager.RegisterSlotFactory(billingSlot, new MicrosoftLoggerFactoryAdapter(billingLoggerFactory));
+        LogManager.RegisterSlotFactory(salesSlot, new MicrosoftLoggerFactoryAdapter(salesLoggerFactory));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(salesLoggerFactory.Logger.CapturedMessages, Does.Contain("sales-startup-log"));
+            Assert.That(salesLoggerFactory.Logger.CapturedMessages, Does.Not.Contain("billing-startup-log"));
+            Assert.That(billingLoggerFactory.Logger.CapturedMessages, Does.Contain("billing-startup-log"));
+            Assert.That(billingLoggerFactory.Logger.CapturedMessages, Does.Not.Contain("sales-startup-log"));
+        }
+
+        LogManager.UnregisterSlot(salesSlot);
+        LogManager.UnregisterSlot(billingSlot);
+    }
+
     static void AssertScopeWasUsed(List<IReadOnlyList<KeyValuePair<string, object>>> capturedLogScopes, params KeyValuePair<string, object>[] expectedScope)
     {
         Assert.That(capturedLogScopes, Has.Some.Matches<IReadOnlyList<KeyValuePair<string, object>>>(scope => ScopeMatches(scope, expectedScope)));
