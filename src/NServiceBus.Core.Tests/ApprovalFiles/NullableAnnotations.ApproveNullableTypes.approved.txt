@@ -74,7 +74,6 @@ NServiceBus.Transport.DispatchProperties
 NServiceBus.Transport.ErrorContext
 NServiceBus.Transport.IMessageDispatcher
 NServiceBus.Transport.IMessageReceiver
-NServiceBus.Transport.IncomingMessage
 NServiceBus.Transport.IncomingMessageExtensions
 NServiceBus.Transport.IOutgoingTransportOperation
 NServiceBus.Transport.ISubscriptionManager
