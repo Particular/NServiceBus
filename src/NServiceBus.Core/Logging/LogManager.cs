@@ -33,12 +33,6 @@ public static class LogManager
         var loggingDefinition = new T();
         defaultLoggerFactoryDefinition = loggingDefinition;
 
-        if (loggingDefinition is DefaultFactory defaultFactory)
-        {
-            defaultFactory.RegisterConfigurationChangedCallback(ApplyDefaultFactoryConfiguration);
-            return loggingDefinition;
-        }
-
         defaultLoggerFactory = new Lazy<ILoggerFactory>(loggingDefinition.GetLoggingFactory);
         _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
 
@@ -73,23 +67,9 @@ public static class LogManager
             return null;
         }
 
-        return defaultLoggingConfiguration.Value;
-    }
-
-    static void ApplyDefaultFactoryConfiguration(string directory, LogLevel level)
-    {
-        lock (defaultFactoryConfigurationLock)
-        {
-            defaultLoggingConfiguration = new Lazy<DefaultLoggingConfiguration>(() => new DefaultLoggingConfiguration(directory, level));
-            defaultLoggerFactory = CreateDefaultFactoryLoggerFactory();
-            _ = Interlocked.Increment(ref defaultLoggerFactoryVersion);
-        }
-    }
-
-    static Lazy<ILoggerFactory> CreateDefaultFactoryLoggerFactory()
-    {
 #pragma warning disable CS0618 // DefaultFactory is deprecated; LogManager keeps compatibility wiring during deprecation window
-        return new Lazy<ILoggerFactory>(() => new DefaultFactory().GetLoggingFactory());
+        var factory = defaultLoggerFactoryDefinition as DefaultFactory;
+        return new DefaultLoggingConfiguration(factory?.LoggingDirectory ?? Host.GetOutputDirectory(), factory?.LoggingLevel ?? LogLevel.Info);
 #pragma warning restore CS0618
     }
 
@@ -640,11 +620,9 @@ public static class LogManager
     }
 
 #pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
-    static Lazy<ILoggerFactory> defaultLoggerFactory = CreateDefaultFactoryLoggerFactory();
+    static Lazy<ILoggerFactory> defaultLoggerFactory = new(new DefaultFactory().GetLoggingFactory);
     static LoggingFactoryDefinition? defaultLoggerFactoryDefinition = new DefaultFactory();
 #pragma warning restore CS0618
-    static readonly Lock defaultFactoryConfigurationLock = new();
-    static Lazy<DefaultLoggingConfiguration> defaultLoggingConfiguration = new(() => new DefaultLoggingConfiguration(Host.GetOutputDirectory(), LogLevel.Info));
     static readonly AsyncLocal<SlotContext?> currentSlot = new();
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();

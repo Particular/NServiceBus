@@ -36,9 +36,9 @@ public class DefaultFactory : LoggingFactoryDefinition
         level = new Lazy<LogLevel>(() => LogLevel.Info);
     }
 
-    string LoggingDirectory => directory.Value;
+    internal string LoggingDirectory => directory.Value;
 
-    LogLevel LoggingLevel => level.Value;
+    internal LogLevel LoggingLevel => level.Value;
 
     /// <summary>
     /// <see cref="LoggingFactoryDefinition.GetLoggingFactory" />.
@@ -53,11 +53,7 @@ public class DefaultFactory : LoggingFactoryDefinition
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12")]
     [Obsolete("Set RollingLoggerProviderOptions.LogLevel instead. Note: NServiceBus.Logging.LogLevel.Info maps to Microsoft.Extensions.Logging.LogLevel.Information, Warn to Warning, Fatal to Critical. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
-    public void Level(LogLevel level)
-    {
-        this.level = new Lazy<LogLevel>(() => level);
-        configurationChanged?.Invoke(LoggingDirectory, LoggingLevel);
-    }
+    public void Level(LogLevel level) => this.level = new Lazy<LogLevel>(() => level);
 
     /// <summary>
     /// The directory to log files to.
@@ -78,18 +74,10 @@ public class DefaultFactory : LoggingFactoryDefinition
         }
 
         this.directory = new Lazy<string>(() => directory);
-        configurationChanged?.Invoke(LoggingDirectory, LoggingLevel);
-    }
-
-    internal void RegisterConfigurationChangedCallback(Action<string, LogLevel> callback)
-    {
-        configurationChanged = callback;
-        configurationChanged?.Invoke(LoggingDirectory, LoggingLevel);
     }
 
     Lazy<string> directory;
     Lazy<LogLevel> level;
-    Action<string, LogLevel>? configurationChanged;
 
     sealed class UnsupportedDefaultFactoryLoggerFactory : ILoggerFactory
     {
