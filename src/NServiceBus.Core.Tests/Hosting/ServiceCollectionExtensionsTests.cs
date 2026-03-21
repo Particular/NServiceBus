@@ -72,6 +72,22 @@ public class ServiceCollectionExtensionsTests
         Assert.That(ex!.Message, Does.Contain("An endpoint with the identifier 'shared-key' has already been registered"));
     }
 
+    [Test]
+    public void Should_throw_when_transport_not_specified()
+    {
+        var services = new ServiceCollection();
+
+        var ex = Assert.Throws<Exception>(() =>
+        {
+            var endpointConfiguration = new EndpointConfiguration("Billing");
+            endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+
+            services.AddNServiceBusEndpoint(endpointConfiguration);
+        });
+
+        Assert.That(ex!.Message, Does.Contain("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport"));
+    }
+
     static EndpointConfiguration CreateConfig(string endpointName)
     {
         var config = new EndpointConfiguration(endpointName);
