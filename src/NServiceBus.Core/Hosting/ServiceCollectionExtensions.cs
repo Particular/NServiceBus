@@ -67,7 +67,7 @@ public static class ServiceCollectionExtensions
         var settings = endpointConfiguration.GetSettings();
         var endpointName = settings.EndpointName();
         var hostingSettings = settings.Get<HostingComponent.Settings>();
-        var transport = settings.Get<TransportDefinition>();
+        var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
         var registrations = GetExistingRegistrations(services);
 
         ValidateEndpointIdentifier(endpointIdentifier, registrations);
