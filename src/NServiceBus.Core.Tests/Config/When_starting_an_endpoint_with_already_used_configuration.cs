@@ -14,8 +14,9 @@ public class When_starting_an_endpoint_with_already_used_configuration
         configuration.UseSerialization<SystemJsonSerializer>();
         configuration.AssemblyScanner().Disable = true;
 
+#pragma warning disable CS0618 // Type or member is obsolete
         await Endpoint.Create(configuration).ConfigureAwait(false);
         Assert.ThrowsAsync<ArgumentException>(async () => await Endpoint.Create(configuration).ConfigureAwait(false));
+#pragma warning restore CS0618 // Type or member is obsolete
     }
-
 }

@@ -42,12 +42,13 @@ public class TopLevelApis
             .Options(new System.Text.Json.JsonSerializerOptions());
 
         // Start directly
+#pragma warning disable CS0618 // Type or member is obsolete
         await Endpoint.Start(cfg, cancellationToken);
 
         // Or create, then start
         var startable = await Endpoint.Create(cfg, cancellationToken);
         var ep = await startable.Start(cancellationToken);
-
+#pragma warning restore CS0618 // Type or member is obsolete
         await ep.Send(new Cmd(), cancellationToken);
         await ep.Publish(new Evt(), cancellationToken);
         await ep.Publish<Evt>(cancellationToken);

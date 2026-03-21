@@ -10,7 +10,7 @@ public class APIApprovals
     [Test]
     public void ApproveNServiceBus()
     {
-        var publicApi = typeof(Endpoint).Assembly.GeneratePublicApi(new ApiGeneratorOptions
+        var publicApi = typeof(EndpointCreator).Assembly.GeneratePublicApi(new ApiGeneratorOptions
         {
             ExcludeAttributes = ["System.Runtime.Versioning.TargetFrameworkAttribute", "System.Reflection.AssemblyMetadataAttribute"]
         });

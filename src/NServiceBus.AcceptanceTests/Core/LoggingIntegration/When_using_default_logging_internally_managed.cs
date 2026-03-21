@@ -54,7 +54,9 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
             .WithEndpoint<EndpointWithDefaultLogging>(b =>
             {
                 b.ToCreateInstance(
+#pragma warning disable CS0618 // Type or member is obsolete
                     (_, configuration) => Endpoint.Create(configuration),
+#pragma warning restore CS0618 // Type or member is obsolete
                     (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
             })
             .Done(c => c.EndpointsStarted)

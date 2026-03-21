@@ -21,7 +21,9 @@ public class When_configuring_transport_twice
         config.UseTransport(transport1).DisablePublishing();
         config.UseTransport(transport2).DisablePublishing();
 
+#pragma warning disable CS0618 // Type or member is obsolete
         var endpoint = await Endpoint.Start(config);
+#pragma warning restore CS0618 // Type or member is obsolete
 
         await endpoint.Stop();
 

@@ -30,7 +30,7 @@ public class StandardsTests
     public void NonPublicShouldHaveSimpleNamespace()
     {
         // we still need an NServiceBus prefix for people who do logging filtering
-        var types = typeof(Endpoint).Assembly.GetTypes()
+        var types = typeof(EndpointCreator).Assembly.GetTypes()
             .Where(x =>
                 !x.IsPublic &&
                 !x.IsNested &&
@@ -59,7 +59,7 @@ public class StandardsTests
     [Test]
     public void LoggersShouldBeStaticField()
     {
-        foreach (var type in typeof(Endpoint).Assembly.GetTypes())
+        foreach (var type in typeof(EndpointCreator).Assembly.GetTypes())
         {
             // Logging namespace contains special adapter types that are not expected to have static loggers
             if (type.Namespace == "NServiceBus.Logging")
@@ -102,18 +102,18 @@ public class StandardsTests
 
     static IEnumerable<Type> GetBehaviors()
     {
-        return typeof(Endpoint).Assembly.GetTypes()
+        return typeof(EndpointCreator).Assembly.GetTypes()
             .Where(type => type.GetInterfaces().Any(face => face.Name == nameof(NServiceBus.Pipeline.IBehavior)) && !type.IsAbstract && !type.IsGenericType);
     }
     static IEnumerable<Type> GetFeatures()
     {
-        return typeof(Endpoint).Assembly.GetTypes()
+        return typeof(EndpointCreator).Assembly.GetTypes()
             .Where(type => typeof(Feature).IsAssignableFrom(type) && type.IsPublic && !type.IsAbstract);
     }
 
     static IEnumerable<Type> GetAttributeTypes()
     {
-        return typeof(Endpoint).Assembly.GetTypes()
+        return typeof(EndpointCreator).Assembly.GetTypes()
             .Where(type => typeof(Attribute).IsAssignableFrom(type));
     }
 }
