@@ -12,11 +12,11 @@ using Particular.Obsoletes;
 /// Provides factory methods for creating and starting endpoint instances.
 /// </summary>
 [ObsoleteMetadata(
-    Message = "Self-hosting an endpoint Endpoint.Create or Endpoint.Start is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.",
+    Message = "Self-hosting an endpoint using Endpoint.Create or Endpoint.Start is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.",
     TreatAsErrorFromVersion = "11",
     RemoveInVersion = "12",
     ReplacementTypeOrMember = "services.AddNServiceBusEndpoint")]
-[Obsolete("Self-hosting an endpoint Endpoint.Create or Endpoint.Start is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+[Obsolete("Self-hosting an endpoint using Endpoint.Create or Endpoint.Start is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
 public static class Endpoint
 {
     /// <summary>

@@ -264,7 +264,7 @@ namespace NServiceBus
         Send = 0,
         Publish = 1,
     }
-    [System.Obsolete(@"Self-hosting an endpoint Endpoint.Create or Endpoint.Start is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [System.Obsolete(@"Self-hosting an endpoint using Endpoint.Create or Endpoint.Start is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class Endpoint
     {
         [System.Obsolete(@"Self-hosting an endpoint using the Endpoint.Create method is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
@@ -551,8 +551,10 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
+    [System.Obsolete(@"Self-hosting an endpoint is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IStartableEndpoint
     {
+        [System.Obsolete(@"Starting an endpoint manually is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IStartableEndpointWithExternallyManagedContainer
