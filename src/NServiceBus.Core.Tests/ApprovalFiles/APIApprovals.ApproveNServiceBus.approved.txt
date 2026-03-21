@@ -297,8 +297,10 @@ namespace NServiceBus
     {
         public static System.Threading.Tasks.Task Stop(this NServiceBus.IEndpointInstance endpoint, System.TimeSpan gracefulStopTimeout) { }
     }
+    [System.Obsolete(@"Self-hosting an endpoint using the EndpointWithExternallyManagedContainer.Create method is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class EndpointWithExternallyManagedContainer
     {
+        [System.Obsolete(@"Self-hosting an endpoint using the EndpointWithExternallyManagedContainer.Create method is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
     }
     public static class EnvelopeConfigExtensions

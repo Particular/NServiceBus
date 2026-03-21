@@ -19,7 +19,9 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
         await Scenario.Define<Context>(c => context = c)
             .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
             b.ToCreateInstance(
+#pragma warning disable CS0618 // Type or member is obsolete
                 (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
+#pragma warning restore CS0618 // Type or member is obsolete
                 async (startableEndpoint, provider, ct) =>
                 {
                     // HINT: Resolve before start
@@ -45,7 +47,9 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
             await Scenario.Define<Context>()
                 .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
                     b.ToCreateInstance(
+#pragma warning disable CS0618 // Type or member is obsolete
                         (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
+#pragma warning restore CS0618 // Type or member is obsolete
                         (startableEndpoint, provider, ct) =>
                         {
                             var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();

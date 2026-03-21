@@ -24,7 +24,9 @@ public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
                 b.ToCreateInstance((services, configuration) =>
                 {
                     serviceCollection = services;
+#pragma warning disable CS0618 // Type or member is obsolete
                     return EndpointWithExternallyManagedContainer.Create(configuration, services);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }, (startableEndpoint, provider, ct) =>
                 {
                     spyContainer = new SpyContainer(serviceCollection, provider);
