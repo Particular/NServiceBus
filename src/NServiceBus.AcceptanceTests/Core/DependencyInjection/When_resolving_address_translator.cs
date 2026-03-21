@@ -21,14 +21,13 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
             b.ToCreateInstance(
 #pragma warning disable CS0618 // Type or member is obsolete
                 (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
-#pragma warning restore CS0618 // Type or member is obsolete
                 async (startableEndpoint, provider, ct) =>
                 {
                     // HINT: Resolve before start
                     var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
 
                     var endpoint = await startableEndpoint.Start(provider, ct);
-
+#pragma warning restore CS0618 // Type or member is obsolete
                     translatedAddress = transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
 
                     context.MarkAsCompleted();
@@ -49,7 +48,6 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
                     b.ToCreateInstance(
 #pragma warning disable CS0618 // Type or member is obsolete
                         (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
-#pragma warning restore CS0618 // Type or member is obsolete
                         (startableEndpoint, provider, ct) =>
                         {
                             var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
@@ -57,6 +55,7 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
                             transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
 
                             return startableEndpoint.Start(provider, ct);
+#pragma warning restore CS0618 // Type or member is obsolete
                         })
                 )
                 .Run();

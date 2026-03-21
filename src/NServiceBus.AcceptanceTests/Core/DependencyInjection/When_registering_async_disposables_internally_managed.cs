@@ -20,8 +20,8 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                 b.ToCreateInstance(
 #pragma warning disable CS0618 // Type or member is obsolete
                     (_, configuration) => Endpoint.Create(configuration),
-#pragma warning restore CS0618 // Type or member is obsolete
                     (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
+#pragma warning restore CS0618 // Type or member is obsolete
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
             .Run();

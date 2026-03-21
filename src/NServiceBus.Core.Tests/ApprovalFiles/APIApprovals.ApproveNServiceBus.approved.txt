@@ -557,9 +557,14 @@ namespace NServiceBus
         [System.Obsolete(@"Starting an endpoint manually is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.Threading.CancellationToken cancellationToken = default);
     }
+    [System.Obsolete(@"Self-hosting an endpoint is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IStartableEndpointWithExternallyManagedContainer
     {
+        [System.Obsolete("The message session is automatically registered in the service collection and no " +
+            "longer needs to be manually registered.. Will be treated as an error from versio" +
+            "n 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
+        [System.Obsolete(@"Starting an endpoint manually is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default);
     }
     [System.Obsolete("The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' instead. W" +
