@@ -7,7 +7,6 @@ using AcceptanceTesting.Customization;
 using AcceptanceTesting.Support;
 using Configuration.AdvancedExtensibility;
 using Installation;
-using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Custom test component that uses the <see cref="Installer.Setup"/> API instead of fully starting the endpoint.
@@ -22,32 +21,27 @@ public class InstallationOnlyComponent<TConfigurationFactory> : IComponentBehavi
         customizationConfiguration.EndpointName = Conventions.EndpointNamingConvention(configurationFactory.GetType());
         var endpointConfiguration = await customizationConfiguration.GetConfiguration(run);
         RegisterScenarioContext(endpointConfiguration, run.ScenarioContext);
-        return new InstallationRunner(endpointConfiguration);
+        var installer = Installer.CreateInstallerWithExternallyManagedContainer(endpointConfiguration, run.Services);
+        return new InstallationRunner(installer, run);
     }
 
     static void RegisterScenarioContext(EndpointConfiguration endpointConfiguration, ScenarioContext scenarioContext)
     {
         var type = scenarioContext.GetType();
+        var settings = endpointConfiguration.GetSettings();
+
         while (type != typeof(object))
         {
             var currentType = type;
-            endpointConfiguration.GetSettings().Set(currentType.FullName, scenarioContext);
-            endpointConfiguration.RegisterComponents(serviceCollection => serviceCollection.AddSingleton(currentType, scenarioContext));
+            settings.Set(currentType.FullName, scenarioContext);
             type = type.BaseType;
         }
     }
 
-    public class InstallationRunner : ComponentRunner
+    public class InstallationRunner(InstallerWithExternallyManagedContainer installer, RunDescriptor run) : ComponentRunner
     {
-        EndpointConfiguration endpointConfiguration;
-
-        public InstallationRunner(EndpointConfiguration endpointConfiguration)
-        {
-            this.endpointConfiguration = endpointConfiguration;
-        }
-
         public override string Name => "Installation only runner";
 
-        public override Task Start(CancellationToken cancellationToken = default) => Installer.Setup(endpointConfiguration, cancellationToken);
+        public override Task Start(CancellationToken cancellationToken = default) => installer.Setup(run.ServiceProvider!, cancellationToken);
     }
 }
