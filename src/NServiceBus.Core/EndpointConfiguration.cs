@@ -7,8 +7,6 @@ using System.Linq;
 using System.Transactions;
 using Configuration.AdvancedExtensibility;
 using Features;
-using Microsoft.Extensions.DependencyInjection;
-using Particular.Obsoletes;
 using Pipeline;
 using Settings;
 
