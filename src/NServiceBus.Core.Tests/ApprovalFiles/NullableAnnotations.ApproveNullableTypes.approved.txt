@@ -10,7 +10,6 @@ NServiceBus.DateTimeOffsetHelper
 NServiceBus.DistributionPolicy
 NServiceBus.EndpointConfiguration
 NServiceBus.EndpointInstanceExtensions
-NServiceBus.EndpointWithExternallyManagedContainer
 NServiceBus.Faults.FailedMessage
 NServiceBus.Headers
 NServiceBus.IDistributionPolicy
