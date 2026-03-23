@@ -630,10 +630,10 @@ namespace NServiceBus
     public partial class EndpointConfiguration
     {
         [ObsoleteMetadata(
-            Message = "Registering services via NServiceBus is being deprecated. Instead, consider using a hosting framework such as Generic Host or Web Host to register services in the ServiceCollection",
+            Message = "Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key",
             TreatAsErrorFromVersion = "11",
             RemoveInVersion = "12")]
-        [Obsolete("Registering services via NServiceBus is being deprecated. Instead, consider using a hosting framework such as Generic Host or Web Host to register services in the ServiceCollection. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [Obsolete("Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void RegisterComponents(Action<IServiceCollection> registration)
         {
             ArgumentNullException.ThrowIfNull(registration);
