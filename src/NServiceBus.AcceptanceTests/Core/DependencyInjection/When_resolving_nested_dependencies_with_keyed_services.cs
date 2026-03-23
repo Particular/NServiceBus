@@ -19,6 +19,7 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
                     {
                         services.AddKeyedScoped<IDependency, MyDependency>("Dependency");
                         services.AddSingleton(new FeatureSpecificObject("FromAcceptanceTest")); // will be overriden
+                        services.AddKeyedSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>("Dependency");
                     })
                     .When((session, c) => session.SendLocal(new SomeMessage())))
             .Run();
@@ -33,13 +34,7 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
 
     public class DeeplyNestedDependenciesEndpoint : EndpointConfigurationBuilder
     {
-        public DeeplyNestedDependenciesEndpoint() => EndpointSetup<DefaultServer>(b =>
-        {
-            b.EnableFeature<MyFeatureProvidingMoreDependencies>();
-
-            // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddKeyedSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>("Dependency"));
-        });
+        public DeeplyNestedDependenciesEndpoint() => EndpointSetup<DefaultServer>(b => b.EnableFeature<MyFeatureProvidingMoreDependencies>());
 
         [Handler]
         public class SomeMessageHandler([FromKeyedServices("Dependency")] IDependency dependency) : IHandleMessages<SomeMessage>
