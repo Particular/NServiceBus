@@ -1,11 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
 
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Unicast;
 
@@ -50,9 +48,6 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
                 var registry = new MessageHandlerRegistry();
                 registry.AddHandler<ManuallyRegisteredHandler>();
                 c.GetSettings().Set(registry);
-                // the handler isn't registered for DI automatically
-                c.RegisterComponents(components => components
-                    .AddTransient<ManuallyRegisteredHandler>());
                 c.OnEndpointSubscribed<Context>((t, ctx) =>
                 {
                     if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
