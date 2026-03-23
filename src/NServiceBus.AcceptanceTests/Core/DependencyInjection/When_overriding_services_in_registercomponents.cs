@@ -46,12 +46,14 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableFeature<StartupFeature>();
+#pragma warning disable CS0618 // Type or member is obsolete
                 c.RegisterComponents(s =>
                 {
                     s.AddSingleton<IDependencyFromFeature, OverridenDependency>();
                     s.AddSingleton<IDependencyBeforeEndpointConfiguration, OverridenDependency>();
                     s.AddSingleton<IDependencyBeforeEndpointStart, OverridenDependency>();
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
             });
 
         public class StartupFeature : Feature
