@@ -18,11 +18,19 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         var result = await Scenario.Define<Context>()
             .WithServices(static services => services.AddSingleton<ISingletonShared, SingletonShared>())
             .WithEndpoint<WithSameDependenciesEndpoint>(b =>
-                b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
+                b.Services(static services =>
+                    {
+                        services.AddSingleton<IDependency, MyDependency>();
+                        services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>();
+                    })
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint1"))
                     .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint1", new SomeMessage())))
             .WithEndpoint<WithSameDependenciesEndpoint>(b =>
-                b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
+                b.Services(static services =>
+                    {
+                        services.AddSingleton<IDependency, MyDependency>();
+                        services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>();
+                    })
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint2"))
                     .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint2", new SomeMessage())))
             .Run();
@@ -47,13 +55,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
 
     public class WithSameDependenciesEndpoint : EndpointConfigurationBuilder
     {
-        public WithSameDependenciesEndpoint() => EndpointSetup<DefaultServer>(b =>
-        {
-            b.EnableFeature<MyFeatureProvidingMoreDependencies>();
-
-            // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>());
-        });
+        public WithSameDependenciesEndpoint() => EndpointSetup<DefaultServer>(b => b.EnableFeature<MyFeatureProvidingMoreDependencies>());
 
         [Handler]
         public class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage>
