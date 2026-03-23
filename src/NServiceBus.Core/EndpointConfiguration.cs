@@ -7,13 +7,15 @@ using System.Linq;
 using System.Transactions;
 using Configuration.AdvancedExtensibility;
 using Features;
+using Microsoft.Extensions.DependencyInjection;
+using Particular.Obsoletes;
 using Pipeline;
 using Settings;
 
 /// <summary>
 /// Configuration used to create an endpoint instance.
 /// </summary>
-public partial class EndpointConfiguration : ExposeSettings
+public class EndpointConfiguration : ExposeSettings
 {
     /// <summary>
     /// Initializes the endpoint configuration builder.
@@ -75,6 +77,21 @@ public partial class EndpointConfiguration : ExposeSettings
     /// Access to the pipeline configuration.
     /// </summary>
     public PipelineSettings Pipeline { get; }
+
+    /// <summary>
+    /// Used to configure components in the container.
+    /// </summary>
+    [ObsoleteMetadata(
+        Message = "Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    public void RegisterComponents(Action<IServiceCollection> registration)
+    {
+        ArgumentNullException.ThrowIfNull(registration);
+
+        Settings.Get<HostingComponent.Settings>().UserRegistrations.Add(registration);
+    }
 
     /// <summary>
     /// Configures the endpoint to be send-only.
