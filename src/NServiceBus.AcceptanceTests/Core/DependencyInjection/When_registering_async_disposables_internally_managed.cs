@@ -44,6 +44,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         public EndpointWithAsyncDisposable() =>
             EndpointSetup<DefaultServer>(c =>
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 c.RegisterComponents(s =>
                 {
                     // We have to take control over re-registering the context because we have taken control over the instance creation
@@ -51,6 +52,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                     s.AddScoped<ScopedAsyncDisposable>();
                     s.AddSingleton<SingletonAsyncDisposable>();
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
             });
 
         [Handler]
