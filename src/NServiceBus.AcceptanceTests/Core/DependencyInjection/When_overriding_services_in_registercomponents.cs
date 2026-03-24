@@ -46,7 +46,7 @@ public class When_overriding_services_in_registercomponents : NServiceBusAccepta
             EndpointSetup<DefaultServer>(c =>
             {
                 c.EnableFeature<StartupFeature>();
-#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this entire test is no longer required. It will be up to the users to register their dependencies in the right order on the service collection directly
                 c.RegisterComponents(s =>
                 {
                     s.AddSingleton<IDependencyFromFeature, OverridenDependency>();
