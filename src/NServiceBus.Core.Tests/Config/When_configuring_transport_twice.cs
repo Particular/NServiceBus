@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NServiceBus.Routing;
 using NUnit.Framework;
 using Transport;
+using Host = Microsoft.Extensions.Hosting.Host;
 
 public class When_configuring_transport_twice
 {
@@ -21,12 +22,11 @@ public class When_configuring_transport_twice
         config.UseTransport(transport1).DisablePublishing();
         config.UseTransport(transport2).DisablePublishing();
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        var endpoint = await Endpoint.Start(config);
-#pragma warning restore CS0618 // Type or member is obsolete
-
-        await endpoint.Stop();
-
+        var hostBuilder = Host.CreateApplicationBuilder();
+        hostBuilder.Services.AddNServiceBusEndpoint(config);
+        using var host = hostBuilder.Build();
+        await host.StartAsync();
+        await host.StopAsync();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(transport1.Initialized, Is.False, "First transport should not be initialized");
