@@ -11,8 +11,8 @@ using Particular.Obsoletes;
     Message = "EndpointWithExternallyManagedContainer is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint",
     TreatAsErrorFromVersion = "11",
     RemoveInVersion = "12",
-    ReplacementTypeOrMember = "services.AddNServiceBusEndpoint")]
-[Obsolete("EndpointWithExternallyManagedContainer is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpoint")]
+[Obsolete("EndpointWithExternallyManagedContainer is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
 public static class EndpointWithExternallyManagedContainer
 {
     /// <summary>
@@ -22,8 +22,8 @@ public static class EndpointWithExternallyManagedContainer
         Message = "Self-hosting an endpoint using the EndpointWithExternallyManagedContainer.Create method is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint",
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12",
-        ReplacementTypeOrMember = "services.AddNServiceBusEndpoint")]
-    [Obsolete("Self-hosting an endpoint using the EndpointWithExternallyManagedContainer.Create method is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint. Use 'services.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpoint")]
+    [Obsolete("Self-hosting an endpoint using the EndpointWithExternallyManagedContainer.Create method is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static IStartableEndpointWithExternallyManagedContainer Create(EndpointConfiguration configuration, IServiceCollection serviceCollection)
     {
         ArgumentNullException.ThrowIfNull(configuration);
