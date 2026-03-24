@@ -74,7 +74,7 @@ public static class ServiceCollectionExtensions
         ValidateAssemblyScanning(endpointConfiguration, endpointName, registrations);
         ValidateTransportReuse(transport, registrations);
 
-        hostingSettings.ConfigureMultiHostLogging(endpointIdentifier is not null, endpointIdentifier);
+        hostingSettings.ConfigureHostLogging(endpointIdentifier);
 
         if (endpointIdentifier is null)
         {
