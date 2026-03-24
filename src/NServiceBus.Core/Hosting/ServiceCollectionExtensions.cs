@@ -65,6 +65,10 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(endpointConfiguration);
 
         var settings = endpointConfiguration.GetSettings();
+        // Unfortunately we have to also check this here due to the multiple hosting variants as long as
+        // the old hosting is still supported.
+        settings.AssertNotReused();
+
         var endpointName = settings.EndpointName();
         var hostingSettings = settings.Get<HostingComponent.Settings>();
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
