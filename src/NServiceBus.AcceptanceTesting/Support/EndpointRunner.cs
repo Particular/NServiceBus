@@ -120,7 +120,7 @@ public class EndpointRunner(
 
             endpointInstance = await startCallback(startable, serviceProvider, cancellationToken).ConfigureAwait(false);
 
-            foreach (var action in behavior.ResolvesAfterStart)
+            foreach (var action in behavior.ResolveAfterStart)
             {
                 await action(serviceProvider, scenarioContext, cancellationToken).ConfigureAwait(false);
             }

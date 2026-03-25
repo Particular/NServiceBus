@@ -23,7 +23,7 @@ public class EndpointBehavior : IComponentBehavior
         ServicesBeforeStart = [];
         ServicesAfterStart = [];
         ResolvesBeforeStart = [];
-        ResolvesAfterStart = [];
+        ResolveAfterStart = [];
         ConfigureHowToCreateInstance((services, config) =>
         {
             if (services is not KeyedServiceCollectionAdapter collectionAdapter)
@@ -75,7 +75,7 @@ public class EndpointBehavior : IComponentBehavior
 
     public List<Func<IServiceProvider, ScenarioContext, CancellationToken, Task>> ResolvesBeforeStart { get; }
 
-    public List<Func<IServiceProvider, ScenarioContext, CancellationToken, Task>> ResolvesAfterStart { get; }
+    public List<Func<IServiceProvider, ScenarioContext, CancellationToken, Task>> ResolveAfterStart { get; }
 
     public bool DoNotFailOnErrorMessages { get; set; }
 

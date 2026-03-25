@@ -29,7 +29,7 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
-                    b.Resolves((provider, _) =>
+                    b.ServiceResolve((provider, _) =>
                     {
                         var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
 
