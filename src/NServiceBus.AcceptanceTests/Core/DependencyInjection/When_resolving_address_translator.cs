@@ -29,19 +29,13 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
-                    b.ToCreateInstance(
-#pragma warning disable CS0618 // Type or member is obsolete
-                        (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
-                        (startableEndpoint, provider, ct) =>
-                        {
-                            var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
+                    b.Resolves((provider, _) =>
+                    {
+                        var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
 
-                            transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
-
-                            return startableEndpoint.Start(provider, ct);
-#pragma warning restore CS0618 // Type or member is obsolete
-                        })
-                )
+                        transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
+                        return Task.CompletedTask;
+                    }))
                 .Run();
         }, Throws.Exception.TypeOf<Exception>().With.Message.EqualTo("Transport address resolution is not supported before the NServiceBus transport has been started. Start the NServiceBus transport before calling `ToTransportAddress`"));
 
