@@ -68,6 +68,20 @@ public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory end
         return this;
     }
 
+    public EndpointBehaviorBuilder<TContext> Resolves(Func<IServiceProvider, CancellationToken, Task> action, bool afterStart = false)
+    {
+        var actions = afterStart ? behavior.ResolvesAfterStart : behavior.ResolvesBeforeStart;
+        actions.Add((services, _, token) => action(services, token));
+        return this;
+    }
+
+    public EndpointBehaviorBuilder<TContext> Resolves(Func<IServiceProvider, TContext, CancellationToken, Task> action, bool afterStart = false)
+    {
+        var actions = afterStart ? behavior.ResolvesAfterStart : behavior.ResolvesBeforeStart;
+        actions.Add((services, context, token) => action(services, (TContext)context, token));
+        return this;
+    }
+
     public EndpointBehaviorBuilder<TContext> ToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback)
         where T : notnull
     {
