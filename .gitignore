@@ -101,3 +101,7 @@ src/scaffolding.config
 
 # Visual Studio Code
 .vscode
+
+# Files use to contain envvar values, used by tools like direnv
+.env
+.envrc
