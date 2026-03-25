@@ -23,9 +23,8 @@ public class When_resolving_services_globally : NServiceBusAcceptanceTest
                         services.AddSingleton<IMyComponent, EndpointComponent1>();
                         services.AddSingleton<IMyComponent, EndpointComponent2>();
                     }))
-            .WithServiceResolve(static (provider, _) =>
+            .WithServiceResolve(static (provider, context, _) =>
             {
-                var context = provider.GetRequiredService<Context>();
                 var allServices = new List<IMyComponent>();
                 // demonstrates using GetServices to get the non-keyed services of that type
                 allServices.AddRange(provider.GetServices<IMyComponent>());

@@ -18,10 +18,9 @@ public class When_resolving_endpoint_specific_keyed_service_globally : NServiceB
         var result = await Scenario.Define<Context>()
             .WithEndpoint<ComponentRegistrationEndpoint>(b =>
                 b.Services(static services => services.AddKeyedSingleton<IMyComponent, EndpointComponent>(42)))
-            .WithServiceResolve(static (provider, _) =>
+            .WithServiceResolve(static (provider, context, _) =>
             {
                 var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ComponentRegistrationEndpoint));
-                var context = provider.GetRequiredService<Context>();
                 context.KeyedComponent = provider.GetRequiredKeyedService<IMyComponent>(new KeyedServiceKey($"{endpointName}0", 42));
                 context.MarkAsCompleted();
                 return Task.CompletedTask;

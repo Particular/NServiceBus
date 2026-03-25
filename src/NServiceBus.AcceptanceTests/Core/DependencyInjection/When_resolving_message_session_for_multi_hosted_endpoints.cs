@@ -20,9 +20,8 @@ public class When_resolving_message_session_for_multi_hosted_endpoints : NServic
         var result = await Scenario.Define<Context>()
             .WithEndpoint<FirstEndpoint>()
             .WithEndpoint<SecondEndpoint>()
-            .WithServiceResolve(static async (provider, ct) =>
+            .WithServiceResolve(static async (provider, context, ct) =>
             {
-                var context = provider.GetRequiredService<Context>();
                 var firstName = Conventions.EndpointNamingConvention(typeof(FirstEndpoint));
                 var secondName = Conventions.EndpointNamingConvention(typeof(SecondEndpoint));
 
