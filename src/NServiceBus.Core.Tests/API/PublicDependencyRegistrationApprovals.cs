@@ -42,7 +42,6 @@ public class PublicDependencyRegistrationApprovals
         Approver.Verify(registrations);
     }
 
-
     record RegisteredService
     {
         public string Type { get; init; }
