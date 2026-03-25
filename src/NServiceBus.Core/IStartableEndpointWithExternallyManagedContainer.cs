@@ -11,11 +11,11 @@ using Particular.Obsoletes;
 /// Represents an endpoint in the start-up phase where the container is externally managed.
 /// </summary>
 [ObsoleteMetadata(
-    Message = "Self-hosting an endpoint is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.",
+    Message = "Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint",
     TreatAsErrorFromVersion = "11",
     RemoveInVersion = "12",
     ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpoint")]
-[Obsolete("Self-hosting an endpoint is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+[Obsolete("Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
 public interface IStartableEndpointWithExternallyManagedContainer
 {
     /// <summary>
@@ -25,11 +25,11 @@ public interface IStartableEndpointWithExternallyManagedContainer
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A reference to the endpoint.</returns>
     [ObsoleteMetadata(
-        Message = "Starting an endpoint manually is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.",
+        Message = "Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint",
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12",
         ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpoint")]
-    [Obsolete("Starting an endpoint manually is not recommended. Instead, consider using a hosting framework such as Generic Host or Web Host to manage the lifecycle including the start of your endpoint.. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [Obsolete("Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -37,9 +37,9 @@ public interface IStartableEndpointWithExternallyManagedContainer
     /// Note: Lazily resolved since it's only valid for use once the endpoint has started.
     /// </summary>
     [ObsoleteMetadata(
-        Message = "The message session is automatically registered in the service collection and no longer needs to be manually registered.",
+        Message = "The message session is automatically registered in the service collection and no longer needs to be manually registered",
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12")]
-    [Obsolete("The message session is automatically registered in the service collection and no longer needs to be manually registered.. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [Obsolete("The message session is automatically registered in the service collection and no longer needs to be manually registered. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     Lazy<IMessageSession> MessageSession { get; }
 }
