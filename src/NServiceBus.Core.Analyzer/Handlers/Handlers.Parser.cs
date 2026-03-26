@@ -365,9 +365,9 @@ public static partial class Handlers
 
             // Simple name parts: declaring type class name chain + message type class name
             var displayParts = handlerType.ToDisplayParts(SymbolDisplayFormat.FullyQualifiedFormat);
-            var typeName = string.Join("__", displayParts.Where(x => x.Kind == Microsoft.CodeAnalysis.SymbolDisplayPartKind.ClassName));
+            var typeName = string.Join("__", displayParts.Where(x => x.Kind == SymbolDisplayPartKind.ClassName));
             var messageParts = method.Parameters[0].Type.ToDisplayParts(SymbolDisplayFormat.FullyQualifiedFormat);
-            var messageName = string.Join("__", messageParts.Where(x => x.Kind == Microsoft.CodeAnalysis.SymbolDisplayPartKind.ClassName));
+            var messageName = string.Join("__", messageParts.Where(x => x.Kind == SymbolDisplayPartKind.ClassName));
 
             return $"{typeName}__Handle__{messageName}_{hash:x16}";
         }

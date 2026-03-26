@@ -57,7 +57,7 @@ static class SagaComponent
         [RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
         public void AddDiscoveredSagas(IEnumerable<Type> availableTypes)
         {
-            var discoveredSagas = NServiceBus.Sagas.SagaMetadata.CreateMany(availableTypes);
+            var discoveredSagas = Sagas.SagaMetadata.CreateMany(availableTypes);
             SagaMetadata.AddRange(discoveredSagas);
         }
 

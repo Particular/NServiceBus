@@ -47,7 +47,7 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
         {
             public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
             {
-                if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(nameof(When_a_message_is_audited.MessageToBeAudited))))
+                if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(nameof(MessageToBeAudited))))
                 {
                     await next(context).ConfigureAwait(false);
                     return;
