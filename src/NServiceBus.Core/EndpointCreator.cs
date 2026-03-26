@@ -28,7 +28,7 @@ class EndpointCreator
     public static EndpointCreator Create(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection)
     {
         var settings = endpointConfiguration.Settings;
-        CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
+        settings.PreventReuse();
 
         var endpointLogSlot = settings.Get<HostingComponent.Settings>().GetOrCreateEndpointLogSlot();
         using var _ = Logging.LogManager.BeginSlotScope(endpointLogSlot);
@@ -61,16 +61,6 @@ class EndpointCreator
         endpointCreator.Configure();
 
         return endpointCreator;
-
-        static void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
-        {
-            if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
-            {
-                throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint. Each endpoint requires a new EndpointConfiguration.");
-            }
-
-            settings.Set("UsedToCreateEndpoint", true);
-        }
 
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
         static void DiscoverInstallers(InstallerComponent.Settings installerSettings, List<Type> availableTypes) => installerSettings.AddScannedInstallers(availableTypes);

@@ -2,17 +2,31 @@
 
 namespace NServiceBus;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Represents an endpoint in the start-up phase.
 /// </summary>
+[ObsoleteMetadata(
+    Message = "Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint",
+    TreatAsErrorFromVersion = "11",
+    RemoveInVersion = "12",
+    ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpoint")]
+[Obsolete("Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
 public interface IStartableEndpoint
 {
     /// <summary>
     /// Starts the endpoint and returns a reference to it.
     /// </summary>
     /// <returns>A reference to the endpoint.</returns>
+    [ObsoleteMetadata(
+        Message = "Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12",
+        ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpoint")]
+    [Obsolete("Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     Task<IEndpointInstance> Start(CancellationToken cancellationToken = default);
 }

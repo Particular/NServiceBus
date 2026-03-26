@@ -65,6 +65,10 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(endpointConfiguration);
 
         var settings = endpointConfiguration.GetSettings();
+        // Unfortunately we have to also check this here due to the multiple hosting variants as long as
+        // the old hosting is still supported.
+        settings.AssertNotReused();
+
         var endpointName = settings.EndpointName();
         var hostingSettings = settings.Get<HostingComponent.Settings>();
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
@@ -74,12 +78,12 @@ public static class ServiceCollectionExtensions
         ValidateAssemblyScanning(endpointConfiguration, endpointName, registrations);
         ValidateTransportReuse(transport, registrations);
 
-        hostingSettings.ConfigureMultiHostLogging(endpointIdentifier is not null, endpointIdentifier);
+        hostingSettings.ConfigureHostLogging(endpointIdentifier);
 
         if (endpointIdentifier is null)
         {
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
-            var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, services);
+            var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, services);
 
             services.AddSingleton(externallyManagedContainerHost);
             services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp));
@@ -91,7 +95,7 @@ public static class ServiceCollectionExtensions
             var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
 
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
-            var externallyManagedContainerHost = EndpointWithExternallyManagedContainer.CreateCore(endpointConfiguration, keyedServices);
+            var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, keyedServices);
 
             services.AddKeyedSingleton(endpointIdentifier, externallyManagedContainerHost);
             services.AddKeyedSingleton<IEndpointLifecycle>(endpointIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, endpointIdentifier, keyedServices));

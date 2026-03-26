@@ -18,7 +18,8 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
     [Test]
     public async Task ReceiveFeature_should_work_without_ISynchronizedStorage() =>
         await Scenario.Define<Context>()
-            .WithEndpoint<NoSyncEndpoint>(e => e.When(b => b.SendLocal(new MyMessage())))
+            .WithEndpoint<NoSyncEndpoint>(e => e.Services(services => services.AddSingleton<ISubscriptionStorage, NoOpISubscriptionStorage>())
+                .When(b => b.SendLocal(new MyMessage())))
             .Run();
 
     class FakeNoSynchronizedStorageSupportPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<FakeNoSynchronizedStorageSupportPersistence>
@@ -51,12 +52,7 @@ public class When_a_persistence_does_not_provide_synchronized_storage_session : 
     public class NoSyncEndpoint : EndpointConfigurationBuilder
     {
         public NoSyncEndpoint() =>
-            EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
-            {
-                // The subscription storage is needed because at this stage we have no way of DisablingPublishing on the non-generic version of ConfigureTransport
-                c.RegisterComponents(container => container.AddSingleton<ISubscriptionStorage, NoOpISubscriptionStorage>());
-                c.UsePersistence<FakeNoSynchronizedStorageSupportPersistence>();
-            });
+            EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c => c.UsePersistence<FakeNoSynchronizedStorageSupportPersistence>());
 
         [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>

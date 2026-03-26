@@ -102,7 +102,13 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> WithServiceResolve(Func<IServiceProvider, CancellationToken, Task> resolve, ServiceResolveMode resolveMode = ServiceResolveMode.BeforeStart)
     {
-        behaviors.Add(new ServiceResolveComponent(resolve, componentCount++, resolveMode));
+        behaviors.Add(new ServiceResolveComponent((provider, _, token) => resolve(provider, token), componentCount++, resolveMode));
+        return this;
+    }
+
+    public IScenarioWithEndpointBehavior<TContext> WithServiceResolve(Func<IServiceProvider, TContext, CancellationToken, Task> resolve, ServiceResolveMode resolveMode = ServiceResolveMode.BeforeStart)
+    {
+        behaviors.Add(new ServiceResolveComponent((provider, context, token) => resolve(provider, (TContext)context, token), componentCount++, resolveMode));
         return this;
     }
 

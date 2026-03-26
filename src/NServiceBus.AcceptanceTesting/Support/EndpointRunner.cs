@@ -35,8 +35,8 @@ public class EndpointRunner(
             behavior = endpointBehavior;
             runDescriptor = run;
             scenarioContext = runDescriptor.ScenarioContext;
-            endpointBehavior.EndpointBuilder.ScenarioContext = runDescriptor.ScenarioContext;
-            configuration = endpointBehavior.EndpointBuilder.Get();
+            behavior.EndpointBuilder.ScenarioContext = runDescriptor.ScenarioContext;
+            configuration = behavior.EndpointBuilder.Get();
             configuration.EndpointName = endpointName;
 
             //apply custom config settings
@@ -58,21 +58,21 @@ public class EndpointRunner(
 
             endpointConfiguration.EnableFeature<FeatureStartupTaskRunner>();
 
-            endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
+            behavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
             services = new KeyedServiceCollectionAdapter(runDescriptor.Services, Name);
             // This is a little hacky but we wanted to avoid having to change the entire acceptance test infrastructure with the creation and start callbacks
             endpointConfiguration.Settings.Set(services);
             endpointConfiguration.Settings.Set("NServiceBus.Hosting.DisableAssemblyScanningValidation", bool.TrueString);
 
-            endpointBehavior.ServicesBeforeStart.ForEach(customAction => customAction(services, scenarioContext));
+            behavior.ServicesBeforeStart.ForEach(customAction => customAction(services, scenarioContext));
 
             startable = await createCallback(services, endpointConfiguration).ConfigureAwait(false);
 
             var transportDefinition = settingsHolder.Get<TransportDefinition>();
             scenarioContext.HasNativePubSubSupport = transportDefinition.SupportsPublishSubscribe;
 
-            endpointBehavior.ServicesAfterStart.ForEach(customAction => customAction(services, scenarioContext));
+            behavior.ServicesAfterStart.ForEach(customAction => customAction(services, scenarioContext));
         }
         catch (Exception ex)
         {
@@ -105,12 +105,25 @@ public class EndpointRunner(
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(startable);
         ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(behavior);
+        ArgumentNullException.ThrowIfNull(scenarioContext);
 
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
             serviceProvider = new KeyedServiceProviderAdapter(runDescriptor.ServiceProvider, Name, services);
+
+            foreach (var action in behavior.ResolvesBeforeStart)
+            {
+                await action(serviceProvider, scenarioContext, cancellationToken).ConfigureAwait(false);
+            }
+
             endpointInstance = await startCallback(startable, serviceProvider, cancellationToken).ConfigureAwait(false);
+
+            foreach (var action in behavior.ResolveAfterStart)
+            {
+                await action(serviceProvider, scenarioContext, cancellationToken).ConfigureAwait(false);
+            }
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {

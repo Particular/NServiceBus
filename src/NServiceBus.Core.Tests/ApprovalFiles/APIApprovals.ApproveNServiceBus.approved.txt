@@ -264,9 +264,12 @@ namespace NServiceBus
         Send = 0,
         Publish = 1,
     }
+    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class Endpoint
     {
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -274,6 +277,7 @@ namespace NServiceBus
         public EndpointConfiguration(string endpointName) { }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.ConventionsBuilder Conventions() { }
+        [System.Obsolete(@"Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void RegisterComponents(System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection> registration) { }
         public void SendOnly() { }
     }
@@ -294,8 +298,10 @@ namespace NServiceBus
     {
         public static System.Threading.Tasks.Task Stop(this NServiceBus.IEndpointInstance endpoint, System.TimeSpan gracefulStopTimeout) { }
     }
+    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpointt. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class EndpointWithExternallyManagedContainer
     {
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
     }
     public static class EnvelopeConfigExtensions
@@ -546,13 +552,20 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
+    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IStartableEndpoint
     {
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.Threading.CancellationToken cancellationToken = default);
     }
+    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IStartableEndpointWithExternallyManagedContainer
     {
+        [System.Obsolete("The message session is automatically registered in the service collection and no " +
+            "longer needs to be manually registered. Will be treated as an error from version" +
+            " 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default);
     }
     [System.Obsolete("The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' instead. W" +

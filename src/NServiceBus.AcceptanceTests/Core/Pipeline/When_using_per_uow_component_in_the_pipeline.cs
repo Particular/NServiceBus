@@ -15,7 +15,7 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
     public async Task It_should_be_scoped_to_uow_both_in_behavior_and_in_the_handler()
     {
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<Endpoint>(e => e
+            .WithEndpoint<Endpoint>(e => e.Services(services => services.AddScoped<Endpoint.UnitOfWorkComponent>())
                 .When(async s =>
                 {
                     await SendMessage(s).ConfigureAwait(false);
@@ -36,10 +36,7 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
         var options = new SendOptions();
         options.RouteToThisEndpoint();
         options.SetHeader("Value", uniqueValue);
-        var message = new Message
-        {
-            Value = uniqueValue
-        };
+        var message = new Message { Value = uniqueValue };
 
         return s.Send(message, options);
     }
@@ -64,7 +61,6 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
         public Endpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
-                c.RegisterComponents(r => r.AddScoped<UnitOfWorkComponent>());
                 c.Pipeline.Register(b => new HeaderProcessingBehavior(b.GetService<Context>()), "Populates UoW component.");
                 c.LimitMessageProcessingConcurrencyTo(1);
             });

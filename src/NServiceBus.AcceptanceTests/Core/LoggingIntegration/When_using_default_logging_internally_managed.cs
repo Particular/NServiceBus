@@ -54,8 +54,10 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
             .WithEndpoint<EndpointWithDefaultLogging>(b =>
             {
                 b.ToCreateInstance(
+#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this entire test can be deleted because there is no internally managed mode anymore.
                     (_, configuration) => Endpoint.Create(configuration),
                     (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
+#pragma warning restore CS0618 // Type or member is obsolete
             })
             .Done(c => c.EndpointsStarted)
             .Run();

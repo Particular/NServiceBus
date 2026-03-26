@@ -252,10 +252,7 @@ public partial class SettingsHolder : IReadOnlySettings
     /// <summary>
     /// Locks the settings to prevent further modifications.
     /// </summary>
-    internal void PreventChanges()
-    {
-        locked = true;
-    }
+    internal void PreventChanges() => locked = true;
 
     internal void Merge(IReadOnlySettings settings)
     {
@@ -312,9 +309,25 @@ public partial class SettingsHolder : IReadOnlySettings
         Overrides.Clear();
     }
 
+    internal void PreventReuse()
+    {
+        AssertNotReused();
+
+        usedToCreateEndpoint = true;
+    }
+
+    internal void AssertNotReused()
+    {
+        if (usedToCreateEndpoint)
+        {
+            throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint. Each endpoint requires a new EndpointConfiguration.");
+        }
+    }
+
     readonly ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
     bool locked;
+    bool usedToCreateEndpoint;
 
     readonly ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 }

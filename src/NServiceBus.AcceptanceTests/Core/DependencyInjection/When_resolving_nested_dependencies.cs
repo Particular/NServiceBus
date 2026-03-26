@@ -1,5 +1,4 @@
-﻿
-namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
 using System.Threading.Tasks;
@@ -20,6 +19,7 @@ public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
                     {
                         services.AddScoped<IDependency, MyDependency>();
                         services.AddSingleton(new FeatureSpecificObject("FromAcceptanceTest")); // will be overriden
+                        services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>();
                     })
                     .When((session, c) => session.SendLocal(new SomeMessage())))
             .Run();
@@ -34,13 +34,7 @@ public class When_resolving_nested_dependencies : NServiceBusAcceptanceTest
 
     public class DeeplyNestedDependenciesEndpoint : EndpointConfigurationBuilder
     {
-        public DeeplyNestedDependenciesEndpoint() => EndpointSetup<DefaultServer>(b =>
-        {
-            b.EnableFeature<MyFeatureProvidingMoreDependencies>();
-
-            // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>());
-        });
+        public DeeplyNestedDependenciesEndpoint() => EndpointSetup<DefaultServer>(b => b.EnableFeature<MyFeatureProvidingMoreDependencies>());
 
         [Handler]
         public class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage>

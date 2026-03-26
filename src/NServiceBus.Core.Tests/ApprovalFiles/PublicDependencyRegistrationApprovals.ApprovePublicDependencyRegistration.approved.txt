@@ -1,0 +1,62 @@
+[
+  {
+    "Type": "NServiceBus.Settings.IReadOnlySettings",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.Transport.IMessageDispatcher",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.Transport.ITransportAddressResolver",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.MessageInterfaces.IMessageMapper",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.IMessageCreator",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.Unicast.Messages.MessageMetadataRegistry",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.Pipeline.LogicalMessageFactory",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.Persistence.ISynchronizedStorageSession",
+    "Lifecycle": "Scoped"
+  },
+  {
+    "Type": "NServiceBus.Persistence.ICompletableSynchronizedStorageSession",
+    "Lifecycle": "Scoped"
+  },
+  {
+    "Type": "NServiceBus.ReceiveAddresses",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.Transport.ISubscriptionManager",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.Unicast.MessageHandlerRegistry",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.Hosting.HostInformation",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.CriticalError",
+    "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.IMessageSession",
+    "Lifecycle": "Singleton"
+  }
+]

@@ -45,12 +45,6 @@ partial class HostingComponent
 
         public string EndpointName => settings.EndpointName();
 
-        public bool IsMultiHosted
-        {
-            get => settings.GetOrDefault<bool>(IsMultiHostedSettingsKey);
-            set => settings.Set(IsMultiHostedSettingsKey, value);
-        }
-
         public object? EndpointIdentifier
         {
             get
@@ -100,9 +94,8 @@ partial class HostingComponent
             get; set;
         }
 
-        internal void ConfigureMultiHostLogging(bool isMultiHosted, object? endpointIdentifier)
+        internal void ConfigureHostLogging(object? endpointIdentifier)
         {
-            IsMultiHosted = isMultiHosted;
             EndpointIdentifier = endpointIdentifier;
             settings.Set(EndpointLogSlotSettingsKey, new EndpointLogSlot(EndpointName, endpointIdentifier));
         }

@@ -30,7 +30,7 @@ In all other cases, you should define your types as classes.
 -------------------------------------------------- REMEMBER --------------------------------------------------
 ");
 
-        var assembly = typeof(Endpoint).Assembly;
+        var assembly = typeof(EndpointCreator).Assembly;
 
         foreach (var type in assembly.GetTypes().OrderBy(t => t.FullName))
         {

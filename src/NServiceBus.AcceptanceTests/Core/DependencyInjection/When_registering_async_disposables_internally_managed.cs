@@ -18,8 +18,10 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
                 b.ToCreateInstance(
+#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this entire test can be deleted because there is no internally managed mode anymore.
                     (_, configuration) => Endpoint.Create(configuration),
                     (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
+#pragma warning restore CS0618 // Type or member is obsolete
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
             .Run();
@@ -42,6 +44,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         public EndpointWithAsyncDisposable() =>
             EndpointSetup<DefaultServer>(c =>
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 c.RegisterComponents(s =>
                 {
                     // We have to take control over re-registering the context because we have taken control over the instance creation
@@ -49,6 +52,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                     s.AddScoped<ScopedAsyncDisposable>();
                     s.AddSingleton<SingletonAsyncDisposable>();
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
             });
 
         [Handler]

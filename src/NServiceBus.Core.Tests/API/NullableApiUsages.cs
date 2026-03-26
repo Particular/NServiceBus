@@ -13,12 +13,16 @@ namespace NServiceBus.Core.Tests.API.NullableApiUsages;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Extensibility;
 using NServiceBus.Logging;
 using NServiceBus.MessageMutator;
 using NServiceBus.Persistence;
 using NServiceBus.Pipeline;
 using NServiceBus.Sagas;
+using Host = Microsoft.Extensions.Hosting.Host;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 public class TopLevelApis
 {
@@ -42,6 +46,7 @@ public class TopLevelApis
             .Options(new System.Text.Json.JsonSerializerOptions());
 
         // Start directly
+#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this section can be deleted because there is no internally managed mode anymore.
         await Endpoint.Start(cfg, cancellationToken);
 
         // Or create, then start
@@ -51,18 +56,24 @@ public class TopLevelApis
         await ep.Send(new Cmd(), cancellationToken);
         await ep.Publish(new Evt(), cancellationToken);
         await ep.Publish<Evt>(cancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        // or use the host builder
+        var builder = Host.CreateApplicationBuilder();
+        builder.Services.AddNServiceBusEndpoint(cfg);
+        var host = builder.Build();
+        await host.StartAsync(cancellationToken);
+
+        var messageSession = host.Services.GetRequiredService<IMessageSession>();
+
+        await messageSession.Send(new Cmd(), cancellationToken);
+        await messageSession.Publish(new Evt(), cancellationToken);
+        await messageSession.Publish<Evt>(cancellationToken);
     }
 }
 
-public class TestHandler : IHandleMessages<Cmd>
+public class TestHandler(ILog logger) : IHandleMessages<Cmd>
 {
-    ILog logger;
-
-    public TestHandler(ILog logger)
-    {
-        this.logger = logger;
-    }
-
     public async Task Handle(Cmd message, IMessageHandlerContext context)
     {
         logger.Info(message.OrderId);
@@ -73,6 +84,23 @@ public class TestHandler : IHandleMessages<Cmd>
         opts.DelayDeliveryWith(TimeSpan.FromSeconds(5));
         opts.SetHeader("a", "1");
     }
+}
+
+public partial class TestHandlerWithMsLogger(ILogger<TestHandlerWithMsLogger> logger) : IHandleMessages<Cmd>
+{
+    public async Task Handle(Cmd message, IMessageHandlerContext context)
+    {
+        LogMessage(logger, message.OrderId);
+        await context.Send(new Cmd());
+        await context.Publish(new Evt());
+
+        var opts = new SendOptions();
+        opts.DelayDeliveryWith(TimeSpan.FromSeconds(5));
+        opts.SetHeader("a", "1");
+    }
+
+    [LoggerMessage(LogLevel.Information, "Message: {OrderId}")]
+    static partial void LogMessage(ILogger<TestHandlerWithMsLogger> logger, string? OrderId);
 }
 
 public class TestSaga : Saga<TestSagaData>,

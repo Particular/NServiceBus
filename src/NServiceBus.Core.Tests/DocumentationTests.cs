@@ -17,7 +17,7 @@ public class DocumentationTests
     [Test]
     public void EnsureNoDocumentationIsEmpty()
     {
-        var assembly = typeof(Endpoint).Assembly;
+        var assembly = typeof(EndpointCreator).Assembly;
         var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, Path.GetFileName(assembly.Location));
         var assemblyMembers = DocReader.Read(assembly, Path.ChangeExtension(path, "xml"));
 

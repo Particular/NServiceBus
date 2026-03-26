@@ -15,7 +15,11 @@ public class When_registering_convention_based_handlers : NServiceBusAcceptanceT
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointUsingRegistry>(b =>
-                b.When(async (session, _) => await session.SendLocal(new MyMessage())))
+                {
+                    b.Services(sc => sc.AddSingleton<IMyDependency, MyDependency>());
+                    b.When(async (session, _) => await session.SendLocal(new MyMessage()));
+                }
+            )
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -42,7 +46,6 @@ public class When_registering_convention_based_handlers : NServiceBusAcceptanceT
     {
         public EndpointUsingRegistry() => EndpointSetup<NonScanningServer>(config =>
         {
-            config.RegisterComponents(c => c.AddSingleton<IMyDependency, MyDependency>());
             // Use the registry to register convention-based handlers individually
             config.Handlers.All.AcceptanceTests.Registrations.Handlers
                 .AddWhen_registering_convention_based_handlers__ParameterDiHandler();

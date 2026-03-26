@@ -15,7 +15,7 @@ public class ExternallyManagedContainerMessageSessionIntegrationTests
         var services = new ServiceCollection();
         var endpointConfiguration = CreateEndpointConfiguration();
 
-        _ = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, services);
+        _ = EndpointExternallyManaged.Create(endpointConfiguration, services);
 
         using var provider = services.BuildServiceProvider();
         var messageSession = provider.GetRequiredService<IMessageSession>();
@@ -29,7 +29,7 @@ public class ExternallyManagedContainerMessageSessionIntegrationTests
         var services = new ServiceCollection();
         var endpointConfiguration = CreateEndpointConfiguration();
 
-        _ = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, services);
+        _ = EndpointExternallyManaged.Create(endpointConfiguration, services);
 
         using var provider = services.BuildServiceProvider();
         var messageSession = provider.GetRequiredService<IMessageSession>();

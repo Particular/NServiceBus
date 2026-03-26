@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Config;
 
-using System;
 using NUnit.Framework;
+using Host = Microsoft.Extensions.Hosting.Host;
 
 [TestFixture]
 class When_starting_endpoint_without_configuring_serializer
@@ -13,7 +13,8 @@ class When_starting_endpoint_without_configuring_serializer
         configuration.UseTransport(new LearningTransport());
         configuration.AssemblyScanner().Disable = true;
 
-        var exception = Assert.ThrowsAsync<Exception>(async () => await Endpoint.Create(configuration).ConfigureAwait(false));
-        Assert.That(exception.Message, Does.StartWith("A serializer has not been configured"));
+        var builder = Host.CreateApplicationBuilder();
+
+        Assert.That(() => builder.Services.AddNServiceBusEndpoint(configuration), Throws.Exception.With.Message.Contains("A serializer has not been configured"));
     }
 }
