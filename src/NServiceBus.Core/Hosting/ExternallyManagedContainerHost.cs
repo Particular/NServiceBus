@@ -14,8 +14,10 @@ class ExternallyManagedContainerHost(EndpointCreator endpointCreator) : IStartab
     public Task<StartableEndpoint> Create(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         => startupRunner.Create(serviceProvider, cancellationToken);
 
-    public Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default) =>
-        startupRunner.Start(externalBuilder, cancellationToken);
+#pragma warning disable CS0618 // Type or member is obsolete -- Convert the return type to Task<RunningEndpointInstance> when removing IStartableEndpointWithExternallyManagedContainer
+    public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default) =>
+        await startupRunner.Start(externalBuilder, cancellationToken).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
 
     readonly EndpointStartupRunner startupRunner = new(new ExternalContainerEndpointCreationStrategy(endpointCreator));
 }

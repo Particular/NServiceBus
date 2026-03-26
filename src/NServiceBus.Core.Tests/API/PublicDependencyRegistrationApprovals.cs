@@ -30,7 +30,7 @@ public class PublicDependencyRegistrationApprovals
 
         var registrations = new List<RegisteredService>();
         foreach (var serviceDescriptor in hostBuilder.Services
-                     .Where(sd => sd.ServiceType.Assembly == typeof(IEndpointInstance).Assembly && sd.ServiceType.IsPublic))
+                     .Where(sd => sd.ServiceType.Assembly == typeof(EndpointCreator).Assembly && sd.ServiceType.IsPublic))
         {
             registrations.Add(new RegisteredService()
             {

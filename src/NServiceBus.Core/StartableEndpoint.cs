@@ -55,7 +55,7 @@ class StartableEndpoint(
         hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-ErrorQueue", settings.ErrorQueueAddress());
     }
 
-    public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
+    public async Task<RunningEndpointInstance> Start(CancellationToken cancellationToken = default)
     {
         if (endpointInstance is not null)
         {
@@ -99,6 +99,6 @@ class StartableEndpoint(
 
     TransportInfrastructure transportInfrastructure;
     CancellationTokenSource stoppingTokenSource;
-    volatile IEndpointInstance endpointInstance = null!;
+    volatile RunningEndpointInstance endpointInstance = null!;
     readonly SemaphoreSlim startSemaphore = new(1, 1);
 }

@@ -45,7 +45,7 @@ public class EndpointHostedServiceTests
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask<IEndpointInstance> CreateAndStart(CancellationToken cancellationToken = default)
+        public ValueTask<RunningEndpointInstance> CreateAndStart(CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
         public ValueTask DisposeAsync()

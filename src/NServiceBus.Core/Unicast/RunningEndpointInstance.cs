@@ -17,7 +17,9 @@ class RunningEndpointInstance(SettingsHolder settings,
     TransportInfrastructure transportInfrastructure,
     CancellationTokenSource stoppingTokenSource,
     IAsyncDisposable serviceProviderLease,
+#pragma warning disable CS0618 // Type or member is obsolete -- Change the interface to IMessageSession in the next major
     object endpointLogSlot) : IEndpointInstance
+#pragma warning restore CS0618 // Type or member is obsolete
 {
     public async Task Stop(CancellationToken cancellationToken = default)
     {

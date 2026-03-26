@@ -6,7 +6,7 @@ using System.Linq;
 
 static class NServiceBusAssembly
 {
-    public static readonly List<Type> Types = typeof(IEndpointInstance).Assembly.GetTypes()
+    public static readonly List<Type> Types = typeof(EndpointCreator).Assembly.GetTypes()
         .Where(type => !type.IsObsolete())
         .ToList();
 }

@@ -69,7 +69,7 @@ public class NullableAnnotations
     {
         foreach (var member in type.GetMembers())
         {
-            if (member.DeclaringType?.Assembly != typeof(IEndpointInstance).Assembly)
+            if (member.DeclaringType?.Assembly != typeof(EndpointCreator).Assembly)
             {
                 continue;
             }

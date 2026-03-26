@@ -66,6 +66,6 @@ partial class HostingComponent(HostingComponent.Configuration configuration, Ins
         await hostStartupDiagnosticsWriter.Write(configuration.StartupDiagnostics.entries, cancellationToken).ConfigureAwait(false);
     }
 
-    public void SetupCriticalErrors(IEndpointInstance endpointInstance, CancellationToken cancellationToken = default) =>
+    public void SetupCriticalErrors(RunningEndpointInstance endpointInstance, CancellationToken cancellationToken = default) =>
         configuration.CriticalError.SetEndpoint(endpointInstance, cancellationToken);
 }
