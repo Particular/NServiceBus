@@ -4,6 +4,8 @@ namespace NServiceBus.Core.Tests.Logging;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Logging;
@@ -12,6 +14,14 @@ using NUnit.Framework;
 [TestFixture]
 public class EndpointLoggingScopeTests
 {
+    [TearDown]
+    public void Cleanup()
+    {
+#pragma warning disable CS0618 // Test cleanup intentionally resets global LogManager default factory
+        LogManager.Use<DefaultFactory>();
+#pragma warning restore CS0618
+    }
+
     [Test]
     public void Should_include_endpoint_name_and_identifier_for_multi_hosted_endpoints()
     {
@@ -143,17 +153,15 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
-    public void Should_flush_pending_deferred_logs_to_default_logger_when_slot_is_unregistered()
+    public void Should_flush_pending_scoped_startup_logs_to_trace_when_slot_is_unregistered_without_factory()
     {
-        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
-#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
-        LogManager.UseFactory(defaultLoggerFactory);
-#pragma warning restore CS0618
+        using var traceOutput = new StringWriter();
+        using var traceListener = new TextWriterTraceListener(traceOutput);
+        Trace.Listeners.Add(traceListener);
 
         // Slot is created but its factory is never resolved (simulates a failed endpoint startup).
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
-        var logger = LogManager.GetLogger(loggerName);
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
 
         using (LogManager.BeginSlotScope(slot))
         {
@@ -162,20 +170,21 @@ public class EndpointLoggingScopeTests
 
         LogManager.UnregisterSlot(slot);
 
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["startup-log"]));
+        traceListener.Flush();
+        Trace.Listeners.Remove(traceListener);
+
+        Assert.That(traceOutput.ToString(), Does.Contain("Info").And.Contains("startup-log"));
     }
 
     [Test]
-    public void Should_not_duplicate_pending_deferred_logs_when_slot_is_unregistered_multiple_times()
+    public void Should_not_duplicate_trace_flush_when_slot_is_unregistered_multiple_times()
     {
-        var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
-#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
-        LogManager.UseFactory(defaultLoggerFactory);
-#pragma warning restore CS0618
+        using var traceOutput = new StringWriter();
+        using var traceListener = new TextWriterTraceListener(traceOutput);
+        Trace.Listeners.Add(traceListener);
 
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
-        var logger = LogManager.GetLogger(loggerName);
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
 
         using (LogManager.BeginSlotScope(slot))
         {
@@ -185,11 +194,56 @@ public class EndpointLoggingScopeTests
         LogManager.UnregisterSlot(slot);
         LogManager.UnregisterSlot(slot);
 
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["startup-log"]));
+        traceListener.Flush();
+        Trace.Listeners.Remove(traceListener);
+
+        var output = traceOutput.ToString();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(output, Does.Contain("Info").And.Contains("startup-log"));
+            Assert.That(CountOccurrences(output, "startup-log"), Is.EqualTo(1));
+        }
     }
 
     [Test]
-    public void Should_route_logs_to_default_after_slot_is_unregistered()
+    public void Should_write_to_trace_instead_of_buffering_when_logging_inside_stale_slot_scope_after_unregistration()
+    {
+        using var traceOutput = new StringWriter();
+        using var traceListener = new TextWriterTraceListener(traceOutput);
+        Trace.Listeners.Add(traceListener);
+
+        var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        var staleScope = LogManager.BeginSlotScope(slot);
+        LogManager.UnregisterSlot(slot);
+
+        logger.Info("stale-scope-log");
+
+        staleScope.Dispose();
+
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(slotLoggerFactory));
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.Info("fresh-log");
+        }
+
+        traceListener.Flush();
+        Trace.Listeners.Remove(traceListener);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(traceOutput.ToString(), Does.Contain("Info").And.Contains("stale-scope-log"));
+            Assert.That(slotLoggerFactory.Logger.CapturedMessages, Does.Contain("fresh-log"));
+            Assert.That(slotLoggerFactory.Logger.CapturedMessages, Does.Not.Contain("stale-scope-log"));
+        }
+
+        LogManager.UnregisterSlot(slot);
+    }
+
+    [Test]
+    public void Should_route_unscoped_logs_to_default_after_slot_is_unregistered()
     {
         var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
         var defaultLoggerFactory = new CollectingNServiceBusLoggerFactory();
@@ -204,15 +258,48 @@ public class EndpointLoggingScopeTests
         LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(slotLoggerFactory));
         LogManager.UnregisterSlot(slot);
 
-        // Log outside any slot scope — BeginSlotScope must not be used here because it
-        // calls GetOrAddSlotContext which re-inserts the slot as Pending, which would
-        // cause ShouldDeferSlotLogs to return true and defer the message instead of
-        // writing it to the default logger.
         logger.Info("after-unregister");
 
-        // The slot's factory is gone — the message must have gone to the default logger.
-        Assert.That(slotLoggerFactory.Logger.CapturedLogScopes, Is.Empty);
-        Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["after-unregister"]));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(slotLoggerFactory.Logger.CapturedLogScopes, Is.Empty);
+            Assert.That(defaultLoggerFactory.GetMessages(loggerName), Is.EqualTo(["after-unregister"]));
+        }
+    }
+
+    [Test]
+    public void Should_keep_deferred_startup_logs_isolated_per_slot_when_multiple_endpoints_start_concurrently()
+    {
+        var salesLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var billingLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var salesSlot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var billingSlot = new EndpointLogSlot($"Billing-{Guid.NewGuid():N}", "green");
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(salesSlot))
+        {
+            logger.Info("sales-startup-log");
+        }
+
+        using (LogManager.BeginSlotScope(billingSlot))
+        {
+            logger.Info("billing-startup-log");
+        }
+
+        // Register in reverse order to model concurrent multi-endpoint startup races.
+        LogManager.RegisterSlotFactory(billingSlot, new MicrosoftLoggerFactoryAdapter(billingLoggerFactory));
+        LogManager.RegisterSlotFactory(salesSlot, new MicrosoftLoggerFactoryAdapter(salesLoggerFactory));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(salesLoggerFactory.Logger.CapturedMessages, Does.Contain("sales-startup-log"));
+            Assert.That(salesLoggerFactory.Logger.CapturedMessages, Does.Not.Contain("billing-startup-log"));
+            Assert.That(billingLoggerFactory.Logger.CapturedMessages, Does.Contain("billing-startup-log"));
+            Assert.That(billingLoggerFactory.Logger.CapturedMessages, Does.Not.Contain("sales-startup-log"));
+        }
+
+        LogManager.UnregisterSlot(salesSlot);
+        LogManager.UnregisterSlot(billingSlot);
     }
 
     static void AssertScopeWasUsed(List<IReadOnlyList<KeyValuePair<string, object>>> capturedLogScopes, params KeyValuePair<string, object>[] expectedScope)
@@ -359,5 +446,18 @@ public class EndpointLoggingScopeTests
         public void FatalFormat(string format, params object?[] args) => Messages.Enqueue(string.Format(format, args));
 
         public Queue<string?> Messages { get; } = new();
+    }
+
+    static int CountOccurrences(string text, string value)
+    {
+        var count = 0;
+        var index = 0;
+        while ((index = text.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            index += value.Length;
+        }
+
+        return count;
     }
 }
