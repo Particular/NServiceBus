@@ -9,7 +9,6 @@ NServiceBus.ContentTypes
 NServiceBus.DateTimeOffsetHelper
 NServiceBus.DistributionPolicy
 NServiceBus.EndpointConfiguration
-NServiceBus.EndpointInstanceExtensions
 NServiceBus.Faults.FailedMessage
 NServiceBus.Headers
 NServiceBus.IDistributionPolicy
