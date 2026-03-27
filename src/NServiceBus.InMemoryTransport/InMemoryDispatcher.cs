@@ -43,7 +43,7 @@ class InMemoryDispatcher : IMessageDispatcher
                     isPublished: true,
                     sequenceNumber);
 
-                if (TryEnlistToReceiveTransaction(transaction, envelope))
+                if (TryEnlistToReceiveTransaction(transaction, envelope, transportOperation.RequiredDispatchConsistency))
                 {
                     continue;
                 }
@@ -119,7 +119,7 @@ class InMemoryDispatcher : IMessageDispatcher
                 isPublished: false,
                 sequenceNumber);
 
-            if (TryEnlistToReceiveTransaction(transaction, envelope))
+            if (TryEnlistToReceiveTransaction(transaction, envelope, operation.RequiredDispatchConsistency))
             {
                 return Task.CompletedTask;
             }
@@ -149,8 +149,12 @@ class InMemoryDispatcher : IMessageDispatcher
         return null;
     }
 
-    static bool TryEnlistToReceiveTransaction(TransportTransaction transaction, BrokerEnvelope envelope)
+    static bool TryEnlistToReceiveTransaction(TransportTransaction transaction, BrokerEnvelope envelope, DispatchConsistency dispatchConsistency)
     {
+        if (dispatchConsistency == DispatchConsistency.Isolated)
+        {
+            return false;
+        }
         if (transaction.TryGet<IInMemoryReceiveTransaction>(out var receiveTransaction) && receiveTransaction != null)
         {
             receiveTransaction.Enlist(envelope);
