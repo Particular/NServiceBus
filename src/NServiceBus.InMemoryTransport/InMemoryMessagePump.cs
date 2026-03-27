@@ -108,23 +108,51 @@ class InMemoryMessagePump : IMessageReceiver
                 catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
                 {
                     receiveTransaction?.Rollback();
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    receiveTransaction?.Rollback();
 
-                    var errorContext = new ErrorContext(
-                        ex,
-                        [],
-                        string.Empty,
-                        ReadOnlyMemory<byte>.Empty,
-                        new TransportTransaction(),
-                        0,
-                        ReceiveAddress,
-                        contextBag);
+                    ErrorContext errorContext;
 
-                    await onError(errorContext, CancellationToken.None).ConfigureAwait(false);
+                    if (receiveTransaction != null)
+                    {
+                        errorContext = new ErrorContext(
+                            ex,
+                            new Dictionary<string, string>(envelope.Headers),
+                            envelope.MessageId,
+                            envelope.Body,
+                            transportTransaction,
+                            0,
+                            ReceiveAddress,
+                            contextBag);
+                    }
+                    else
+                    {
+                        errorContext = new ErrorContext(
+                            ex,
+                            new Dictionary<string, string>(envelope.Headers),
+                            envelope.MessageId,
+                            envelope.Body,
+                            new TransportTransaction(),
+                            0,
+                            ReceiveAddress,
+                            contextBag);
+                    }
+
+                    var result = await onError(errorContext, CancellationToken.None).ConfigureAwait(false);
+
+                    if (receiveTransaction != null)
+                    {
+                        receiveTransaction.Commit();
+                        await CommitPendingToBrokerAsync(receiveTransaction, cancellationToken).ConfigureAwait(false);
+                    }
+
+                    if (result == ErrorHandleResult.RetryRequired)
+                    {
+                        var retryQueue = Broker.GetOrCreateQueue(ReceiveAddress);
+                        await retryQueue.Enqueue(envelope, CancellationToken.None).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        envelope.Dispose();
+                    }
                 }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

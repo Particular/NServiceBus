@@ -28,7 +28,6 @@ class InMemoryDispatcher : IMessageDispatcher
         foreach (var transportOperation in transportOperations)
         {
             var message = transportOperation.Message;
-            var body = broker.PayloadStore.Copy(message.Body.Span);
             var messageId = Guid.NewGuid().ToString();
             var sequenceNumber = broker.GetNextSequenceNumber();
 
@@ -36,9 +35,9 @@ class InMemoryDispatcher : IMessageDispatcher
 
             foreach (var subscriber in subscribers)
             {
-                var envelope = BrokerEnvelope.Create(
+                var envelope = BrokerPayloadStore.Borrow(
                     messageId,
-                    body,
+                    message.Body.Span,
                     message.Headers,
                     subscriber,
                     isPublished: true,
@@ -70,13 +69,12 @@ class InMemoryDispatcher : IMessageDispatcher
         return Task.WhenAll(operations.Select(operation =>
         {
             var message = operation.Message;
-            var body = broker.PayloadStore.Copy(message.Body.Span);
             var messageId = Guid.NewGuid().ToString();
             var sequenceNumber = broker.GetNextSequenceNumber();
 
-            var envelope = BrokerEnvelope.Create(
+            var envelope = BrokerPayloadStore.Borrow(
                 messageId,
-                body,
+                message.Body.Span,
                 message.Headers,
                 operation.Destination,
                 isPublished: false,

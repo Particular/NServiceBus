@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 public sealed record BrokerEnvelope(
@@ -10,18 +11,16 @@ public sealed record BrokerEnvelope(
     string Destination,
     bool IsPublished,
     long SequenceNumber,
-    DateTimeOffset? DeliverAt = null)
+    DateTimeOffset? DeliverAt = null) : IDisposable
 {
-    public static BrokerEnvelope Create(
-        string messageId,
-        byte[] body,
-        IReadOnlyDictionary<string, string> headers,
-        string destination,
-        bool isPublished,
-        long sequenceNumber,
-        DateTimeOffset? deliverAt = null)
+    public required ArrayPool<byte> Pool { get; init; }
+    public required byte[] Buffer { get; init; }
+
+    public void Dispose()
     {
-        var headersCopy = new Dictionary<string, string>(headers);
-        return new BrokerEnvelope(messageId, body, headersCopy, destination, isPublished, sequenceNumber, deliverAt);
+        if (Buffer != null && Pool != null)
+        {
+            Pool.Return(Buffer, clearArray: true);
+        }
     }
 }
