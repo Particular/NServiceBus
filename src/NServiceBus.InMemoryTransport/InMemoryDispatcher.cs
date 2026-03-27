@@ -35,20 +35,24 @@ class InMemoryDispatcher : IMessageDispatcher
 
             foreach (var subscriber in subscribers)
             {
+                var deliverAt = GetDeliverAt(transportOperation.Properties);
+                var discardAfter = GetDiscardAfter(transportOperation.Properties);
+
                 var envelope = BrokerPayloadStore.Borrow(
                     messageId,
                     message.Body.Span,
                     message.Headers,
                     subscriber,
                     isPublished: true,
-                    sequenceNumber);
+                    sequenceNumber,
+                    deliverAt,
+                    discardAfter);
 
                 if (TryEnlistToReceiveTransaction(transaction, envelope, transportOperation.RequiredDispatchConsistency))
                 {
                     continue;
                 }
 
-                var deliverAt = GetDeliverAt(transportOperation.Properties);
                 if (deliverAt.HasValue)
                 {
                     broker.EnqueueDelayed(envelope, deliverAt.Value);
@@ -110,6 +114,8 @@ class InMemoryDispatcher : IMessageDispatcher
             var message = operation.Message;
             var messageId = Guid.NewGuid().ToString();
             var sequenceNumber = broker.GetNextSequenceNumber();
+            var deliverAt = GetDeliverAt(operation.Properties);
+            var discardAfter = GetDiscardAfter(operation.Properties);
 
             var envelope = BrokerPayloadStore.Borrow(
                 messageId,
@@ -117,14 +123,15 @@ class InMemoryDispatcher : IMessageDispatcher
                 message.Headers,
                 operation.Destination,
                 isPublished: false,
-                sequenceNumber);
+                sequenceNumber,
+                deliverAt,
+                discardAfter);
 
             if (TryEnlistToReceiveTransaction(transaction, envelope, operation.RequiredDispatchConsistency))
             {
                 return Task.CompletedTask;
             }
 
-            var deliverAt = GetDeliverAt(operation.Properties);
             if (deliverAt.HasValue)
             {
                 broker.EnqueueDelayed(envelope, deliverAt.Value);
@@ -145,6 +152,16 @@ class InMemoryDispatcher : IMessageDispatcher
         if (properties.DelayDeliveryWith != null)
         {
             return DateTimeOffset.UtcNow + properties.DelayDeliveryWith.Delay;
+        }
+        return null;
+    }
+
+    static DateTimeOffset? GetDiscardAfter(DispatchProperties properties)
+    {
+        var ttbr = properties.DiscardIfNotReceivedBefore;
+        if (ttbr != null && ttbr.MaxTime < TimeSpan.MaxValue)
+        {
+            return DateTimeOffset.UtcNow + ttbr.MaxTime;
         }
         return null;
     }

@@ -193,20 +193,8 @@ class InMemoryMessagePump : IMessageReceiver
         }
     }
 
-    static bool IsExpired(BrokerEnvelope envelope)
-    {
-        if (!envelope.Headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
-        {
-            return false;
-        }
-        if (!envelope.Headers.TryGetValue(Headers.TimeSent, out var timeSentString))
-        {
-            return false;
-        }
-        var ttbr = TimeSpan.Parse(ttbrString);
-        var timeSent = DateTimeOffsetHelper.ToDateTimeOffset(timeSentString);
-        return timeSent + ttbr < DateTimeOffset.UtcNow;
-    }
+    static bool IsExpired(BrokerEnvelope envelope) =>
+        envelope.DiscardAfter.HasValue && envelope.DiscardAfter.Value < DateTimeOffset.UtcNow;
 
     public async Task StopReceive(CancellationToken cancellationToken = default)
     {

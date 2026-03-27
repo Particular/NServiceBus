@@ -12,6 +12,7 @@ public sealed record BrokerEnvelope(
     bool IsPublished,
     long SequenceNumber,
     DateTimeOffset? DeliverAt = null,
+    DateTimeOffset? DiscardAfter = null,
     int DeliveryAttempt = 1) : IDisposable
 {
     public required ArrayPool<byte> Pool { get; init; }
