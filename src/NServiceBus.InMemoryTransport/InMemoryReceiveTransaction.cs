@@ -1,12 +1,12 @@
 namespace NServiceBus;
 
-using System;
 using System.Collections.Generic;
+using System.Threading;
 
 class InMemoryReceiveTransaction : IInMemoryReceiveTransaction
 {
     readonly List<BrokerEnvelope> pendingEnvelopes = [];
-    readonly object lockObj = new();
+    readonly Lock lockObj = new();
     bool committed;
 
     public void Enlist(BrokerEnvelope envelope)
