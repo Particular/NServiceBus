@@ -12,7 +12,7 @@ public class ConfigureEndpointInMemoryTransport : IConfigureEndpointTestExecutio
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
         configuration.EnforcePublisherMetadataRegistration(endpointName, publisherMetadata);
-        configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);
+        configuration.LimitMessageProcessingConcurrencyTo(1);
 
         configuration.UseTransport(new InMemoryTransport(NServiceBusAcceptanceTest.CurrentBroker));
 
