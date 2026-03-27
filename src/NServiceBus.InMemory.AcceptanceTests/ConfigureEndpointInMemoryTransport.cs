@@ -15,7 +15,9 @@ public class ConfigureEndpointInMemoryTransport : IConfigureEndpointTestExecutio
         configuration.EnforcePublisherMetadataRegistration(endpointName, publisherMetadata);
         configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);
 
-        configuration.UseTransport(new InMemoryTransport());
+        var testId = TestContext.CurrentContext.Test.ID;
+        var broker = NServiceBusAcceptanceTest.Brokers[testId];
+        configuration.UseTransport(new InMemoryTransport(broker));
 
         return Task.CompletedTask;
     }
