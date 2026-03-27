@@ -11,10 +11,14 @@ public sealed record BrokerEnvelope(
     string Destination,
     bool IsPublished,
     long SequenceNumber,
-    DateTimeOffset? DeliverAt = null) : IDisposable
+    DateTimeOffset? DeliverAt = null,
+    int DeliveryAttempt = 1) : IDisposable
 {
     public required ArrayPool<byte> Pool { get; init; }
     public required byte[] Buffer { get; init; }
+
+    public BrokerEnvelope WithDeliveryAttempt(int attempt) =>
+        this with { DeliveryAttempt = attempt };
 
     public void Dispose()
     {

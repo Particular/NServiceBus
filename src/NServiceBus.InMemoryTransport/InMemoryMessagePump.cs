@@ -119,7 +119,7 @@ class InMemoryMessagePump : IMessageReceiver
                             envelope.MessageId,
                             envelope.Body,
                             transportTransaction,
-                            0,
+                            envelope.DeliveryAttempt,
                             ReceiveAddress,
                             contextBag);
                     }
@@ -131,7 +131,7 @@ class InMemoryMessagePump : IMessageReceiver
                             envelope.MessageId,
                             envelope.Body,
                             new TransportTransaction(),
-                            0,
+                            envelope.DeliveryAttempt,
                             ReceiveAddress,
                             contextBag);
                     }
@@ -146,8 +146,9 @@ class InMemoryMessagePump : IMessageReceiver
 
                     if (result == ErrorHandleResult.RetryRequired)
                     {
+                        var retryEnvelope = envelope.WithDeliveryAttempt(envelope.DeliveryAttempt + 1);
                         var retryQueue = Broker.GetOrCreateQueue(ReceiveAddress);
-                        await retryQueue.Enqueue(envelope, CancellationToken.None).ConfigureAwait(false);
+                        await retryQueue.Enqueue(retryEnvelope, CancellationToken.None).ConfigureAwait(false);
                     }
                     else
                     {
