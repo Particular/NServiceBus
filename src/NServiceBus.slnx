@@ -15,9 +15,11 @@
     <Project Path="NServiceBus.ContainerTests/NServiceBus.ContainerTests.csproj" />
     <Project Path="NServiceBus.Core.Analyzer.Tests.Roslyn5/NServiceBus.Core.Analyzer.Tests.Roslyn5.csproj" />
     <Project Path="NServiceBus.Core.Tests/NServiceBus.Core.Tests.csproj" />
+    <Project Path="NServiceBus.InMemory.TransportTests/NServiceBus.InMemory.TransportTests.csproj" />
     <Project Path="NServiceBus.Learning.AcceptanceTests/NServiceBus.Learning.AcceptanceTests.csproj" />
     <Project Path="NServiceBus.PersistenceTests/NServiceBus.PersistenceTests.csproj" />
     <Project Path="NServiceBus.TransportTests/NServiceBus.TransportTests.csproj" />
   </Folder>
   <Project Path="NServiceBus.Core/NServiceBus.Core.csproj" />
+  <Project Path="NServiceBus.InMemoryTransport/NServiceBus.InMemoryTransport.csproj" />
 </Solution>
