@@ -78,6 +78,14 @@ class InMemoryMessagePump : IMessageReceiver
             try
             {
                 envelope = await queue.Dequeue(cancellationToken).ConfigureAwait(false);
+
+                if (IsExpired(envelope))
+                {
+                    envelope.Dispose();
+                    envelope = null;
+                    continue;
+                }
+
                 isProcessing = true;
 
                 var headers = new Dictionary<string, string>(envelope.Headers);
@@ -183,6 +191,21 @@ class InMemoryMessagePump : IMessageReceiver
             var queue = Broker.GetOrCreateQueue(envelope.Destination);
             await queue.Enqueue(envelope, cancellationToken).ConfigureAwait(false);
         }
+    }
+
+    static bool IsExpired(BrokerEnvelope envelope)
+    {
+        if (!envelope.Headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
+        {
+            return false;
+        }
+        if (!envelope.Headers.TryGetValue(Headers.TimeSent, out var timeSentString))
+        {
+            return false;
+        }
+        var ttbr = TimeSpan.Parse(ttbrString);
+        var timeSent = DateTimeOffsetHelper.ToDateTimeOffset(timeSentString);
+        return timeSent + ttbr < DateTimeOffset.UtcNow;
     }
 
     public async Task StopReceive(CancellationToken cancellationToken = default)
