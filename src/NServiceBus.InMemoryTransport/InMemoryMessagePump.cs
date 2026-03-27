@@ -12,6 +12,7 @@ class InMemoryMessagePump(
     string receiveAddress,
     ReceiveSettings receiveSettings,
     TransportTransactionMode transactionMode,
+    Action<string, Exception, CancellationToken> criticalErrorAction,
     InMemoryBroker broker) : IMessageReceiver
 {
     public string Id { get; } = id;
@@ -37,10 +38,8 @@ class InMemoryMessagePump(
 
     public Task StartReceive(CancellationToken cancellationToken = default)
     {
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cts.Token.Register(() => pumpCts?.Cancel());
-
-        pumpCts = cts;
+        pumpCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        messageProcessingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
         _ = broker.StartPump(cancellationToken);
 
@@ -56,7 +55,6 @@ class InMemoryMessagePump(
     async Task PumpMessagesAsync(CancellationToken cancellationToken)
     {
         var queue = broker.GetOrCreateQueue(ReceiveAddress);
-        var contextBag = new ContextBag();
         BrokerEnvelope? envelope = null;
         var isProcessing = false;
 
@@ -75,78 +73,7 @@ class InMemoryMessagePump(
 
                 isProcessing = true;
 
-                var headers = new Dictionary<string, string>(envelope.Headers);
-
-                var transportTransaction = new TransportTransaction();
-                InMemoryReceiveTransaction? receiveTransaction = null;
-
-                if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
-                {
-                    receiveTransaction = new InMemoryReceiveTransaction();
-                    transportTransaction.Set<IInMemoryReceiveTransaction>(receiveTransaction);
-                }
-
-                var messageContext = new MessageContext(
-                    envelope.MessageId,
-                    headers,
-                    envelope.Body,
-                    transportTransaction,
-                    ReceiveAddress,
-                    contextBag);
-
-                try
-                {
-                    await onMessage(messageContext, CancellationToken.None).ConfigureAwait(false);
-
-                    if (receiveTransaction != null)
-                    {
-                        receiveTransaction.Commit();
-                        await CommitPendingToBrokerAsync(receiveTransaction, cancellationToken).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
-                {
-                    receiveTransaction?.Rollback();
-
-                    var errorContext = receiveTransaction != null
-                        ? new ErrorContext(
-                            ex,
-                            new Dictionary<string, string>(envelope!.Headers),
-                            envelope.MessageId,
-                            envelope.Body,
-                            transportTransaction,
-                            envelope.DeliveryAttempt,
-                            ReceiveAddress,
-                            contextBag)
-                        : new ErrorContext(
-                            ex,
-                            new Dictionary<string, string>(envelope!.Headers),
-                            envelope.MessageId,
-                            envelope.Body,
-                            new TransportTransaction(),
-                            envelope.DeliveryAttempt,
-                            ReceiveAddress,
-                            contextBag);
-
-                    var result = await onError(errorContext, CancellationToken.None).ConfigureAwait(false);
-
-                    if (receiveTransaction != null)
-                    {
-                        receiveTransaction.Commit();
-                        await CommitPendingToBrokerAsync(receiveTransaction, cancellationToken).ConfigureAwait(false);
-                    }
-
-                    if (result == ErrorHandleResult.RetryRequired)
-                    {
-                        var retryEnvelope = envelope!.WithDeliveryAttempt(envelope.DeliveryAttempt + 1);
-                        var retryQueue = broker.GetOrCreateQueue(ReceiveAddress);
-                        await retryQueue.Enqueue(retryEnvelope, CancellationToken.None).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        envelope!.Dispose();
-                    }
-                }
+                await ProcessEnvelopeAsync(envelope, cancellationToken).ConfigureAwait(false);
 
                 isProcessing = false;
                 envelope = null;
@@ -160,6 +87,101 @@ class InMemoryMessagePump(
                 }
                 break;
             }
+        }
+    }
+
+    async Task ProcessEnvelopeAsync(BrokerEnvelope envelope, CancellationToken pumpCancellationToken)
+    {
+        var headers = new Dictionary<string, string>(envelope.Headers);
+
+        var transportTransaction = new TransportTransaction();
+        InMemoryReceiveTransaction? receiveTransaction = null;
+
+        if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+        {
+            receiveTransaction = new InMemoryReceiveTransaction();
+            transportTransaction.Set<IInMemoryReceiveTransaction>(receiveTransaction);
+        }
+
+        var contextBag = new ContextBag();
+
+        var messageContext = new MessageContext(
+            envelope.MessageId,
+            headers,
+            envelope.Body,
+            transportTransaction,
+            ReceiveAddress,
+            contextBag);
+
+        try
+        {
+            await onMessage(messageContext, ProcessingCancellationToken).ConfigureAwait(false);
+
+            if (receiveTransaction != null)
+            {
+                receiveTransaction.Commit();
+                await CommitPendingToBrokerAsync(receiveTransaction, ProcessingCancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || !ProcessingCancellationToken.IsCancellationRequested)
+        {
+            receiveTransaction?.Rollback();
+
+            var errorContext = receiveTransaction != null
+                ? new ErrorContext(
+                    ex,
+                    new Dictionary<string, string>(envelope.Headers),
+                    envelope.MessageId,
+                    envelope.Body,
+                    transportTransaction,
+                    envelope.DeliveryAttempt,
+                    ReceiveAddress,
+                    contextBag)
+                : new ErrorContext(
+                    ex,
+                    new Dictionary<string, string>(envelope.Headers),
+                    envelope.MessageId,
+                    envelope.Body,
+                    new TransportTransaction(),
+                    envelope.DeliveryAttempt,
+                    ReceiveAddress,
+                    contextBag);
+
+            var result = await HandleErrorAsync(errorContext, messageContext, receiveTransaction, pumpCancellationToken).ConfigureAwait(false);
+
+            if (receiveTransaction != null)
+            {
+                receiveTransaction.Commit();
+                await CommitPendingToBrokerAsync(receiveTransaction, ProcessingCancellationToken).ConfigureAwait(false);
+            }
+
+            if (result == ErrorHandleResult.RetryRequired)
+            {
+                var retryEnvelope = envelope.WithDeliveryAttempt(envelope.DeliveryAttempt + 1);
+                var retryQueue = broker.GetOrCreateQueue(ReceiveAddress);
+                await retryQueue.Enqueue(retryEnvelope, CancellationToken.None).ConfigureAwait(false);
+                return;
+            }
+
+            envelope.Dispose();
+        }
+    }
+
+    async Task<ErrorHandleResult> HandleErrorAsync(
+        ErrorContext errorContext,
+        MessageContext messageContext,
+        InMemoryReceiveTransaction? receiveTransaction,
+        CancellationToken pumpCancellationToken)
+    {
+        try
+        {
+            return await onError(errorContext, ProcessingCancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception onErrorException) when (onErrorException is not OperationCanceledException || !ProcessingCancellationToken.IsCancellationRequested)
+        {
+            receiveTransaction?.Rollback();
+            criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", onErrorException, pumpCancellationToken);
+            return ErrorHandleResult.RetryRequired;
         }
     }
 
@@ -180,6 +202,11 @@ class InMemoryMessagePump(
     {
         pumpCts?.Cancel();
 
+        if (cancellationToken.IsCancellationRequested)
+        {
+            messageProcessingCts?.Cancel();
+        }
+
         if (pumpTasks.Count != 0)
         {
             try
@@ -192,6 +219,10 @@ class InMemoryMessagePump(
             finally
             {
                 pumpTasks.Clear();
+                pumpCts?.Dispose();
+                pumpCts = null;
+                messageProcessingCts?.Dispose();
+                messageProcessingCts = null;
             }
         }
     }
@@ -203,9 +234,12 @@ class InMemoryMessagePump(
         await StartReceive(cancellationToken).ConfigureAwait(false);
     }
 
+    CancellationToken ProcessingCancellationToken => messageProcessingCts?.Token ?? CancellationToken.None;
+
     OnMessage onMessage = null!;
     OnError onError = null!;
     PushRuntimeSettings pushRuntimeSettings = null!;
     CancellationTokenSource? pumpCts;
+    CancellationTokenSource? messageProcessingCts;
     List<Task> pumpTasks = [];
 }
