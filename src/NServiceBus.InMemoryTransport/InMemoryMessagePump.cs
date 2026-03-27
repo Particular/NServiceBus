@@ -27,7 +27,7 @@ class InMemoryMessagePump : IMessageReceiver
 
     public string ReceiveAddress { get; }
 
-    public ISubscriptionManager Subscriptions { get; private set; } = null!;
+    public ISubscriptionManager? Subscriptions { get; private set; }
 
     public ReceiveSettings ReceiveSettings { get; }
 
@@ -35,7 +35,7 @@ class InMemoryMessagePump : IMessageReceiver
 
     InMemoryBroker Broker { get; }
 
-    public void ConfigureSubscriptionManager(ISubscriptionManager subscriptionManager)
+    public void ConfigureSubscriptionManager(ISubscriptionManager? subscriptionManager)
     {
         Subscriptions = subscriptionManager;
     }
@@ -88,7 +88,7 @@ class InMemoryMessagePump : IMessageReceiver
                 if (TransactionMode == TransportTransactionMode.SendsAtomicWithReceive)
                 {
                     receiveTransaction = new InMemoryReceiveTransaction();
-                    transportTransaction.Set(receiveTransaction);
+                    transportTransaction.Set<IInMemoryReceiveTransaction>(receiveTransaction);
                 }
 
                 var messageContext = new MessageContext(
