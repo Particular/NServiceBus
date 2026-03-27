@@ -290,4 +290,47 @@ public class InMemoryBrokerTests
         Assert.That(result2, Is.True);
         Assert.That(dequeued2!.MessageId, Is.EqualTo("msg-2"));
     }
+
+    [Test]
+    public void BrokerEnvelope_WithDeliveryAttempt_Should_isolate_headers()
+    {
+        var envelope = BrokerPayloadStore.Borrow(
+            "msg-1",
+            new byte[] { 1 },
+            new Dictionary<string, string> { ["key"] = "original" },
+            "test-queue",
+            isPublished: false,
+            sequenceNumber: 1);
+
+        var retryEnvelope = envelope.WithDeliveryAttempt(2);
+
+        ((Dictionary<string, string>)retryEnvelope.Headers)["key"] = "retry";
+
+        Assert.That(envelope.Headers["key"], Is.EqualTo("original"));
+
+        envelope.Dispose();
+    }
+
+    [Test]
+    public void Broker_EnqueueDelayed_Should_snapshot_headers()
+    {
+        var broker = new InMemoryBroker();
+        var envelope = BrokerPayloadStore.Borrow(
+            "msg-1",
+            new byte[] { 1 },
+            new Dictionary<string, string> { ["key"] = "original" },
+            "test-queue",
+            isPublished: false,
+            sequenceNumber: 1);
+
+        broker.EnqueueDelayed(envelope, DateTimeOffset.UtcNow.AddMinutes(1));
+
+        ((Dictionary<string, string>)envelope.Headers)["key"] = "changed";
+
+        _ = broker.TryDequeueDelayed(DateTimeOffset.UtcNow.AddHours(1), out var delayedEnvelope);
+
+        Assert.That(delayedEnvelope!.Headers["key"], Is.EqualTo("original"));
+
+        delayedEnvelope.Dispose();
+    }
 }
