@@ -11,11 +11,16 @@ using Transport;
 public class InMemoryTransport : TransportDefinition
 {
     /// <summary>
-    /// Creates a new instance of the in-memory transport using a shared broker.
+    /// Creates a new instance of the in-memory transport.
     /// </summary>
+    /// <param name="broker">
+    /// Optional broker to use when dependency injection does not provide an <see cref="InMemoryBroker" />.
+    /// </param>
     /// <remarks>
     /// When multiple endpoints need to communicate in-memory, they should share the same broker instance.
-    /// For testing, omit the broker parameter and a shared instance will be used.
+    /// Broker resolution is optional and uses the following precedence: an <see cref="InMemoryBroker" /> resolved from
+    /// <see cref="HostSettings.ServiceProvider" />, then the broker provided to this constructor, and finally the shared broker.
+    /// For testing, omit the broker parameter and the shared broker will be used unless dependency injection supplies one.
     /// </remarks>
     public InMemoryTransport(InMemoryBroker? broker = null)
         : base(TransportTransactionMode.SendsAtomicWithReceive, supportsDelayedDelivery: true, supportsPublishSubscribe: true, supportsTTBR: true)
