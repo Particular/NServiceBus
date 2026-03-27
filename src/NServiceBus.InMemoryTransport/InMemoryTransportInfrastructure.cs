@@ -1,5 +1,6 @@
 namespace NServiceBus;
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,11 +8,12 @@ using Transport;
 
 class InMemoryTransportInfrastructure : TransportInfrastructure
 {
-    public InMemoryTransportInfrastructure(HostSettings _, ReceiveSettings[] receivers, InMemoryTransport transport, InMemoryBroker broker)
+    public InMemoryTransportInfrastructure(HostSettings hostSettings, ReceiveSettings[] receivers, InMemoryTransport transport, InMemoryBroker broker)
     {
         Dispatcher = new InMemoryDispatcher(broker);
         this.broker = broker;
         this.transport = transport;
+        criticalErrorAction = hostSettings.CriticalErrorAction;
 
         Receivers = receivers.ToDictionary(
             r => r.Id,
@@ -31,6 +33,7 @@ class InMemoryTransportInfrastructure : TransportInfrastructure
             queueAddress,
             receiveSettings,
             transport.TransportTransactionMode,
+            criticalErrorAction,
             broker);
 
         pump.ConfigureSubscriptionManager(subscriptionManager);
@@ -40,6 +43,7 @@ class InMemoryTransportInfrastructure : TransportInfrastructure
 
     readonly InMemoryTransport transport;
     readonly InMemoryBroker broker;
+    readonly Action<string, Exception, CancellationToken> criticalErrorAction;
 
     public override Task Shutdown(CancellationToken cancellationToken = default) =>
         Task.WhenAll(Receivers.Values.Select(r => r.StopReceive(cancellationToken)));
