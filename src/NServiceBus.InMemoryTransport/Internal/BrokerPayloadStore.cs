@@ -15,13 +15,14 @@ public sealed class BrokerPayloadStore
         string destination,
         bool isPublished,
         long sequenceNumber,
-        DateTimeOffset? deliverAt = null)
+        DateTimeOffset? deliverAt = null,
+        DateTimeOffset? discardAfter = null)
     {
         var buffer = Pool.Rent(payload.Length);
         payload.CopyTo(buffer);
         var body = new ReadOnlyMemory<byte>(buffer, 0, payload.Length);
         var headersCopy = new Dictionary<string, string>(headers);
-        return new BrokerEnvelope(messageId, body, headersCopy, destination, isPublished, sequenceNumber, deliverAt)
+        return new BrokerEnvelope(messageId, body, headersCopy, destination, isPublished, sequenceNumber, deliverAt, discardAfter)
         {
             Pool = Pool,
             Buffer = buffer
