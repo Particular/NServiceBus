@@ -57,9 +57,10 @@ class InMemoryMessagePump : IMessageReceiver
 
         _ = Broker.StartPump(cancellationToken);
 
+        pumpTasks.Clear();
         for (var i = 0; i < pushRuntimeSettings.MaxConcurrency; i++)
         {
-            _ = Task.Run(() => PumpMessagesAsync(pumpCts.Token), pumpCts.Token);
+            pumpTasks.Add(Task.Run(() => PumpMessagesAsync(pumpCts.Token), pumpCts.Token));
         }
 
         return Task.CompletedTask;
@@ -69,12 +70,15 @@ class InMemoryMessagePump : IMessageReceiver
     {
         var queue = Broker.GetOrCreateQueue(ReceiveAddress);
         var contextBag = new ContextBag();
+        BrokerEnvelope? envelope = null;
+        var isProcessing = false;
 
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                var envelope = await queue.Dequeue(cancellationToken).ConfigureAwait(false);
+                envelope = await queue.Dequeue(cancellationToken).ConfigureAwait(false);
+                isProcessing = true;
 
                 var headers = new Dictionary<string, string>(envelope.Headers);
 
@@ -115,7 +119,7 @@ class InMemoryMessagePump : IMessageReceiver
                     {
                         errorContext = new ErrorContext(
                             ex,
-                            new Dictionary<string, string>(envelope.Headers),
+                            new Dictionary<string, string>(envelope!.Headers),
                             envelope.MessageId,
                             envelope.Body,
                             transportTransaction,
@@ -127,7 +131,7 @@ class InMemoryMessagePump : IMessageReceiver
                     {
                         errorContext = new ErrorContext(
                             ex,
-                            new Dictionary<string, string>(envelope.Headers),
+                            new Dictionary<string, string>(envelope!.Headers),
                             envelope.MessageId,
                             envelope.Body,
                             new TransportTransaction(),
@@ -146,18 +150,26 @@ class InMemoryMessagePump : IMessageReceiver
 
                     if (result == ErrorHandleResult.RetryRequired)
                     {
-                        var retryEnvelope = envelope.WithDeliveryAttempt(envelope.DeliveryAttempt + 1);
+                        var retryEnvelope = envelope!.WithDeliveryAttempt(envelope.DeliveryAttempt + 1);
                         var retryQueue = Broker.GetOrCreateQueue(ReceiveAddress);
                         await retryQueue.Enqueue(retryEnvelope, CancellationToken.None).ConfigureAwait(false);
                     }
                     else
                     {
-                        envelope.Dispose();
+                        envelope!.Dispose();
                     }
                 }
+
+                isProcessing = false;
+                envelope = null;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
+                if (isProcessing && envelope != null)
+                {
+                    var retryQueue = Broker.GetOrCreateQueue(ReceiveAddress);
+                    await retryQueue.Enqueue(envelope, CancellationToken.None).ConfigureAwait(false);
+                }
                 break;
             }
         }
@@ -173,20 +185,36 @@ class InMemoryMessagePump : IMessageReceiver
         }
     }
 
-    public Task StopReceive(CancellationToken cancellationToken = default)
+    public async Task StopReceive(CancellationToken cancellationToken = default)
     {
         pumpCts?.Cancel();
-        return Task.CompletedTask;
+
+        if (pumpTasks.Count != 0)
+        {
+            try
+            {
+                await Task.WhenAll(pumpTasks).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            finally
+            {
+                pumpTasks.Clear();
+            }
+        }
     }
 
-    public Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
+    public async Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
     {
+        await StopReceive(cancellationToken).ConfigureAwait(false);
         pushRuntimeSettings = limitations;
-        return Task.CompletedTask;
+        await StartReceive(cancellationToken).ConfigureAwait(false);
     }
 
     OnMessage onMessage = null!;
     OnError onError = null!;
     PushRuntimeSettings pushRuntimeSettings = null!;
     CancellationTokenSource? pumpCts;
+    List<Task> pumpTasks = [];
 }
