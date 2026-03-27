@@ -22,9 +22,9 @@ class InMemoryTransportInfrastructure : TransportInfrastructure
     {
         var queueAddress = ToTransportAddress(receiveSettings.ReceiveAddress);
 
-        ISubscriptionManager subscriptionManager = receiveSettings.UsePublishSubscribe
-            ? new InMemorySubscriptionManager(broker)
-            : new InMemorySubscriptionManager(broker);
+        ISubscriptionManager? subscriptionManager = receiveSettings.UsePublishSubscribe
+            ? new InMemorySubscriptionManager(broker, queueAddress)
+            : null;
 
         var pump = new InMemoryMessagePump(
             receiveSettings.Id,

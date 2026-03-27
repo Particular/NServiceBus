@@ -31,7 +31,7 @@ class InMemoryDispatcher : IMessageDispatcher
             var messageId = Guid.NewGuid().ToString();
             var sequenceNumber = broker.GetNextSequenceNumber();
 
-            var subscribers = broker.GetSubscribers(message.Headers[Headers.EnclosedMessageTypes] ?? message.MessageId ?? messageId);
+            var subscribers = GetSubscribersForType(transportOperation.MessageType);
 
             foreach (var subscriber in subscribers)
             {
@@ -63,6 +63,45 @@ class InMemoryDispatcher : IMessageDispatcher
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
+
+    HashSet<string> GetSubscribersForType(Type messageType)
+    {
+        var result = new HashSet<string>();
+        foreach (var type in GetPotentialEventTypes(messageType))
+        {
+            foreach (var subscriber in broker.GetSubscribers(type.FullName!))
+            {
+                result.Add(subscriber);
+            }
+        }
+        return result;
+    }
+
+    static HashSet<Type> GetPotentialEventTypes(Type messageType)
+    {
+        var allEventTypes = new HashSet<Type>();
+        var current = messageType;
+        while (current != null)
+        {
+            if (IsCoreMarkerInterface(current))
+            {
+                break;
+            }
+            allEventTypes.Add(current);
+            current = current.BaseType;
+        }
+        foreach (var iface in messageType.GetInterfaces())
+        {
+            if (!IsCoreMarkerInterface(iface))
+            {
+                allEventTypes.Add(iface);
+            }
+        }
+        return allEventTypes;
+    }
+
+    static bool IsCoreMarkerInterface(Type type) =>
+        type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
     Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken)
     {

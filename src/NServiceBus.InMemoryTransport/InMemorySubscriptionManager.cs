@@ -8,9 +8,10 @@ using Unicast.Messages;
 
 class InMemorySubscriptionManager : ISubscriptionManager
 {
-    public InMemorySubscriptionManager(InMemoryBroker broker)
+    public InMemorySubscriptionManager(InMemoryBroker broker, string localAddress)
     {
         this.broker = broker;
+        this.localAddress = localAddress;
     }
 
     public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken = default)
@@ -20,7 +21,7 @@ class InMemorySubscriptionManager : ISubscriptionManager
             var topic = eventType.MessageType.FullName;
             if (topic != null)
             {
-                broker.Subscribe(context.Get<string>(Headers.SubscriberTransportAddress), topic);
+                broker.Subscribe(localAddress, topic);
             }
         }
         return Task.CompletedTask;
@@ -31,10 +32,11 @@ class InMemorySubscriptionManager : ISubscriptionManager
         var topic = eventType.MessageType.FullName;
         if (topic != null)
         {
-            broker.Unsubscribe(context.Get<string>(Headers.SubscriberTransportAddress), topic);
+            broker.Unsubscribe(localAddress, topic);
         }
         return Task.CompletedTask;
     }
 
     readonly InMemoryBroker broker;
+    readonly string localAddress;
 }
