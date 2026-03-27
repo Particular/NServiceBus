@@ -18,8 +18,23 @@
     <PackageReference Include="Particular.Approvals" Version="2.0.1" />
   </ItemGroup>
 
+  <!--
+We are enabling interceptors and analyzers on the acceptance tests to make sure
+the follow the necessary conventions because when they are shipped as sources the downstream
+projects will have the analyzers running
+-->
+  <PropertyGroup>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
+  </PropertyGroup>
+
+  <ItemGroup Label="Core Analyzers">
+    <ProjectReference Include="..\NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\NServiceBus.Core.Analyzer.Fixes\NServiceBus.Core.Analyzer.Fixes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="../NServiceBus.AcceptanceTests/**/*.cs" Exclude="../NServiceBus.AcceptanceTests/obj/**/*.*;../NServiceBus.AcceptanceTests/Core/TestSuiteConstraints.cs;../NServiceBus.AcceptanceTests/BehaviorBuilderRegistrationExtensions.cs;../NServiceBus.AcceptanceTests/ConfigureEndpointAcceptanceTestingTransport.cs;../NServiceBus.AcceptanceTests/Registrations/**/*.cs;../NServiceBus.AcceptanceTests/Core/PublishSubscribe/When_unsubscribing_on_send_only_endpoint.cs;../NServiceBus.AcceptanceTests/Core/PublishSubscribe/When_subscribing_on_send_only_endpoint.cs;../NServiceBus.AcceptanceTests/Core/PublishSubscribe/When_configuring_subscription_authorizer.cs;../NServiceBus.AcceptanceTests/Core/PublishSubscribe/When_disabling_publishing.cs;../NServiceBus.AcceptanceTests/Core/SubscriptionMigration/**/*.cs;../NServiceBus.AcceptanceTests/Core/OpenTelemetry/Metrics/When_retrying_messages.cs;../NServiceBus.AcceptanceTests/Core/OpenTelemetry/Traces/When_incoming_message_was_delayed.cs" />
+    <Compile Include="../NServiceBus.AcceptanceTests/**/*.cs" Exclude="../NServiceBus.AcceptanceTests/obj/**/*.*;../NServiceBus.AcceptanceTests/Core/**/*.cs" />
+    <Compile Remove="../NServiceBus.AcceptanceTests/Core/TestSuiteConstraints.cs" />
   </ItemGroup>
 
 </Project>
