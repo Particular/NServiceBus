@@ -10,17 +10,17 @@ using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Transport;
 
-public class EndpointRunner(
-    Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback,
-    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback,
-    bool doNotFailOnErrorMessages,
-    int instanceIndex)
-    : ComponentRunner
+class EndpointRunner(
+   Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback,
+   Func<object, IServiceProvider, CancellationToken, Task<RunningEndpointInstance>> startCallback,
+   bool doNotFailOnErrorMessages,
+   int instanceIndex)
+   : ComponentRunner
 {
     static readonly ILog Logger = LogManager.GetLogger<EndpointRunner>();
     EndpointBehavior? behavior;
     object? startable;
-    IEndpointInstance? endpointInstance;
+    RunningEndpointInstance? endpointInstance;
     EndpointCustomizationConfiguration? configuration;
     ScenarioContext? scenarioContext;
     KeyedServiceCollectionAdapter? services;

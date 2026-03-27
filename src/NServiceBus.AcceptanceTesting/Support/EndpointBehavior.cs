@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using Configuration.AdvancedExtensibility;
 using Customization;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -44,7 +43,7 @@ public class EndpointBehavior : IComponentBehavior
 
     class StartableEndpointInstance(object serviceKey)
     {
-        public async Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
+        public async Task<RunningEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
         {
             var starter = builder.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
             return await starter.CreateAndStart(cancellationToken).ConfigureAwait(false);
@@ -52,7 +51,7 @@ public class EndpointBehavior : IComponentBehavior
     }
 
     [MemberNotNull(nameof(createInstanceCallback), nameof(startInstanceCallback))]
-    public void ConfigureHowToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback)
+    void ConfigureHowToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<RunningEndpointInstance>> startCallback)
         where T : notnull
     {
         createInstanceCallback = async (services, config) =>
@@ -98,5 +97,5 @@ public class EndpointBehavior : IComponentBehavior
     }
 
     Func<IServiceCollection, EndpointConfiguration, Task<object>> createInstanceCallback;
-    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startInstanceCallback;
+    Func<object, IServiceProvider, CancellationToken, Task<RunningEndpointInstance>> startInstanceCallback;
 }
