@@ -1,16 +1,30 @@
 namespace NServiceBus.AcceptanceTests;
 
-using System.Collections.Concurrent;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 public partial class NServiceBusAcceptanceTest
 {
+    static readonly AsyncLocal<InMemoryBroker> currentBroker = new();
+
+    public static InMemoryBroker CurrentBroker =>
+        currentBroker.Value ?? throw new InvalidOperationException("No InMemoryBroker available for the current test.");
+
     [SetUp]
     public void InMemoryTransportSetUp()
     {
-        var testId = TestContext.CurrentContext.Test.ID;
-        Brokers[testId] = new InMemoryBroker();
+        currentBroker.Value = new InMemoryBroker();
     }
 
-    internal static ConcurrentDictionary<string, InMemoryBroker> Brokers = [];
+    [TearDown]
+    public async Task InMemoryTransportTearDown()
+    {
+        if (currentBroker.Value is { } broker)
+        {
+            currentBroker.Value = null;
+            await broker.DisposeAsync();
+        }
+    }
 }
