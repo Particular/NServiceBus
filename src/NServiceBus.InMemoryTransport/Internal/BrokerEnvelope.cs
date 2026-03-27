@@ -19,7 +19,18 @@ public sealed record BrokerEnvelope(
     public required byte[] Buffer { get; init; }
 
     public BrokerEnvelope WithDeliveryAttempt(int attempt) =>
-        this with { DeliveryAttempt = attempt };
+        CloneWith(DeliveryAttempt: attempt);
+
+    public BrokerEnvelope WithDeliverAt(DateTimeOffset deliverAt) =>
+        CloneWith(DeliverAt: deliverAt);
+
+    BrokerEnvelope CloneWith(DateTimeOffset? DeliverAt = null, int? DeliveryAttempt = null) =>
+        this with
+        {
+            Headers = new Dictionary<string, string>(Headers),
+            DeliverAt = DeliverAt ?? this.DeliverAt,
+            DeliveryAttempt = DeliveryAttempt ?? this.DeliveryAttempt
+        };
 
     public void Dispose()
     {

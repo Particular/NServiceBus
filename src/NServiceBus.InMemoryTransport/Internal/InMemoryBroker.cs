@@ -65,7 +65,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
     {
         lock (delayedMessagesLock)
         {
-            delayedMessages.Enqueue(envelope with { DeliverAt = deliverAt }, deliverAt);
+            delayedMessages.Enqueue(envelope.WithDeliverAt(deliverAt), deliverAt);
         }
     }
 
