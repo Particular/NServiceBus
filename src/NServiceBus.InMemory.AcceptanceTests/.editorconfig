@@ -1,0 +1,4 @@
+root = true
+
+[*]
+dotnet_diagnostic.PS0018.severity = suggestion

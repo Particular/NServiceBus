@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj" />
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+    <ProjectReference Include="..\NServiceBus.InMemoryTransport\NServiceBus.InMemoryTransport.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GitHubActionsTestLogger" Version="3.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
+    <PackageReference Include="Particular.Approvals" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../NServiceBus.AcceptanceTests/**/*.cs" Exclude="../NServiceBus.AcceptanceTests/obj/**/*.*;../NServiceBus.AcceptanceTests/Core/TestSuiteConstraints.cs;../NServiceBus.AcceptanceTests/BehaviorBuilderRegistrationExtensions.cs;../NServiceBus.AcceptanceTests/ConfigureEndpointAcceptanceTestingTransport.cs;../NServiceBus.AcceptanceTests/Registrations/**/*.cs;../NServiceBus.AcceptanceTests/Core/PublishSubscribe/When_unsubscribing_on_send_only_endpoint.cs;../NServiceBus.AcceptanceTests/Core/PublishSubscribe/When_subscribing_on_send_only_endpoint.cs;../NServiceBus.AcceptanceTests/Core/PublishSubscribe/When_configuring_subscription_authorizer.cs;../NServiceBus.AcceptanceTests/Core/PublishSubscribe/When_disabling_publishing.cs;../NServiceBus.AcceptanceTests/Core/SubscriptionMigration/**/*.cs;../NServiceBus.AcceptanceTests/Core/OpenTelemetry/Metrics/When_retrying_messages.cs;../NServiceBus.AcceptanceTests/Core/OpenTelemetry/Traces/When_incoming_message_was_delayed.cs" />
+  </ItemGroup>
+
+</Project>
