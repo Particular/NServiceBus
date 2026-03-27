@@ -20,17 +20,21 @@ public class InMemoryTransport : TransportDefinition
     public InMemoryTransport(InMemoryBroker? broker = null)
         : base(TransportTransactionMode.SendsAtomicWithReceive, supportsDelayedDelivery: true, supportsPublishSubscribe: true, supportsTTBR: true)
     {
-        this.broker = broker ?? SharedBroker;
+        configuredBroker = broker;
     }
 
-    internal InMemoryBroker GetBroker() => broker;
+    internal InMemoryBroker GetBroker() => configuredBroker ?? SharedBroker;
 
     /// <inheritdoc />
     public override Task<TransportInfrastructure> Initialize(HostSettings hostSettings, ReceiveSettings[] receivers, string[] sendingAddresses, CancellationToken cancellationToken = default)
     {
+        var broker = ResolveBroker(hostSettings);
         var infrastructure = new InMemoryTransportInfrastructure(hostSettings, receivers, this, broker);
         return Task.FromResult<TransportInfrastructure>(infrastructure);
     }
+
+    InMemoryBroker ResolveBroker(HostSettings hostSettings) =>
+        hostSettings.ServiceProvider?.GetService(typeof(InMemoryBroker)) as InMemoryBroker ?? GetBroker();
 
     /// <inheritdoc />
     public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes() =>
@@ -42,5 +46,5 @@ public class InMemoryTransport : TransportDefinition
 
     internal static InMemoryBroker SharedBroker { get; } = new();
 
-    readonly InMemoryBroker broker;
+    readonly InMemoryBroker? configuredBroker;
 }
