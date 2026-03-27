@@ -1,7 +1,7 @@
 namespace NServiceBus.TransportTests;
 
-#pragma warning disable CS1591 // Test configuration
-public partial class TransportTestsConfiguration : ITransportTestsConfiguration
+#pragma warning disable CS1591
+public partial class TransportTestsConfiguration
 {
     public IConfigureTransportInfrastructure CreateTransportConfiguration() => new ConfigureInMemoryTransportInfrastructure();
 }

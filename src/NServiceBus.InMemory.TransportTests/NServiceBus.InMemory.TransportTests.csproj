@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
-    <ProjectReference Include="..\NServiceBus.TransportTests\NServiceBus.TransportTests.csproj" />
     <ProjectReference Include="..\NServiceBus.InMemoryTransport\NServiceBus.InMemoryTransport.csproj" />
   </ItemGroup>
 
@@ -16,12 +15,16 @@
     <PackageReference Include="NUnit" Version="4.5.1" />
     <PackageReference Include="NUnit.Analyzers" Version="4.12.0" PrivateAssets="All" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../NServiceBus.TransportTests/**/*.cs" Exclude="../NServiceBus.TransportTests/obj/**/*.*;../NServiceBus.TransportTests/ConfigureLearningTransportInfrastructure.cs;../NServiceBus.TransportTests/TransportTestsConfiguration.cs" />
   </ItemGroup>
 
   <PropertyGroup>
     <PackageId>NServiceBus.InMemory.TransportTests</PackageId>
     <Description>InMemory transport tests</Description>
+    <NoWarn>CS1591;IDE0005</NoWarn>
   </PropertyGroup>
 
 </Project>

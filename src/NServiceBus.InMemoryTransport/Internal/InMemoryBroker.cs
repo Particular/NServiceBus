@@ -63,27 +63,33 @@ public sealed class InMemoryBroker : IAsyncDisposable
 
     public void EnqueueDelayed(BrokerEnvelope envelope, DateTimeOffset deliverAt)
     {
-        delayedMessages.Enqueue(envelope with { DeliverAt = deliverAt }, deliverAt);
+        lock (delayedMessagesLock)
+        {
+            delayedMessages.Enqueue(envelope with { DeliverAt = deliverAt }, deliverAt);
+        }
     }
 
     public bool TryDequeueDelayed(DateTimeOffset now, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out BrokerEnvelope? envelope)
     {
-        if (delayedMessages.Count == 0)
+        lock (delayedMessagesLock)
         {
+            if (delayedMessages.Count == 0)
+            {
+                envelope = null;
+                return false;
+            }
+
+            var peeked = delayedMessages.Peek();
+            if (peeked.DeliverAt <= now)
+            {
+                _ = delayedMessages.Dequeue();
+                envelope = peeked;
+                return true;
+            }
+
             envelope = null;
             return false;
         }
-
-        var peeked = delayedMessages.Peek();
-        if (peeked.DeliverAt <= now)
-        {
-            _ = delayedMessages.Dequeue();
-            envelope = peeked;
-            return true;
-        }
-
-        envelope = null;
-        return false;
     }
 
     public async Task StartDelayedMessagePump(CancellationToken cancellationToken = default)
@@ -120,18 +126,20 @@ public sealed class InMemoryBroker : IAsyncDisposable
         delayedPumpCancelSource.Dispose();
     }
 
-    public void StartPump()
+    public Task StartPump(CancellationToken cancellationToken = default)
     {
         if (Interlocked.CompareExchange(ref pumpStarted, 1, 0) == 0)
         {
-            delayedPumpCancelSource = new CancellationTokenSource();
-            delayedPumpTask = Task.Run(() => StartDelayedMessagePump(delayedPumpCancelSource.Token));
+            delayedPumpCancelSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            delayedPumpTask = StartDelayedMessagePump(delayedPumpCancelSource.Token);
         }
+        return Task.CompletedTask;
     }
 
     readonly ConcurrentDictionary<string, InMemoryChannel> queues = new();
     readonly ConcurrentDictionary<string, List<string>> subscriptions = new();
     readonly PriorityQueue<BrokerEnvelope, DateTimeOffset> delayedMessages = new();
+    readonly object delayedMessagesLock = new();
     long sequenceNumber;
     int pumpStarted;
     CancellationTokenSource delayedPumpCancelSource = new();
