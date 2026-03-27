@@ -7,33 +7,20 @@ using System.Threading.Tasks;
 using Extensibility;
 using Transport;
 
-class InMemoryMessagePump : IMessageReceiver
+class InMemoryMessagePump(
+    string id,
+    string receiveAddress,
+    ReceiveSettings receiveSettings,
+    TransportTransactionMode transactionMode,
+    InMemoryBroker broker) : IMessageReceiver
 {
-    public InMemoryMessagePump(
-        string id,
-        string receiveAddress,
-        ReceiveSettings receiveSettings,
-        TransportTransactionMode transactionMode,
-        InMemoryBroker Broker)
-    {
-        Id = id;
-        ReceiveAddress = receiveAddress;
-        ReceiveSettings = receiveSettings;
-        TransactionMode = transactionMode;
-        this.Broker = Broker;
-    }
+    public string Id { get; } = id;
 
-    public string Id { get; }
-
-    public string ReceiveAddress { get; }
+    public string ReceiveAddress { get; } = receiveAddress;
 
     public ISubscriptionManager? Subscriptions { get; private set; }
 
-    public ReceiveSettings ReceiveSettings { get; }
-
-    TransportTransactionMode TransactionMode { get; }
-
-    InMemoryBroker Broker { get; }
+    public ReceiveSettings ReceiveSettings { get; } = receiveSettings;
 
     public void ConfigureSubscriptionManager(ISubscriptionManager? subscriptionManager)
     {
@@ -55,7 +42,7 @@ class InMemoryMessagePump : IMessageReceiver
 
         pumpCts = cts;
 
-        _ = Broker.StartPump(cancellationToken);
+        _ = broker.StartPump(cancellationToken);
 
         pumpTasks.Clear();
         for (var i = 0; i < pushRuntimeSettings.MaxConcurrency; i++)
@@ -68,7 +55,7 @@ class InMemoryMessagePump : IMessageReceiver
 
     async Task PumpMessagesAsync(CancellationToken cancellationToken)
     {
-        var queue = Broker.GetOrCreateQueue(ReceiveAddress);
+        var queue = broker.GetOrCreateQueue(ReceiveAddress);
         var contextBag = new ContextBag();
         BrokerEnvelope? envelope = null;
         var isProcessing = false;
@@ -93,7 +80,7 @@ class InMemoryMessagePump : IMessageReceiver
                 var transportTransaction = new TransportTransaction();
                 InMemoryReceiveTransaction? receiveTransaction = null;
 
-                if (TransactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+                if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
                 {
                     receiveTransaction = new InMemoryReceiveTransaction();
                     transportTransaction.Set<IInMemoryReceiveTransaction>(receiveTransaction);
@@ -121,11 +108,8 @@ class InMemoryMessagePump : IMessageReceiver
                 {
                     receiveTransaction?.Rollback();
 
-                    ErrorContext errorContext;
-
-                    if (receiveTransaction != null)
-                    {
-                        errorContext = new ErrorContext(
+                    var errorContext = receiveTransaction != null
+                        ? new ErrorContext(
                             ex,
                             new Dictionary<string, string>(envelope!.Headers),
                             envelope.MessageId,
@@ -133,11 +117,8 @@ class InMemoryMessagePump : IMessageReceiver
                             transportTransaction,
                             envelope.DeliveryAttempt,
                             ReceiveAddress,
-                            contextBag);
-                    }
-                    else
-                    {
-                        errorContext = new ErrorContext(
+                            contextBag)
+                        : new ErrorContext(
                             ex,
                             new Dictionary<string, string>(envelope!.Headers),
                             envelope.MessageId,
@@ -146,7 +127,6 @@ class InMemoryMessagePump : IMessageReceiver
                             envelope.DeliveryAttempt,
                             ReceiveAddress,
                             contextBag);
-                    }
 
                     var result = await onError(errorContext, CancellationToken.None).ConfigureAwait(false);
 
@@ -159,7 +139,7 @@ class InMemoryMessagePump : IMessageReceiver
                     if (result == ErrorHandleResult.RetryRequired)
                     {
                         var retryEnvelope = envelope!.WithDeliveryAttempt(envelope.DeliveryAttempt + 1);
-                        var retryQueue = Broker.GetOrCreateQueue(ReceiveAddress);
+                        var retryQueue = broker.GetOrCreateQueue(ReceiveAddress);
                         await retryQueue.Enqueue(retryEnvelope, CancellationToken.None).ConfigureAwait(false);
                     }
                     else
@@ -175,7 +155,7 @@ class InMemoryMessagePump : IMessageReceiver
             {
                 if (isProcessing && envelope != null)
                 {
-                    var retryQueue = Broker.GetOrCreateQueue(ReceiveAddress);
+                    var retryQueue = broker.GetOrCreateQueue(ReceiveAddress);
                     await retryQueue.Enqueue(envelope, CancellationToken.None).ConfigureAwait(false);
                 }
                 break;
@@ -188,7 +168,7 @@ class InMemoryMessagePump : IMessageReceiver
         var envelopes = receiveTransaction.GetPendingAndClear();
         foreach (var envelope in envelopes)
         {
-            var queue = Broker.GetOrCreateQueue(envelope.Destination);
+            var queue = broker.GetOrCreateQueue(envelope.Destination);
             await queue.Enqueue(envelope, cancellationToken).ConfigureAwait(false);
         }
     }

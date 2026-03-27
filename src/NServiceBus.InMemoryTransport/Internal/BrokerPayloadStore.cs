@@ -4,7 +4,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 
-public sealed class BrokerPayloadStore
+public static class BrokerPayloadStore
 {
     public static ArrayPool<byte> Pool => ArrayPool<byte>.Shared;
 

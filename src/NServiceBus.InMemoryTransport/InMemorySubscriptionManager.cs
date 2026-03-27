@@ -6,14 +6,8 @@ using Extensibility;
 using Transport;
 using Unicast.Messages;
 
-class InMemorySubscriptionManager : ISubscriptionManager
+class InMemorySubscriptionManager(InMemoryBroker broker, string localAddress) : ISubscriptionManager
 {
-    public InMemorySubscriptionManager(InMemoryBroker broker, string localAddress)
-    {
-        this.broker = broker;
-        this.localAddress = localAddress;
-    }
-
     public Task SubscribeAll(MessageMetadata[] eventTypes, ContextBag context, CancellationToken cancellationToken = default)
     {
         foreach (var eventType in eventTypes)
@@ -36,7 +30,4 @@ class InMemorySubscriptionManager : ISubscriptionManager
         }
         return Task.CompletedTask;
     }
-
-    readonly InMemoryBroker broker;
-    readonly string localAddress;
 }

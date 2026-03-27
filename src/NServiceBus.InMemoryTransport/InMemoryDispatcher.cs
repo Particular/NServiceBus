@@ -7,13 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Transport;
 
-class InMemoryDispatcher : IMessageDispatcher
+class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
 {
-    public InMemoryDispatcher(InMemoryBroker broker)
-    {
-        this.broker = broker;
-    }
-
     public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
     {
         return Task.WhenAll(
@@ -23,7 +18,7 @@ class InMemoryDispatcher : IMessageDispatcher
 
     async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction, CancellationToken cancellationToken)
     {
-        var tasks = new List<Task>();
+        List<Task> tasks = [];
 
         foreach (var transportOperation in transportOperations)
         {
@@ -70,7 +65,7 @@ class InMemoryDispatcher : IMessageDispatcher
 
     HashSet<string> GetSubscribersForType(Type messageType)
     {
-        var result = new HashSet<string>();
+        HashSet<string> result = [];
         foreach (var type in GetPotentialEventTypes(messageType))
         {
             foreach (var subscriber in broker.GetSubscribers(type.FullName!))
@@ -83,16 +78,10 @@ class InMemoryDispatcher : IMessageDispatcher
 
     static HashSet<Type> GetPotentialEventTypes(Type messageType)
     {
-        var allEventTypes = new HashSet<Type>();
-        var current = messageType;
-        while (current != null)
+        HashSet<Type> allEventTypes = [];
+        for (var current = messageType; current != null && !IsCoreMarkerInterface(current); current = current.BaseType)
         {
-            if (IsCoreMarkerInterface(current))
-            {
-                break;
-            }
             allEventTypes.Add(current);
-            current = current.BaseType;
         }
         foreach (var iface in messageType.GetInterfaces())
         {
@@ -179,6 +168,4 @@ class InMemoryDispatcher : IMessageDispatcher
         }
         return false;
     }
-
-    readonly InMemoryBroker broker;
 }

@@ -1,6 +1,5 @@
 namespace NServiceBus;
 
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,8 +13,9 @@ class InMemoryTransportInfrastructure : TransportInfrastructure
         this.broker = broker;
         this.transport = transport;
 
-        Receivers = receivers
-            .ToDictionary<ReceiveSettings, string, IMessageReceiver>(receiverSetting => receiverSetting.Id, CreateReceiver);
+        Receivers = receivers.ToDictionary(
+            r => r.Id,
+            r => (IMessageReceiver)CreateReceiver(r));
     }
 
     InMemoryMessagePump CreateReceiver(ReceiveSettings receiveSettings)
@@ -46,22 +46,15 @@ class InMemoryTransportInfrastructure : TransportInfrastructure
 
     public override string ToTransportAddress(QueueAddress queueAddress)
     {
-        var address = queueAddress.BaseAddress;
-
         var discriminator = queueAddress.Discriminator;
-
-        if (!string.IsNullOrEmpty(discriminator))
-        {
-            address += $"-{discriminator}";
-        }
-
         var qualifier = queueAddress.Qualifier;
 
-        if (!string.IsNullOrEmpty(qualifier))
+        return (string.IsNullOrEmpty(discriminator), string.IsNullOrEmpty(qualifier)) switch
         {
-            address += $"-{qualifier}";
-        }
-
-        return address;
+            (false, false) => $"{queueAddress.BaseAddress}-{discriminator}-{qualifier}",
+            (false, true) => $"{queueAddress.BaseAddress}-{discriminator}",
+            (true, false) => $"{queueAddress.BaseAddress}-{qualifier}",
+            _ => queueAddress.BaseAddress
+        };
     }
 }

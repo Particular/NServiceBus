@@ -114,8 +114,6 @@ public sealed class InMemoryBroker : IAsyncDisposable
         }
     }
 
-    public BrokerPayloadStore PayloadStore { get; } = new();
-
     public async ValueTask DisposeAsync()
     {
         await delayedPumpCancelSource.CancelAsync().ConfigureAwait(false);
@@ -139,7 +137,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
     readonly ConcurrentDictionary<string, InMemoryChannel> queues = new();
     readonly ConcurrentDictionary<string, List<string>> subscriptions = new();
     readonly PriorityQueue<BrokerEnvelope, DateTimeOffset> delayedMessages = new();
-    readonly object delayedMessagesLock = new();
+    readonly Lock delayedMessagesLock = new();
     long sequenceNumber;
     int pumpStarted;
     CancellationTokenSource delayedPumpCancelSource = new();
