@@ -17,9 +17,7 @@ public class When_registering_saga_with_multiple_handlers : NServiceBusAcceptanc
             .WithEndpoint<MultiHandlerSagaEndpoint>(b => b.CustomRegistrations(approach,
                     static config => config.AddSaga<MultiHandlerSagaEndpoint.MultiMessageSaga>(),
                     static registry => registry.Registrations.Sagas.AddWhen_registering_saga_with_multiple_handlers__MultiHandlerSagaEndpoint__MultiMessageSaga())
-                .When(session => session.SendLocal(new StartOrder { OrderId = orderId }))
-                .When(c => c.OrderStarted, session => session.SendLocal(new UpdateOrder { OrderId = orderId }))
-                .When(c => c.OrderUpdated, session => session.SendLocal(new CompleteOrder { OrderId = orderId })))
+                .When(session => session.SendLocal(new StartOrder { OrderId = orderId })))
             .Run();
 
         using (Assert.EnterMultipleScope())
@@ -54,7 +52,7 @@ public class When_registering_saga_with_multiple_handlers : NServiceBusAcceptanc
             {
                 testContext.OrderStarted = true;
                 testContext.OrderId = Data.OrderId;
-                return Task.CompletedTask;
+                return context.SendLocal(new UpdateOrder { OrderId = message.OrderId });
             }
 
             public Task Handle(CompleteOrder message, IMessageHandlerContext context)
@@ -68,7 +66,7 @@ public class When_registering_saga_with_multiple_handlers : NServiceBusAcceptanc
             public Task Handle(UpdateOrder message, IMessageHandlerContext context)
             {
                 testContext.OrderUpdated = true;
-                return Task.CompletedTask;
+                return context.SendLocal(new CompleteOrder { OrderId = message.OrderId });
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiMessageSagaData> mapper) =>
