@@ -2,25 +2,29 @@ namespace NServiceBus;
 
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 
 public sealed class BrokerPayloadStore
 {
-    readonly ArrayPool<byte> pool = ArrayPool<byte>.Shared;
+    public static ArrayPool<byte> Pool => ArrayPool<byte>.Shared;
 
-    public byte[] Rent(int minimumLength)
+    public static BrokerEnvelope Borrow(
+        string messageId,
+        ReadOnlySpan<byte> payload,
+        IReadOnlyDictionary<string, string> headers,
+        string destination,
+        bool isPublished,
+        long sequenceNumber,
+        DateTimeOffset? deliverAt = null)
     {
-        return pool.Rent(minimumLength);
-    }
-
-    public void Return(byte[] array)
-    {
-        pool.Return(array);
-    }
-
-    public byte[] Copy(ReadOnlySpan<byte> payload)
-    {
-        var buffer = pool.Rent(payload.Length);
+        var buffer = Pool.Rent(payload.Length);
         payload.CopyTo(buffer);
-        return buffer;
+        var body = new ReadOnlyMemory<byte>(buffer, 0, payload.Length);
+        var headersCopy = new Dictionary<string, string>(headers);
+        return new BrokerEnvelope(messageId, body, headersCopy, destination, isPublished, sequenceNumber, deliverAt)
+        {
+            Pool = Pool,
+            Buffer = buffer
+        };
     }
 }
