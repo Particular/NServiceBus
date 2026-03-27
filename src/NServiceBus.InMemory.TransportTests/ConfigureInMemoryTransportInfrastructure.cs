@@ -1,8 +1,8 @@
+namespace NServiceBus.TransportTests;
+
 using System.Threading;
 using System.Threading.Tasks;
-using NServiceBus;
-using NServiceBus.Transport;
-using NServiceBus.TransportTests;
+using Transport;
 
 class ConfigureInMemoryTransportInfrastructure : IConfigureTransportInfrastructure
 {

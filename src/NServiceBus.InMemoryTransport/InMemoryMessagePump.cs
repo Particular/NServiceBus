@@ -55,6 +55,8 @@ class InMemoryMessagePump : IMessageReceiver
 
         pumpCts = cts;
 
+        _ = Broker.StartPump(cancellationToken);
+
         for (var i = 0; i < pushRuntimeSettings.MaxConcurrency; i++)
         {
             _ = Task.Run(() => PumpMessagesAsync(pumpCts.Token), pumpCts.Token);
