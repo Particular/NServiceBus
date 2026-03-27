@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 public class ScenarioRunner(
     RunDescriptor runDescriptor,
@@ -49,7 +50,15 @@ public class ScenarioRunner(
 
             runResult.ActiveEndpoints = [.. endpoints.Select(r => r.Name)];
 
-            runDescriptor.ServiceProvider = runDescriptor.Services.BuildServiceProvider(runDescriptor.Settings.Get<ServiceProviderOptions>());
+            runDescriptor.Builder.Services.Configure<ServiceProviderOptions>(options =>
+            {
+                var o = runDescriptor.Settings.Get<ServiceProviderOptions>();
+                options.ValidateScopes = o.ValidateScopes;
+                options.ValidateOnBuild = o.ValidateOnBuild;
+            });
+
+            host = runDescriptor.Builder.Build();
+            runDescriptor.ServiceProvider = host.Services;
 
             await PerformScenarios(endpoints, cancellationToken).ConfigureAwait(false);
 
@@ -72,7 +81,7 @@ public class ScenarioRunner(
     {
         try
         {
-            await StartEndpoints(runners, cancellationToken).ConfigureAwait(false);
+            await Task.WhenAll(StartEndpoints(runners, host, cancellationToken), host.StartAsync(cancellationToken)).ConfigureAwait(false);
             runDescriptor.ScenarioContext.EndpointsStarted.SetResult();
             await ExecuteWhens(runners, cancellationToken).ConfigureAwait(false);
 
@@ -108,7 +117,7 @@ public class ScenarioRunner(
         }
         finally
         {
-            await StopEndpoints(runners, cancellationToken).ConfigureAwait(false);
+            await StopEndpoints(runners, host, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -120,13 +129,14 @@ public class ScenarioRunner(
         return sb.ToString();
     }
 
-    async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints, CancellationToken cancellationToken)
+    async Task StartEndpoints(IEnumerable<ComponentRunner> endpoints, IHost host, CancellationToken cancellationToken)
     {
         using var allEndpointsStartTimeout = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
         // separate (linked) CTS as otherwise a failure during endpoint startup will cause WaitAsync to throw an OperationCanceledException and hide the original error
         using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(allEndpointsStartTimeout.Token, cancellationToken);
 
-        await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, combinedSource)))
+        await Task.WhenAll(endpoints.Select(endpoint => StartEndpoint(endpoint, combinedSource))
+                .Union([host.StartAsync(combinedSource.Token)]))
             .WaitAsync(allEndpointsStartTimeout.Token)
             .ConfigureAwait(false);
     }
@@ -173,22 +183,23 @@ public class ScenarioRunner(
         }
     }
 
-    async Task StopEndpoints(IEnumerable<ComponentRunner> endpoints, CancellationToken cancellationToken)
+    async Task StopEndpoints(IEnumerable<ComponentRunner> endpoints, IHost host, CancellationToken cancellationToken)
     {
         using var stopTimeoutCts = CreateCancellationTokenSource(TimeSpan.FromMinutes(2));
         using var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(stopTimeoutCts.Token, cancellationToken);
 
         try
         {
-            await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, combinedSource.Token)))
+            await Task.WhenAll(endpoints.Select(endpoint => StopEndpoint(endpoint, combinedSource.Token))
+                    .Union([host.StopAsync(combinedSource.Token)]))
                 .WaitAsync(stopTimeoutCts.Token)
                 .ConfigureAwait(false);
         }
         finally
         {
-            if (runDescriptor.ServiceProvider is not null)
+            if (host is IAsyncDisposable asyncDisposable)
             {
-                await runDescriptor.ServiceProvider.DisposeAsync().ConfigureAwait(false);
+                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
             }
         }
     }
@@ -225,4 +236,6 @@ public class ScenarioRunner(
 
         return new CancellationTokenSource(timeout);
     }
+
+    IHost host;
 }

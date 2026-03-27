@@ -5,16 +5,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-public class RunDescriptor(ScenarioContext context, IServiceCollection services)
+public class RunDescriptor(ScenarioContext context, HostApplicationBuilder builder)
 {
     public RunSettings Settings { get; } = new();
 
-    public ScenarioContext ScenarioContext { get; } = context;
+    public ScenarioContext ScenarioContext => context;
 
-    public IServiceCollection Services { get; } = services;
+    public IServiceCollection Services => Builder.Services;
+    public HostApplicationBuilder Builder { get; } = builder;
 
-    public ServiceProvider? ServiceProvider { get; set; }
+    public IServiceProvider? ServiceProvider { get; set; }
 
     public void OnTestCompleted(Func<RunSummary, Task> testCompletedCallback) => onCompletedCallbacks?.Add(testCompletedCallback);
 

@@ -158,11 +158,11 @@ public class EndpointRunner(
     {
         await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
 
-        ArgumentNullException.ThrowIfNull(endpointInstance);
         ArgumentNullException.ThrowIfNull(behavior);
         ArgumentNullException.ThrowIfNull(scenarioContext);
 
         var executedWhens = new HashSet<Guid>();
+        var messageSession = serviceProvider!.GetRequiredService<IMessageSession>();
 
         while (true)
         {
@@ -180,7 +180,7 @@ public class EndpointRunner(
                     continue;
                 }
 
-                if (await when.ExecuteAction(scenarioContext, endpointInstance).ConfigureAwait(false))
+                if (await when.ExecuteAction(scenarioContext, messageSession).ConfigureAwait(false))
                 {
                     executedWhens.Add(when.Id);
                 }

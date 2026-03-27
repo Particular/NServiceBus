@@ -46,8 +46,7 @@ public class EndpointBehavior : IComponentBehavior
     {
         public async Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
         {
-            var starter = builder.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
-            return await starter.CreateAndStart(cancellationToken).ConfigureAwait(false);
+            return null!;
         }
     }
 

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -23,23 +24,27 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         var scenarioContext = new TContext();
         initializer(scenarioContext);
 
-        AddScenarioContext(scenarioContext, services);
-        services.AddLogging(builder =>
+        var services = hostBuilder.Services;
+        services.Configure<HostOptions>(options =>
         {
-            builder.AddProvider(new ContextAppenderLoggerProvider(scenarioContext));
-
-            builder.SetMinimumLevel(scenarioContext.LogLevel switch
-            {
-                LogLevel.Debug => Microsoft.Extensions.Logging.LogLevel.Debug,
-                LogLevel.Info => Microsoft.Extensions.Logging.LogLevel.Information,
-                LogLevel.Warn => Microsoft.Extensions.Logging.LogLevel.Warning,
-                LogLevel.Error => Microsoft.Extensions.Logging.LogLevel.Error,
-                LogLevel.Fatal => Microsoft.Extensions.Logging.LogLevel.Critical,
-                _ => Microsoft.Extensions.Logging.LogLevel.Debug,
-            });
+            options.ServicesStartConcurrently = true;
+            options.ServicesStopConcurrently = true;
+        });
+        var logging = hostBuilder.Logging;
+        logging.AddProvider(new ContextAppenderLoggerProvider(scenarioContext));
+        logging.SetMinimumLevel(scenarioContext.LogLevel switch
+        {
+            LogLevel.Debug => Microsoft.Extensions.Logging.LogLevel.Debug,
+            LogLevel.Info => Microsoft.Extensions.Logging.LogLevel.Information,
+            LogLevel.Warn => Microsoft.Extensions.Logging.LogLevel.Warning,
+            LogLevel.Error => Microsoft.Extensions.Logging.LogLevel.Error,
+            LogLevel.Fatal => Microsoft.Extensions.Logging.LogLevel.Critical,
+            _ => Microsoft.Extensions.Logging.LogLevel.Debug,
         });
 
-        var runDescriptor = new RunDescriptor(scenarioContext, services);
+        AddScenarioContext(scenarioContext, services);
+
+        var runDescriptor = new RunDescriptor(scenarioContext, hostBuilder);
         runDescriptor.Settings.Merge(settings);
 
         TestExecutionContext.CurrentContext.AddRunDescriptor(runDescriptor);
@@ -174,7 +179,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     readonly List<IComponentBehavior> behaviors = [];
     int componentCount = 0;
-    readonly IServiceCollection services = new ServiceCollection();
+    readonly HostApplicationBuilder hostBuilder = Host.CreateEmptyApplicationBuilder(null);
     Task? doneTask;
     readonly TaskCompletionSource<(TContext scenarioContext, CancellationToken cancellationToken)> kickOffTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     Func<TContext, TaskCompletionSource>? doneFunc;
