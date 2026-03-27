@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Routing;
+using Transport;
 
 [TestFixture]
 public class InMemoryBrokerTests
@@ -332,5 +335,67 @@ public class InMemoryBrokerTests
         Assert.That(delayedEnvelope!.Headers["key"], Is.EqualTo("original"));
 
         delayedEnvelope.Dispose();
+    }
+
+    [Test]
+    public async Task Transport_initialize_should_use_broker_from_service_provider_when_available()
+    {
+        var serviceProviderBroker = new InMemoryBroker();
+        var constructorBroker = new InMemoryBroker();
+        var hostSettings = new HostSettings("endpoint", string.Empty, new StartupDiagnosticEntries(), static (_, _, _) => { }, true)
+        {
+            ServiceProvider = new ServiceCollection()
+                .AddSingleton(serviceProviderBroker)
+                .BuildServiceProvider()
+        };
+
+        var transport = new InMemoryTransport(constructorBroker);
+        var infrastructure = await transport.Initialize(
+            hostSettings,
+            [new ReceiveSettings("main", new QueueAddress("input"), false, true, "error")],
+            ["error"],
+            CancellationToken.None).ConfigureAwait(false);
+
+        var message = new OutgoingMessage("id", [], new byte[] { 1 });
+        var operation = new TransportOperation(message, new UnicastAddressTag("destination"));
+
+        await infrastructure.Dispatcher.Dispatch(new TransportOperations(operation), new TransportTransaction(), CancellationToken.None).ConfigureAwait(false);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(serviceProviderBroker.TryGetQueue("destination", out var queue), Is.True);
+            Assert.That(queue!.Count, Is.EqualTo(1));
+            Assert.That(constructorBroker.TryGetQueue("destination", out _), Is.False);
+        });
+
+        await serviceProviderBroker.DisposeAsync();
+        await constructorBroker.DisposeAsync();
+    }
+
+    [Test]
+    public async Task Transport_initialize_should_fall_back_when_service_provider_has_no_broker()
+    {
+        var constructorBroker = new InMemoryBroker();
+        var hostSettings = new HostSettings("endpoint", string.Empty, new StartupDiagnosticEntries(), static (_, _, _) => { }, true)
+        {
+            ServiceProvider = new ServiceCollection().BuildServiceProvider()
+        };
+
+        var transport = new InMemoryTransport(constructorBroker);
+        var infrastructure = await transport.Initialize(
+            hostSettings,
+            [new ReceiveSettings("main", new QueueAddress("input"), false, true, "error")],
+            ["error"],
+            CancellationToken.None).ConfigureAwait(false);
+
+        var message = new OutgoingMessage("id", [], new byte[] { 1 });
+        var operation = new TransportOperation(message, new UnicastAddressTag("destination"));
+
+        await infrastructure.Dispatcher.Dispatch(new TransportOperations(operation), new TransportTransaction(), CancellationToken.None).ConfigureAwait(false);
+
+        Assert.That(constructorBroker.TryGetQueue("destination", out var queue), Is.True);
+        Assert.That(queue!.Count, Is.EqualTo(1));
+
+        await constructorBroker.DisposeAsync();
     }
 }
