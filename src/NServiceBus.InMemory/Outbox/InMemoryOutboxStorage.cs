@@ -33,15 +33,16 @@ class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
     public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
     {
         var tx = (InMemoryOutboxTransaction)transaction;
-        tx.Enlist(() =>
-        {
-            if (!Storage.TryAdd(message.MessageId, new StoredOutboxMessage(message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray())))
+        tx.Enlist(
+            new StoreOperationState(Storage, message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray()),
+            static state =>
             {
-                throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
-            }
-
-            return () => Storage.TryRemove(message.MessageId, out _);
-        });
+                if (!state.Storage.TryAdd(state.MessageId, new StoredOutboxMessage(state.MessageId, state.TransportOperations)))
+                {
+                    throw new Exception($"Outbox message with id '{state.MessageId}' is already present in storage.");
+                }
+            },
+            static state => state.Storage.TryRemove(state.MessageId, out _));
 
         return Task.CompletedTask;
     }
@@ -70,6 +71,11 @@ class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
     }
 
     internal ConcurrentDictionary<string, StoredOutboxMessage> Messages => Storage;
+
+    readonly record struct StoreOperationState(
+        ConcurrentDictionary<string, StoredOutboxMessage> Storage,
+        string MessageId,
+        TransportOperation[] TransportOperations);
 
     static TransportOperation CopyOperation(TransportOperation operation)
     {

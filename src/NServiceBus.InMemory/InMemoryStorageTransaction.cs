@@ -5,27 +5,33 @@ using System.Collections.Generic;
 
 class InMemoryStorageTransaction
 {
-    public void Enlist(Func<Action?> operation) => enlistedOperations.Add(operation);
+    public void Enlist<TState>(TState state, Action<TState> apply, Action<TState>? rollback = null)
+    {
+        ArgumentNullException.ThrowIfNull(apply);
+        enlistedOperations.Add(new TransactionOperation<TState>(state, apply, rollback));
+    }
 
     public void Commit()
     {
-        var rollbackActions = new Stack<Action>();
+        var appliedOperations = new Stack<ITransactionOperation>();
 
         try
         {
             foreach (var operation in enlistedOperations)
             {
-                if (operation() is { } rollbackAction)
+                operation.Apply();
+
+                if (operation.CanRollback)
                 {
-                    rollbackActions.Push(rollbackAction);
+                    appliedOperations.Push(operation);
                 }
             }
         }
         catch
         {
-            while (rollbackActions.TryPop(out var rollbackAction))
+            while (appliedOperations.TryPop(out var operation))
             {
-                rollbackAction();
+                operation.Rollback();
             }
 
             throw;
@@ -38,5 +44,27 @@ class InMemoryStorageTransaction
 
     public void Rollback() => enlistedOperations.Clear();
 
-    readonly List<Func<Action?>> enlistedOperations = [];
+    readonly List<ITransactionOperation> enlistedOperations = [];
+
+    interface ITransactionOperation
+    {
+        bool CanRollback { get; }
+        void Apply();
+        void Rollback();
+    }
+
+    sealed class TransactionOperation<TState>(TState state, Action<TState> apply, Action<TState>? rollback) : ITransactionOperation
+    {
+        public bool CanRollback => rollback is not null;
+
+        public void Apply() => apply(state);
+
+        public void Rollback()
+        {
+            if (rollback is not null)
+            {
+                rollback(state);
+            }
+        }
+    }
 }
