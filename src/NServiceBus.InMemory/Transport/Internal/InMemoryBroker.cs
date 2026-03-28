@@ -266,7 +266,15 @@ public sealed class InMemoryBroker : IAsyncDisposable
         return new ResolvedSimulationSettings(effectiveTimeProvider, effectiveMode, effectiveRateLimit, effectiveRateLimiter, effectiveRateLimiterFactory);
     }
 
-    static TimeSpan GetRetryAfter(RateLimitLease _) => TimeSpan.Zero;
+    static TimeSpan GetRetryAfter(RateLimitLease lease)
+    {
+        if (lease.TryGetMetadata(MetadataName.RetryAfter.Name, out var metadata) && metadata is TimeSpan retryAfter)
+        {
+            return retryAfter;
+        }
+
+        return TimeSpan.Zero;
+    }
 
     static void ValidateOptions(InMemoryBrokerOptions options)
     {

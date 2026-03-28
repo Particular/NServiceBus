@@ -479,6 +479,85 @@ public class When_simulating_delayed_delivery_reject
 }
 
 [TestFixture]
+public class When_custom_limiter_provides_retry_after_metadata
+{
+    [Test]
+    public async Task Should_delay_broker_retry_until_retry_after_elapses()
+    {
+        var simulatedTime = new FakeTimeProvider(new DateTimeOffset(2026, 03, 28, 12, 0, 0, TimeSpan.Zero));
+        await using var limiter = new ScriptedRateLimiter(
+        [
+            ScriptedRateLimiterStep.Acquired(),
+            ScriptedRateLimiterStep.Rejected(TimeSpan.FromSeconds(30)),
+            ScriptedRateLimiterStep.Acquired()
+        ]);
+
+        await using var broker = new InMemoryBroker(new InMemoryBrokerOptions
+        {
+            TimeProvider = simulatedTime,
+            DelayedDelivery =
+            {
+                Mode = InMemorySimulationMode.Delay,
+                RateLimiter = limiter
+            }
+        });
+
+        broker.EnqueueDelayed(CreateEnvelope("msg-1", "queue", 1), simulatedTime.GetUtcNow());
+        broker.EnqueueDelayed(CreateEnvelope("msg-2", "queue", 2), simulatedTime.GetUtcNow());
+        await broker.StartPump();
+
+        var queue = broker.GetOrCreateQueue("queue");
+        await AsyncSpinWait.Until(() => queue.Count == 1, maxIterations: 100);
+        Assert.That(queue.Count, Is.EqualTo(1));
+
+        simulatedTime.Advance(TimeSpan.FromSeconds(29));
+        await AsyncSpinWait.Until(() => queue.Count > 1, maxIterations: 20);
+        Assert.That(queue.Count, Is.EqualTo(1));
+
+        simulatedTime.Advance(TimeSpan.FromSeconds(1));
+        await AsyncSpinWait.Until(() => queue.Count == 2, maxIterations: 100);
+        Assert.That(queue.Count, Is.EqualTo(2));
+    }
+}
+
+[TestFixture]
+public class When_built_in_fixed_window_limiter_rejects
+{
+    [Test]
+    public async Task Should_surface_retry_after_metadata_in_the_simulation_exception()
+    {
+        await using var limiter = new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 1,
+            Window = TimeSpan.FromSeconds(30),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+
+        await using var broker = new InMemoryBroker(new InMemoryBrokerOptions
+        {
+            Send =
+            {
+                Mode = InMemorySimulationMode.Reject,
+                RateLimiter = limiter
+            }
+        });
+
+        var dispatcher = await CreateDispatcher(broker);
+        await Dispatch(dispatcher, "msg-1", "queue");
+
+        var exception = Assert.ThrowsAsync<InMemorySimulationException>(async () => await Dispatch(dispatcher, "msg-2", "queue"));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(exception, Is.Not.Null);
+            Assert.That(exception!.RetryAfter, Is.GreaterThan(TimeSpan.Zero));
+            Assert.That(exception.RetryAfter, Is.LessThanOrEqualTo(TimeSpan.FromSeconds(30)));
+        }
+    }
+}
+
+[TestFixture]
 public class When_simulating_receive_delay
 {
     [Test]
@@ -633,5 +712,74 @@ sealed class CountingRateLimiter(int permitCount) : RateLimiter
             metadata = null;
             return false;
         }
+    }
+}
+
+sealed class ScriptedRateLimiter(params ScriptedRateLimiterStep[] steps) : RateLimiter
+{
+    readonly Queue<ScriptedRateLimiterStep> scriptedSteps = new(steps);
+
+    protected override RateLimitLease AttemptAcquireCore(int permitCount)
+    {
+        if (scriptedSteps.Count == 0)
+        {
+            throw new InvalidOperationException("No scripted limiter steps remain.");
+        }
+
+        return scriptedSteps.Dequeue().ToLease();
+    }
+
+    protected override ValueTask<RateLimitLease> AcquireAsyncCore(int permitCount, CancellationToken cancellationToken = default)
+        => ValueTask.FromResult(AttemptAcquireCore(permitCount));
+
+    public override TimeSpan? IdleDuration => null;
+
+    public override RateLimiterStatistics GetStatistics() => null;
+
+    protected override void Dispose(bool disposing)
+    {
+    }
+}
+
+readonly record struct ScriptedRateLimiterStep(bool IsAcquired, TimeSpan? RetryAfter)
+{
+    public static ScriptedRateLimiterStep Acquired() => new(true, null);
+
+    public static ScriptedRateLimiterStep Rejected(TimeSpan retryAfter) => new(false, retryAfter);
+
+    public RateLimitLease ToLease() => IsAcquired ? SuccessfulScriptedLease.Instance : new RejectedScriptedLease(RetryAfter!.Value);
+}
+
+sealed class SuccessfulScriptedLease : RateLimitLease
+{
+    public static SuccessfulScriptedLease Instance { get; } = new();
+
+    public override bool IsAcquired => true;
+
+    public override IEnumerable<string> MetadataNames => [];
+
+    public override bool TryGetMetadata(string metadataName, out object metadata)
+    {
+        metadata = null;
+        return false;
+    }
+}
+
+sealed class RejectedScriptedLease(TimeSpan retryAfter) : RateLimitLease
+{
+    public override bool IsAcquired => false;
+
+    public override IEnumerable<string> MetadataNames => [MetadataName.RetryAfter.Name];
+
+    public override bool TryGetMetadata(string metadataName, out object metadata)
+    {
+        if (metadataName == MetadataName.RetryAfter.Name)
+        {
+            metadata = retryAfter;
+            return true;
+        }
+
+        metadata = null;
+        return false;
     }
 }
