@@ -152,6 +152,8 @@ public sealed class InMemoryBroker : IAsyncDisposable
 
     DateTimeOffset GetUtcNow() => timeProvider.GetUtcNow();
 
+    internal DateTimeOffset GetCurrentTime() => GetUtcNow();
+
     async Task ApplySimulationAsync(InMemorySimulationOperation operation, string queue, CancellationToken cancellationToken)
     {
         var resolved = ResolveSimulation(operation, queue);
