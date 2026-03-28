@@ -49,14 +49,15 @@ public sealed class InMemoryBroker : IAsyncDisposable
 
     public IReadOnlyList<string> GetSubscribers(string topic)
     {
-        if (subscriptions.TryGetValue(topic, out var list))
+        if (!subscriptions.TryGetValue(topic, out var list))
         {
-            lock (list)
-            {
-                return list.ToArray();
-            }
+            return [];
         }
-        return [];
+
+        lock (list)
+        {
+            return [.. list];
+        }
     }
 
     public long GetNextSequenceNumber() => Interlocked.Increment(ref sequenceNumber);
@@ -78,7 +79,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
         }
     }
 
-    public async Task StartDelayedMessagePump(CancellationToken cancellationToken = default)
+    async Task StartDelayedMessagePump(CancellationToken cancellationToken = default)
     {
         while (true)
         {
@@ -171,12 +172,11 @@ public sealed class InMemoryBroker : IAsyncDisposable
 
     void SignalDelayedMessagesChanged()
     {
-        delayedMessagesChanged.TrySetResult();
+        _ = delayedMessagesChanged.TrySetResult();
         delayedMessagesChanged = CreateDelayedMessagesChangedSignal();
     }
 
-    static TaskCompletionSource CreateDelayedMessagesChangedSignal() =>
-        new(TaskCreationOptions.RunContinuationsAsynchronously);
+    static TaskCompletionSource CreateDelayedMessagesChangedSignal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public async ValueTask DisposeAsync()
     {
@@ -190,11 +190,13 @@ public sealed class InMemoryBroker : IAsyncDisposable
 
     public Task StartPump(CancellationToken cancellationToken = default)
     {
-        if (Interlocked.CompareExchange(ref pumpStarted, 1, 0) == 0)
+        if (Interlocked.CompareExchange(ref pumpStarted, 1, 0) != 0)
         {
-            delayedPumpCancelSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            delayedPumpTask = StartDelayedMessagePump(delayedPumpCancelSource.Token);
+            return Task.CompletedTask;
         }
+
+        delayedPumpCancelSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        delayedPumpTask = StartDelayedMessagePump(delayedPumpCancelSource.Token);
         return Task.CompletedTask;
     }
 
