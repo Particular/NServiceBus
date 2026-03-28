@@ -12,6 +12,12 @@ using Sagas;
 
 class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersister
 {
+    public InMemorySagaPersister(InMemoryStorage storage, InMemorySagaPersisterSettings settings) : this(settings)
+    {
+        sagas = storage.Sagas;
+        byCorrelationId = storage.SagaCorrelationIds;
+    }
+
     public InMemorySagaPersister() : this(new InMemorySagaPersisterSettings(new JsonSerializerOptions()))
     {
     }
@@ -33,8 +39,23 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
             var entry = new SagaEntry(sagaData, correlationId, version: 1, settings.SerializerOptions);
             if (!sagas.TryAdd(sagaData.Id, entry))
             {
+                if (!correlationId.Equals(NoCorrelationId))
+                {
+                    byCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(correlationId, sagaData.Id));
+                }
+
                 throw new Exception("A saga with this identifier already exists. This should never happen as saga identifiers are meant to be unique.");
             }
+
+            return () =>
+            {
+                sagas.TryRemove(new KeyValuePair<Guid, SagaEntry>(sagaData.Id, entry));
+
+                if (!correlationId.Equals(NoCorrelationId))
+                {
+                    byCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(correlationId, sagaData.Id));
+                }
+            };
         });
 
         return Task.CompletedTask;
@@ -73,11 +94,14 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
         ((InMemorySynchronizedStorageSession)session).Enlist(() =>
         {
             var entry = GetEntry(context, sagaData.Id);
+            var updatedEntry = entry.UpdateTo(sagaData, settings.SerializerOptions);
 
-            if (!sagas.TryUpdate(sagaData.Id, entry.UpdateTo(sagaData, settings.SerializerOptions), entry))
+            if (!sagas.TryUpdate(sagaData.Id, updatedEntry, entry))
             {
                 throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{sagaData.Id}] was modified by another process.");
             }
+
+            return () => sagas.TryUpdate(sagaData.Id, entry, updatedEntry);
         });
 
         return Task.CompletedTask;
@@ -99,6 +123,16 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
             {
                 byCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(entry.CorrelationId, sagaData.Id));
             }
+
+            return () =>
+            {
+                sagas.TryAdd(sagaData.Id, entry);
+
+                if (!entry.CorrelationId.Equals(NoCorrelationId))
+                {
+                    byCorrelationId.TryAdd(entry.CorrelationId, sagaData.Id);
+                }
+            };
         });
 
         return Task.CompletedTask;
@@ -126,8 +160,8 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
         throw new Exception("The saga should be retrieved with Get method before it's updated.");
     }
 
-    readonly ConcurrentDictionary<Guid, SagaEntry> sagas = new();
-    readonly ConcurrentDictionary<CorrelationId, Guid> byCorrelationId = new();
+    ConcurrentDictionary<Guid, SagaEntry> sagas = new();
+    ConcurrentDictionary<CorrelationId, Guid> byCorrelationId = new();
 
     const string ContextKey = "NServiceBus.InMemoryPersistence.Sagas";
     static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());

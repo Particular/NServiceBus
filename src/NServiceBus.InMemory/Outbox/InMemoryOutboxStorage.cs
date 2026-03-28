@@ -11,11 +11,15 @@ using System.Threading.Tasks;
 using Extensibility;
 using Outbox;
 
-class InMemoryOutboxStorage : IOutboxStorage
+class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
 {
+    public InMemoryOutboxStorage() : this(new InMemoryStorage())
+    {
+    }
+
     public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default)
     {
-        if (!storage.TryGetValue(messageId, out var storedMessage))
+        if (!Storage.TryGetValue(messageId, out var storedMessage))
         {
             return NoOutboxMessageTask!;
         }
@@ -31,36 +35,41 @@ class InMemoryOutboxStorage : IOutboxStorage
         var tx = (InMemoryOutboxTransaction)transaction;
         tx.Enlist(() =>
         {
-            if (!storage.TryAdd(message.MessageId, new StoredOutboxMessage(message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray())))
+            if (!Storage.TryAdd(message.MessageId, new StoredOutboxMessage(message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray())))
             {
                 throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
             }
+
+            return () => Storage.TryRemove(message.MessageId, out _);
         });
+
         return Task.CompletedTask;
     }
 
     public Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken = default)
     {
-        if (!storage.TryGetValue(messageId, out var storedMessage))
+        if (!Storage.TryGetValue(messageId, out var storedMessage))
         {
             return Task.CompletedTask;
         }
 
-        storedMessage.MarkAsDispatched();
+        storedMessage.MarkAsDispatched(DateTime.UtcNow);
         return Task.CompletedTask;
     }
 
     public void RemoveEntriesOlderThan(DateTime dateTime)
     {
-        foreach (var entry in storage)
+        foreach (var entry in Storage)
         {
             var storedMessage = entry.Value;
-            if (storedMessage.Dispatched && storedMessage.StoredAt < dateTime)
+            if (storedMessage.Dispatched && storedMessage.DispatchedAt < dateTime)
             {
-                storage.TryRemove(entry.Key, out _);
+                Storage.TryRemove(entry.Key, out _);
             }
         }
     }
+
+    internal ConcurrentDictionary<string, StoredOutboxMessage> Messages => Storage;
 
     static TransportOperation CopyOperation(TransportOperation operation)
     {
@@ -79,6 +88,6 @@ class InMemoryOutboxStorage : IOutboxStorage
         return new TransportOperation(operation.MessageId, options, body, headers);
     }
 
-    readonly ConcurrentDictionary<string, StoredOutboxMessage> storage = new();
+    ConcurrentDictionary<string, StoredOutboxMessage> Storage { get; } = storage.OutboxMessages;
     static readonly Task<OutboxMessage?> NoOutboxMessageTask = Task.FromResult(default(OutboxMessage));
 }

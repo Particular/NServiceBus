@@ -10,8 +10,12 @@ using Extensibility;
 using Unicast.Subscriptions;
 using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-class InMemorySubscriptionStorage : ISubscriptionStorage
+class InMemorySubscriptionStorage(InMemoryStorage storage) : ISubscriptionStorage
 {
+    public InMemorySubscriptionStorage() : this(new InMemoryStorage())
+    {
+    }
+
     public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
     {
         var subscribers = storage.GetOrAdd(messageType, _ => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
@@ -38,5 +42,5 @@ class InMemorySubscriptionStorage : ISubscriptionStorage
         return Task.FromResult(subscribers);
     }
 
-    readonly ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = new();
+    readonly ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = storage.Subscriptions;
 }

@@ -11,12 +11,12 @@ class InMemoryOutboxTransaction : IOutboxTransaction
 {
     public InMemoryStorageTransaction? Transaction { get; private set; } = new();
 
-    public void Enlist(Action action)
+    public void Enlist(Func<Action?> operation)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(operation);
         ArgumentNullException.ThrowIfNull(Transaction);
 
-        Transaction.Enlist(action);
+        Transaction.Enlist(operation);
     }
 
     public Task Commit(CancellationToken cancellationToken = default)
