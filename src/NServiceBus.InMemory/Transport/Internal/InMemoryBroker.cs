@@ -5,12 +5,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.RateLimiting;
 
 public sealed class InMemoryBroker : IAsyncDisposable
 {
     public InMemoryBroker(InMemoryBrokerOptions? options = null)
     {
         this.options = options ?? new InMemoryBrokerOptions();
+        ValidateOptions(this.options);
         timeProvider = this.options.TimeProvider ?? TimeProvider.System;
     }
 
@@ -157,15 +159,21 @@ public sealed class InMemoryBroker : IAsyncDisposable
     async Task ApplySimulationAsync(InMemorySimulationOperation operation, string queue, CancellationToken cancellationToken)
     {
         var resolved = ResolveSimulation(operation, queue);
-        if (resolved.RateLimit is null)
+        if (resolved.RateLimit is null && resolved.RateLimiter is null && resolved.RateLimiterFactory is null)
         {
+            return;
+        }
+
+        if (resolved.RateLimiter != null || resolved.RateLimiterFactory != null)
+        {
+            await ApplyCustomRateLimiterAsync(operation, queue, resolved, cancellationToken).ConfigureAwait(false);
             return;
         }
 
         while (true)
         {
             var now = resolved.TimeProvider.GetUtcNow();
-            var acquired = TryAcquirePermit(operation, queue, resolved.RateLimit, now, out var retryAfter);
+            var acquired = TryAcquirePermit(operation, queue, resolved.RateLimit!, now, out var retryAfter);
             if (acquired)
             {
                 return;
@@ -177,6 +185,32 @@ public sealed class InMemoryBroker : IAsyncDisposable
             }
 
             await Task.Delay(retryAfter, resolved.TimeProvider, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    async Task ApplyCustomRateLimiterAsync(InMemorySimulationOperation operation, string queue, ResolvedSimulationSettings resolved, CancellationToken cancellationToken)
+    {
+        var factory = resolved.RateLimiterFactory;
+        var limiter = resolved.RateLimiter ?? customLimiters.GetOrAdd(
+            (operation, queue),
+            static (key, state) => state.RateLimiterFactory(state.TimeProvider),
+            (RateLimiterFactory: factory!, resolved.TimeProvider));
+
+        if (resolved.Mode == InMemorySimulationMode.Reject)
+        {
+            using var lease = limiter.AttemptAcquire(1);
+            if (lease.IsAcquired)
+            {
+                return;
+            }
+
+            throw new InMemorySimulationException($"In-memory {operation} simulation rejected access to queue '{queue}'.", GetRetryAfter(lease), resolved.TimeProvider);
+        }
+
+        using var acquiredLease = await limiter.AcquireAsync(1, cancellationToken).ConfigureAwait(false);
+        if (!acquiredLease.IsAcquired)
+        {
+            throw new InMemorySimulationException($"In-memory {operation} simulation rejected access to queue '{queue}'.", GetRetryAfter(acquiredLease), resolved.TimeProvider);
         }
     }
 
@@ -213,13 +247,65 @@ public sealed class InMemoryBroker : IAsyncDisposable
             ?? brokerLevel.RateLimit
             ?? options.Default.RateLimit;
 
+        var effectiveRateLimiter = queueLevel?.RateLimiter
+            ?? queueOptions?.Default.RateLimiter
+            ?? brokerLevel.RateLimiter
+            ?? options.Default.RateLimiter;
+
+        var effectiveRateLimiterFactory = queueLevel?.RateLimiterFactory
+            ?? queueOptions?.Default.RateLimiterFactory
+            ?? brokerLevel.RateLimiterFactory
+            ?? options.Default.RateLimiterFactory;
+
         var effectiveMode = queueLevel?.Mode
             ?? queueOptions?.Default.Mode
             ?? brokerLevel.Mode
             ?? options.Default.Mode
-            ?? (effectiveRateLimit is null ? null : InMemorySimulationMode.Delay);
+            ?? (effectiveRateLimit is null && effectiveRateLimiter is null && effectiveRateLimiterFactory is null ? null : InMemorySimulationMode.Delay);
 
-        return new ResolvedSimulationSettings(effectiveTimeProvider, effectiveMode, effectiveRateLimit);
+        return new ResolvedSimulationSettings(effectiveTimeProvider, effectiveMode, effectiveRateLimit, effectiveRateLimiter, effectiveRateLimiterFactory);
+    }
+
+    static TimeSpan GetRetryAfter(RateLimitLease _) => TimeSpan.Zero;
+
+    static void ValidateOptions(InMemoryBrokerOptions options)
+    {
+        ValidateNode(options.Default, "Default");
+        ValidateNode(options.Send, "Send");
+        ValidateNode(options.Receive, "Receive");
+        ValidateNode(options.DelayedDelivery, "DelayedDelivery");
+
+        foreach (var queueOptions in options.GetQueues())
+        {
+            ValidateNode(queueOptions.Default, "Queue.Default");
+            ValidateNode(queueOptions.Send, "Queue.Send");
+            ValidateNode(queueOptions.Receive, "Queue.Receive");
+            ValidateNode(queueOptions.DelayedDelivery, "Queue.DelayedDelivery");
+        }
+    }
+
+    static void ValidateNode(InMemorySimulationOptions options, string nodeName)
+    {
+        var configuredLimiterSources = 0;
+        if (options.RateLimit != null)
+        {
+            configuredLimiterSources++;
+        }
+
+        if (options.RateLimiter != null)
+        {
+            configuredLimiterSources++;
+        }
+
+        if (options.RateLimiterFactory != null)
+        {
+            configuredLimiterSources++;
+        }
+
+        if (configuredLimiterSources > 1)
+        {
+            throw new ArgumentException($"Simulation node '{nodeName}' configures multiple limiter sources. Only one of RateLimit, RateLimiter, or RateLimiterFactory may be set.");
+        }
     }
 
     bool TryAcquirePermit(InMemorySimulationOperation operation, string queue, InMemoryRateLimitOptions rateLimit, DateTimeOffset now, out TimeSpan retryAfter)
@@ -333,6 +419,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
     readonly TimeProvider timeProvider;
     readonly InMemoryBrokerOptions options;
     readonly ConcurrentDictionary<(InMemorySimulationOperation Operation, string Queue), WindowState> simulationState = new();
+    readonly ConcurrentDictionary<(InMemorySimulationOperation Operation, string Queue), RateLimiter> customLimiters = new();
 
     sealed class WindowState(DateTimeOffset windowStart)
     {
@@ -341,7 +428,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
         public int PermitsUsed { get; set; }
     }
 
-    readonly record struct ResolvedSimulationSettings(TimeProvider TimeProvider, InMemorySimulationMode? Mode, InMemoryRateLimitOptions? RateLimit);
+    readonly record struct ResolvedSimulationSettings(TimeProvider TimeProvider, InMemorySimulationMode? Mode, InMemoryRateLimitOptions? RateLimit, RateLimiter? RateLimiter, Func<TimeProvider, RateLimiter>? RateLimiterFactory);
 
     enum InMemorySimulationOperation
     {

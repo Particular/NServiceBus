@@ -9,6 +9,7 @@ using Microsoft.Extensions.Time.Testing;
 using NServiceBus.Transport;
 using NUnit.Framework;
 using Routing;
+using System.Threading.RateLimiting;
 using static InMemoryBrokerSimulationTestHelper;
 
 static class InMemoryBrokerSimulationTestHelper
@@ -207,6 +208,118 @@ public class When_simulating_send_reject
 }
 
 [TestFixture]
+public class When_simulating_send_with_direct_rate_limiter
+{
+    [Test]
+    public async Task Should_use_configured_limiter()
+    {
+        await using var limiter = new CountingRateLimiter(permitCount: 1);
+        await using var broker = new InMemoryBroker(new InMemoryBrokerOptions
+        {
+            Send =
+            {
+                Mode = InMemorySimulationMode.Reject,
+                RateLimiter = limiter
+            }
+        });
+
+        var dispatcher = await CreateDispatcher(broker);
+        await Dispatch(dispatcher, "msg-1", "queue");
+
+        _ = Assert.ThrowsAsync<InMemorySimulationException>(async () => await Dispatch(dispatcher, "msg-2", "queue"));
+        Assert.That(limiter.AttemptAcquireCalls, Is.EqualTo(2));
+    }
+}
+
+[TestFixture]
+public class When_simulating_send_with_rate_limiter_factory
+{
+    [Test]
+    public async Task Should_create_and_reuse_limiter_per_operation_and_queue()
+    {
+        var factoryCalls = 0;
+        var createdLimiters = new List<CountingRateLimiter>();
+        await using var broker = new InMemoryBroker(new InMemoryBrokerOptions
+        {
+            Send =
+            {
+                Mode = InMemorySimulationMode.Reject,
+                RateLimiterFactory = _ =>
+                {
+                    factoryCalls++;
+                    var limiter = new CountingRateLimiter(permitCount: 1);
+                    createdLimiters.Add(limiter);
+                    return limiter;
+                }
+            }
+        });
+
+        var dispatcher = await CreateDispatcher(broker);
+        await Dispatch(dispatcher, "msg-1", "queue");
+        Assert.ThrowsAsync<InMemorySimulationException>(async () => await Dispatch(dispatcher, "msg-2", "queue"));
+
+        await Dispatch(dispatcher, "msg-3", "other-queue");
+        Assert.ThrowsAsync<InMemorySimulationException>(async () => await Dispatch(dispatcher, "msg-4", "other-queue"));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(factoryCalls, Is.EqualTo(2));
+            Assert.That(createdLimiters.Count, Is.EqualTo(2));
+            Assert.That(createdLimiters[0].AttemptAcquireCalls, Is.EqualTo(2));
+            Assert.That(createdLimiters[1].AttemptAcquireCalls, Is.EqualTo(2));
+        }
+
+        foreach (var limiter in createdLimiters)
+        {
+            await limiter.DisposeAsync();
+        }
+    }
+}
+
+[TestFixture]
+public class When_simulation_configuration_has_rate_limit_and_direct_limiter
+{
+    [Test]
+    public void Should_fail_when_rate_limit_and_direct_limiter_are_both_configured()
+    {
+        using var limiter = new CountingRateLimiter(permitCount: 1);
+
+        var exception = Assert.Throws<ArgumentException>(() => new InMemoryBroker(new InMemoryBrokerOptions
+        {
+            Send =
+            {
+                RateLimit = new InMemoryRateLimitOptions { PermitLimit = 1, Window = TimeSpan.FromSeconds(5) },
+                RateLimiter = limiter
+            }
+        }));
+
+        Assert.That(exception!.Message, Does.Contain("RateLimiter"));
+    }
+
+}
+
+[TestFixture]
+public class When_simulation_configuration_has_direct_limiter_and_factory
+{
+    [Test]
+    public void Should_fail_when_direct_limiter_and_factory_are_both_configured()
+    {
+        using var limiter = new CountingRateLimiter(permitCount: 1);
+
+        var exception = Assert.Throws<ArgumentException>(() => new InMemoryBroker(new InMemoryBrokerOptions
+        {
+            Send =
+            {
+                RateLimiter = limiter,
+                RateLimiterFactory = _ => new CountingRateLimiter(permitCount: 1)
+            }
+        }));
+
+        Assert.That(exception!.Message, Does.Contain("RateLimiterFactory"));
+    }
+}
+
+[TestFixture]
 public class When_simulating_delayed_delivery_delay
 {
     [Test]
@@ -231,6 +344,73 @@ public class When_simulating_delayed_delivery_delay
         await AsyncSpinWait.Until(() => queue.Count >= 2, maxIterations: 100);
 
         Assert.That(queue.Count, Is.EqualTo(2));
+    }
+}
+
+[TestFixture]
+public class When_simulating_receive_delay_with_queue_override
+{
+    [Test]
+    public async Task Should_use_queue_operation_settings_over_broker_defaults()
+    {
+        var simulatedTime = new FakeTimeProvider(new DateTimeOffset(2026, 03, 28, 12, 0, 0, TimeSpan.Zero));
+        var options = new InMemoryBrokerOptions
+        {
+            TimeProvider = simulatedTime,
+            Receive = { RateLimit = new InMemoryRateLimitOptions { PermitLimit = 1, Window = TimeSpan.FromSeconds(30) } }
+        };
+        options.ForQueue("input").Receive.RateLimit = new InMemoryRateLimitOptions { PermitLimit = 2, Window = TimeSpan.FromSeconds(30) };
+
+        await using var broker = new InMemoryBroker(options);
+        var receiver = await CreateReceiver(broker);
+        var secondReceived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var receivedCount = 0;
+
+        await receiver.Initialize(
+            new PushRuntimeSettings(maxConcurrency: 1),
+            (_, _) =>
+            {
+                if (Interlocked.Increment(ref receivedCount) == 2)
+                {
+                    secondReceived.TrySetResult();
+                }
+
+                return Task.CompletedTask;
+            },
+            (_, _) => Task.FromResult(ErrorHandleResult.Handled));
+
+        var queue = broker.GetOrCreateQueue("input");
+        await queue.Enqueue(CreateEnvelope("msg-1", "input", 1), CancellationToken.None);
+        await queue.Enqueue(CreateEnvelope("msg-2", "input", 2), CancellationToken.None);
+        await receiver.StartReceive();
+
+        await secondReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.That(Volatile.Read(ref receivedCount), Is.EqualTo(2));
+        await receiver.StopReceive();
+    }
+}
+
+[TestFixture]
+public class When_simulating_delayed_delivery_delay_with_queue_override
+{
+    [Test]
+    public async Task Should_use_queue_operation_settings_over_broker_defaults()
+    {
+        var simulatedTime = new FakeTimeProvider(new DateTimeOffset(2026, 03, 28, 12, 0, 0, TimeSpan.Zero));
+        var options = new InMemoryBrokerOptions
+        {
+            TimeProvider = simulatedTime,
+            DelayedDelivery = { RateLimit = new InMemoryRateLimitOptions { PermitLimit = 1, Window = TimeSpan.FromSeconds(30) } }
+        };
+        options.ForQueue("queue").DelayedDelivery.RateLimit = new InMemoryRateLimitOptions { PermitLimit = 2, Window = TimeSpan.FromSeconds(30) };
+
+        await using var broker = new InMemoryBroker(options);
+        broker.EnqueueDelayed(CreateEnvelope("msg-1", "queue", 1), simulatedTime.GetUtcNow());
+        broker.EnqueueDelayed(CreateEnvelope("msg-2", "queue", 2), simulatedTime.GetUtcNow());
+        await broker.StartPump();
+
+        await AsyncSpinWait.Until(() => broker.GetOrCreateQueue("queue").Count == 2, maxIterations: 100);
+        Assert.That(broker.GetOrCreateQueue("queue").Count, Is.EqualTo(2));
     }
 }
 
@@ -351,5 +531,74 @@ public class When_receiving_without_simulation
         Assert.That(Volatile.Read(ref receivedCount), Is.EqualTo(1));
 
         await receiver.StopReceive();
+    }
+}
+
+sealed class CountingRateLimiter(int permitCount) : RateLimiter
+{
+    int remainingPermits = permitCount;
+
+    public int AttemptAcquireCalls { get; private set; }
+
+    protected override RateLimitLease AttemptAcquireCore(int permitCount)
+    {
+        AttemptAcquireCalls++;
+        if (remainingPermits > 0)
+        {
+            remainingPermits--;
+            return SuccessfulLease.Instance;
+        }
+
+        return FailedLease.Instance;
+    }
+
+    protected override ValueTask<RateLimitLease> AcquireAsyncCore(int permitCount, CancellationToken cancellationToken = default)
+    {
+        AttemptAcquireCalls++;
+        if (remainingPermits > 0)
+        {
+            remainingPermits--;
+            return ValueTask.FromResult<RateLimitLease>(SuccessfulLease.Instance);
+        }
+
+        return ValueTask.FromResult<RateLimitLease>(FailedLease.Instance);
+    }
+
+    public override TimeSpan? IdleDuration => null;
+
+    public override RateLimiterStatistics GetStatistics() => null;
+
+    protected override void Dispose(bool disposing)
+    {
+    }
+
+    sealed class SuccessfulLease : RateLimitLease
+    {
+        public static SuccessfulLease Instance { get; } = new();
+
+        public override bool IsAcquired => true;
+
+        public override IEnumerable<string> MetadataNames => [];
+
+        public override bool TryGetMetadata(string metadataName, out object metadata)
+        {
+            metadata = null;
+            return false;
+        }
+    }
+
+    sealed class FailedLease : RateLimitLease
+    {
+        public static FailedLease Instance { get; } = new();
+
+        public override bool IsAcquired => false;
+
+        public override IEnumerable<string> MetadataNames => [];
+
+        public override bool TryGetMetadata(string metadataName, out object metadata)
+        {
+            metadata = null;
+            return false;
+        }
     }
 }
