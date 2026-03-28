@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
-    <ProjectReference Include="..\NServiceBus.InMemoryPersistence\NServiceBus.InMemoryPersistence.csproj" />
+    <ProjectReference Include="..\NServiceBus.InMemory\NServiceBus.InMemory.csproj" />
   </ItemGroup>
 
   <ItemGroup>
