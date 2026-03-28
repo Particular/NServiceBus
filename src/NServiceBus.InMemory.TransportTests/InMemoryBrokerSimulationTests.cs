@@ -133,14 +133,24 @@ public class When_simulating_send_delay_with_queue_override
         var dispatcher = await CreateDispatcher(broker);
 
         await Dispatch(dispatcher, "msg-1", "queue");
-        var secondDispatch = Dispatch(dispatcher, "msg-2", "queue");
+        await Dispatch(dispatcher, "msg-2", "queue");
+        var thirdDispatch = Dispatch(dispatcher, "msg-3", "queue");
 
-        await AsyncSpinWait.Until(() => secondDispatch.IsCompleted, maxIterations: 20);
+        await AsyncSpinWait.Until(() => broker.GetOrCreateQueue("queue").Count == 2, maxIterations: 20);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(secondDispatch.IsCompleted, Is.True);
+            Assert.That(thirdDispatch.IsCompleted, Is.False);
             Assert.That(broker.GetOrCreateQueue("queue").Count, Is.EqualTo(2));
+        }
+
+        simulatedTime.Advance(TimeSpan.FromSeconds(30));
+        await AsyncSpinWait.Until(() => thirdDispatch.IsCompleted, maxIterations: 100);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(thirdDispatch.IsCompleted, Is.True);
+            Assert.That(broker.GetOrCreateQueue("queue").Count, Is.EqualTo(3));
         }
     }
 }
@@ -364,15 +374,21 @@ public class When_simulating_receive_delay_with_queue_override
         await using var broker = new InMemoryBroker(options);
         var receiver = await CreateReceiver(broker);
         var secondReceived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var thirdReceived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var receivedCount = 0;
 
         await receiver.Initialize(
             new PushRuntimeSettings(maxConcurrency: 1),
             (_, _) =>
             {
-                if (Interlocked.Increment(ref receivedCount) == 2)
+                var currentCount = Interlocked.Increment(ref receivedCount);
+                if (currentCount == 2)
                 {
                     secondReceived.TrySetResult();
+                }
+                else if (currentCount == 3)
+                {
+                    thirdReceived.TrySetResult();
                 }
 
                 return Task.CompletedTask;
@@ -382,10 +398,19 @@ public class When_simulating_receive_delay_with_queue_override
         var queue = broker.GetOrCreateQueue("input");
         await queue.Enqueue(CreateEnvelope("msg-1", "input", 1), CancellationToken.None);
         await queue.Enqueue(CreateEnvelope("msg-2", "input", 2), CancellationToken.None);
+        await queue.Enqueue(CreateEnvelope("msg-3", "input", 3), CancellationToken.None);
         await receiver.StartReceive();
 
         await secondReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        Assert.That(Volatile.Read(ref receivedCount), Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(Volatile.Read(ref receivedCount), Is.EqualTo(2));
+            Assert.That(thirdReceived.Task.IsCompleted, Is.False);
+        }
+
+        simulatedTime.Advance(TimeSpan.FromSeconds(30));
+        await thirdReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.That(Volatile.Read(ref receivedCount), Is.EqualTo(3));
         await receiver.StopReceive();
     }
 }
@@ -407,10 +432,18 @@ public class When_simulating_delayed_delivery_delay_with_queue_override
         await using var broker = new InMemoryBroker(options);
         broker.EnqueueDelayed(CreateEnvelope("msg-1", "queue", 1), simulatedTime.GetUtcNow());
         broker.EnqueueDelayed(CreateEnvelope("msg-2", "queue", 2), simulatedTime.GetUtcNow());
+        broker.EnqueueDelayed(CreateEnvelope("msg-3", "queue", 3), simulatedTime.GetUtcNow());
         await broker.StartPump();
 
         await AsyncSpinWait.Until(() => broker.GetOrCreateQueue("queue").Count == 2, maxIterations: 100);
-        Assert.That(broker.GetOrCreateQueue("queue").Count, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(broker.GetOrCreateQueue("queue").Count, Is.EqualTo(2));
+        }
+
+        simulatedTime.Advance(TimeSpan.FromSeconds(30));
+        await AsyncSpinWait.Until(() => broker.GetOrCreateQueue("queue").Count == 3, maxIterations: 100);
+        Assert.That(broker.GetOrCreateQueue("queue").Count, Is.EqualTo(3));
     }
 }
 
