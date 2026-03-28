@@ -18,5 +18,5 @@ public partial class TestSuiteConstraints
 
     public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointInMemoryTransport();
 
-    public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointAcceptanceTestingPersistence();
+    public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointInMemoryPersistence();
 }
