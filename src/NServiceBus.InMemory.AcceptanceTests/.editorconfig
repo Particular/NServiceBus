@@ -1,4 +1,5 @@
 root = true
 
 [*]
+dotnet_diagnostic.CA2007.severity = none
 dotnet_diagnostic.PS0018.severity = suggestion

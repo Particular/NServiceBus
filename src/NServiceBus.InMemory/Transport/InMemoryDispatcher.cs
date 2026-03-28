@@ -48,6 +48,8 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
                     continue;
                 }
 
+                await broker.SimulateSendAsync(subscriber, cancellationToken).ConfigureAwait(false);
+
                 if (deliverAt.HasValue)
                 {
                     broker.EnqueueDelayed(envelope, deliverAt.Value);
@@ -96,7 +98,7 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
     static bool IsCoreMarkerInterface(Type type) =>
         type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
-    Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken)
+    async Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken)
     {
         List<Task> tasks = [];
 
@@ -123,6 +125,8 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
                 continue;
             }
 
+            await broker.SimulateSendAsync(operation.Destination, cancellationToken).ConfigureAwait(false);
+
             if (deliverAt.HasValue)
             {
                 broker.EnqueueDelayed(envelope, deliverAt.Value);
@@ -133,7 +137,7 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
             tasks.Add(queue.Enqueue(envelope, cancellationToken).AsTask());
         }
 
-        return Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
     static DateTimeOffset? GetDeliverAt(DispatchProperties properties)

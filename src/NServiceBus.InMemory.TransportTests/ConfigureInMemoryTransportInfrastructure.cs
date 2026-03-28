@@ -6,10 +6,7 @@ using Transport;
 
 class ConfigureInMemoryTransportInfrastructure : IConfigureTransportInfrastructure
 {
-    public TransportDefinition CreateTransportDefinition()
-    {
-        return new InMemoryTransport();
-    }
+    public TransportDefinition CreateTransportDefinition() => new InMemoryTransport();
 
     public async Task<TransportInfrastructure> Configure(TransportDefinition transportDefinition, HostSettings hostSettings, QueueAddress inputQueueName, string errorQueueName, CancellationToken cancellationToken = default)
     {
@@ -22,15 +19,12 @@ class ConfigureInMemoryTransportInfrastructure : IConfigureTransportInfrastructu
 
         var transportInfrastructure = await transportDefinition.Initialize(
             hostSettings,
-            new[] { mainReceiverSettings },
-            new[] { errorQueueName },
+            [mainReceiverSettings],
+            [errorQueueName],
             cancellationToken).ConfigureAwait(false);
 
         return transportInfrastructure;
     }
 
-    public Task Cleanup(CancellationToken cancellationToken = default)
-    {
-        return Task.CompletedTask;
-    }
+    public Task Cleanup(CancellationToken cancellationToken = default) => Task.CompletedTask;
 }
