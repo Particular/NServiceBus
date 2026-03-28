@@ -11,13 +11,16 @@ class StoredOutboxMessage(string messageId, TransportOperation[] transportOperat
 
     public bool Dispatched { get; private set; }
 
-    public DateTime StoredAt { get; } = DateTime.UtcNow;
+    public DateTime StoredAt { get; internal set; } = DateTime.UtcNow;
+
+    public DateTime? DispatchedAt { get; private set; }
 
     public TransportOperation[] TransportOperations { get; private set; } = transportOperations;
 
-    public void MarkAsDispatched()
+    public void MarkAsDispatched(DateTime dispatchedAt)
     {
         Dispatched = true;
+        DispatchedAt = dispatchedAt;
         TransportOperations = [];
     }
 }

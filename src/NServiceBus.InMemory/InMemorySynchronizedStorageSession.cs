@@ -70,11 +70,11 @@ class InMemorySynchronizedStorageSession : ICompletableSynchronizedStorageSessio
         return Task.CompletedTask;
     }
 
-    public void Enlist(Action action)
+    public void Enlist(Func<Action?> operation)
     {
-        ArgumentNullException.ThrowIfNull(action);
+        ArgumentNullException.ThrowIfNull(operation);
         ArgumentNullException.ThrowIfNull(Transaction);
-        Transaction.Enlist(action);
+        Transaction.Enlist(operation);
     }
 
     bool ownsTransaction;

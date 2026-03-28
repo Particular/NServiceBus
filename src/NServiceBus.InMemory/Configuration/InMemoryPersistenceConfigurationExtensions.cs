@@ -34,4 +34,15 @@ public static class InMemoryPersistenceConfigurationExtensions
 
         persistenceExtensions.GetSettings().Set(InMemorySagaPersistence.SerializerOptionsKey, options);
     }
+
+    /// <summary>
+    /// Configures the <see cref="InMemoryStorage"/> runtime used by the in-memory persistence.
+    /// </summary>
+    public static void Storage(this PersistenceExtensions<InMemoryPersistence> persistenceExtensions, InMemoryStorage storage)
+    {
+        ArgumentNullException.ThrowIfNull(persistenceExtensions);
+        ArgumentNullException.ThrowIfNull(storage);
+
+        persistenceExtensions.GetSettings().Set(InMemoryStorageRuntime.StorageKey, storage);
+    }
 }

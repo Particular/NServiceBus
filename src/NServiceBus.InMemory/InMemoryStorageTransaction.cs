@@ -5,18 +5,38 @@ using System.Collections.Generic;
 
 class InMemoryStorageTransaction
 {
-    public void Enlist(Action action) => enlistedActions.Add(action);
+    public void Enlist(Func<Action?> operation) => enlistedOperations.Add(operation);
 
     public void Commit()
     {
-        foreach (var action in enlistedActions)
+        var rollbackActions = new Stack<Action>();
+
+        try
         {
-            action();
+            foreach (var operation in enlistedOperations)
+            {
+                if (operation() is { } rollbackAction)
+                {
+                    rollbackActions.Push(rollbackAction);
+                }
+            }
         }
-        enlistedActions.Clear();
+        catch
+        {
+            while (rollbackActions.TryPop(out var rollbackAction))
+            {
+                rollbackAction();
+            }
+
+            throw;
+        }
+        finally
+        {
+            enlistedOperations.Clear();
+        }
     }
 
-    public void Rollback() => enlistedActions.Clear();
+    public void Rollback() => enlistedOperations.Clear();
 
-    readonly List<Action> enlistedActions = [];
+    readonly List<Func<Action?>> enlistedOperations = [];
 }
