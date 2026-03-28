@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 public sealed class InMemoryBrokerOptions
@@ -23,6 +24,8 @@ public sealed class InMemoryBrokerOptions
     }
 
     internal bool TryGetQueue(string queue, [NotNullWhen(true)] out InMemoryQueueSimulationOptions? options) => queues.TryGetValue(queue, out options);
+
+    internal IEnumerable<InMemoryQueueSimulationOptions> GetQueues() => queues.Values;
 
     readonly ConcurrentDictionary<string, InMemoryQueueSimulationOptions> queues = new(StringComparer.OrdinalIgnoreCase);
 }
