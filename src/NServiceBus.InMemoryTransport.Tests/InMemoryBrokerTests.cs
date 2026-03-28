@@ -222,6 +222,58 @@ public class InMemoryBrokerTests
     }
 
     [Test]
+    public async Task Broker_delayed_pump_should_wake_when_earlier_message_is_enqueued()
+    {
+        var broker = new InMemoryBroker();
+
+        var laterEnvelope = BrokerPayloadStore.Borrow(
+            "later",
+            new byte[] { 1 },
+            new Dictionary<string, string>(),
+            "q",
+            isPublished: false,
+            sequenceNumber: 1);
+        var earlierEnvelope = BrokerPayloadStore.Borrow(
+            "earlier",
+            new byte[] { 2 },
+            new Dictionary<string, string>(),
+            "q",
+            isPublished: false,
+            sequenceNumber: 2);
+
+        broker.EnqueueDelayed(laterEnvelope, DateTimeOffset.UtcNow.AddSeconds(2));
+        await broker.StartPump(CancellationToken.None).ConfigureAwait(false);
+
+        await AllowBackgroundPumpToStart(CancellationToken.None).ConfigureAwait(false);
+
+        broker.EnqueueDelayed(earlierEnvelope, DateTimeOffset.UtcNow);
+
+        var queue = broker.GetOrCreateQueue("q");
+        using var dequeueCts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+
+        var dequeued = await queue.Dequeue(dequeueCts.Token).ConfigureAwait(false);
+
+        Assert.That(dequeued.MessageId, Is.EqualTo("earlier"));
+
+        dequeued.Dispose();
+        await broker.DisposeAsync();
+    }
+
+    [Test]
+    public async Task Broker_start_pump_should_be_safe_to_call_multiple_times()
+    {
+        var broker = new InMemoryBroker();
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+        await broker.StartPump(cts.Token).ConfigureAwait(false);
+        await broker.StartPump(cts.Token).ConfigureAwait(false);
+
+        await broker.DisposeAsync().ConfigureAwait(false);
+
+        Assert.Pass();
+    }
+
+    [Test]
     public void Broker_DelayedDelivery_TryDequeueDelayed_NotYetDue()
     {
         var broker = new InMemoryBroker();
@@ -292,6 +344,66 @@ public class InMemoryBrokerTests
 
         Assert.That(result2, Is.True);
         Assert.That(dequeued2!.MessageId, Is.EqualTo("msg-2"));
+    }
+
+    [Test]
+    public void Broker_delayed_messages_with_same_due_time_should_remain_deterministic()
+    {
+        var broker = new InMemoryBroker();
+        var dueTime = DateTimeOffset.UtcNow.AddMinutes(-1);
+
+        var envelope1 = BrokerPayloadStore.Borrow(
+            "msg-1", new byte[] { 1 }, new Dictionary<string, string>(), "q", false, 1);
+        var envelope2 = BrokerPayloadStore.Borrow(
+            "msg-2", new byte[] { 2 }, new Dictionary<string, string>(), "q", false, 2);
+        var envelope3 = BrokerPayloadStore.Borrow(
+            "msg-3", new byte[] { 3 }, new Dictionary<string, string>(), "q", false, 3);
+
+        broker.EnqueueDelayed(envelope1, dueTime);
+        broker.EnqueueDelayed(envelope2, dueTime);
+        broker.EnqueueDelayed(envelope3, dueTime);
+
+        Assert.That(broker.TryDequeueDelayed(DateTimeOffset.UtcNow, out var dequeued1), Is.True);
+        Assert.That(broker.TryDequeueDelayed(DateTimeOffset.UtcNow, out var dequeued2), Is.True);
+        Assert.That(broker.TryDequeueDelayed(DateTimeOffset.UtcNow, out var dequeued3), Is.True);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dequeued1!.MessageId, Is.EqualTo("msg-1"));
+            Assert.That(dequeued2!.MessageId, Is.EqualTo("msg-2"));
+            Assert.That(dequeued3!.MessageId, Is.EqualTo("msg-3"));
+        });
+    }
+
+    [Test]
+    public async Task Broker_stop_while_delayed_message_becomes_due_should_not_lose_or_duplicate_message()
+    {
+        var broker = new InMemoryBroker();
+        var envelope = BrokerPayloadStore.Borrow(
+            "msg-1",
+            new byte[] { 1 },
+            new Dictionary<string, string>(),
+            "q",
+            isPublished: false,
+            sequenceNumber: 1);
+
+        broker.EnqueueDelayed(envelope, DateTimeOffset.UtcNow.AddMilliseconds(20));
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(60));
+
+        await broker.StartPump(cts.Token).ConfigureAwait(false);
+
+        var cancellationObserved = await WaitForCancellation(cts.Token).WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+        Assert.That(cancellationObserved, Is.True);
+
+        Assert.That(broker.TryGetQueue("q", out var queue), Is.True);
+        Assert.That(queue!.Count, Is.EqualTo(1));
+
+        var dequeued = await queue.Dequeue(CancellationToken.None).ConfigureAwait(false);
+        Assert.That(dequeued.MessageId, Is.EqualTo("msg-1"));
+
+        dequeued.Dispose();
+        await broker.DisposeAsync().ConfigureAwait(false);
     }
 
     [Test]
@@ -397,5 +509,26 @@ public class InMemoryBrokerTests
         Assert.That(queue!.Count, Is.EqualTo(1));
 
         await constructorBroker.DisposeAsync();
+    }
+
+    static async Task AllowBackgroundPumpToStart(CancellationToken cancellationToken)
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await Task.Yield();
+        }
+    }
+
+    static Task<bool> WaitForCancellation(CancellationToken cancellationToken)
+    {
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return Task.FromResult(true);
+        }
+
+        var completionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        cancellationToken.Register(static state => ((TaskCompletionSource<bool>)state!).TrySetResult(true), completionSource);
+        return completionSource.Task;
     }
 }

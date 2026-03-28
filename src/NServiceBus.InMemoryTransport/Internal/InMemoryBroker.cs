@@ -65,7 +65,8 @@ public sealed class InMemoryBroker : IAsyncDisposable
     {
         lock (delayedMessagesLock)
         {
-            delayedMessages.Enqueue(envelope.WithDeliverAt(deliverAt), deliverAt);
+            delayedMessages.Enqueue(envelope.WithDeliverAt(deliverAt), (deliverAt, envelope.SequenceNumber));
+            SignalDelayedMessagesChanged();
         }
     }
 
@@ -73,46 +74,109 @@ public sealed class InMemoryBroker : IAsyncDisposable
     {
         lock (delayedMessagesLock)
         {
-            if (delayedMessages.Count == 0)
-            {
-                envelope = null;
-                return false;
-            }
-
-            var peeked = delayedMessages.Peek();
-            if (peeked.DeliverAt <= now)
-            {
-                _ = delayedMessages.Dequeue();
-                envelope = peeked;
-                return true;
-            }
-
-            envelope = null;
-            return false;
+            return TryDequeueDelayedCore(now, out envelope);
         }
     }
 
     public async Task StartDelayedMessagePump(CancellationToken cancellationToken = default)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (true)
         {
+            BrokerEnvelope? envelopeToDispatch;
+            Task scheduleChangedTask;
+            TimeSpan? waitDuration;
+
+            lock (delayedMessagesLock)
+            {
+                if (TryDequeueDelayedCore(DateTimeOffset.UtcNow, out envelopeToDispatch))
+                {
+                    scheduleChangedTask = Task.CompletedTask;
+                    waitDuration = null;
+                }
+                else
+                {
+                    envelopeToDispatch = null;
+                    scheduleChangedTask = delayedMessagesChanged.Task;
+                    waitDuration = GetNextWaitDuration(DateTimeOffset.UtcNow);
+                }
+            }
+
+            if (envelopeToDispatch != null)
+            {
+                var queue = GetOrCreateQueue(envelopeToDispatch.Destination);
+                await queue.Enqueue(envelopeToDispatch, CancellationToken.None).ConfigureAwait(false);
+                continue;
+            }
+
             try
             {
-                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+                await WaitForDelayedMessagesAsync(scheduleChangedTask, waitDuration, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 break;
             }
-
-            var now = DateTimeOffset.UtcNow;
-            while (TryDequeueDelayed(now, out var envelope))
-            {
-                var queue = GetOrCreateQueue(envelope!.Destination);
-                await queue.Enqueue(envelope, CancellationToken.None).ConfigureAwait(false);
-            }
         }
     }
+
+    static async Task WaitForDelayedMessagesAsync(Task scheduleChangedTask, TimeSpan? waitDuration, CancellationToken cancellationToken)
+    {
+        if (waitDuration is null)
+        {
+            await scheduleChangedTask.WaitAsync(cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        if (waitDuration <= TimeSpan.Zero)
+        {
+            return;
+        }
+
+        var delayTask = Task.Delay(waitDuration.Value, cancellationToken);
+        var completedTask = await Task.WhenAny(scheduleChangedTask, delayTask).ConfigureAwait(false);
+        await completedTask.ConfigureAwait(false);
+    }
+
+    TimeSpan? GetNextWaitDuration(DateTimeOffset now)
+    {
+        if (delayedMessages.Count == 0)
+        {
+            return null;
+        }
+
+        var nextMessage = delayedMessages.Peek();
+        var deliverAt = nextMessage.DeliverAt ?? now;
+        return deliverAt - now;
+    }
+
+    bool TryDequeueDelayedCore(DateTimeOffset now, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out BrokerEnvelope? envelope)
+    {
+        if (delayedMessages.Count == 0)
+        {
+            envelope = null;
+            return false;
+        }
+
+        var peeked = delayedMessages.Peek();
+        if (peeked.DeliverAt <= now)
+        {
+            _ = delayedMessages.Dequeue();
+            envelope = peeked;
+            return true;
+        }
+
+        envelope = null;
+        return false;
+    }
+
+    void SignalDelayedMessagesChanged()
+    {
+        delayedMessagesChanged.TrySetResult();
+        delayedMessagesChanged = CreateDelayedMessagesChangedSignal();
+    }
+
+    static TaskCompletionSource CreateDelayedMessagesChangedSignal() =>
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public async ValueTask DisposeAsync()
     {
@@ -136,10 +200,11 @@ public sealed class InMemoryBroker : IAsyncDisposable
 
     readonly ConcurrentDictionary<string, InMemoryChannel> queues = new();
     readonly ConcurrentDictionary<string, List<string>> subscriptions = new();
-    readonly PriorityQueue<BrokerEnvelope, DateTimeOffset> delayedMessages = new();
+    readonly PriorityQueue<BrokerEnvelope, (DateTimeOffset DeliverAt, long SequenceNumber)> delayedMessages = new();
     readonly Lock delayedMessagesLock = new();
     long sequenceNumber;
     int pumpStarted;
     CancellationTokenSource delayedPumpCancelSource = new();
     Task? delayedPumpTask;
+    TaskCompletionSource delayedMessagesChanged = CreateDelayedMessagesChangedSignal();
 }
