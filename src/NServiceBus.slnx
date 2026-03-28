@@ -17,10 +17,12 @@
     <Project Path="NServiceBus.Core.Tests/NServiceBus.Core.Tests.csproj" />
     <Project Path="NServiceBus.InMemory.AcceptanceTests/NServiceBus.InMemory.AcceptanceTests.csproj" />
     <Project Path="NServiceBus.InMemory.TransportTests/NServiceBus.InMemory.TransportTests.csproj" />
+    <Project Path="NServiceBus.InMemoryPersistence.Tests/NServiceBus.InMemoryPersistence.Tests.csproj" />
     <Project Path="NServiceBus.Learning.AcceptanceTests/NServiceBus.Learning.AcceptanceTests.csproj" />
     <Project Path="NServiceBus.PersistenceTests/NServiceBus.PersistenceTests.csproj" />
     <Project Path="NServiceBus.TransportTests/NServiceBus.TransportTests.csproj" />
   </Folder>
   <Project Path="NServiceBus.Core/NServiceBus.Core.csproj" />
+  <Project Path="NServiceBus.InMemoryPersistence/NServiceBus.InMemoryPersistence.csproj" />
   <Project Path="NServiceBus.InMemoryTransport/NServiceBus.InMemoryTransport.csproj" />
 </Solution>
