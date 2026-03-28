@@ -79,7 +79,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
         }
     }
 
-    async Task StartDelayedMessagePump(CancellationToken cancellationToken = default)
+    async Task StartDelayedMessagePump(CancellationToken cancellationToken)
     {
         while (true)
         {
