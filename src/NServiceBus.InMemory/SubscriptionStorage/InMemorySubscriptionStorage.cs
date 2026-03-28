@@ -3,7 +3,6 @@ namespace NServiceBus.Persistence.InMemory.SubscriptionStorage;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -18,8 +17,8 @@ class InMemorySubscriptionStorage(InMemoryStorage storage) : ISubscriptionStorag
 
     public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
     {
-        var subscribers = storage.GetOrAdd(messageType, _ => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
-        subscribers.AddOrUpdate(subscriber.TransportAddress, _ => subscriber, (_, __) => subscriber);
+        var subscribers = storage.GetOrAdd(messageType, static _ => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
+        subscribers[subscriber.TransportAddress] = subscriber;
         return Task.CompletedTask;
     }
 
@@ -34,12 +33,22 @@ class InMemorySubscriptionStorage(InMemoryStorage storage) : ISubscriptionStorag
 
     public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default)
     {
-        var subscribers = messageTypes
-            .SelectMany(msgType => storage.TryGetValue(msgType, out var subs) ? subs.Values : [])
-            .GroupBy(s => new { s.TransportAddress, s.Endpoint })
-            .Select(g => g.First());
+        Dictionary<(string TransportAddress, string Endpoint), Subscriber> subscribers = [];
 
-        return Task.FromResult(subscribers);
+        foreach (var messageType in messageTypes)
+        {
+            if (!storage.TryGetValue(messageType, out var subscriptions))
+            {
+                continue;
+            }
+
+            foreach (var subscriber in subscriptions.Values)
+            {
+                subscribers[(subscriber.TransportAddress, subscriber.Endpoint)] = subscriber;
+            }
+        }
+
+        return Task.FromResult<IEnumerable<Subscriber>>(subscribers.Values);
     }
 
     readonly ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = storage.Subscriptions;

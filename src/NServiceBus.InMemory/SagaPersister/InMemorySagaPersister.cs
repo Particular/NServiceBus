@@ -24,39 +24,40 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
 
     public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
-        ((InMemorySynchronizedStorageSession)session).Enlist(() =>
-        {
-            var correlationId = NoCorrelationId;
-            if (correlationProperty != SagaCorrelationProperty.None)
-            {
-                correlationId = new CorrelationId(sagaData.GetType(), correlationProperty);
-                if (!byCorrelationId.TryAdd(correlationId, sagaData.Id))
-                {
-                    throw new InvalidOperationException($"The saga with the correlation id 'Name: {correlationProperty.Name} Value: {correlationProperty.Value}' already exists");
-                }
-            }
+        var correlationId = correlationProperty != SagaCorrelationProperty.None
+            ? new CorrelationId(sagaData.GetType(), correlationProperty)
+            : NoCorrelationId;
+        var entry = new SagaEntry(sagaData, correlationId, version: 1, settings.SerializerOptions);
 
-            var entry = new SagaEntry(sagaData, correlationId, version: 1, settings.SerializerOptions);
-            if (!sagas.TryAdd(sagaData.Id, entry))
+        ((InMemorySynchronizedStorageSession)session).Enlist(
+            new SaveOperationState(sagas, byCorrelationId, sagaData.Id, correlationId, entry),
+            static state =>
             {
-                if (!correlationId.Equals(NoCorrelationId))
+                if (!state.CorrelationId.Equals(NoCorrelationId)
+                    && !state.ByCorrelationId.TryAdd(state.CorrelationId, state.SagaId))
                 {
-                    byCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(correlationId, sagaData.Id));
+                    throw new InvalidOperationException($"The saga with the correlation id already exists");
                 }
 
-                throw new Exception("A saga with this identifier already exists. This should never happen as saga identifiers are meant to be unique.");
-            }
-
-            return () =>
-            {
-                sagas.TryRemove(new KeyValuePair<Guid, SagaEntry>(sagaData.Id, entry));
-
-                if (!correlationId.Equals(NoCorrelationId))
+                if (!state.Sagas.TryAdd(state.SagaId, state.Entry))
                 {
-                    byCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(correlationId, sagaData.Id));
+                    if (!state.CorrelationId.Equals(NoCorrelationId))
+                    {
+                        state.ByCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(state.CorrelationId, state.SagaId));
+                    }
+
+                    throw new Exception("A saga with this identifier already exists. This should never happen as saga identifiers are meant to be unique.");
                 }
-            };
-        });
+            },
+            static state =>
+            {
+                state.Sagas.TryRemove(new KeyValuePair<Guid, SagaEntry>(state.SagaId, state.Entry));
+
+                if (!state.CorrelationId.Equals(NoCorrelationId))
+                {
+                    state.ByCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(state.CorrelationId, state.SagaId));
+                }
+            });
 
         return Task.CompletedTask;
     }
@@ -91,49 +92,50 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
 
     public Task Update(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
-        ((InMemorySynchronizedStorageSession)session).Enlist(() =>
-        {
-            var entry = GetEntry(context, sagaData.Id);
-            var updatedEntry = entry.UpdateTo(sagaData, settings.SerializerOptions);
+        var entry = GetEntry(context, sagaData.Id);
+        var updatedEntry = entry.UpdateTo(sagaData, settings.SerializerOptions);
 
-            if (!sagas.TryUpdate(sagaData.Id, updatedEntry, entry))
+        ((InMemorySynchronizedStorageSession)session).Enlist(
+            new UpdateOperationState(sagas, sagaData.Id, entry, updatedEntry),
+            static state =>
             {
-                throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{sagaData.Id}] was modified by another process.");
-            }
-
-            return () => sagas.TryUpdate(sagaData.Id, entry, updatedEntry);
-        });
+                if (!state.Sagas.TryUpdate(state.SagaId, state.UpdatedEntry, state.Entry))
+                {
+                    throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{state.SagaId}] was modified by another process.");
+                }
+            },
+            static state => state.Sagas.TryUpdate(state.SagaId, state.Entry, state.UpdatedEntry));
 
         return Task.CompletedTask;
     }
 
     public Task Complete(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
-        ((InMemorySynchronizedStorageSession)session).Enlist(() =>
-        {
-            var entry = GetEntry(context, sagaData.Id);
+        var entry = GetEntry(context, sagaData.Id);
 
-            if (!sagas.TryRemove(new KeyValuePair<Guid, SagaEntry>(sagaData.Id, entry)))
+        ((InMemorySynchronizedStorageSession)session).Enlist(
+            new CompleteOperationState(sagas, byCorrelationId, sagaData.Id, entry),
+            static state =>
             {
-                throw new Exception("Saga can't be completed as it was updated by another process.");
-            }
-
-            // Saga removed, clean the index
-            if (!entry.CorrelationId.Equals(NoCorrelationId))
-            {
-                byCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(entry.CorrelationId, sagaData.Id));
-            }
-
-            return () =>
-            {
-                sagas.TryAdd(sagaData.Id, entry);
-
-                if (!entry.CorrelationId.Equals(NoCorrelationId))
+                if (!state.Sagas.TryRemove(new KeyValuePair<Guid, SagaEntry>(state.SagaId, state.Entry)))
                 {
-                    byCorrelationId.TryAdd(entry.CorrelationId, sagaData.Id);
+                    throw new Exception("Saga can't be completed as it was updated by another process.");
                 }
-            };
-        });
+
+                if (!state.Entry.CorrelationId.Equals(NoCorrelationId))
+                {
+                    state.ByCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(state.Entry.CorrelationId, state.SagaId));
+                }
+            },
+            static state =>
+            {
+                state.Sagas.TryAdd(state.SagaId, state.Entry);
+
+                if (!state.Entry.CorrelationId.Equals(NoCorrelationId))
+                {
+                    state.ByCorrelationId.TryAdd(state.Entry.CorrelationId, state.SagaId);
+                }
+            });
 
         return Task.CompletedTask;
     }
@@ -162,6 +164,25 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
 
     ConcurrentDictionary<Guid, SagaEntry> sagas = new();
     ConcurrentDictionary<CorrelationId, Guid> byCorrelationId = new();
+
+    readonly record struct SaveOperationState(
+        ConcurrentDictionary<Guid, SagaEntry> Sagas,
+        ConcurrentDictionary<CorrelationId, Guid> ByCorrelationId,
+        Guid SagaId,
+        CorrelationId CorrelationId,
+        SagaEntry Entry);
+
+    readonly record struct UpdateOperationState(
+        ConcurrentDictionary<Guid, SagaEntry> Sagas,
+        Guid SagaId,
+        SagaEntry Entry,
+        SagaEntry UpdatedEntry);
+
+    readonly record struct CompleteOperationState(
+        ConcurrentDictionary<Guid, SagaEntry> Sagas,
+        ConcurrentDictionary<CorrelationId, Guid> ByCorrelationId,
+        Guid SagaId,
+        SagaEntry Entry);
 
     const string ContextKey = "NServiceBus.InMemoryPersistence.Sagas";
     static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());

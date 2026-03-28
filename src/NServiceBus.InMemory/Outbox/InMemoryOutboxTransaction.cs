@@ -11,12 +11,12 @@ class InMemoryOutboxTransaction : IOutboxTransaction
 {
     public InMemoryStorageTransaction? Transaction { get; private set; } = new();
 
-    public void Enlist(Func<Action?> operation)
+    public void Enlist<TState>(TState state, Action<TState> apply, Action<TState>? rollback = null)
     {
-        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(apply);
         ArgumentNullException.ThrowIfNull(Transaction);
 
-        Transaction.Enlist(operation);
+        Transaction.Enlist(state, apply, rollback);
     }
 
     public Task Commit(CancellationToken cancellationToken = default)

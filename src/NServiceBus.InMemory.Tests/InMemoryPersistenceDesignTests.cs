@@ -41,16 +41,39 @@ public class InMemoryPersistenceDesignTests
         var transaction = new InMemoryStorageTransaction();
         var committedValues = new List<string>();
 
-        transaction.Enlist(() =>
-        {
-            committedValues.Add("first");
-            return () => committedValues.RemoveAt(committedValues.Count - 1);
-        });
+        transaction.Enlist(
+            new TransactionState(committedValues, "first"),
+            static state => state.Values.Add(state.Value),
+            static state => state.Values.RemoveAt(state.Values.Count - 1));
 
-        transaction.Enlist(() => throw new InvalidOperationException("boom"));
+        transaction.Enlist(
+            new ThrowingTransactionState(new InvalidOperationException("boom")),
+            static state => throw state.Exception,
+            static _ => { });
 
         Assert.Throws<InvalidOperationException>(() => transaction.Commit());
         Assert.That(committedValues, Is.Empty);
+    }
+
+    [Test]
+    public void Transaction_commit_should_apply_state_based_operations_in_order()
+    {
+        var transaction = new InMemoryStorageTransaction();
+        var committedValues = new List<string>();
+
+        transaction.Enlist(
+            new TransactionState(committedValues, "first"),
+            static state => state.Values.Add(state.Value),
+            static state => state.Values.RemoveAt(state.Values.Count - 1));
+
+        transaction.Enlist(
+            new TransactionState(committedValues, "second"),
+            static state => state.Values.Add(state.Value),
+            static state => state.Values.RemoveAt(state.Values.Count - 1));
+
+        transaction.Commit();
+
+        Assert.That(committedValues, Is.EqualTo(ExpectedCommittedValues));
     }
 
     [Test]
@@ -81,4 +104,10 @@ public class InMemoryPersistenceDesignTests
         using var defaultProvider = defaultServices.BuildServiceProvider();
         Assert.That(defaultProvider.GetRequiredService<InMemoryStorage>(), Is.SameAs(InMemoryStorageRuntime.SharedStorage));
     }
+
+    readonly record struct TransactionState(List<string> Values, string Value);
+
+    readonly record struct ThrowingTransactionState(Exception Exception);
+
+    static readonly string[] ExpectedCommittedValues = ["first", "second"];
 }

@@ -98,7 +98,9 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
 
     Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction, CancellationToken cancellationToken)
     {
-        return Task.WhenAll(operations.Select(operation =>
+        List<Task> tasks = [];
+
+        foreach (var operation in operations)
         {
             var message = operation.Message;
             var messageId = Guid.NewGuid().ToString();
@@ -118,18 +120,20 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
 
             if (TryEnlistToReceiveTransaction(transaction, envelope, operation.RequiredDispatchConsistency))
             {
-                return Task.CompletedTask;
+                continue;
             }
 
             if (deliverAt.HasValue)
             {
                 broker.EnqueueDelayed(envelope, deliverAt.Value);
-                return Task.CompletedTask;
+                continue;
             }
 
             var queue = broker.GetOrCreateQueue(operation.Destination);
-            return queue.Enqueue(envelope, cancellationToken).AsTask();
-        }));
+            tasks.Add(queue.Enqueue(envelope, cancellationToken).AsTask());
+        }
+
+        return Task.WhenAll(tasks);
     }
 
     static DateTimeOffset? GetDeliverAt(DispatchProperties properties)
