@@ -262,15 +262,14 @@ public class InMemoryBrokerTests
     [Test]
     public async Task Broker_start_pump_should_be_safe_to_call_multiple_times()
     {
-        var broker = new InMemoryBroker();
+        await using var broker = new InMemoryBroker();
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-        await broker.StartPump(cts.Token).ConfigureAwait(false);
-        await broker.StartPump(cts.Token).ConfigureAwait(false);
-
-        await broker.DisposeAsync().ConfigureAwait(false);
-
-        Assert.Pass();
+        Assert.DoesNotThrowAsync(async () =>
+        {
+            await broker.StartPump(cts.Token).ConfigureAwait(false);
+            await broker.StartPump(cts.Token).ConfigureAwait(false);
+        });
     }
 
     [Test]
