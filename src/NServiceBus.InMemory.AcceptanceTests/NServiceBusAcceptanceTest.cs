@@ -8,14 +8,17 @@ using NUnit.Framework;
 public partial class NServiceBusAcceptanceTest
 {
     static readonly AsyncLocal<InMemoryBroker> currentBroker = new();
+    static InMemoryBroker sharedBroker;
 
     public static InMemoryBroker CurrentBroker =>
-        currentBroker.Value ?? throw new InvalidOperationException("No InMemoryBroker available for the current test.");
+        currentBroker.Value ?? sharedBroker ?? throw new InvalidOperationException("No InMemoryBroker available for the current test.");
 
     [SetUp]
     public void InMemoryTransportSetUp()
     {
-        currentBroker.Value = new InMemoryBroker();
+        var broker = new InMemoryBroker();
+        currentBroker.Value = broker;
+        sharedBroker = broker;
     }
 
     [TearDown]
@@ -24,6 +27,10 @@ public partial class NServiceBusAcceptanceTest
         if (currentBroker.Value is { } broker)
         {
             currentBroker.Value = null;
+            if (ReferenceEquals(sharedBroker, broker))
+            {
+                sharedBroker = null;
+            }
             await broker.DisposeAsync();
         }
     }

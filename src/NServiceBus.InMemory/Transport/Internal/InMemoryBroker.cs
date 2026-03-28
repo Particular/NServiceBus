@@ -8,18 +8,17 @@ using System.Threading.Tasks;
 
 public sealed class InMemoryBroker : IAsyncDisposable
 {
-    public InMemoryChannel GetOrCreateQueue(string address)
+    public InMemoryBroker(InMemoryBrokerOptions? options = null)
     {
-        return queues.GetOrAdd(address, _ => new InMemoryChannel());
+        this.options = options ?? new InMemoryBrokerOptions();
+        timeProvider = this.options.TimeProvider ?? TimeProvider.System;
     }
 
-    public bool TryGetQueue(string address, out InMemoryChannel? queue)
-    {
-        return queues.TryGetValue(address, out queue);
-    }
+    public InMemoryChannel GetOrCreateQueue(string address) => queues.GetOrAdd(address, _ => new InMemoryChannel());
 
-    public void Subscribe(string publisherAddress, string topic)
-    {
+    public bool TryGetQueue(string address, out InMemoryChannel? queue) => queues.TryGetValue(address, out queue);
+
+    public void Subscribe(string publisherAddress, string topic) =>
         subscriptions.AddOrUpdate(
             topic,
             _ => [publisherAddress],
@@ -34,7 +33,6 @@ public sealed class InMemoryBroker : IAsyncDisposable
                 }
                 return list;
             });
-    }
 
     public void Unsubscribe(string publisherAddress, string topic)
     {
@@ -79,6 +77,10 @@ public sealed class InMemoryBroker : IAsyncDisposable
         }
     }
 
+    internal Task SimulateSendAsync(string destination, CancellationToken cancellationToken = default) => ApplySimulationAsync(InMemorySimulationOperation.Send, destination, cancellationToken);
+
+    internal Task SimulateReceiveAsync(string destination, CancellationToken cancellationToken = default) => ApplySimulationAsync(InMemorySimulationOperation.Receive, destination, cancellationToken);
+
     async Task StartDelayedMessagePump(CancellationToken cancellationToken)
     {
         while (true)
@@ -89,7 +91,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
 
             lock (delayedMessagesLock)
             {
-                if (TryDequeueDelayedCore(DateTimeOffset.UtcNow, out envelopeToDispatch))
+                if (TryDequeueDelayedCore(GetUtcNow(), out envelopeToDispatch))
                 {
                     scheduleChangedTask = Task.CompletedTask;
                     waitDuration = null;
@@ -98,12 +100,22 @@ public sealed class InMemoryBroker : IAsyncDisposable
                 {
                     envelopeToDispatch = null;
                     scheduleChangedTask = delayedMessagesChanged.Task;
-                    waitDuration = GetNextWaitDuration(DateTimeOffset.UtcNow);
+                    waitDuration = GetNextWaitDuration(GetUtcNow());
                 }
             }
 
             if (envelopeToDispatch != null)
             {
+                try
+                {
+                    await ApplySimulationAsync(InMemorySimulationOperation.DelayedDelivery, envelopeToDispatch.Destination, cancellationToken).ConfigureAwait(false);
+                }
+                catch (InMemorySimulationException ex)
+                {
+                    EnqueueDelayed(envelopeToDispatch, GetUtcNow() + ex.RetryAfter);
+                    continue;
+                }
+
                 var queue = GetOrCreateQueue(envelopeToDispatch.Destination);
                 await queue.Enqueue(envelopeToDispatch, CancellationToken.None).ConfigureAwait(false);
                 continue;
@@ -120,7 +132,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
         }
     }
 
-    static async Task WaitForDelayedMessagesAsync(Task scheduleChangedTask, TimeSpan? waitDuration, CancellationToken cancellationToken)
+    async Task WaitForDelayedMessagesAsync(Task scheduleChangedTask, TimeSpan? waitDuration, CancellationToken cancellationToken)
     {
         if (waitDuration is null)
         {
@@ -133,9 +145,116 @@ public sealed class InMemoryBroker : IAsyncDisposable
             return;
         }
 
-        var delayTask = Task.Delay(waitDuration.Value, cancellationToken);
+        var delayTask = Task.Delay(waitDuration.Value, timeProvider, cancellationToken);
         var completedTask = await Task.WhenAny(scheduleChangedTask, delayTask).ConfigureAwait(false);
         await completedTask.ConfigureAwait(false);
+    }
+
+    DateTimeOffset GetUtcNow() => timeProvider.GetUtcNow();
+
+    async Task ApplySimulationAsync(InMemorySimulationOperation operation, string queue, CancellationToken cancellationToken)
+    {
+        var resolved = ResolveSimulation(operation, queue);
+        if (resolved.RateLimit is null)
+        {
+            return;
+        }
+
+        while (true)
+        {
+            var now = resolved.TimeProvider.GetUtcNow();
+            var acquired = TryAcquirePermit(operation, queue, resolved.RateLimit, now, out var retryAfter);
+            if (acquired)
+            {
+                return;
+            }
+
+            if (resolved.Mode == InMemorySimulationMode.Reject)
+            {
+                throw new InMemorySimulationException($"In-memory {operation} simulation rejected access to queue '{queue}'.", retryAfter, resolved.TimeProvider);
+            }
+
+            await Task.Delay(retryAfter, resolved.TimeProvider, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    ResolvedSimulationSettings ResolveSimulation(InMemorySimulationOperation operation, string queue)
+    {
+        options.TryGetQueue(queue, out var queueOptions);
+
+        var brokerLevel = operation switch
+        {
+            InMemorySimulationOperation.Send => options.Send,
+            InMemorySimulationOperation.Receive => options.Receive,
+            InMemorySimulationOperation.DelayedDelivery => options.DelayedDelivery,
+            _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
+        };
+
+        var queueLevel = queueOptions is null
+            ? null
+            : operation switch
+            {
+                InMemorySimulationOperation.Send => queueOptions.Send,
+                InMemorySimulationOperation.Receive => queueOptions.Receive,
+                InMemorySimulationOperation.DelayedDelivery => queueOptions.DelayedDelivery,
+                _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
+            };
+
+        var effectiveTimeProvider = queueLevel?.TimeProvider
+            ?? queueOptions?.TimeProvider
+            ?? brokerLevel.TimeProvider
+            ?? options.TimeProvider
+            ?? TimeProvider.System;
+
+        var effectiveRateLimit = queueLevel?.RateLimit
+            ?? queueOptions?.Default.RateLimit
+            ?? brokerLevel.RateLimit
+            ?? options.Default.RateLimit;
+
+        var effectiveMode = queueLevel?.Mode
+            ?? queueOptions?.Default.Mode
+            ?? brokerLevel.Mode
+            ?? options.Default.Mode
+            ?? (effectiveRateLimit is null ? null : InMemorySimulationMode.Delay);
+
+        return new ResolvedSimulationSettings(effectiveTimeProvider, effectiveMode, effectiveRateLimit);
+    }
+
+    bool TryAcquirePermit(InMemorySimulationOperation operation, string queue, InMemoryRateLimitOptions rateLimit, DateTimeOffset now, out TimeSpan retryAfter)
+    {
+        var state = simulationState.GetOrAdd((operation, queue), static (_, now) => new WindowState(now), now);
+
+        lock (state)
+        {
+            if (rateLimit.PermitLimit <= 0)
+            {
+                retryAfter = rateLimit.Window;
+                return false;
+            }
+
+            if (rateLimit.Window <= TimeSpan.Zero)
+            {
+                retryAfter = TimeSpan.Zero;
+                return true;
+            }
+
+            if (now - state.WindowStart >= rateLimit.Window)
+            {
+                state.WindowStart = now;
+                state.PermitsUsed = 0;
+            }
+
+            if (state.PermitsUsed < rateLimit.PermitLimit)
+            {
+                state.PermitsUsed++;
+                retryAfter = TimeSpan.Zero;
+                return true;
+            }
+
+            var nextPermitAt = state.WindowStart + rateLimit.Window;
+            retryAfter = nextPermitAt - now;
+            return false;
+        }
     }
 
     TimeSpan? GetNextWaitDuration(DateTimeOffset now)
@@ -209,4 +328,23 @@ public sealed class InMemoryBroker : IAsyncDisposable
     CancellationTokenSource delayedPumpCancelSource = new();
     Task? delayedPumpTask;
     TaskCompletionSource delayedMessagesChanged = CreateDelayedMessagesChangedSignal();
+    readonly TimeProvider timeProvider;
+    readonly InMemoryBrokerOptions options;
+    readonly ConcurrentDictionary<(InMemorySimulationOperation Operation, string Queue), WindowState> simulationState = new();
+
+    sealed class WindowState(DateTimeOffset windowStart)
+    {
+        public DateTimeOffset WindowStart { get; set; } = windowStart;
+
+        public int PermitsUsed { get; set; }
+    }
+
+    readonly record struct ResolvedSimulationSettings(TimeProvider TimeProvider, InMemorySimulationMode? Mode, InMemoryRateLimitOptions? RateLimit);
+
+    enum InMemorySimulationOperation
+    {
+        Send,
+        Receive,
+        DelayedDelivery
+    }
 }

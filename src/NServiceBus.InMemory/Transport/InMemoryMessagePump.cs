@@ -62,6 +62,7 @@ class InMemoryMessagePump(
         {
             try
             {
+                await broker.SimulateReceiveAsync(ReceiveAddress, cancellationToken).ConfigureAwait(false);
                 envelope = await queue.Dequeue(cancellationToken).ConfigureAwait(false);
 
                 if (IsExpired(envelope))
@@ -77,6 +78,17 @@ class InMemoryMessagePump(
 
                 isProcessing = false;
                 envelope = null;
+            }
+            catch (InMemorySimulationException ex)
+            {
+                if (ex.RetryAfter > TimeSpan.Zero)
+                {
+                    await Task.Delay(ex.RetryAfter, ex.TimeProvider, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    await Task.Yield();
+                }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -241,5 +253,5 @@ class InMemoryMessagePump(
     PushRuntimeSettings pushRuntimeSettings = null!;
     CancellationTokenSource? pumpCts;
     CancellationTokenSource? messageProcessingCts;
-    List<Task> pumpTasks = [];
+    readonly List<Task> pumpTasks = [];
 }
