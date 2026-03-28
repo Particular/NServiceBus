@@ -46,13 +46,15 @@ public class When_simulating_queue_override_precedence : NServiceBusAcceptanceTe
             {
                 await session.SendLocal(new QueueOverrideMessage());
                 await session.SendLocal(new QueueOverrideMessage());
+                await session.SendLocal(new QueueOverrideMessage());
             }))
             .Run();
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.QueueOverrideDeliveredCount, Is.EqualTo(2));
+            Assert.That(result.QueueOverrideDeliveredCount, Is.EqualTo(3));
             Assert.That(result.SecondQueueOverrideDeliveredAt - result.FirstQueueOverrideDeliveredAt, Is.EqualTo(TimeSpan.Zero));
+            Assert.That(result.ThirdQueueOverrideDeliveredAt - result.SecondQueueOverrideDeliveredAt, Is.EqualTo(TimeSpan.FromSeconds(30)));
         }
     }
 
@@ -64,7 +66,9 @@ public class When_simulating_queue_override_precedence : NServiceBusAcceptanceTe
 
         public DateTimeOffset SecondQueueOverrideDeliveredAt { get; set; }
 
-        public void MaybeCompleted() => MarkAsCompleted(QueueOverrideDeliveredCount >= 2);
+        public DateTimeOffset ThirdQueueOverrideDeliveredAt { get; set; }
+
+        public void MaybeCompleted() => MarkAsCompleted(QueueOverrideDeliveredCount >= 3);
     }
 
     public class QueueOverrideEndpoint : EndpointConfigurationBuilder
@@ -90,6 +94,11 @@ public class When_simulating_queue_override_precedence : NServiceBusAcceptanceTe
                 else if (count == 2)
                 {
                     testContext.SecondQueueOverrideDeliveredAt = simulatedTime.GetUtcNow();
+                    simulatedTime.Advance(TimeSpan.FromSeconds(30));
+                }
+                else if (count == 3)
+                {
+                    testContext.ThirdQueueOverrideDeliveredAt = simulatedTime.GetUtcNow();
                 }
 
                 testContext.MaybeCompleted();
