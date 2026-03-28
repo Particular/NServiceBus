@@ -2,19 +2,16 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Transport;
 
 class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
 {
-    public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default)
-    {
-        return Task.WhenAll(
+    public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken = default) =>
+        Task.WhenAll(
             DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction, cancellationToken),
             DispatchMulticast(outgoingMessages.MulticastTransportOperations, transaction, cancellationToken));
-    }
 
     async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction, CancellationToken cancellationToken)
     {
@@ -30,8 +27,9 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
 
             foreach (var subscriber in subscribers)
             {
-                var deliverAt = GetDeliverAt(transportOperation.Properties);
-                var discardAfter = GetDiscardAfter(transportOperation.Properties);
+                var now = broker.GetCurrentTime();
+                var deliverAt = GetDeliverAt(transportOperation.Properties, now);
+                var discardAfter = GetDiscardAfter(transportOperation.Properties, now);
 
                 var envelope = BrokerPayloadStore.Borrow(
                     messageId,
@@ -107,8 +105,9 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
             var message = operation.Message;
             var messageId = Guid.NewGuid().ToString();
             var sequenceNumber = broker.GetNextSequenceNumber();
-            var deliverAt = GetDeliverAt(operation.Properties);
-            var discardAfter = GetDiscardAfter(operation.Properties);
+            var now = broker.GetCurrentTime();
+            var deliverAt = GetDeliverAt(operation.Properties, now);
+            var discardAfter = GetDiscardAfter(operation.Properties, now);
 
             var envelope = BrokerPayloadStore.Borrow(
                 messageId,
@@ -140,25 +139,22 @@ class InMemoryDispatcher(InMemoryBroker broker) : IMessageDispatcher
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
-    static DateTimeOffset? GetDeliverAt(DispatchProperties properties)
+    static DateTimeOffset? GetDeliverAt(DispatchProperties properties, DateTimeOffset now)
     {
-        if (properties.DoNotDeliverBefore != null)
+        if (properties.DoNotDeliverBefore is not null)
         {
             return properties.DoNotDeliverBefore.At.ToUniversalTime();
         }
-        if (properties.DelayDeliveryWith != null)
-        {
-            return DateTimeOffset.UtcNow + properties.DelayDeliveryWith.Delay;
-        }
-        return null;
+
+        return now + properties.DelayDeliveryWith?.Delay;
     }
 
-    static DateTimeOffset? GetDiscardAfter(DispatchProperties properties)
+    static DateTimeOffset? GetDiscardAfter(DispatchProperties properties, DateTimeOffset now)
     {
         var ttbr = properties.DiscardIfNotReceivedBefore;
         if (ttbr != null && ttbr.MaxTime < TimeSpan.MaxValue)
         {
-            return DateTimeOffset.UtcNow + ttbr.MaxTime;
+            return now + ttbr.MaxTime;
         }
         return null;
     }
