@@ -49,7 +49,13 @@ class InMemorySynchronizedStorageSession : ICompletableSynchronizedStorageSessio
     public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
         CancellationToken cancellationToken = default)
     {
-        // For ReceiveOnly with transport seam - stub for now
+        if (transportTransaction.TryGet<InMemoryStorageTransaction>(out var storageTransaction))
+        {
+            Transaction = storageTransaction;
+            ownsTransaction = false;
+            return new ValueTask<bool>(true);
+        }
+
         return new ValueTask<bool>(false);
     }
 

@@ -2,12 +2,15 @@ namespace NServiceBus;
 
 using System.Collections.Generic;
 using System.Threading;
+using Persistence.InMemory;
 
 class InMemoryReceiveTransaction : IInMemoryReceiveTransaction
 {
     readonly List<BrokerEnvelope> pendingEnvelopes = [];
     readonly Lock lockObj = new();
     bool committed;
+
+    public InMemoryStorageTransaction StorageTransaction { get; } = new();
 
     public void Enlist(BrokerEnvelope envelope)
     {
@@ -34,6 +37,7 @@ class InMemoryReceiveTransaction : IInMemoryReceiveTransaction
     {
         lock (lockObj)
         {
+            StorageTransaction.Commit();
             committed = true;
         }
     }
@@ -42,6 +46,7 @@ class InMemoryReceiveTransaction : IInMemoryReceiveTransaction
     {
         lock (lockObj)
         {
+            StorageTransaction.Rollback();
             pendingEnvelopes.Clear();
             committed = false;
         }
