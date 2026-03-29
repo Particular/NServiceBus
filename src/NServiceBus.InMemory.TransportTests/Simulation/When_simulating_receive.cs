@@ -154,3 +154,120 @@ public class When_receiving_without_simulation
         await receiver.StopReceive();
     }
 }
+
+[TestFixture]
+public class When_simulating_receive_delay_with_queue_time_provider_override
+{
+    [Test]
+    public async Task Should_use_queue_operation_time_provider_over_broker_time_provider()
+    {
+        var brokerTime = new FakeTimeProvider(new DateTimeOffset(2026, 03, 28, 12, 0, 0, TimeSpan.Zero));
+        var queueTime = new FakeTimeProvider(new DateTimeOffset(2026, 03, 28, 12, 0, 0, TimeSpan.Zero));
+        var options = new InMemoryBrokerOptions
+        {
+            TimeProvider = brokerTime,
+            Receive = { RateLimit = new InMemoryRateLimitOptions { PermitLimit = 1, Window = TimeSpan.FromSeconds(5) } }
+        };
+        options.ForQueue("input").Receive.TimeProvider = queueTime;
+
+        await using var broker = new InMemoryBroker(options);
+        var receiver = await CreateReceiver(broker);
+        var firstReceived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondReceived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var receivedCount = 0;
+
+        await receiver.Initialize(
+            new PushRuntimeSettings(maxConcurrency: 1),
+            (_, _) =>
+            {
+                var currentCount = Interlocked.Increment(ref receivedCount);
+                if (currentCount == 1)
+                {
+                    firstReceived.TrySetResult();
+                }
+                else if (currentCount == 2)
+                {
+                    secondReceived.TrySetResult();
+                }
+
+                return Task.CompletedTask;
+            },
+            (_, _) => Task.FromResult(ErrorHandleResult.Handled));
+
+        var queue = broker.GetOrCreateQueue("input");
+        await queue.Enqueue(CreateEnvelope("msg-1", "input", 1), CancellationToken.None);
+        await queue.Enqueue(CreateEnvelope("msg-2", "input", 2), CancellationToken.None);
+        await receiver.StartReceive();
+
+        await firstReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        brokerTime.Advance(TimeSpan.FromSeconds(5));
+        await AsyncSpinWait.Until(() => secondReceived.Task.IsCompleted, maxIterations: 20);
+        Assert.That(secondReceived.Task.IsCompleted, Is.False);
+
+        queueTime.Advance(TimeSpan.FromSeconds(5));
+        await secondReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.That(Volatile.Read(ref receivedCount), Is.EqualTo(2));
+
+        await receiver.StopReceive();
+    }
+}
+
+[TestFixture]
+public class When_simulating_receive_reject
+{
+    [Test]
+    public async Task Should_retry_when_simulated_time_advances()
+    {
+        var fakeTime = new FakeTimeProvider(new DateTimeOffset(2026, 03, 28, 12, 0, 0, TimeSpan.Zero));
+        await using var broker = new InMemoryBroker(new InMemoryBrokerOptions
+        {
+            TimeProvider = fakeTime,
+            Receive =
+            {
+                Mode = InMemorySimulationMode.Reject,
+                RateLimit = new InMemoryRateLimitOptions { PermitLimit = 1, Window = TimeSpan.FromSeconds(5) }
+            }
+        });
+
+        var receiver = await CreateReceiver(broker);
+        var firstReceived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondReceived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var receivedCount = 0;
+
+        await receiver.Initialize(
+            new PushRuntimeSettings(maxConcurrency: 1),
+            (_, _) =>
+            {
+                var currentCount = Interlocked.Increment(ref receivedCount);
+                if (currentCount == 1)
+                {
+                    firstReceived.TrySetResult();
+                }
+                else if (currentCount == 2)
+                {
+                    secondReceived.TrySetResult();
+                }
+
+                return Task.CompletedTask;
+            },
+            (_, _) => Task.FromResult(ErrorHandleResult.Handled));
+
+        var queue = broker.GetOrCreateQueue("input");
+        await queue.Enqueue(CreateEnvelope("msg-1", "input", 1), CancellationToken.None);
+        await queue.Enqueue(CreateEnvelope("msg-2", "input", 2), CancellationToken.None);
+        await receiver.StartReceive();
+
+        await firstReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.That(Volatile.Read(ref receivedCount), Is.EqualTo(1));
+
+        // Wait for the pump to attempt the second message and enter the retry delay
+        await Task.Delay(TimeSpan.FromMilliseconds(100));
+
+        fakeTime.Advance(TimeSpan.FromSeconds(5));
+        await secondReceived.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.That(Volatile.Read(ref receivedCount), Is.EqualTo(2));
+
+        await receiver.StopReceive();
+    }
+}

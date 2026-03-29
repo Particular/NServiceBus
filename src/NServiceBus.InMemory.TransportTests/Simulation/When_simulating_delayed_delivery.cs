@@ -96,3 +96,37 @@ public class When_simulating_delayed_delivery_reject
         Assert.That(queue.Count, Is.EqualTo(2));
     }
 }
+
+[TestFixture]
+public class When_simulating_delayed_delivery_delay_with_queue_time_provider_override
+{
+    [Test]
+    public async Task Should_use_queue_operation_time_provider_over_broker_time_provider()
+    {
+        var brokerTime = new FakeTimeProvider(new DateTimeOffset(2026, 03, 28, 12, 0, 0, TimeSpan.Zero));
+        var queueTime = new FakeTimeProvider(new DateTimeOffset(2026, 03, 28, 12, 0, 0, TimeSpan.Zero));
+        var options = new InMemoryBrokerOptions
+        {
+            TimeProvider = brokerTime,
+            DelayedDelivery = { RateLimit = new InMemoryRateLimitOptions { PermitLimit = 1, Window = TimeSpan.FromSeconds(5) } }
+        };
+        options.ForQueue("queue").DelayedDelivery.TimeProvider = queueTime;
+
+        await using var broker = new InMemoryBroker(options);
+        broker.EnqueueDelayed(CreateEnvelope("msg-1", "queue", 1), brokerTime.GetUtcNow());
+        broker.EnqueueDelayed(CreateEnvelope("msg-2", "queue", 2), brokerTime.GetUtcNow());
+        await broker.StartPump();
+
+        var queue = broker.GetOrCreateQueue("queue");
+        await AsyncSpinWait.Until(() => queue.Count > 0, maxIterations: 100);
+        Assert.That(queue.Count, Is.EqualTo(1));
+
+        brokerTime.Advance(TimeSpan.FromSeconds(5));
+        await AsyncSpinWait.Until(() => queue.Count > 1, maxIterations: 20);
+        Assert.That(queue.Count, Is.EqualTo(1));
+
+        queueTime.Advance(TimeSpan.FromSeconds(5));
+        await AsyncSpinWait.Until(() => queue.Count >= 2, maxIterations: 100);
+        Assert.That(queue.Count, Is.EqualTo(2));
+    }
+}
