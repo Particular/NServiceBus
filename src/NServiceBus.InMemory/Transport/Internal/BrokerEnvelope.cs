@@ -32,11 +32,5 @@ public sealed record BrokerEnvelope(
             DeliveryAttempt = DeliveryAttempt ?? this.DeliveryAttempt
         };
 
-    public void Dispose()
-    {
-        if (Buffer != null && Pool != null)
-        {
-            Pool.Return(Buffer, clearArray: true);
-        }
-    }
+    public void Dispose() => Pool.Return(Buffer, clearArray: true);
 }
