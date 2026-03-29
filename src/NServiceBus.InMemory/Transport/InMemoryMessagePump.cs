@@ -113,6 +113,7 @@ class InMemoryMessagePump(
         {
             receiveTransaction = new InMemoryReceiveTransaction();
             transportTransaction.Set<IInMemoryReceiveTransaction>(receiveTransaction);
+            transportTransaction.Set(receiveTransaction.StorageTransaction);
         }
 
         var contextBag = new ContextBag();
