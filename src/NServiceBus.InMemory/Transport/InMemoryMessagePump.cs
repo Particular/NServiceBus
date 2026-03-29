@@ -87,6 +87,7 @@ class InMemoryMessagePump(
                 }
                 else
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     await Task.Yield();
                 }
             }
