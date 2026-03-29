@@ -3,6 +3,7 @@ namespace NServiceBus;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.RateLimiting;
@@ -71,7 +72,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
         }
     }
 
-    public bool TryDequeueDelayed(DateTimeOffset now, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out BrokerEnvelope? envelope)
+    public bool TryDequeueDelayed(DateTimeOffset now, [NotNullWhen(true)] out BrokerEnvelope? envelope)
     {
         lock (delayedMessagesLock)
         {
@@ -114,7 +115,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
                 }
                 catch (InMemorySimulationException ex)
                 {
-                    EnqueueDelayed(envelopeToDispatch, GetUtcNow() + ex.RetryAfter);
+                    EnqueueDelayed(envelopeToDispatch, ex.TimeProvider.GetUtcNow() + ex.RetryAfter);
                     continue;
                 }
 
