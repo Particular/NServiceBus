@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Particular.Obsoletes;
 
 /// <summary>
@@ -35,6 +36,7 @@ public static class Endpoint
         ArgumentNullException.ThrowIfNull(configuration);
         var serviceCollection = new ServiceCollection();
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
+        serviceCollection.TryAddSingleton<IMessageSession>(endpointCreator.MessageSession);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         var host = new InternallyManagedContainerHost(endpointCreator, serviceProvider);
