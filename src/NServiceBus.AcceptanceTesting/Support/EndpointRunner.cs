@@ -12,7 +12,7 @@ using Transport;
 
 public class EndpointRunner(
     Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback,
-    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback,
+    Func<object, IServiceProvider, CancellationToken, Task<IStoppableEndpointInstance>> startCallback,
     bool doNotFailOnErrorMessages,
     int instanceIndex)
     : ComponentRunner
@@ -20,7 +20,7 @@ public class EndpointRunner(
     static readonly ILog Logger = LogManager.GetLogger<EndpointRunner>();
     EndpointBehavior? behavior;
     object? startable;
-    IEndpointInstance? endpointInstance;
+    IStoppableEndpointInstance? endpointInstance;
     EndpointCustomizationConfiguration? configuration;
     ScenarioContext? scenarioContext;
     KeyedServiceCollectionAdapter? services;
@@ -163,6 +163,7 @@ public class EndpointRunner(
         ArgumentNullException.ThrowIfNull(scenarioContext);
 
         var executedWhens = new HashSet<Guid>();
+        var messageSession = endpointInstance.MessageSession;
 
         while (true)
         {
@@ -180,7 +181,7 @@ public class EndpointRunner(
                     continue;
                 }
 
-                if (await when.ExecuteAction(scenarioContext, endpointInstance).ConfigureAwait(false))
+                if (await when.ExecuteAction(scenarioContext, messageSession).ConfigureAwait(false))
                 {
                     executedWhens.Add(when.Id);
                 }

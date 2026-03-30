@@ -1,8 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this entire test can be deleted because there is no internally managed mode anymore.
+
+namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,10 +22,12 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
                 b.ToCreateInstance(
-#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this entire test can be deleted because there is no internally managed mode anymore.
                     (_, configuration) => Endpoint.Create(configuration),
-                    (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
-#pragma warning restore CS0618 // Type or member is obsolete
+                    async (startableEndpoint, _, ct) =>
+                    {
+                        var endpoint = await startableEndpoint.Start(ct);
+                        return new StoppableEndpoint(endpoint);
+                    });
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
             .Run();
@@ -31,6 +37,12 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
             Assert.That(context.ScopedAsyncDisposableDisposed, Is.True, "Scoped AsyncDisposable wasn't disposed as it should have been.");
             Assert.That(context.SingletonAsyncDisposableDisposed, Is.True, "Singleton AsyncDisposable wasn't disposed as it should have been.");
         }
+    }
+
+    class StoppableEndpoint(IEndpointInstance endpointInstance) : IStoppableEndpointInstance
+    {
+        public IMessageSession MessageSession => endpointInstance;
+        public Task Stop(CancellationToken cancellationToken = default) => endpointInstance.Stop(cancellationToken);
     }
 
     public class Context : ScenarioContext
@@ -44,7 +56,6 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         public EndpointWithAsyncDisposable() =>
             EndpointSetup<DefaultServer>(c =>
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 c.RegisterComponents(s =>
                 {
                     // We have to take control over re-registering the context because we have taken control over the instance creation
@@ -52,7 +63,6 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                     s.AddScoped<ScopedAsyncDisposable>();
                     s.AddSingleton<SingletonAsyncDisposable>();
                 });
-#pragma warning restore CS0618 // Type or member is obsolete
             });
 
         [Handler]
@@ -102,3 +112,4 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         Context context;
     }
 }
+#pragma warning restore CS0618 // Type or member is obsolete
