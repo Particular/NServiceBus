@@ -33,7 +33,7 @@ public class EndpointBehavior : IComponentBehavior
                     "provide a custom creation strategy.");
             }
 
-            var serviceKey = collectionAdapter.ServiceKey.BaseKey;
+            var serviceKey = collectionAdapter.ServiceKey;
 
             collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKey);
 
@@ -47,7 +47,7 @@ public class EndpointBehavior : IComponentBehavior
         {
             var endpointLifecycle = builder.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
             await endpointLifecycle.CreateAndStart(cancellationToken).ConfigureAwait(false);
-            var messageSession = builder.GetRequiredService<IMessageSession>();
+            var messageSession = builder.GetRequiredKeyedService<IMessageSession>(serviceKey);
             return new StoppableLifecycleEndpoint(endpointLifecycle, messageSession);
         }
     }

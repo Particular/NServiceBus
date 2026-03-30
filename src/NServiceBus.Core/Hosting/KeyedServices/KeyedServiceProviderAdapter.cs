@@ -111,7 +111,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         {
             return IsKeyedService(serviceType, computedKey)
                 ? serviceProvider.GetKeyedService(serviceType, computedKey)
-                : serviceProvider.GetKeyedService(serviceType, serviceKey);
+                : serviceProvider.GetKeyedService(serviceType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
@@ -119,7 +119,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         {
             return IsKeyedService(itemType, computedKey)
                 ? serviceProvider.GetKeyedServices(itemType, computedKey)
-                : serviceProvider.GetKeyedServices(itemType, serviceKey);
+                : serviceProvider.GetKeyedServices(itemType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         return GetAllServices(serviceProvider, itemType);
@@ -144,7 +144,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         {
             return IsKeyedService(serviceType, computedKey)
                 ? serviceProvider.GetRequiredKeyedService(serviceType, computedKey)
-                : serviceProvider.GetRequiredKeyedService(serviceType, serviceKey);
+                : serviceProvider.GetRequiredKeyedService(serviceType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
@@ -152,7 +152,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         {
             return IsKeyedService(itemType, computedKey)
                 ? serviceProvider.GetKeyedServices(itemType, computedKey)
-                : serviceProvider.GetKeyedServices(itemType, serviceKey);
+                : serviceProvider.GetKeyedServices(itemType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         return GetAllServices(serviceProvider, itemType);
@@ -163,6 +163,10 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     }
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+
+    // This is a convenience helper that in case someone throws in the KeyedServiceKey, it returns the base key, otherwise the original key
+    // this allows resolving services by either the KeyedServiceKey or the base key and makes the experience consistent
+    static object? GetBaseKeyOrServiceKey(object? serviceKey) => serviceKey is KeyedServiceKey key ? key.BaseKey : serviceKey;
 
     KeyedServiceKey GetOrCreateComputedKey(object? serviceKey)
     {
