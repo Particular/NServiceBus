@@ -36,6 +36,7 @@ public class When_publishing_command_bestpractices_disabled_on_endpoint : NServi
                 routing.RouteToEndpoint(typeof(MyCommand), typeof(Endpoint));
             });
 
+        [Handler]
         public class Handler : IHandleMessages<MyCommand>
         {
             public Task Handle(MyCommand message, IMessageHandlerContext context) => Task.CompletedTask;

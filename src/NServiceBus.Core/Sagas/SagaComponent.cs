@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Sagas;
 using Settings;
@@ -53,6 +54,7 @@ static class SagaComponent
             settings.SetDefault(new SagaMetadataCollection());
         }
 
+        [RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
         public void AddDiscoveredSagas(IEnumerable<Type> availableTypes)
         {
             var discoveredSagas = NServiceBus.Sagas.SagaMetadata.CreateMany(availableTypes);

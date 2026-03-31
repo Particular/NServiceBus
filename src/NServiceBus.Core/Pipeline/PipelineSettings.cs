@@ -133,6 +133,13 @@ public class PipelineSettings : ExposeSettings
     /// <summary>
     /// Register a new step into the pipeline.
     /// </summary>
+    /// <param name="description">The description of the behavior.</param>
+    /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
+    public void Register<TBehavior>(string description) => Register(typeof(TBehavior), description);
+
+    /// <summary>
+    /// Register a new step into the pipeline.
+    /// </summary>
     /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
     /// <param name="description">The description of the behavior.</param>
     /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>

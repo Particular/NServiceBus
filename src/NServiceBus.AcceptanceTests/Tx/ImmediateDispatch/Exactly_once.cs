@@ -30,6 +30,7 @@ public class Exactly_once : NServiceBusAcceptanceTest
             //note: We don't have a explicit way to request "ExactlyOnce" yet so we have to rely on it being the default
             EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
             public async Task Handle(InitiatingMessage message, IMessageHandlerContext context)
@@ -45,6 +46,7 @@ public class Exactly_once : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageToBeDispatchedImmediatelyHandler(Context testContext) : IHandleMessages<MessageToBeDispatchedImmediately>
         {
             public Task Handle(MessageToBeDispatchedImmediately message, IMessageHandlerContext context)

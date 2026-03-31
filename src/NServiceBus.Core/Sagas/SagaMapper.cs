@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -55,14 +56,14 @@ class SagaMapper(Type sagaType, IReadOnlyCollection<SagaMessage> sagaMessages, I
             typeof(TMessage)));
     }
 
-    void IConfigureHowToFindSagaWithFinder.ConfigureMapping<TSagaEntity, TMessage, TFinder>()
+    void IConfigureHowToFindSagaWithFinder.ConfigureMapping<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaData)] TSagaEntity, TMessage, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaFinder)] TFinder>()
     {
         AssertMessageCanBeMapped<TMessage>($"custom saga finder({typeof(TFinder).FullName})");
 
         finders.Add(new SagaFinderDefinition(new CustomFinderAdapter<TFinder, TSagaEntity, TMessage>(), typeof(TMessage)));
     }
 
-    void IConfigureSagaNotFoundHandler.ConfigureSagaNotFoundHandler<TNotFoundHandler>()
+    void IConfigureSagaNotFoundHandler.ConfigureSagaNotFoundHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.SagaNotFoundHandler)] TNotFoundHandler>()
     {
         if (notFoundHandler != null)
         {

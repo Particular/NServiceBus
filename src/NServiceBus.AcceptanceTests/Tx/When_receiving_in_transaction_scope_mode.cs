@@ -32,6 +32,7 @@ public class When_receiving_in_transaction_scope_mode : NServiceBusAcceptanceTes
     {
         public DTCEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)

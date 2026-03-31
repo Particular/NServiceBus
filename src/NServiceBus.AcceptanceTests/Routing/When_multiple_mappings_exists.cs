@@ -51,6 +51,7 @@ public class When_multiple_mappings_exists : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>();
         }
 
+        [Handler]
         public class MyMessageHandler : IHandleMessages<MyBaseCommand>
         {
             public MyMessageHandler(Context context)
@@ -75,6 +76,7 @@ public class When_multiple_mappings_exists : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>();
         }
 
+        [Handler]
         public class MyMessageHandler : IHandleMessages<MyBaseCommand>
         {
             public MyMessageHandler(Context context)

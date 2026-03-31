@@ -59,6 +59,7 @@ public class When_making_endpoint_uniquely_addressable : NServiceBusAcceptanceTe
     {
         public Receiver() => EndpointSetup<DefaultServer>(c => { c.MakeInstanceUniquelyAddressable(InstanceDiscriminator); });
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)

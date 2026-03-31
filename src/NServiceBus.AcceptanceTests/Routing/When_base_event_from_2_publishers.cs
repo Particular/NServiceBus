@@ -86,6 +86,7 @@ public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
                     metadata.RegisterPublisherFor<DerivedEvent2, Publisher2>();
                 });
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<BaseEvent>
         {
             public Task Handle(BaseEvent message, IMessageHandlerContext context)

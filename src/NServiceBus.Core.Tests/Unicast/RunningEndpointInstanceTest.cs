@@ -22,7 +22,8 @@ public class RunningEndpointInstanceTest
             new TestableMessageSession(),
             null,
             new CancellationTokenSource(),
-            null);
+            NoOpAsyncDisposable.Instance,
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
         return testInstance;
     }
 

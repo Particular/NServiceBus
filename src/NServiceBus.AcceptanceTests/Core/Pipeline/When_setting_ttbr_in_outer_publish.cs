@@ -29,7 +29,7 @@ public class When_setting_ttbr_in_outer_publish : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool InnerEventReceived { get; set; }
         public bool OuterEventReceived { get; set; }
@@ -82,11 +82,12 @@ public class When_setting_ttbr_in_outer_publish : NServiceBusAcceptanceTest
         }
     }
 
-    class Subscriber : EndpointConfigurationBuilder
+    public class Subscriber : EndpointConfigurationBuilder
     {
         public Subscriber() => EndpointSetup<DefaultServer>();
 
-        class EventHandler(Context testContext) : IHandleMessages<OuterEvent>, IHandleMessages<InnerEvent>
+        [Handler]
+        public class MultiHandler(Context testContext) : IHandleMessages<OuterEvent>, IHandleMessages<InnerEvent>
         {
             public Task Handle(OuterEvent message, IMessageHandlerContext context)
             {

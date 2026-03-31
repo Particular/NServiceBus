@@ -40,10 +40,11 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
         }
     }
 
-    class TestEndpoint : EndpointConfigurationBuilder
+    public class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class SomeMessageHandler(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
@@ -57,5 +58,5 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
 
     public class SomeMessage : IMessage;
 
-    class Context : ScenarioContext;
+    public class Context : ScenarioContext;
 }

@@ -50,6 +50,7 @@ public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceT
     {
         public EndpointWithCriticalError() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class CriticalHandler(CriticalError criticalError, TestContext testContext) : IHandleMessages<Message>
         {
             public Task Handle(Message request, IMessageHandlerContext context)

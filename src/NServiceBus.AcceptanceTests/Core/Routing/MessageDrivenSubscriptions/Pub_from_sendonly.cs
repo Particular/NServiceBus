@@ -51,6 +51,7 @@ public class Pub_from_sendonly : NServiceBusAcceptanceTest
     {
         public Subscriber() => EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)

@@ -43,6 +43,7 @@ public class When_deferring_a_message : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)

@@ -4,7 +4,7 @@
 
     static class SagaDiagnostics
     {
-        const string DiagnosticCategory = "NServiceBus.Sagas";
+        internal const string DiagnosticCategory = "NServiceBus.Sagas";
 
         public static readonly DiagnosticDescriptor NonMappingExpressionUsedInConfigureHowToFindSaga = new(
             id: DiagnosticIds.NonMappingExpressionUsedInConfigureHowToFindSaga,

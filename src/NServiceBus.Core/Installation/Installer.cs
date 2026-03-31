@@ -24,15 +24,15 @@ public static class Installer
         configuration.EnableInstallers();
 
         var serviceCollection = new ServiceCollection();
+
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        await using (serviceProvider.ConfigureAwait(false))
-        {
-            var endpoint = endpointCreator.CreateStartableEndpoint(serviceProvider, serviceProviderIsExternallyManaged: false);
-            await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-            await endpoint.Setup(cancellationToken).ConfigureAwait(false);
-        }
+        await using var provider = serviceProvider.ConfigureAwait(false);
+
+        var creationStrategy = new InternalContainerEndpointCreationStrategy(endpointCreator, NoOpAsyncDisposable.Instance);
+        _ = await EndpointPreparation.Prepare(creationStrategy, serviceProvider, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

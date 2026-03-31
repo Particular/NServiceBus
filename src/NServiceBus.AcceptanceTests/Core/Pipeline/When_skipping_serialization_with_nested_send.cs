@@ -28,7 +28,7 @@ public class When_skipping_serialization_with_nested_send : NServiceBusAcceptanc
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageWithSkippedSerializationReceived { get; set; }
         public bool NestedMessageReceived { get; set; }
@@ -73,11 +73,12 @@ public class When_skipping_serialization_with_nested_send : NServiceBusAcceptanc
         }
     }
 
-    class Receiver : EndpointConfigurationBuilder
+    public class Receiver : EndpointConfigurationBuilder
     {
         public Receiver() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<MessageWithoutSerialization>, IHandleMessages<NestedMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<MessageWithoutSerialization>, IHandleMessages<NestedMessage>
         {
             public Task Handle(MessageWithoutSerialization message, IMessageHandlerContext context)
             {

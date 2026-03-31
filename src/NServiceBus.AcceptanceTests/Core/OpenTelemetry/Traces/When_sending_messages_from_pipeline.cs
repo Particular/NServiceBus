@@ -27,16 +27,17 @@ public class When_sending_messages_from_pipeline : OpenTelemetryAcceptanceTest
         Assert.That(sentMessage.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(1), "should raise dispatch completed event");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool OutgoingMessageReceived { get; set; }
     }
 
-    class TestEndpoint : EndpointConfigurationBuilder
+    public class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>, IHandleMessages<TriggerMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>, IHandleMessages<TriggerMessage>
         {
             public Task Handle(TriggerMessage message, IMessageHandlerContext context) => context.SendLocal(new OutgoingMessage());
 

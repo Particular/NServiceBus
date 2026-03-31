@@ -17,7 +17,7 @@ public class PipelineSettingsTests
 
         pipelineSettings.PreventChanges();
 
-        Assert.Throws<InvalidOperationException>(() => pipelineSettings.Register(typeof(Behavior1), "newStep"));
+        Assert.Throws<InvalidOperationException>(() => pipelineSettings.Register<Behavior1>("newStep"));
         Assert.Throws<InvalidOperationException>(() => pipelineSettings.Replace("newStep", typeof(Behavior1)));
     }
 

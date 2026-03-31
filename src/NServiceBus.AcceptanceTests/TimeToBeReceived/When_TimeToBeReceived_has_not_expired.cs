@@ -32,6 +32,7 @@ public class When_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)

@@ -162,6 +162,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
                     metadata.RegisterPublisherFor<ThisIsAnEvent, Publisher>();
                 });
 
+        [Handler]
         public class ThisHandlesSomethingHandler(Context testPublishContext) : IHandleMessages<ThisIsAnEvent>
         {
             public Task Handle(ThisIsAnEvent @event, IMessageHandlerContext context)

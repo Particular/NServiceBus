@@ -68,13 +68,14 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    class AuditSpyEndpoint : EndpointConfigurationBuilder
+    public class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
         public AuditSpyEndpoint() => EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
 
@@ -87,6 +88,7 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)

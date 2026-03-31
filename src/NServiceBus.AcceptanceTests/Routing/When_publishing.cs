@@ -141,6 +141,7 @@ public class When_publishing : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<IFoo, Publisher3>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<IFoo>
         {
             public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
@@ -158,6 +159,7 @@ public class When_publishing : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context)
@@ -176,6 +178,7 @@ public class When_publishing : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
                 metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)

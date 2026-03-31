@@ -29,16 +29,17 @@ public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanc
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool HandlerInvoked { get; set; }
     }
 
-    class FailingEndpoint : EndpointConfigurationBuilder
+    public class FailingEndpoint : EndpointConfigurationBuilder
     {
         public FailingEndpoint() => EndpointSetup<DefaultServer>();
 
-        class FailingMessageHandler : IHandleMessages<FailingMessage>
+        [Handler]
+        public class FailingMessageHandler : IHandleMessages<FailingMessage>
         {
 
             Context textContext;

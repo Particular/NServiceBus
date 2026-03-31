@@ -34,6 +34,7 @@ class When_correlation_property_is_null : NServiceBusAcceptanceTest
             public virtual string CorrelatedProperty { get; set; }
         }
 
+        [Saga]
         public class SagaWithCorrelatedProperty : Saga<SagaDataWithCorrelatedProperty>, IAmStartedByMessages<MessageWithNullCorrelationProperty>
         {
             public Task Handle(MessageWithNullCorrelationProperty message, IMessageHandlerContext context) => Task.CompletedTask;

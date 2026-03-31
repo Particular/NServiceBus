@@ -12,7 +12,7 @@ public class When_using_initialization_with_non_default_ctor
     {
         var endpointConfiguration = new EndpointConfiguration("myendpoint");
 
-        endpointConfiguration.TypesToScanInternal(new[] { typeof(FeatureWithInitialization) });
+        endpointConfiguration.TypesToScanInternal([typeof(FeatureWithInitialization)]);
 
         var ae = Assert.Throws<Exception>(() => EndpointCreator.Create(endpointConfiguration, new ServiceCollection()));
         var expected = $"Unable to create the type '{nameof(FeatureWithInitialization)}'. Types implementing '{nameof(INeedInitialization)}' must have a public parameterless (default) constructor.";
@@ -32,5 +32,4 @@ public class When_using_initialization_with_non_default_ctor
         {
         }
     }
-
 }

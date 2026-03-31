@@ -31,7 +31,8 @@ public class When_deserializing_interface_message : NServiceBusAcceptanceTest
                 c.UseSerialization<SystemJsonSerializer>();
             });
 
-        class MyHandler(Context testContext) : IHandleMessages<IMyMessage>
+        [Handler]
+        public class MyHandler(Context testContext) : IHandleMessages<IMyMessage>
         {
             public Task Handle(IMyMessage message, IMessageHandlerContext context)
             {

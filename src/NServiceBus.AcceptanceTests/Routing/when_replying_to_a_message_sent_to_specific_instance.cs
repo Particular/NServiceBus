@@ -42,6 +42,7 @@ public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusA
                     ]);
             });
 
+        [Handler]
         public class MyResponseHandler(Context testContext) : IHandleMessages<MyResponse>
         {
             public Task Handle(MyResponse message, IMessageHandlerContext context)
@@ -57,6 +58,7 @@ public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusA
     {
         public Receiver() => EndpointSetup<DefaultServer>(c => { c.MakeInstanceUniquelyAddressable("XYZ"); });
 
+        [Handler]
         public class MyRequestHandler : IHandleMessages<MyRequest>
         {
             public Task Handle(MyRequest message, IMessageHandlerContext context) => context.Reply(new MyResponse());

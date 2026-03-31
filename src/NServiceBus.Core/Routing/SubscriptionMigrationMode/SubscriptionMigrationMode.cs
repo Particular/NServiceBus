@@ -76,7 +76,7 @@ sealed class SubscriptionMigrationMode : Feature
             var authorizer = context.Settings.GetSubscriptionAuthorizer();
             authorizer ??= _ => true;
             context.Services.AddSingleton(authorizer);
-            context.Pipeline.Register(typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
+            context.Pipeline.Register<SubscriptionReceiverBehavior>("Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.");
         }
         else
         {

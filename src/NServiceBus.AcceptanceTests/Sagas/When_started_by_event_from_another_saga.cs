@@ -55,6 +55,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
                 b.OnEndpointSubscribed<Context>((s, context) => { context.IsEventSubscriptionReceived = true; });
             }, metadata => metadata.RegisterSelfAsPublisherFor<ISomethingHappenedEvent>(this));
 
+        [Saga]
         public class EventFromOtherSaga1(Context testContext) : Saga<EventFromOtherSaga1.EventFromOtherSaga1Data>,
             IAmStartedByMessages<StartSaga>,
             IHandleTimeouts<EventFromOtherSaga1.Timeout1>
@@ -100,6 +101,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
                 },
                 metadata => metadata.RegisterPublisherFor<ISomethingHappenedEvent, SagaThatPublishesAnEvent>());
 
+        [Saga]
         public class EventFromOtherSaga2(Context testContext) : Saga<EventFromOtherSaga2.EventFromOtherSaga2Data>,
             IAmStartedByMessages<ISomethingHappenedEvent>,
             IHandleTimeouts<EventFromOtherSaga2.Saga2Timeout>

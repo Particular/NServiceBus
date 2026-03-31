@@ -17,7 +17,7 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
                 .Run();
         }, Throws.Exception.With.Message.Contains("DisableFeature<Sagas>()"));
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() =>
             EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
@@ -25,27 +25,28 @@ public class When_a_persistence_does_not_support_saga : NServiceBusAcceptanceTes
                 c.UsePersistence<AcceptanceTestingPersistence, StorageType.Outbox>();
                 c.UsePersistence<AcceptanceTestingPersistence, StorageType.Subscriptions>();
             });
-    }
 
-    public class SagaWithPersistenceNotSupportingIt : Saga<SagaWithPersistenceNotSupportingIt.SagaWithPersistenceNotSupportingItSagaData>,
-        IAmStartedByMessages<StartSaga>
-    {
-        public Context TestContext { get; set; }
-
-        public Task Handle(StartSaga message, IMessageHandlerContext context)
+        [Saga]
+        public class SagaWithPersistenceNotSupportingIt : Saga<SagaWithPersistenceNotSupportingIt.SagaWithPersistenceNotSupportingItSagaData>,
+            IAmStartedByMessages<StartSaga>
         {
-            MarkAsComplete();
-            TestContext.MarkAsCompleted();
-            return Task.CompletedTask;
-        }
+            public Context TestContext { get; set; }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithPersistenceNotSupportingItSagaData> mapper) =>
-            mapper.MapSaga(s => s.DataId)
-                .ToMessage<StartSaga>(m => m.DataId);
+            public Task Handle(StartSaga message, IMessageHandlerContext context)
+            {
+                MarkAsComplete();
+                TestContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
 
-        public class SagaWithPersistenceNotSupportingItSagaData : ContainSagaData
-        {
-            public virtual Guid DataId { get; set; }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithPersistenceNotSupportingItSagaData> mapper) =>
+                mapper.MapSaga(s => s.DataId)
+                    .ToMessage<StartSaga>(m => m.DataId);
+
+            public class SagaWithPersistenceNotSupportingItSagaData : ContainSagaData
+            {
+                public virtual Guid DataId { get; set; }
+            }
         }
     }
 

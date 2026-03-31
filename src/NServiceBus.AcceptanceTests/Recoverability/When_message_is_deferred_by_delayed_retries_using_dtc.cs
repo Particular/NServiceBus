@@ -34,7 +34,7 @@ public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBus
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public Guid Id { get; set; }
         public List<TransactionStatus> TransactionStatuses { get; } = [];
@@ -42,7 +42,7 @@ public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBus
         public int NumberOfRetriesAttempted => NumberOfProcessingAttempts - 1 < 0 ? 0 : NumberOfProcessingAttempts - 1;
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() =>
             EndpointSetup<DefaultServer>(config =>
@@ -55,7 +55,8 @@ public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBus
                 });
             });
 
-        class FailingHandler(Context testContext) : IHandleMessages<MessageToFail>
+        [Handler]
+        public class FailingHandler(Context testContext) : IHandleMessages<MessageToFail>
         {
             public Task Handle(MessageToFail message, IMessageHandlerContext context)
             {

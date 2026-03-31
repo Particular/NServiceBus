@@ -39,6 +39,7 @@ public class When_processing_message_with_saga_handler : OpenTelemetryAcceptance
     {
         public TestEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class TracedSaga(Context testContext) : Saga<TracedSaga.TracedSagaData>, IAmStartedByMessages<SomeMessage>
         {
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TracedSagaData> mapper)

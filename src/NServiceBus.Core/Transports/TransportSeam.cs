@@ -67,15 +67,7 @@ class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSe
 
         public TransportDefinition TransportDefinition
         {
-            get
-            {
-                if (!settings.HasExplicitValue<TransportDefinition>())
-                {
-                    throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.");
-                }
-
-                return settings.Get<TransportDefinition>();
-            }
+            get => !settings.HasExplicitValue<TransportDefinition>() ? throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.") : settings.Get<TransportDefinition>();
             set => settings.Set(value);
         }
 

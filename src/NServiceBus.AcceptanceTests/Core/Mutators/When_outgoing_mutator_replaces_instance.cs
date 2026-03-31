@@ -44,7 +44,8 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
             }
         }
 
-        class V2Handler(Context testContext) : IHandleMessages<V2Message>
+        [Handler]
+        public class V2Handler(Context testContext) : IHandleMessages<V2Message>
         {
             public Task Handle(V2Message message, IMessageHandlerContext context)
             {
@@ -54,7 +55,8 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
             }
         }
 
-        class V1Handler(Context testContext) : IHandleMessages<V1Message>
+        [Handler]
+        public class V1Handler(Context testContext) : IHandleMessages<V1Message>
         {
             public Task Handle(V1Message message, IMessageHandlerContext context)
             {

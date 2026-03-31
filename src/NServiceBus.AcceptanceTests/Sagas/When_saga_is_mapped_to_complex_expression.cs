@@ -45,6 +45,7 @@ public class When_saga_is_mapped_to_complex_expression : NServiceBusAcceptanceTe
             //note: the concurrency checks for the InMemory persister doesn't seem to work so limiting to 1 for now
             EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
 
+        [Saga]
         public class TestSaga02(Context testContext) : Saga<TestSagaData02>,
             IAmStartedByMessages<StartSagaMessage>, IAmStartedByMessages<OtherMessage>
         {

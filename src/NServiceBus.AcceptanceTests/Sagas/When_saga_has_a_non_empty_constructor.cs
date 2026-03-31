@@ -28,6 +28,7 @@ public class When_saga_has_a_non_empty_constructor : NServiceBusAcceptanceTest
     {
         public NonEmptySagaCtorEndpt() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class TestSaga11(Context testContext) : Saga<TestSagaData11>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleMessages<OtherMessage>

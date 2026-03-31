@@ -58,6 +58,7 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
     {
         public Subscriber1() => EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(), p => p.RegisterPublisherFor<EventMessage, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<EventMessage>
         {
             public Task Handle(EventMessage messageThatIsEnlisted, IMessageHandlerContext context)

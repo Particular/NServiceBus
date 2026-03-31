@@ -1,10 +1,10 @@
-namespace NServiceBus.AcceptanceTesting.Support;
+﻿namespace NServiceBus.AcceptanceTesting.Support;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-sealed class ServiceResolveComponent(Func<IServiceProvider, CancellationToken, Task> action, int instanceIndex, ServiceResolveMode serviceResolveMode) : ComponentRunner, IComponentBehavior
+sealed class ServiceResolveComponent(Func<IServiceProvider, ScenarioContext, CancellationToken, Task> action, int instanceIndex, ServiceResolveMode serviceResolveMode) : ComponentRunner, IComponentBehavior
 {
     public Task<ComponentRunner> CreateRunner(RunDescriptor run)
     {
@@ -16,8 +16,9 @@ sealed class ServiceResolveComponent(Func<IServiceProvider, CancellationToken, T
     {
         ArgumentNullException.ThrowIfNull(runDescriptor);
         ArgumentNullException.ThrowIfNull(runDescriptor.ServiceProvider);
+        ArgumentNullException.ThrowIfNull(runDescriptor.ScenarioContext);
 
-        return serviceResolveMode == ServiceResolveMode.BeforeStart ? action(runDescriptor.ServiceProvider, cancellationToken) : Task.CompletedTask;
+        return serviceResolveMode == ServiceResolveMode.BeforeStart ? action(runDescriptor.ServiceProvider, runDescriptor.ScenarioContext, cancellationToken) : Task.CompletedTask;
     }
 
     public override Task Start(CancellationToken cancellationToken = default)
@@ -25,7 +26,7 @@ sealed class ServiceResolveComponent(Func<IServiceProvider, CancellationToken, T
         ArgumentNullException.ThrowIfNull(runDescriptor);
         ArgumentNullException.ThrowIfNull(runDescriptor.ServiceProvider);
 
-        return serviceResolveMode == ServiceResolveMode.AtStart ? action(runDescriptor.ServiceProvider, cancellationToken) : Task.CompletedTask;
+        return serviceResolveMode == ServiceResolveMode.AtStart ? action(runDescriptor.ServiceProvider, runDescriptor.ScenarioContext, cancellationToken) : Task.CompletedTask;
     }
 
     public override Task Stop(CancellationToken cancellationToken = default)
@@ -33,7 +34,7 @@ sealed class ServiceResolveComponent(Func<IServiceProvider, CancellationToken, T
         ArgumentNullException.ThrowIfNull(runDescriptor);
         ArgumentNullException.ThrowIfNull(runDescriptor.ServiceProvider);
 
-        return serviceResolveMode == ServiceResolveMode.AtStop ? action(runDescriptor.ServiceProvider, cancellationToken) : Task.CompletedTask;
+        return serviceResolveMode == ServiceResolveMode.AtStop ? action(runDescriptor.ServiceProvider, runDescriptor.ScenarioContext, cancellationToken) : Task.CompletedTask;
     }
 
     public override string Name => $"Resolves{instanceIndex}";

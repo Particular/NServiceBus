@@ -177,6 +177,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
             return state == FeatureState.Disabled;
         }
 
+        [RequiresUnreferencedCode("Feature discovery using assembly scanning might require access to unreferenced code")]
         public void AddScannedTypes(IEnumerable<Type> availableTypes)
         {
             foreach (var featureType in availableTypes.Where(IsFeature))
@@ -187,7 +188,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
         static bool IsFeature(Type type) => typeof(Feature).IsAssignableFrom(type);
 
-        void Add(Type featureType)
+        void Add([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Feature)] Type featureType)
         {
             var featureName = Feature.GetFeatureName(featureType);
             if (!added.Contains(featureName))

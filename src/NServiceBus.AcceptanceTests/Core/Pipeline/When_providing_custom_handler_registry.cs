@@ -1,11 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
 
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Unicast;
 
@@ -31,7 +29,7 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool RegularCommandHandlerInvoked { get; set; }
         public bool ManuallyRegisteredCommandHandlerInvoked { get; set; }
@@ -42,7 +40,7 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         public void MaybeCompleted() => MarkAsCompleted(RegularCommandHandlerInvoked, ManuallyRegisteredCommandHandlerInvoked, RegularEventHandlerInvoked, ManuallyRegisteredEventHandlerInvoked);
     }
 
-    class EndpointWithRegularHandler : EndpointConfigurationBuilder
+    public class EndpointWithRegularHandler : EndpointConfigurationBuilder
     {
         public EndpointWithRegularHandler() =>
             EndpointSetup<DefaultServer>(c =>
@@ -50,9 +48,6 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
                 var registry = new MessageHandlerRegistry();
                 registry.AddHandler<ManuallyRegisteredHandler>();
                 c.GetSettings().Set(registry);
-                // the handler isn't registered for DI automatically
-                c.RegisterComponents(components => components
-                    .AddTransient<ManuallyRegisteredHandler>());
                 c.OnEndpointSubscribed<Context>((t, ctx) =>
                 {
                     if (t.MessageType == typeof(SomeEvent).AssemblyQualifiedName)
@@ -62,7 +57,8 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
                 });
             }, metadata => metadata.RegisterPublisherFor<SomeEvent>(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointWithRegularHandler))));
 
-        class RegularHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
+        [Handler]
+        public class RegularHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
         {
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {
@@ -80,7 +76,8 @@ public class When_providing_custom_handler_registry : NServiceBusAcceptanceTest
         }
     }
 
-    class ManuallyRegisteredHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
+    [Handler]
+    public class ManuallyRegisteredHandler(Context testContext) : IHandleMessages<SomeCommand>, IHandleMessages<SomeEvent>
     {
         public Task Handle(SomeCommand message, IMessageHandlerContext context)
         {

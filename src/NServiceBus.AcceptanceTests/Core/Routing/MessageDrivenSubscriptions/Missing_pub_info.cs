@@ -35,6 +35,7 @@ public class Missing_pub_info : NServiceBusAcceptanceTest
     {
         public Subscriber() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyHandler : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent @event, IMessageHandlerContext context) => Task.CompletedTask;

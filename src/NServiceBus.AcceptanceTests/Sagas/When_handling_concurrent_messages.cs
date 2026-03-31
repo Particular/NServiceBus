@@ -52,7 +52,8 @@ public class When_handling_concurrent_messages : NServiceBusAcceptanceTest
     {
         public EndpointWithSagaAndOutbox() => EndpointSetup<DefaultServer>();
 
-        class OrderSaga(Context testContext) : Saga<OrderSagaData>,
+        [Saga]
+        public class OrderSaga(Context testContext) : Saga<OrderSagaData>,
             IAmStartedByMessages<StartMsg>,
             IHandleMessages<ContinueMsg>,
             IHandleMessages<FinishMsg>

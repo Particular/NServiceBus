@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
+using Features;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Transport;
 using NUnit.Framework;
@@ -13,29 +15,12 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_be_available_after_the_endpoint_is_started()
     {
-        string translatedAddress = null;
-
         Context context = null;
         await Scenario.Define<Context>(c => context = c)
-            .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
-            b.ToCreateInstance(
-                (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
-                async (startableEndpoint, provider, ct) =>
-                {
-                    // HINT: Resolve before start
-                    var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
-
-                    var endpoint = await startableEndpoint.Start(provider, ct);
-
-                    translatedAddress = transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
-
-                    context.MarkAsCompleted();
-
-                    return endpoint;
-                }))
+            .WithEndpoint<ExternallyManagedContainerEndpoint>(b => b.CustomConfig(c => c.RegisterStartupTask<ExternallyManagedContainerEndpoint.StartupTaskAccessingResolver>()))
             .Run();
 
-        Assert.That(translatedAddress, Is.Not.Null);
+        Assert.That(context.TranslatedAddress, Is.Not.Null);
     }
 
     [Test]
@@ -44,24 +29,37 @@ public class When_resolving_address_translator : NServiceBusAcceptanceTest
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
-                    b.ToCreateInstance(
-                        (services, config) => EndpointWithExternallyManagedContainer.Create(config, services),
-                        (startableEndpoint, provider, ct) =>
-                        {
-                            var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
+                    b.ServiceResolve((provider, _) =>
+                    {
+                        var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
 
-                            transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
-
-                            return startableEndpoint.Start(provider, ct);
-                        })
-                )
+                        transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
+                        return Task.CompletedTask;
+                    }))
                 .Run();
         }, Throws.Exception.TypeOf<Exception>().With.Message.EqualTo("Transport address resolution is not supported before the NServiceBus transport has been started. Start the NServiceBus transport before calling `ToTransportAddress`"));
 
-    class Context : ScenarioContext;
+    class Context : ScenarioContext
+    {
+        public string TranslatedAddress { get; set; }
+    }
 
     class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
     {
         public ExternallyManagedContainerEndpoint() => EndpointSetup<DefaultServer>();
+
+        internal class StartupTaskAccessingResolver(IServiceProvider provider, Context context) : FeatureStartupTask
+        {
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+            {
+                var transportAddressResolver = provider.GetRequiredService<ITransportAddressResolver>();
+
+                context.TranslatedAddress = transportAddressResolver.ToTransportAddress(new QueueAddress("SomeAddress"));
+                context.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        }
     }
 }

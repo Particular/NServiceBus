@@ -4,6 +4,8 @@ using System;
 using System.IO;
 using Logging;
 
+#pragma warning disable CS0618 // TestingLoggerFactory intentionally extends the deprecated LoggingFactoryDefinition during the deprecation window
+
 /// <summary>
 /// Logger factory which allows to log to a text writer.
 /// </summary>
@@ -49,3 +51,4 @@ public class TestingLoggerFactory : LoggingFactoryDefinition
     Lazy<LogLevel> level;
     Lazy<TextWriter> writer;
 }
+#pragma warning restore CS0618

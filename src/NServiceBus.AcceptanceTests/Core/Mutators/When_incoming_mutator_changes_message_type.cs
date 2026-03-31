@@ -50,6 +50,7 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             }
         }
 
+        [Handler]
         public class OriginalMessageHandler(Context testContext) : IHandleMessages<OriginalMessage>
         {
             public Task Handle(OriginalMessage message, IMessageHandlerContext context)
@@ -60,6 +61,7 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             }
         }
 
+        [Handler]
         public class NewMessageHandler(Context testContext) : IHandleMessages<NewMessage>
         {
             public Task Handle(NewMessage message, IMessageHandlerContext context)
@@ -70,6 +72,7 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             }
         }
 
+        [Saga]
         public class Saga(Context testContext)
             : Saga<SagaData>, IAmStartedByMessages<OriginalMessage>, IAmStartedByMessages<NewMessage>
         {

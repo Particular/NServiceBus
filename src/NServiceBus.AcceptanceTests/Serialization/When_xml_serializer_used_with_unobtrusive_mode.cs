@@ -36,6 +36,7 @@ public class When_xml_serializer_used_with_unobtrusive_mode : NServiceBusAccepta
                 c.UseSerialization<XmlSerializer>();
             });
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)

@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Recoverability;
+﻿namespace NServiceBus.AcceptanceTests.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -35,7 +35,7 @@ public class CustomPolicyDoes1DelayedRetryThenSendsToError : NServiceBusAcceptan
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int Count { get; set; }
     }
@@ -59,7 +59,8 @@ public class CustomPolicyDoes1DelayedRetryThenSendsToError : NServiceBusAcceptan
             return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
         }
 
-        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {

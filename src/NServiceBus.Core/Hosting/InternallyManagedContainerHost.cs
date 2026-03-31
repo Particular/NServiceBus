@@ -1,14 +1,19 @@
 ﻿#nullable enable
 namespace NServiceBus;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-class InternallyManagedContainerHost(StartableEndpoint endpoint) : IStartableEndpoint
+#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this type can probably be removed including the associated strategy because there will be no internally managed mode anymore
+class InternallyManagedContainerHost(EndpointCreator endpointCreator, IServiceProvider serviceProvider) : IStartableEndpoint
+#pragma warning restore CS0618 // Type or member is obsolete
 {
-    public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default)
-    {
-        await endpoint.Setup(cancellationToken).ConfigureAwait(false);
-        return await endpoint.Start(cancellationToken).ConfigureAwait(false);
-    }
+    public Task<StartableEndpoint> Create(CancellationToken cancellationToken = default) =>
+        startupRunner.Create(serviceProvider, cancellationToken);
+
+    public Task<IEndpointInstance> Start(CancellationToken cancellationToken = default) =>
+        startupRunner.Start(serviceProvider, cancellationToken);
+
+    readonly EndpointStartupRunner startupRunner = new(new InternalContainerEndpointCreationStrategy(endpointCreator));
 }

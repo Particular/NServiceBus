@@ -53,6 +53,7 @@ public class When_registering_custom_critical_error_handler : NServiceBusAccepta
                 });
             });
 
+        [Handler]
         public class MyRequestHandler : IHandleMessages<MyRequest>
         {
             public Task Handle(MyRequest request, IMessageHandlerContext context) => Task.CompletedTask;

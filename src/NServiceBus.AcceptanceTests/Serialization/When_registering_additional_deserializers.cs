@@ -56,7 +56,7 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
             });
     }
 
-    class XmlCustomSerializationReceiver : EndpointConfigurationBuilder
+    public class XmlCustomSerializationReceiver : EndpointConfigurationBuilder
     {
         public XmlCustomSerializationReceiver() =>
             EndpointSetup<DefaultServer>((c, r) =>
@@ -65,7 +65,8 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
                 c.AddDeserializer<MyCustomSerializer>().Settings((Context)r.ScenarioContext, "SomeFancySettings");
             });
 
-        class MyRequestHandler(Context testContext) : IHandleMessages<MyRequest>
+        [Handler]
+        public class MyRequestHandler(Context testContext) : IHandleMessages<MyRequest>
         {
             public Task Handle(MyRequest request, IMessageHandlerContext context)
             {
@@ -87,14 +88,8 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
         }
     }
 
-    class MyCustomMessageSerializer : IMessageSerializer
+    class MyCustomMessageSerializer(Context context, string valueFromSettings) : IMessageSerializer
     {
-        public MyCustomMessageSerializer(Context context, string valueFromSettings)
-        {
-            this.context = context;
-            this.valueFromSettings = valueFromSettings;
-        }
-
         public void Serialize(object message, Stream stream)
         {
             var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
@@ -106,21 +101,17 @@ public class When_registering_additional_deserializers : NServiceBusAcceptanceTe
 
         public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)
         {
-            using (var stream = new MemoryStream(body.ToArray()))
-            {
-                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
+            using var stream = new MemoryStream(body.ToArray());
+            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(MyRequest));
 
-                var msg = serializer.Deserialize(stream);
-                context.DeserializeCalled = true;
-                context.ValueFromSettings = valueFromSettings;
+            var msg = serializer.Deserialize(stream);
+            context.DeserializeCalled = true;
+            context.ValueFromSettings = valueFromSettings;
 
-                return [msg];
-            }
+            return [msg];
         }
 
         public string ContentType => "MyCustomSerializer";
-        readonly Context context;
-        readonly string valueFromSettings;
     }
 }
 

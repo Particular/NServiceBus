@@ -64,6 +64,7 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
     {
         public EndpointA() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class LocalMessageHandler(Context testContext) : IHandleMessages<LocalMessage>
         {
             public Task Handle(LocalMessage message, IMessageHandlerContext context)
@@ -79,6 +80,7 @@ public class When_sending_from_outgoing_pipeline : NServiceBusAcceptanceTest
     {
         public EndpointB() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class BehaviorMessageHandler(Context testContext) : IHandleMessages<BehaviorMessage>
         {
             public Task Handle(BehaviorMessage message, IMessageHandlerContext context)

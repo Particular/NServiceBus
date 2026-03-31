@@ -76,6 +76,7 @@ public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); },
                 metadata => metadata.RegisterPublisherFor<Event, Publisher>());
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<Event>
         {
             public Task Handle(Event message, IMessageHandlerContext context)
@@ -91,6 +92,7 @@ public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
     {
         public Subscriber2() => EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); }, metadata => metadata.RegisterPublisherFor<Event, Publisher>());
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<Event>
         {
             public Task Handle(Event message, IMessageHandlerContext context)

@@ -49,7 +49,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
         Assert.That(recordedHandlerTypes, Does.Contain(typeof(ReceivingEndpoint.HandlerTwo).FullName), "invocation of handler two should be traced");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool FirstHandlerRun { get; set; }
         public bool SecondHandlerRun { get; set; }
@@ -57,9 +57,14 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
         public void MaybeCompleted() => MarkAsCompleted(FirstHandlerRun && SecondHandlerRun);
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
-        public ReceivingEndpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(AddTagToHandlerSpanBehavior), "Adds a custom tag to the handler span"));
+        public ReceivingEndpoint() => EndpointSetup<NonScanningServer>(c =>
+        {
+            c.Pipeline.Register<AddTagToHandlerSpanBehavior>("Adds a custom tag to the handler span");
+            c.AddHandler<HandlerOne>();
+            c.AddHandler<HandlerTwo>();
+        });
 
         class AddTagToHandlerSpanBehavior : Behavior<IInvokeHandlerContext>
         {
@@ -70,9 +75,10 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             }
         }
 
-        public class HandlerOne(Context testContext) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class HandlerOne
         {
-            public Task Handle(SomeMessage message, IMessageHandlerContext context)
+            public static Task Handle(SomeMessage message, IMessageHandlerContext context, Context testContext)
             {
                 testContext.FirstHandlerRun = true;
                 testContext.MaybeCompleted();
@@ -80,6 +86,7 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
             }
         }
 
+        [Handler]
         public class HandlerTwo(Context testContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
@@ -91,7 +98,5 @@ public class When_processing_message_with_multiple_handlers : OpenTelemetryAccep
         }
     }
 
-    public class SomeMessage : IMessage
-    {
-    }
+    public class SomeMessage : IMessage;
 }

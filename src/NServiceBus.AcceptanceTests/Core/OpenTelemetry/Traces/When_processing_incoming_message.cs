@@ -49,7 +49,7 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
         incomingActivity.VerifyUniqueTags();
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string IncomingMessageId { get; set; }
         public string IncomingMessageConversationId { get; set; }
@@ -57,11 +57,12 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
         public string IncomingNativeMessageId { get; set; }
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
         {
             public Task Handle(IncomingMessage message, IMessageHandlerContext context)
             {

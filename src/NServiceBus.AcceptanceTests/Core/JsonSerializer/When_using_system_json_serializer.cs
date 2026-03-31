@@ -31,7 +31,8 @@ public class When_using_system_json_serializer : NServiceBusAcceptanceTest
                 c.UseSerialization<SystemJsonSerializer>();
             });
 
-        class MyHandler(Context testContext) : IHandleMessages<MyMessage>
+        [Handler]
+        public class MyHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {

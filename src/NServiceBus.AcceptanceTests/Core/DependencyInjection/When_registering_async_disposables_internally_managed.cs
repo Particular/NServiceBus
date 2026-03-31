@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
 using System.Threading.Tasks;
@@ -18,8 +18,10 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
             .WithEndpoint<EndpointWithAsyncDisposable>(b =>
             {
                 b.ToCreateInstance(
+#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this entire test can be deleted because there is no internally managed mode anymore.
                     (_, configuration) => Endpoint.Create(configuration),
                     (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
+#pragma warning restore CS0618 // Type or member is obsolete
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
             .Run();
@@ -31,7 +33,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool ScopedAsyncDisposableDisposed { get; set; }
         public bool SingletonAsyncDisposableDisposed { get; set; }
@@ -42,6 +44,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         public EndpointWithAsyncDisposable() =>
             EndpointSetup<DefaultServer>(c =>
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 c.RegisterComponents(s =>
                 {
                     // We have to take control over re-registering the context because we have taken control over the instance creation
@@ -49,9 +52,11 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                     s.AddScoped<ScopedAsyncDisposable>();
                     s.AddSingleton<SingletonAsyncDisposable>();
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
             });
 
-        class HandlerWithAsyncDisposable(
+        [Handler]
+        public class HandlerWithAsyncDisposable(
             Context testContext,
             ScopedAsyncDisposable scopedAsyncDisposable,
             SingletonAsyncDisposable singletonAsyncDisposable)
@@ -68,7 +73,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
 
     public class SomeMessage : IMessage;
 
-    class SingletonAsyncDisposable : IAsyncDisposable
+    public sealed class SingletonAsyncDisposable : IAsyncDisposable
     {
         // This method is here to make the code being used in the handler to not trigger compiler warnings
         public void Initialize(Context scenarioContext) => context = scenarioContext;
@@ -82,7 +87,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
         Context context;
     }
 
-    class ScopedAsyncDisposable : IAsyncDisposable
+    public sealed class ScopedAsyncDisposable : IAsyncDisposable
     {
         // This method is here to make the code being used in the handler to not trigger compiler warnings
         public void Initialize(Context scenarioContext) => context = scenarioContext;

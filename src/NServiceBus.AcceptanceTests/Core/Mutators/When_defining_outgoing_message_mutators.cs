@@ -68,7 +68,8 @@ public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
             }
         }
 
-        class Handler(Context testContext) : IHandleMessages<Message>
+        [Handler]
+        public class Handler(Context testContext) : IHandleMessages<Message>
         {
             public Task Handle(Message message, IMessageHandlerContext context)
             {

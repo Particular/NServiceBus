@@ -50,6 +50,7 @@ public class When_handling_local_event : NServiceBusAcceptanceTest
                 });
             }, metadata => metadata.RegisterPublisherFor<Event, PublisherAndSubscriber>());
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<Event>
         {
             public Task Handle(Event @event, IMessageHandlerContext context)

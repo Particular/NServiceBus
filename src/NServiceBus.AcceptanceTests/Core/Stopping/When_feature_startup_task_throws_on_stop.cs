@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Stopping;
+﻿namespace NServiceBus.AcceptanceTests.Core.Stopping;
 
 using System;
 using System.Linq;

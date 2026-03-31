@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 
 using System;
 using System.Diagnostics;
@@ -20,14 +20,15 @@ public class When_no_listener_available : NServiceBusAcceptanceTest
                 .Run();
         });
 
-    class Context : ScenarioContext;
+    public class Context : ScenarioContext;
 
-    class EndpointWithNoListener : EndpointConfigurationBuilder
+    public class EndpointWithNoListener : EndpointConfigurationBuilder
     {
         public EndpointWithNoListener() =>
             EndpointSetup<DefaultServer>();
 
-        class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
+        [Handler]
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {

@@ -34,8 +34,9 @@ public class When_callbacks_are_used_to_reply_with_int_or_enum : NServiceBusAcce
 
     public class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(CallbacksAssumptionVerifier), "Makes sure that callbacks can allow int replies"));
+        public Endpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register<CallbacksAssumptionVerifier>("Makes sure that callbacks can allow int replies"));
 
+        [Handler]
         public class StartMessageHandler(Context testContext) : IHandleMessages<MyRequest>
         {
             public async Task Handle(MyRequest message, IMessageHandlerContext context)

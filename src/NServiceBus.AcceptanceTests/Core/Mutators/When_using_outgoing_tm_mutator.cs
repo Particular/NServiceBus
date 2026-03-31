@@ -49,7 +49,8 @@ public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
             }
         }
 
-        class MessageToBeMutatedHandler(Context testContext) : IHandleMessages<MessageThatMutatorChangesTo>
+        [Handler]
+        public class MessageToBeMutatedHandler(Context testContext) : IHandleMessages<MessageThatMutatorChangesTo>
         {
             public Task Handle(MessageThatMutatorChangesTo message, IMessageHandlerContext context)
             {

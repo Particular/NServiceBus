@@ -37,6 +37,7 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
     {
         public SagaEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class BaseClassIsMappedSaga(Context testContext) : Saga<BaseClassIsMappedSaga.BaseClassIsMappedSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IAmStartedByMessages<SecondSagaMessage>

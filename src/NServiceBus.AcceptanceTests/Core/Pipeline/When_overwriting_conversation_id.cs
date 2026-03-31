@@ -29,15 +29,16 @@ public class When_overwriting_conversation_id : NServiceBusAcceptanceTest
         Assert.That(((Context)exception.ScenarioContext).SentOutgoingMessage, Is.False, "because send should fail");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool SentOutgoingMessage { get; set; }
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class IntermediateMessageHandler(Context testContext) : IHandleMessages<IntermediateMessage>
         {
             public async Task Handle(IntermediateMessage message, IMessageHandlerContext context)

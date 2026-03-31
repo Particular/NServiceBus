@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests;
+namespace NServiceBus.Core.Tests;
 
 using Pipeline;
 using System;
@@ -32,8 +32,8 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(),
-            CancellationToken.None);
+        var session = new MessageSession(loggingSlot: new object());
+        session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
         await session.Send(new object());
         await session.Send(new object());
@@ -56,7 +56,8 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), new CancellationToken(true));
+        var session = new MessageSession(loggingSlot: new object());
+        session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), new CancellationToken(true));
 
         Assert.ThrowsAsync<OperationCanceledException>(async () =>
             await session.Send(new object(), CancellationToken.None));
@@ -76,9 +77,26 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
+        var session = new MessageSession(loggingSlot: new object());
+        session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
-        Assert.ThrowsAsync<OperationCanceledException>(async () =>
-            await session.Send(new object(), new CancellationToken(true)));
+        Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken(true)));
+    }
+
+    [Test]
+    public async Task Deferred_session_should_wait_until_initialized()
+    {
+        var deferredSession = new MessageSession(loggingSlot: new object());
+        var messageOperations = new TestableMessageOperations();
+
+        var sendTask = deferredSession.Send(new object(), new SendOptions());
+
+        await Task.Delay(50);
+        Assert.That(sendTask.IsCompleted, Is.False);
+
+        deferredSession.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
+        await sendTask;
+
+        Assert.That(messageOperations.SendPipeline.LastContext, Is.Not.Null);
     }
 }

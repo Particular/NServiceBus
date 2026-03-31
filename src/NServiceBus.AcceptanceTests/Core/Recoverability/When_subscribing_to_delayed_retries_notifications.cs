@@ -35,7 +35,7 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public Guid Id { get; set; }
         public int TotalNumberOfImmediateRetriesEventInvocations { get; set; }
@@ -79,7 +79,8 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
                 });
             });
 
-        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {

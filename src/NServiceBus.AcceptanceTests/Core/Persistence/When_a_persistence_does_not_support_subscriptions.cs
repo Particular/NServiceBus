@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Persistence;
+﻿namespace NServiceBus.AcceptanceTests.Core.Persistence;
 
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -21,14 +21,12 @@ public class When_a_persistence_does_not_support_subscriptions : NServiceBusAcce
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
             {
                 c.UsePersistence<AcceptanceTestingPersistence, StorageType.Sagas>();
                 c.UsePersistence<AcceptanceTestingPersistence, StorageType.Outbox>();
             });
-        }
     }
 
     public class Context : ScenarioContext

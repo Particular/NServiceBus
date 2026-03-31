@@ -89,6 +89,7 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
         public EndpointWithSagaWithHeaderMapping() =>
             EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class SagaWithHeaderMapping(Context scenario) : Saga<SagaDataWithHeaderMapping>, IAmStartedByMessages<StartSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context)

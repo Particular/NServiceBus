@@ -32,6 +32,7 @@ public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class SendFromTimeoutSaga1 : Saga<SendFromTimeoutSaga1.SendFromTimeoutSaga1Data>,
             IAmStartedByMessages<StartSaga1>,
             IHandleTimeouts<Saga1Timeout>
@@ -61,6 +62,7 @@ public class When_sending_from_a_saga_timeout : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class SendFromTimeoutSaga2(Context testContext) : Saga<SendFromTimeoutSaga2.SendFromTimeoutSaga2Data>,
             IAmStartedByMessages<StartSaga2>
         {

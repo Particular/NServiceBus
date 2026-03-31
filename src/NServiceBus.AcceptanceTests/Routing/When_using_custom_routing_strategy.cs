@@ -91,6 +91,7 @@ public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
     {
         public Receiver() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MyCommandHandler(Context testContext, IReadOnlySettings settings) : IHandleMessages<MyCommand>
         {
             public Task Handle(MyCommand message, IMessageHandlerContext context)

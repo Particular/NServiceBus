@@ -33,6 +33,7 @@ public class When_using_contain_saga_data : NServiceBusAcceptanceTest
     {
         public EndpointThatHostsASaga() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class MySaga(Context testContext) : Saga<MySaga.MySagaData>,
             IAmStartedByMessages<StartSaga>,
             IHandleTimeouts<MySaga.TimeHasPassed>

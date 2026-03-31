@@ -36,11 +36,12 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
         Assert.That(context.BaggageHeader, Is.EqualTo("key3=,key2=value2,key1=value1"));
     }
 
-    class TestEndpoint : EndpointConfigurationBuilder
+    public class TestEndpoint : EndpointConfigurationBuilder
     {
         public TestEndpoint() => EndpointSetup<DefaultServer>();
 
-        class SomeMessageHandler(Context scenarioContext) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler(Context scenarioContext) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
@@ -56,7 +57,7 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
 
     public class SomeMessage : IMessage;
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string BaggageHeader { get; internal set; }
     }

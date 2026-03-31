@@ -245,6 +245,7 @@ namespace NServiceBus
         public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.IReadOnlySettings settings, string sectionName, object section) { }
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
+        public static void WriteDiagnosticsToLog(this NServiceBus.EndpointConfiguration config) { }
     }
     public class Discard : NServiceBus.RecoverabilityAction
     {
@@ -263,9 +264,12 @@ namespace NServiceBus
         Send = 0,
         Publish = 1,
     }
+    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class Endpoint
     {
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -273,6 +277,7 @@ namespace NServiceBus
         public EndpointConfiguration(string endpointName) { }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.ConventionsBuilder Conventions() { }
+        [System.Obsolete(@"Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void RegisterComponents(System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection> registration) { }
         public void SendOnly() { }
     }
@@ -293,8 +298,10 @@ namespace NServiceBus
     {
         public static System.Threading.Tasks.Task Stop(this NServiceBus.IEndpointInstance endpoint, System.TimeSpan gracefulStopTimeout) { }
     }
+    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpointt. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class EndpointWithExternallyManagedContainer
     {
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
     }
     public static class EnvelopeConfigExtensions
@@ -328,6 +335,23 @@ namespace NServiceBus
         [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
             "heck\'. Will be removed in version 11.0.0.", true)]
         protected override System.Type ProvidedByFeature() { }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    public sealed class HandlerAttribute : System.Attribute
+    {
+        public HandlerAttribute() { }
+    }
+    public sealed class HandlerRegistry
+    {
+        public HandlerRegistry(NServiceBus.EndpointConfiguration configuration) { }
+        public NServiceBus.EndpointConfiguration Configuration { get; }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    public sealed class HandlerRegistryExtensionsAttribute : System.Attribute
+    {
+        public HandlerRegistryExtensionsAttribute() { }
+        public string? EntryPointName { get; init; }
+        public string[]? RegistrationMethodNamePatterns { get; init; }
     }
     public static class HeaderOptionExtensions
     {
@@ -405,7 +429,7 @@ namespace NServiceBus
     }
     public interface IConfigureHowToFindSagaWithFinder
     {
-        void ConfigureMapping<TSagaEntity, TMessage, TFinder>()
+        void ConfigureMapping<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]  TSagaEntity, TMessage, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TFinder>()
             where TSagaEntity :  class, NServiceBus.IContainSagaData
             where TFinder :  class, NServiceBus.Sagas.ISagaFinder<TSagaEntity, TMessage>;
     }
@@ -421,7 +445,7 @@ namespace NServiceBus
     }
     public interface IConfigureSagaNotFoundHandler
     {
-        void ConfigureSagaNotFoundHandler<TNotFoundHandler>()
+        void ConfigureSagaNotFoundHandler<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TNotFoundHandler>()
             where TNotFoundHandler : NServiceBus.ISagaNotFoundHandler;
     }
     public interface IContainSagaData
@@ -528,13 +552,20 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
+    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IStartableEndpoint
     {
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.Threading.CancellationToken cancellationToken = default);
     }
+    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IStartableEndpointWithExternallyManagedContainer
     {
+        [System.Obsolete("The message session is automatically registered in the service collection and no " +
+            "longer needs to be manually registered. Will be treated as an error from version" +
+            " 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
+        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default);
     }
     [System.Obsolete("The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' instead. W" +
@@ -579,11 +610,22 @@ namespace NServiceBus
     }
     public static class InstallConfigExtensions
     {
-        public static void AddInstaller<TInstaller>(this NServiceBus.EndpointConfiguration config)
+        public static void AddInstaller<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TInstaller>(this NServiceBus.EndpointConfiguration config)
             where TInstaller :  class, NServiceBus.Installation.INeedToInstallSomething { }
-        public static void AddInstaller<TInstaller>(this NServiceBus.Features.FeatureConfigurationContext context)
+        public static void AddInstaller<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TInstaller>(this NServiceBus.Features.FeatureConfigurationContext context)
             where TInstaller :  class, NServiceBus.Installation.INeedToInstallSomething { }
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string? username = null) { }
+    }
+    public sealed class KeyedServiceKey
+    {
+        public const string Any = "_______<ANY>_______";
+        public KeyedServiceKey(object baseKey, object? serviceKey = null) { }
+        public object BaseKey { get; }
+        public object? ServiceKey { get; }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public override string? ToString() { }
+        public static NServiceBus.KeyedServiceKey AnyKey(object baseKey) { }
     }
     public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<NServiceBus.LearningPersistence> { }
     public static class LearningSagaPersisterConfigurationExtensions
@@ -640,8 +682,9 @@ namespace NServiceBus
     }
     public static class MessageHandlerRegistrationExtensions
     {
-        public static void AddHandler<THandler>(this NServiceBus.EndpointConfiguration config)
-            where THandler : NServiceBus.IHandleMessages { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
+            "os.")]
+        public static void AddHandler<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandler>(this NServiceBus.EndpointConfiguration config) { }
     }
     public static class MessageIdExtensions
     {
@@ -845,6 +888,13 @@ namespace NServiceBus
     {
         public static void AddUnrecoverableException(this NServiceBus.Settings.SettingsHolder settings, System.Type exceptionType) { }
     }
+    public static class RegistrationExtensions
+    {
+        extension(NServiceBus.EndpointConfiguration endpointConfiguration)
+        {
+            public NServiceBus.HandlerRegistry Handlers { get; }
+        }
+    }
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public ReplyOptions() { }
@@ -853,6 +903,14 @@ namespace NServiceBus
     {
         public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
         public NServiceBus.RetryFailedSettings OnMessageSentToErrorQueue(System.Func<NServiceBus.Faults.FailedMessage, System.Threading.CancellationToken, System.Threading.Tasks.Task> notificationCallback) { }
+    }
+    public class RollingLoggerProviderOptions
+    {
+        public RollingLoggerProviderOptions() { }
+        public string? Directory { get; set; }
+        public Microsoft.Extensions.Logging.LogLevel LogLevel { get; set; }
+        public long MaxFileSizeInBytes { get; set; }
+        public int NumberOfArchiveFilesToKeep { get; set; }
     }
     public static class RoutingFeatureSettingsExtensions
     {
@@ -911,10 +969,15 @@ namespace NServiceBus
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTimeOffset at, TTimeoutMessageType timeoutMessage) { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
     }
-    public class SagaPropertyMapper<TSagaData>
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    public sealed class SagaAttribute : System.Attribute
+    {
+        public SagaAttribute() { }
+    }
+    public class SagaPropertyMapper<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]  TSagaData>
         where TSagaData :  class, NServiceBus.IContainSagaData
     {
-        public void ConfigureFinderMapping<TMessage, TFinder>()
+        public void ConfigureFinderMapping<TMessage, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TFinder>()
             where TFinder :  class, NServiceBus.Sagas.ISagaFinder<TSagaData, TMessage> { }
         [System.Obsolete("The old API for mapping messages to sagas using headers has been obsoleted, use \'" +
             "mapper.MapSaga(...).ToMessageHeader<MyMessage>(...)\' instead. Will be removed in" +
@@ -923,16 +986,17 @@ namespace NServiceBus
         [System.Obsolete("The old API for mapping messages to sagas has been obsoleted, use \'mapper.MapSaga" +
             "(...).ToMessage<MyMessage>(...)\' instead. Will be removed in version 11.0.0.", true)]
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object?>> messageProperty) { }
-        public void ConfigureNotFoundHandler<TNotFoundHandler>()
+        public void ConfigureNotFoundHandler<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TNotFoundHandler>()
             where TNotFoundHandler : NServiceBus.ISagaNotFoundHandler { }
         public NServiceBus.CorrelatedSagaPropertyMapper<TSagaData> MapSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaProperty) { }
     }
     public static class SagaRegistrationExtensions
     {
-        public static void AddSaga<TSaga>(this NServiceBus.EndpointConfiguration config)
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
+        public static void AddSaga<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga>(this NServiceBus.EndpointConfiguration config)
             where TSaga : NServiceBus.Saga, NServiceBus.IHandleMessages { }
     }
-    public abstract class Saga<TSagaData> : NServiceBus.Saga
+    public abstract class Saga<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]  TSagaData> : NServiceBus.Saga
         where TSagaData :  class, NServiceBus.IContainSagaData, new ()
     {
         protected Saga() { }
@@ -970,6 +1034,10 @@ namespace NServiceBus
             where T : NServiceBus.Serialization.SerializationDefinition { }
         public static void DisableMessageTypeInference<T>(this NServiceBus.Serialization.SerializationExtensions<T> config)
             where T : NServiceBus.Serialization.SerializationDefinition { }
+    }
+    public static class ServiceCollectionExtensions
+    {
+        public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
     }
     public static class SettingsExtensions
     {
@@ -1373,6 +1441,7 @@ namespace NServiceBus.Features
         protected void DependsOn(string featureTypeName) { }
         protected void DependsOn<TFeature>()
             where TFeature : NServiceBus.Features.Feature, new () { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Feature dependency using types might require access to unreferenced code")]
         protected void DependsOnAtLeastOne(params System.Type[] features) { }
         protected void DependsOnAtLeastOne(params string[] featureNames) { }
         [System.Obsolete("Use \'DependsOnOptionally<T>()\' instead. Will be removed in version 11.0.0.", true)]
@@ -1394,7 +1463,7 @@ namespace NServiceBus.Features
         public Microsoft.Extensions.DependencyInjection.IServiceCollection Services { get; }
         public NServiceBus.Settings.IReadOnlySettings Settings { get; }
         public void AddSatelliteReceiver(string name, NServiceBus.Transport.QueueAddress transportAddress, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, NServiceBus.OnSatelliteMessage onMessage) { }
-        public void RegisterStartupTask<TTask>()
+        public void RegisterStartupTask<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TTask>()
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
@@ -1459,6 +1528,7 @@ namespace NServiceBus.Features
 }
 namespace NServiceBus.Hosting.Helpers
 {
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Assembly scanning requires access to unreferenced code")]
     public class AssemblyScanner
     {
         public AssemblyScanner() { }
@@ -1511,11 +1581,17 @@ namespace NServiceBus.Installation
 }
 namespace NServiceBus.Logging
 {
+    [System.Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in " +
+        "rolling file logging provider. Will be treated as an error from version 11.0.0. " +
+        "Will be removed in version 12.0.0.", false)]
     public class DefaultFactory : NServiceBus.Logging.LoggingFactoryDefinition
     {
         public DefaultFactory() { }
+        [System.Obsolete("Set RollingLoggerProviderOptions.Directory instead. Will be treated as an error f" +
+            "rom version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void Directory(string directory) { }
         protected override NServiceBus.Logging.ILoggerFactory GetLoggingFactory() { }
+        [System.Obsolete(@"Set RollingLoggerProviderOptions.LogLevel instead. Note: NServiceBus.Logging.LogLevel.Info maps to Microsoft.Extensions.Logging.LogLevel.Information, Warn to Warning, Fatal to Critical. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void Level(NServiceBus.Logging.LogLevel level) { }
     }
     public interface ILog
@@ -1559,10 +1635,18 @@ namespace NServiceBus.Logging
         public static NServiceBus.Logging.ILog GetLogger(System.Type type) { }
         public static NServiceBus.Logging.ILog GetLogger(string name) { }
         public static NServiceBus.Logging.ILog GetLogger<T>() { }
+        [System.Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in " +
+            "rolling file logging provider. Will be treated as an error from version 11.0.0. " +
+            "Will be removed in version 12.0.0.", false)]
         public static T Use<T>()
             where T : NServiceBus.Logging.LoggingFactoryDefinition, new () { }
+        [System.Obsolete("Configure logging through Microsoft.Extensions.Logging directly. Will be treated " +
+            "as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static void UseFactory(NServiceBus.Logging.ILoggerFactory loggerFactory) { }
     }
+    [System.Obsolete("Implement Microsoft.Extensions.Logging.ILoggerProvider directly and register via " +
+        "services.AddSingleton<ILoggerProvider, YourProvider>(). Will be treated as an er" +
+        "ror from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public abstract class LoggingFactoryDefinition
     {
         protected LoggingFactoryDefinition() { }
@@ -1895,6 +1979,7 @@ namespace NServiceBus.Pipeline
         public void Register(string stepId, System.Type behavior, string description) { }
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
+        public void Register<TBehavior>(string description) { }
         public void Register<T>(System.Func<System.IServiceProvider, T> factoryMethod, string description)
             where T : NServiceBus.Pipeline.IBehavior { }
         public void Register<T>(T behavior, string description)
@@ -2189,11 +2274,13 @@ namespace NServiceBus.Sagas
         [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
             "ion 11.0.0.", true)]
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
-        public static NServiceBus.Sagas.SagaMetadata Create<TSaga>()
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
+        public static NServiceBus.Sagas.SagaMetadata Create<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga>()
             where TSaga : NServiceBus.Saga { }
-        public static NServiceBus.Sagas.SagaMetadata Create<TSaga, TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, NServiceBus.Sagas.CorrelationPropertyAccessor? correlationPropertyAccessor = null, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.MessagePropertyAccessor>? propertyAccessors = null)
+        public static NServiceBus.Sagas.SagaMetadata Create<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]  TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, NServiceBus.Sagas.CorrelationPropertyAccessor? correlationPropertyAccessor = null, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.MessagePropertyAccessor>? propertyAccessors = null)
             where TSaga : NServiceBus.Saga<TSagaData>
             where TSagaData :  class, NServiceBus.IContainSagaData, new () { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
         public static System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata> CreateMany(System.Collections.Generic.IEnumerable<System.Type> sagaTypes) { }
         public class CorrelationPropertyMetadata
         {
@@ -2497,16 +2584,23 @@ namespace NServiceBus.Unicast
     public class MessageHandlerRegistry
     {
         public MessageHandlerRegistry() { }
-        public void AddHandler<THandler>()
-            where THandler : NServiceBus.IHandleMessages { }
-        public void AddMessageHandlerForMessage<THandler, TMessage>()
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
+            "os.")]
+        public void AddHandler<THandler>() { }
+        public void AddMessageHandlerForMessage<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandler, TMessage>()
             where THandler :  class, NServiceBus.IHandleMessages<TMessage> { }
+        public void AddMessageHandlerForMessage<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandlerAdapter, TMessage, THandler>()
+            where THandlerAdapter :  class, NServiceBus.IHandleMessages<TMessage> { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
+            "os.")]
         public void AddScannedHandlers(System.Collections.Generic.IEnumerable<System.Type> orderedTypes) { }
-        public void AddTimeoutHandlerForMessage<THandler, TMessage>()
+        public void AddTimeoutHandlerForMessage<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandler, TMessage>()
             where THandler :  class, NServiceBus.IHandleTimeouts<TMessage> { }
         public void Clear() { }
         public System.Collections.Generic.List<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
+            "os.")]
         [System.Obsolete("Deprecated in favor of a strongly-typed alternative. Use \'AddHandler<THandler>()\'" +
             " instead. Will be treated as an error from version 11.0.0. Will be removed in ve" +
             "rsion 12.0.0.", false)]

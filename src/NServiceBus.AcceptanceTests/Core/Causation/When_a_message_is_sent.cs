@@ -35,6 +35,7 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
 
         public Context Context { get; set; }
 
+        [Handler]
         public class MessageSentOutsideHandlersHandler(Context testContext) : IHandleMessages<MessageSentOutsideOfHandler>
         {
             public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
@@ -46,6 +47,7 @@ public class When_a_message_is_sent : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageSentInsideHandlersHandler(Context testContext) : IHandleMessages<MessageSentInsideHandler>
         {
             public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)

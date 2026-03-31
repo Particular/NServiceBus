@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Persistence;
+﻿namespace NServiceBus.AcceptanceTests.Core.Persistence;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -20,8 +20,7 @@ public class When_a_persistence_does_not_support_outbox : NServiceBusAcceptanceT
 
     class Endpoint : EndpointConfigurationBuilder
     {
-        public Endpoint()
-        {
+        public Endpoint() =>
             EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
             {
                 c.UsePersistence<AcceptanceTestingPersistence, StorageType.Sagas>();
@@ -30,7 +29,6 @@ public class When_a_persistence_does_not_support_outbox : NServiceBusAcceptanceT
                 c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
                 c.EnableOutbox();
             });
-        }
     }
 
     public class Context : ScenarioContext

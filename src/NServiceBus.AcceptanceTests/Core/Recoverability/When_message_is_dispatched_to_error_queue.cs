@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -25,12 +25,12 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
         Assert.That(context.MessageBodyWasEmpty, Is.True);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageBodyWasEmpty { get; internal set; }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         static string errorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
@@ -38,7 +38,7 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.SendFailedMessagesTo(errorQueueAddress);
-                config.Pipeline.Register(typeof(ErrorBodyStorageBehavior), "Simulate writing the body to a separate storage and pass a null body to the transport");
+                config.Pipeline.Register<ErrorBodyStorageBehavior>("Simulate writing the body to a separate storage and pass a null body to the transport");
             });
 
         public class ErrorBodyStorageBehavior : Behavior<IDispatchContext>
@@ -60,7 +60,8 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
             }
         }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException("Some failure");
         }
@@ -68,7 +69,7 @@ public class When_message_is_dispatched_to_error_queue : NServiceBusAcceptanceTe
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
+        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register<ErrorMessageDetector>("Detect incoming error messages"));
 
         class ErrorMessageDetector(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {

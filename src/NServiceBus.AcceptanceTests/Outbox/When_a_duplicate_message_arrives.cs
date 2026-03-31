@@ -54,7 +54,8 @@ public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
     {
         public DownstreamEndpoint() => EndpointSetup<DefaultServer>(b => { b.LimitMessageProcessingConcurrencyTo(1); });
 
-        class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
+        [Handler]
+        public class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
         {
             public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
             {
@@ -81,7 +82,8 @@ public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
                 b.ConfigureRouting().RouteToEndpoint(typeof(SendOrderAcknowledgement), typeof(DownstreamEndpoint));
             });
 
-        class PlaceOrderHandler(Context testContext) : IHandleMessages<PlaceOrder>
+        [Handler]
+        public class PlaceOrderHandler(Context testContext) : IHandleMessages<PlaceOrder>
         {
             public Task Handle(PlaceOrder message, IMessageHandlerContext context)
             {

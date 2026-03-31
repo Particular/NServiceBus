@@ -56,6 +56,7 @@ public class Sub_to_derived_event : NServiceBusAcceptanceTest
                 },
                 metadata => metadata.RegisterPublisherFor<SpecificEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<SpecificEvent>
         {
             public Task Handle(SpecificEvent messageThatIsEnlisted, IMessageHandlerContext context)
@@ -65,6 +66,7 @@ public class Sub_to_derived_event : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class DoneHandler(Context testContext) : IHandleMessages<Done>
         {
             public Task Handle(Done message, IMessageHandlerContext context)

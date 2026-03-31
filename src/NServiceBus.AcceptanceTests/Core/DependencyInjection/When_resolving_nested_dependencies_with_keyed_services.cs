@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
 using System.Threading.Tasks;
@@ -19,6 +19,7 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
                     {
                         services.AddKeyedScoped<IDependency, MyDependency>("Dependency");
                         services.AddSingleton(new FeatureSpecificObject("FromAcceptanceTest")); // will be overriden
+                        services.AddKeyedSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>("Dependency");
                     })
                     .When((session, c) => session.SendLocal(new SomeMessage())))
             .Run();
@@ -26,22 +27,17 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
         Assert.That(result.MessageReceived, Is.True, "Message should be received");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageReceived { get; set; }
     }
 
-    class DeeplyNestedDependenciesEndpoint : EndpointConfigurationBuilder
+    public class DeeplyNestedDependenciesEndpoint : EndpointConfigurationBuilder
     {
-        public DeeplyNestedDependenciesEndpoint() => EndpointSetup<DefaultServer>(b =>
-        {
-            b.EnableFeature<MyFeatureProvidingMoreDependencies>();
+        public DeeplyNestedDependenciesEndpoint() => EndpointSetup<DefaultServer>(b => b.EnableFeature<MyFeatureProvidingMoreDependencies>());
 
-            // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddKeyedSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>("Dependency"));
-        });
-
-        class SomeMessageHandler([FromKeyedServices("Dependency")] IDependency dependency) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler([FromKeyedServices("Dependency")] IDependency dependency) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
@@ -60,7 +56,7 @@ public class When_resolving_nested_dependencies_with_keyed_services : NServiceBu
         }
     }
 
-    interface IDependency
+    public interface IDependency
     {
         void DoSomething();
     }

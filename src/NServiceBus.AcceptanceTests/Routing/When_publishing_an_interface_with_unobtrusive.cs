@@ -77,6 +77,7 @@ public class When_publishing_an_interface_with_unobtrusive : NServiceBusAcceptan
                 },
                 metadata => metadata.RegisterPublisherFor<IMyEvent, Publisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<IMyEvent>
         {
             public Task Handle(IMyEvent @event, IMessageHandlerContext context)

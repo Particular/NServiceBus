@@ -30,6 +30,7 @@ public class When_handling_message_with_handler_and_timeout_handler : NServiceBu
     {
         public TimeoutSagaEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class HandlerAndTimeoutSaga(Context testContext) : Saga<HandlerAndTimeoutSagaData>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleTimeouts<StartSagaMessage>

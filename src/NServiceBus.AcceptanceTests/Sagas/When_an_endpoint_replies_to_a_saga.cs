@@ -35,7 +35,8 @@ public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
     {
         public EndpointThatRepliesToSagaMessage() => EndpointSetup<DefaultServer>();
 
-        class DoSomethingHandler : IHandleMessages<DoSomething>
+        [Handler]
+        public class DoSomethingHandler : IHandleMessages<DoSomething>
         {
             public Task Handle(DoSomething message, IMessageHandlerContext context) =>
                 context.Reply(new DoSomethingResponse
@@ -53,6 +54,7 @@ public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
                 c.ConfigureRouting().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
             });
 
+        [Saga]
         public class CorrelationTestSaga(Context testContext) : Saga<CorrelationTestSaga.CorrelationTestSagaData>,
             IAmStartedByMessages<StartSaga>,
             IHandleMessages<DoSomethingResponse>

@@ -48,6 +48,7 @@ public class When_registering_publishers_unobtrusive_messages_code : NServiceBus
                 c => c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)),
                 metadata => metadata.RegisterPublisherFor<SomeEvent, Publisher>());
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<SomeEvent>
         {
             public Task Handle(SomeEvent message, IMessageHandlerContext context)

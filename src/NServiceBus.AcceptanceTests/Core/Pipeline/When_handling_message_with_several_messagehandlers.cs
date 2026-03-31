@@ -43,6 +43,7 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
         public Guid Id { get; set; }
     }
 
+    [Handler]
     public class FirstMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)
@@ -57,6 +58,7 @@ public class When_handling_message_with_several_messagehandlers : NServiceBusAcc
         }
     }
 
+    [Handler]
     public class SecondMessageHandler(Context testContext) : IHandleMessages<MyMessage>
     {
         public Task Handle(MyMessage message, IMessageHandlerContext context)

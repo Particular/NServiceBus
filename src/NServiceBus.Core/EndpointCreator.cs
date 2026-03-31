@@ -2,14 +2,19 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Features;
+using Logging;
 using MessageInterfaces;
 using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Pipeline;
 using Settings;
 using Unicast.Messages;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 class EndpointCreator
 {
@@ -23,7 +28,10 @@ class EndpointCreator
     public static EndpointCreator Create(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection)
     {
         var settings = endpointConfiguration.Settings;
-        CheckIfSettingsWhereUsedToCreateAnotherEndpoint(settings);
+        settings.PreventReuse();
+
+        var endpointLogSlot = settings.Get<HostingComponent.Settings>().GetOrCreateEndpointLogSlot();
+        using var _ = Logging.LogManager.BeginSlotScope(endpointLogSlot);
 
         var assemblyScanningConfiguration = settings.Get<AssemblyScanningComponent.Configuration>();
         var assemblyScanningComponent = AssemblyScanningComponent.Initialize(assemblyScanningConfiguration, settings);
@@ -41,7 +49,7 @@ class EndpointCreator
 
         var installerSettings = settings.Get<InstallerComponent.Settings>();
 
-        installerSettings.AddScannedInstallers(availableTypes);
+        DiscoverInstallers(installerSettings, availableTypes);
 
         var installerComponent = new InstallerComponent(installerSettings);
 
@@ -54,34 +62,69 @@ class EndpointCreator
 
         return endpointCreator;
 
-        static void CheckIfSettingsWhereUsedToCreateAnotherEndpoint(SettingsHolder settings)
-        {
-            if (settings.GetOrDefault<bool>("UsedToCreateEndpoint"))
-            {
-                throw new ArgumentException("This EndpointConfiguration was already used for starting an endpoint. Each endpoint requires a new EndpointConfiguration.");
-            }
-
-            settings.Set("UsedToCreateEndpoint", true);
-        }
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        static void DiscoverInstallers(InstallerComponent.Settings installerSettings, List<Type> availableTypes) => installerSettings.AddScannedInstallers(availableTypes);
     }
 
     void Configure()
     {
         var receiveSettings = settings.Get<ReceiveComponent.Settings>();
 
-        receiveSettings.MessageHandlerRegistry.AddScannedHandlers(hostingConfiguration.AvailableTypes);
+        DiscoverHandlers(receiveSettings, hostingConfiguration.AvailableTypes);
 
         ConfigureMessageTypes(receiveSettings.MessageHandlerRegistry.GetMessageTypes());
 
         var pipelineSettings = settings.Get<PipelineSettings>();
 
-        hostingConfiguration.Services.AddSingleton<IReadOnlySettings>(settings);
+        var services = hostingConfiguration.Services;
+        services.AddSingleton<IReadOnlySettings>(settings);
+
+        // Logging is a global service concern
+        var loggingConfig = LogManager.GetLoggingConfiguration();
+        var globalServices = services.Unwrap();
+        globalServices.AddLogging(builder =>
+        {
+            // Only register default providers if no external logging factory is configured
+            // (e.g., via LogManager.UseFactory(new ExtensionsLoggerFactory(...)))
+            if (loggingConfig is not null)
+            {
+                builder.Services.Configure<RollingLoggerProviderOptions>(o =>
+                {
+                    o.Directory = loggingConfig.LoggingDirectory;
+                    o.LogLevel = loggingConfig.MicrosoftLogLevel;
+                });
+                builder.Services.AddSingleton<ILoggerProvider, RollingLoggerProvider>();
+                builder.Services.AddSingleton<ILoggerProvider, ColoredConsoleLoggerProvider>();
+
+                // Register a per-provider filter rule so RollingLoggerProviderOptions.LogLevel
+                // is honoured by the MEL pipeline. This works for both the legacy path
+                // (where o.LogLevel is seeded above from loggingConfig) and the new path
+                // (where users set o.LogLevel via services.PostConfigure<RollingLoggerProviderOptions>()).
+                builder.Services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(sp =>
+                {
+                    var rollingOptions = sp.GetRequiredService<IOptions<RollingLoggerProviderOptions>>();
+                    return new ConfigureOptions<LoggerFilterOptions>(filterOptions =>
+                    {
+                        filterOptions.Rules.Add(new LoggerFilterRule(
+                            providerName: typeof(RollingLoggerProvider).FullName,
+                            categoryName: null,
+                            logLevel: rollingOptions.Value.LogLevel,
+                            filter: null));
+                    });
+                });
+
+                if (loggingConfig.MicrosoftLogLevel != LogLevel.Information)
+                {
+                    builder.SetMinimumLevel(loggingConfig.MicrosoftLogLevel);
+                }
+            }
+        });
 
         var featureSettings = settings.Get<FeatureComponent.Settings>();
 
         // This needs to happen here to make sure that features enabled state is present in settings so both
         // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
-        featureSettings.AddScannedTypes(hostingConfiguration.AvailableTypes);
+        DiscoverFeatures(hostingConfiguration.AvailableTypes, featureSettings);
 
         transportSeam = TransportSeam.Create(settings.Get<TransportSeam.Settings>(), hostingConfiguration);
 
@@ -98,12 +141,12 @@ class EndpointCreator
 
         var sagaSettings = settings.Get<SagaComponent.Settings>();
 
-        sagaSettings.AddDiscoveredSagas(hostingConfiguration.AvailableTypes);
+        DiscoverSagas(sagaSettings, hostingConfiguration.AvailableTypes);
 
         SagaComponent.Configure(sagaSettings, hostingConfiguration.PersistenceConfiguration);
 
         featureComponent = new FeatureComponent(featureSettings);
-        var featureConfigurationContext = new FeatureConfigurationContext(settings, hostingConfiguration.Services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
+        var featureConfigurationContext = new FeatureConfigurationContext(settings, services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
         featureComponent.Initialize(featureConfigurationContext, settings);
 
         hostingConfiguration.PersistenceConfiguration.AssertSagaAndOutboxUseSamePersistence();
@@ -151,9 +194,19 @@ class EndpointCreator
         );
 
         // Make Metrics a first class citizen in Core by enabling once and for all them when creating the endpoint
-        _ = hostingConfiguration.Services.AddMetrics();
+        _ = services.AddMetrics();
 
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
+        MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot);
+
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
+
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        static void DiscoverSagas(SagaComponent.Settings sagaSettings, ICollection<Type> availableTypes) => sagaSettings.AddDiscoveredSagas(availableTypes);
+
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        static void DiscoverFeatures(ICollection<Type> availableTypes, FeatureComponent.Settings featureSettings) => featureSettings.AddScannedTypes(availableTypes);
     }
 
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
@@ -162,7 +215,7 @@ class EndpointCreator
         var messageMetadataRegistry = settings.GetOrCreate<MessageMetadataRegistry>();
         messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
 
-        messageMetadataRegistry.RegisterMessageTypes(settings.GetAvailableTypes());
+        messageMetadataRegistry.RegisterMessageTypes(hostingConfiguration.AvailableTypes);
         messageMetadataRegistry.RegisterMessageTypesBypassingChecks(messageTypesHandled);
 
         var foundMessages = messageMetadataRegistry.GetAllMessages();
@@ -177,12 +230,13 @@ class EndpointCreator
         });
     }
 
-    public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, bool serviceProviderIsExternallyManaged)
+    internal StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, string containerType, IAsyncDisposable serviceProviderLease)
     {
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new
-        {
-            Type = serviceProviderIsExternallyManaged ? "external" : "internal"
-        });
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(containerType);
+        ArgumentNullException.ThrowIfNull(serviceProviderLease);
+
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = containerType });
 
         return new StartableEndpoint(settings,
             featureComponent,
@@ -194,8 +248,12 @@ class EndpointCreator
             hostingComponent,
             sendComponent,
             serviceProvider,
-            serviceProviderIsExternallyManaged);
+            MessageSession,
+            serviceProviderLease);
     }
+
+    internal MessageSession MessageSession { get; private set; }
+    internal object EndpointLogSlot => hostingConfiguration.EndpointLogSlot;
 
     PipelineComponent pipelineComponent;
     FeatureComponent featureComponent;
@@ -204,9 +262,11 @@ class EndpointCreator
     SendComponent sendComponent;
     TransportSeam transportSeam;
     HostingComponent hostingComponent;
+    EnvelopeComponent envelopeComponent;
 
     readonly SettingsHolder settings;
     readonly HostingComponent.Configuration hostingConfiguration;
     readonly Conventions conventions;
-    EnvelopeComponent envelopeComponent;
+
+    internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
 }

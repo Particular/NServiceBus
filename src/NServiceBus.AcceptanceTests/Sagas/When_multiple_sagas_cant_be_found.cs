@@ -40,6 +40,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             c.AddSaga<FoundSaga>();
         });
 
+        [Saga]
         public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -71,6 +72,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class CantBeFoundSaga2 : Saga<CantBeFoundSaga2.CantBeFoundSaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
         {
             public Task Handle(StartSaga message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -103,6 +105,7 @@ public class When_multiple_sagas_cant_be_found : NServiceBusAcceptanceTest
         }
     }
 
+    [Saga]
     public class FoundSaga(Context testContext) : Saga<FoundSaga.FoundSagaData>, IAmStartedByMessages<MessageToSaga>
     {
         public Task Handle(MessageToSaga message, IMessageHandlerContext context)

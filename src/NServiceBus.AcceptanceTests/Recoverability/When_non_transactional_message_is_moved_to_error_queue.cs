@@ -28,7 +28,7 @@ public class When_non_transactional_message_is_moved_to_error_queue : NServiceBu
         Assert.That(!context.FailedMessages.IsEmpty, Is.True, "Messages should have failed");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageMovedToErrorQueue { get; set; }
         public bool OutgoingMessageSent { get; set; }
@@ -36,7 +36,7 @@ public class When_non_transactional_message_is_moved_to_error_queue : NServiceBu
         public void MaybeCompleted() => MarkAsCompleted(MessageMovedToErrorQueue, OutgoingMessageSent);
     }
 
-    class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
+    public class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
     {
         public EndpointWithOutgoingMessages() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -46,7 +46,8 @@ public class When_non_transactional_message_is_moved_to_error_queue : NServiceBu
                 config.SendFailedMessagesTo(ErrorSpyAddress);
             });
 
-        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
@@ -63,21 +64,23 @@ public class When_non_transactional_message_is_moved_to_error_queue : NServiceBu
         }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() => EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
 
-        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage message, IMessageHandlerContext context) => throw new SimulatedException("message should be moved to the error queue");
         }
     }
 
-    class ErrorSpy : EndpointConfigurationBuilder
+    public class ErrorSpy : EndpointConfigurationBuilder
     {
         public ErrorSpy() => EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
 
-        class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
@@ -91,7 +94,8 @@ public class When_non_transactional_message_is_moved_to_error_queue : NServiceBu
             }
         }
 
-        class SubsequentMessageHandler(Context testContext) : IHandleMessages<SubsequentMessage>
+        [Handler]
+        public class SubsequentMessageHandler(Context testContext) : IHandleMessages<SubsequentMessage>
         {
             public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
             {

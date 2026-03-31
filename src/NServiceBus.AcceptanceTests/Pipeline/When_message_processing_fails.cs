@@ -28,13 +28,13 @@ public class When_message_processing_fails : NServiceBusAcceptanceTest
         // we can't assert for the native message ID as not every transport has uses a different ID internally
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageFailed { get; set; }
         public Exception Exception { get; set; }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() =>
             EndpointSetup<DefaultServer>((c, r) =>
@@ -49,7 +49,8 @@ public class When_message_processing_fails : NServiceBusAcceptanceTest
                 }));
             });
 
-        class FailingMessageHandler : IHandleMessages<FailingMessage>
+        [Handler]
+        public class FailingMessageHandler : IHandleMessages<FailingMessage>
         {
             public Task Handle(FailingMessage message, IMessageHandlerContext context) => throw new SimulatedException();
         }

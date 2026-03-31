@@ -33,6 +33,7 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
     {
         public Endpoint() => EndpointSetup<DefaultServer>((c, r) => c.Pipeline.Register("MessageTypeSpy", new MessageTypeSpy((Context)r.ScenarioContext), "MessageTypeSpy"));
 
+        [Handler]
         public class StartMessageHandler(IMessageCreator messageCreator) : IHandleMessages<MyRequest>
         {
             public Task Handle(MyRequest message, IMessageHandlerContext context)
@@ -42,6 +43,7 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
             }
         }
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<IMyReply>
         {
             public Task Handle(IMyReply message, IMessageHandlerContext context)

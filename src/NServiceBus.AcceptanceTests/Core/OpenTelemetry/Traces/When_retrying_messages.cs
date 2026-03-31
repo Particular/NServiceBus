@@ -65,16 +65,17 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int InvocationCounter { get; set; }
     }
 
-    class RetryingEndpoint : EndpointConfigurationBuilder
+    public class RetryingEndpoint : EndpointConfigurationBuilder
     {
         public RetryingEndpoint() => EndpointSetup<DefaultServer>();
 
-        class Handler(Context testContext) : IHandleMessages<FailingMessage>
+        [Handler]
+        public class Handler(Context testContext) : IHandleMessages<FailingMessage>
         {
             public Task Handle(FailingMessage message, IMessageHandlerContext context)
             {
@@ -91,7 +92,5 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
         }
     }
 
-    public class FailingMessage : IMessage
-    {
-    }
+    public class FailingMessage : IMessage;
 }

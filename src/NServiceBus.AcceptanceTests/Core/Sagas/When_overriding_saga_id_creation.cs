@@ -40,7 +40,7 @@ public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
                 config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
             });
 
-        class CustomSagaIdGenerator : ISagaIdGenerator
+        public class CustomSagaIdGenerator : ISagaIdGenerator
         {
             public Guid Generate(SagaIdGeneratorContext context) => ToGuid($"{context.SagaMetadata.SagaEntityType.FullName}_{context.CorrelationProperty.Name}_{context.CorrelationProperty.Value}");
 
@@ -54,6 +54,7 @@ public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class CustomSagaIdSaga(Context testContext) : Saga<CustomSagaIdSaga.CustomSagaIdSagaData>,
             IAmStartedByMessages<StartSaga>
         {

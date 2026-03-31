@@ -40,6 +40,7 @@ public class When_TimeToBeReceived_has_expired_convention : NServiceBusAcceptanc
                 c.Conventions().DefiningTimeToBeReceivedAs(messageType => messageType == typeof(MyMessageWithTimeToBeReceived) ? TimeSpan.FromSeconds(1) : TimeSpan.MaxValue);
             });
 
+        [Handler]
         public class MyMessageWithTimeToBeReceivedHandler(Context testContext) : IHandleMessages<MyMessageWithTimeToBeReceived>
         {
             public Task Handle(MyMessageWithTimeToBeReceived message, IMessageHandlerContext context)
@@ -49,6 +50,7 @@ public class When_TimeToBeReceived_has_expired_convention : NServiceBusAcceptanc
             }
         }
 
+        [Handler]
         public class MyRegularMessageHandler(Context testContext) : IHandleMessages<MyRegularMessage>
         {
             public Task Handle(MyRegularMessage messageWithTimeToBeReceived, IMessageHandlerContext context)

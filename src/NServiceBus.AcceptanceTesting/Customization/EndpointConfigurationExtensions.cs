@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTesting.Customization;
+﻿namespace NServiceBus.AcceptanceTesting.Customization;
 
 using System;
 using System.Collections.Generic;

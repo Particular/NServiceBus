@@ -24,7 +24,7 @@ public class When_using_polymorphic_message_handlers : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool CatchAllHandlerInvoked { get; set; }
         public bool SpecificHandlerInvoked { get; set; }
@@ -36,7 +36,8 @@ public class When_using_polymorphic_message_handlers : NServiceBusAcceptanceTest
     {
         public EndpointWithPolymorphicHandlers() => EndpointSetup<DefaultServer>();
 
-        class CatchAllHandler(Context testContext) : IHandleMessages<ICommand>
+        [Handler]
+        public class CatchAllHandler(Context testContext) : IHandleMessages<ICommand>
         {
             public Task Handle(ICommand message, IMessageHandlerContext context)
             {
@@ -46,7 +47,8 @@ public class When_using_polymorphic_message_handlers : NServiceBusAcceptanceTest
             }
         }
 
-        class SpecificHandler(Context testContext) : IHandleMessages<SomeCommand>
+        [Handler]
+        public class SpecificHandler(Context testContext) : IHandleMessages<SomeCommand>
         {
             public Task Handle(SomeCommand message, IMessageHandlerContext context)
             {

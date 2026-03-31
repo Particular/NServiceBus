@@ -59,6 +59,7 @@ public class When_publishing_with_overridden_local_address : NServiceBusAcceptan
             metadata => metadata.RegisterPublisherFor<MyEvent, Publisher>());
         }
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)

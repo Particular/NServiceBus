@@ -24,7 +24,8 @@ public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
     {
         public UserEndpoint() => EndpointSetup<DefaultServer>(b => { b.SendFailedMessagesTo("error_with_code_source"); });
 
-        class Handler : IHandleMessages<Message>
+        [Handler]
+        public class Handler : IHandleMessages<Message>
         {
             public Task Handle(Message message, IMessageHandlerContext context) => throw new SimulatedException();
         }
@@ -36,7 +37,8 @@ public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>()
                 .CustomEndpointName("error_with_code_source");
 
-        class Handler(Context testContext) : IHandleMessages<Message>
+        [Handler]
+        public class Handler(Context testContext) : IHandleMessages<Message>
         {
             public Task Handle(Message message, IMessageHandlerContext context)
             {

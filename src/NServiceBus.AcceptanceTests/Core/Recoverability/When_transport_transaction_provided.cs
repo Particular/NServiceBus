@@ -28,13 +28,13 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
         Assert.That(context.DispatchPipelineTransportTransaction, Is.SameAs(context.IncomingPipelineTransportTransaction), "Transport Transaction was not the same");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public TransportTransaction IncomingPipelineTransportTransaction { get; set; }
         public TransportTransaction DispatchPipelineTransportTransaction { get; set; }
     }
 
-    class ContextExtendingEndpoint : EndpointConfigurationBuilder
+    public class ContextExtendingEndpoint : EndpointConfigurationBuilder
     {
         public ContextExtendingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
@@ -43,7 +43,8 @@ public class When_transport_transaction_provided : NServiceBusAcceptanceTest
                 c.Pipeline.Register(nameof(RecoverabilityContextBehavior), b => new RecoverabilityContextBehavior(b.GetRequiredService<Context>()), "Tries to read the transport transaction in the recoverability pipeline");
             });
 
-        class SomeMessageHandler : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context) => throw new SimulatedException();
         }

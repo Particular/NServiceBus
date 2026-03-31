@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -59,18 +61,28 @@ public class MessageHandlerRegistry
         RemoveInVersion = "12",
         ReplacementTypeOrMember = "AddHandler<THandler>()")]
     [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'AddHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public void RegisterHandler(Type handlerType) => AddHandlerWithReflection(handlerType);
 
     /// <summary>
     /// Registers the handler type.
     /// </summary>
-    public void AddHandler<THandler>() where THandler : IHandleMessages
+    [RequiresUnreferencedCode(TrimmingMessage)]
+    public void AddHandler<THandler>()
     {
         var handlerType = typeof(THandler);
 
         if (handlerType.IsAbstract)
         {
             return;
+        }
+
+        if (!typeof(IHandleMessages).IsAssignableFrom(handlerType))
+        {
+            throw new ArgumentException(
+                $"Type '{handlerType.FullName}' does not implement {nameof(IHandleMessages)} and cannot be registered via the reflection-based AddHandler<THandler>() path. " +
+                "Convention-based handlers require source generation/interception.",
+                nameof(THandler));
         }
 
         foreach (var interfaceType in handlerType.GetInterfaces())
@@ -97,7 +109,14 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
-    public void AddMessageHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
+    public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
+        => AddMessageHandlerForMessage<THandler, TMessage, THandler>();
+
+    /// <summary>
+    /// Add a handler for a specific message type using an explicit original handler identity for deduplication. Should only be called by a source generator.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandlerAdapter, TMessage, THandler>() where THandlerAdapter : class, IHandleMessages<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
@@ -108,13 +127,13 @@ public class MessageHandlerRegistry
 
         Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
         var handlerFactories = GetOrCreate<THandler>();
-        handlerFactories.Add(new MessageHandlerFactory<THandler, TMessage>());
+        handlerFactories.Add(new MessageHandlerFactory<THandlerAdapter, TMessage, THandler>());
     }
 
     /// <summary>
     /// Add a handler for a specific timeout type. Should only be called by a source generator.
     /// </summary>
-    public void AddTimeoutHandlerForMessage<THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
+    public void AddTimeoutHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times
         // and are using a factory to avoid allocation the IMessageHandlerFactory unless it's needed since it can be expensive
@@ -142,6 +161,7 @@ public class MessageHandlerRegistry
     /// Add handlers from types scanned at runtime.
     /// </summary>
     /// <param name="orderedTypes">Scanned types, with "load handlers first" types ordered first.</param>
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public void AddScannedHandlers(IEnumerable<Type> orderedTypes)
     {
         foreach (var type in orderedTypes.Where(IsMessageHandler))
@@ -150,7 +170,7 @@ public class MessageHandlerRegistry
         }
     }
 
-    internal static bool IsMessageHandler(Type type)
+    internal static bool IsMessageHandler([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] Type type)
     {
         if (type.IsAbstract || type.IsGenericTypeDefinition)
         {
@@ -172,23 +192,31 @@ public class MessageHandlerRegistry
         deduplicationSet.Clear();
     }
 
+    [RequiresUnreferencedCode(TrimmingMessage)]
     void AddHandlerWithReflection(Type handlerType) =>
         AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
 
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
     static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddMessageHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
+        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+        .SingleOrDefault(m => m.Name == nameof(AddMessageHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
 
     static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethod(nameof(AddTimeoutHandlerForMessage)) ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
-
+        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+        .SingleOrDefault(m => m.Name == nameof(AddTimeoutHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     readonly HashSet<HandlerAndMessage> deduplicationSet = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
     static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
+
+    internal const string TrimmingMessage = "Registering handlers using assembly scanning is not supported in trimming scenarios.";
 
     readonly record struct HandlerAndMessage(Type HandlerType, Type MessageType, bool IsTimeoutHandler)
     {
@@ -203,7 +231,7 @@ public class MessageHandlerRegistry
     }
 
     // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
-    sealed class TimeoutHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+    sealed class TimeoutHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
@@ -229,7 +257,7 @@ public class MessageHandlerRegistry
     }
 
     // Be cautious when renaming this class because it is used in Core acceptance tests to verify it is hidden from the stack traces
-    sealed class MessageHandlerFactory<THandler, TMessage> : IMessageHandlerFactory
+    sealed class MessageHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage, TOriginalHandler> : IMessageHandlerFactory
         where THandler : class
     {
         public Type MessageType { get; } = typeof(TMessage);
@@ -240,7 +268,7 @@ public class MessageHandlerRegistry
                 InvokeHandler, // This needs to stay a method group to wipe it out from the stack trace
                 isTimeoutHandler: false)
             {
-                HandlerType = typeof(THandler)
+                HandlerType = typeof(TOriginalHandler)
             };
 
         [DebuggerNonUserCode]

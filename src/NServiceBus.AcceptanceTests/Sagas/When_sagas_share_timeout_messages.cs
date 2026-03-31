@@ -37,6 +37,7 @@ public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class TimeoutSharingSaga1(Context testContext) : Saga<TimeoutSharingSaga1.TimeoutSharingSagaData1>,
             IAmStartedByMessages<StartSagaMessage>,
             IHandleTimeouts<MySagaTimeout>
@@ -60,6 +61,7 @@ public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
             }
         }
 
+        [Saga]
         public class TimeoutSharingSaga2(Context testContext) : Saga<TimeoutSharingSaga2.TimeoutSharingSagaData2>,
             IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<MySagaTimeout>
         {

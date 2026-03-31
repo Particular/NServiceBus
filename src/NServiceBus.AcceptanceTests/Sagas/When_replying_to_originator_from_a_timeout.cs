@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Sagas;
+﻿namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading;
@@ -30,6 +30,7 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
     {
         public Endpoint() => EndpointSetup<DefaultServer>();
 
+        [Saga]
         public class RequestResponseRequestingSaga3(Context testContext)
             : Saga<RequestResponseRequestingSaga3.RequestResponseRequestingSagaData3>,
                 IAmStartedByMessages<InitiateRequestingSaga>,
@@ -60,6 +61,7 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
             }
         }
 
+        [Saga]
         public class RequestResponseRespondingSaga3 : Saga<RequestResponseRespondingSaga3.RequestResponseRespondingSagaData3>,
             IAmStartedByMessages<RequestToRespondingSaga>,
             IHandleTimeouts<RequestResponseRespondingSaga3.DelayReply>

@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -32,12 +32,12 @@ public class When_custom_policy_provided : NServiceBusAcceptanceTest
     const int MaxImmediateRetries = 2;
     const int MaxDelayedRetries = 2;
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public RecoverabilityConfig Configuration { get; set; }
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -55,7 +55,8 @@ public class When_custom_policy_provided : NServiceBusAcceptanceTest
                     });
             });
 
-        class Handler : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class Handler : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => throw new SimulatedException();
         }

@@ -38,7 +38,7 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
         Assert.That(sentHeaders, Is.SubsetOf(context.UnicodeHeaders));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public IReadOnlyDictionary<string, string> UnicodeHeaders { get; set; }
         public bool MessageReceived { get; set; }
@@ -70,7 +70,8 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
             }
         }
 
-        class PlaceOrderHandler : IHandleMessages<PlaceOrder>
+        [Handler]
+        public class PlaceOrderHandler : IHandleMessages<PlaceOrder>
         {
             public Task Handle(PlaceOrder message, IMessageHandlerContext context)
             {
@@ -85,7 +86,8 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
             }
         }
 
-        class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
+        [Handler]
+        public class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
         {
             public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
             {

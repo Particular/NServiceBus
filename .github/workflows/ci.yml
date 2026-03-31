@@ -29,14 +29,14 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5.1.0
+        uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
       - name: Build
         run: dotnet build src --configuration Release
       - name: Upload packages
         if: matrix.name == 'Windows'
-        uses: actions/upload-artifact@v6.0.0
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: NuGet packages
           path: nugets/

@@ -54,6 +54,7 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
     {
         public Receiver() => EndpointSetup<DefaultServer>(c => c.OverrideLocalAddress(ReceiverQueueName));
 
+        [Handler]
         public class MessageHandler : IHandleMessages<Message>
         {
             public MessageHandler(Context testContext)

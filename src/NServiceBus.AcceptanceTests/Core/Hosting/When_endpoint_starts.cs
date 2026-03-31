@@ -37,16 +37,17 @@ public class When_endpoint_starts : NServiceBusAcceptanceTest
 
     class Context : ScenarioContext;
 
-    class MyEndpoint : EndpointConfigurationBuilder
+    public class MyEndpoint : EndpointConfigurationBuilder
     {
         public MyEndpoint() =>
             EndpointSetup<DefaultServer>(c => c.SetDiagnosticsPath(basePath))
                 .EnableStartupDiagnostics();
-    }
 
-    class MyMessageHandler : IHandleMessages<MyMessage>
-    {
-        public Task Handle(MyMessage message, IMessageHandlerContext context) => throw new System.NotImplementedException();
+        [Handler]
+        public class MyMessageHandler : IHandleMessages<MyMessage>
+        {
+            public Task Handle(MyMessage message, IMessageHandlerContext context) => throw new System.NotImplementedException();
+        }
     }
 
     public class MyMessage : IMessage;

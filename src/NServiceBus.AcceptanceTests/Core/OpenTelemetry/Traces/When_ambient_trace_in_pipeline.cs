@@ -34,7 +34,7 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string AmbientActivityId { get; set; }
         public string AmbientActivityParentId { get; set; }
@@ -42,11 +42,12 @@ public class When_ambient_trace_in_pipeline : OpenTelemetryAcceptanceTest
         public string AmbientActivityState { get; set; }
     }
 
-    class EndpointWithAmbientActivity : EndpointConfigurationBuilder
+    public class EndpointWithAmbientActivity : EndpointConfigurationBuilder
     {
         public EndpointWithAmbientActivity() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<TriggerMessage>, IHandleMessages<MessageFromAmbientTrace>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<TriggerMessage>, IHandleMessages<MessageFromAmbientTrace>
         {
             public async Task Handle(TriggerMessage message, IMessageHandlerContext context)
             {

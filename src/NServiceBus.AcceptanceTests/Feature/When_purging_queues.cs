@@ -21,12 +21,12 @@ public class When_purging_queues : NServiceBusAcceptanceTest
         Assert.That(context.LocalMessageReceived, Is.True);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool LocalMessageReceived { get; set; }
     }
 
-    class EndpointWithStartupTask : EndpointConfigurationBuilder
+    public class EndpointWithStartupTask : EndpointConfigurationBuilder
     {
         public EndpointWithStartupTask() =>
             EndpointSetup<DefaultServer>(c =>
@@ -35,7 +35,8 @@ public class When_purging_queues : NServiceBusAcceptanceTest
                 c.PurgeOnStartup(true);
             });
 
-        class MessageHandler(Context testContext) : IHandleMessages<LocalMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<LocalMessage>
         {
             public Task Handle(LocalMessage message, IMessageHandlerContext context)
             {

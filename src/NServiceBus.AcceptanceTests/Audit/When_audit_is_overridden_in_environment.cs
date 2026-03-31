@@ -26,7 +26,8 @@ public class When_audit_is_overridden_in_environment : NServiceBusAcceptanceTest
             c.GetSettings().Set("ACCEPTANCETEST_ENV:NSERVICEBUS__AUDIT__ADDRESS", "audit_with_code_target");
         });
 
-        class Handler : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class Handler : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
@@ -38,7 +39,8 @@ public class When_audit_is_overridden_in_environment : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>()
                 .CustomEndpointName("audit_with_code_target");
 
-        class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
+        [Handler]
+        public class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {

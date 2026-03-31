@@ -10,24 +10,34 @@ using NUnit.Framework;
 class TestingMetricListener : IDisposable
 {
     readonly MeterListener meterListener;
-    public List<Instrument> metrics = [];
+    readonly ConcurrentDictionary<string, byte> subscribedInstruments = new(StringComparer.Ordinal);
+    public readonly List<Instrument> metrics = [];
     public string version = "";
     public string metricsSourceName = "";
 
-    public TestingMetricListener(string sourceName)
+    TestingMetricListener(string sourceName)
     {
         meterListener = new()
         {
             InstrumentPublished = (instrument, listener) =>
             {
-                if (instrument.Meter.Name == sourceName)
+                if (instrument.Meter.Name != sourceName)
                 {
-                    TestContext.Out.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
-                    listener.EnableMeasurementEvents(instrument);
-                    metrics.Add(instrument);
-                    version = instrument.Meter.Version;
-                    metricsSourceName = instrument.Meter.Name;
+                    return;
                 }
+
+                var instrumentKey = $"{instrument.Meter.Name}|{instrument.Name}|{instrument.GetType().FullName}";
+                if (!subscribedInstruments.TryAdd(instrumentKey, 0))
+                {
+                    return;
+                }
+
+                TestContext.Out.WriteLine($"Subscribing to {instrument.Meter.Name}\\{instrument.Name}");
+                listener.EnableMeasurementEvents(instrument);
+                metrics.Add(instrument);
+
+                version = instrument.Meter.Version;
+                metricsSourceName = instrument.Meter.Name;
             }
         };
 

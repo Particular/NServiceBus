@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Persistence
+﻿namespace NServiceBus.AcceptanceTests.Core.Persistence
 {
     using System;
     using System.Threading.Tasks;
@@ -19,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                     .Run();
             }, Throws.Exception.With.Message.Contains("Sagas and the Outbox need to use the same type of persistence."));
 
-        class Endpoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint() =>
                 EndpointSetup<DefaultServer>(c =>
@@ -58,6 +58,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                 }
             }
 
+            [Saga]
             public class DifferentPersistenceSaga(Context testContext) : Saga<DifferentPersistenceSaga.DifferentPersistenceSagaData>,
                 IAmStartedByMessages<StartSaga>
             {

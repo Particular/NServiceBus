@@ -5,47 +5,17 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-class ExternallyManagedContainerHost : IStartableEndpointWithExternallyManagedContainer
+#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this type can remove the interface implementation but quite likely still has reasons to exist
+class ExternallyManagedContainerHost(EndpointCreator endpointCreator) : IStartableEndpointWithExternallyManagedContainer
+#pragma warning restore CS0618 // Type or member is obsolete
 {
-    public ExternallyManagedContainerHost(EndpointCreator endpointCreator)
-    {
-        this.endpointCreator = endpointCreator;
+    public Lazy<IMessageSession> MessageSession { get; } = new(() => !endpointCreator.MessageSession.Initialized ? throw new InvalidOperationException("The message session can only be used after the endpoint is started.") : endpointCreator.MessageSession);
 
-        MessageSession = new Lazy<IMessageSession>(() =>
-        {
-            if (messageSession == null)
-            {
-                throw new InvalidOperationException("The message session can only be used after the endpoint is started.");
-            }
-            return messageSession;
-        });
+    public Task<StartableEndpoint> Create(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
+        => startupRunner.Create(serviceProvider, cancellationToken);
 
-        Builder = new Lazy<IServiceProvider>(() =>
-        {
-            if (objectBuilder == null)
-            {
-                throw new InvalidOperationException("The builder can only be used after the endpoint is started.");
-            }
-            return objectBuilder;
-        });
-    }
+    public Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default) =>
+        startupRunner.Start(externalBuilder, cancellationToken);
 
-    public Lazy<IMessageSession> MessageSession { get; }
-
-    internal Lazy<IServiceProvider> Builder { get; private set; }
-
-    public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default)
-    {
-        objectBuilder = externalBuilder;
-        var startableEndpoint = endpointCreator.CreateStartableEndpoint(externalBuilder, serviceProviderIsExternallyManaged: true);
-        await startableEndpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
-        await startableEndpoint.Setup(cancellationToken).ConfigureAwait(false);
-        IEndpointInstance endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
-        messageSession = endpointInstance;
-        return endpointInstance;
-    }
-
-    readonly EndpointCreator endpointCreator;
-    IMessageSession? messageSession;
-    IServiceProvider? objectBuilder;
+    readonly EndpointStartupRunner startupRunner = new(new ExternalContainerEndpointCreationStrategy(endpointCreator));
 }

@@ -39,6 +39,7 @@ public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
     {
         public Subscriber() => EndpointSetup<DefaultServer>(_ => { }, metadata => metadata.RegisterPublisherFor<MyEvent, SendOnlyPublisher>());
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent messageThatIsEnlisted, IMessageHandlerContext context)

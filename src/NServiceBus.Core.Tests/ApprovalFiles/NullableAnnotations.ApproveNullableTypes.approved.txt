@@ -10,9 +10,7 @@ NServiceBus.DateTimeOffsetHelper
 NServiceBus.DistributionPolicy
 NServiceBus.EndpointConfiguration
 NServiceBus.EndpointInstanceExtensions
-NServiceBus.EndpointWithExternallyManagedContainer
 NServiceBus.Faults.FailedMessage
-NServiceBus.Features.FeatureConfigurationContext
 NServiceBus.Headers
 NServiceBus.IDistributionPolicy
 NServiceBus.IMessageHandlerContext
@@ -33,7 +31,6 @@ NServiceBus.Persistence.CompletableSynchronizedStorageSessionExtensions
 NServiceBus.Persistence.ICompletableSynchronizedStorageSession
 NServiceBus.Pipeline.ISubscribeContext
 NServiceBus.Pipeline.IUnsubscribeContext
-NServiceBus.Pipeline.PipelineSettings
 NServiceBus.ReceiveSettingsExtensions
 NServiceBus.Routing.DistributionContext
 NServiceBus.Routing.DistributionStrategy

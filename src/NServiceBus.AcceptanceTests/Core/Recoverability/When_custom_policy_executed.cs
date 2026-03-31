@@ -34,12 +34,12 @@ public class When_custom_policy_executed : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public List<ErrorContext> ErrorContexts { get; } = [];
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -60,7 +60,8 @@ public class When_custom_policy_executed : NServiceBusAcceptanceTest
                     });
             });
 
-        class Handler : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class Handler : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => throw new SimulatedException();
         }

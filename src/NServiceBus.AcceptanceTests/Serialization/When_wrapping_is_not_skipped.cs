@@ -32,13 +32,13 @@ public class When_wrapping_is_not_skipped : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public XDocument XmlMessage { get; set; }
         public XDocument XmlPropertyValue { get; set; }
     }
 
-    class WrappingEndpoint : EndpointConfigurationBuilder
+    public class WrappingEndpoint : EndpointConfigurationBuilder
     {
         public WrappingEndpoint() =>
             EndpointSetup<DefaultServer, Context>((config, context) =>
@@ -47,7 +47,8 @@ public class When_wrapping_is_not_skipped : NServiceBusAcceptanceTest
                 config.RegisterMessageMutator(new IncomingMutator(context));
             });
 
-        class RawXmlMessageHandler(Context testContext) : IHandleMessages<MessageWithRawXml>
+        [Handler]
+        public class RawXmlMessageHandler(Context testContext) : IHandleMessages<MessageWithRawXml>
         {
             public Task Handle(MessageWithRawXml messageWithRawXml, IMessageHandlerContext context)
             {

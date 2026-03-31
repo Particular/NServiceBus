@@ -35,11 +35,13 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         public CausationEndpoint() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<AuditSpyEndpoint>());
 
+        [Handler]
         public class MessageSentInsideHandlersHandler : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
 
+        [Handler]
         public class FirstMessageHandler(Context testContext) : IHandleMessages<FirstMessage>
         {
             public Task Handle(FirstMessage message, IMessageHandlerContext context)
@@ -52,10 +54,11 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
         }
     }
 
-    class AuditSpyEndpoint : EndpointConfigurationBuilder
+    public class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
         public AuditSpyEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
@@ -67,6 +70,7 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class FirstMessageHandler : IHandleMessages<FirstMessage>
         {
             public Task Handle(FirstMessage message, IMessageHandlerContext context) => Task.CompletedTask;

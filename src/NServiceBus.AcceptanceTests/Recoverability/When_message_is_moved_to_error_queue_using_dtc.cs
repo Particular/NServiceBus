@@ -29,14 +29,14 @@ public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAccepta
         Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public Guid Id { get; set; }
         public bool MessageMovedToErrorQueue { get; set; }
         public List<TransactionStatus> TransactionStatuses { get; } = [];
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() =>
             EndpointSetup<DefaultServer>(config =>
@@ -44,7 +44,8 @@ public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAccepta
                 config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
             });
 
-        class FailingHandler(Context testContext) : IHandleMessages<MessageToFail>
+        [Handler]
+        public class FailingHandler(Context testContext) : IHandleMessages<MessageToFail>
         {
             public Task Handle(MessageToFail message, IMessageHandlerContext context)
             {
@@ -60,11 +61,12 @@ public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAccepta
         }
     }
 
-    class ErrorSpy : EndpointConfigurationBuilder
+    public class ErrorSpy : EndpointConfigurationBuilder
     {
         public ErrorSpy() => EndpointSetup<DefaultServer>();
 
-        class Handler(Context testContext) : IHandleMessages<MessageToFail>
+        [Handler]
+        public class Handler(Context testContext) : IHandleMessages<MessageToFail>
         {
             public Task Handle(MessageToFail message, IMessageHandlerContext context)
             {

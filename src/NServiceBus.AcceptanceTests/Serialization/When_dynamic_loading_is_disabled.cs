@@ -36,7 +36,7 @@ public class When_dynamic_loading_is_disabled : NServiceBusAcceptanceTest
         public ReceivingEndpoint() =>
             EndpointSetup<DefaultServer>(cfg =>
             {
-                cfg.Pipeline.Register(typeof(PatchEnclosedMessageTypeHeader), "Patches the EnclosedMessageTypeHeader to contain a type that requires Type.GetType to be invoked.");
+                cfg.Pipeline.Register<PatchEnclosedMessageTypeHeader>("Patches the EnclosedMessageTypeHeader to contain a type that requires Type.GetType to be invoked.");
                 var serializerSettings = cfg.UseSerialization<XmlSerializer>();
                 serializerSettings.DisableDynamicTypeLoading();
                 serializerSettings.DisableMessageTypeInference(); // just throw when we can't find the message type

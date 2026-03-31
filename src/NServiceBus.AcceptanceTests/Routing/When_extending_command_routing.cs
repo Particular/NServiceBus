@@ -79,6 +79,7 @@ public class When_extending_command_routing : NServiceBusAcceptanceTest
     {
         public Receiver() => EndpointSetup<DefaultServer>(c => c.MakeInstanceUniquelyAddressable("XYZ"));
 
+        [Handler]
         public class MyCommandHandler(Context testContext) : IHandleMessages<MyCommand>
         {
             public Task Handle(MyCommand evnt, IMessageHandlerContext context)

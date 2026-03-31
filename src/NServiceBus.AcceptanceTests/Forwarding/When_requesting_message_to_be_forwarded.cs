@@ -34,6 +34,7 @@ public class When_requesting_message_to_be_forwarded : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>()
                 .CustomEndpointName("message_forward_receiver");
 
+        [Handler]
         public class MessageToForwardHandler(Context testContext) : IHandleMessages<MessageToForward>
         {
             public Task Handle(MessageToForward message, IMessageHandlerContext context)
@@ -50,6 +51,7 @@ public class When_requesting_message_to_be_forwarded : NServiceBusAcceptanceTest
     {
         public EndpointThatForwards() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MessageToForwardHandler(Context testContext) : IHandleMessages<MessageToForward>
         {
             public Task Handle(MessageToForward message, IMessageHandlerContext context)

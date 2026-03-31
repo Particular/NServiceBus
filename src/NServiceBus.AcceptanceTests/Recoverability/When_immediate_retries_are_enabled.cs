@@ -29,7 +29,7 @@ public class When_immediate_retries_are_enabled : NServiceBusAcceptanceTest
 
     const int numberOfRetries = 5;
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int NumberOfTimesInvoked { get; set; }
 
@@ -55,7 +55,8 @@ public class When_immediate_retries_are_enabled : NServiceBusAcceptanceTest
                 recoverability.Immediate(immediate => immediate.NumberOfRetries(numberOfRetries));
             });
 
-        class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
+        [Handler]
+        public class MessageToBeRetriedHandler(Context testContext) : IHandleMessages<MessageToBeRetried>
         {
             public Task Handle(MessageToBeRetried message, IMessageHandlerContext context)
             {

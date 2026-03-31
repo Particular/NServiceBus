@@ -18,7 +18,7 @@ public class When_saga_scanned_send_only_and_no_saga_storage : NServiceBusAccept
                 .Run();
         });
 
-    class SendOnlyEndpointWithSaga : EndpointConfigurationBuilder
+    public class SendOnlyEndpointWithSaga : EndpointConfigurationBuilder
     {
         public SendOnlyEndpointWithSaga() =>
             EndpointSetup<ServerWithNoDefaultPersistenceDefinitions>(c =>
@@ -27,19 +27,20 @@ public class When_saga_scanned_send_only_and_no_saga_storage : NServiceBusAccept
 
                 c.SendOnly();
             });
-    }
 
-    public class SagaInSendOnlyEndpoint : Saga<SagaInSendOnlyEndpoint.SagaInSendOnlyEndpointSagaData>, IAmStartedByMessages<StartMessage>
-    {
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaInSendOnlyEndpointSagaData> mapper)
-            => mapper.MapSaga(s => s.DataId).ToMessage<StartMessage>(m => m.SomeId);
-
-        public class SagaInSendOnlyEndpointSagaData : ContainSagaData
+        [Saga]
+        public class SagaInSendOnlyEndpoint : Saga<SagaInSendOnlyEndpoint.SagaInSendOnlyEndpointSagaData>, IAmStartedByMessages<StartMessage>
         {
-            public virtual Guid DataId { get; set; }
-        }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaInSendOnlyEndpointSagaData> mapper)
+                => mapper.MapSaga(s => s.DataId).ToMessage<StartMessage>(m => m.SomeId);
 
-        public Task Handle(StartMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            public class SagaInSendOnlyEndpointSagaData : ContainSagaData
+            {
+                public virtual Guid DataId { get; set; }
+            }
+
+            public Task Handle(StartMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+        }
     }
 
     public class Context : ScenarioContext;

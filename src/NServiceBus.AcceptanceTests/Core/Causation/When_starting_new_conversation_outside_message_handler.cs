@@ -85,11 +85,12 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
 
     public class AnyMessage : IMessage;
 
-    class NewConversationEndpoint : EndpointConfigurationBuilder
+    public class NewConversationEndpoint : EndpointConfigurationBuilder
     {
         public NewConversationEndpoint() => EndpointSetup<DefaultServer>(c => c.CustomConversationIdStrategy(ctx => ConversationId.Custom(GeneratedConversationId)));
 
-        class AnyMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyMessage>
+        [Handler]
+        public class AnyMessageHandler(NewConversationScenario scenario) : IHandleMessages<AnyMessage>
         {
             public Task Handle(AnyMessage message, IMessageHandlerContext context)
             {
@@ -109,7 +110,7 @@ public class When_starting_new_conversation_outside_message_handler : NServiceBu
         }
     }
 
-    class NewConversationScenario : ScenarioContext
+    public class NewConversationScenario : ScenarioContext
     {
         public string ConversationId { get; set; }
         public string PreviousConversationId { get; set; }

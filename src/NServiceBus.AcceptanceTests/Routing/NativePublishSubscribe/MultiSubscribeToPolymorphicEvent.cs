@@ -60,6 +60,7 @@ public class MultiSubscribeToPolymorphicEvent : NServiceBusAcceptanceTest
                 metadata.RegisterPublisherFor<IMyEvent, Publisher2>();
             });
 
+        [Handler]
         public class MyHandler(Context testContext) : IHandleMessages<IMyEvent>
         {
             public Task Handle(IMyEvent messageThatIsEnlisted, IMessageHandlerContext context)

@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Collections.Generic;
@@ -39,12 +39,12 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageBodyWasEmpty { get; set; }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         static readonly string ErrorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
@@ -52,7 +52,7 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
             EndpointSetup<DefaultServer>((config, context) =>
             {
                 config.SendFailedMessagesTo(ErrorQueueAddress);
-                config.Pipeline.Register(typeof(CustomRecoverabilityActionBehavior), "Applies a custom recoverability actions");
+                config.Pipeline.Register<CustomRecoverabilityActionBehavior>("Applies a custom recoverability actions");
             });
 
         public class CustomRecoverabilityActionBehavior : Behavior<IRecoverabilityContext>
@@ -87,7 +87,8 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
             }
         }
 
-        class InitiatingHandler : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context) => throw new SimulatedException("Some failure");
         }
@@ -95,7 +96,7 @@ public class When_applying_message_recoverability : NServiceBusAcceptanceTest
 
     class ErrorSpy : EndpointConfigurationBuilder
     {
-        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(typeof(ErrorMessageDetector), "Detect incoming error messages"));
+        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register<ErrorMessageDetector>("Detect incoming error messages"));
 
         class ErrorMessageDetector(Context testContext) : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {

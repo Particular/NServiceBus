@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Logging;
 using Outbox;
 using Pipeline;
 using Routing;
@@ -54,6 +55,7 @@ class TransportReceiveToPhysicalMessageConnector(
         }
         else
         {
+            Log.InfoFormat("Outbox duplicate detected for message '{0}'. Skipping handler execution", messageId);
             context.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity);
             activity?.AddTag("nservicebus.outbox.deduplicate-message", true);
             ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
@@ -140,4 +142,6 @@ class TransportReceiveToPhysicalMessageConnector(
 
         throw new Exception("Could not find routing strategy to deserialize");
     }
+
+    static readonly ILog Log = LogManager.GetLogger<TransportReceiveToPhysicalMessageConnector>();
 }

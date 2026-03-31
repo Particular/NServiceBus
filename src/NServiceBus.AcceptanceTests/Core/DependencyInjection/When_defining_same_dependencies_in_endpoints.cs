@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
 using System.Collections.Concurrent;
@@ -18,11 +18,19 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         var result = await Scenario.Define<Context>()
             .WithServices(static services => services.AddSingleton<ISingletonShared, SingletonShared>())
             .WithEndpoint<WithSameDependenciesEndpoint>(b =>
-                b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
+                b.Services(static services =>
+                    {
+                        services.AddSingleton<IDependency, MyDependency>();
+                        services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>();
+                    })
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint1"))
                     .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint1", new SomeMessage())))
             .WithEndpoint<WithSameDependenciesEndpoint>(b =>
-                b.Services(static services => services.AddSingleton<IDependency, MyDependency>())
+                b.Services(static services =>
+                    {
+                        services.AddSingleton<IDependency, MyDependency>();
+                        services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>();
+                    })
                     .CustomConfig(c => c.OverrideLocalAddress("DeeplyNestedDependenciesEndpoint2"))
                     .When((session, c) => session.Send("DeeplyNestedDependenciesEndpoint2", new SomeMessage())))
             .Run();
@@ -38,24 +46,19 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         Assert.That(result.Dependencies.ElementAt(0).Singleton, Is.SameAs(result.Dependencies.ElementAt(1).Singleton));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public ConcurrentBag<IDependency> Dependencies { get; } = [];
 
         public void MaybeCompleted() => MarkAsCompleted(Dependencies.Count >= 2);
     }
 
-    class WithSameDependenciesEndpoint : EndpointConfigurationBuilder
+    public class WithSameDependenciesEndpoint : EndpointConfigurationBuilder
     {
-        public WithSameDependenciesEndpoint() => EndpointSetup<DefaultServer>(b =>
-        {
-            b.EnableFeature<MyFeatureProvidingMoreDependencies>();
+        public WithSameDependenciesEndpoint() => EndpointSetup<DefaultServer>(b => b.EnableFeature<MyFeatureProvidingMoreDependencies>());
 
-            // doing registrations here to exercise some of the possible registration APIs.
-            b.RegisterComponents(static services => services.AddSingleton<IDependencyOfDependencyOfDependency, DependencyOfDependencyOfDependency>());
-        });
-
-        class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage>
+        [Handler]
+        public class SomeMessageHandler(IDependency dependency) : IHandleMessages<SomeMessage>
         {
             public Task Handle(SomeMessage message, IMessageHandlerContext context)
             {
@@ -70,10 +73,10 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         }
     }
 
-    interface ISingletonShared;
+    public interface ISingletonShared;
     class SingletonShared : ISingletonShared;
 
-    interface IDependency
+    public interface IDependency
     {
         IDependencyOfDependency Dependency { get; }
 
@@ -91,7 +94,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         public void DoSomething() => Dependency.DoSomething();
     }
 
-    interface IDependencyOfDependency
+    public interface IDependencyOfDependency
     {
         IDependencyOfDependencyOfDependency Dependency { get; }
 
@@ -105,7 +108,7 @@ public class When_defining_same_dependencies_in_endpoints : NServiceBusAcceptanc
         public void DoSomething() => Dependency.DoSomething();
     }
 
-    interface IDependencyOfDependencyOfDependency
+    public interface IDependencyOfDependencyOfDependency
     {
         void DoSomething();
     }

@@ -45,6 +45,7 @@ public class When_configure_routes_for_unobtrusive_messages : NServiceBusAccepta
                 .Conventions()
                 .DefiningCommandsAs(t => t == typeof(SomeCommand)));
 
+        [Handler]
         public class CommandHandler(Context testContext) : IHandleMessages<SomeCommand>
         {
             public Task Handle(SomeCommand message, IMessageHandlerContext context)

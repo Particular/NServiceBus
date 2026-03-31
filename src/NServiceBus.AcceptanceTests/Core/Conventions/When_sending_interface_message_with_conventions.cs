@@ -48,6 +48,7 @@ public class When_sending_interface_message_with_conventions : NServiceBusAccept
                     .DefiningMessagesAs(type => type.Name.EndsWith("Message"));
             });
 
+        [Handler]
         public class MyMessageInterfaceHandler(Context testContext) : IHandleMessages<IMyInterfaceMessage>
         {
             public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)

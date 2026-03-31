@@ -32,28 +32,29 @@ public class WhenIncomingMessageHandledSuccessfully : NServiceBusAcceptanceTest
         var messageType = metricsListener.AssertTagKeyExists(handlingTime, "nservicebus.message_type");
         Assert.That(messageType, Is.EqualTo(typeof(MyMessage).FullName));
         var handlerType = metricsListener.AssertTagKeyExists(handlingTime, "nservicebus.message_handler_type");
-        Assert.That(handlerType, Is.EqualTo(typeof(MyMessageHandler).FullName));
+        Assert.That(handlerType, Is.EqualTo(typeof(EndpointWithMetrics.MyMessageHandler).FullName));
         var endpoint = metricsListener.AssertTagKeyExists(handlingTime, "nservicebus.queue");
         Assert.That(endpoint, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics))));
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int TotalHandledMessages;
     }
 
-    class EndpointWithMetrics : EndpointConfigurationBuilder
+    public class EndpointWithMetrics : EndpointConfigurationBuilder
     {
         public EndpointWithMetrics() => EndpointSetup<DefaultServer>();
-    }
 
-    class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
-    {
-        public Task Handle(MyMessage message, IMessageHandlerContext context)
+        [Handler]
+        public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            var count = Interlocked.Increment(ref testContext.TotalHandledMessages);
-            testContext.MarkAsCompleted(count == 5);
-            return Task.CompletedTask;
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                var count = Interlocked.Increment(ref testContext.TotalHandledMessages);
+                testContext.MarkAsCompleted(count == 5);
+                return Task.CompletedTask;
+            }
         }
     }
 

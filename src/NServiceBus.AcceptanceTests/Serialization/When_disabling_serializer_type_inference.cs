@@ -55,21 +55,22 @@ class When_disabling_serializer_type_inference : NServiceBusAcceptanceTest
         Assert.That(exception.InnerException.Message, Does.Contain($"Could not determine the message type from the '{Headers.EnclosedMessageTypes}' header"));
     }
 
-    class Context : ScenarioContext
+    internal class Context : ScenarioContext
     {
         public bool HandlerInvoked { get; set; }
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
-                c.Pipeline.Register(typeof(TypeHeaderManipulationBehavior), "Removes the EnclosedMessageTypes header from incoming messages");
+                c.Pipeline.Register<TypeHeaderManipulationBehavior>("Removes the EnclosedMessageTypes header from incoming messages");
                 var serializerSettings = c.UseSerialization<CustomSerializer>();
                 serializerSettings.DisableMessageTypeInference();
             });
 
+        [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<MessageWithoutTypeHeader>
         {
             public Task Handle(MessageWithoutTypeHeader message, IMessageHandlerContext context)

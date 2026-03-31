@@ -33,7 +33,7 @@ public class When_deferring_outer_send : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool DelayedMessageDelayed { get; set; }
         public bool NonDelayedMessageDelayed { get; set; }
@@ -65,11 +65,12 @@ public class When_deferring_outer_send : NServiceBusAcceptanceTest
         }
     }
 
-    class Receiver : EndpointConfigurationBuilder
+    public class Receiver : EndpointConfigurationBuilder
     {
         public Receiver() => EndpointSetup<DefaultServer>();
 
-        class DelayedMessageHandler(Context testContext) : IHandleMessages<DelayedMessage>, IHandleMessages<NonDelayedMessage>
+        [Handler]
+        public class DelayedMessageHandler(Context testContext) : IHandleMessages<DelayedMessage>, IHandleMessages<NonDelayedMessage>
         {
             public Task Handle(DelayedMessage message, IMessageHandlerContext context)
             {

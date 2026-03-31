@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage;
+﻿namespace NServiceBus.AcceptanceTests.Reliability.SynchronizedStorage;
 
 using System;
 using System.Threading;

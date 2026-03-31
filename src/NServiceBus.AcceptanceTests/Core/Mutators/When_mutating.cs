@@ -39,11 +39,13 @@ public class When_mutating : NServiceBusAcceptanceTest
     {
         public Receiver() => EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator(new Mutator()));
 
+        [Handler]
         public class StartMessageHandler : IHandleMessages<StartMessage>
         {
             public Task Handle(StartMessage message, IMessageHandlerContext context) => context.SendLocal(new LoopMessage());
         }
 
+        [Handler]
         public class LoopMessageHandler(Context testContext) : IHandleMessages<LoopMessage>
         {
             public Task Handle(LoopMessage message, IMessageHandlerContext context)

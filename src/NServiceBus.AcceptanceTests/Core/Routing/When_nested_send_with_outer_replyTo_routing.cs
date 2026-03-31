@@ -34,7 +34,7 @@ public class When_nested_send_with_outer_replyTo_routing : NServiceBusAcceptance
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool OuterMessageReceived { get; set; }
         public bool InnerMessageReceived { get; set; }
@@ -66,11 +66,12 @@ public class When_nested_send_with_outer_replyTo_routing : NServiceBusAcceptance
         }
     }
 
-    class ReplyEndpoint : EndpointConfigurationBuilder
+    public class ReplyEndpoint : EndpointConfigurationBuilder
     {
         public ReplyEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<OuterMessage>, IHandleMessages<InnerMessage>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<OuterMessage>, IHandleMessages<InnerMessage>
         {
             public Task Handle(OuterMessage message, IMessageHandlerContext context)
             {

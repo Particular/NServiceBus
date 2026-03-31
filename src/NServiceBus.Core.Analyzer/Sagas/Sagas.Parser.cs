@@ -1,0 +1,291 @@
+﻿#nullable enable
+
+namespace NServiceBus.Core.Analyzer.Sagas;
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NServiceBus.Core.Analyzer.Handlers;
+using static NServiceBus.Core.Analyzer.Handlers.Handlers;
+using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
+
+public static partial class Sagas
+{
+    public readonly record struct SagaSpecs(ImmutableEquatableArray<SagaSpec> Sagas);
+
+    public record SagaSpec : AddHandlerAndSagasRegistrationGenerator.Parser.BaseSpec
+    {
+        public SagaSpec(HandlerSpec handler, string sagaDataFullyQualifiedName, CorrelationPropertyMappingSpec correlationProperty, ImmutableEquatableArray<PropertyMappingSpec> propertyMappings)
+            : base(handler)
+        {
+            SagaDataFullyQualifiedName = sagaDataFullyQualifiedName;
+            CorrelationPropertyMapping = correlationProperty;
+            PropertyMappings = propertyMappings;
+            Handler = handler;
+        }
+
+        public string SagaDataFullyQualifiedName { get; }
+
+        public CorrelationPropertyMappingSpec CorrelationPropertyMapping { get; }
+        public ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings { get; }
+        public HandlerSpec Handler { get; }
+    }
+
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName);
+
+    public static class Parser
+    {
+        public static SagaSpec? Parse(SemanticModel semanticModel, INamedTypeSymbol sagaType, HandlerKnownTypes knownTypes, CancellationToken cancellationToken = default) => ParseCore(semanticModel.Compilation, sagaType, knownTypes, cancellationToken);
+
+        static SagaSpec? ParseCore(Compilation compilation, INamedTypeSymbol sagaType, HandlerKnownTypes knownTypes, CancellationToken cancellationToken)
+        {
+            // Extract saga data type from Saga<TSagaData>
+            var sagaDataType = GetSagaDataType(sagaType);
+            if (sagaDataType == null)
+            {
+                return null;
+            }
+
+            if (sagaType.DeclaringSyntaxReferences.FirstOrDefault()?.SyntaxTree is not { } sagaSyntaxTree)
+            {
+                return null;
+            }
+
+            var sagaSemanticModel = compilation.GetSemanticModel(sagaSyntaxTree);
+
+            var sagaBaseSpec = Handlers.Parser.Parse(sagaType, BaseParser.SpecKind.Saga, knownTypes, cancellationToken);
+            var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            // Analyze ConfigureHowToFindSaga to extract mappings
+            var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, sagaSemanticModel, cancellationToken);
+
+            return correlationProperty is null ? null : new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, correlationProperty.Value, propertyMappings);
+        }
+
+        static INamedTypeSymbol? GetSagaDataType(INamedTypeSymbol sagaType)
+        {
+            // Find Saga<TSagaData> in the inheritance chain
+            var baseType = sagaType.BaseType;
+            while (baseType != null)
+            {
+                if (baseType is { IsGenericType: true, Name: "Saga", TypeArguments: [INamedTypeSymbol sagaDataType] })
+                {
+                    return sagaDataType;
+                }
+
+                baseType = baseType.BaseType;
+            }
+
+            return null;
+        }
+
+        static (CorrelationPropertyMappingSpec?, ImmutableEquatableArray<PropertyMappingSpec>) ExtractPropertyMappings(
+            INamedTypeSymbol sagaType,
+            SemanticModel semanticModel,
+            CancellationToken cancellationToken)
+        {
+            var configureMethod = FindConfigureHowToFindSagaMethod(sagaType);
+
+            // Get syntax node from method symbol (single declaration for overrides)
+            var syntaxRef = configureMethod?.DeclaringSyntaxReferences.FirstOrDefault();
+
+            var methodSyntax = syntaxRef?.GetSyntax(cancellationToken);
+            if (methodSyntax is not MethodDeclarationSyntax methodDeclaration)
+            {
+                return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
+            }
+
+            // Get method body (block or expression body)
+            SyntaxNode? methodBody = methodDeclaration.Body ?? (SyntaxNode?)methodDeclaration.ExpressionBody?.Expression;
+            if (methodBody == null)
+            {
+                return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
+            }
+
+            var walker = new ConfigureMappingWalker(semanticModel, cancellationToken);
+            walker.Visit(methodBody);
+
+            if (walker.CorrelationPropertyMapping is null)
+            {
+                return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
+            }
+
+            // Sort mappings to ensure deterministic ordering
+            walker.Mappings.Sort(static (a, b) => string.CompareOrdinal(a.MessageType, b.MessageType));
+            return (walker.CorrelationPropertyMapping, walker.Mappings.ToImmutableEquatableArray());
+        }
+
+        static IMethodSymbol? FindConfigureHowToFindSagaMethod(
+            INamedTypeSymbol sagaType)
+        {
+            // Look for protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TSagaData> mapper)
+            foreach (var member in sagaType.GetMembers("ConfigureHowToFindSaga"))
+            {
+                if (member is IMethodSymbol { IsOverride: true, DeclaredAccessibility: Accessibility.Protected, Parameters.Length: 1 } method)
+                {
+                    return method;
+                }
+            }
+
+            return null;
+        }
+
+        sealed class ConfigureMappingWalker(
+            SemanticModel semanticModel,
+            CancellationToken cancellationToken)
+            : CSharpSyntaxWalker
+        {
+            public List<PropertyMappingSpec> Mappings { get; } = [];
+            public CorrelationPropertyMappingSpec? CorrelationPropertyMapping { get; private set; }
+
+            public override void VisitInvocationExpression(InvocationExpressionSyntax node)
+            {
+                base.VisitInvocationExpression(node);
+
+                if (node.Expression is MemberAccessExpressionSyntax { Name: IdentifierNameSyntax { Identifier.ValueText: "MapSaga" } })
+                {
+                    // This is a MapSaga call from MapSaga().ToMessage<TMessage>(...)
+                    // The pattern is: mapper.MapSaga(saga => saga.Prop).ToMessage<TMessage>(msg => msg.Prop)
+                    AnalyzeToSagaCall(node);
+                }
+
+                // Look for .ToMessage<TMessage>(...) calls (from MapSaga syntax)
+                if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax { Identifier.ValueText: "ToMessage" } })
+                {
+                    // This is a ToMessage call from MapSaga().ToMessage<TMessage>(...)
+                    // The pattern is: mapper.MapSaga(saga => saga.Prop).ToMessage<TMessage>(msg => msg.Prop)
+                    AnalyzeMapSagaToMessageCall(node);
+                }
+            }
+
+            void AnalyzeToSagaCall(InvocationExpressionSyntax mapSagaCall)
+            {
+                if (mapSagaCall.ArgumentList.Arguments.Count <= 0)
+                {
+                    return;
+                }
+
+                if (mapSagaCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
+                {
+                    return;
+                }
+
+                var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
+                if (memberAccess is null)
+                {
+                    return;
+                }
+
+                // Property name (syntax)
+                var propertyName = memberAccess.Name.Identifier.ValueText;
+                if (string.IsNullOrWhiteSpace(propertyName))
+                {
+                    return;
+                }
+
+                var propertySymbol = ResolvePropertySymbol(semanticModel, memberAccess, cancellationToken);
+                if (propertySymbol is null)
+                {
+                    return;
+                }
+
+                var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
+                // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
+                string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName);
+            }
+
+            void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
+            {
+                if (toMessageCall.ArgumentList.Arguments.Count <= 0)
+                {
+                    return;
+                }
+
+                if (toMessageCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
+                {
+                    return;
+                }
+
+                var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
+                if (memberAccess is null)
+                {
+                    return;
+                }
+
+                // Property name (syntax)
+                var propertyName = memberAccess.Name.Identifier.ValueText;
+                if (string.IsNullOrWhiteSpace(propertyName))
+                {
+                    return;
+                }
+
+                var propertySymbol = ResolvePropertySymbol(semanticModel, memberAccess, cancellationToken);
+                if (propertySymbol is null)
+                {
+                    return;
+                }
+
+                // Message "variable" expression: the left side of "message.Property"
+                var messageExpression = StripSyntaxWrappers(memberAccess.Expression, cancellationToken);
+
+                // Message type (symbol)
+                var messageTypeSymbol = semanticModel.GetTypeInfo(messageExpression, cancellationToken).Type ?? propertySymbol.ContainingType;
+                if (messageTypeSymbol is null)
+                {
+                    return;
+                }
+
+                var messageType = messageTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var messageName = messageTypeSymbol.Name; // simple name, e.g. "SomeMessage"
+
+                var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
+            }
+
+            static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
+                node is ExpressionSyntax expression
+                    ? StripSyntaxWrappers(expression, cancellationToken) as MemberAccessExpressionSyntax
+                    : null;
+
+            static ExpressionSyntax StripSyntaxWrappers(ExpressionSyntax expression, CancellationToken cancellationToken)
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    switch (expression)
+                    {
+                        case CastExpressionSyntax cast:
+                            expression = cast.Expression;
+                            continue;
+                        case ParenthesizedExpressionSyntax parenthesized:
+                            expression = parenthesized.Expression;
+                            continue;
+                        case PostfixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.SuppressNullableWarningExpression } suppressNullable:
+                            expression = suppressNullable.Operand;
+                            continue;
+                        default:
+                            return expression;
+                    }
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+                return expression;
+            }
+
+            static IPropertySymbol? ResolvePropertySymbol(SemanticModel model, MemberAccessExpressionSyntax memberAccess, CancellationToken cancellationToken)
+            {
+                return AsProperty(model.GetSymbolInfo(memberAccess, cancellationToken))
+                    ?? AsProperty(model.GetSymbolInfo(memberAccess.Name, cancellationToken));
+
+                static IPropertySymbol? AsProperty(SymbolInfo symbolInfo) => symbolInfo.Symbol as IPropertySymbol
+                        ?? symbolInfo.CandidateSymbols.OfType<IPropertySymbol>().FirstOrDefault();
+            }
+        }
+    }
+}

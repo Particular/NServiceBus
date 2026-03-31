@@ -28,20 +28,21 @@ public class When_message_type_header_is_whitespaces : NServiceBusAcceptanceTest
         Assert.That(exception, Is.InstanceOf<MessageDeserializationException>());
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool HandlerInvoked { get; set; }
         public bool IncomingMessageReceived { get; set; }
     }
 
-    class ReceivingEndpoint : EndpointConfigurationBuilder
+    public class ReceivingEndpoint : EndpointConfigurationBuilder
     {
         public ReceivingEndpoint() =>
             EndpointSetup<DefaultServer>(c =>
             {
-                c.Pipeline.Register(typeof(TypeHeaderRemovingBehavior), "Removes the EnclosedMessageTypes header from incoming messages");
+                c.Pipeline.Register<TypeHeaderRemovingBehavior>("Removes the EnclosedMessageTypes header from incoming messages");
             });
 
+        [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<MessageWithEmptyTypeHeader>
         {
             public Task Handle(MessageWithEmptyTypeHeader message, IMessageHandlerContext context)

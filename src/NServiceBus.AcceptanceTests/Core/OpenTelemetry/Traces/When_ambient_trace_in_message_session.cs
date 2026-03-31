@@ -46,16 +46,17 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string WrapperActivityId { get; set; }
         public string WrapperActivityRootId { get; set; }
     }
 
-    class EndpointWithAmbientActivity : EndpointConfigurationBuilder
+    public class EndpointWithAmbientActivity : EndpointConfigurationBuilder
     {
         public EndpointWithAmbientActivity() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<LocalMessage>
         {
             public Task Handle(LocalMessage message, IMessageHandlerContext context)

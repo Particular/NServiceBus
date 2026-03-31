@@ -32,12 +32,12 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool OutgoingMessageSent { get; set; }
     }
 
-    class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
+    public class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
     {
         public EndpointWithOutgoingMessages() =>
             EndpointSetup<DefaultServer>((config, context) =>
@@ -47,7 +47,8 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
                 config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
             });
 
-        class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public async Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
@@ -62,21 +63,23 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
         }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() => EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
 
-        class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage message, IMessageHandlerContext context) => throw new SimulatedException("message should be moved to the error queue");
         }
     }
 
-    class ErrorSpy : EndpointConfigurationBuilder
+    public class ErrorSpy : EndpointConfigurationBuilder
     {
         public ErrorSpy() => EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
 
-        class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
+        [Handler]
+        public class InitiatingMessageHandler(Context testContext) : IHandleMessages<InitiatingMessage>
         {
             public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
             {
@@ -89,7 +92,8 @@ public class When_transactionscope_message_is_moved_to_error_queue : NServiceBus
             }
         }
 
-        class SubsequentMessageHandler(Context testContext) : IHandleMessages<SubsequentMessage>
+        [Handler]
+        public class SubsequentMessageHandler(Context testContext) : IHandleMessages<SubsequentMessage>
         {
             public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
             {

@@ -5,10 +5,17 @@ namespace NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Represents an endpoint in the start-up phase where the container is externally managed.
 /// </summary>
+[ObsoleteMetadata(
+    Message = "Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint",
+    TreatAsErrorFromVersion = "11",
+    RemoveInVersion = "12",
+    ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpoint")]
+[Obsolete("Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
 public interface IStartableEndpointWithExternallyManagedContainer
 {
     /// <summary>
@@ -17,11 +24,22 @@ public interface IStartableEndpointWithExternallyManagedContainer
     /// <param name="builder">The <see cref="IServiceProvider"/> instance used to resolve dependencies.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A reference to the endpoint.</returns>
+    [ObsoleteMetadata(
+        Message = "Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12",
+        ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpoint")]
+    [Obsolete("Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     Task<IEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Access to the singleton IMessageSession to be registered in dependency injection container.
     /// Note: Lazily resolved since it's only valid for use once the endpoint has started.
     /// </summary>
+    [ObsoleteMetadata(
+        Message = "The message session is automatically registered in the service collection and no longer needs to be manually registered",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("The message session is automatically registered in the service collection and no longer needs to be manually registered. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     Lazy<IMessageSession> MessageSession { get; }
 }

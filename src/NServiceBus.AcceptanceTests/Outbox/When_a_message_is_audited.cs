@@ -26,12 +26,12 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
         Assert.That(context.MessageAudited, Is.True);
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageAudited { get; set; }
     }
 
-    class EndpointWithAuditOn : EndpointConfigurationBuilder
+    public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
         public EndpointWithAuditOn() =>
             EndpointSetup<DefaultServer>(
@@ -59,16 +59,18 @@ public class When_a_message_is_audited : NServiceBusAcceptanceTest
             }
         }
 
+        [Handler]
         public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context) => Task.CompletedTask;
         }
     }
 
-    class AuditSpyEndpoint : EndpointConfigurationBuilder
+    public class AuditSpyEndpoint : EndpointConfigurationBuilder
     {
         public AuditSpyEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MessageToBeAuditedHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)

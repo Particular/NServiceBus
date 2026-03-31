@@ -39,6 +39,7 @@ public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcc
                 config.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.SendsAtomicWithReceive;
             });
 
+        [Handler]
         public class MyMessageHandler(Context testContext) : IHandleMessages<MyMessage>
         {
             public async Task Handle(MyMessage message, IMessageHandlerContext context)
@@ -57,6 +58,7 @@ public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcc
             }
         }
 
+        [Handler]
         public class MessageHandledHandler(Context testContext) : IHandleMessages<MessageHandledEvent>
         {
             public Task Handle(MessageHandledEvent message, IMessageHandlerContext context)

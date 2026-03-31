@@ -35,7 +35,8 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
     {
         public RetryEndpoint() => EndpointSetup<DefaultServer>();
 
-        class MessageHandler(Context testContext) : IHandleMessages<MessageWhichFailsRetries>
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<MessageWhichFailsRetries>
         {
             public Task Handle(MessageWhichFailsRetries message, IMessageHandlerContext context)
             {
@@ -45,7 +46,7 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public string PhysicalMessageId { get; set; }
     }

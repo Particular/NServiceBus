@@ -9,7 +9,6 @@ using System.Xml.Linq;
 using NuDoq;
 using NUnit.Framework;
 using Enum = NuDoq.Enum;
-using Exception = System.Exception;
 using Text = NuDoq.Text;
 
 [TestFixture]
@@ -18,7 +17,7 @@ public class DocumentationTests
     [Test]
     public void EnsureNoDocumentationIsEmpty()
     {
-        var assembly = typeof(Endpoint).Assembly;
+        var assembly = typeof(EndpointCreator).Assembly;
         var path = Path.Combine(TestContext.CurrentContext.WorkDirectory, Path.GetFileName(assembly.Location));
         var assemblyMembers = DocReader.Read(assembly, Path.ChangeExtension(path, "xml"));
 
@@ -60,7 +59,7 @@ public class DocumentationTests
 
     public class VerificationVisitor : Visitor
     {
-        Stack<MemberInfo> memberInfos = new Stack<MemberInfo>();
+        readonly Stack<MemberInfo> memberInfos = new();
 
         public List<MemberInfo> BadMembers = [];
 

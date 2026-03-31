@@ -40,6 +40,16 @@ public static class DiagnosticSettingsExtensions
     }
 
     /// <summary>
+    /// Writes diagnostics to log instead of to the file or the custom diagnostic writer.
+    /// </summary>
+    /// <param name="config">Configuration object to extend.</param>
+    public static void WriteDiagnosticsToLog(this EndpointConfiguration config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        config.GetSettings().Get<HostingComponent.Settings>().WriteDiagnosticsToLog = true;
+    }
+
+    /// <summary>
     /// Allows full control over how diagnostics data is persisted.
     /// </summary>
     /// <param name="config">Configuration object to extend.</param>

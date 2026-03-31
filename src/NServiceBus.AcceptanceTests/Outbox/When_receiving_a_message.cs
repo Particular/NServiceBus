@@ -20,7 +20,7 @@ public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAccep
         Assert.That(context.OrderAckReceived, Is.EqualTo(1), "Order ack should have been received");
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public int OrderAckReceived { get; set; }
     }
@@ -34,12 +34,14 @@ public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAccep
                 b.EnableOutbox();
             });
 
-        class PlaceOrderHandler : IHandleMessages<PlaceOrder>
+        [Handler]
+        public class PlaceOrderHandler : IHandleMessages<PlaceOrder>
         {
             public Task Handle(PlaceOrder message, IMessageHandlerContext context) => context.SendLocal(new SendOrderAcknowledgement());
         }
 
-        class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
+        [Handler]
+        public class SendOrderAcknowledgementHandler(Context testContext) : IHandleMessages<SendOrderAcknowledgement>
         {
             public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
             {

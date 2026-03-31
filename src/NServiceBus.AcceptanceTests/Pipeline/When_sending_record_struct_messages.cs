@@ -43,6 +43,7 @@ public class When_sending_record_struct_messages : NServiceBusAcceptanceTest
     {
         public RecordHandlingEndpoint() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class RecordMessageHandler(Context testContext) :
             IHandleMessages<RecordStructMessage>,
             IHandleMessages<ReadonlyRecordStructMessage>

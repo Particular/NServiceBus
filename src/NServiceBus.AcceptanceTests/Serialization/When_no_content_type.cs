@@ -27,6 +27,7 @@ public class When_no_content_type : NServiceBusAcceptanceTest
     {
         public EndpointViaType() => EndpointSetup<DefaultServer>(config => config.RegisterMessageMutator(new ContentTypeMutator()));
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<Message>
         {
             public Task Handle(Message request, IMessageHandlerContext context)

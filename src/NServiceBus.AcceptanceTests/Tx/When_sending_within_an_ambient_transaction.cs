@@ -88,6 +88,7 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
                 routing.RouteToEndpoint(typeof(MessageThatIsNotEnlisted), typeof(TransactionalEndpoint));
             });
 
+        [Handler]
         public class MessageThatIsEnlistedHandler(Context testContext) : IHandleMessages<MessageThatIsEnlisted>
         {
             public Task Handle(MessageThatIsEnlisted messageThatIsEnlisted, IMessageHandlerContext context)
@@ -105,6 +106,7 @@ public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceT
             }
         }
 
+        [Handler]
         public class MessageThatIsNotEnlistedHandler(Context testContext) : IHandleMessages<MessageThatIsNotEnlisted>
         {
             public Task Handle(MessageThatIsNotEnlisted messageThatIsNotEnlisted, IMessageHandlerContext context)

@@ -41,16 +41,18 @@ public class When_a_message_is_faulted : NServiceBusAcceptanceTest
                 c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>();
             });
 
+        [Handler]
         public class MessageToBeAuditedHandler : IHandleMessages<MessageThatFails>
         {
             public Task Handle(MessageThatFails message, IMessageHandlerContext context) => throw new SimulatedException();
         }
     }
 
-    class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
+    public class EndpointThatHandlesErrorMessages : EndpointConfigurationBuilder
     {
         public EndpointThatHandlesErrorMessages() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class MessageThatFailsHandler(Context testContext) : IHandleMessages<MessageThatFails>
         {
             public Task Handle(MessageThatFails message, IMessageHandlerContext context)

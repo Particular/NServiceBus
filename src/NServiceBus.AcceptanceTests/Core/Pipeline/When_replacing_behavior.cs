@@ -24,7 +24,7 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool OriginalBehaviorInvoked { get; set; }
         public bool ReplacementBehaviorInvoked { get; set; }
@@ -48,7 +48,7 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
         }
     }
 
-    class EndpointWithReplacement : EndpointConfigurationBuilder
+    public class EndpointWithReplacement : EndpointConfigurationBuilder
     {
         public EndpointWithReplacement() =>
             EndpointSetup<DefaultServer>((c, r) =>
@@ -58,6 +58,7 @@ public class When_replacing_behavior : NServiceBusAcceptanceTest
                 c.Pipeline.Register("demoBehavior", new OriginalBehavior((Context)r.ScenarioContext), "test behavior replacement");
             });
 
+        [Handler]
         public class Handler(Context testContext) : IHandleMessages<Message>
         {
             public Task Handle(Message message, IMessageHandlerContext context)

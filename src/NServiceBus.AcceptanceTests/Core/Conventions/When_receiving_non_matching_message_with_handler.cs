@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Conventions;
+﻿namespace NServiceBus.AcceptanceTests.Core.Conventions;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -34,7 +34,8 @@ public class When_receiving_non_matching_message_with_handler : NServiceBusAccep
     {
         public Receiver() => EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => false));
 
-        class MyHandler(Context testContext) : IHandleMessages<NonMatchingMessageWithHandler>
+        [Handler]
+        public class MyHandler(Context testContext) : IHandleMessages<NonMatchingMessageWithHandler>
         {
             public Task Handle(NonMatchingMessageWithHandler message, IMessageHandlerContext context)
             {
