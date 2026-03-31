@@ -25,6 +25,11 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
                 if (ctx.HasNativePubSubSupport)
                 {
                     ctx.Subscriber1Subscribed = true;
+                    ctx.AddTrace("Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
+                }
+                else
+                {
+                    ctx.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
                 }
             }))
             .WithEndpoint<Subscriber2>(b => b.When(async (session, ctx) =>
@@ -33,6 +38,11 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
                 if (ctx.HasNativePubSubSupport)
                 {
                     ctx.Subscriber2Subscribed = true;
+                    ctx.AddTrace("Subscriber2 is now subscribed (at least we have asked the broker to be subscribed)");
+                }
+                else
+                {
+                    ctx.AddTrace("Subscriber2 has now asked to be subscribed to MyEvent");
                 }
             }))
             .WithEndpoint<Collector>()
