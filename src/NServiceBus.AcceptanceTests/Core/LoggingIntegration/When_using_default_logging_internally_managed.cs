@@ -1,11 +1,15 @@
 #nullable enable
 
+#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this entire test can be deleted because there is no internally managed mode anymore.
+
 namespace NServiceBus.AcceptanceTests.Core.LoggingIntegration;
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
+using AcceptanceTesting.Support;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,9 +33,8 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
     {
         // Reset LogManager to the default factory so the disposed externalLoggerFactory
         // is no longer referenced and subsequent tests start with a clean slate.
-#pragma warning disable CS0618 // Test exercises deprecated DefaultFactory API intentionally
+        // Test exercises deprecated DefaultFactory API intentionally
         LogManager.Use<DefaultFactory>();
-#pragma warning restore CS0618
 
         if (Directory.Exists(logDirectory))
         {
@@ -42,23 +45,21 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
     [Test]
     public async Task Should_write_to_rolling_file()
     {
-#pragma warning disable CS0618 // Test exercises deprecated DefaultFactory API intentionally
         var defaultFactory = LogManager.Use<DefaultFactory>();
         defaultFactory.Directory(logDirectory);
         defaultFactory.Level(Logging.LogLevel.Debug);
-#pragma warning restore CS0618
 
         await Scenario.Define<Context>()
             // clearing out the context appender to ensure that only the default logging is used and we can verify the output
             .WithServices(services => services.AddLogging(l => l.ClearProviders()))
             .WithEndpoint<EndpointWithDefaultLogging>(b =>
-            {
                 b.ToCreateInstance(
-#pragma warning disable CS0618 // Type or member is obsolete -- In the next major version this entire test can be deleted because there is no internally managed mode anymore.
                     (_, configuration) => Endpoint.Create(configuration),
-                    (startableEndpoint, _, ct) => startableEndpoint.Start(ct));
-#pragma warning restore CS0618 // Type or member is obsolete
-            })
+                    async (startableEndpoint, _, ct) =>
+                    {
+                        var endpoint = await startableEndpoint.Start(ct);
+                        return endpoint.Stop;
+                    }))
             .Done(c => c.EndpointsStarted)
             .Run();
 
@@ -80,3 +81,5 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
         public EndpointWithDefaultLogging() => EndpointSetup<DefaultServer>();
     }
 }
+
+#pragma warning restore CS0618 // Type or member is obsolete

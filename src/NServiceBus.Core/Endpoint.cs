@@ -5,7 +5,9 @@ namespace NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Configuration.AdvancedExtensibility;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Particular.Obsoletes;
 
 /// <summary>
@@ -33,9 +35,14 @@ public static class Endpoint
     public static async Task<IStartableEndpoint> Create(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(configuration);
-        var serviceCollection = new ServiceCollection();
+        // Backdoor for acceptance testing
+        var keyedServices = configuration.GetSettings().GetOrDefault<KeyedServiceCollectionAdapter>();
+        IServiceCollection serviceCollection = keyedServices is not null ? keyedServices : new ServiceCollection();
         var endpointCreator = EndpointCreator.Create(configuration, serviceCollection);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        serviceCollection.TryAddSingleton<IMessageSession>(endpointCreator.MessageSession);
+
+        // Backdoor for acceptance testing
+        IServiceProvider serviceProvider = keyedServices is not null ? new KeyedServiceProviderAdapter(keyedServices.Inner.BuildServiceProvider(), keyedServices.ServiceKey, keyedServices, ownsProvider: true) : serviceCollection.BuildServiceProvider();
 
         var host = new InternallyManagedContainerHost(endpointCreator, serviceProvider);
         await host.Create(cancellationToken).ConfigureAwait(false);

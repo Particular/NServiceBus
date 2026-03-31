@@ -12,7 +12,7 @@ using Transport;
 
 public class EndpointRunner(
     Func<IServiceCollection, EndpointConfiguration, Task<object>> createCallback,
-    Func<object, IServiceProvider, CancellationToken, Task<IEndpointInstance>> startCallback,
+    Func<object, IServiceProvider, CancellationToken, Task<Func<CancellationToken, Task>>> startCallback,
     bool doNotFailOnErrorMessages,
     int instanceIndex)
     : ComponentRunner
@@ -20,7 +20,7 @@ public class EndpointRunner(
     static readonly ILog Logger = LogManager.GetLogger<EndpointRunner>();
     EndpointBehavior? behavior;
     object? startable;
-    IEndpointInstance? endpointInstance;
+    Func<CancellationToken, Task>? endpointHandle;
     EndpointCustomizationConfiguration? configuration;
     ScenarioContext? scenarioContext;
     KeyedServiceCollectionAdapter? services;
@@ -118,7 +118,7 @@ public class EndpointRunner(
                 await action(serviceProvider, scenarioContext, cancellationToken).ConfigureAwait(false);
             }
 
-            endpointInstance = await startCallback(startable, serviceProvider, cancellationToken).ConfigureAwait(false);
+            endpointHandle = await startCallback(startable, serviceProvider, cancellationToken).ConfigureAwait(false);
 
             foreach (var action in behavior.ResolveAfterStart)
             {
@@ -158,11 +158,12 @@ public class EndpointRunner(
     {
         await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
 
-        ArgumentNullException.ThrowIfNull(endpointInstance);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(behavior);
         ArgumentNullException.ThrowIfNull(scenarioContext);
 
         var executedWhens = new HashSet<Guid>();
+        var messageSession = serviceProvider.GetRequiredService<IMessageSession>();
 
         while (true)
         {
@@ -180,7 +181,7 @@ public class EndpointRunner(
                     continue;
                 }
 
-                if (await when.ExecuteAction(scenarioContext, endpointInstance).ConfigureAwait(false))
+                if (await when.ExecuteAction(scenarioContext, messageSession).ConfigureAwait(false))
                 {
                     executedWhens.Add(when.Id);
                 }
@@ -198,9 +199,9 @@ public class EndpointRunner(
         ScenarioContext.CurrentEndpoint = configuration.EndpointName;
         try
         {
-            if (endpointInstance != null)
+            if (endpointHandle != null)
             {
-                await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
+                await endpointHandle(cancellationToken).ConfigureAwait(false);
             }
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))

@@ -73,7 +73,7 @@ public class CriticalError
         }
     }
 
-    internal void SetEndpoint(IEndpointInstance endpointInstance, CancellationToken cancellationToken = default)
+    internal void SetEndpoint(RunningEndpointInstance endpointInstance, CancellationToken cancellationToken = default)
     {
         lock (endpointCriticalLock)
         {
@@ -89,7 +89,7 @@ public class CriticalError
     readonly Func<CriticalErrorContext, CancellationToken, Task> criticalErrorAction;
 
     readonly List<LatentCritical> criticalErrors = [];
-    IEndpointInstance? endpoint;
+    RunningEndpointInstance? endpoint;
     readonly Lock endpointCriticalLock = new();
 
     record LatentCritical(string Message, Exception Exception);

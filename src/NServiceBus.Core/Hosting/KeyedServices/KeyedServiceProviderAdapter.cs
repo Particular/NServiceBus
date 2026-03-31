@@ -6,12 +6,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequiredService, IServiceProviderIsKeyedService, IDisposable, IAsyncDisposable
 {
-    public KeyedServiceProviderAdapter(IServiceProvider serviceProvider, object serviceKey, KeyedServiceCollectionAdapter serviceCollection)
+    public KeyedServiceProviderAdapter(IServiceProvider serviceProvider, object serviceKey, KeyedServiceCollectionAdapter serviceCollection, bool ownsProvider = false)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(serviceKey);
@@ -21,6 +22,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         serviceKeyedServiceKey = new KeyedServiceKey(serviceKey);
         anyKey = KeyedServiceKey.AnyKey(serviceKey);
         this.serviceCollection = serviceCollection;
+        this.ownsProvider = ownsProvider;
 
         keyedScopeFactory = new KeyedServiceScopeFactory(serviceProvider.GetRequiredService<IServiceScopeFactory>(), serviceKeyedServiceKey, serviceCollection);
     }
@@ -45,6 +47,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     public object? GetService(Type serviceType)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
         if (IsServiceProvider(serviceType))
         {
@@ -70,6 +73,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     public object GetRequiredService(Type serviceType)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
         if (IsServiceProvider(serviceType))
         {
@@ -95,6 +99,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     public object? GetKeyedService(Type serviceType, object? serviceKey)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
         if (IsServiceProvider(serviceType))
         {
@@ -111,7 +116,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         {
             return IsKeyedService(serviceType, computedKey)
                 ? serviceProvider.GetKeyedService(serviceType, computedKey)
-                : serviceProvider.GetKeyedService(serviceType, serviceKey);
+                : serviceProvider.GetKeyedService(serviceType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
@@ -119,7 +124,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         {
             return IsKeyedService(itemType, computedKey)
                 ? serviceProvider.GetKeyedServices(itemType, computedKey)
-                : serviceProvider.GetKeyedServices(itemType, serviceKey);
+                : serviceProvider.GetKeyedServices(itemType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         return GetAllServices(serviceProvider, itemType);
@@ -128,6 +133,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
         if (IsServiceProvider(serviceType))
         {
@@ -144,7 +150,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         {
             return IsKeyedService(serviceType, computedKey)
                 ? serviceProvider.GetRequiredKeyedService(serviceType, computedKey)
-                : serviceProvider.GetRequiredKeyedService(serviceType, serviceKey);
+                : serviceProvider.GetRequiredKeyedService(serviceType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
@@ -152,17 +158,51 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         {
             return IsKeyedService(itemType, computedKey)
                 ? serviceProvider.GetKeyedServices(itemType, computedKey)
-                : serviceProvider.GetKeyedServices(itemType, serviceKey);
+                : serviceProvider.GetKeyedServices(itemType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         return GetAllServices(serviceProvider, itemType);
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
+        if (Interlocked.Exchange(ref disposeSignaled, 1) != 0)
+        {
+            return;
+        }
+
+        if (!ownsProvider || serviceProvider is null)
+        {
+            return;
+        }
+
+        if (serviceProvider is IAsyncDisposable asyncDisposable)
+        {
+            await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+            serviceProvider = null;
+        }
     }
 
-    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+
+    public void Dispose()
+    {
+        if (Interlocked.Exchange(ref disposeSignaled, 1) != 0)
+        {
+            return;
+        }
+
+        if (!ownsProvider)
+        {
+            return;
+        }
+
+        (serviceProvider as IDisposable)?.Dispose();
+        serviceProvider = null;
+    }
+
+    // This is a convenience helper that in case someone throws in the KeyedServiceKey, it returns the base key, otherwise the original key
+    // this allows resolving services by either the KeyedServiceKey or the base key and makes the experience consistent
+    static object? GetBaseKeyOrServiceKey(object? serviceKey) => serviceKey is KeyedServiceKey key ? key.BaseKey : serviceKey;
 
     KeyedServiceKey GetOrCreateComputedKey(object? serviceKey)
     {
@@ -189,9 +229,11 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     static bool IsServiceProvider(Type serviceType) => serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService) || serviceType == typeof(IServiceProviderIsKeyedService) || serviceType == typeof(IServiceProviderIsService);
     static bool IsScopeFactory(Type serviceType) => serviceType == typeof(IServiceScopeFactory);
 
-    readonly IServiceProvider serviceProvider;
+    int disposeSignaled;
+    IServiceProvider? serviceProvider;
     readonly KeyedServiceKey serviceKeyedServiceKey;
     readonly KeyedServiceCollectionAdapter serviceCollection;
+    readonly bool ownsProvider;
     readonly KeyedServiceKey anyKey;
     readonly KeyedServiceScopeFactory keyedScopeFactory;
 }

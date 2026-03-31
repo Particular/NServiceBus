@@ -51,7 +51,7 @@ class BaseEndpointLifecycle(
         endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask<IEndpointInstance> CreateAndStart(CancellationToken cancellationToken = default)
+    public async ValueTask<RunningEndpointInstance> CreateAndStart(CancellationToken cancellationToken = default)
     {
         await Create(cancellationToken).ConfigureAwait(false);
         await Start(cancellationToken).ConfigureAwait(false);
@@ -91,7 +91,7 @@ class BaseEndpointLifecycle(
     readonly SemaphoreSlim createSemaphore = new(1, 1);
 
     volatile StartableEndpoint? startableEndpoint;
-    IEndpointInstance? endpointInstance;
+    RunningEndpointInstance? endpointInstance;
     IAsyncDisposable? providerLease;
     int isDisposed;
 }

@@ -93,13 +93,14 @@ public static class ServiceCollectionExtensions
         {
             // Backdoor for acceptance testing
             var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
+            var baseKey = keyedServices.ServiceKey.BaseKey;
 
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
             var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, keyedServices);
 
-            services.AddKeyedSingleton(endpointIdentifier, externallyManagedContainerHost);
-            services.AddKeyedSingleton<IEndpointLifecycle>(endpointIdentifier, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, endpointIdentifier, keyedServices));
-            services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(endpointIdentifier)));
+            services.AddKeyedSingleton(baseKey, externallyManagedContainerHost);
+            services.AddKeyedSingleton<IEndpointLifecycle>(baseKey, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, keyedServices.ServiceKey, keyedServices));
+            services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(baseKey)));
         }
 
         services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
