@@ -2,9 +2,9 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Extensibility;
 using Transport;
 
 class InMemoryMessagePump(
@@ -23,15 +23,15 @@ class InMemoryMessagePump(
 
     public ReceiveSettings ReceiveSettings { get; } = receiveSettings;
 
-    public void ConfigureSubscriptionManager(ISubscriptionManager? subscriptionManager)
-    {
-        Subscriptions = subscriptionManager;
-    }
+    internal InlineExecutionRunner Runner { get; } = new(receiveAddress, transactionMode, criticalErrorAction, broker, static () => CancellationToken.None);
+
+    public void ConfigureSubscriptionManager(ISubscriptionManager? subscriptionManager) => Subscriptions = subscriptionManager;
 
     public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
     {
-        this.onMessage = onMessage;
-        this.onError = onError;
+        Runner.UpdateProcessingCancellationTokenAccessor(() => messageProcessingCts?.Token ?? CancellationToken.None);
+        Runner.Initialize(onMessage, onError);
+        Runner.SetPump(this);
         pushRuntimeSettings = limitations;
         return Task.CompletedTask;
     }
@@ -65,8 +65,9 @@ class InMemoryMessagePump(
                 await broker.SimulateReceiveAsync(ReceiveAddress, cancellationToken).ConfigureAwait(false);
                 envelope = await queue.Dequeue(cancellationToken).ConfigureAwait(false);
 
-                if (IsExpired(envelope))
+                if (IsExpired(envelope, broker.GetCurrentTime()))
                 {
+                    TryFaultScopeFromEnvelope(envelope, new InvalidOperationException($"Inline execution scope '{envelope.InlineState?.Scope.RootExecutionId}' expired before the message could be received."));
                     envelope.Dispose();
                     envelope = null;
                     continue;
@@ -74,7 +75,23 @@ class InMemoryMessagePump(
 
                 isProcessing = true;
 
-                await ProcessEnvelopeAsync(envelope, cancellationToken).ConfigureAwait(false);
+                var inlineState = envelope.InlineState;
+                if (inlineState != null)
+                {
+                    if (TryGetInlineScope(inlineState.Scope.RootExecutionId, out var existingScope) && existingScope != null && !existingScope.Completion.IsCompleted)
+                    {
+                        envelope = envelope with { InlineState = new InlineEnvelopeState(existingScope, inlineState.Depth, inlineState.IsRootDispatch) };
+                        // Remove from activeScopes while processing - will be re-registered if delayed retry
+                        RemoveInlineScope(existingScope.RootExecutionId);
+                    }
+                    else if (existingScope == null || existingScope.Completion.IsCompleted)
+                    {
+                        // Scope was already completed or removed - process without inline semantics
+                        envelope = envelope with { InlineState = null };
+                    }
+                }
+
+                await Runner.Process(envelope, cancellationToken).ConfigureAwait(false);
 
                 isProcessing = false;
                 envelope = null;
@@ -103,122 +120,19 @@ class InMemoryMessagePump(
         }
     }
 
-    async Task ProcessEnvelopeAsync(BrokerEnvelope envelope, CancellationToken pumpCancellationToken)
-    {
-        var headers = new Dictionary<string, string>(envelope.Headers);
-
-        var transportTransaction = new TransportTransaction();
-        InMemoryReceiveTransaction? receiveTransaction = null;
-
-        if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
-        {
-            receiveTransaction = new InMemoryReceiveTransaction();
-            transportTransaction.Set<IInMemoryReceiveTransaction>(receiveTransaction);
-            transportTransaction.Set(receiveTransaction.StorageTransaction);
-        }
-
-        var contextBag = new ContextBag();
-
-        var messageContext = new MessageContext(
-            envelope.MessageId,
-            headers,
-            envelope.Body,
-            transportTransaction,
-            ReceiveAddress,
-            contextBag);
-
-        try
-        {
-            await onMessage(messageContext, ProcessingCancellationToken).ConfigureAwait(false);
-
-            if (receiveTransaction != null)
-            {
-                receiveTransaction.Commit();
-                await CommitPendingToBrokerAsync(receiveTransaction, ProcessingCancellationToken).ConfigureAwait(false);
-            }
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException || !ProcessingCancellationToken.IsCancellationRequested)
-        {
-            receiveTransaction?.Rollback();
-
-            var errorContext = receiveTransaction != null
-                ? new ErrorContext(
-                    ex,
-                    new Dictionary<string, string>(envelope.Headers),
-                    envelope.MessageId,
-                    envelope.Body,
-                    transportTransaction,
-                    envelope.DeliveryAttempt,
-                    ReceiveAddress,
-                    contextBag)
-                : new ErrorContext(
-                    ex,
-                    new Dictionary<string, string>(envelope.Headers),
-                    envelope.MessageId,
-                    envelope.Body,
-                    new TransportTransaction(),
-                    envelope.DeliveryAttempt,
-                    ReceiveAddress,
-                    contextBag);
-
-            var result = await HandleErrorAsync(errorContext, messageContext, receiveTransaction, pumpCancellationToken).ConfigureAwait(false);
-
-            if (receiveTransaction != null)
-            {
-                receiveTransaction.Commit();
-                await CommitPendingToBrokerAsync(receiveTransaction, ProcessingCancellationToken).ConfigureAwait(false);
-            }
-
-            if (result == ErrorHandleResult.RetryRequired)
-            {
-                var retryEnvelope = envelope.WithDeliveryAttempt(envelope.DeliveryAttempt + 1);
-                var retryQueue = broker.GetOrCreateQueue(ReceiveAddress);
-                await retryQueue.Enqueue(retryEnvelope, CancellationToken.None).ConfigureAwait(false);
-                return;
-            }
-
-            envelope.Dispose();
-        }
-    }
-
-    async Task<ErrorHandleResult> HandleErrorAsync(
-        ErrorContext errorContext,
-        MessageContext messageContext,
-        InMemoryReceiveTransaction? receiveTransaction,
-        CancellationToken pumpCancellationToken)
-    {
-        try
-        {
-            return await onError(errorContext, ProcessingCancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception onErrorException) when (onErrorException is not OperationCanceledException || !ProcessingCancellationToken.IsCancellationRequested)
-        {
-            receiveTransaction?.Rollback();
-            criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", onErrorException, pumpCancellationToken);
-            return ErrorHandleResult.RetryRequired;
-        }
-    }
-
-    async Task CommitPendingToBrokerAsync(InMemoryReceiveTransaction receiveTransaction, CancellationToken cancellationToken)
-    {
-        var envelopes = receiveTransaction.GetPendingAndClear();
-        foreach (var envelope in envelopes)
-        {
-            var queue = broker.GetOrCreateQueue(envelope.Destination);
-            await queue.Enqueue(envelope, cancellationToken).ConfigureAwait(false);
-        }
-    }
-
-    static bool IsExpired(BrokerEnvelope envelope) =>
-        envelope.DiscardAfter.HasValue && envelope.DiscardAfter.Value < DateTimeOffset.UtcNow;
+    static bool IsExpired(BrokerEnvelope envelope, DateTimeOffset now) =>
+        envelope.DiscardAfter.HasValue && envelope.DiscardAfter.Value < now;
 
     public async Task StopReceive(CancellationToken cancellationToken = default)
     {
-        pumpCts?.Cancel();
-
-        if (cancellationToken.IsCancellationRequested)
+        if (pumpCts is not null)
         {
-            messageProcessingCts?.Cancel();
+            await pumpCts.CancelAsync().ConfigureAwait(false);
+        }
+
+        if (cancellationToken.IsCancellationRequested && messageProcessingCts is not null)
+        {
+            await messageProcessingCts.CancelAsync().ConfigureAwait(false);
         }
 
         if (pumpTasks.Count != 0)
@@ -227,7 +141,7 @@ class InMemoryMessagePump(
             {
                 await Task.WhenAll(pumpTasks).ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (pumpCts?.IsCancellationRequested == true || cancellationToken.IsCancellationRequested)
             {
             }
             finally
@@ -239,6 +153,8 @@ class InMemoryMessagePump(
                 messageProcessingCts = null;
             }
         }
+
+        await FaultAndDrainRemainingScopesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
@@ -248,12 +164,92 @@ class InMemoryMessagePump(
         await StartReceive(cancellationToken).ConfigureAwait(false);
     }
 
-    CancellationToken ProcessingCancellationToken => messageProcessingCts?.Token ?? CancellationToken.None;
+    public void RegisterInlineScope(InlineExecutionScope scope)
+    {
+        lock (activeScopesLock)
+        {
+            activeScopes[scope.RootExecutionId] = scope;
+        }
 
-    OnMessage onMessage = null!;
-    OnError onError = null!;
+        _ = scope.Completion.ContinueWith(
+            _ => RemoveInlineScope(scope.RootExecutionId),
+            CancellationToken.None,
+            TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
+    }
+
+    bool TryGetInlineScope(Guid rootExecutionId, out InlineExecutionScope? scope)
+    {
+        lock (activeScopesLock)
+        {
+            return activeScopes.TryGetValue(rootExecutionId, out scope);
+        }
+    }
+
+    void RemoveInlineScope(Guid rootExecutionId)
+    {
+        lock (activeScopesLock)
+        {
+            activeScopes.Remove(rootExecutionId);
+        }
+    }
+
+    void TryFaultScopeFromEnvelope(BrokerEnvelope envelope, Exception exception)
+    {
+        var inlineState = envelope.InlineState;
+        if (inlineState == null)
+        {
+            return;
+        }
+
+        lock (activeScopesLock)
+        {
+            if (activeScopes.TryGetValue(inlineState.Scope.RootExecutionId, out var scope) && !scope.Completion.IsCompleted)
+            {
+                scope.MarkTerminalFailure(exception);
+            }
+        }
+    }
+
+    async Task FaultAndDrainRemainingScopesAsync(CancellationToken cancellationToken)
+    {
+        List<InlineExecutionScope> scopesToDrain;
+        lock (activeScopesLock)
+        {
+            scopesToDrain = [.. activeScopes.Values];
+        }
+
+        foreach (var scope in scopesToDrain)
+        {
+            scope.MarkTerminalFailure(new OperationCanceledException($"Inline execution scope '{scope.RootExecutionId}' was faulted because the message pump stopped."));
+        }
+
+        await Task.WhenAll(scopesToDrain.Select(scope => AwaitCompletionIgnoringFailure(scope, cancellationToken))).ConfigureAwait(false);
+
+        lock (activeScopesLock)
+        {
+            activeScopes.Clear();
+        }
+    }
+
+    static async Task AwaitCompletionIgnoringFailure(InlineExecutionScope scope, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await scope.Completion.WaitAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch when (scope.Completion.IsCompleted)
+        {
+        }
+    }
+
     PushRuntimeSettings pushRuntimeSettings = null!;
     CancellationTokenSource? pumpCts;
     CancellationTokenSource? messageProcessingCts;
     readonly List<Task> pumpTasks = [];
+    readonly Dictionary<Guid, InlineExecutionScope> activeScopes = [];
+    readonly Lock activeScopesLock = new();
 }

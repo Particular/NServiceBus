@@ -10,7 +10,10 @@ class InMemoryTransportInfrastructure : TransportInfrastructure
 {
     public InMemoryTransportInfrastructure(HostSettings hostSettings, ReceiveSettings[] receivers, InMemoryTransport transport, InMemoryBroker broker)
     {
-        Dispatcher = new InMemoryDispatcher(broker);
+        var localReceiveAddresses = receivers
+            .Select(r => ToTransportAddress(r.ReceiveAddress))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         this.broker = broker;
         this.transport = transport;
         criticalErrorAction = hostSettings.CriticalErrorAction;
@@ -18,6 +21,21 @@ class InMemoryTransportInfrastructure : TransportInfrastructure
         Receivers = receivers.ToDictionary(
             r => r.Id,
             r => (IMessageReceiver)CreateReceiver(r));
+
+        var pumpsByAddress = Receivers.Values
+            .Cast<InMemoryMessagePump>()
+            .ToDictionary(pump => pump.ReceiveAddress, pump => pump, StringComparer.OrdinalIgnoreCase);
+
+        var inlineExecutionRunners = pumpsByAddress.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Runner, StringComparer.OrdinalIgnoreCase);
+
+        var dispatcher = new InMemoryDispatcher(broker, transport.InlineExecutionSettings, localReceiveAddresses, inlineExecutionRunners, pumpsByAddress);
+
+        foreach (var runner in inlineExecutionRunners.Values)
+        {
+            runner.SetDispatcher(dispatcher);
+        }
+
+        Dispatcher = dispatcher;
     }
 
     InMemoryMessagePump CreateReceiver(ReceiveSettings receiveSettings)
