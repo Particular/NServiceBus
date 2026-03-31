@@ -17,6 +17,7 @@ public sealed record BrokerEnvelope(
 {
     public required ArrayPool<byte> Pool { get; init; }
     public required byte[] Buffer { get; init; }
+    internal InlineEnvelopeState? InlineState { get; init; }
 
     public BrokerEnvelope WithDeliveryAttempt(int attempt) =>
         CloneWith(DeliveryAttempt: attempt);

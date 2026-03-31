@@ -1,5 +1,6 @@
 namespace NServiceBus;
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +29,25 @@ public class InMemoryTransport : TransportDefinition
         configuredBroker = broker;
     }
 
+    /// <summary>
+    /// Creates a new instance of the in-memory transport with inline execution enabled.
+    /// </summary>
+    /// <param name="broker">
+    /// Optional broker to use when dependency injection does not provide an <see cref="InMemoryBroker" />.
+    /// </param>
+    /// <param name="inlineExecutionOptions">Inline execution options to snapshot for this transport instance.</param>
+    public InMemoryTransport(InMemoryBroker? broker, InlineExecutionOptions inlineExecutionOptions)
+        : base(TransportTransactionMode.SendsAtomicWithReceive, supportsDelayedDelivery: true, supportsPublishSubscribe: true, supportsTTBR: true)
+    {
+        ArgumentNullException.ThrowIfNull(inlineExecutionOptions);
+
+        configuredBroker = broker;
+        InlineExecutionSettings = new InlineExecutionSettings(inlineExecutionOptions);
+
+        // Enable the feature that will register the recoverability behavior
+        EnableEndpointFeature<InlineExecutionFeature>();
+    }
+
     internal InMemoryBroker GetBroker() => configuredBroker ?? SharedBroker;
 
     /// <inheritdoc />
@@ -52,4 +72,6 @@ public class InMemoryTransport : TransportDefinition
     internal static InMemoryBroker SharedBroker { get; } = new();
 
     readonly InMemoryBroker? configuredBroker;
+
+    internal InlineExecutionSettings InlineExecutionSettings { get; } = InlineExecutionSettings.Disabled;
 }
