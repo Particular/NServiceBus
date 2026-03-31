@@ -58,7 +58,7 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
                     async (startableEndpoint, _, ct) =>
                     {
                         var endpoint = await startableEndpoint.Start(ct);
-                        return new StoppableEndpoint(endpoint);
+                        return endpoint.Stop;
                     }))
             .Done(c => c.EndpointsStarted)
             .Run();
@@ -72,12 +72,6 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
             Assert.That(logContent, Does.Contain("EndpointWithDefaultLogging"));
             Assert.That(logContent, Does.Contain("INFO"));
         }
-    }
-
-    class StoppableEndpoint(IEndpointInstance endpointInstance) : IStoppableEndpointInstance
-    {
-        public IMessageSession MessageSession => endpointInstance;
-        public Task Stop(CancellationToken cancellationToken = default) => endpointInstance.Stop(cancellationToken);
     }
 
     public class Context : ScenarioContext;

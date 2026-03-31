@@ -26,7 +26,7 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
                     async (startableEndpoint, _, ct) =>
                     {
                         var endpoint = await startableEndpoint.Start(ct);
-                        return new StoppableEndpoint(endpoint);
+                        return endpoint.Stop;
                     });
                 b.When(e => e.SendLocal(new SomeMessage()));
             })
@@ -37,12 +37,6 @@ public class When_registering_async_disposables_internally_managed : NServiceBus
             Assert.That(context.ScopedAsyncDisposableDisposed, Is.True, "Scoped AsyncDisposable wasn't disposed as it should have been.");
             Assert.That(context.SingletonAsyncDisposableDisposed, Is.True, "Singleton AsyncDisposable wasn't disposed as it should have been.");
         }
-    }
-
-    class StoppableEndpoint(IEndpointInstance endpointInstance) : IStoppableEndpointInstance
-    {
-        public IMessageSession MessageSession => endpointInstance;
-        public Task Stop(CancellationToken cancellationToken = default) => endpointInstance.Stop(cancellationToken);
     }
 
     public class Context : ScenarioContext

@@ -43,23 +43,16 @@ public class EndpointBehavior : IComponentBehavior
 
     class StartableEndpointInstance(object serviceKey)
     {
-        public async Task<IStoppableEndpointInstance> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
+        public async Task<Func<CancellationToken, Task>> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
         {
             var endpointLifecycle = builder.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
             await endpointLifecycle.CreateAndStart(cancellationToken).ConfigureAwait(false);
-            var messageSession = builder.GetRequiredKeyedService<IMessageSession>(serviceKey);
-            return new StoppableLifecycleEndpoint(endpointLifecycle, messageSession);
+            return async token => await endpointLifecycle.Stop(token).ConfigureAwait(false);
         }
     }
 
-    class StoppableLifecycleEndpoint(IEndpointLifecycle endpointLifecycle, IMessageSession messageSession) : IStoppableEndpointInstance
-    {
-        public IMessageSession MessageSession => messageSession;
-        public async Task Stop(CancellationToken cancellationToken = default) => await endpointLifecycle.Stop(cancellationToken).ConfigureAwait(false);
-    }
-
     [MemberNotNull(nameof(createInstanceCallback), nameof(startInstanceCallback))]
-    public void ConfigureHowToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<IStoppableEndpointInstance>> startCallback)
+    public void ConfigureHowToCreateInstance<T>(Func<IServiceCollection, EndpointConfiguration, Task<T>> createCallback, Func<T, IServiceProvider, CancellationToken, Task<Func<CancellationToken, Task>>> startCallback)
         where T : notnull
     {
         createInstanceCallback = async (services, config) =>
@@ -105,5 +98,5 @@ public class EndpointBehavior : IComponentBehavior
     }
 
     Func<IServiceCollection, EndpointConfiguration, Task<object>> createInstanceCallback;
-    Func<object, IServiceProvider, CancellationToken, Task<IStoppableEndpointInstance>> startInstanceCallback;
+    Func<object, IServiceProvider, CancellationToken, Task<Func<CancellationToken, Task>>> startInstanceCallback;
 }
