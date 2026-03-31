@@ -96,17 +96,13 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             c.DisableFeature<AutoSubscribe>();
             c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
             c.EnableOutbox();
+            c.ConfigureRouting().RouteToEndpoint(typeof(Subscriber1Processed), Conventions.EndpointNamingConvention(typeof(Collector)));
         }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
         [Handler]
         public class MyHandler : IHandleMessages<MyEvent>
         {
-            public Task Handle(MyEvent message, IMessageHandlerContext context)
-            {
-                var options = new SendOptions();
-                options.SetDestination(Conventions.EndpointNamingConvention(typeof(Collector)));
-                return context.Send(new Subscriber1Processed(), options);
-            }
+            public Task Handle(MyEvent message, IMessageHandlerContext context) => context.Send(new Subscriber1Processed());
         }
     }
 
@@ -117,17 +113,13 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             c.DisableFeature<AutoSubscribe>();
             c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
             c.EnableOutbox();
+            c.ConfigureRouting().RouteToEndpoint(typeof(Subscriber2Processed), Conventions.EndpointNamingConvention(typeof(Collector)));
         }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
         [Handler]
         public class MyEventMessageHandler : IHandleMessages<MyEvent>
         {
-            public Task Handle(MyEvent message, IMessageHandlerContext context)
-            {
-                var options = new SendOptions();
-                options.SetDestination(Conventions.EndpointNamingConvention(typeof(Collector)));
-                return context.Send(new Subscriber2Processed(), options);
-            }
+            public Task Handle(MyEvent message, IMessageHandlerContext context) => context.Send(new Subscriber2Processed());
         }
     }
 
