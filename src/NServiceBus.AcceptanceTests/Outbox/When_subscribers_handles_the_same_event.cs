@@ -82,7 +82,7 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
         }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
         [Handler]
-        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
+        public class MyHandler : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
@@ -102,7 +102,8 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             c.EnableOutbox();
         }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
-        class MyEventHandler : IHandleMessages<MyEvent>
+        [Handler]
+        public class MyEventMessageHandler : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context)
             {
@@ -117,6 +118,7 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
     {
         public Collector() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class Subscriber1ProcessedHandler(Context testContext) : IHandleMessages<Subscriber1Processed>
         {
             public Task Handle(Subscriber1Processed message, IMessageHandlerContext context)
@@ -128,7 +130,7 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
         }
 
         [Handler]
-        public class MyHandler(Context testContext) : IHandleMessages<MyEvent>
+        public class Subscriber2ProcessedHandler(Context testContext) : IHandleMessages<Subscriber2Processed>
         {
             public Task Handle(Subscriber2Processed message, IMessageHandlerContext context)
             {
