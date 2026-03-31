@@ -17,7 +17,7 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b => b.When(
-                c => c.Subscriber1Subscribed && c.Subscriber2Subscribed,
+                c => c is { Subscriber1Subscribed: true, Subscriber2Subscribed: true },
                 session => session.Publish(new MyEvent())))
             .WithEndpoint<Subscriber1>(b => b.When(async (session, ctx) =>
             {
@@ -96,13 +96,13 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             c.DisableFeature<AutoSubscribe>();
             c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
             c.EnableOutbox();
-            c.ConfigureRouting().RouteToEndpoint(typeof(Subscriber1Processed), Conventions.EndpointNamingConvention(typeof(Collector)));
+            c.ConfigureRouting().RouteToEndpoint(typeof(ProcessBySubscriber1), typeof(Collector));
         }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
         [Handler]
-        public class MyHandler : IHandleMessages<MyEvent>
+        public class MyEventMessageHandler : IHandleMessages<MyEvent>
         {
-            public Task Handle(MyEvent message, IMessageHandlerContext context) => context.Send(new Subscriber1Processed());
+            public Task Handle(MyEvent message, IMessageHandlerContext context) => context.Send(new ProcessBySubscriber1());
         }
     }
 
@@ -113,13 +113,13 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             c.DisableFeature<AutoSubscribe>();
             c.ConfigureTransport().TransportTransactionMode = TransportTransactionMode.ReceiveOnly;
             c.EnableOutbox();
-            c.ConfigureRouting().RouteToEndpoint(typeof(Subscriber2Processed), Conventions.EndpointNamingConvention(typeof(Collector)));
+            c.ConfigureRouting().RouteToEndpoint(typeof(ProcessBySubscriber2), typeof(Collector));
         }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
         [Handler]
         public class MyEventMessageHandler : IHandleMessages<MyEvent>
         {
-            public Task Handle(MyEvent message, IMessageHandlerContext context) => context.Send(new Subscriber2Processed());
+            public Task Handle(MyEvent message, IMessageHandlerContext context) => context.Send(new ProcessBySubscriber2());
         }
     }
 
@@ -128,9 +128,9 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
         public Collector() => EndpointSetup<DefaultServer>();
 
         [Handler]
-        public class Subscriber1ProcessedHandler(Context testContext) : IHandleMessages<Subscriber1Processed>
+        public class Subscriber1ProcessedHandler(Context testContext) : IHandleMessages<ProcessBySubscriber1>
         {
-            public Task Handle(Subscriber1Processed message, IMessageHandlerContext context)
+            public Task Handle(ProcessBySubscriber1 message, IMessageHandlerContext context)
             {
                 testContext.Subscriber1ProcessedConfirmed = true;
                 testContext.MaybeCompleted();
@@ -139,9 +139,9 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
         }
 
         [Handler]
-        public class Subscriber2ProcessedHandler(Context testContext) : IHandleMessages<Subscriber2Processed>
+        public class Subscriber2ProcessedHandler(Context testContext) : IHandleMessages<ProcessBySubscriber2>
         {
-            public Task Handle(Subscriber2Processed message, IMessageHandlerContext context)
+            public Task Handle(ProcessBySubscriber2 message, IMessageHandlerContext context)
             {
                 testContext.Subscriber2ProcessedConfirmed = true;
                 testContext.MaybeCompleted();
@@ -151,6 +151,6 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
     }
 
     public class MyEvent : IEvent;
-    public class Subscriber1Processed : IMessage;
-    public class Subscriber2Processed : IMessage;
+    public class ProcessBySubscriber1 : IMessage;
+    public class ProcessBySubscriber2 : IMessage;
 }
