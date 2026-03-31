@@ -53,7 +53,7 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             Assert.That(context.FailedMessages.IsEmpty, Is.True);
             Assert.That(context.Subscriber1ProcessedConfirmed, Is.True);
             Assert.That(context.Subscriber2ProcessedConfirmed, Is.True);
-        });
+        }
     }
 
     public class Context : ScenarioContext
@@ -72,13 +72,18 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
         {
             c.OnEndpointSubscribed<Context>((s, ctx) =>
             {
-                if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber1))))
+                var subscriber1 = Conventions.EndpointNamingConvention(typeof(Subscriber1));
+                if (s.SubscriberEndpoint.Contains(subscriber1))
                 {
                     ctx.Subscriber1Subscribed = true;
+                    context.AddTrace($"{subscriber1} is now subscribed");
                 }
-                if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber2))))
+
+                var subscriber2 = Conventions.EndpointNamingConvention(typeof(Subscriber2));
+                if (s.SubscriberEndpoint.Contains(subscriber2))
                 {
                     ctx.Subscriber2Subscribed = true;
+                    context.AddTrace($"{subscriber2} is now subscribed");
                 }
             });
         }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
