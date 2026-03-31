@@ -48,7 +48,7 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             .WithEndpoint<Collector>()
             .Run();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(context.FailedMessages.IsEmpty, Is.True);
             Assert.That(context.Subscriber1ProcessedConfirmed, Is.True);
