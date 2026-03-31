@@ -13,6 +13,8 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
     [Test]
     public async Task Each_subscriber_should_dispatch_its_own_transport_operations()
     {
+        Requires.OutboxPersistence();
+
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Publisher>(b => b.When(
                 c => c.Subscriber1Subscribed && c.Subscriber2Subscribed,
