@@ -76,14 +76,14 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
                 if (s.SubscriberEndpoint.Contains(subscriber1))
                 {
                     ctx.Subscriber1Subscribed = true;
-                    context.AddTrace($"{subscriber1} is now subscribed");
+                    ctx.AddTrace($"{subscriber1} is now subscribed");
                 }
 
                 var subscriber2 = Conventions.EndpointNamingConvention(typeof(Subscriber2));
                 if (s.SubscriberEndpoint.Contains(subscriber2))
                 {
                     ctx.Subscriber2Subscribed = true;
-                    context.AddTrace($"{subscriber2} is now subscribed");
+                    ctx.AddTrace($"{subscriber2} is now subscribed");
                 }
             });
         }, metadata => metadata.RegisterSelfAsPublisherFor<MyEvent>(this));
