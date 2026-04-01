@@ -16,7 +16,7 @@ public class When_receiving_terminal_recoverability_failures_from_multiple_branc
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var firstFailure = new InvalidOperationException("first");
@@ -28,13 +28,13 @@ public class When_receiving_terminal_recoverability_failures_from_multiple_branc
             {
                 if (!messageContext.Headers.TryGetValue("kind", out var kind) || kind == "parent")
                 {
-                    _ = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+                    _ = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
                     {
                         [Headers.MessageIntent] = MessageIntent.Send.ToString(),
                         ["kind"] = "first-child"
                     })), messageContext.TransportTransaction, cancellationToken);
 
-                    _ = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+                    _ = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
                     {
                         [Headers.MessageIntent] = MessageIntent.Send.ToString(),
                         ["kind"] = "second-child"
@@ -47,20 +47,20 @@ public class When_receiving_terminal_recoverability_failures_from_multiple_branc
             },
             (errorContext, _) =>
             {
-                InlineExecutionTestHelper.SetRecoverabilityAction(errorContext, new Discard("inline failure"));
+                SetRecoverabilityAction(errorContext, new Discard("inline failure"));
                 return Task.FromResult(ErrorHandleResult.Handled);
             },
             CancellationToken.None);
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
         {
             [Headers.MessageIntent] = MessageIntent.Send.ToString(),
             ["kind"] = "parent"
         })), new TransportTransaction());
 
-        var exception = await InlineExecutionTestHelper.CatchException(rootTask);
+        var exception = await CatchException(rootTask);
 
         Assert.Multiple(() =>
         {

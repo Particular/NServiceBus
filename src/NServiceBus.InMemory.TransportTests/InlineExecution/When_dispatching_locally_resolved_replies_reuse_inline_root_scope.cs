@@ -16,7 +16,7 @@ public class When_dispatching_locally_resolved_replies_reuse_inline_root_scope
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input", "input-secondary"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input", "input-secondary"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var secondaryReceiver = infrastructure.Receivers["receiver-1"];
@@ -28,7 +28,7 @@ public class When_dispatching_locally_resolved_replies_reuse_inline_root_scope
             new PushRuntimeSettings(maxConcurrency: 1),
             async (messageContext, cancellationToken) =>
             {
-                var replyTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input-secondary", headers: new Dictionary<string, string>
+                var replyTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input-secondary", headers: new Dictionary<string, string>
                 {
                     [Headers.MessageIntent] = MessageIntent.Reply.ToString()
                 })), messageContext.TransportTransaction, cancellationToken);
@@ -42,15 +42,15 @@ public class When_dispatching_locally_resolved_replies_reuse_inline_root_scope
             new PushRuntimeSettings(maxConcurrency: 1),
             (messageContext, _) =>
             {
-                replyHandledScope.TrySetResult(InlineExecutionTestHelper.GetInlineScope(messageContext.TransportTransaction));
+                replyHandledScope.TrySetResult(GetInlineScope(messageContext.TransportTransaction));
                 return Task.CompletedTask;
             },
             (_, _) => Task.FromResult(ErrorHandleResult.Handled),
             CancellationToken.None);
 
-        var task = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
+        var task = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
         Assert.That(broker.GetOrCreateQueue("input").TryPeek(out var rootEnvelope), Is.True);
-        var rootInlineState = InlineExecutionTestHelper.GetInlineState(rootEnvelope!);
+        var rootInlineState = GetInlineState(rootEnvelope!);
 
         await receiver.StartReceive();
         await secondaryReceiver.StartReceive();
@@ -62,7 +62,7 @@ public class When_dispatching_locally_resolved_replies_reuse_inline_root_scope
         {
             Assert.That(rootInlineState, Is.Not.Null);
             Assert.That(childScope, Is.Not.Null);
-            Assert.That(childScope, Is.SameAs(InlineExecutionTestHelper.GetScope(rootInlineState!)));
+            Assert.That(childScope, Is.SameAs(GetInlineScope(rootInlineState!)));
             Assert.That(replyTask.IsCompletedSuccessfully, Is.True);
         });
 

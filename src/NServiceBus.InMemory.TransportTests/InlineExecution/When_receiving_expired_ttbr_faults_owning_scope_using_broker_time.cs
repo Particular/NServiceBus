@@ -15,12 +15,12 @@ public class When_receiving_expired_ttbr_faults_owning_scope_using_broker_time
     [Test]
     public async Task Run()
     {
-        var fakeTime = InlineExecutionTestHelper.CreateFakeTimeProvider();
+        var fakeTime = CreateFakeTimeProvider();
         await using var broker = new InMemoryBroker(new InMemoryBrokerOptions
         {
             TimeProvider = fakeTime
         });
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
 
@@ -31,7 +31,7 @@ public class When_receiving_expired_ttbr_faults_owning_scope_using_broker_time
             CancellationToken.None);
 
         var rootTask = dispatcher.Dispatch(
-            new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", discardAfter: TimeSpan.FromSeconds(30))),
+            new TransportOperations(CreateUnicast("input", discardAfter: TimeSpan.FromSeconds(30))),
             new TransportTransaction());
 
         fakeTime.Advance(TimeSpan.FromMinutes(1));

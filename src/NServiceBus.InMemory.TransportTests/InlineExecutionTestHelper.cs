@@ -67,14 +67,14 @@ static class InlineExecutionTestHelper
 
     public static ReceivePipelineTransportTransactionMarker CreateReceivePipelineMarker() => ReceivePipelineTransportTransactionMarker.Instance;
 
-    public static void AttachReceiveTransaction(TransportTransaction transaction, object receiveTransaction) =>
-        transaction.Set<IInMemoryReceiveTransaction>((InMemoryReceiveTransaction)receiveTransaction);
+    public static void AttachReceiveTransaction(TransportTransaction transaction, InMemoryReceiveTransaction receiveTransaction) =>
+        transaction.Set<IInMemoryReceiveTransaction>(receiveTransaction);
 
-    public static void AttachInlineScope(TransportTransaction transaction, object scope) =>
-        transaction.Set((InlineExecutionScope)scope);
+    public static void AttachInlineScope(TransportTransaction transaction, InlineExecutionScope scope) =>
+        transaction.Set(scope);
 
-    public static IReadOnlyList<BrokerEnvelope> GetPendingEnvelopes(object receiveTransaction) =>
-        ((InMemoryReceiveTransaction)receiveTransaction).GetPendingEnvelopesForTesting();
+    public static IReadOnlyList<BrokerEnvelope> GetPendingEnvelopes(InMemoryReceiveTransaction receiveTransaction) =>
+        receiveTransaction.GetPendingEnvelopesForTesting();
 
     public static InlineEnvelopeState? GetInlineState(BrokerEnvelope envelope) => envelope.InlineState;
 
@@ -83,30 +83,28 @@ static class InlineExecutionTestHelper
             ? scope
             : null;
 
-    public static InlineExecutionScope GetScope(object inlineState) => ((InlineEnvelopeState)inlineState).Scope;
+    public static InlineExecutionScope GetInlineScope(InlineEnvelopeState inlineState) => inlineState.Scope;
 
-    public static Task GetCompletion(object scope, CancellationToken cancellationToken = default)
+    public static Task GetCompletion(InlineExecutionScope scope, CancellationToken cancellationToken = default)
     {
         _ = cancellationToken;
-        return ((InlineExecutionScope)scope).Completion;
+        return scope.Completion;
     }
 
-    public static int GetDepth(object inlineState) => ((InlineEnvelopeState)inlineState).Depth;
+    public static int GetDepth(InlineEnvelopeState inlineState) => inlineState.Depth;
 
-    public static bool GetIsRootDispatch(object inlineState) => ((InlineEnvelopeState)inlineState).IsRootDispatch;
+    public static bool GetIsRootDispatch(InlineEnvelopeState inlineState) => inlineState.IsRootDispatch;
 
     public static InlineExecutionDispatchContext? GetInlineDispatchContext(ContextBag contextBag) =>
         contextBag.TryGet<InlineExecutionDispatchContext>(out var dispatchContext)
             ? dispatchContext
             : null;
 
-    public static int GetPendingOperations(object scope) => ((InlineExecutionScope)scope).PendingOperations;
+    public static int GetPendingOperations(InlineExecutionScope scope) => scope.PendingOperations;
 
-    public static int GetInlineDispatchDepth(object dispatchContext) => ((InlineExecutionDispatchContext)dispatchContext).Depth;
+    public static int GetInlineDispatchDepth(InlineExecutionDispatchContext dispatchContext) => dispatchContext.Depth;
 
-    public static InlineExecutionScope GetInlineDispatchScope(object dispatchContext) => ((InlineExecutionDispatchContext)dispatchContext).Scope;
-
-    public static InlineExecutionScope GetInlineScope(object inlineState) => ((InlineEnvelopeState)inlineState).Scope;
+    public static InlineExecutionScope GetInlineDispatchScope(InlineExecutionDispatchContext dispatchContext) => dispatchContext.Scope;
 
     public static void SetRecoverabilityAction(ErrorContext errorContext, RecoverabilityAction action)
     {

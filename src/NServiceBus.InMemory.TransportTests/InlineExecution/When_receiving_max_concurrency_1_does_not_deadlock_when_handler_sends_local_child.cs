@@ -34,7 +34,7 @@ public class When_receiving_max_concurrency_1_does_not_deadlock_when_handler_sen
             {
                 if (messageContext.Headers.TryGetValue("kind", out var kind) && kind == "parent")
                 {
-                    _ = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+                    _ = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
                     {
                         [Headers.MessageIntent] = MessageIntent.Send.ToString(),
                         ["kind"] = "child"
@@ -49,7 +49,7 @@ public class When_receiving_max_concurrency_1_does_not_deadlock_when_handler_sen
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
         {
             [Headers.MessageIntent] = MessageIntent.Send.ToString(),
             ["kind"] = "parent"

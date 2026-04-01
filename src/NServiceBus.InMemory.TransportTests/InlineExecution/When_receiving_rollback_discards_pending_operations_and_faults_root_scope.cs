@@ -15,7 +15,7 @@ public class When_receiving_rollback_discards_pending_operations_and_faults_root
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
 
@@ -24,7 +24,7 @@ public class When_receiving_rollback_discards_pending_operations_and_faults_root
             async (messageContext, cancellationToken) =>
             {
                 await dispatcher.Dispatch(
-                    new TransportOperations(InlineExecutionTestHelper.CreateUnicast("remote", DispatchConsistency.Default)),
+                    new TransportOperations(CreateUnicast("remote", DispatchConsistency.Default)),
                     messageContext.TransportTransaction,
                     cancellationToken);
 
@@ -35,7 +35,7 @@ public class When_receiving_rollback_discards_pending_operations_and_faults_root
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
 
         Assert.That(async () => await rootTask.WaitAsync(TimeSpan.FromSeconds(5)), Throws.TypeOf<InvalidOperationException>());
         Assert.That(broker.GetOrCreateQueue("remote").Count, Is.EqualTo(0));

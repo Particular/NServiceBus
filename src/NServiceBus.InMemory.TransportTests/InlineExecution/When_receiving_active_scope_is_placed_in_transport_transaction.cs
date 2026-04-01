@@ -15,7 +15,7 @@ public class When_receiving_active_scope_is_placed_in_transport_transaction
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var observedScope = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -24,7 +24,7 @@ public class When_receiving_active_scope_is_placed_in_transport_transaction
             new PushRuntimeSettings(maxConcurrency: 1),
             (messageContext, _) =>
             {
-                observedScope.TrySetResult(InlineExecutionTestHelper.GetInlineScope(messageContext.TransportTransaction));
+                observedScope.TrySetResult(GetInlineScope(messageContext.TransportTransaction));
                 return Task.CompletedTask;
             },
             (_, _) => Task.FromResult(ErrorHandleResult.Handled),
@@ -32,7 +32,7 @@ public class When_receiving_active_scope_is_placed_in_transport_transaction
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
         var scope = await observedScope.Task.WaitAsync(TimeSpan.FromSeconds(5));
         await rootTask.WaitAsync(TimeSpan.FromSeconds(5));
 

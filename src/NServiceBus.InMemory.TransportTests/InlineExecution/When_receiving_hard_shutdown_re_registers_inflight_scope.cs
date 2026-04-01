@@ -15,7 +15,7 @@ public class When_receiving_hard_shutdown_re_registers_inflight_scope
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var processingStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -32,7 +32,7 @@ public class When_receiving_hard_shutdown_re_registers_inflight_scope
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
 
         await processingStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
@@ -40,7 +40,7 @@ public class When_receiving_hard_shutdown_re_registers_inflight_scope
         await stopCts.CancelAsync();
         await receiver.StopReceive(stopCts.Token).WaitAsync(TimeSpan.FromSeconds(5));
 
-        var exception = await InlineExecutionTestHelper.CatchException(rootTask);
+        var exception = await CatchException(rootTask);
         Assert.That(exception, Is.InstanceOf<OperationCanceledException>());
     }
 }

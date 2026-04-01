@@ -16,7 +16,7 @@ public class When_dispatching_immediate_local_unicast_from_normal_receive_pipeli
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input", "input-secondary"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input", "input-secondary"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var secondaryReceiver = infrastructure.Receivers["receiver-1"];
@@ -28,7 +28,7 @@ public class When_dispatching_immediate_local_unicast_from_normal_receive_pipeli
             new PushRuntimeSettings(maxConcurrency: 1),
             async (messageContext, cancellationToken) =>
             {
-                var sendTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input-secondary", headers: new Dictionary<string, string>
+                var sendTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input-secondary", headers: new Dictionary<string, string>
                 {
                     [Headers.MessageIntent] = MessageIntent.Send.ToString()
                 })), messageContext.TransportTransaction, cancellationToken);
@@ -42,13 +42,13 @@ public class When_dispatching_immediate_local_unicast_from_normal_receive_pipeli
             new PushRuntimeSettings(maxConcurrency: 1),
             (messageContext, _) =>
             {
-                childHandledScope.TrySetResult(InlineExecutionTestHelper.GetInlineScope(messageContext.TransportTransaction));
+                childHandledScope.TrySetResult(GetInlineScope(messageContext.TransportTransaction));
                 return Task.CompletedTask;
             },
             (_, _) => Task.FromResult(ErrorHandleResult.Handled),
             CancellationToken.None);
 
-        await broker.GetOrCreateQueue("input").Enqueue(InlineExecutionTestHelper.CreateReceivedEnvelope("input"));
+        await broker.GetOrCreateQueue("input").Enqueue(CreateReceivedEnvelope("input"));
         await receiver.StartReceive();
         await secondaryReceiver.StartReceive();
 
