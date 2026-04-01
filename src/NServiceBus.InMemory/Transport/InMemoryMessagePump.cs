@@ -78,11 +78,9 @@ class InMemoryMessagePump(
                 var inlineState = envelope.InlineState;
                 if (inlineState != null)
                 {
-                    if (TryGetInlineScope(inlineState.Scope.RootExecutionId, out var existingScope) && existingScope != null && !existingScope.Completion.IsCompleted)
+                    if (TryTakePendingInlineScopeForProcessing(inlineState.Scope.RootExecutionId, out var existingScope) && existingScope != null && !existingScope.Completion.IsCompleted)
                     {
                         envelope = envelope with { InlineState = new InlineEnvelopeState(existingScope, inlineState.Depth, inlineState.IsRootDispatch) };
-                        // Remove from activeScopes while processing - will be re-registered if delayed retry
-                        RemoveInlineScope(existingScope.RootExecutionId);
                     }
                     else if (existingScope == null || existingScope.Completion.IsCompleted)
                     {
@@ -115,7 +113,7 @@ class InMemoryMessagePump(
                     var inlineState = envelope.InlineState;
                     if (inlineState != null && !inlineState.Scope.Completion.IsCompleted)
                     {
-                        RegisterInlineScope(inlineState.Scope);
+                        RequeuePendingInlineScope(inlineState.Scope);
                     }
 
                     var retryQueue = broker.GetOrCreateQueue(ReceiveAddress);
@@ -170,7 +168,7 @@ class InMemoryMessagePump(
         await StartReceive(cancellationToken).ConfigureAwait(false);
     }
 
-    public void RegisterInlineScope(InlineExecutionScope scope)
+    public void TrackPendingInlineScope(InlineExecutionScope scope)
     {
         lock (activeScopesLock)
         {
@@ -178,21 +176,32 @@ class InMemoryMessagePump(
         }
 
         _ = scope.Completion.ContinueWith(
-            _ => RemoveInlineScope(scope.RootExecutionId),
+            _ => StopTrackingInlineScope(scope.RootExecutionId),
             CancellationToken.None,
             TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default);
     }
 
-    bool TryGetInlineScope(Guid rootExecutionId, out InlineExecutionScope? scope)
+    bool TryTakePendingInlineScopeForProcessing(Guid rootExecutionId, out InlineExecutionScope? scope)
     {
         lock (activeScopesLock)
         {
-            return activeScopes.TryGetValue(rootExecutionId, out scope);
+            var found = activeScopes.TryGetValue(rootExecutionId, out scope);
+            if (found)
+            {
+                activeScopes.Remove(rootExecutionId);
+            }
+
+            return found;
         }
     }
 
-    void RemoveInlineScope(Guid rootExecutionId)
+    void RequeuePendingInlineScope(InlineExecutionScope scope)
+    {
+        TrackPendingInlineScope(scope);
+    }
+
+    void StopTrackingInlineScope(Guid rootExecutionId)
     {
         lock (activeScopesLock)
         {
@@ -212,7 +221,7 @@ class InMemoryMessagePump(
         {
             if (activeScopes.TryGetValue(inlineState.Scope.RootExecutionId, out var scope) && !scope.Completion.IsCompleted)
             {
-                scope.MarkTerminalFailure(exception);
+                scope.CompleteDispatchFailure(exception);
             }
         }
     }
@@ -227,7 +236,7 @@ class InMemoryMessagePump(
 
         foreach (var scope in scopesToDrain)
         {
-            scope.MarkTerminalFailure(new OperationCanceledException($"Inline execution scope '{scope.RootExecutionId}' was faulted because the message pump stopped."));
+            scope.CompleteDispatchFailure(new OperationCanceledException($"Inline execution scope '{scope.RootExecutionId}' was faulted because the message pump stopped."));
         }
 
         await Task.WhenAll(scopesToDrain.Select(scope => AwaitCompletionIgnoringFailure(scope, cancellationToken))).ConfigureAwait(false);
