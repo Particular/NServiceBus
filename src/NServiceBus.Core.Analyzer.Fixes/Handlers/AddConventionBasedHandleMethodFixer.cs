@@ -1,9 +1,11 @@
 namespace NServiceBus.Core.Analyzer.Fixes;
 
+using System;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Threading;
 using System.Threading.Tasks;
+using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -12,7 +14,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
-using NServiceBus.Core.Analyzer.Handlers;
 
 [Shared]
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(AddConventionBasedHandleMethodFixer))]
@@ -25,14 +26,20 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+        if (root is null)
+        {
+            return;
+        }
+
+        var analyzerOptions = context.Document.Project.AnalyzerOptions.AnalyzerConfigOptionsProvider.GetOptions(root.SyntaxTree);
+        if (analyzerOptions.TryGetValue("nservicebus_handler_style", out var handlerStyle) && string.Equals(handlerStyle, "IHandleMessages", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
 
         foreach (var diagnostic in context.Diagnostics)
         {
-            if (root?.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } node)
-            {
-                continue;
-            }
-
+            var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
             var classDecl = node.FirstAncestorOrSelf<ClassDeclarationSyntax>();
             if (classDecl is null || !HandlerFixerGuards.IsEmptyHandlerShell(classDecl))
             {
@@ -43,7 +50,7 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
                 CodeAction.Create(
                     "Add convention-based Handle(MyMessage, ...)",
                     token => AddHandleMethod(context.Document, classDecl.SpanStart, token),
-                    EquivalenceKey),
+                    EquivalenceKey + handlerStyle),
                 diagnostic);
         }
     }

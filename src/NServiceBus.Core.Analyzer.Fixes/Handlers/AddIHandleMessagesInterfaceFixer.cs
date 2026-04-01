@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Analyzer.Fixes;
 
+using System;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Threading;
@@ -25,14 +26,20 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+        if (root is null)
+        {
+            return;
+        }
+
+        var analyzerOptions = context.Document.Project.AnalyzerOptions.AnalyzerConfigOptionsProvider.GetOptions(root.SyntaxTree);
+        if (analyzerOptions.TryGetValue("nservicebus_handler_style", out var handlerStyle) && string.Equals(handlerStyle, "Conventions", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
 
         foreach (var diagnostic in context.Diagnostics)
         {
-            if (root?.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is not { } node)
-            {
-                continue;
-            }
-
+            var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
             var classDecl = node.FirstAncestorOrSelf<ClassDeclarationSyntax>();
             if (classDecl is null || !HandlerFixerGuards.IsEmptyHandlerShell(classDecl))
             {
@@ -43,7 +50,7 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
                 CodeAction.Create(
                     "Implement IHandleMessages<MyMessage>",
                     token => AddInterface(context.Document, classDecl.SpanStart, token),
-                    EquivalenceKey),
+                    EquivalenceKey + handlerStyle),
                 diagnostic);
         }
     }
