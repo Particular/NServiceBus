@@ -108,7 +108,9 @@ static class InlineExecutionTestHelper
 
     public static void SetRecoverabilityAction(ErrorContext errorContext, RecoverabilityAction action)
     {
+        errorContext.Extensions.Set(action);
         errorContext.Extensions.Set(InlineRecoverabilityActionKey, action);
+        errorContext.TransportTransaction.Set(action);
         errorContext.TransportTransaction.Set(InlineRecoverabilityActionKey, action);
     }
 
