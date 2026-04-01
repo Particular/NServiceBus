@@ -8,7 +8,7 @@ using NServiceBus;
 using NUnit.Framework;
 
 [TestFixture]
-public class ServiceCollectionExtensionsTests
+public partial class ServiceCollectionExtensions_AddEndpoint_Tests
 {
     [Test]
     public void Should_register_single_endpoint_without_identifier()
@@ -88,12 +88,24 @@ public class ServiceCollectionExtensionsTests
         Assert.That(ex!.Message, Does.Contain("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport"));
     }
 
-    static EndpointConfiguration CreateConfig(string endpointName)
+    [Test]
+    public void Should_throw_when_multiple_endpoints_assembly_scanning_enabled()
+    {
+        var services = new ServiceCollection();
+
+        services.AddNServiceBusEndpoint(CreateConfig("Sales"), "Sales");
+
+        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing", assemblyScanningEnabled: true), "Billing"));
+
+        Assert.That(ex!.Message, Does.Contain("When multiple endpoints are registered, each endpoint must disable assembly scanning (cfg.AssemblyScanner().Disable = true) and explicitly register its handlers and sagas using the corresponding registrations methods like AddHandler<T>(), AddSaga<T>() etc. The following endpoints have assembly scanning enabled: 'Billing'."));
+    }
+
+    static EndpointConfiguration CreateConfig(string endpointName, bool assemblyScanningEnabled = false)
     {
         var config = new EndpointConfiguration(endpointName);
         config.UseSerialization<SystemJsonSerializer>();
         config.UseTransport(new LearningTransport());
-        config.AssemblyScanner().Disable = true;
+        config.AssemblyScanner().Disable = !assemblyScanningEnabled;
         return config;
     }
 }
