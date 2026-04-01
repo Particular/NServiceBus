@@ -51,4 +51,8 @@ public static class DiagnosticIds
     public const string ConventionBasedHandlerNoAccessibleConstructor = "NSB0036";
     public const string ConventionBasedHandlerAmbiguousConstructor = "NSB0037";
     public const string HandlerClassCannotBeStatic = "NSB0038";
+
+    // HandlerStyleAnalyzer
+    public const string HandlerStyleConventionRequired = "NSB0039";
+    public const string HandlerStyleIHandleMessagesRequired = "NSB0040";
 }
