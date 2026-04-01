@@ -4,9 +4,7 @@ namespace NServiceBus.TransportTests;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DelayedDelivery;
@@ -63,48 +61,52 @@ static class InlineExecutionTestHelper
 
     public static BrokerEnvelope CreateReceivedEnvelope(string destination) => BrokerPayloadStore.Borrow(Guid.NewGuid().ToString(), [1], new Dictionary<string, string>(), destination, isPublished: false, sequenceNumber: 1);
 
-    public static object CreateScope() => Activator.CreateInstance(InlineExecutionScopeType, Guid.NewGuid())!;
+    public static InlineExecutionScope CreateScope() => new(Guid.NewGuid());
 
-    public static object CreateReceiveTransaction() => Activator.CreateInstance(InMemoryReceiveTransactionType)!;
+    public static InMemoryReceiveTransaction CreateReceiveTransaction() => new();
 
-    public static object CreateReceivePipelineMarker() => ReceivePipelineTransportTransactionMarkerType.GetField("Instance", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
+    public static ReceivePipelineTransportTransactionMarker CreateReceivePipelineMarker() => ReceivePipelineTransportTransactionMarker.Instance;
+
+    public static void AttachReceiveTransaction(TransportTransaction transaction, object receiveTransaction) =>
+        transaction.Set<IInMemoryReceiveTransaction>((InMemoryReceiveTransaction)receiveTransaction);
+
+    public static void AttachInlineScope(TransportTransaction transaction, object scope) =>
+        transaction.Set((InlineExecutionScope)scope);
 
     public static IReadOnlyList<BrokerEnvelope> GetPendingEnvelopes(object receiveTransaction) =>
-        (IReadOnlyList<BrokerEnvelope>)InMemoryReceiveTransactionType
-            .GetField("pendingEnvelopes", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetValue(receiveTransaction)!;
+        ((InMemoryReceiveTransaction)receiveTransaction).GetPendingEnvelopesForTesting();
 
-    public static object? GetInlineState(BrokerEnvelope envelope) => InlineStateProperty.GetValue(envelope);
+    public static InlineEnvelopeState? GetInlineState(BrokerEnvelope envelope) => envelope.InlineState;
 
-    public static object? GetInlineScope(TransportTransaction transaction) =>
-        transaction.TryGet(InlineExecutionScopeType.FullName!, out object? scope)
+    public static InlineExecutionScope? GetInlineScope(TransportTransaction transaction) =>
+        transaction.TryGet<InlineExecutionScope>(out var scope)
             ? scope
             : null;
 
-    public static object GetScope(object inlineState) => InlineStateType.GetProperty("Scope", BindingFlags.Instance | BindingFlags.Public)!.GetValue(inlineState)!;
+    public static InlineExecutionScope GetScope(object inlineState) => ((InlineEnvelopeState)inlineState).Scope;
 
     public static Task GetCompletion(object scope, CancellationToken cancellationToken = default)
     {
         _ = cancellationToken;
-        return (Task)InlineExecutionScopeType.GetProperty("Completion", BindingFlags.Instance | BindingFlags.Public)!.GetValue(scope)!;
+        return ((InlineExecutionScope)scope).Completion;
     }
 
-    public static int GetDepth(object inlineState) => (int)InlineStateType.GetProperty("Depth", BindingFlags.Instance | BindingFlags.Public)!.GetValue(inlineState)!;
+    public static int GetDepth(object inlineState) => ((InlineEnvelopeState)inlineState).Depth;
 
-    public static bool GetIsRootDispatch(object inlineState) => (bool)InlineStateType.GetProperty("IsRootDispatch", BindingFlags.Instance | BindingFlags.Public)!.GetValue(inlineState)!;
+    public static bool GetIsRootDispatch(object inlineState) => ((InlineEnvelopeState)inlineState).IsRootDispatch;
 
-    public static object? GetInlineDispatchContext(ContextBag contextBag) =>
-        contextBag.TryGet(InlineExecutionDispatchContextType.FullName!, out object? dispatchContext)
+    public static InlineExecutionDispatchContext? GetInlineDispatchContext(ContextBag contextBag) =>
+        contextBag.TryGet<InlineExecutionDispatchContext>(out var dispatchContext)
             ? dispatchContext
             : null;
 
-    public static int GetPendingOperations(object scope) => (int)InlineExecutionScopeType.GetProperty("PendingOperations", BindingFlags.Instance | BindingFlags.Public)!.GetValue(scope)!;
+    public static int GetPendingOperations(object scope) => ((InlineExecutionScope)scope).PendingOperations;
 
-    public static int GetInlineDispatchDepth(object dispatchContext) => (int)InlineExecutionDispatchContextType.GetProperty("Depth", BindingFlags.Instance | BindingFlags.Public)!.GetValue(dispatchContext)!;
+    public static int GetInlineDispatchDepth(object dispatchContext) => ((InlineExecutionDispatchContext)dispatchContext).Depth;
 
-    public static object GetInlineDispatchScope(object dispatchContext) => InlineExecutionDispatchContextType.GetProperty("Scope", BindingFlags.Instance | BindingFlags.Public)!.GetValue(dispatchContext)!;
+    public static InlineExecutionScope GetInlineDispatchScope(object dispatchContext) => ((InlineExecutionDispatchContext)dispatchContext).Scope;
 
-    public static object GetInlineScope(object inlineState) => InlineEnvelopeStateType.GetProperty("Scope", BindingFlags.Instance | BindingFlags.Public)!.GetValue(inlineState)!;
+    public static InlineExecutionScope GetInlineScope(object inlineState) => ((InlineEnvelopeState)inlineState).Scope;
 
     public static void SetRecoverabilityAction(ErrorContext errorContext, RecoverabilityAction action)
     {
@@ -145,13 +147,5 @@ static class InlineExecutionTestHelper
 
     public static FakeTimeProvider CreateFakeTimeProvider() => new(new DateTimeOffset(2099, 03, 28, 12, 0, 0, TimeSpan.Zero));
 
-    static readonly Assembly InMemoryAssembly = typeof(InMemoryTransport).Assembly;
-    static readonly Type InlineExecutionScopeType = InMemoryAssembly.GetType("NServiceBus.InlineExecutionScope", throwOnError: true)!;
-    static readonly Type InlineExecutionDispatchContextType = InMemoryAssembly.GetType("NServiceBus.InlineExecutionDispatchContext", throwOnError: true)!;
-    static readonly Type InlineStateType = InMemoryAssembly.GetType("NServiceBus.InlineEnvelopeState", throwOnError: true)!;
-    static readonly Type InlineEnvelopeStateType = InMemoryAssembly.GetType("NServiceBus.InlineEnvelopeState", throwOnError: true)!;
-    static readonly Type InMemoryReceiveTransactionType = InMemoryAssembly.GetType("NServiceBus.InMemoryReceiveTransaction", throwOnError: true)!;
-    static readonly Type ReceivePipelineTransportTransactionMarkerType = InMemoryAssembly.GetType("NServiceBus.ReceivePipelineTransportTransactionMarker", throwOnError: true)!;
-    static readonly PropertyInfo InlineStateProperty = typeof(BrokerEnvelope).GetProperty("InlineState", BindingFlags.Instance | BindingFlags.NonPublic)!;
     const string InlineRecoverabilityActionKey = "NServiceBus.InMemory.InlineRecoverabilityAction";
 }

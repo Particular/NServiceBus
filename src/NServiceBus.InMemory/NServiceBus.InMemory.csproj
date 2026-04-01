@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="NServiceBus.InMemory.Tests" Key="$(NServiceBusTestsKey)" />
+    <InternalsVisibleTo Include="NServiceBus.InMemory.TransportTests" Key="$(NServiceBusTestsKey)" />
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
