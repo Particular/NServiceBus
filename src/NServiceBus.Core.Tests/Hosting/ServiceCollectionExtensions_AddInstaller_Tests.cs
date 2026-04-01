@@ -100,6 +100,18 @@ public class ServiceCollectionExtensions_AddInstaller_Tests
         Assert.That(ex!.Message, Does.Contain("When multiple endpoints are registered, each endpoint must disable assembly scanning (cfg.AssemblyScanner().Disable = true) and explicitly register its installers using the corresponding registrations methods like AddInstaller<T>(). The following endpoints have assembly scanning enabled: 'Billing'."));
     }
 
+    [Test]
+    public void Should_throw_when_used_with_add_installer()
+    {
+        var services = new ServiceCollection();
+
+        services.AddNServiceBusEndpointInstaller(CreateConfig("Sales"), "Sales");
+
+        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing"), "Billing"));
+
+        Assert.That(ex!.Message, Does.Contain("'AddNServiceBusEndpoint' cannot be used together with 'AddNServiceBusEndpointInstaller'."));
+    }
+
     static EndpointConfiguration CreateConfig(string endpointName, bool assemblyScanningEnabled = false)
     {
         var config = new EndpointConfiguration(endpointName);
