@@ -56,9 +56,7 @@ public static class ServiceCollectionExtensions
     /// This bypasses the default safeguards that isolate endpoints, allowing resolution of all services including
     /// globally shared ones.
     /// </para>
-    public static void AddNServiceBusEndpointInstaller(this IServiceCollection services,
-        EndpointConfiguration endpointConfiguration,
-        object? endpointIdentifier = null)
+    public static void AddNServiceBusEndpointInstaller(this IServiceCollection services, EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(endpointConfiguration);
@@ -154,10 +152,7 @@ public static class ServiceCollectionExtensions
     /// globally shared ones.
     /// </para>
     /// </remarks>
-    public static void AddNServiceBusEndpoint(
-        this IServiceCollection services,
-        EndpointConfiguration endpointConfiguration,
-        object? endpointIdentifier = null)
+    public static void AddNServiceBusEndpoint(this IServiceCollection services, EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(endpointConfiguration);
