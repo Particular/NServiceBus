@@ -24,7 +24,7 @@ static class InMemoryBrokerSimulationTestHelper
 
     public static Task<TransportInfrastructure> CreateInfrastructure(InMemoryBroker broker, CancellationToken cancellationToken = default)
     {
-        var transport = new InMemoryTransport(broker);
+        var transport = new InMemoryTransport(new InMemoryTransportOptions(broker));
         return transport.Initialize(
             new HostSettings("endpoint", string.Empty, new StartupDiagnosticEntries(), static (_, _, _) => { }, true),
             [new ReceiveSettings("main", new QueueAddress("input"), false, true, "error")],
