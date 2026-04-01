@@ -36,11 +36,8 @@ public class When_inline_executing_with_error_queue : NServiceBusAcceptanceTest
                 .DoNotFailOnErrorMessages())
             .Run();
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(context.CaughtException, Is.InstanceOf<SimulatedException>());
-            Assert.That(CurrentBroker.GetOrCreateQueue("error").Count, Is.EqualTo(1));
-        });
+        Assert.That(context.CaughtException, Is.InstanceOf<SimulatedException>());
+        Assert.That(CurrentBroker.GetOrCreateQueue("error").Count, Is.EqualTo(1));
     }
 
     public class Context : ScenarioContext
