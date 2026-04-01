@@ -158,7 +158,7 @@ public class InlineExecutionScopeTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(scope.Completion.IsFaulted, Is.True);
+            Assert.That(scope.Completion.IsCanceled, Is.True);
             Assert.That(scope.TerminalException, Is.SameAs(exception));
         }
     }

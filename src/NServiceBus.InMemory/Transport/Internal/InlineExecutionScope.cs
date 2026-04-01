@@ -41,15 +41,17 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
     {
         lock (lockObject)
         {
-            if (terminalException != null)
+            if (terminalException == null)
             {
-                return;
+                terminalException = exception;
+                TerminalException = exception;
             }
 
-            terminalException = exception;
-            TerminalException = exception;
-
-            MarkCompletedAndDecrement();
+            PendingOperations--;
+            if (PendingOperations == 0)
+            {
+                completion.TrySetException(terminalException);
+            }
         }
     }
 
@@ -57,30 +59,22 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
     {
         lock (lockObject)
         {
-            if (terminalException != null)
+            var isFirstException = terminalException == null;
+
+            if (isFirstException)
             {
-                return;
+                terminalException = exception;
+                TerminalException = exception;
             }
 
-            terminalException = exception;
-            TerminalException = exception;
-            completion.TrySetCanceled(exception.CancellationToken);
-        }
-    }
+            PendingOperations--;
 
-    void MarkCompletedAndDecrement()
-    {
-        PendingOperations--;
-
-        if (PendingOperations == 0)
-        {
-            if (terminalException != null)
+            if (PendingOperations == 0)
             {
-                completion.TrySetException(terminalException);
-            }
-            else
-            {
-                completion.TrySetResult();
+                if (isFirstException)
+                {
+                    completion.TrySetCanceled(exception.CancellationToken);
+                }
             }
         }
     }
