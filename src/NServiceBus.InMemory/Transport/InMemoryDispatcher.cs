@@ -196,7 +196,7 @@ class InMemoryDispatcher(
         if (existingScope)
         {
             var runner = inlineExecutionRunners[operation.Destination];
-            var processing = ProcessNestedInlineAsync(runner, inlineEnvelope, cancellationToken);
+            var processing = runner.Process(inlineEnvelope, cancellationToken);
 
             ObserveReentrantProcessing(processing);
 
@@ -243,12 +243,6 @@ class InMemoryDispatcher(
             CancellationToken.None,
             TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default);
-    }
-
-    static async Task ProcessNestedInlineAsync(InlineExecutionRunner runner, BrokerEnvelope envelope, CancellationToken cancellationToken)
-    {
-        await Task.Yield();
-        await runner.Process(envelope, cancellationToken).ConfigureAwait(false);
     }
 
     async Task DispatchRegularUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, DateTimeOffset? deliverAt, CancellationToken cancellationToken)

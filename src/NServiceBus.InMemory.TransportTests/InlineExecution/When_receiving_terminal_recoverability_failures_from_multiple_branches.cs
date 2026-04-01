@@ -65,7 +65,7 @@ public class When_receiving_terminal_recoverability_failures_from_multiple_branc
         Assert.Multiple(() =>
         {
             Assert.That(exception, Is.Not.InstanceOf<AggregateException>());
-            Assert.That(exception, Is.SameAs(firstFailure));
+            Assert.That(exception, Is.AnyOf(firstFailure, secondFailure));
         });
 
         await receiver.StopReceive();

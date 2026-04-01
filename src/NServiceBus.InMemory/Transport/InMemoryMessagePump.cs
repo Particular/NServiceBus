@@ -112,6 +112,12 @@ class InMemoryMessagePump(
             {
                 if (isProcessing && envelope != null)
                 {
+                    var inlineState = envelope.InlineState;
+                    if (inlineState != null && !inlineState.Scope.Completion.IsCompleted)
+                    {
+                        RegisterInlineScope(inlineState.Scope);
+                    }
+
                     var retryQueue = broker.GetOrCreateQueue(ReceiveAddress);
                     await retryQueue.Enqueue(envelope, CancellationToken.None).ConfigureAwait(false);
                 }
