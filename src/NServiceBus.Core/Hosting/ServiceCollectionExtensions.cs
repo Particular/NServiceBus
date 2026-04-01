@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Configuration.AdvancedExtensibility;
-using Installation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Transport;
@@ -41,7 +40,6 @@ public static class ServiceCollectionExtensions
     /// the <c>[FromKeyedServices]</c> attribute on constructor parameters.
     /// </para>
     /// </param>
-    /// <remarks>
     /// <para>
     /// When using a keyed endpoint, all services resolved within NServiceBus extension points
     /// (message handlers, sagas, features, installers, etc.) are automatically resolved as keyed services
@@ -231,7 +229,7 @@ public static class ServiceCollectionExtensions
         }
     }
 
-    static void ValidateAssemblyScanning<TRegistration>(EndpointConfiguration endpointConfiguration, string endpointName, List<TRegistration> registrations, string message ="its handlers and sagas using the corresponding registrations methods like AddHandler<T>(), AddSaga<T>() etc")
+    static void ValidateAssemblyScanning<TRegistration>(EndpointConfiguration endpointConfiguration, string endpointName, List<TRegistration> registrations, string message = "its handlers and sagas using the corresponding registrations methods like AddHandler<T>(), AddSaga<T>() etc")
         where TRegistration : EndpointRegistration
     {
         if (endpointConfiguration.GetSettings().HasSetting("NServiceBus.Hosting.DisableAssemblyScanningValidation"))

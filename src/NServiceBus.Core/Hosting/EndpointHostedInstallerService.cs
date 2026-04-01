@@ -12,7 +12,7 @@ class EndpointHostedInstallerService(IEndpointLifecycle endpointLifecycle) : IHo
         // we only ever create but not start
         => await endpointLifecycle.Create(cancellationToken).ConfigureAwait(false);
 
-    public Task StopAsync(CancellationToken cancellationToken= default) => Task.CompletedTask;
+    public Task StopAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     public ValueTask DisposeAsync() => endpointLifecycle.DisposeAsync();
 }
