@@ -118,6 +118,12 @@ sealed class InlineExecutionRunner(
                 return;
             }
 
+            if (IsDeferredRetry(errorContext.TransportTransaction))
+            {
+                envelope.Dispose();
+                return;
+            }
+
             inlineState?.Scope.MarkTerminalFailure(ex);
             envelope.Dispose();
         }
@@ -173,6 +179,10 @@ sealed class InlineExecutionRunner(
             await dispatcher.Dispatch(new TransportOperations(operations), new TransportTransaction(), cancellationToken).ConfigureAwait(false);
         }
     }
+
+    static bool IsDeferredRetry(TransportTransaction transportTransaction) =>
+        transportTransaction.TryGet<RecoverabilityAction>(out var action) &&
+        action is DelayedRetry or ImmediateRetry;
 
     CancellationToken ProcessingCancellationToken => processingCancellationTokenAccessor();
 

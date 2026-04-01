@@ -30,9 +30,16 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
 
             PendingOperations--;
 
-            if (PendingOperations == 0 && terminalException == null)
+            if (PendingOperations == 0)
             {
-                completion.TrySetResult();
+                if (terminalException == null)
+                {
+                    completion.TrySetResult();
+                }
+                else
+                {
+                    completion.TrySetException(terminalException);
+                }
             }
         }
     }
