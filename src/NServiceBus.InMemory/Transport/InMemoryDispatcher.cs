@@ -146,7 +146,7 @@ class InMemoryDispatcher(
         {
             if (pumpsByAddress.TryGetValue(operation.Destination, out var pumpForDelayed))
             {
-                pumpForDelayed.RegisterInlineScope(preservedScope!);
+                pumpForDelayed.TrackPendingInlineScope(preservedScope!);
             }
 
             var preservedEnvelope = envelope with
@@ -177,13 +177,13 @@ class InMemoryDispatcher(
     {
         var existingScope = TryGetInlineScope(transaction, out var scope);
         scope ??= new InlineExecutionScope(Guid.NewGuid());
-        scope.RegisterDispatch();
+        scope.BeginDispatch();
 
         if (!existingScope)
         {
             if (pumpsByAddress.TryGetValue(operation.Destination, out var pump))
             {
-                pump.RegisterInlineScope(scope);
+                pump.TrackPendingInlineScope(scope);
             }
         }
 
@@ -217,13 +217,13 @@ class InMemoryDispatcher(
         catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
         {
             envelope.Dispose();
-            scope.MarkCanceled(ex);
+            scope.CompleteDispatchCanceled(ex);
             await completion.ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             envelope.Dispose();
-            scope.MarkTerminalFailure(ex);
+            scope.CompleteDispatchFailure(ex);
             await completion.ConfigureAwait(false);
         }
 

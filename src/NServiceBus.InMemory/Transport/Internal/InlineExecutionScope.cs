@@ -11,7 +11,7 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
     public Exception? TerminalException { get; private set; }
     public int PendingOperations { get; private set; }
 
-    public void RegisterDispatch()
+    public void BeginDispatch()
     {
         lock (lockObject)
         {
@@ -19,16 +19,11 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
         }
     }
 
-    public void MarkSuccess()
+    public void CompleteDispatchSuccess()
     {
         lock (lockObject)
         {
-            if (PendingOperations == 0)
-            {
-                throw new InvalidOperationException("Cannot mark success: no pending operations registered.");
-            }
-
-            PendingOperations--;
+            DecrementPendingOperations("success");
 
             if (PendingOperations == 0)
             {
@@ -44,7 +39,7 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
         }
     }
 
-    public void MarkTerminalFailure(Exception exception)
+    public void CompleteDispatchFailure(Exception exception)
     {
         lock (lockObject)
         {
@@ -54,7 +49,7 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
                 TerminalException = exception;
             }
 
-            PendingOperations--;
+            DecrementPendingOperations("failure");
             if (PendingOperations == 0)
             {
                 completion.TrySetException(terminalException);
@@ -62,7 +57,7 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
         }
     }
 
-    public void MarkCanceled(OperationCanceledException exception)
+    public void CompleteDispatchCanceled(OperationCanceledException exception)
     {
         lock (lockObject)
         {
@@ -74,7 +69,7 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
                 TerminalException = exception;
             }
 
-            PendingOperations--;
+            DecrementPendingOperations("cancellation");
 
             if (PendingOperations == 0)
             {
@@ -84,6 +79,16 @@ sealed class InlineExecutionScope(Guid rootExecutionId)
                 }
             }
         }
+    }
+
+    void DecrementPendingOperations(string terminalState)
+    {
+        if (PendingOperations == 0)
+        {
+            throw new InvalidOperationException($"Cannot mark {terminalState}: no pending operations registered.");
+        }
+
+        PendingOperations--;
     }
 
     readonly TaskCompletionSource completion = new(TaskCreationOptions.RunContinuationsAsynchronously);

@@ -9,11 +9,11 @@ using NUnit.Framework;
 public class InlineExecutionScopeTests
 {
     [Test]
-    public void RegisterDispatch_should_increment_pending_work()
+    public void BeginDispatch_should_increment_pending_work()
     {
         var scope = new InlineExecutionScope(Guid.NewGuid());
 
-        scope.RegisterDispatch();
+        scope.BeginDispatch();
 
         Assert.That(scope.PendingOperations, Is.EqualTo(1));
     }
@@ -24,10 +24,10 @@ public class InlineExecutionScopeTests
         var scope = new InlineExecutionScope(Guid.NewGuid());
         Task completion = scope.Completion;
 
-        scope.RegisterDispatch();
-        scope.RegisterDispatch();
+        scope.BeginDispatch();
+        scope.BeginDispatch();
 
-        scope.MarkSuccess();
+        scope.CompleteDispatchSuccess();
 
         using (Assert.EnterMultipleScope())
         {
@@ -35,7 +35,7 @@ public class InlineExecutionScopeTests
             Assert.That(scope.PendingOperations, Is.EqualTo(1));
         }
 
-        scope.MarkSuccess();
+        scope.CompleteDispatchSuccess();
         await completion;
 
         using (Assert.EnterMultipleScope())
@@ -51,19 +51,19 @@ public class InlineExecutionScopeTests
         var scope = new InlineExecutionScope(Guid.NewGuid());
         var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        scope.RegisterDispatch();
-        scope.RegisterDispatch();
+        scope.BeginDispatch();
+        scope.BeginDispatch();
 
         var first = Task.Run(async () =>
         {
             await start.Task;
-            scope.MarkSuccess();
+            scope.CompleteDispatchSuccess();
         });
 
         var second = Task.Run(async () =>
         {
             await start.Task;
-            scope.MarkSuccess();
+            scope.CompleteDispatchSuccess();
         });
 
         start.SetResult();
@@ -85,11 +85,11 @@ public class InlineExecutionScopeTests
         var first = new InvalidOperationException("first");
         var second = new ArgumentException("second");
 
-        scope.RegisterDispatch();
-        scope.RegisterDispatch();
+        scope.BeginDispatch();
+        scope.BeginDispatch();
 
-        scope.MarkTerminalFailure(first);
-        scope.MarkTerminalFailure(second);
+        scope.CompleteDispatchFailure(first);
+        scope.CompleteDispatchFailure(second);
 
         var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await scope.Completion);
         using (Assert.EnterMultipleScope())
@@ -107,19 +107,19 @@ public class InlineExecutionScopeTests
         var second = new ArgumentException("second");
         var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        scope.RegisterDispatch();
-        scope.RegisterDispatch();
+        scope.BeginDispatch();
+        scope.BeginDispatch();
 
         var firstFailure = Task.Run(async () =>
         {
             await start.Task;
-            scope.MarkTerminalFailure(first);
+            scope.CompleteDispatchFailure(first);
         });
 
         var secondFailure = Task.Run(async () =>
         {
             await start.Task;
-            scope.MarkTerminalFailure(second);
+            scope.CompleteDispatchFailure(second);
         });
 
         start.SetResult();
@@ -138,7 +138,7 @@ public class InlineExecutionScopeTests
     {
         var scope = new InlineExecutionScope(Guid.NewGuid());
 
-        scope.RegisterDispatch();
+        scope.BeginDispatch();
 
         using (Assert.EnterMultipleScope())
         {
@@ -153,8 +153,8 @@ public class InlineExecutionScopeTests
         var scope = new InlineExecutionScope(Guid.NewGuid());
         var exception = new OperationCanceledException("stop");
 
-        scope.RegisterDispatch();
-        scope.MarkCanceled(exception);
+        scope.BeginDispatch();
+        scope.CompleteDispatchCanceled(exception);
 
         using (Assert.EnterMultipleScope())
         {
@@ -184,7 +184,7 @@ public class InlineExecutionScopeTests
     {
         var scope = new InlineExecutionScope(Guid.NewGuid());
 
-        var exception = Assert.Throws<InvalidOperationException>(() => scope.MarkSuccess());
+        var exception = Assert.Throws<InvalidOperationException>(() => scope.CompleteDispatchSuccess());
 
         Assert.That(exception!.Message, Does.Contain("pending"));
     }

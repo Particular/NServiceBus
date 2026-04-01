@@ -71,7 +71,7 @@ sealed class InlineExecutionRunner(
                 await CommitPendingToBrokerAsync(receiveTransaction, ProcessingCancellationToken).ConfigureAwait(false);
             }
 
-            inlineState?.Scope.MarkSuccess();
+            inlineState?.Scope.CompleteDispatchSuccess();
         }
         catch (Exception ex) when (ex is not OperationCanceledException || !ProcessingCancellationToken.IsCancellationRequested)
         {
@@ -99,7 +99,7 @@ sealed class InlineExecutionRunner(
             {
                 if (inlineState != null && pump != null)
                 {
-                    pump.RegisterInlineScope(inlineState.Scope);
+                    pump.TrackPendingInlineScope(inlineState.Scope);
                 }
 
                 var retryEnvelope = envelope.WithDeliveryAttempt(envelope.DeliveryAttempt + 1);
@@ -114,7 +114,7 @@ sealed class InlineExecutionRunner(
                 return;
             }
 
-            inlineState?.Scope.MarkTerminalFailure(ex);
+            inlineState?.Scope.CompleteDispatchFailure(ex);
             envelope.Dispose();
         }
     }
