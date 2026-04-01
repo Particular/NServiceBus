@@ -38,11 +38,13 @@ public static class ServiceCollectionExtensions
 
         var endpointName = settings.EndpointName();
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
-        var registrations = GetExistingInstallerRegistrations(services);
+        var installerRegistrations = GetExistingInstallerRegistrations(services);
+        var endpointRegistrations = GetExistingRegistrations(services);
 
-        ValidateEndpointIdentifier(endpointIdentifier, [..registrations]);
-        ValidateAssemblyScanning(endpointConfiguration, endpointName, [..registrations], message: "its installers using the corresponding registrations methods like AddInstaller<T>()");
-        ValidateTransportReuse(transport, [..registrations]);
+        ValidateNotUsedWithAddNServiceBusEndpoints(endpointRegistrations, $"'{nameof(AddNServiceBusEndpointInstaller)}' cannot be used together with '{nameof(AddNServiceBusEndpoint)}'.");
+        ValidateEndpointIdentifier(endpointIdentifier, [..installerRegistrations]);
+        ValidateAssemblyScanning(endpointConfiguration, endpointName, [..installerRegistrations], message: "its installers using the corresponding registrations methods like AddInstaller<T>()");
+        ValidateTransportReuse(transport, [..installerRegistrations]);
 
         if (endpointIdentifier is null)
         {
@@ -66,6 +68,14 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton(new EndpointInstallerRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
+    }
+
+    static void ValidateNotUsedWithAddNServiceBusEndpoints(List<EndpointRegistration> endpointRegistrations, string message)
+    {
+        if (endpointRegistrations.Count > 0)
+        {
+            throw new InvalidOperationException(message);
+        }
     }
 
     /// <summary>
@@ -124,11 +134,13 @@ public static class ServiceCollectionExtensions
         var endpointName = settings.EndpointName();
         var hostingSettings = settings.Get<HostingComponent.Settings>();
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
-        var registrations = GetExistingRegistrations(services);
+        var endpointRegistrations = GetExistingRegistrations(services);
+        var installerRegistrations = GetExistingInstallerRegistrations(services);
 
-        ValidateEndpointIdentifier(endpointIdentifier, registrations);
-        ValidateAssemblyScanning(endpointConfiguration, endpointName, registrations);
-        ValidateTransportReuse(transport, registrations);
+        ValidateNotUsedWithAddNServiceBusEndpoints([..installerRegistrations], $"'{nameof(AddNServiceBusEndpoint)}' cannot be used together with '{nameof(AddNServiceBusEndpointInstaller)}'.");
+        ValidateEndpointIdentifier(endpointIdentifier, endpointRegistrations);
+        ValidateAssemblyScanning(endpointConfiguration, endpointName, endpointRegistrations);
+        ValidateTransportReuse(transport, endpointRegistrations);
 
         hostingSettings.ConfigureHostLogging(endpointIdentifier);
 
