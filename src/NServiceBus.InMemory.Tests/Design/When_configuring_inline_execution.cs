@@ -1,6 +1,5 @@
 namespace NServiceBus;
 
-using System;
 using NUnit.Framework;
 
 [TestFixture]
@@ -15,35 +14,28 @@ public class When_configuring_inline_execution
     }
 
     [Test]
-    public void Should_enable_inline_execution_when_options_are_provided()
+    public void Should_enable_inline_execution_when_inline_execution_options_are_provided()
     {
         var broker = new InMemoryBroker();
-        var transport = new InMemoryTransport(broker, new InlineExecutionOptions());
+        var transport = new InMemoryTransport(new InMemoryTransportOptions(broker) { InlineExecution = new() });
 
         Assert.That(transport.InlineExecutionSettings.IsEnabled, Is.True);
-    }
-
-    [Test]
-    public void Should_require_inline_execution_options()
-    {
-#pragma warning disable CS8625
-        var exception = Assert.Throws<ArgumentNullException>(() => new InMemoryTransport(new InMemoryBroker(), null));
-#pragma warning restore CS8625
-
-        Assert.That(exception!.ParamName, Is.EqualTo("inlineExecutionOptions"));
     }
 
     [Test]
     public void Should_snapshot_option_values_at_construction()
     {
         var broker = new InMemoryBroker();
-        var options = new InlineExecutionOptions
+        var options = new InMemoryTransportOptions(broker)
         {
-            MoveToErrorQueueOnFailure = false
+            InlineExecution = new()
+            {
+                MoveToErrorQueueOnFailure = false
+            }
         };
 
-        var transport = new InMemoryTransport(broker, options);
-        options.MoveToErrorQueueOnFailure = true;
+        var transport = new InMemoryTransport(options);
+        options.InlineExecution.MoveToErrorQueueOnFailure = true;
 
         Assert.That(transport.InlineExecutionSettings.MoveToErrorQueueOnFailure, Is.False);
     }

@@ -26,7 +26,7 @@ static class InlineExecutionTestHelper
 
     public static Task<TransportInfrastructure> CreateInfrastructure(InMemoryBroker broker, string[] receiveAddresses, TransportTransactionMode transactionMode = TransportTransactionMode.SendsAtomicWithReceive, CancellationToken cancellationToken = default)
     {
-        var transport = new InMemoryTransport(broker, new InlineExecutionOptions())
+        var transport = new InMemoryTransport(new InMemoryTransportOptions(broker) { InlineExecution = new() })
         {
             TransportTransactionMode = transactionMode
         };

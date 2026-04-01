@@ -16,7 +16,7 @@ public class When_receiving_max_concurrency_1_does_not_deadlock_when_handler_sen
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var transport = new InMemoryTransport(broker, new InlineExecutionOptions());
+        var transport = new InMemoryTransport(new InMemoryTransportOptions(broker) { InlineExecution = new() });
         var infrastructure = await transport.Initialize(
             new HostSettings("endpoint", string.Empty, new StartupDiagnosticEntries(), static (_, _, _) => { }, true),
             [new ReceiveSettings("receiver", new QueueAddress("input"), true, true, "error")],

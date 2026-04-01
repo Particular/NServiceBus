@@ -52,9 +52,12 @@ public class When_inline_executing_with_error_queue : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>((config, runContext) =>
         {
-            config.UseTransport(new InMemoryTransport(null, new InlineExecutionOptions
+            config.UseTransport(new InMemoryTransport(new InMemoryTransportOptions
             {
-                MoveToErrorQueueOnFailure = true
+                InlineExecution = new()
+                {
+                    MoveToErrorQueueOnFailure = true
+                }
             }));
             config.SendFailedMessagesTo("error");
         });

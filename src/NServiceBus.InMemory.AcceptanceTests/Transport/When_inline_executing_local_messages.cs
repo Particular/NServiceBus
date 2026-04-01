@@ -52,9 +52,12 @@ public class When_inline_executing_local_messages : NServiceBusAcceptanceTest
     {
         public Endpoint() => EndpointSetup<DefaultServer>((config, runContext) =>
         {
-            config.UseTransport(new InMemoryTransport(null, new InlineExecutionOptions
+            config.UseTransport(new InMemoryTransport(new InMemoryTransportOptions
             {
-                MoveToErrorQueueOnFailure = false
+                InlineExecution = new()
+                {
+                    MoveToErrorQueueOnFailure = false
+                }
             }));
             config.LimitMessageProcessingConcurrencyTo(1);
             var recoverability = config.Recoverability();
