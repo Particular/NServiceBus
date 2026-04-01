@@ -31,8 +31,7 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
             return;
         }
 
-        var analyzerOptions = context.Document.Project.AnalyzerOptions.AnalyzerConfigOptionsProvider.GetOptions(root.SyntaxTree);
-        if (analyzerOptions.TryGetValue("nservicebus_handler_style", out var handlerStyle) && string.Equals(handlerStyle, "IHandleMessages", StringComparison.OrdinalIgnoreCase))
+        if (EditorConfigSettings.KeyMatches(context.Document.Project.AnalyzerOptions, root.SyntaxTree, EditorConfigSettings.HandlerStyleKey, EditorConfigSettings.HandlerStyleInterfaces))
         {
             return;
         }
@@ -50,7 +49,7 @@ public class AddConventionBasedHandleMethodFixer : CodeFixProvider
                 CodeAction.Create(
                     "Add convention-based Handle(MyMessage, ...)",
                     token => AddHandleMethod(context.Document, classDecl.SpanStart, token),
-                    EquivalenceKey + handlerStyle),
+                    EquivalenceKey),
                 diagnostic);
         }
     }

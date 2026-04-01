@@ -31,8 +31,7 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
             return;
         }
 
-        var analyzerOptions = context.Document.Project.AnalyzerOptions.AnalyzerConfigOptionsProvider.GetOptions(root.SyntaxTree);
-        if (analyzerOptions.TryGetValue("nservicebus_handler_style", out var handlerStyle) && string.Equals(handlerStyle, "Conventions", StringComparison.OrdinalIgnoreCase))
+        if (EditorConfigSettings.KeyMatches(context.Document.Project.AnalyzerOptions, root.SyntaxTree, EditorConfigSettings.HandlerStyleKey, EditorConfigSettings.HandlerStyleConventions))
         {
             return;
         }
@@ -50,7 +49,7 @@ public class AddIHandleMessagesInterfaceFixer : CodeFixProvider
                 CodeAction.Create(
                     "Implement IHandleMessages<MyMessage>",
                     token => AddInterface(context.Document, classDecl.SpanStart, token),
-                    EquivalenceKey + handlerStyle),
+                    EquivalenceKey),
                 diagnostic);
         }
     }
