@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Configuration.AdvancedExtensibility;
+using Installation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Transport;
@@ -16,6 +17,57 @@ using Transport;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="endpointConfiguration"></param>
+    /// <param name="endpointIdentifier"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static void AddNServiceBusEndpointInstaller(this IServiceCollection services,
+        EndpointConfiguration endpointConfiguration,
+        object? endpointIdentifier = null)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(endpointConfiguration);
+
+        var settings = endpointConfiguration.GetSettings();
+        // Unfortunately we have to also check this here due to the multiple hosting variants as long as
+        // the old hosting is still supported.
+        settings.AssertNotReused();
+
+        var endpointName = settings.EndpointName();
+        var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
+        var registrations = GetExistingInstallerRegistrations(services);
+
+        // ValidateEndpointIdentifier(endpointIdentifier, registrations);
+        // ValidateAssemblyScanning(endpointConfiguration, endpointName, registrations);
+        // ValidateTransportReuse(transport, registrations);
+
+        if (endpointIdentifier is null)
+        {
+            // Deliberately creating it here to make sure we are not accidentally doing it too late.
+            var externallyManagedInstallerHost = InstallerExternallyManaged.Create(endpointConfiguration, services);
+
+            services.AddSingleton(externallyManagedInstallerHost);
+            services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(externallyManagedInstallerHost, sp));
+        }
+        else
+        {
+            // Backdoor for acceptance testing
+            var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
+            var baseKey = keyedServices.ServiceKey.BaseKey;
+
+            // Deliberately creating it here to make sure we are not accidentally doing it too late.
+            var externallyManagedInstallerHost = InstallerExternallyManaged.Create(endpointConfiguration, keyedServices);
+
+            services.AddKeyedSingleton(baseKey, externallyManagedInstallerHost);
+            services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(sp.GetRequiredKeyedService<InstallerWithExternallyManagedContainer>(baseKey), sp));
+        }
+
+        services.AddSingleton(new EndpointInstallerRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
+    }
+
     /// <summary>
     /// Registers an NServiceBus endpoint with the dependency injection container, enabling the endpoint
     /// to resolve services from the application's service provider and participate in the hosted service lifecycle.
@@ -174,5 +226,12 @@ public static class ServiceCollectionExtensions
             .Where(d => d.ServiceType == typeof(EndpointRegistration) && d.ImplementationInstance is EndpointRegistration)
             .Select(d => (EndpointRegistration)d.ImplementationInstance!)];
 
+    static List<EndpointInstallerRegistration> GetExistingInstallerRegistrations(IServiceCollection services) =>
+    [.. services
+        .Where(d => d.ServiceType == typeof(EndpointInstallerRegistration) && d.ImplementationInstance is EndpointInstallerRegistration)
+        .Select(d => (EndpointInstallerRegistration)d.ImplementationInstance!)];
+
+
     sealed record EndpointRegistration(string EndpointName, object? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode);
+    sealed record EndpointInstallerRegistration(string EndpointName, object? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode);
 }
