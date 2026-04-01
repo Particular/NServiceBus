@@ -40,9 +40,9 @@ public static class ServiceCollectionExtensions
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
         var registrations = GetExistingInstallerRegistrations(services);
 
-        // ValidateEndpointIdentifier(endpointIdentifier, registrations);
-        // ValidateAssemblyScanning(endpointConfiguration, endpointName, registrations);
-        // ValidateTransportReuse(transport, registrations);
+        ValidateEndpointIdentifier(endpointIdentifier, [..registrations]);
+        ValidateAssemblyScanning(endpointConfiguration, endpointName, [..registrations], message: "its installers using the corresponding registrations methods like AddInstaller<T>()");
+        ValidateTransportReuse(transport, [..registrations]);
 
         if (endpointIdentifier is null)
         {
@@ -180,7 +180,7 @@ public static class ServiceCollectionExtensions
         }
     }
 
-    static void ValidateAssemblyScanning(EndpointConfiguration endpointConfiguration, string endpointName, List<EndpointRegistration> registrations)
+    static void ValidateAssemblyScanning(EndpointConfiguration endpointConfiguration, string endpointName, List<EndpointRegistration> registrations, string message ="its handlers and sagas using the corresponding registrations methods like AddHandler<T>(), AddSaga<T>() etc")
     {
         if (endpointConfiguration.GetSettings().HasSetting("NServiceBus.Hosting.DisableAssemblyScanningValidation"))
         {
@@ -205,7 +205,7 @@ public static class ServiceCollectionExtensions
         {
             throw new InvalidOperationException(
                 $"When multiple endpoints are registered, each endpoint must disable assembly scanning " +
-                $"(cfg.AssemblyScanner().Disable = true) and explicitly register its handlers using AddHandler<T>(). " +
+                $"(cfg.AssemblyScanner().Disable = true) and explicitly register {message}. " +
                 $"The following endpoints have assembly scanning enabled: {string.Join(", ", endpointsWithScanning.Select(n => $"'{n}'"))}.");
         }
     }
@@ -232,6 +232,7 @@ public static class ServiceCollectionExtensions
         .Select(d => (EndpointInstallerRegistration)d.ImplementationInstance!)];
 
 
-    sealed record EndpointRegistration(string EndpointName, object? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode);
-    sealed record EndpointInstallerRegistration(string EndpointName, object? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode);
+    record EndpointRegistration(string EndpointName, object? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode);
+
+    record EndpointInstallerRegistration(string EndpointName, object? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode) : EndpointRegistration(EndpointName, EndpointIdentifier, ScanningDisabled, TransportHashCode);
 }
