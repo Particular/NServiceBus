@@ -19,7 +19,9 @@ public class When_dispatching_immediate_local_unicast_from_normal_receive_pipeli
         var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input", "input-secondary"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
-        var handlerDispatchedSend = new TaskCompletionSource<ReplyDispatchObservation>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondaryReceiver = infrastructure.Receivers["receiver-1"];
+        var handlerDispatchedSend = new TaskCompletionSource<Task>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var childHandledScope = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var allowHandlerToComplete = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
         await receiver.Initialize(
@@ -30,28 +32,34 @@ public class When_dispatching_immediate_local_unicast_from_normal_receive_pipeli
                 {
                     [Headers.MessageIntent] = MessageIntent.Send.ToString()
                 })), messageContext.TransportTransaction, cancellationToken);
-                Assert.That(broker.GetOrCreateQueue("input-secondary").TryPeek(out var sentEnvelope), Is.True);
-                handlerDispatchedSend.TrySetResult(new ReplyDispatchObservation(sendTask, sentEnvelope!));
+                handlerDispatchedSend.TrySetResult(sendTask);
                 await allowHandlerToComplete.Task.WaitAsync(cancellationToken);
+            },
+            (_, _) => Task.FromResult(ErrorHandleResult.Handled),
+            CancellationToken.None);
+
+        await secondaryReceiver.Initialize(
+            new PushRuntimeSettings(maxConcurrency: 1),
+            (messageContext, _) =>
+            {
+                childHandledScope.TrySetResult(InlineExecutionTestHelper.GetInlineScope(messageContext.TransportTransaction));
+                return Task.CompletedTask;
             },
             (_, _) => Task.FromResult(ErrorHandleResult.Handled),
             CancellationToken.None);
 
         await broker.GetOrCreateQueue("input").Enqueue(InlineExecutionTestHelper.CreateReceivedEnvelope("input"));
         await receiver.StartReceive();
+        await secondaryReceiver.StartReceive();
 
-        var observation = await handlerDispatchedSend.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        var inlineState = InlineExecutionTestHelper.GetInlineState(observation.Envelope);
+        var sendTask = await handlerDispatchedSend.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var childScope = await childHandledScope.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(observation.Task.IsCompletedSuccessfully, Is.True);
-            Assert.That(inlineState, Is.Null);
-        });
+        Assert.That(sendTask.IsCompletedSuccessfully, Is.True);
+        Assert.That(childScope, Is.Null);
 
         allowHandlerToComplete.TrySetResult();
         await receiver.StopReceive();
+        await secondaryReceiver.StopReceive();
     }
-
-    readonly record struct ReplyDispatchObservation(Task Task, BrokerEnvelope Envelope);
 }

@@ -36,11 +36,8 @@ public class When_inline_executing_local_messages : NServiceBusAcceptanceTest
                 .DoNotFailOnErrorMessages())
             .Run();
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(context.CaughtException, Is.InstanceOf<SimulatedException>());
-            Assert.That(CurrentBroker.GetOrCreateQueue("error").Count, Is.EqualTo(0));
-        });
+        Assert.That(context.CaughtException, Is.InstanceOf<SimulatedException>());
+        Assert.That(CurrentBroker.GetOrCreateQueue("error").Count, Is.EqualTo(0));
     }
 
     public class Context : ScenarioContext
