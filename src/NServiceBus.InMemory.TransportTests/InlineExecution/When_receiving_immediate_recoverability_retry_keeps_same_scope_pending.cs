@@ -15,13 +15,13 @@ public class When_receiving_immediate_recoverability_retry_keeps_same_scope_pend
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var firstAttemptFailed = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var releaseSecondAttempt = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        object? firstScope = null;
-        object? secondScope = null;
+        InlineExecutionScope? firstScope = null;
+        InlineExecutionScope? secondScope = null;
         var attempts = 0;
 
         await receiver.Initialize(
@@ -29,7 +29,7 @@ public class When_receiving_immediate_recoverability_retry_keeps_same_scope_pend
             async (messageContext, cancellationToken) =>
             {
                 var currentAttempt = Interlocked.Increment(ref attempts);
-                var scope = InlineExecutionTestHelper.GetInlineScope(messageContext.TransportTransaction);
+                var scope = GetInlineScope(messageContext.TransportTransaction);
 
                 if (currentAttempt == 1)
                 {
@@ -49,7 +49,7 @@ public class When_receiving_immediate_recoverability_retry_keeps_same_scope_pend
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
 
         await firstAttemptFailed.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
@@ -57,7 +57,7 @@ public class When_receiving_immediate_recoverability_retry_keeps_same_scope_pend
         {
             Assert.That(rootTask.IsCompleted, Is.False);
             Assert.That(firstScope, Is.Not.Null);
-            Assert.That(InlineExecutionTestHelper.GetPendingOperations(firstScope!), Is.EqualTo(1));
+            Assert.That(GetPendingOperations(firstScope!), Is.EqualTo(1));
         });
 
         releaseSecondAttempt.TrySetResult();

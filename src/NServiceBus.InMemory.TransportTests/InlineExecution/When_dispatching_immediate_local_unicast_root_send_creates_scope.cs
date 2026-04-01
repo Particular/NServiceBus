@@ -14,20 +14,20 @@ public class When_dispatching_immediate_local_unicast_root_send_creates_scope
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var dispatcher = await InlineExecutionTestHelper.CreateDispatcher(broker, ["input"]);
+        var dispatcher = await CreateDispatcher(broker, ["input"]);
 
-        var task = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
+        var task = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
         var envelope = await broker.GetOrCreateQueue("input").Dequeue();
-        var inlineState = InlineExecutionTestHelper.GetInlineState(envelope);
-        var scope = InlineExecutionTestHelper.GetScope(inlineState!);
+        var inlineState = GetInlineState(envelope);
+        var scope = GetInlineScope(inlineState!);
 
         Assert.Multiple(() =>
         {
             Assert.That(task.IsCompleted, Is.False);
             Assert.That(inlineState, Is.Not.Null);
-            Assert.That(InlineExecutionTestHelper.GetIsRootDispatch(inlineState!), Is.True);
-            Assert.That(InlineExecutionTestHelper.GetDepth(inlineState!), Is.EqualTo(0));
-            Assert.That(task, Is.SameAs(InlineExecutionTestHelper.GetCompletion(scope)));
+            Assert.That(GetIsRootDispatch(inlineState!), Is.True);
+            Assert.That(GetDepth(inlineState!), Is.EqualTo(0));
+            Assert.That(task, Is.SameAs(GetCompletion(scope)));
         });
     }
 }

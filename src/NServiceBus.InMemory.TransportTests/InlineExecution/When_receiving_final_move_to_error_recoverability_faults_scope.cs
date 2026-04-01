@@ -15,7 +15,7 @@ public class When_receiving_final_move_to_error_recoverability_faults_scope
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var processingException = new InvalidOperationException("boom");
@@ -25,15 +25,15 @@ public class When_receiving_final_move_to_error_recoverability_faults_scope
             (_, _) => throw processingException,
             (errorContext, _) =>
             {
-                InlineExecutionTestHelper.SetRecoverabilityAction(errorContext, RecoverabilityAction.MoveToError("error"));
+                SetRecoverabilityAction(errorContext, RecoverabilityAction.MoveToError("error"));
                 return Task.FromResult(ErrorHandleResult.Handled);
             },
             CancellationToken.None);
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
-        var exception = await InlineExecutionTestHelper.CatchException(rootTask);
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
+        var exception = await CatchException(rootTask);
 
         Assert.That(exception, Is.SameAs(processingException));
 

@@ -16,12 +16,12 @@ public class When_receiving_cross_pump_delayed_recoverability_preserves_scope
     [Test]
     public async Task Run()
     {
-        var fakeTime = InlineExecutionTestHelper.CreateFakeTimeProvider();
+        var fakeTime = CreateFakeTimeProvider();
         await using var broker = new InMemoryBroker(new InMemoryBrokerOptions
         {
             TimeProvider = fakeTime
         });
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input", "input-secondary"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input", "input-secondary"]);
         var dispatcher = infrastructure.Dispatcher;
         var primaryReceiver = infrastructure.Receivers["receiver-0"];
         var secondaryReceiver = infrastructure.Receivers["receiver-1"];
@@ -34,8 +34,8 @@ public class When_receiving_cross_pump_delayed_recoverability_preserves_scope
             async (errorContext, cancellationToken) =>
             {
                 var action = RecoverabilityAction.DelayedRetry(TimeSpan.FromMinutes(1));
-                InlineExecutionTestHelper.SetRecoverabilityAction(errorContext, action);
-                await InlineExecutionTestHelper.DispatchRecoverabilityMessage(dispatcher, errorContext, "input-secondary", new DispatchProperties
+                SetRecoverabilityAction(errorContext, action);
+                await DispatchRecoverabilityMessage(dispatcher, errorContext, "input-secondary", new DispatchProperties
                 {
                     DelayDeliveryWith = new DelayDeliveryWith(TimeSpan.FromMinutes(1))
                 }, cancellationToken);
@@ -57,7 +57,7 @@ public class When_receiving_cross_pump_delayed_recoverability_preserves_scope
         await primaryReceiver.StartReceive();
         await secondaryReceiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
 
         await delayedRetryScheduled.Task.WaitAsync(TimeSpan.FromSeconds(5));
 

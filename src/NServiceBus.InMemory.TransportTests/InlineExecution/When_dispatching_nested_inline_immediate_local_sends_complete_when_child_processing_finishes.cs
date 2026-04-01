@@ -16,7 +16,7 @@ public class When_dispatching_nested_inline_immediate_local_sends_complete_when_
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var parentObserved = new TaskCompletionSource<DispatchObservation>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -28,13 +28,13 @@ public class When_dispatching_nested_inline_immediate_local_sends_complete_when_
             {
                 if (messageContext.Headers.TryGetValue("kind", out var kind) && kind == "parent")
                 {
-                    var sendTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+                    var sendTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
                     {
                         [Headers.MessageIntent] = MessageIntent.Send.ToString(),
                         ["kind"] = "child"
                     })), messageContext.TransportTransaction, cancellationToken);
 
-                    parentObserved.TrySetResult(new DispatchObservation(sendTask, InlineExecutionTestHelper.GetInlineScope(messageContext.TransportTransaction)));
+                    parentObserved.TrySetResult(new DispatchObservation(sendTask, GetInlineScope(messageContext.TransportTransaction)));
                     return;
                 }
 
@@ -46,7 +46,7 @@ public class When_dispatching_nested_inline_immediate_local_sends_complete_when_
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
         {
             [Headers.MessageIntent] = MessageIntent.Send.ToString(),
             ["kind"] = "parent"

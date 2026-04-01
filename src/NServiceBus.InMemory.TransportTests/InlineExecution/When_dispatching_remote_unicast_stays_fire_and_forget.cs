@@ -14,14 +14,14 @@ public class When_dispatching_remote_unicast_stays_fire_and_forget
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var dispatcher = await InlineExecutionTestHelper.CreateDispatcher(broker, ["input"]);
+        var dispatcher = await CreateDispatcher(broker, ["input"]);
 
-        var task = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("remote")), new TransportTransaction());
+        var task = dispatcher.Dispatch(new TransportOperations(CreateUnicast("remote")), new TransportTransaction());
 
         await task;
 
         Assert.That(task.IsCompletedSuccessfully, Is.True);
         Assert.That(broker.GetOrCreateQueue("remote").Count, Is.EqualTo(1));
-        Assert.That(InlineExecutionTestHelper.GetInlineState(await broker.GetOrCreateQueue("remote").Dequeue()), Is.Null);
+        Assert.That(GetInlineState(await broker.GetOrCreateQueue("remote").Dequeue()), Is.Null);
     }
 }

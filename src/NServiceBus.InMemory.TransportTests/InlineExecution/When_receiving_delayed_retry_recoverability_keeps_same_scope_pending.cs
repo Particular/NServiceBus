@@ -16,18 +16,18 @@ public class When_receiving_delayed_retry_recoverability_keeps_same_scope_pendin
     [Test]
     public async Task Run()
     {
-        var fakeTime = InlineExecutionTestHelper.CreateFakeTimeProvider();
+        var fakeTime = CreateFakeTimeProvider();
         await using var broker = new InMemoryBroker(new InMemoryBrokerOptions
         {
             TimeProvider = fakeTime
         });
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var delayedRetryScheduled = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var secondAttemptObserved = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
-        object? firstScope = null;
-        object? secondScope = null;
+        InlineExecutionScope? firstScope = null;
+        InlineExecutionScope? secondScope = null;
         var attempts = 0;
 
         await receiver.Initialize(
@@ -35,7 +35,7 @@ public class When_receiving_delayed_retry_recoverability_keeps_same_scope_pendin
             (messageContext, _) =>
             {
                 var currentAttempt = Interlocked.Increment(ref attempts);
-                var scope = InlineExecutionTestHelper.GetInlineScope(messageContext.TransportTransaction);
+                var scope = GetInlineScope(messageContext.TransportTransaction);
 
                 if (currentAttempt == 1)
                 {
@@ -50,8 +50,8 @@ public class When_receiving_delayed_retry_recoverability_keeps_same_scope_pendin
             async (errorContext, cancellationToken) =>
             {
                 var action = RecoverabilityAction.DelayedRetry(TimeSpan.FromMinutes(1));
-                InlineExecutionTestHelper.SetRecoverabilityAction(errorContext, action);
-                await InlineExecutionTestHelper.DispatchRecoverabilityMessage(dispatcher, errorContext, new DispatchProperties
+                SetRecoverabilityAction(errorContext, action);
+                await DispatchRecoverabilityMessage(dispatcher, errorContext, new DispatchProperties
                 {
                     DelayDeliveryWith = new DelayDeliveryWith(TimeSpan.FromMinutes(1))
                 }, cancellationToken);
@@ -62,17 +62,17 @@ public class When_receiving_delayed_retry_recoverability_keeps_same_scope_pendin
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input")), new TransportTransaction());
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input")), new TransportTransaction());
 
         await delayedRetryScheduled.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         Assert.That(rootTask.IsCompleted, Is.False);
         Assert.That(firstScope, Is.Not.Null);
-        Assert.That(InlineExecutionTestHelper.GetPendingOperations(firstScope!), Is.EqualTo(1));
+        Assert.That(GetPendingOperations(firstScope!), Is.EqualTo(1));
 
         Assert.That(broker.TryDequeueDelayed(fakeTime.GetUtcNow() + TimeSpan.FromMinutes(2), out var delayedEnvelope), Is.True);
-        Assert.That(InlineExecutionTestHelper.GetInlineState(delayedEnvelope!), Is.Not.Null);
-        Assert.That(InlineExecutionTestHelper.GetInlineScope(InlineExecutionTestHelper.GetInlineState(delayedEnvelope!)!), Is.SameAs(firstScope));
+        Assert.That(GetInlineState(delayedEnvelope!), Is.Not.Null);
+        Assert.That(GetInlineScope(GetInlineState(delayedEnvelope!)!), Is.SameAs(firstScope));
 
         broker.EnqueueDelayed(delayedEnvelope!, delayedEnvelope!.DeliverAt!.Value);
         fakeTime.Advance(TimeSpan.FromMinutes(2));

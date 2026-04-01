@@ -15,7 +15,7 @@ public class When_receiving_shutdown_faults_active_scopes_and_drains_them
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
 
@@ -28,7 +28,7 @@ public class When_receiving_shutdown_faults_active_scopes_and_drains_them
         await receiver.StartReceive();
 
         var rootTask = dispatcher.Dispatch(
-            new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", delay: TimeSpan.FromMinutes(1))),
+            new TransportOperations(CreateUnicast("input", delay: TimeSpan.FromMinutes(1))),
             new TransportTransaction());
 
         await receiver.StopReceive(CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(5));

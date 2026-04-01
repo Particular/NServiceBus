@@ -16,7 +16,7 @@ public class When_dispatching_nested_inline_reentrant_dispatch_returns_child_pro
     public async Task Run()
     {
         await using var broker = new InMemoryBroker();
-        var infrastructure = await InlineExecutionTestHelper.CreateInfrastructure(broker, ["input"]);
+        var infrastructure = await CreateInfrastructure(broker, ["input"]);
         var dispatcher = infrastructure.Dispatcher;
         var receiver = infrastructure.Receivers["receiver-0"];
         var nestedSendObserved = new TaskCompletionSource<Task>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -29,7 +29,7 @@ public class When_dispatching_nested_inline_reentrant_dispatch_returns_child_pro
             {
                 if (messageContext.Headers.TryGetValue("kind", out var kind) && kind == "parent")
                 {
-                    var nestedTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+                    var nestedTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
                     {
                         [Headers.MessageIntent] = MessageIntent.Send.ToString(),
                         ["kind"] = "child"
@@ -48,7 +48,7 @@ public class When_dispatching_nested_inline_reentrant_dispatch_returns_child_pro
 
         await receiver.StartReceive();
 
-        var rootTask = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", headers: new Dictionary<string, string>
+        var rootTask = dispatcher.Dispatch(new TransportOperations(CreateUnicast("input", headers: new Dictionary<string, string>
         {
             [Headers.MessageIntent] = MessageIntent.Send.ToString(),
             ["kind"] = "parent"
