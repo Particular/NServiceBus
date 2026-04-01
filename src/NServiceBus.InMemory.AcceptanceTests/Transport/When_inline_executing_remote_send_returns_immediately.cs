@@ -42,7 +42,7 @@ public class When_inline_executing_remote_send_returns_immediately : NServiceBus
     {
         public Endpoint() => EndpointSetup<DefaultServer>((config, runContext) =>
         {
-            config.UseTransport(new InMemoryTransport(null, new InlineExecutionOptions()));
+            config.UseTransport(new InMemoryTransport(new InMemoryTransportOptions { InlineExecution = new() }));
             config.LimitMessageProcessingConcurrencyTo(1);
             config.ConfigureRouting().RouteToEndpoint(typeof(RemoteMessage), "remote-endpoint");
         });

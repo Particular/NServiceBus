@@ -41,7 +41,7 @@ public class When_inline_executing_local_messages_happy_path : NServiceBusAccept
     {
         public Endpoint() => EndpointSetup<DefaultServer>((config, runContext) =>
         {
-            config.UseTransport(new InMemoryTransport(null, new InlineExecutionOptions()));
+            config.UseTransport(new InMemoryTransport(new InMemoryTransportOptions { InlineExecution = new() }));
             config.LimitMessageProcessingConcurrencyTo(1);
         });
 

@@ -14,38 +14,25 @@ public class InMemoryTransport : TransportDefinition
     /// <summary>
     /// Creates a new instance of the in-memory transport.
     /// </summary>
-    /// <param name="broker">
-    /// Optional broker to use when dependency injection does not provide an <see cref="InMemoryBroker" />.
-    /// </param>
+    /// <param name="options">Optional configuration options for the transport.</param>
     /// <remarks>
     /// When multiple endpoints need to communicate in-memory, they should share the same broker instance.
     /// Broker resolution is optional and uses the following precedence: an <see cref="InMemoryBroker" /> resolved from
     /// <see cref="HostSettings.ServiceProvider" />, then the broker provided to this constructor, and finally the shared broker.
     /// For testing, omit the broker parameter and the shared broker will be used unless dependency injection supplies one.
     /// </remarks>
-    public InMemoryTransport(InMemoryBroker? broker = null)
+    public InMemoryTransport(InMemoryTransportOptions? options = null)
         : base(TransportTransactionMode.SendsAtomicWithReceive, supportsDelayedDelivery: true, supportsPublishSubscribe: true, supportsTTBR: true)
     {
-        configuredBroker = broker;
-    }
+        var transportOptions = options ?? new InMemoryTransportOptions();
+        configuredBroker = transportOptions.Broker;
+        InlineExecutionSettings = new InlineExecutionSettings(transportOptions);
 
-    /// <summary>
-    /// Creates a new instance of the in-memory transport with inline execution enabled.
-    /// </summary>
-    /// <param name="broker">
-    /// Optional broker to use when dependency injection does not provide an <see cref="InMemoryBroker" />.
-    /// </param>
-    /// <param name="inlineExecutionOptions">Inline execution options to snapshot for this transport instance.</param>
-    public InMemoryTransport(InMemoryBroker? broker, InlineExecutionOptions inlineExecutionOptions)
-        : base(TransportTransactionMode.SendsAtomicWithReceive, supportsDelayedDelivery: true, supportsPublishSubscribe: true, supportsTTBR: true)
-    {
-        ArgumentNullException.ThrowIfNull(inlineExecutionOptions);
-
-        configuredBroker = broker;
-        InlineExecutionSettings = new InlineExecutionSettings(inlineExecutionOptions);
-
-        // Enable the feature that will register the recoverability behavior
-        EnableEndpointFeature<InlineExecutionFeature>();
+        if (InlineExecutionSettings.IsEnabled)
+        {
+            // Enable the feature that will register the recoverability behavior
+            EnableEndpointFeature<InlineExecutionFeature>();
+        }
     }
 
     internal InMemoryBroker GetBroker() => configuredBroker ?? SharedBroker;

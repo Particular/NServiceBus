@@ -6,10 +6,10 @@ sealed class InlineExecutionSettings
     public bool IsEnabled { get; }
     public bool MoveToErrorQueueOnFailure { get; }
 
-    public InlineExecutionSettings(InlineExecutionOptions options)
+    public InlineExecutionSettings(InMemoryTransportOptions options)
     {
-        IsEnabled = true;
-        MoveToErrorQueueOnFailure = options.MoveToErrorQueueOnFailure;
+        IsEnabled = options.InlineExecution is not null;
+        MoveToErrorQueueOnFailure = options.InlineExecution?.MoveToErrorQueueOnFailure ?? true;
     }
 
     InlineExecutionSettings()
