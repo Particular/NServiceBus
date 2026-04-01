@@ -9,13 +9,12 @@ sealed class InlineExecutionRecoverabilityBehavior(InlineExecutionSettings setti
 {
     public async Task Invoke(IRecoverabilityContext context, Func<IRecoverabilityContext, Task> next)
     {
-        if (!context.Extensions.TryGet<TransportTransaction>(out var transportTransaction) || !transportTransaction.TryGet<InlineExecutionDispatchContext>(out var dispatch))
+        if (!context.Extensions.TryGet<TransportTransaction>(out var transportTransaction) || !transportTransaction.TryGet<InlineExecutionDispatchContext>(out _))
         {
             await next(context).ConfigureAwait(false);
             return;
         }
 
-        var scope = dispatch.Scope;
         var action = context.RecoverabilityAction;
 
         if (action is ImmediateRetry)
@@ -31,7 +30,6 @@ sealed class InlineExecutionRecoverabilityBehavior(InlineExecutionSettings setti
             return;
         }
 
-        bool markTerminalFailure = false;
         if (action is MoveToError)
         {
             if (!settings.MoveToErrorQueueOnFailure)
@@ -39,19 +37,8 @@ sealed class InlineExecutionRecoverabilityBehavior(InlineExecutionSettings setti
                 // Change action before routing happens
                 context.RecoverabilityAction = RecoverabilityAction.Discard("Inline execution suppressed error queue routing.");
             }
-
-            markTerminalFailure = true;
-        }
-        else if (action is Discard)
-        {
-            markTerminalFailure = true;
         }
 
         await next(context).ConfigureAwait(false);
-
-        if (markTerminalFailure)
-        {
-            scope.MarkTerminalFailure(context.Exception);
-        }
     }
 }

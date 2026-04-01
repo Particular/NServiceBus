@@ -77,25 +77,15 @@ sealed class InlineExecutionRunner(
         {
             receiveTransaction?.Rollback();
 
-            var errorContext = receiveTransaction != null
-                ? new ErrorContext(
-                    ex,
-                    new Dictionary<string, string>(envelope.Headers),
-                    envelope.MessageId,
-                    envelope.Body,
-                    transportTransaction,
-                    envelope.DeliveryAttempt,
-                    receiveAddress,
-                    contextBag)
-                : new ErrorContext(
-                    ex,
-                    new Dictionary<string, string>(envelope.Headers),
-                    envelope.MessageId,
-                    envelope.Body,
-                    new TransportTransaction(),
-                    envelope.DeliveryAttempt,
-                    receiveAddress,
-                    contextBag);
+            var errorContext = new ErrorContext(
+                ex,
+                new Dictionary<string, string>(envelope.Headers),
+                envelope.MessageId,
+                envelope.Body,
+                transportTransaction,
+                envelope.DeliveryAttempt,
+                receiveAddress,
+                contextBag);
 
             var result = await HandleErrorAsync(errorContext, messageContext, receiveTransaction, cancellationToken).ConfigureAwait(false);
 
