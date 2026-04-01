@@ -23,8 +23,8 @@ public class When_dispatching_user_requested_delayed_local_dispatch_from_receive
         var scope = InlineExecutionTestHelper.CreateScope();
 
         transaction.Set(InlineExecutionTestHelper.CreateReceivePipelineMarker());
-        transaction.Set(InMemoryReceiveTransactionKey, receiveTransaction);
-        transaction.Set(InlineExecutionScopeType.FullName!, scope);
+        InlineExecutionTestHelper.AttachReceiveTransaction(transaction, receiveTransaction);
+        InlineExecutionTestHelper.AttachInlineScope(transaction, scope);
 
         var task = dispatcher.Dispatch(new TransportOperations(InlineExecutionTestHelper.CreateUnicast("input", DispatchConsistency.Default, TimeSpan.FromMinutes(1))), transaction);
 
@@ -40,8 +40,4 @@ public class When_dispatching_user_requested_delayed_local_dispatch_from_receive
             Assert.That(InlineExecutionTestHelper.GetInlineState(pending.Single()), Is.Null);
         });
     }
-
-    static readonly System.Reflection.Assembly InMemoryAssembly = typeof(InMemoryTransport).Assembly;
-    static readonly System.Type InlineExecutionScopeType = InMemoryAssembly.GetType("NServiceBus.InlineExecutionScope", throwOnError: true)!;
-    const string InMemoryReceiveTransactionKey = "NServiceBus.IInMemoryReceiveTransaction";
 }

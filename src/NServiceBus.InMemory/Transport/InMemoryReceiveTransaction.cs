@@ -51,4 +51,12 @@ class InMemoryReceiveTransaction : IInMemoryReceiveTransaction
             committed = false;
         }
     }
+
+    internal IReadOnlyList<BrokerEnvelope> GetPendingEnvelopesForTesting()
+    {
+        lock (lockObj)
+        {
+            return [.. pendingEnvelopes];
+        }
+    }
 }
