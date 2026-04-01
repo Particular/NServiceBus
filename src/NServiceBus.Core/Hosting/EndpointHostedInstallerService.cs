@@ -4,12 +4,15 @@ namespace NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Installation;
 using Microsoft.Extensions.Hosting;
 
-class EndpointHostedInstallerService(InstallerWithExternallyManagedContainer externallyManagedInstallerHost, IServiceProvider sp) : IHostedService
+class EndpointHostedInstallerService(IEndpointLifecycle endpointLifecycle) : IHostedService, IAsyncDisposable
 {
-    public Task StartAsync(CancellationToken cancellationToken = default) => externallyManagedInstallerHost.Setup(sp, cancellationToken);
+    public async Task StartAsync(CancellationToken cancellationToken = default)
+        // we only ever create but not start
+        => await endpointLifecycle.Create(cancellationToken).ConfigureAwait(false);
 
     public Task StopAsync(CancellationToken cancellationToken= default) => Task.CompletedTask;
+
+    public ValueTask DisposeAsync() => endpointLifecycle.DisposeAsync();
 }

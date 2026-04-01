@@ -80,13 +80,16 @@ public static class ServiceCollectionExtensions
         ValidateAssemblyScanning(endpointConfiguration, endpointName, installerRegistrations, message: "its installers using the corresponding registrations methods like AddInstaller<T>()");
         ValidateTransportReuse(transport, installerRegistrations);
 
+        endpointConfiguration.EnableInstallers();
+
         if (endpointIdentifier is null)
         {
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
-            var externallyManagedInstallerHost = InstallerExternallyManaged.Create(endpointConfiguration, services);
+            var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, services);
 
-            services.AddSingleton(externallyManagedInstallerHost);
-            services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(externallyManagedInstallerHost, sp));
+            services.AddSingleton(externallyManagedContainerHost);
+            services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp));
+            services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(sp.GetRequiredService<IEndpointLifecycle>()));
         }
         else
         {
@@ -95,10 +98,11 @@ public static class ServiceCollectionExtensions
             var baseKey = keyedServices.ServiceKey.BaseKey;
 
             // Deliberately creating it here to make sure we are not accidentally doing it too late.
-            var externallyManagedInstallerHost = InstallerExternallyManaged.Create(endpointConfiguration, keyedServices);
+            var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, keyedServices);
 
-            services.AddKeyedSingleton(baseKey, externallyManagedInstallerHost);
-            services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(sp.GetRequiredKeyedService<InstallerWithExternallyManagedContainer>(baseKey), sp));
+            services.AddKeyedSingleton(baseKey, externallyManagedContainerHost);
+            services.AddKeyedSingleton<IEndpointLifecycle>(baseKey, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, keyedServices.ServiceKey, keyedServices));
+            services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(sp.GetRequiredKeyedService<IEndpointLifecycle>(baseKey)));
         }
 
         services.AddSingleton(new EndpointInstallerRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
