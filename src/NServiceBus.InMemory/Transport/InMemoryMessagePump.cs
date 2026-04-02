@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Transport;
 
@@ -40,6 +41,8 @@ class InMemoryMessagePump(
     {
         pumpCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         messageProcessingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        receiveAttemptCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        stopRequested = CreateStopSignal();
 
         _ = broker.StartPump(cancellationToken);
 
@@ -60,10 +63,27 @@ class InMemoryMessagePump(
 
         while (!cancellationToken.IsCancellationRequested)
         {
+#pragma warning disable PS0021 // Pump shutdown uses separate tokens: one for graceful receive-stop and one for forced in-flight cancellation.
             try
             {
-                await broker.SimulateReceiveAsync(ReceiveAddress, cancellationToken).ConfigureAwait(false);
-                envelope = await queue.Dequeue(cancellationToken).ConfigureAwait(false);
+                if (stopRequested.Task.IsCompleted)
+                {
+                    if (!queue.TryDequeue(out envelope))
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    await broker.SimulateReceiveAsync(ReceiveAddress, ReceiveAttemptCancellationToken).ConfigureAwait(false);
+                    envelope = await DequeueForProcessingAsync(queue, ReceiveAttemptCancellationToken).ConfigureAwait(false);
+                    if (envelope == null)
+                    {
+                        break;
+                    }
+                }
+
+                ArgumentNullException.ThrowIfNull(envelope);
 
                 if (IsExpired(envelope, broker.GetCurrentTime()))
                 {
@@ -96,9 +116,17 @@ class InMemoryMessagePump(
             }
             catch (InMemorySimulationException ex)
             {
+                if (stopRequested.Task.IsCompleted)
+                {
+                    continue;
+                }
+
                 if (ex.RetryAfter > TimeSpan.Zero)
                 {
-                    await Task.Delay(ex.RetryAfter, ex.TimeProvider, cancellationToken).ConfigureAwait(false);
+                    if (!await WaitForRetryOrStopAsync(ex.RetryAfter, ex.TimeProvider, cancellationToken).ConfigureAwait(false))
+                    {
+                        continue;
+                    }
                 }
                 else
                 {
@@ -106,6 +134,7 @@ class InMemoryMessagePump(
                     await Task.Yield();
                 }
             }
+#pragma warning disable PS0020 // This pump intentionally distinguishes hard-stop cancellation from graceful receive-stop cancellation.
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 if (isProcessing && envelope != null)
@@ -121,6 +150,12 @@ class InMemoryMessagePump(
                 }
                 break;
             }
+            catch (OperationCanceledException) when (ReceiveAttemptCancellationRequested)
+            {
+                continue;
+            }
+#pragma warning restore PS0020
+#pragma warning restore PS0021
         }
     }
 
@@ -129,14 +164,15 @@ class InMemoryMessagePump(
 
     public async Task StopReceive(CancellationToken cancellationToken = default)
     {
-        if (pumpCts is not null)
-        {
-            await pumpCts.CancelAsync().ConfigureAwait(false);
-        }
+        // Graceful stop stops waiting for new work and lets buffered/in-flight processing drain.
+        // Only host-forced cancellation escalates to a hard stop that interrupts handlers.
+        stopRequested.TrySetResult();
+        Cancel(receiveAttemptCts);
 
-        if (cancellationToken.IsCancellationRequested && messageProcessingCts is not null)
+        using var cancellationRegistration = cancellationToken.Register(static state => ((InMemoryMessagePump)state!).TriggerHardStop(), this);
+        if (cancellationToken.IsCancellationRequested)
         {
-            await messageProcessingCts.CancelAsync().ConfigureAwait(false);
+            TriggerHardStop();
         }
 
         if (pumpTasks.Count != 0)
@@ -155,10 +191,15 @@ class InMemoryMessagePump(
                 pumpCts = null;
                 messageProcessingCts?.Dispose();
                 messageProcessingCts = null;
+                receiveAttemptCts?.Dispose();
+                receiveAttemptCts = null;
             }
         }
 
-        await FaultAndDrainRemainingScopesAsync(cancellationToken).ConfigureAwait(false);
+        if (cancellationToken.IsCancellationRequested)
+        {
+            await FaultAndDrainRemainingScopesAsync(CancellationToken.None).ConfigureAwait(false);
+        }
     }
 
     public async Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
@@ -261,9 +302,58 @@ class InMemoryMessagePump(
         }
     }
 
+    static async ValueTask<BrokerEnvelope?> DequeueForProcessingAsync(InMemoryChannel queue, CancellationToken cancellationToken)
+    {
+        while (await queue.WaitToRead(cancellationToken).ConfigureAwait(false))
+        {
+            if (queue.TryDequeue(out var envelope))
+            {
+                return envelope;
+            }
+        }
+
+        return null;
+    }
+
+    async Task<bool> WaitForRetryOrStopAsync(TimeSpan retryAfter, TimeProvider timeProvider, CancellationToken cancellationToken)
+    {
+        var delayTask = Task.Delay(retryAfter, timeProvider, cancellationToken);
+        var completedTask = await Task.WhenAny(delayTask, stopRequested.Task).ConfigureAwait(false);
+        if (completedTask == stopRequested.Task)
+        {
+            return false;
+        }
+
+        await delayTask.ConfigureAwait(false);
+        return true;
+    }
+
+    void TriggerHardStop()
+    {
+        Cancel(pumpCts);
+        Cancel(messageProcessingCts);
+        Cancel(receiveAttemptCts);
+    }
+
+    static TaskCompletionSource CreateStopSignal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    static void Cancel(CancellationTokenSource? cts)
+    {
+        if (cts is { IsCancellationRequested: false })
+        {
+            cts.Cancel();
+        }
+    }
+
+    CancellationToken ReceiveAttemptCancellationToken => receiveAttemptCts?.Token ?? CancellationToken.None;
+
+    bool ReceiveAttemptCancellationRequested => receiveAttemptCts?.IsCancellationRequested == true && pumpCts?.IsCancellationRequested != true;
+
     PushRuntimeSettings pushRuntimeSettings = null!;
     CancellationTokenSource? pumpCts;
     CancellationTokenSource? messageProcessingCts;
+    CancellationTokenSource? receiveAttemptCts;
+    TaskCompletionSource stopRequested = CreateStopSignal();
     readonly List<Task> pumpTasks = [];
     readonly Dictionary<Guid, InlineExecutionScope> activeScopes = [];
     readonly Lock activeScopesLock = new();

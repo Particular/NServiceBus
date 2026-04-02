@@ -397,10 +397,18 @@ public sealed class InMemoryBroker : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         await delayedPumpCancelSource.CancelAsync().ConfigureAwait(false);
+        SignalDelayedMessagesChanged();
         if (delayedPumpTask != null)
         {
             await delayedPumpTask.ConfigureAwait(false);
         }
+
+        // Completing queues lets receivers drain any buffered envelopes and then exit cleanly.
+        foreach (var queue in queues.Values)
+        {
+            queue.TryComplete();
+        }
+
         delayedPumpCancelSource.Dispose();
     }
 

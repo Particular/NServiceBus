@@ -37,10 +37,13 @@ public class When_receiving_hard_shutdown_re_registers_inflight_scope
         await processingStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         using var stopCts = new CancellationTokenSource();
-        await stopCts.CancelAsync();
+        stopCts.Cancel();
         await receiver.StopReceive(stopCts.Token).WaitAsync(TimeSpan.FromSeconds(5));
 
         var exception = await CatchException(rootTask);
         Assert.That(exception, Is.InstanceOf<OperationCanceledException>());
+
+        await AsyncSpinWait.Until(() => broker.GetOrCreateQueue("input").Count == 1);
+        Assert.That(broker.DrainQueue("input"), Is.EqualTo(1));
     }
 }
