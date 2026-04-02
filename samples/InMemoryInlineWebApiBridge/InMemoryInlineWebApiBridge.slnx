@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/Sample/">
+    <Project Path="src/InMemoryInlineWebApiBridge/InMemoryInlineWebApiBridge.csproj" />
+  </Folder>
+</Solution>
