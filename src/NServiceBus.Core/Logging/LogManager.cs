@@ -23,10 +23,10 @@ public static class LogManager
     /// Used to inject an instance of <see cref="ILoggerFactory" /> into <see cref="LogManager" />.
     /// </summary>
     [ObsoleteMetadata(
-        Message = "Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in rolling file logging provider",
+        Message = "Configure logging through Microsoft.Extensions.Logging instead",
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12")]
-    [Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in rolling file logging provider. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [Obsolete("Configure logging through Microsoft.Extensions.Logging instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
 #pragma warning disable CS0618 // DefaultFactory and LoggingFactoryDefinition are deprecated; LogManager must reference them internally during the deprecation window
     public static T Use<T>() where T : LoggingFactoryDefinition, new()
     {
@@ -47,10 +47,10 @@ public static class LogManager
     /// Replace this instance at application startup to redirect log events to the custom logging library.
     /// </remarks>
     [ObsoleteMetadata(
-        Message = "Configure logging through Microsoft.Extensions.Logging directly",
+        Message = "Configure logging through Microsoft.Extensions.Logging instead",
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12")]
-    [Obsolete("Configure logging through Microsoft.Extensions.Logging directly. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [Obsolete("Configure logging through Microsoft.Extensions.Logging instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static void UseFactory(ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(loggerFactory);

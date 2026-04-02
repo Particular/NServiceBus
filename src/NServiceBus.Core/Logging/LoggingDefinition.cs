@@ -9,10 +9,10 @@ using Particular.Obsoletes;
 /// Base class for logging definitions.
 /// </summary>
 [ObsoleteMetadata(
-    Message = "Implement Microsoft.Extensions.Logging.ILoggerProvider directly and register via services.AddSingleton<ILoggerProvider, YourProvider>()",
+    Message = "Implement a custom logger using Microsoft.Extensions.Logging.ILoggerProvider instead",
     TreatAsErrorFromVersion = "11",
     RemoveInVersion = "12")]
-[Obsolete("Implement Microsoft.Extensions.Logging.ILoggerProvider directly and register via services.AddSingleton<ILoggerProvider, YourProvider>(). Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+[Obsolete("Implement a custom logger using Microsoft.Extensions.Logging.ILoggerProvider instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
 public abstract class LoggingFactoryDefinition
 {
     /// <summary>

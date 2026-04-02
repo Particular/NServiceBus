@@ -264,12 +264,12 @@ namespace NServiceBus
         Send = 0,
         Publish = 1,
     }
-    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class Endpoint
     {
-        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
-        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -277,7 +277,7 @@ namespace NServiceBus
         public EndpointConfiguration(string endpointName) { }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.ConventionsBuilder Conventions() { }
-        [System.Obsolete(@"Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"RegisterComponents should only be used when self-hosting endpoints, which is no longer recommended. When using a Microsoft IHostApplicationBuilder-based host, register services directly on the host builder's IServiceCollection. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void RegisterComponents(System.Action<Microsoft.Extensions.DependencyInjection.IServiceCollection> registration) { }
         public void SendOnly() { }
     }
@@ -294,16 +294,16 @@ namespace NServiceBus
         public static void EnableFeature<TFeature>(this NServiceBus.EndpointConfiguration config)
             where TFeature : NServiceBus.Features.Feature, new () { }
     }
-    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class EndpointInstanceExtensions
     {
-        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static System.Threading.Tasks.Task Stop(this NServiceBus.IEndpointInstance endpoint, System.TimeSpan gracefulStopTimeout) { }
     }
-    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpointt. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpointt. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static class EndpointWithExternallyManagedContainer
     {
-        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection) { }
     }
     public static class EnvelopeConfigExtensions
@@ -486,10 +486,10 @@ namespace NServiceBus
     {
         NServiceBus.Routing.DistributionStrategy GetDistributionStrategy(string endpointName, NServiceBus.DistributionStrategyScope scope);
     }
-    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IEndpointInstance : NServiceBus.IMessageSession
     {
-        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task Stop(System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IEnvelopeHandler
@@ -556,20 +556,20 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
-    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IStartableEndpoint
     {
-        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.Threading.CancellationToken cancellationToken = default);
     }
-    [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public interface IStartableEndpointWithExternallyManagedContainer
     {
         [System.Obsolete("The message session is automatically registered in the service collection and no " +
             "longer needs to be manually registered. Will be treated as an error from version" +
             " 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
-        [System.Obsolete(@"Self-hosting an endpoint is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"Self-hosting endpoints is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpoint' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(System.IServiceProvider builder, System.Threading.CancellationToken cancellationToken = default);
     }
     [System.Obsolete("The old saga mapping API has been obsoleted, use \'mapper.MapSaga(...)\' instead. W" +
@@ -1589,17 +1589,16 @@ namespace NServiceBus.Installation
 }
 namespace NServiceBus.Logging
 {
-    [System.Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in " +
-        "rolling file logging provider. Will be treated as an error from version 11.0.0. " +
-        "Will be removed in version 12.0.0.", false)]
+    [System.Obsolete("Use \'IServiceCollection.Configure<RollingLoggerProviderOptions>()\' instead. Will " +
+        "be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public class DefaultFactory : NServiceBus.Logging.LoggingFactoryDefinition
     {
         public DefaultFactory() { }
-        [System.Obsolete("Set RollingLoggerProviderOptions.Directory instead. Will be treated as an error f" +
-            "rom version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete("Use \'RollingLoggerProviderOptions.Directory\' instead. Will be treated as an error" +
+            " from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void Directory(string directory) { }
         protected override NServiceBus.Logging.ILoggerFactory GetLoggingFactory() { }
-        [System.Obsolete(@"Set RollingLoggerProviderOptions.LogLevel instead. Note: NServiceBus.Logging.LogLevel.Info maps to Microsoft.Extensions.Logging.LogLevel.Information, Warn to Warning, Fatal to Critical. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete(@"Use 'RollingLoggerProviderOptions.LogLevel' instead. Note: NServiceBus.Logging.LogLevel.Info maps to Microsoft.Extensions.Logging.LogLevel.Information, Warn to Warning, Fatal to Critical. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void Level(NServiceBus.Logging.LogLevel level) { }
     }
     public interface ILog
@@ -1643,18 +1642,17 @@ namespace NServiceBus.Logging
         public static NServiceBus.Logging.ILog GetLogger(System.Type type) { }
         public static NServiceBus.Logging.ILog GetLogger(string name) { }
         public static NServiceBus.Logging.ILog GetLogger<T>() { }
-        [System.Obsolete("Use services.Configure<RollingLoggerProviderOptions>() to configure the built-in " +
-            "rolling file logging provider. Will be treated as an error from version 11.0.0. " +
-            "Will be removed in version 12.0.0.", false)]
+        [System.Obsolete("Configure logging through Microsoft.Extensions.Logging instead. Will be treated a" +
+            "s an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static T Use<T>()
             where T : NServiceBus.Logging.LoggingFactoryDefinition, new () { }
-        [System.Obsolete("Configure logging through Microsoft.Extensions.Logging directly. Will be treated " +
-            "as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete("Configure logging through Microsoft.Extensions.Logging instead. Will be treated a" +
+            "s an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public static void UseFactory(NServiceBus.Logging.ILoggerFactory loggerFactory) { }
     }
-    [System.Obsolete("Implement Microsoft.Extensions.Logging.ILoggerProvider directly and register via " +
-        "services.AddSingleton<ILoggerProvider, YourProvider>(). Will be treated as an er" +
-        "ror from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [System.Obsolete("Implement a custom logger using Microsoft.Extensions.Logging.ILoggerProvider inst" +
+        "ead. Will be treated as an error from version 11.0.0. Will be removed in version" +
+        " 12.0.0.", false)]
     public abstract class LoggingFactoryDefinition
     {
         protected LoggingFactoryDefinition() { }
@@ -2609,9 +2607,8 @@ namespace NServiceBus.Unicast
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
             "os.")]
-        [System.Obsolete("Deprecated in favor of a strongly-typed alternative. Use \'AddHandler<THandler>()\'" +
-            " instead. Will be treated as an error from version 11.0.0. Will be removed in ve" +
-            "rsion 12.0.0.", false)]
+        [System.Obsolete("Use \'AddHandler<THandler>()\' instead. Will be treated as an error from version 11" +
+            ".0.0. Will be removed in version 12.0.0.", false)]
         public void RegisterHandler(System.Type handlerType) { }
     }
     public class MessagesEventArgs : System.EventArgs
