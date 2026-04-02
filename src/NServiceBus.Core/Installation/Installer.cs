@@ -3,19 +3,32 @@
 namespace NServiceBus.Installation;
 
 using System;
-using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Provides methods to setup an NServiceBus endpoint.
 /// </summary>
+[ObsoleteMetadata(
+    Message = "Self-hosting installers is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the installation lifecycle of your endpoint",
+    TreatAsErrorFromVersion = "11",
+    RemoveInVersion = "12",
+    ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpointInstaller")]
+[Obsolete("Self-hosting installers is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the installation lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpointInstaller' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
 public static class Installer
 {
     /// <summary>
     /// Executes all the installers and transport configuration without starting the endpoint.
     /// <see cref="Setup"/> always runs installers, even if <see cref="InstallConfigExtensions.EnableInstallers"/> has not been configured.
     /// </summary>
+    [ObsoleteMetadata(
+        Message = "Self-hosting installers is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the installation lifecycle of your endpoint",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12",
+        ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpointInstaller")]
+    [Obsolete("Self-hosting installers is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the installation lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpointInstaller' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static async Task Setup(EndpointConfiguration configuration, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(configuration);
@@ -38,6 +51,12 @@ public static class Installer
     /// <summary>
     /// Creates an instance of <see cref="InstallerWithExternallyManagedContainer"/> that can be used to setup an NServiceBus when access to externally registered container dependencies are required.
     /// </summary>
+    [ObsoleteMetadata(
+        Message = "Self-hosting installers is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the installation lifecycle of your endpoint",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12",
+        ReplacementTypeOrMember = "IServiceCollection.AddNServiceBusEndpointInstaller")]
+    [Obsolete("Self-hosting installers is no longer recommended. Instead, consider using a Microsoft IHostApplicationBuilder-based host to manage the installation lifecycle of your endpoint. Use 'IServiceCollection.AddNServiceBusEndpointInstaller' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public static InstallerWithExternallyManagedContainer CreateInstallerWithExternallyManagedContainer(EndpointConfiguration configuration, IServiceCollection serviceCollection)
     {
         ArgumentNullException.ThrowIfNull(configuration);
