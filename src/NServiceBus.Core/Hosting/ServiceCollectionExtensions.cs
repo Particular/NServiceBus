@@ -68,8 +68,8 @@ public static class ServiceCollectionExtensions
 
         var endpointName = settings.EndpointName();
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
-        var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);
         var endpointRegistrations = GetExistingRegistrations<EndpointRegistration>(services);
+        var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);
 
         ValidateNotUsedWithAddNServiceBusEndpoints(endpointRegistrations, $"'{nameof(AddNServiceBusEndpointInstaller)}' cannot be used together with '{nameof(AddNServiceBusEndpoint)}'.");
         ValidateEndpointIdentifier(endpointIdentifier, installerRegistrations);
@@ -102,14 +102,6 @@ public static class ServiceCollectionExtensions
         }
 
         services.AddSingleton(new EndpointInstallerRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
-    }
-
-    static void ValidateNotUsedWithAddNServiceBusEndpoints<TRegistration>(List<TRegistration> endpointRegistrations, string message)
-    {
-        if (endpointRegistrations.Count > 0)
-        {
-            throw new InvalidOperationException(message);
-        }
     }
 
     /// <summary>
@@ -163,10 +155,10 @@ public static class ServiceCollectionExtensions
         settings.AssertNotReused();
 
         var endpointName = settings.EndpointName();
-        var hostingSettings = settings.Get<HostingComponent.Settings>();
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
         var endpointRegistrations = GetExistingRegistrations<EndpointRegistration>(services);
         var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);
+        var hostingSettings = settings.Get<HostingComponent.Settings>();
 
         ValidateNotUsedWithAddNServiceBusEndpoints(installerRegistrations, $"'{nameof(AddNServiceBusEndpoint)}' cannot be used together with '{nameof(AddNServiceBusEndpointInstaller)}'.");
         ValidateEndpointIdentifier(endpointIdentifier, endpointRegistrations);
@@ -202,6 +194,14 @@ public static class ServiceCollectionExtensions
     }
 
     internal static IServiceCollection Unwrap(this IServiceCollection services) => (services as KeyedServiceCollectionAdapter)?.Inner ?? services;
+
+    static void ValidateNotUsedWithAddNServiceBusEndpoints<TRegistration>(List<TRegistration> endpointRegistrations, string message)
+    {
+        if (endpointRegistrations.Count > 0)
+        {
+            throw new InvalidOperationException(message);
+        }
+    }
 
     static void ValidateEndpointIdentifier<TRegistration>(object? endpointIdentifier, List<TRegistration> registrations)
         where TRegistration : EndpointRegistration
