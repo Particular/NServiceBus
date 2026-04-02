@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -43,6 +44,7 @@ sealed class InlineExecutionRunner(
         transportTransaction.Set(ReceivePipelineTransportTransactionMarker.Instance);
 
         var contextBag = new ContextBag();
+        Activity? transportActivity = null;
 
         var inlineState = envelope.InlineState;
         if (inlineState != null)
@@ -51,6 +53,15 @@ sealed class InlineExecutionRunner(
             var dispatchContext = new InlineExecutionDispatchContext(inlineState.Scope, inlineState.Depth);
             transportTransaction.Set(dispatchContext);
             contextBag.Set(dispatchContext);
+        }
+
+        if (InMemoryTransportTracing.HasListeners())
+        {
+            transportActivity = InMemoryTransportTracing.StartProcess(envelope, receiveAddress);
+            if (transportActivity != null)
+            {
+                contextBag.Set(transportActivity);
+            }
         }
 
         var messageContext = new MessageContext(
@@ -72,9 +83,11 @@ sealed class InlineExecutionRunner(
             }
 
             inlineState?.Scope.CompleteDispatchSuccess();
+            InMemoryTransportTracing.MarkSuccess(transportActivity);
         }
         catch (Exception ex) when (ex is not OperationCanceledException || !ProcessingCancellationToken.IsCancellationRequested)
         {
+            InMemoryTransportTracing.MarkError(transportActivity, ex);
             receiveTransaction?.Rollback();
 
             var errorContext = new ErrorContext(
@@ -116,6 +129,10 @@ sealed class InlineExecutionRunner(
 
             inlineState?.Scope.CompleteDispatchFailure(ex);
             envelope.Dispose();
+        }
+        finally
+        {
+            transportActivity?.Dispose();
         }
     }
 

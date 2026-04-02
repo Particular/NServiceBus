@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -93,11 +94,12 @@ class InMemoryDispatcher(
             var now = broker.GetCurrentTime();
             var deliverAt = GetDeliverAt(transportOperation.Properties, now);
             var discardAfter = GetDiscardAfter(transportOperation.Properties, now);
+            var headers = new Dictionary<string, string>(message.Headers);
 
             var envelope = BrokerPayloadStore.Borrow(
                 messageId,
                 message.Body.Span,
-                message.Headers,
+                headers,
                 subscriber,
                 isPublished: true,
                 sequenceNumber,
@@ -109,17 +111,7 @@ class InMemoryDispatcher(
                 continue;
             }
 
-            await broker.SimulateSendAsync(subscriber, cancellationToken).ConfigureAwait(false);
-
-            if (deliverAt.HasValue)
-            {
-                broker.EnqueueDelayed(envelope, deliverAt.Value);
-            }
-            else
-            {
-                var queue = broker.GetOrCreateQueue(subscriber);
-                await queue.Enqueue(envelope, cancellationToken).ConfigureAwait(false);
-            }
+            await DispatchToBroker(subscriber, messageId, headers, envelope, deliverAt, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -131,11 +123,12 @@ class InMemoryDispatcher(
         var now = broker.GetCurrentTime();
         var deliverAt = GetDeliverAt(operation.Properties, now);
         var discardAfter = GetDiscardAfter(operation.Properties, now);
+        var headers = new Dictionary<string, string>(message.Headers);
 
         var envelope = BrokerPayloadStore.Borrow(
             messageId,
             message.Body.Span,
-            message.Headers,
+            headers,
             operation.Destination,
             isPublished: false,
             sequenceNumber,
@@ -157,12 +150,12 @@ class InMemoryDispatcher(
                     (preservedDispatchContext?.Depth ?? 0) == 0)
             };
 
-            return DispatchRegularUnicast(operation, preservedEnvelope, deliverAt, cancellationToken);
+            return DispatchRegularUnicast(operation, preservedEnvelope, headers, deliverAt, cancellationToken);
         }
 
         if (ShouldInline(operation, transaction, deliverAt))
         {
-            return DispatchInlineLocalUnicast(operation, envelope, transaction, deliverAt, cancellationToken);
+            return DispatchInlineLocalUnicast(operation, envelope, headers, transaction, deliverAt, cancellationToken);
         }
 
         if (TryEnlistToReceiveTransaction(transaction, envelope, operation.RequiredDispatchConsistency))
@@ -170,10 +163,10 @@ class InMemoryDispatcher(
             return Task.CompletedTask;
         }
 
-        return DispatchRegularUnicast(operation, envelope, deliverAt, cancellationToken);
+        return DispatchRegularUnicast(operation, envelope, headers, deliverAt, cancellationToken);
     }
 
-    Task DispatchInlineLocalUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, TransportTransaction transaction, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
+    Task DispatchInlineLocalUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, Dictionary<string, string> headers, TransportTransaction transaction, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
     {
         var existingScope = TryGetInlineScope(transaction, out var scope);
         scope ??= new InlineExecutionScope(Guid.NewGuid());
@@ -203,7 +196,7 @@ class InMemoryDispatcher(
             return processing;
         }
 
-        var preparation = DispatchRegularUnicast(operation, inlineEnvelope, deliverAt, cancellationToken);
+        var preparation = DispatchRegularUnicast(operation, inlineEnvelope, headers, deliverAt, cancellationToken);
 
         return preparation.IsCompletedSuccessfully ? completion : AwaitInlineDispatch(preparation, inlineEnvelope, scope, completion, cancellationToken);
     }
@@ -245,18 +238,52 @@ class InMemoryDispatcher(
             TaskScheduler.Default);
     }
 
-    async Task DispatchRegularUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
-    {
-        await broker.SimulateSendAsync(operation.Destination, cancellationToken).ConfigureAwait(false);
+    Task DispatchRegularUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, Dictionary<string, string> headers, DateTimeOffset? deliverAt, CancellationToken cancellationToken) =>
+        DispatchToBroker(operation.Destination, envelope.MessageId, headers, envelope, deliverAt, cancellationToken);
 
-        if (deliverAt.HasValue)
+    async Task DispatchToBroker(string destination, string messageId, Dictionary<string, string> headers, BrokerEnvelope envelope, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
+    {
+        Activity? activity = null;
+        if (InMemoryTransportTracing.HasListeners())
         {
-            broker.EnqueueDelayed(envelope, deliverAt.Value);
-            return;
+            activity = InMemoryTransportTracing.StartSend(destination, messageId, headers, deliverAt.HasValue);
+            InMemoryTransportTracing.PropagateContextToHeaders(activity, headers);
+            if (envelope.Headers is IDictionary<string, string> envelopeHeaders)
+            {
+                InMemoryTransportTracing.PropagateContextToHeaders(activity, envelopeHeaders);
+            }
         }
 
-        var queue = broker.GetOrCreateQueue(operation.Destination);
-        await queue.Enqueue(envelope, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await broker.SimulateSendAsync(destination, cancellationToken).ConfigureAwait(false);
+
+            if (deliverAt.HasValue)
+            {
+                broker.EnqueueDelayed(envelope, deliverAt.Value);
+            }
+            else
+            {
+                var queue = broker.GetOrCreateQueue(destination);
+                await queue.Enqueue(envelope, cancellationToken).ConfigureAwait(false);
+            }
+
+            InMemoryTransportTracing.AddProducerDispatchEvent(activity, deliverAt);
+            InMemoryTransportTracing.MarkSuccess(activity);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            InMemoryTransportTracing.MarkError(activity, ex);
+            throw;
+        }
+        finally
+        {
+            activity?.Dispose();
+        }
     }
 
     bool ShouldInline(UnicastTransportOperation operation, TransportTransaction transaction, DateTimeOffset? deliverAt)
