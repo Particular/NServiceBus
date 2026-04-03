@@ -99,7 +99,6 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             c.ConfigureRouting().RouteToEndpoint(typeof(ProcessBySubscriber1), typeof(Collector));
         }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
-        [Handler]
         public class MyEventMessageHandler : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context) => context.Send(new ProcessBySubscriber1());
@@ -116,7 +115,6 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             c.ConfigureRouting().RouteToEndpoint(typeof(ProcessBySubscriber2), typeof(Collector));
         }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
 
-        [Handler]
         public class MyEventMessageHandler : IHandleMessages<MyEvent>
         {
             public Task Handle(MyEvent message, IMessageHandlerContext context) => context.Send(new ProcessBySubscriber2());
@@ -127,7 +125,6 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
     {
         public Collector() => EndpointSetup<DefaultServer>();
 
-        [Handler]
         public class Subscriber1ProcessedHandler(Context testContext) : IHandleMessages<ProcessBySubscriber1>
         {
             public Task Handle(ProcessBySubscriber1 message, IMessageHandlerContext context)
@@ -138,7 +135,6 @@ public class When_outbox_is_used_by_multiple_subscribers_for_the_same_event : NS
             }
         }
 
-        [Handler]
         public class Subscriber2ProcessedHandler(Context testContext) : IHandleMessages<ProcessBySubscriber2>
         {
             public Task Handle(ProcessBySubscriber2 message, IMessageHandlerContext context)
