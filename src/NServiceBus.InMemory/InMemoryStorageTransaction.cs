@@ -9,11 +9,14 @@ class InMemoryStorageTransaction
     {
         ArgumentNullException.ThrowIfNull(apply);
         enlistedOperations.Add(new TransactionOperation<TState>(state, apply, rollback));
+        InMemoryPersistenceTracing.AddTransactionEnlistedEvent(typeof(TState).Name);
     }
 
     public void Commit()
     {
         var appliedOperations = new Stack<ITransactionOperation>();
+        var operationCount = enlistedOperations.Count;
+        var committed = false;
 
         try
         {
@@ -26,6 +29,8 @@ class InMemoryStorageTransaction
                     appliedOperations.Push(operation);
                 }
             }
+
+            committed = true;
         }
         catch
         {
@@ -34,15 +39,24 @@ class InMemoryStorageTransaction
                 operation.Rollback();
             }
 
+            InMemoryPersistenceTracing.AddTransactionRolledBackEvent(operationCount);
             throw;
         }
         finally
         {
+            if (committed)
+            {
+                InMemoryPersistenceTracing.AddTransactionCommittedEvent(operationCount);
+            }
             enlistedOperations.Clear();
         }
     }
 
-    public void Rollback() => enlistedOperations.Clear();
+    public void Rollback()
+    {
+        InMemoryPersistenceTracing.AddTransactionRolledBackEvent(enlistedOperations.Count);
+        enlistedOperations.Clear();
+    }
 
     readonly List<ITransactionOperation> enlistedOperations = [];
 

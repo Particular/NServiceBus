@@ -19,19 +19,30 @@ class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
 
     public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartOutboxGet(messageId);
         if (!Storage.TryGetValue(messageId, out var storedMessage))
         {
+            InMemoryPersistenceTracing.AddMissEvent(activity);
+            InMemoryPersistenceTracing.MarkSuccess(activity);
             return NoOutboxMessageTask!;
         }
 
+        InMemoryPersistenceTracing.AddHitEvent(activity);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
         return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
     }
 
     public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default)
-        => Task.FromResult<IOutboxTransaction>(new InMemoryOutboxTransaction());
+    {
+        using var activity = InMemoryPersistenceTracing.StartOutboxBeginTransaction();
+        var transaction = new InMemoryOutboxTransaction();
+        InMemoryPersistenceTracing.MarkSuccess(activity);
+        return Task.FromResult<IOutboxTransaction>(transaction);
+    }
 
     public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartOutboxStore(message.MessageId, message.TransportOperations.Length);
         var tx = (InMemoryOutboxTransaction)transaction;
         tx.Enlist(
             new StoreOperationState(Storage, message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray()),
@@ -43,18 +54,26 @@ class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
                 }
             },
             static state => state.Storage.TryRemove(state.MessageId, out _));
+        InMemoryPersistenceTracing.AddStagedEvent(activity, message.TransportOperations.Length);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
 
         return Task.CompletedTask;
     }
 
     public Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartOutboxSetAsDispatched(messageId);
         if (!Storage.TryGetValue(messageId, out var storedMessage))
         {
+            InMemoryPersistenceTracing.AddMissEvent(activity);
+            InMemoryPersistenceTracing.MarkSuccess(activity);
             return Task.CompletedTask;
         }
 
         storedMessage.MarkAsDispatched(DateTime.UtcNow);
+        InMemoryPersistenceTracing.AddHitEvent(activity);
+        InMemoryPersistenceTracing.AddMarkedDispatchedEvent(activity);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
         return Task.CompletedTask;
     }
 
