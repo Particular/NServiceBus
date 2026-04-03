@@ -24,6 +24,7 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
 
     public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartSagaSave(sagaData.Id);
         var correlationId = correlationProperty != SagaCorrelationProperty.None
             ? new CorrelationId(sagaData.GetType(), correlationProperty)
             : NoCorrelationId;
@@ -58,6 +59,8 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
                     state.ByCorrelationId.TryRemove(new KeyValuePair<CorrelationId, Guid>(state.CorrelationId, state.SagaId));
                 }
             });
+        InMemoryPersistenceTracing.AddStagedEvent(activity);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
 
         return Task.CompletedTask;
     }
@@ -65,33 +68,49 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
     public Task<TSagaData> Get<TSagaData>(Guid sagaId, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
         where TSagaData : class, IContainSagaData
     {
+        using var activity = InMemoryPersistenceTracing.StartSagaGetById(sagaId);
         if (sagas.TryGetValue(sagaId, out var value))
         {
             SetEntry(context, sagaId, value);
 
             var data = value.GetSagaCopy();
+            InMemoryPersistenceTracing.AddHitEvent(activity);
+            InMemoryPersistenceTracing.MarkSuccess(activity);
             return Task.FromResult((TSagaData)data);
         }
 
+        InMemoryPersistenceTracing.AddMissEvent(activity);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
         return CachedSagaDataTask<TSagaData>.Default!;
     }
 
     public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
         where TSagaData : class, IContainSagaData
     {
+        using var activity = InMemoryPersistenceTracing.StartSagaGetByProperty(typeof(TSagaData), propertyName, propertyValue);
         var key = new CorrelationId(typeof(TSagaData), propertyName, propertyValue);
 
         if (byCorrelationId.TryGetValue(key, out var id))
         {
             // This isn't updated atomically and may return null for an entry that has been indexed but not inserted yet
-            return Get<TSagaData>(id, session, context, cancellationToken);
+            if (sagas.TryGetValue(id, out var value))
+            {
+                SetEntry(context, id, value);
+                var data = value.GetSagaCopy();
+                InMemoryPersistenceTracing.AddHitEvent(activity);
+                InMemoryPersistenceTracing.MarkSuccess(activity);
+                return Task.FromResult((TSagaData)data);
+            }
         }
 
+        InMemoryPersistenceTracing.AddMissEvent(activity);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
         return CachedSagaDataTask<TSagaData>.Default!;
     }
 
     public Task Update(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartSagaUpdate(sagaData.Id);
         var entry = GetEntry(context, sagaData.Id);
         var updatedEntry = entry.UpdateTo(sagaData, settings.SerializerOptions);
 
@@ -105,12 +124,15 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
                 }
             },
             static state => state.Sagas.TryUpdate(state.SagaId, state.Entry, state.UpdatedEntry));
+        InMemoryPersistenceTracing.AddStagedEvent(activity);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
 
         return Task.CompletedTask;
     }
 
     public Task Complete(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartSagaComplete(sagaData.Id);
         var entry = GetEntry(context, sagaData.Id);
 
         ((InMemorySynchronizedStorageSession)session).Enlist(
@@ -136,6 +158,8 @@ class InMemorySagaPersister(InMemorySagaPersisterSettings settings) : ISagaPersi
                     state.ByCorrelationId.TryAdd(state.Entry.CorrelationId, state.SagaId);
                 }
             });
+        InMemoryPersistenceTracing.AddStagedEvent(activity);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
 
         return Task.CompletedTask;
     }

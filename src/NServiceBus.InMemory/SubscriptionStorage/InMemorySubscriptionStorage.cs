@@ -17,22 +17,27 @@ class InMemorySubscriptionStorage(InMemoryStorage storage) : ISubscriptionStorag
 
     public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartSubscriptionSubscribe(subscriber, messageType);
         var subscribers = storage.GetOrAdd(messageType, static _ => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
         subscribers[subscriber.TransportAddress] = subscriber;
+        InMemoryPersistenceTracing.MarkSuccess(activity);
         return Task.CompletedTask;
     }
 
     public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartSubscriptionUnsubscribe(subscriber, messageType);
         if (storage.TryGetValue(messageType, out var subscribers))
         {
             subscribers.TryRemove(subscriber.TransportAddress, out _);
         }
+        InMemoryPersistenceTracing.MarkSuccess(activity);
         return Task.CompletedTask;
     }
 
     public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default)
     {
+        using var activity = InMemoryPersistenceTracing.StartGetSubscribers(messageTypes);
         Dictionary<(string TransportAddress, string Endpoint), Subscriber> subscribers = [];
 
         foreach (var messageType in messageTypes)
@@ -48,6 +53,8 @@ class InMemorySubscriptionStorage(InMemoryStorage storage) : ISubscriptionStorag
             }
         }
 
+        InMemoryPersistenceTracing.AddResolvedSubscribersEvent(activity, subscribers.Count);
+        InMemoryPersistenceTracing.MarkSuccess(activity);
         return Task.FromResult<IEnumerable<Subscriber>>(subscribers.Values);
     }
 
