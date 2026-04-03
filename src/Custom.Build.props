@@ -16,4 +16,8 @@
     <MinVerAutoIncrement>minor</MinVerAutoIncrement>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectCapability Include="DynamicFileNestingEnabled" />
+  </ItemGroup>
+
 </Project>

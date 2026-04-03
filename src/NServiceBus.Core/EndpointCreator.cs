@@ -31,7 +31,7 @@ class EndpointCreator
         settings.PreventReuse();
 
         var endpointLogSlot = settings.Get<HostingComponent.Settings>().GetOrCreateEndpointLogSlot();
-        using var _ = Logging.LogManager.BeginSlotScope(endpointLogSlot);
+        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
 
         var assemblyScanningConfiguration = settings.Get<AssemblyScanningComponent.Configuration>();
         var assemblyScanningComponent = AssemblyScanningComponent.Initialize(assemblyScanningConfiguration, settings);

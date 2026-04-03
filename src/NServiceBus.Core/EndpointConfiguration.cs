@@ -82,10 +82,10 @@ public class EndpointConfiguration : ExposeSettings
     /// Used to configure components in the container.
     /// </summary>
     [ObsoleteMetadata(
-        Message = "Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key",
+        Message = "RegisterComponents should only be used when self-hosting endpoints, which is no longer recommended. When using a Microsoft IHostApplicationBuilder-based host, register services directly on the host builder's IServiceCollection",
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12")]
-    [Obsolete("Registering services via RegisterComponents is not recommended. For a single endpoint, register services directly on the host builder's IServiceCollection. When hosting multiple endpoints via AddNServiceBusEndpoint, use keyed service registrations with the endpointIdentifier as the key. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [Obsolete("RegisterComponents should only be used when self-hosting endpoints, which is no longer recommended. When using a Microsoft IHostApplicationBuilder-based host, register services directly on the host builder's IServiceCollection. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public void RegisterComponents(Action<IServiceCollection> registration)
     {
         ArgumentNullException.ThrowIfNull(registration);

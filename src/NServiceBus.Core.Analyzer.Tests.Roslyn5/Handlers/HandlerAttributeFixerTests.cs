@@ -60,7 +60,7 @@ public class HandlerAttributeFixerTests : CodeFixTestFixture<HandlerAttributeAna
             }
             """;
 
-        NUnit.Framework.Assert.That(async () => await base.Assert(original, expected), Throws.Exception);
+        NUnit.Framework.Assert.That(async () => await Assert(original, expected), Throws.Exception);
     }
 
     [Test]

@@ -56,11 +56,10 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Registers the given potential handler type.
     /// </summary>
-    [ObsoleteMetadata(Message = "Deprecated in favor of a strongly-typed alternative",
+    [ObsoleteMetadata(ReplacementTypeOrMember = "AddHandler<THandler>()",
         TreatAsErrorFromVersion = "11",
-        RemoveInVersion = "12",
-        ReplacementTypeOrMember = "AddHandler<THandler>()")]
-    [Obsolete("Deprecated in favor of a strongly-typed alternative. Use 'AddHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        RemoveInVersion = "12")]
+    [Obsolete("Use 'AddHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     [RequiresUnreferencedCode(TrimmingMessage)]
     public void RegisterHandler(Type handlerType) => AddHandlerWithReflection(handlerType);
 
