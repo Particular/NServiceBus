@@ -35,7 +35,14 @@ public class EndpointBehavior : IComponentBehavior
 
             var serviceKey = collectionAdapter.ServiceKey;
 
-            collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKey);
+            if (serviceKey.ServiceKey is string serviceKeyString)
+            {
+                collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKeyString);
+            }
+            else
+            {
+                throw new InvalidOperationException($"ServiceKey of type {serviceKey.ServiceKey?.GetType().FullName ?? "(null)"} cannot be cast to an endpoint identifier string.");
+            }
 
             return Task.FromResult(new StartableEndpointInstance(serviceKey));
         }, static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));

@@ -1041,8 +1041,8 @@ namespace NServiceBus
     }
     public static class ServiceCollectionExtensions
     {
-        public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
-        public static void AddNServiceBusEndpointInstaller(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
+        public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, string? endpointIdentifierOverride = null) { }
+        public static void AddNServiceBusEndpointInstaller(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, string? endpointIdentifierOverride = null) { }
     }
     public static class SettingsExtensions
     {

@@ -24,19 +24,16 @@ public static class ServiceCollectionExtensions
     /// for example as part of a deployment.</remarks>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the endpoint to.</param>
     /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration"/> defining how the endpoint should be configured.</param>
-    /// <param name="endpointIdentifier">
-    /// An optional identifier that uniquely identifies this endpoint within the dependency injection container.
-    /// When multiple endpoints are registered (by calling this method multiple times), this parameter is required
-    /// and must be a well-defined value that serves as a keyed service identifier.
+    /// <param name="endpointIdentifierOverride">
+    /// An optional identifier uniquely identifies this endpoint within the dependency injection container, instead of the
+    /// endpoint name which is used by default. The value will serve as a keyed service identifier within the dependency
+    /// injection container.
     /// <para>
-    /// In most scenarios, using the endpoint name as the identifier is a good choice.
+    /// In most scenarios, using the default endpoint name as the identifier is a good choice, and this value is not required.
     /// </para>
     /// <para>
-    /// For more complex scenarios such as multi-tenant applications where endpoint infrastructure
-    /// per tenant is dynamically resolved, the identifier can be any object that implements <see cref="object.Equals(object?)"/>
-    /// and <see cref="object.GetHashCode"/> in a way that conforms to Microsoft Dependency Injection keyed services assumptions.
     /// The key is used with keyed service registration methods like <c>AddKeyedSingleton</c> and related methods,
-    /// and can be retrieved using keyed service resolution APIs like <c>GetRequiredKeyedService</c> or
+    /// and can be used with keyed service resolution APIs like <c>GetRequiredKeyedService</c> or
     /// the <c>[FromKeyedServices]</c> attribute on constructor parameters.
     /// </para>
     /// </param>
@@ -56,7 +53,7 @@ public static class ServiceCollectionExtensions
     /// This bypasses the default safeguards that isolate endpoints, allowing resolution of all services including
     /// globally shared ones.
     /// </para>
-    public static void AddNServiceBusEndpointInstaller(this IServiceCollection services, EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null)
+    public static void AddNServiceBusEndpointInstaller(this IServiceCollection services, EndpointConfiguration endpointConfiguration, string? endpointIdentifierOverride = null)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(endpointConfiguration);
@@ -70,6 +67,7 @@ public static class ServiceCollectionExtensions
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
         var endpointRegistrations = GetExistingRegistrations<EndpointRegistration>(services);
         var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);
+        var endpointIdentifier = endpointIdentifierOverride ?? endpointName;
 
         ValidateNotUsedWithAddNServiceBusEndpoints(endpointRegistrations, $"'{nameof(AddNServiceBusEndpointInstaller)}' cannot be used together with '{nameof(AddNServiceBusEndpoint)}'.");
         ValidateEndpointIdentifier(endpointIdentifier, installerRegistrations);
@@ -78,28 +76,16 @@ public static class ServiceCollectionExtensions
 
         endpointConfiguration.EnableInstallers();
 
-        if (endpointIdentifier is null)
-        {
-            // Deliberately creating it here to make sure we are not accidentally doing it too late.
-            var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, services);
+        // Backdoor for acceptance testing
+        var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
+        var baseKey = keyedServices.ServiceKey.BaseKey;
 
-            services.AddSingleton(externallyManagedContainerHost);
-            services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp));
-            services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(sp.GetRequiredService<IEndpointLifecycle>()));
-        }
-        else
-        {
-            // Backdoor for acceptance testing
-            var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
-            var baseKey = keyedServices.ServiceKey.BaseKey;
+        // Deliberately creating it here to make sure we are not accidentally doing it too late.
+        var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, keyedServices);
 
-            // Deliberately creating it here to make sure we are not accidentally doing it too late.
-            var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, keyedServices);
-
-            services.AddKeyedSingleton(baseKey, externallyManagedContainerHost);
-            services.AddKeyedSingleton<IEndpointLifecycle>(baseKey, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, keyedServices.ServiceKey, keyedServices));
-            services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(sp.GetRequiredKeyedService<IEndpointLifecycle>(baseKey)));
-        }
+        services.AddKeyedSingleton(baseKey, externallyManagedContainerHost);
+        services.AddKeyedSingleton<IEndpointLifecycle>(baseKey, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, keyedServices.ServiceKey, keyedServices));
+        services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(sp.GetRequiredKeyedService<IEndpointLifecycle>(baseKey)));
 
         services.AddSingleton(new EndpointInstallerRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
     }
@@ -110,19 +96,16 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the endpoint to.</param>
     /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration"/> defining how the endpoint should be configured.</param>
-    /// <param name="endpointIdentifier">
-    /// An optional identifier that uniquely identifies this endpoint within the dependency injection container.
-    /// When multiple endpoints are registered (by calling this method multiple times), this parameter is required
-    /// and must be a well-defined value that serves as a keyed service identifier.
+    /// <param name="endpointIdentifierOverride">
+    /// An optional identifier uniquely identifies this endpoint within the dependency injection container, instead of the
+    /// endpoint name which is used by default. The value will serve as a keyed service identifier within the dependency
+    /// injection container.
     /// <para>
-    /// In most scenarios, using the endpoint name as the identifier is a good choice.
+    /// In most scenarios, using the default endpoint name as the identifier is a good choice, and this value is not required.
     /// </para>
     /// <para>
-    /// For more complex scenarios such as multi-tenant applications where endpoint infrastructure
-    /// per tenant is dynamically resolved, the identifier can be any object that implements <see cref="object.Equals(object?)"/>
-    /// and <see cref="object.GetHashCode"/> in a way that conforms to Microsoft Dependency Injection keyed services assumptions.
     /// The key is used with keyed service registration methods like <c>AddKeyedSingleton</c> and related methods,
-    /// and can be retrieved using keyed service resolution APIs like <c>GetRequiredKeyedService</c> or
+    /// and can be used with keyed service resolution APIs like <c>GetRequiredKeyedService</c> or
     /// the <c>[FromKeyedServices]</c> attribute on constructor parameters.
     /// </para>
     /// </param>
@@ -144,7 +127,7 @@ public static class ServiceCollectionExtensions
     /// globally shared ones.
     /// </para>
     /// </remarks>
-    public static void AddNServiceBusEndpoint(this IServiceCollection services, EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null)
+    public static void AddNServiceBusEndpoint(this IServiceCollection services, EndpointConfiguration endpointConfiguration, string? endpointIdentifierOverride = null)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(endpointConfiguration);
@@ -159,6 +142,7 @@ public static class ServiceCollectionExtensions
         var endpointRegistrations = GetExistingRegistrations<EndpointRegistration>(services);
         var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);
         var hostingSettings = settings.Get<HostingComponent.Settings>();
+        var endpointIdentifier = endpointIdentifierOverride ?? endpointName;
 
         ValidateNotUsedWithAddNServiceBusEndpoints(installerRegistrations, $"'{nameof(AddNServiceBusEndpoint)}' cannot be used together with '{nameof(AddNServiceBusEndpointInstaller)}'.");
         ValidateEndpointIdentifier(endpointIdentifier, endpointRegistrations);
@@ -167,28 +151,16 @@ public static class ServiceCollectionExtensions
 
         hostingSettings.ConfigureHostLogging(endpointIdentifier);
 
-        if (endpointIdentifier is null)
-        {
-            // Deliberately creating it here to make sure we are not accidentally doing it too late.
-            var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, services);
+        // Backdoor for acceptance testing
+        var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
+        var baseKey = keyedServices.ServiceKey.BaseKey;
 
-            services.AddSingleton(externallyManagedContainerHost);
-            services.AddSingleton<IEndpointLifecycle>(sp => new BaseEndpointLifecycle(externallyManagedContainerHost, sp));
-            services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredService<IEndpointLifecycle>()));
-        }
-        else
-        {
-            // Backdoor for acceptance testing
-            var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
-            var baseKey = keyedServices.ServiceKey.BaseKey;
+        // Deliberately creating it here to make sure we are not accidentally doing it too late.
+        var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, keyedServices);
 
-            // Deliberately creating it here to make sure we are not accidentally doing it too late.
-            var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, keyedServices);
-
-            services.AddKeyedSingleton(baseKey, externallyManagedContainerHost);
-            services.AddKeyedSingleton<IEndpointLifecycle>(baseKey, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, keyedServices.ServiceKey, keyedServices));
-            services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(baseKey)));
-        }
+        services.AddKeyedSingleton(baseKey, externallyManagedContainerHost);
+        services.AddKeyedSingleton<IEndpointLifecycle>(baseKey, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, keyedServices.ServiceKey, keyedServices));
+        services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(baseKey)));
 
         services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
     }
@@ -203,7 +175,7 @@ public static class ServiceCollectionExtensions
         }
     }
 
-    static void ValidateEndpointIdentifier<TRegistration>(object? endpointIdentifier, List<TRegistration> registrations)
+    static void ValidateEndpointIdentifier<TRegistration>(string endpointIdentifier, List<TRegistration> registrations)
         where TRegistration : EndpointRegistration
     {
         if (registrations.Count == 0)
@@ -211,7 +183,7 @@ public static class ServiceCollectionExtensions
             return;
         }
 
-        if (endpointIdentifier is null || registrations.Any(r => r.EndpointIdentifier is null))
+        if (registrations.Any(r => r.EndpointIdentifier is null))
         {
             throw new InvalidOperationException(
                 "When multiple endpoints are registered, each endpoint must provide an endpointIdentifier.");
@@ -273,7 +245,7 @@ public static class ServiceCollectionExtensions
             .Where(d => d.ServiceType == typeof(TRegistration) && d.ImplementationInstance is TRegistration)
             .Select(d => (TRegistration)d.ImplementationInstance!)];
 
-    record EndpointRegistration(string EndpointName, object? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode);
+    record EndpointRegistration(string EndpointName, string? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode);
 
-    record EndpointInstallerRegistration(string EndpointName, object? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode) : EndpointRegistration(EndpointName, EndpointIdentifier, ScanningDisabled, TransportHashCode);
+    record EndpointInstallerRegistration(string EndpointName, string? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode) : EndpointRegistration(EndpointName, EndpointIdentifier, ScanningDisabled, TransportHashCode);
 }
