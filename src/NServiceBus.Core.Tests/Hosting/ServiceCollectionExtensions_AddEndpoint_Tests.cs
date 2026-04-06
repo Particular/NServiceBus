@@ -27,27 +27,23 @@ public partial class ServiceCollectionExtensions_AddEndpoint_Tests
     }
 
     [Test]
-    public void Should_throw_when_first_endpoint_has_no_identifier_and_second_has_one()
+    public void Should_register_multiple_endpoints_when_only_last_has_identifier()
     {
         var services = new ServiceCollection();
 
         services.AddNServiceBusEndpoint(CreateConfig("Sales"));
 
-        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing"), "billing-key"));
-
-        Assert.That(ex!.Message, Does.Contain("each endpoint must provide an endpointIdentifier"));
+        Assert.DoesNotThrow(() => services.AddNServiceBusEndpoint(CreateConfig("Billing"), "billing-key"));
     }
 
     [Test]
-    public void Should_throw_when_first_endpoint_has_identifier_and_second_has_none()
+    public void Should_register_multiple_endpoints_when_only_first_has_identifier()
     {
         var services = new ServiceCollection();
 
         services.AddNServiceBusEndpoint(CreateConfig("Sales"), "sales-key");
 
-        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing")));
-
-        Assert.That(ex!.Message, Does.Contain("each endpoint must provide an endpointIdentifier"));
+        Assert.DoesNotThrow(() => services.AddNServiceBusEndpoint(CreateConfig("Billing")));
     }
 
     [Test]
