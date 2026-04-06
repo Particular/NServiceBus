@@ -9,7 +9,9 @@ using Microsoft.Extensions.Hosting;
 
 sealed class EndpointHostedService(IEndpointLifecycle endpointLifecycle) : IHostedLifecycleService, IAsyncDisposable
 {
-    public async Task StartingAsync(CancellationToken cancellationToken = default) => await endpointLifecycle.Create(cancellationToken).ConfigureAwait(false);
+    public async Task Create(CancellationToken cancellationToken = default) => await endpointLifecycle.Create(cancellationToken).ConfigureAwait(false);
+
+    public Task StartingAsync(CancellationToken cancellationToken = default) => Create(cancellationToken);
 
     public Task StartedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
