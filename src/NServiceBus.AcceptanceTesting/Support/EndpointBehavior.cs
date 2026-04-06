@@ -34,8 +34,9 @@ public class EndpointBehavior : IComponentBehavior
             }
 
             var serviceKey = collectionAdapter.ServiceKey;
+            var endpointKeyObject = serviceKey.ServiceKey ?? serviceKey.BaseKey;
 
-            if (serviceKey.ServiceKey is string serviceKeyString)
+            if (endpointKeyObject is string serviceKeyString)
             {
                 collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKeyString);
             }
