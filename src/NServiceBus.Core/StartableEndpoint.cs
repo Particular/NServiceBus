@@ -24,10 +24,10 @@ class StartableEndpoint(
     MessageSession messageSession,
     IAsyncDisposable serviceProviderLease)
 {
-    public async Task RunInstallers(CancellationToken cancellationToken = default)
+    public async Task RunInstallers(bool forceRun, CancellationToken cancellationToken = default)
     {
         using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
-        await hostingComponent.RunInstallers(serviceProvider, cancellationToken).ConfigureAwait(false);
+        await hostingComponent.RunInstallers(serviceProvider, forceRun, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task Setup(CancellationToken cancellationToken = default)

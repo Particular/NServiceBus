@@ -22,7 +22,7 @@ public class InstallerWithExternallyManagedContainer
     public async Task Setup(IServiceProvider builder, CancellationToken cancellationToken = default)
     {
         var creationStrategy = new ExternalContainerEndpointCreationStrategy(endpointCreator);
-        _ = await EndpointPreparation.Prepare(creationStrategy, builder, cancellationToken)
+        _ = await EndpointPreparation.Prepare(creationStrategy, builder, forceRunInstallers: true, cancellationToken)
             .ConfigureAwait(false);
     }
 }

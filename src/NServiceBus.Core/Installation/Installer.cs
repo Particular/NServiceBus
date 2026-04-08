@@ -44,7 +44,7 @@ public static class Installer
         await using var provider = serviceProvider.ConfigureAwait(false);
 
         var creationStrategy = new InternalContainerEndpointCreationStrategy(endpointCreator, NoOpAsyncDisposable.Instance);
-        _ = await EndpointPreparation.Prepare(creationStrategy, serviceProvider, cancellationToken)
+        _ = await EndpointPreparation.Prepare(creationStrategy, serviceProvider, forceRunInstallers: true, cancellationToken)
             .ConfigureAwait(false);
     }
 

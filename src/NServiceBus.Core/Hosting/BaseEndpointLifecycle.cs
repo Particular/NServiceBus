@@ -26,13 +26,19 @@ class BaseEndpointLifecycle(
                 return;
             }
 
-            startableEndpoint = await externallyManagedContainerHost.Create(AdaptProvider(serviceProvider, out providerLease), cancellationToken)
+            startableEndpoint = await externallyManagedContainerHost.Create(AdaptProvider(serviceProvider, out providerLease), forceRunInstallers: false, cancellationToken)
                 .ConfigureAwait(false);
         }
         finally
         {
             createSemaphore.Release();
         }
+    }
+
+    public async Task ForceRunInstallers(CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(startableEndpoint, "startableEndpoint");
+        await startableEndpoint.RunInstallers(forceRun: true, cancellationToken).ConfigureAwait(false);
     }
 
     protected virtual IServiceProvider AdaptProvider(IServiceProvider provider, out IAsyncDisposable? lease)

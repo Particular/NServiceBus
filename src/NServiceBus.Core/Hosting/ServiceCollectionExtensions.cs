@@ -19,80 +19,6 @@ using Transport;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers an NServiceBus endpoint installer with the dependency injection container, enabling the endpoint installers
-    /// to participate in the hosted service lifecycle.
-    /// </summary>
-    /// <remarks>Registering installers is mutually exclusive to registering endpoints. This is to force the installation API being used on a dedicated host that is only used to run installers
-    /// for example as part of a deployment.</remarks>
-    /// <param name="services">The <see cref="IServiceCollection"/> to add the endpoint to.</param>
-    /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration"/> defining how the endpoint should be configured.</param>
-    /// <param name="endpointIdentifierOverride">
-    /// An optional identifier uniquely identifies this endpoint within the dependency injection container, instead of the
-    /// endpoint name which is used by default. The value will serve as a keyed service identifier within the dependency
-    /// injection container.
-    /// <para>
-    /// In most scenarios, using the default endpoint name as the identifier is a good choice, and this value is not required.
-    /// </para>
-    /// <para>
-    /// The key is used with keyed service registration methods like <c>AddKeyedSingleton</c> and related methods,
-    /// and can be used with keyed service resolution APIs like <c>GetRequiredKeyedService</c> or
-    /// the <c>[FromKeyedServices]</c> attribute on constructor parameters.
-    /// </para>
-    /// </param>
-    /// <para>
-    /// When using a keyed endpoint, all services resolved within NServiceBus extension points
-    /// (message handlers, sagas, features, installers, etc.) are automatically resolved as keyed services
-    /// for that endpoint and do not require the <c>[FromKeyedServices]</c> attribute.
-    /// Conversely, the <c>[FromKeyedServices]</c> attribute is required when accessing endpoint-specific services
-    /// (such as <see cref="IMessageSession"/>) outside of NServiceBus extension points, for example in controllers
-    /// or background jobs.
-    /// </para>
-    /// <para>
-    /// By default, only endpoint-specific registrations are resolved when resolving all services of a given type
-    /// within an endpoint. However, for advanced scenarios where global services registered on the shared
-    /// service collection need to be resolved along with endpoint-specific ones, use <see cref="KeyedServiceKey.Any"/>
-    /// with the <c>[FromKeyedServices]</c> attribute (for example: <c>[FromKeyedServices(KeyedServiceKey.Any)] IEnumerable&lt;IMyService&gt;</c>).
-    /// This bypasses the default safeguards that isolate endpoints, allowing resolution of all services including
-    /// globally shared ones.
-    /// </para>
-    public static void AddNServiceBusEndpointInstaller(this IServiceCollection services, EndpointConfiguration endpointConfiguration, string? endpointIdentifierOverride = null)
-    {
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(endpointConfiguration);
-
-        var settings = endpointConfiguration.GetSettings();
-        // Unfortunately we have to also check this here due to the multiple hosting variants as long as
-        // the old hosting is still supported.
-        settings.AssertNotReused();
-
-        var endpointName = settings.EndpointName();
-        var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
-        var endpointRegistrations = GetExistingRegistrations<EndpointRegistration>(services);
-        var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);
-        var endpointIdentifier = endpointIdentifierOverride ?? endpointName;
-
-        ValidateNotUsedWithAddNServiceBusEndpoints(endpointRegistrations, $"'{nameof(AddNServiceBusEndpointInstaller)}' cannot be used together with '{nameof(AddNServiceBusEndpoint)}'.");
-        ValidateEndpointIdentifier(endpointIdentifier, installerRegistrations);
-        ValidateAssemblyScanning(endpointConfiguration, endpointName, installerRegistrations, message: "its installers using the corresponding registrations methods like AddInstaller<T>()");
-        ValidateTransportReuse(transport, installerRegistrations);
-
-        endpointConfiguration.EnableInstallers();
-
-        // Backdoor for acceptance testing
-        var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
-        var baseKey = keyedServices.ServiceKey.BaseKey;
-
-        // Deliberately creating it here to make sure we are not accidentally doing it too late.
-        var externallyManagedContainerHost = EndpointExternallyManaged.Create(endpointConfiguration, keyedServices);
-
-        services.AddKeyedSingleton(baseKey, externallyManagedContainerHost);
-        services.AddKeyedSingleton<IEndpointLifecycle>(baseKey, (sp, _) => new EndpointLifecycle(externallyManagedContainerHost, sp, keyedServices.ServiceKey, keyedServices));
-        services.AddSingleton<IHostedService, EndpointHostedInstallerService>(sp => new EndpointHostedInstallerService(sp.GetRequiredKeyedService<IEndpointLifecycle>(baseKey)));
-
-        services.AddSingleton(new EndpointInstallerRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
-    }
-
-    /// <summary>
     /// Registers an NServiceBus endpoint with the dependency injection container, enabling the endpoint
     /// to resolve services from the application's service provider and participate in the hosted service lifecycle.
     /// </summary>
@@ -142,11 +68,9 @@ public static class ServiceCollectionExtensions
         var endpointName = settings.EndpointName();
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
         var endpointRegistrations = GetExistingRegistrations<EndpointRegistration>(services);
-        var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);
         var hostingSettings = settings.Get<HostingComponent.Settings>();
         var endpointIdentifier = endpointIdentifierOverride ?? endpointName;
 
-        ValidateNotUsedWithAddNServiceBusEndpoints(installerRegistrations, $"'{nameof(AddNServiceBusEndpoint)}' cannot be used together with '{nameof(AddNServiceBusEndpointInstaller)}'.");
         ValidateEndpointIdentifier(endpointIdentifier, endpointRegistrations);
         ValidateAssemblyScanning(endpointConfiguration, endpointName, endpointRegistrations);
         ValidateTransportReuse(transport, endpointRegistrations);
@@ -173,36 +97,26 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static async Task InstallNServiceBusEndpoints(this HostApplicationBuilder hostBuilder, CancellationToken cancellationToken = default)
     {
-        foreach (var serviceDescriptor in hostBuilder.Services)
-        {
-            if (serviceDescriptor.ServiceType == typeof(ExternallyManagedContainerHost) && serviceDescriptor.ImplementationInstance is EndpointConfiguration cfg)
-            {
-                cfg.EnableInstallers();
-            }
-        }
+        var endpointIdentifiers = hostBuilder.Services
+            .Where(descriptor => descriptor.ServiceType == typeof(IEndpointLifecycle))
+            .Select(descriptor => descriptor.ServiceKey)
+            .ToArray();
 
         var host = hostBuilder.Build();
 
-        var endpointHosts = host.Services.GetServices<IHostedService>()
-            .OfType<EndpointHostedService>()
+        var endpointLifecycles = endpointIdentifiers
+            .Select(key => host.Services.GetKeyedService<IEndpointLifecycle>(key))
+            .OfType<EndpointLifecycle>()
             .ToArray();
 
-        foreach (var endpointHost in endpointHosts)
+        foreach (var endpointLifecycle in endpointLifecycles)
         {
-            // Only calls endpointLifecycle.Create to install the endpoint, without starting
-            await endpointHost.Create(cancellationToken).ConfigureAwait(false);
+            await endpointLifecycle.Create(cancellationToken).ConfigureAwait(false);
+            await endpointLifecycle.ForceRunInstallers(cancellationToken).ConfigureAwait(false);
         }
     }
 
     internal static IServiceCollection Unwrap(this IServiceCollection services) => (services as KeyedServiceCollectionAdapter)?.Inner ?? services;
-
-    static void ValidateNotUsedWithAddNServiceBusEndpoints<TRegistration>(List<TRegistration> endpointRegistrations, string message)
-    {
-        if (endpointRegistrations.Count > 0)
-        {
-            throw new InvalidOperationException(message);
-        }
-    }
 
     static void ValidateEndpointIdentifier<TRegistration>(string endpointIdentifier, List<TRegistration> registrations)
         where TRegistration : EndpointRegistration
@@ -275,6 +189,4 @@ public static class ServiceCollectionExtensions
             .Select(d => (TRegistration)d.ImplementationInstance!)];
 
     record EndpointRegistration(string EndpointName, string? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode);
-
-    record EndpointInstallerRegistration(string EndpointName, string? EndpointIdentifier, bool ScanningDisabled, int TransportHashCode) : EndpointRegistration(EndpointName, EndpointIdentifier, ScanningDisabled, TransportHashCode);
 }

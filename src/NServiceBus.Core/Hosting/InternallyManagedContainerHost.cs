@@ -10,7 +10,7 @@ class InternallyManagedContainerHost(EndpointCreator endpointCreator, IServicePr
 #pragma warning restore CS0618 // Type or member is obsolete
 {
     public Task<StartableEndpoint> Create(CancellationToken cancellationToken = default) =>
-        startupRunner.Create(serviceProvider, cancellationToken);
+        startupRunner.Create(serviceProvider, forceRunInstallers: false, cancellationToken);
 
 #pragma warning disable CS0618 // Type or member is obsolete
     public async Task<IEndpointInstance> Start(CancellationToken cancellationToken = default) =>

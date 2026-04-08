@@ -14,6 +14,8 @@ using Settings;
 
 class InstallerComponent(InstallerComponent.Settings settings)
 {
+    bool hasRun = false;
+
     public void Initialize(IReadOnlySettings globalSettings) => globalSettings.AddStartupDiagnosticsSection("Installation", new
     {
         InstallersEnabled = settings.Installers.Select(i => i.InstallerType.FullName).ToArray()
@@ -21,10 +23,17 @@ class InstallerComponent(InstallerComponent.Settings settings)
 
     public async Task RunInstallers(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
+        if (hasRun)
+        {
+            return;
+        }
+
         foreach (var installer in settings.Installers)
         {
             await installer.Install(serviceProvider, settings.InstallationUserName, cancellationToken).ConfigureAwait(false);
         }
+
+        hasRun = true;
     }
 
     public class Settings
