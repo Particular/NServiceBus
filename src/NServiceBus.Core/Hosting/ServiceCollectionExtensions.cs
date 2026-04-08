@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Configuration.AdvancedExtensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -89,31 +87,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHostedService, EndpointHostedService>(sp => new EndpointHostedService(sp.GetRequiredKeyedService<IEndpointLifecycle>(baseKey)));
 
         services.AddSingleton(new EndpointRegistration(endpointName, endpointIdentifier, endpointConfiguration.AssemblyScanner().Disable, RuntimeHelpers.GetHashCode(transport)));
-    }
-
-    /// <summary>
-    /// Installs all NServiceBus endpoints registered to the <see cref="IServiceCollection" /> without starting the endpoints
-    /// and without executing any user code.
-    /// </summary>
-    public static async Task InstallNServiceBusEndpoints(this HostApplicationBuilder hostBuilder, CancellationToken cancellationToken = default)
-    {
-        var endpointIdentifiers = hostBuilder.Services
-            .Where(descriptor => descriptor.ServiceType == typeof(IEndpointLifecycle))
-            .Select(descriptor => descriptor.ServiceKey)
-            .ToArray();
-
-        var host = hostBuilder.Build();
-
-        var endpointLifecycles = endpointIdentifiers
-            .Select(key => host.Services.GetKeyedService<IEndpointLifecycle>(key))
-            .OfType<EndpointLifecycle>()
-            .ToArray();
-
-        foreach (var endpointLifecycle in endpointLifecycles)
-        {
-            await endpointLifecycle.Create(cancellationToken).ConfigureAwait(false);
-            await endpointLifecycle.ForceRunInstallers(cancellationToken).ConfigureAwait(false);
-        }
     }
 
     internal static IServiceCollection Unwrap(this IServiceCollection services) => (services as KeyedServiceCollectionAdapter)?.Inner ?? services;

@@ -96,15 +96,13 @@ public class When_installing_endpoints : NServiceBusAcceptanceTest
             var testContext = settings.Get<Context>();
             testContext.FeatureSetupCalled[settings.EndpointName()] = true;
 
-            context.RegisterStartupTask(new CustomFeatureStartupTask(testContext));
+            context.RegisterStartupTask(new CustomFeatureStartupTask());
         }
 
-        class CustomFeatureStartupTask(Context testContext) : FeatureStartupTask
+        class CustomFeatureStartupTask : FeatureStartupTask
         {
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                throw new InvalidOperationException("FeatureStartupTask should not be called");
-            }
+                => throw new InvalidOperationException("FeatureStartupTask should not be called");
 
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }

@@ -412,6 +412,10 @@ namespace NServiceBus
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
     }
+    public static class HostApplicationBuilderExtensions
+    {
+        public static System.Threading.Tasks.Task InstallNServiceBusEndpoints(this Microsoft.Extensions.Hosting.HostApplicationBuilder hostBuilder, System.Threading.CancellationToken cancellationToken = default) { }
+    }
     public static class HostInfoConfigurationExtensions
     {
         public static NServiceBus.HostInfoSettings UniquelyIdentifyRunningInstance(this NServiceBus.EndpointConfiguration config) { }
@@ -1042,7 +1046,6 @@ namespace NServiceBus
     public static class ServiceCollectionExtensions
     {
         public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, string? endpointIdentifierOverride = null) { }
-        public static System.Threading.Tasks.Task InstallNServiceBusEndpoints(this Microsoft.Extensions.Hosting.HostApplicationBuilder hostBuilder, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public static class SettingsExtensions
     {
