@@ -209,7 +209,8 @@ sealed class XmlSerialization : IDisposable
 
         if (type.IsValueType || type == typeof(string) || type == typeof(Uri) || type == typeof(char))
         {
-            elem.Add(value switch{
+            elem.Add(value switch
+            {
                 // adding TimeOnly/DateOnly directly to XElement uses a culture-specific format
                 // that will not roundtrip reliably
                 TimeOnly time => new XElement(name, time.ToString("O")),
