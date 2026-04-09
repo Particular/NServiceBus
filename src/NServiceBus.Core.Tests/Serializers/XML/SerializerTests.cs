@@ -571,6 +571,21 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.That(result.GenericProperty.WhatEver, Is.EqualTo("a property"));
         }
 
+        [Test]
+        public void DateTime_component_properties_should_be_supported()
+        {
+            var time = TimeOnly.Parse("10:02:03.5");
+            var date = DateOnly.Parse("2026-10-15");
+
+            var result = ExecuteSerializer.ForMessage<MessageWithDateTimeComponents>(m =>
+            {
+                m.Time = time;
+                m.Date = date;
+            });
+
+            Assert.That(result.Date, Is.EqualTo(date));
+            Assert.That(result.Time, Is.EqualTo(time));
+        }
 
         [Test]
         public void Culture()
@@ -1348,6 +1363,12 @@ namespace NServiceBus.Serializers.XML.Test
     public class MessageWithDouble
     {
         public double Double { get; set; }
+    }
+
+    public class MessageWithDateTimeComponents
+    {
+        public DateOnly Date { get; set; }
+        public TimeOnly Time { get; set; }
     }
 
     public class MessageWithGenericProperty

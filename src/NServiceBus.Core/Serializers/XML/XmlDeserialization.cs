@@ -3,7 +3,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -487,6 +489,15 @@ class XmlDeserialization
                 if (n.ChildNodes[0] is XmlWhitespace)
                 {
                     return Activator.CreateInstance(type);
+                }
+
+                // last ditch convert using the system converters to catch
+                // types that don't have specific handling but are supported via this mechanism
+                // like TimeOnly/DateOnly
+                var converter = TypeDescriptor.GetConverter(type);
+                if (converter.CanConvertFrom(typeof(string)))
+                {
+                    return converter.ConvertFrom(null, CultureInfo.CurrentCulture, text);
                 }
 
                 throw new Exception($"Type not supported by the serializer: {type.AssemblyQualifiedName}");
