@@ -484,20 +484,21 @@ class XmlDeserialization
                 return new Uri(text);
             }
 
+            if (type == typeof(DateOnly))
+            {
+                return DateOnly.Parse(text);
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return TimeOnly.Parse(text);
+            }
+
             if (!typeof(IEnumerable).IsAssignableFrom(type))
             {
                 if (n.ChildNodes[0] is XmlWhitespace)
                 {
                     return Activator.CreateInstance(type);
-                }
-
-                // last ditch convert using the system converters to catch
-                // types that don't have specific handling but are supported via this mechanism
-                // like TimeOnly/DateOnly
-                var converter = TypeDescriptor.GetConverter(type);
-                if (converter.CanConvertFrom(typeof(string)))
-                {
-                    return converter.ConvertFrom(null, CultureInfo.CurrentCulture, text);
                 }
 
                 throw new Exception($"Type not supported by the serializer: {type.AssemblyQualifiedName}");
