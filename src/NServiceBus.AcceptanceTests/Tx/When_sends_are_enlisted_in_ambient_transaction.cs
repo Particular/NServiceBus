@@ -7,10 +7,10 @@ using AcceptanceTesting.Customization;
 using EndpointTemplates;
 using NUnit.Framework;
 
-public class When_sending_within_a_committed_ambient_transaction : NServiceBusAcceptanceTest
+public class When_sends_are_enlisted_in_ambient_transaction : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_not_deliver_them_until_the_commit_phase()
+    public async Task Should_not_dispatch_messages_until_the_commit_phase()
     {
         Requires.DtcSupport();
 
@@ -18,16 +18,10 @@ public class When_sending_within_a_committed_ambient_transaction : NServiceBusAc
             .WithEndpoint<TransactionalEndpoint>(b => b.When(async (session, ctx) =>
             {
                 using var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-                await session.Send(new MessageThatIsEnlisted
-                {
-                    SequenceNumber = 1
-                });
-                await session.Send(new MessageThatIsEnlisted
-                {
-                    SequenceNumber = 2
-                });
+                await session.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
+                await session.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
 
-                //send another message as well so that we can check the order in the receiver
+                //send another message that is not enlisted so that we can check the order in the receiver
                 using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
                     await session.Send(new MessageThatIsNotEnlisted());

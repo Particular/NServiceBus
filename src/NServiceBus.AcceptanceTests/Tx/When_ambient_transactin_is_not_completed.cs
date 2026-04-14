@@ -8,10 +8,10 @@ using AcceptanceTesting.Customization;
 using EndpointTemplates;
 using NUnit.Framework;
 
-public class When_sending_within_a_rolled_back_ambient_transaction : NServiceBusAcceptanceTest
+public class When_ambient_transactin_is_not_completed : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_not_deliver_them_on_rollback()
+    public async Task Should_not_deliver_enlisted_message()
     {
         Requires.DtcSupport();
 
@@ -21,7 +21,8 @@ public class When_sending_within_a_rolled_back_ambient_transaction : NServiceBus
                 using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     await session.Send(new MessageThatIsEnlisted());
-                    //rollback
+
+                    // scope is not completed 
                 }
 
                 await session.Send(new MessageThatIsNotEnlisted());
