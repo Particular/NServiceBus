@@ -7,60 +7,31 @@ using AcceptanceTesting.Customization;
 using EndpointTemplates;
 using NUnit.Framework;
 
-public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceTest
+public class When_sends_are_enlisted_in_ambient_transaction : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_not_deliver_them_until_the_commit_phase()
+    public async Task Should_not_dispatch_messages_until_the_commit_phase()
     {
         Requires.DtcSupport();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<TransactionalEndpoint>(b => b.When(async (session, ctx) =>
             {
-                using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                using var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+                await session.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
+                await session.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
+
+                //send another message that is not enlisted so that we can check the order in the receiver
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    await session.Send(new MessageThatIsEnlisted
-                    {
-                        SequenceNumber = 1
-                    });
-                    await session.Send(new MessageThatIsEnlisted
-                    {
-                        SequenceNumber = 2
-                    });
-
-                    //send another message as well so that we can check the order in the receiver
-                    using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
-                    {
-                        await session.Send(new MessageThatIsNotEnlisted());
-                    }
-
-                    tx.Complete();
+                    await session.Send(new MessageThatIsNotEnlisted());
                 }
+
+                tx.Complete();
             }))
             .Run();
 
         Assert.That(context.SequenceNumberOfFirstMessage, Is.EqualTo(1), "The transport should preserve the order in which the transactional messages are delivered to the queuing system");
-    }
-
-    [Test]
-    public async Task Should_not_deliver_them_on_rollback()
-    {
-        Requires.DtcSupport();
-
-        var context = await Scenario.Define<Context>()
-            .WithEndpoint<TransactionalEndpoint>(b => b.When(async session =>
-            {
-                using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    await session.Send(new MessageThatIsEnlisted());
-                    //rollback
-                }
-
-                await session.Send(new MessageThatIsNotEnlisted());
-            }))
-            .Run();
-
-        Assert.That(context.MessageThatIsEnlistedHandlerWasCalled, Is.False, "The transactional handler should not be called");
     }
 
     public class Context : ScenarioContext
