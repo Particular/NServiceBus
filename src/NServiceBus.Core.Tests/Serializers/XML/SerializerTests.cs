@@ -574,17 +574,26 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void DateTime_component_properties_should_be_supported()
         {
-            var time = new TimeOnly(10, 2, 3, 5);
-            var date = new DateOnly(2026, 10, 15);
+            var timeOnly = new TimeOnly(10, 2, 3, 5);
+            var dateOnly = new DateOnly(2026, 10, 15);
+            var dateTime = DateTime.UtcNow;
+            var dateTimeOffset = DateTimeOffset.UtcNow;
 
             var result = ExecuteSerializer.ForMessage<MessageWithDateTimeComponents>(m =>
             {
-                m.Time = time;
-                m.Date = date;
+                m.TimeOnly = timeOnly;
+                m.DateOnly = dateOnly;
+                m.DateTime = dateTime;
+                m.DateTimeOffset = dateTimeOffset;
             });
 
-            Assert.That(result.Date, Is.EqualTo(date));
-            Assert.That(result.Time, Is.EqualTo(time));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.DateOnly, Is.EqualTo(dateOnly));
+                Assert.That(result.TimeOnly, Is.EqualTo(timeOnly));
+                Assert.That(result.DateTime, Is.EqualTo(dateTime));
+                Assert.That(result.DateTimeOffset, Is.EqualTo(dateTimeOffset));
+            }
         }
 
         [Test]
@@ -1367,8 +1376,10 @@ namespace NServiceBus.Serializers.XML.Test
 
     public class MessageWithDateTimeComponents
     {
-        public DateOnly Date { get; set; }
-        public TimeOnly Time { get; set; }
+        public DateOnly DateOnly { get; set; }
+        public TimeOnly TimeOnly { get; set; }
+        public DateTime DateTime { get; set; }
+        public DateTimeOffset DateTimeOffset { get; set; }
     }
 
     public class MessageWithGenericProperty
