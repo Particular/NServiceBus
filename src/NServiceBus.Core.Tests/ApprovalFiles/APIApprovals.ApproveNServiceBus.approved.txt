@@ -1047,9 +1047,12 @@ namespace NServiceBus
     }
     public static class SettingsExtensions
     {
-        public static string EndpointName(this NServiceBus.Settings.IReadOnlySettings settings) { }
-        public static string EndpointQueueName(this NServiceBus.Settings.IReadOnlySettings settings) { }
-        public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        extension(NServiceBus.Settings.IReadOnlySettings settings)
+        {
+            public System.Collections.Generic.IList<System.Type> GetAvailableTypes() { }
+            public string EndpointName() { }
+            public string EndpointQueueName() { }
+        }
     }
     public class StartupDiagnosticEntries
     {
