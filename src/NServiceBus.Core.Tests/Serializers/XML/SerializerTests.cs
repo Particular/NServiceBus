@@ -574,8 +574,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void DateTime_component_properties_should_be_supported()
         {
-            var time = TimeOnly.Parse("10:02:03.5");
-            var date = DateOnly.Parse("2026-10-15");
+            var time = new TimeOnly(10, 2, 3, 5);
+            var date = new DateOnly(2026, 10, 15);
 
             var result = ExecuteSerializer.ForMessage<MessageWithDateTimeComponents>(m =>
             {
