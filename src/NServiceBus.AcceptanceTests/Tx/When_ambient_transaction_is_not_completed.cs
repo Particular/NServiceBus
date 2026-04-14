@@ -8,7 +8,7 @@ using AcceptanceTesting.Customization;
 using EndpointTemplates;
 using NUnit.Framework;
 
-public class When_ambient_transactin_is_not_completed : NServiceBusAcceptanceTest
+public class When_ambient_transaction_is_not_completed : NServiceBusAcceptanceTest
 {
     [Test]
     public async Task Should_not_deliver_enlisted_message()
