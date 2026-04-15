@@ -66,7 +66,7 @@ public static class ServiceCollectionExtensions
         // the old hosting is still supported.
         settings.AssertNotReused();
 
-        var endpointName = settings.EndpointName();
+        var endpointName = endpointConfiguration.EndpointName;
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
         var endpointRegistrations = GetExistingRegistrations<EndpointRegistration>(services);
         var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);
@@ -154,7 +154,7 @@ public static class ServiceCollectionExtensions
         // the old hosting is still supported.
         settings.AssertNotReused();
 
-        var endpointName = settings.EndpointName();
+        var endpointName = endpointConfiguration.EndpointName;
         var transport = settings.Get<TransportSeam.Settings>().TransportDefinition;
         var endpointRegistrations = GetExistingRegistrations<EndpointRegistration>(services);
         var installerRegistrations = GetExistingRegistrations<EndpointInstallerRegistration>(services);

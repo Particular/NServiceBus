@@ -275,6 +275,7 @@ namespace NServiceBus
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public EndpointConfiguration(string endpointName) { }
+        public string EndpointName { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.ConventionsBuilder Conventions() { }
         [System.Obsolete(@"RegisterComponents should only be used when self-hosting endpoints, which is no longer recommended. When using a Microsoft IHostApplicationBuilder-based host, register services directly on the host builder's IServiceCollection. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
@@ -1046,9 +1047,12 @@ namespace NServiceBus
     }
     public static class SettingsExtensions
     {
-        public static string EndpointName(this NServiceBus.Settings.IReadOnlySettings settings) { }
-        public static string EndpointQueueName(this NServiceBus.Settings.IReadOnlySettings settings) { }
-        public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.IReadOnlySettings settings) { }
+        extension(NServiceBus.Settings.IReadOnlySettings settings)
+        {
+            public System.Collections.Generic.IList<System.Type> GetAvailableTypes() { }
+            public string EndpointName() { }
+            public string EndpointQueueName() { }
+        }
     }
     public class StartupDiagnosticEntries
     {

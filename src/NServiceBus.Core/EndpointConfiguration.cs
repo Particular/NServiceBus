@@ -26,6 +26,8 @@ public class EndpointConfiguration : ExposeSettings
     {
         ValidateEndpointName(endpointName);
 
+        EndpointName = endpointName;
+
         Settings.Set(new SystemEnvironment());
         Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
@@ -72,6 +74,11 @@ public class EndpointConfiguration : ExposeSettings
 
         conventionsBuilder = new ConventionsBuilder(Settings);
     }
+
+    /// <summary>
+    /// The name of the endpoint.
+    /// </summary>
+    public string EndpointName { get; }
 
     /// <summary>
     /// Access to the pipeline configuration.
