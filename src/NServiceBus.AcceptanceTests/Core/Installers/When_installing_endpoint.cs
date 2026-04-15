@@ -3,11 +3,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
 using FakeTransport;
 using Features;
 using Installation;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using Transport;
 
@@ -25,13 +26,16 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
 
         endpointConfiguration.EnableFeature<CustomFeature>();
 
-        var context = await Scenario.Define<Context>(ctx =>
-            {
-                endpointConfiguration.GetSettings().Set(ctx);
-            })
-            .WithServices(services => services.AddNServiceBusEndpointInstaller(endpointConfiguration))
-            .WithServiceResolve(static async (provider, token) => await provider.RunHostedServices(token))
-            .Run();
+        var context = new Context();
+        endpointConfiguration.GetSettings().Set(context);
+
+        var builder = Host.CreateApplicationBuilder();
+        builder.Services.AddSingleton(context);
+        builder.Services.AddNServiceBusEndpoint(endpointConfiguration);
+        builder.Services.AddNServiceBusInstallers();
+
+        // TODO: Start the host, but doing that now will make it run and never stop
+        // await builder.Build().RunAsync();
 
         using (Assert.EnterMultipleScope())
         {
@@ -45,12 +49,10 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
         }, Is.EqualTo(fakeTransport.StartupSequence).AsCollection, "Should not start the receivers");
     }
 
-    class Context : ScenarioContext
+    class Context
     {
         public bool InstallerCalled { get; set; }
         public bool FeatureSetupCalled { get; set; }
-
-        public void MaybeCompleted() => MarkAsCompleted(InstallerCalled, FeatureSetupCalled);
     }
 
     class CustomInstaller(Context testContext) : INeedToInstallSomething
@@ -58,7 +60,6 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
         public Task Install(string identity, CancellationToken cancellationToken = default)
         {
             testContext.InstallerCalled = true;
-            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
     }
@@ -72,18 +73,22 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             var testContext = context.Settings.Get<Context>();
             testContext.FeatureSetupCalled = true;
 
-            context.RegisterStartupTask(new CustomFeatureStartupTask(testContext));
+            context.RegisterStartupTask(new CustomFeatureStartupTask());
         }
 
-        class CustomFeatureStartupTask(Context testContext) : FeatureStartupTask
+        class CustomFeatureStartupTask : FeatureStartupTask
         {
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-            {
-                testContext.MarkAsFailed(new InvalidOperationException("FeatureStartupTask should not be called"));
-                return Task.CompletedTask;
-            }
+                => throw new InvalidOperationException("FeatureStartupTask should not be called");
 
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
+    }
+
+    class UserHostedService : IHostedService
+    {
+        public Task StartAsync(CancellationToken cancellationToken = default) => throw new InvalidOperationException("User hosted service should not be called");
+
+        public Task StopAsync(CancellationToken cancellationToken = default) => throw new InvalidOperationException("User hosted service should not be called");
     }
 }
