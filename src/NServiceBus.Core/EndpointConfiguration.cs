@@ -79,6 +79,10 @@ public class EndpointConfiguration : ExposeSettings
     /// The name of the endpoint.
     /// </summary>
     public string EndpointName { get; }
+    /// <summary>
+    /// Returns true if the endpoint is configured as send-only.
+    /// </summary>
+    public bool IsSendOnly => Settings.Get<bool>("Endpoint.SendOnly");
 
     /// <summary>
     /// Access to the pipeline configuration.
