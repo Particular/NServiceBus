@@ -482,6 +482,16 @@ class XmlDeserialization
                 return new Uri(text);
             }
 
+            if (type == typeof(DateOnly))
+            {
+                return DateOnly.Parse(text);
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return TimeOnly.Parse(text);
+            }
+
             if (!typeof(IEnumerable).IsAssignableFrom(type))
             {
                 if (n.ChildNodes[0] is XmlWhitespace)

@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -207,9 +208,22 @@ sealed class XmlSerialization : IDisposable
             return;
         }
 
-        if (type.IsValueType || type == typeof(string) || type == typeof(Uri) || type == typeof(char))
+        if (type == typeof(string) || type == typeof(Uri) || type == typeof(char))
         {
             elem.Add(new XElement(name, value));
+            return;
+        }
+
+        if (type.IsValueType)
+        {
+            elem.Add(value switch
+            {
+                // DateOnly/TimeOnly support is missing from XElement 
+                // https://github.com/dotnet/runtime/issues/126879
+                TimeOnly time => new XElement(name, time.ToString("HH:mm:ss.FFFFFFF", CultureInfo.InvariantCulture)),
+                DateOnly date => new XElement(name, date.ToString("O", CultureInfo.InvariantCulture)),
+                _ => new XElement(name, value),
+            });
             return;
         }
 
