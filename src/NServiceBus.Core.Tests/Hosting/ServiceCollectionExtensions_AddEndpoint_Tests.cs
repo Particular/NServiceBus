@@ -8,7 +8,7 @@ using NServiceBus;
 using NUnit.Framework;
 
 [TestFixture]
-public partial class ServiceCollectionExtensions_AddEndpoint_Tests
+public class ServiceCollectionExtensions_AddEndpoint_Tests
 {
     [Test]
     public void Should_register_single_endpoint_without_identifier()
@@ -27,23 +27,27 @@ public partial class ServiceCollectionExtensions_AddEndpoint_Tests
     }
 
     [Test]
-    public void Should_register_multiple_endpoints_when_only_last_has_identifier()
+    public void Should_throw_when_first_endpoint_has_no_identifier_and_second_has_one()
     {
         var services = new ServiceCollection();
 
         services.AddNServiceBusEndpoint(CreateConfig("Sales"));
 
-        Assert.DoesNotThrow(() => services.AddNServiceBusEndpoint(CreateConfig("Billing"), "billing-key"));
+        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing"), "billing-key"));
+
+        Assert.That(ex!.Message, Does.Contain("each endpoint must provide an endpointIdentifier"));
     }
 
     [Test]
-    public void Should_register_multiple_endpoints_when_only_first_has_identifier()
+    public void Should_throw_when_first_endpoint_has_identifier_and_second_has_none()
     {
         var services = new ServiceCollection();
 
         services.AddNServiceBusEndpoint(CreateConfig("Sales"), "sales-key");
 
-        Assert.DoesNotThrow(() => services.AddNServiceBusEndpoint(CreateConfig("Billing")));
+        var ex = Assert.Throws<InvalidOperationException>(() => services.AddNServiceBusEndpoint(CreateConfig("Billing")));
+
+        Assert.That(ex!.Message, Does.Contain("each endpoint must provide an endpointIdentifier"));
     }
 
     [Test]
