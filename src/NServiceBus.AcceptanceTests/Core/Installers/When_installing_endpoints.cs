@@ -10,6 +10,8 @@ using Configuration.AdvancedExtensibility;
 using FakeTransport;
 using Features;
 using Installation;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using Settings;
 using Transport;
@@ -32,8 +34,10 @@ public class When_installing_endpoints : NServiceBusAcceptanceTest
             })
             .WithServices(services =>
             {
-                services.AddNServiceBusEndpointInstaller(endpointConfiguration1, "EndpointWithInstaller1");
-                services.AddNServiceBusEndpointInstaller(endpointConfiguration2, "EndpointWithInstaller2");
+                services.AddSingleton<IHostApplicationLifetime, FakeHostApplicationLifetime>();
+                services.AddNServiceBusEndpoint(endpointConfiguration1, "EndpointWithInstaller1");
+                services.AddNServiceBusEndpoint(endpointConfiguration2, "EndpointWithInstaller2");
+                services.AddNServiceBusInstallers();
             })
             .WithServiceResolve(static async (provider, token) => await provider.RunHostedServices(token))
             .Run();

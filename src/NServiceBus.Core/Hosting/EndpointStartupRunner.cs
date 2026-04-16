@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 sealed class EndpointStartupRunner(IEndpointCreationStrategy creationStrategy)
 {
-    public async Task<StartableEndpoint> Create(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
+    public async Task<StartableEndpoint> Create(IServiceProvider serviceProvider, bool forceInstallers = false, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
 
@@ -26,7 +26,7 @@ sealed class EndpointStartupRunner(IEndpointCreationStrategy creationStrategy)
                 return startableEndpoint;
             }
 
-            startableEndpoint = await EndpointPreparation.Prepare(creationStrategy, serviceProvider, cancellationToken)
+            startableEndpoint = await EndpointPreparation.Prepare(creationStrategy, serviceProvider, forceInstallers, cancellationToken)
                 .ConfigureAwait(false);
             return startableEndpoint;
         }
@@ -38,7 +38,7 @@ sealed class EndpointStartupRunner(IEndpointCreationStrategy creationStrategy)
 
     public async Task<RunningEndpointInstance> Start(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
-        var endpoint = await Create(serviceProvider, cancellationToken).ConfigureAwait(false);
+        var endpoint = await Create(serviceProvider, cancellationToken: cancellationToken).ConfigureAwait(false);
         return await endpoint.Start(cancellationToken).ConfigureAwait(false);
     }
 

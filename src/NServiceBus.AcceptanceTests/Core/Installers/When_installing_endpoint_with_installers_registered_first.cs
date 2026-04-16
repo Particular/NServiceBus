@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Installers;
+namespace NServiceBus.AcceptanceTests.Core.Installers;
 
 using System;
 using System.Threading;
@@ -13,13 +13,13 @@ using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using Transport;
 
-public class When_installing_endpoint : NServiceBusAcceptanceTest
+public class When_installing_endpoint_with_installers_registered_first : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_only_execute_setup_and_complete()
+    public async Task Should_only_execute_setup_and_complete_when_installers_registered_first()
     {
         var fakeTransport = new FakeTransport();
-        var endpointConfiguration = new EndpointConfiguration("EndpointWithInstaller");
+        var endpointConfiguration = new EndpointConfiguration("EndpointWithInstallerFirst");
         endpointConfiguration.AssemblyScanner().Disable = true;
         endpointConfiguration.UsePersistence<AcceptanceTestingPersistence>();
         endpointConfiguration.UseTransport(fakeTransport);
@@ -34,8 +34,9 @@ public class When_installing_endpoint : NServiceBusAcceptanceTest
             .WithServices(services =>
             {
                 services.AddSingleton<IHostApplicationLifetime, FakeHostApplicationLifetime>();
-                services.AddNServiceBusEndpoint(endpointConfiguration);
+                // AddNServiceBusInstallers called BEFORE AddNServiceBusEndpoint
                 services.AddNServiceBusInstallers();
+                services.AddNServiceBusEndpoint(endpointConfiguration);
             })
             .WithServiceResolve(static async (provider, token) => await provider.RunHostedServices(token))
             .Run();

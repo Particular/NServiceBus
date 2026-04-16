@@ -13,18 +13,55 @@ static class ServiceProviderExtensions
     {
         public async Task RunHostedServices(CancellationToken cancellationToken = default)
         {
-            // We don't have host support in the acceptance tests, so we need to manually start/stop the services
+            // Simulate the generic host lifecycle:
+            // StartingAsync -> StartAsync -> StartedAsync -> (StopApplication) -> StoppingAsync -> StopAsync -> StoppedAsync
             var hostedServices = provider.GetServices<IHostedService>().ToList();
+
+            foreach (var hostedService in hostedServices)
+            {
+                if (hostedService is IHostedLifecycleService lifecycleService)
+                {
+                    await lifecycleService.StartingAsync(cancellationToken);
+                }
+            }
+
             foreach (var hostedService in hostedServices)
             {
                 await hostedService.StartAsync(cancellationToken);
             }
 
+            foreach (var hostedService in hostedServices)
+            {
+                if (hostedService is IHostedLifecycleService lifecycleService)
+                {
+                    await lifecycleService.StartedAsync(cancellationToken);
+                }
+            }
+
             hostedServices.Reverse();
             foreach (var hostedService in hostedServices)
             {
-                await hostedService.StopAsync(cancellationToken);
+                if (hostedService is IHostedLifecycleService lifecycleService)
+                {
+                    await lifecycleService.StoppingAsync(cancellationToken);
+                }
+            }
 
+            foreach (var hostedService in hostedServices)
+            {
+                await hostedService.StopAsync(cancellationToken);
+            }
+
+            foreach (var hostedService in hostedServices)
+            {
+                if (hostedService is IHostedLifecycleService lifecycleService)
+                {
+                    await lifecycleService.StoppedAsync(cancellationToken);
+                }
+            }
+
+            foreach (var hostedService in hostedServices)
+            {
                 if (hostedService is IAsyncDisposable asyncDisposable)
                 {
                     await asyncDisposable.DisposeAsync();

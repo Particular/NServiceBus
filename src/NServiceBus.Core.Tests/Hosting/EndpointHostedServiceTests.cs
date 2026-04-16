@@ -12,7 +12,7 @@ public class EndpointHostedServiceTests
     public async Task Should_forward_stop_cancellation_token_to_lifecycle()
     {
         var lifecycle = new RecordingEndpointLifecycle();
-        var hostedService = new EndpointHostedService(lifecycle);
+        var hostedService = new EndpointHostedService(lifecycle, null);
         using var tokenSource = new CancellationTokenSource();
 
         await hostedService.StopAsync(tokenSource.Token).ConfigureAwait(false);
@@ -25,7 +25,7 @@ public class EndpointHostedServiceTests
     public async Task Should_delegate_dispose_to_lifecycle()
     {
         var lifecycle = new RecordingEndpointLifecycle();
-        var hostedService = new EndpointHostedService(lifecycle);
+        var hostedService = new EndpointHostedService(lifecycle, null);
 
         await hostedService.DisposeAsync().ConfigureAwait(false);
 
@@ -34,7 +34,7 @@ public class EndpointHostedServiceTests
 
     sealed class RecordingEndpointLifecycle : IEndpointLifecycle
     {
-        public ValueTask Create(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Create(bool forceInstallers = false, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask Start(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
