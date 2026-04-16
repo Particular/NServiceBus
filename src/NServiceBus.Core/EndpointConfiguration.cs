@@ -26,8 +26,6 @@ public class EndpointConfiguration : ExposeSettings
     {
         ValidateEndpointName(endpointName);
 
-        EndpointName = endpointName;
-
         Settings.Set(new SystemEnvironment());
         Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
@@ -78,7 +76,12 @@ public class EndpointConfiguration : ExposeSettings
     /// <summary>
     /// The name of the endpoint.
     /// </summary>
-    public string EndpointName { get; }
+    public string EndpointName => Settings.Get<string>("NServiceBus.Routing.EndpointName");
+
+    /// <summary>
+    /// Returns true if the endpoint is configured as send-only.
+    /// </summary>
+    public bool IsSendOnly => Settings.Get<bool>("Endpoint.SendOnly");
 
     /// <summary>
     /// Access to the pipeline configuration.
