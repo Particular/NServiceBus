@@ -10,8 +10,6 @@ using Configuration.AdvancedExtensibility;
 using FakeTransport;
 using Features;
 using Installation;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using Settings;
 using Transport;
@@ -27,18 +25,18 @@ public class When_installing_endpoints : NServiceBusAcceptanceTest
         var transport2 = new FakeTransport();
         EndpointConfiguration endpointConfiguration2 = CreateEndpointConfiguration(transport2, "EndpointWithInstaller2");
 
-        var context = new Context();
-        endpointConfiguration1.GetSettings().Set(context);
-        endpointConfiguration2.GetSettings().Set(context);
-
-        var builder = Host.CreateApplicationBuilder();
-        builder.Services.AddSingleton(context);
-        builder.Services.AddNServiceBusEndpoint(endpointConfiguration1);
-        builder.Services.AddNServiceBusEndpoint(endpointConfiguration2);
-        builder.Services.AddNServiceBusInstallers();
-
-        // TODO: Start the host, but doing that now will make it run and never stop
-        // await builder.Build().RunAsync();
+        var context = await Scenario.Define<Context>(ctx =>
+            {
+                endpointConfiguration1.GetSettings().Set(ctx);
+                endpointConfiguration2.GetSettings().Set(ctx);
+            })
+            .WithServices(services =>
+            {
+                services.AddNServiceBusEndpointInstaller(endpointConfiguration1, "EndpointWithInstaller1");
+                services.AddNServiceBusEndpointInstaller(endpointConfiguration2, "EndpointWithInstaller2");
+            })
+            .WithServiceResolve(static async (provider, token) => await provider.RunHostedServices(token))
+            .Run();
 
         using (Assert.EnterMultipleScope())
         {
@@ -70,10 +68,12 @@ public class When_installing_endpoints : NServiceBusAcceptanceTest
         return endpointConfiguration;
     }
 
-    class Context
+    class Context : ScenarioContext
     {
         public Dictionary<string, bool> InstallerCalled { get; set; } = [];
         public Dictionary<string, bool> FeatureSetupCalled { get; set; } = [];
+
+        public void MaybeCompleted() => MarkAsCompleted(InstallerCalled.Count == 2, FeatureSetupCalled.Count == 2);
     }
 
     class CustomInstaller(Context testContext, IReadOnlySettings settings) : INeedToInstallSomething
@@ -81,6 +81,7 @@ public class When_installing_endpoints : NServiceBusAcceptanceTest
         public Task Install(string identity, CancellationToken cancellationToken = default)
         {
             testContext.InstallerCalled[settings.EndpointName()] = true;
+            testContext.MaybeCompleted();
             return Task.CompletedTask;
         }
     }
@@ -96,13 +97,16 @@ public class When_installing_endpoints : NServiceBusAcceptanceTest
             var testContext = settings.Get<Context>();
             testContext.FeatureSetupCalled[settings.EndpointName()] = true;
 
-            context.RegisterStartupTask(new CustomFeatureStartupTask());
+            context.RegisterStartupTask(new CustomFeatureStartupTask(testContext));
         }
 
-        class CustomFeatureStartupTask : FeatureStartupTask
+        class CustomFeatureStartupTask(Context testContext) : FeatureStartupTask
         {
             protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                => throw new InvalidOperationException("FeatureStartupTask should not be called");
+            {
+                testContext.MarkAsFailed(new InvalidOperationException("FeatureStartupTask should not be called"));
+                return Task.CompletedTask;
+            }
 
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
         }
