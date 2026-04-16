@@ -15,7 +15,7 @@ class InstallerFeature : Feature
         var testContext = context.Settings.Get<InstallerTestContext>();
         testContext.FeatureSetupCalled = true;
 
-        context.RegisterStartupTask(new InstallerFeatureStartupTask(testContext));
+        context.RegisterStartupTask<InstallerFeatureStartupTask>();
     }
 }
 
