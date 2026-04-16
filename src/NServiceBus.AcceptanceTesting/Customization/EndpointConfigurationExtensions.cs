@@ -13,7 +13,7 @@ public static class EndpointConfigurationExtensions
     extension(EndpointConfiguration config)
     {
         /// <summary>
-        /// Registers the scenario context and it's hierarchy in the provided endpoint configuration.
+        /// Registers the scenario context, and it's hierarchy in the provided endpoint configuration.
         /// </summary>
         public void RegisterScenarioContext(ScenarioContext scenarioContext)
         {

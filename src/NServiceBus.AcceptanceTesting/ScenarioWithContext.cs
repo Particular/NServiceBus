@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Customization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         var scenarioContext = new TContext();
         initializer(scenarioContext);
 
-        AddScenarioContext(scenarioContext, services);
+        services.AddScenarioContext(scenarioContext);
         services.AddLogging(builder =>
         {
             builder.AddProvider(new ContextAppenderLoggerProvider(scenarioContext));
@@ -160,16 +161,6 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
         doneFunc = func;
         return this;
-    }
-
-    static void AddScenarioContext(TContext scenarioContext, IServiceCollection services)
-    {
-        var type = scenarioContext.GetType();
-        while (type != typeof(object) && type is not null)
-        {
-            services.AddSingleton(type, scenarioContext);
-            type = type.BaseType;
-        }
     }
 
     readonly List<IComponentBehavior> behaviors = [];
