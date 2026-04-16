@@ -97,7 +97,13 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public IScenarioWithEndpointBehavior<TContext> WithServices(Action<IServiceCollection> configureServices)
     {
-        behaviors.Add(new ServiceRegistrationComponent(configureServices, componentCount++));
+        behaviors.Add(new ServiceRegistrationComponent((serviceCollection, _) => configureServices(serviceCollection), componentCount++));
+        return this;
+    }
+
+    public IScenarioWithEndpointBehavior<TContext> WithServices(Action<IServiceCollection, TContext> configureServices)
+    {
+        behaviors.Add(new ServiceRegistrationComponent((serviceCollection, context) => configureServices(serviceCollection, (TContext)context), componentCount++));
         return this;
     }
 

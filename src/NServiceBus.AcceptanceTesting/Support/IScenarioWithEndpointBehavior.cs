@@ -17,6 +17,8 @@ public interface IScenarioWithEndpointBehavior<TContext> where TContext : Scenar
 
     IScenarioWithEndpointBehavior<TContext> WithServices(Action<IServiceCollection> configureServices);
 
+    IScenarioWithEndpointBehavior<TContext> WithServices(Action<IServiceCollection, TContext> configureServices);
+
     IScenarioWithEndpointBehavior<TContext> WithServiceResolve(Func<IServiceProvider, CancellationToken, Task> resolve, ServiceResolveMode resolveMode = ServiceResolveMode.BeforeStart);
 
     IScenarioWithEndpointBehavior<TContext> WithServiceResolve(Func<IServiceProvider, TContext, CancellationToken, Task> resolve, ServiceResolveMode resolveMode = ServiceResolveMode.BeforeStart);
