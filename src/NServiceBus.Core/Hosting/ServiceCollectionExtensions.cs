@@ -110,19 +110,15 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <remarks>
     /// <para>
-    /// When this method is called, all registered NServiceBus endpoints will run their installers during the
-    /// <see cref="IHostedLifecycleService.StartingAsync"/> phase, regardless of whether
+    /// All registered NServiceBus endpoints will run their installers, regardless of whether
     /// <see cref="InstallConfigExtensions.EnableInstallers"/> was called on the endpoint configuration.
     /// The endpoints will not start processing messages.
     /// </para>
     /// <para>
-    /// After all installers have completed, the host is gracefully shut down via
-    /// <see cref="Microsoft.Extensions.Hosting.IHostApplicationLifetime.StopApplication"/>.
-    /// </para>
-    /// <para>
-    /// Other registered <see cref="IHostedService"/> implementations may briefly start before the host shuts down.
-    /// To minimize this, call <c>AddNServiceBusInstallers</c> after all other hosted service registrations,
-    /// since <see cref="IServiceCollection"/> registration order determines execution order.
+    /// After installers complete, the application is gracefully shut down.
+    /// Other registered <see cref="IHostedService"/> and <see cref="BackgroundService"/> implementations
+    /// may briefly start before shutdown takes effect. Services that cooperatively check the
+    /// <see cref="IHostApplicationLifetime.ApplicationStopping"/> cancellation token will gracefully abort.
     /// </para>
     /// </remarks>
     public static void AddNServiceBusInstallers(this IServiceCollection services)
