@@ -16,7 +16,7 @@ using Transport;
 public class When_installing_endpoint_with_installers_registered_first : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_only_execute_setup_and_complete_when_installers_registered_first()
+    public async Task Should_only_execute_setup_and_complete()
     {
         var fakeTransport = new FakeTransport();
         var endpointConfiguration = new EndpointConfiguration("EndpointWithInstallerFirst");
