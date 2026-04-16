@@ -106,8 +106,14 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Configures the application to run NServiceBus installers for all registered endpoints and then shut down.
+    /// Configures the application to run NServiceBus installers for all registered endpoints.
     /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the installers to.</param>
+    /// <param name="configure">
+    /// An optional callback to configure <see cref="InstallersOptions"/>.
+    /// When not provided, the default <see cref="InstallersOptions.ShutdownBehavior"/> is
+    /// <see cref="InstallersShutdownBehavior.StopApplication"/>.
+    /// </param>
     /// <remarks>
     /// <para>
     /// All registered NServiceBus endpoints will run their installers, regardless of whether
@@ -115,17 +121,23 @@ public static class ServiceCollectionExtensions
     /// The endpoints will not start processing messages.
     /// </para>
     /// <para>
-    /// After installers complete, the application is gracefully shut down.
+    /// By default, the application is gracefully shut down after installers complete.
     /// Other registered <see cref="IHostedService"/> and <see cref="BackgroundService"/> implementations
     /// may briefly start before shutdown takes effect. Services that cooperatively check the
     /// <see cref="IHostApplicationLifetime.ApplicationStopping"/> cancellation token will gracefully abort.
     /// </para>
+    /// <para>
+    /// To keep the application running after installers complete, set
+    /// <see cref="InstallersOptions.ShutdownBehavior"/> to <see cref="InstallersShutdownBehavior.Continue"/>.
+    /// </para>
     /// </remarks>
-    public static void AddNServiceBusInstallers(this IServiceCollection services)
+    public static void AddNServiceBusInstallers(this IServiceCollection services, Action<InstallersOptions>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddSingleton(new InstallersOptions { Enabled = true });
+        var options = new InstallersOptions { Enabled = true };
+        configure?.Invoke(options);
+        services.AddSingleton(options);
         services.AddHostedService<InstallerCoordinatorHostedService>();
     }
 

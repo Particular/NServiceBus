@@ -11,5 +11,11 @@ class FakeHostApplicationLifetime : IHostApplicationLifetime
     public CancellationToken ApplicationStopping => stoppingSource.Token;
     public CancellationToken ApplicationStopped => CancellationToken.None;
 
-    public void StopApplication() => stoppingSource.Cancel();
+    public bool StopApplicationCalled { get; private set; }
+
+    public void StopApplication()
+    {
+        StopApplicationCalled = true;
+        stoppingSource.Cancel();
+    }
 }

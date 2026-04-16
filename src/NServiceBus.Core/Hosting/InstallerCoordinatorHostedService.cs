@@ -6,13 +6,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 
-sealed class InstallerCoordinatorHostedService(IHostApplicationLifetime hostApplicationLifetime) : IHostedLifecycleService
+sealed class InstallerCoordinatorHostedService(IHostApplicationLifetime hostApplicationLifetime, InstallersOptions installersOptions) : IHostedLifecycleService
 {
     public Task StartingAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     public Task StartedAsync(CancellationToken cancellationToken = default)
     {
-        hostApplicationLifetime.StopApplication();
+        if (installersOptions.ShutdownBehavior == InstallersShutdownBehavior.StopApplication)
+        {
+            hostApplicationLifetime.StopApplication();
+        }
         return Task.CompletedTask;
     }
 

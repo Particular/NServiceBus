@@ -2,7 +2,15 @@
 
 namespace NServiceBus;
 
-sealed class InstallersOptions
+/// <summary>
+/// Options for controlling installer behavior when using <see cref="ServiceCollectionExtensions.AddNServiceBusInstallers"/>.
+/// </summary>
+public sealed class InstallersOptions
 {
-    public bool Enabled { get; init; }
+    internal bool Enabled { get; init; }
+
+    /// <summary>
+    /// Controls how the host behaves after installers have completed.
+    /// </summary>
+    public InstallersShutdownBehavior ShutdownBehavior { get; set; } = InstallersShutdownBehavior.StopApplication;
 }

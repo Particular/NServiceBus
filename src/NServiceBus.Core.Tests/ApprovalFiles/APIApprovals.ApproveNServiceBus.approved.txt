@@ -622,6 +622,16 @@ namespace NServiceBus
             where TInstaller :  class, NServiceBus.Installation.INeedToInstallSomething { }
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string? username = null) { }
     }
+    public sealed class InstallersOptions
+    {
+        public InstallersOptions() { }
+        public NServiceBus.InstallersShutdownBehavior ShutdownBehavior { get; set; }
+    }
+    public enum InstallersShutdownBehavior
+    {
+        StopApplication = 0,
+        Continue = 1,
+    }
     public sealed class KeyedServiceKey
     {
         public const string Any = "_______<ANY>_______";
@@ -1044,7 +1054,7 @@ namespace NServiceBus
     public static class ServiceCollectionExtensions
     {
         public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
-        public static void AddNServiceBusInstallers(this Microsoft.Extensions.DependencyInjection.IServiceCollection services) { }
+        public static void AddNServiceBusInstallers(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<NServiceBus.InstallersOptions>? configure = null) { }
     }
     public static class SettingsExtensions
     {
