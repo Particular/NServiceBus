@@ -18,10 +18,13 @@ public class When_installers_enabled : NServiceBusAcceptanceTest
             .Done(c => c.EndpointsStarted)
             .Run();
 
-        Assert.That(context.AsyncDisposeInstallerCalled, Is.True);
-        Assert.That(context.DisposeInstallerCalled, Is.True);
-        Assert.That(context.AsyncDisposeCalled, Is.True);
-        Assert.That(context.DisposeCalled, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.AsyncDisposeInstallerCalled, Is.True);
+            Assert.That(context.DisposeInstallerCalled, Is.True);
+            Assert.That(context.AsyncDisposeCalled, Is.True);
+            Assert.That(context.DisposeCalled, Is.True);
+        }
     }
 
     class Context : ScenarioContext
