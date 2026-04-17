@@ -137,6 +137,7 @@ public static class ServiceCollectionExtensions
 
         var options = new InstallersOptions { Enabled = true };
         configure?.Invoke(options);
+        // We are deliberately not using TryAdd because this needs to be last one wins
         services.AddSingleton(options);
         services.AddHostedService<InstallerCoordinatorHostedService>();
     }
