@@ -130,6 +130,11 @@ public static class ServiceCollectionExtensions
     /// To keep the application running after installers complete, set
     /// <see cref="InstallersOptions.ShutdownBehavior"/> to <see cref="InstallersShutdownBehavior.Continue"/>.
     /// </para>
+    /// <para>
+    /// For third-party hosted services that do not check the cancellation token, consider conditionally
+    /// registering them when installers are not enabled, or use a dedicated installer host that does not
+    /// include those services.
+    /// </para>
     /// </remarks>
     public static void AddNServiceBusInstallers(this IServiceCollection services, Action<InstallersOptions>? configure = null)
     {
