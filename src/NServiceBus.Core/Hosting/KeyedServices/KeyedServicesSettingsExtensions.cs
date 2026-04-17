@@ -17,8 +17,7 @@ public static class KeyedServicesSettingsExtensions
     /// <summary>
     /// Returns the keyed service collection adapter stored on <paramref name="settings"/>, creating and
     /// storing a new one that wraps <paramref name="services"/> under <paramref name="serviceKey"/> on
-    /// the first call. Subsequent calls with the same key return the existing adapter; calls with a
-    /// different key throw <see cref="InvalidOperationException"/>.
+    /// the first call. Subsequent calls return the existing adapter.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static IServiceCollection GetOrCreateKeyedServiceCollection(this SettingsHolder settings, IServiceCollection services, object serviceKey)
@@ -29,13 +28,6 @@ public static class KeyedServicesSettingsExtensions
 
         if (settings.GetOrDefault<KeyedServiceCollectionAdapter>() is { } existing)
         {
-            var requestedBaseKey = serviceKey is KeyedServiceKey key ? key.BaseKey : serviceKey;
-            if (!Equals(existing.ServiceKey.BaseKey, requestedBaseKey))
-            {
-                throw new InvalidOperationException(
-                    $"A keyed service collection has already been registered with key '{existing.ServiceKey.BaseKey}'; cannot register again with key '{requestedBaseKey}'.");
-            }
-
             return existing;
         }
 
