@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Configuration.AdvancedExtensibility;
 using Support;
 
 public static class EndpointConfigurationExtensions
@@ -11,6 +12,21 @@ public static class EndpointConfigurationExtensions
     /// <param name="config">The <see cref="EndpointConfiguration"/> instance to apply the settings to.</param>
     extension(EndpointConfiguration config)
     {
+        /// <summary>
+        /// Registers the scenario context, and it's hierarchy in the provided endpoint configuration.
+        /// </summary>
+        public void RegisterScenarioContext(ScenarioContext scenarioContext)
+        {
+            ArgumentNullException.ThrowIfNull(scenarioContext);
+
+            var settings = config.GetSettings();
+
+            for (var type = scenarioContext.GetType(); type != null && type != typeof(object); type = type.BaseType)
+            {
+                settings.Set(type.FullName!, scenarioContext);
+            }
+        }
+
         /// <summary>
         /// Backdoor into the core types to scan. This allows people to test a subset of functionality when running Acceptance tests
         /// </summary>

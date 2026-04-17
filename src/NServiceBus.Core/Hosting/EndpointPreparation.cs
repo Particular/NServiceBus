@@ -14,6 +14,7 @@ static class EndpointPreparation
     public static async Task<StartableEndpoint> Prepare(
         IEndpointCreationStrategy creationStrategy,
         IServiceProvider serviceProvider,
+        bool forceInstallers = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(creationStrategy);
@@ -24,7 +25,7 @@ static class EndpointPreparation
 
         using var _ = LogManager.BeginSlotScope(creationStrategy.EndpointLogSlot);
         var endpoint = creationStrategy.CreateStartableEndpoint(serviceProvider);
-        await endpoint.RunInstallers(cancellationToken).ConfigureAwait(false);
+        await endpoint.RunInstallers(forceInstallers, cancellationToken).ConfigureAwait(false);
         await endpoint.Setup(cancellationToken).ConfigureAwait(false);
         return endpoint;
     }

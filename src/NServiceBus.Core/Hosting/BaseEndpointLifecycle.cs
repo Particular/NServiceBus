@@ -10,7 +10,7 @@ class BaseEndpointLifecycle(
     ExternallyManagedContainerHost externallyManagedContainerHost,
     IServiceProvider serviceProvider) : IEndpointLifecycle
 {
-    public async ValueTask Create(CancellationToken cancellationToken = default)
+    public async ValueTask Create(bool forceInstallers = false, CancellationToken cancellationToken = default)
     {
         if (startableEndpoint != null)
         {
@@ -26,7 +26,7 @@ class BaseEndpointLifecycle(
                 return;
             }
 
-            startableEndpoint = await externallyManagedContainerHost.Create(AdaptProvider(serviceProvider, out providerLease), cancellationToken)
+            startableEndpoint = await externallyManagedContainerHost.Create(AdaptProvider(serviceProvider, out providerLease), forceInstallers, cancellationToken)
                 .ConfigureAwait(false);
         }
         finally
@@ -53,7 +53,7 @@ class BaseEndpointLifecycle(
 
     public async ValueTask<RunningEndpointInstance> CreateAndStart(CancellationToken cancellationToken = default)
     {
-        await Create(cancellationToken).ConfigureAwait(false);
+        await Create(cancellationToken: cancellationToken).ConfigureAwait(false);
         await Start(cancellationToken).ConfigureAwait(false);
         return endpointInstance ?? throw new InvalidOperationException("The endpoint instance should have been created and started at this point.");
     }

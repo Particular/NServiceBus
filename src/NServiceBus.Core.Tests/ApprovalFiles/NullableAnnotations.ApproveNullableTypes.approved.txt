@@ -64,7 +64,6 @@ NServiceBus.SerializationContextExtensions
 NServiceBus.SerializationExtensionsExtensions
 NServiceBus.Settings.IReadOnlySettings
 NServiceBus.Settings.SettingsHolder
-NServiceBus.SettingsExtensions
 NServiceBus.StaticHeadersConfigExtensions
 NServiceBus.SubscriptionMigrationModeSettings
 NServiceBus.Support.RuntimeEnvironment

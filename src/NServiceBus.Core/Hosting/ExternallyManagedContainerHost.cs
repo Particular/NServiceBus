@@ -11,8 +11,8 @@ class ExternallyManagedContainerHost(EndpointCreator endpointCreator) : IStartab
 {
     public Lazy<IMessageSession> MessageSession { get; } = new(() => !endpointCreator.MessageSession.Initialized ? throw new InvalidOperationException("The message session can only be used after the endpoint is started.") : endpointCreator.MessageSession);
 
-    public Task<StartableEndpoint> Create(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
-        => startupRunner.Create(serviceProvider, cancellationToken);
+    public Task<StartableEndpoint> Create(IServiceProvider serviceProvider, bool forceInstallers = false, CancellationToken cancellationToken = default)
+        => startupRunner.Create(serviceProvider, forceInstallers, cancellationToken);
 
 #pragma warning disable CS0618 // Type or member is obsolete -- Convert the return type to Task<RunningEndpointInstance> when removing IStartableEndpointWithExternallyManagedContainer
     public async Task<IEndpointInstance> Start(IServiceProvider externalBuilder, CancellationToken cancellationToken = default) =>

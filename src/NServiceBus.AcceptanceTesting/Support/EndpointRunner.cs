@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Configuration.AdvancedExtensibility;
+using Customization;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Transport;
@@ -48,7 +49,7 @@ public class EndpointRunner(
             var endpointConfiguration = await configuration.GetConfiguration(runDescriptor).ConfigureAwait(false);
             var settingsHolder = endpointConfiguration.GetSettings();
             settingsHolder.Set<SystemEnvironment>(new SettingsSystemEnvironment(settingsHolder));
-            RegisterScenarioContext(endpointConfiguration);
+            endpointConfiguration.RegisterScenarioContext(scenarioContext);
             TrackFailingMessages(endpointName, endpointConfiguration);
 
             if (!string.IsNullOrEmpty(configuration.CustomMachineName))
@@ -86,16 +87,6 @@ public class EndpointRunner(
         ArgumentNullException.ThrowIfNull(scenarioContext);
         endpointConfiguration.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
         endpointConfiguration.Pipeline.Register(new CaptureRecoverabilityActionBehavior(endpointName, doNotFailOnErrorMessages, scenarioContext), "Marks failed and discarded messages for the AcceptanceTesting Framework");
-    }
-
-    void RegisterScenarioContext(EndpointConfiguration endpointConfiguration)
-    {
-        ArgumentNullException.ThrowIfNull(scenarioContext);
-
-        for (var type = scenarioContext.GetType(); type != null && type != typeof(object); type = type.BaseType)
-        {
-            endpointConfiguration.GetSettings().Set(type.FullName!, scenarioContext);
-        }
     }
 
     public override async Task Start(CancellationToken cancellationToken = default)

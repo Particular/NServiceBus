@@ -58,5 +58,9 @@
   {
     "Type": "NServiceBus.IMessageSession",
     "Lifecycle": "Singleton"
+  },
+  {
+    "Type": "NServiceBus.InstallersOptions",
+    "Lifecycle": "Singleton"
   }
 ]
