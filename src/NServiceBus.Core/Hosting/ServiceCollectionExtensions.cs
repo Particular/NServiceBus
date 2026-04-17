@@ -89,7 +89,7 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            // Backdoor for acceptance testing
+            // Use the preloaded adapter from settings.AddKeyedServiceCollection if present; otherwise create one.
             var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
             var baseKey = keyedServices.ServiceKey.BaseKey;
 
