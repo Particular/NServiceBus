@@ -1266,7 +1266,7 @@ namespace NServiceBus.Configuration.AdvancedExtensibility
     }
     public static class KeyedServicesSettingsExtensions
     {
-        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddKeyedServiceCollection(this NServiceBus.Settings.SettingsHolder settings, Microsoft.Extensions.DependencyInjection.IServiceCollection services, object serviceKey) { }
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection GetOrCreateKeyedServiceCollection(this NServiceBus.Settings.SettingsHolder settings, Microsoft.Extensions.DependencyInjection.IServiceCollection services, object serviceKey) { }
     }
 }
 namespace NServiceBus.ConsistencyGuarantees

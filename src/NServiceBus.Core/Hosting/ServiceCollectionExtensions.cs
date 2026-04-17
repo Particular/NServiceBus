@@ -89,8 +89,7 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            // Use the preloaded adapter from settings.AddKeyedServiceCollection if present; otherwise create one.
-            var keyedServices = settings.GetOrDefault<KeyedServiceCollectionAdapter>() ?? new KeyedServiceCollectionAdapter(services, endpointIdentifier);
+            var keyedServices = (KeyedServiceCollectionAdapter)settings.GetOrCreateKeyedServiceCollection(services, endpointIdentifier);
             var baseKey = keyedServices.ServiceKey.BaseKey;
 
             // Deliberately creating it here to make sure we are not accidentally doing it too late.

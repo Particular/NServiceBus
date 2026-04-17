@@ -61,7 +61,7 @@ public class EndpointRunner(
 
             behavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
-            services = (KeyedServiceCollectionAdapter)settingsHolder.AddKeyedServiceCollection(runDescriptor.Services, Name);
+            services = (KeyedServiceCollectionAdapter)settingsHolder.GetOrCreateKeyedServiceCollection(runDescriptor.Services, Name);
             endpointConfiguration.Settings.Set("NServiceBus.Hosting.DisableAssemblyScanningValidation", bool.TrueString);
 
             behavior.ServicesBeforeStart.ForEach(customAction => customAction(services, scenarioContext));

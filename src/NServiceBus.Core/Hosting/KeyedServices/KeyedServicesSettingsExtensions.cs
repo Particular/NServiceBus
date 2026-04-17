@@ -15,18 +15,29 @@ using Settings;
 public static class KeyedServicesSettingsExtensions
 {
     /// <summary>
-    /// Creates a keyed service collection adapter that wraps <paramref name="services"/> under
-    /// <paramref name="serviceKey"/>, stores it on <paramref name="settings"/>, and returns it.
-    /// <see cref="ServiceCollectionExtensions.AddNServiceBusEndpoint"/> will pick up the preloaded
-    /// adapter instead of creating a new one, allowing the host to share a single adapter with user
-    /// configuration code that runs before the endpoint is registered.
+    /// Returns the keyed service collection adapter stored on <paramref name="settings"/>, creating and
+    /// storing a new one that wraps <paramref name="services"/> under <paramref name="serviceKey"/> on
+    /// the first call. Subsequent calls with the same key return the existing adapter; calls with a
+    /// different key throw <see cref="InvalidOperationException"/>.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static IServiceCollection AddKeyedServiceCollection(this SettingsHolder settings, IServiceCollection services, object serviceKey)
+    public static IServiceCollection GetOrCreateKeyedServiceCollection(this SettingsHolder settings, IServiceCollection services, object serviceKey)
     {
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(serviceKey);
+
+        if (settings.GetOrDefault<KeyedServiceCollectionAdapter>() is { } existing)
+        {
+            var requestedBaseKey = serviceKey is KeyedServiceKey key ? key.BaseKey : serviceKey;
+            if (!Equals(existing.ServiceKey.BaseKey, requestedBaseKey))
+            {
+                throw new InvalidOperationException(
+                    $"A keyed service collection has already been registered with key '{existing.ServiceKey.BaseKey}'; cannot register again with key '{requestedBaseKey}'.");
+            }
+
+            return existing;
+        }
 
         var adapter = new KeyedServiceCollectionAdapter(services, serviceKey);
         settings.Set(adapter);
