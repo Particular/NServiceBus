@@ -1264,6 +1264,10 @@ namespace NServiceBus.Configuration.AdvancedExtensibility
     {
         protected ExposeSettings(NServiceBus.Settings.SettingsHolder settings) { }
     }
+    public static class KeyedServicesSettingsExtensions
+    {
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection GetOrCreateKeyedServiceCollection(this NServiceBus.Settings.SettingsHolder settings, Microsoft.Extensions.DependencyInjection.IServiceCollection services, object serviceKey) { }
+    }
 }
 namespace NServiceBus.ConsistencyGuarantees
 {
