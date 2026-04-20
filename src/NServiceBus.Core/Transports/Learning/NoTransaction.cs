@@ -22,7 +22,8 @@ class NoTransaction : ILearningTransportTransaction
         return AsyncFile.Move(incomingFilePath, FileToProcess, cancellationToken);
     }
 
-    public Task Enlist(string messagePath, string messageContents, CancellationToken cancellationToken = default) => AsyncFile.WriteText(messagePath, messageContents, cancellationToken);
+    public Task Enlist(string messagePath, string messageContents, DateTime? creationTime, CancellationToken cancellationToken = default)
+        => AsyncFile.WriteText(messagePath, messageContents, creationTime, cancellationToken);
 
     public Task Commit(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
