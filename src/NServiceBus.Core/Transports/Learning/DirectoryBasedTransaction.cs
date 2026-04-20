@@ -53,7 +53,7 @@ class DirectoryBasedTransaction : ILearningTransportTransaction
         { }
     }
 
-    public Task Enlist(string messagePath, string messageContents, CancellationToken cancellationToken = default)
+    public Task Enlist(string messagePath, string messageContents, DateTime? creationTime, CancellationToken cancellationToken = default)
     {
         var inProgressFileName = Path.GetFileNameWithoutExtension(messagePath) + ".out";
 
@@ -62,7 +62,7 @@ class DirectoryBasedTransaction : ILearningTransportTransaction
 
         outgoingFiles.Enqueue(new OutgoingFile(committedPath, messagePath));
 
-        return AsyncFile.WriteText(txPath, messageContents, cancellationToken);
+        return AsyncFile.WriteText(txPath, messageContents, creationTime, cancellationToken);
     }
 
     public bool Complete()
