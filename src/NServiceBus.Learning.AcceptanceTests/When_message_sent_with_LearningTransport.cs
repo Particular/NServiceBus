@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
 using EndpointTemplates;
+using NServiceBus.Pipeline;
 using NUnit.Framework;
 using Transport;
 
@@ -52,11 +53,107 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
+    [Test]
+    public async Task Should_not_override_audit_properties_with_receive_properties_when_dispatch_properties_are_used()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<SendToAnotherEndpoint>(b => b.When(session => session.SendLocal(new TestMessage())))
+            .WithEndpoint<EndPointThatReceivesFromAnotherAndAuditsEndpoint>()
+            .WithEndpoint<AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint>()
+            .Run();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.MessageReceived, Is.True, "Message was not received");
+        }
+    }
+
     class Context : ScenarioContext
     {
         public bool MessageReceived { get; set; }
         public string FileCreatedAt { get; set; }
         public bool MessageAudited { get; set; }
+    }
+
+    class SendToAnotherEndpoint : EndpointConfigurationBuilder
+    {
+        public SendToAnotherEndpoint() => EndpointSetup<DefaultServer>(e => e.ConfigureRouting().RouteToEndpoint(typeof(OutgoingTestMessage), Conventions.EndpointNamingConvention(typeof(EndPointThatReceivesFromAnotherAndAuditsEndpoint))));
+
+        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        {
+            public async Task Handle(TestMessage message, IMessageHandlerContext context)
+            {
+                testContext.MessageReceived = true;
+
+                var fileCreatedAtDispatchProperty = DateTime.UtcNow.AddDays(-10).ToString("o");
+                testContext.FileCreatedAt = fileCreatedAtDispatchProperty;
+
+                SendOptions sendOptions = new();
+                sendOptions.SetHeader("LearningTransport.FileCreatedAt", fileCreatedAtDispatchProperty);
+                await context.Send(new OutgoingTestMessage(), sendOptions);
+            }
+        }
+    }
+
+    class EndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
+    {
+        public EndPointThatReceivesFromAnotherAndAuditsEndpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
+        {
+            endpointConfiguration.AuditProcessedMessagesTo(Conventions.EndpointNamingConvention(typeof(AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint)));
+            endpointConfiguration.Pipeline.Register(
+                behavior: new AuditHeaderOverrideBehavior(),
+                description: "Override headers on audit messages");
+        });
+
+        class OutgoingTestMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
+        {
+            public async Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
+            {
+               testContext.MarkAsCompleted(testContext.MessageReceived);
+            }
+        }
+    }
+    class AuditHeaderOverrideBehavior : Behavior<IAuditContext>
+    {
+        public override Task Invoke(IAuditContext context, Func<Task> next)
+        {
+            // Option B: override via audit metadata (will be copied into headers by default audit action)
+            context.AuditMetadata["LearningTransport.FileCreatedAt"] =DateTime.UtcNow.AddDays(10).ToString("o");
+
+            return next();
+        }
+    }
+    class AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
+    {
+        public AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint() =>
+            EndpointSetup<DefaultServer>();
+
+        public class AuditMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        {
+            public Task Handle(TestMessage message, IMessageHandlerContext context)
+            {
+                testContext.MessageAudited = true;
+
+                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                {
+                    if (receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                    {
+                        if (fileCreatedAt == testContext.FileCreatedAt)
+                        {
+                            testContext.MarkAsFailed(new Exception("Receive properties from the original message is propagated to audit messages."));
+                        }
+
+                        testContext.MarkAsCompleted(testContext.MessageAudited, testContext.FileCreatedAt != fileCreatedAt);
+                    }
+                }
+                else
+                {
+                    testContext.MarkAsFailed(new Exception("Failed to propagate receive properties from the original message."));
+                }
+
+                return Task.CompletedTask;
+            }
+        }
     }
 
     class SendingEndpoint : EndpointConfigurationBuilder
