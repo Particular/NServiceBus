@@ -109,20 +109,22 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         {
             public async Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
             {
-               testContext.MarkAsCompleted(testContext.MessageReceived);
+                testContext.MarkAsCompleted(testContext.MessageReceived);
             }
         }
     }
+
     class AuditHeaderOverrideBehavior : Behavior<IAuditContext>
     {
         public override Task Invoke(IAuditContext context, Func<Task> next)
         {
             // Option B: override via audit metadata (will be copied into headers by default audit action)
-            context.AuditMetadata["LearningTransport.FileCreatedAt"] =DateTime.UtcNow.AddDays(10).ToString("o");
+            context.AuditMetadata["LearningTransport.FileCreatedAt"] = DateTime.UtcNow.AddDays(10).ToString("o");
 
             return next();
         }
     }
+
     class AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
     {
         public AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint() =>
