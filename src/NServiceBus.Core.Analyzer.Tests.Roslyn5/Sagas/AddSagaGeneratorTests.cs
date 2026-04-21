@@ -131,6 +131,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -221,6 +222,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -287,7 +289,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
-            .Approve()
+            .Run().Approve()
             .AssertRunsAreEqual();
     }
 
@@ -353,6 +355,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -419,6 +422,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -474,6 +478,7 @@ public class AddSagaGeneratorTests
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -525,6 +530,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -569,6 +575,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -629,6 +636,7 @@ public class AddSagaGeneratorTests
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -674,6 +682,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -730,6 +739,7 @@ public class AddSagaGeneratorTests
             .WithSource(setupSource, "setup.cs")
             .WithSource(sagaSource, "saga.cs")
             .SuppressCompilationErrors()
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -781,6 +791,7 @@ public class AddSagaGeneratorTests
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -828,6 +839,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -897,6 +909,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -950,6 +963,7 @@ public class AddSagaGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }

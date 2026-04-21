@@ -131,6 +131,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -220,6 +221,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -270,6 +272,7 @@ public class AddSagaInterceptorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -317,6 +320,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -359,6 +363,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -416,6 +421,7 @@ public class AddSagaInterceptorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -460,6 +466,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -515,6 +522,7 @@ public class AddSagaInterceptorTests
             .WithSource(setupSource, "setup.cs")
             .WithSource(sagaSource, "saga.cs")
             .SuppressCompilationErrors()
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -565,6 +573,7 @@ public class AddSagaInterceptorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -611,6 +620,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -680,6 +690,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -732,6 +743,7 @@ public class AddSagaInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
