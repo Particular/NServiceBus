@@ -49,6 +49,7 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
             {
                 foreach (var propertyName in dispatchPropertyNamesToPreserve)
                 {
+                    //if dispatch property is not already set, set it
                     if (!transportOperation.Properties.ContainsKey(propertyName)
                         && receiveProperties.TryGetValue(propertyName, out var propertyValue))
                     {
