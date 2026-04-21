@@ -161,6 +161,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
                         testContext.FileCreatedAt = fileCreatedAt;
                     }
                 }
+
                 return Task.CompletedTask;
             }
         }
@@ -183,9 +184,9 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
                     {
                         if (fileCreatedAt != testContext.FileCreatedAt)
                         {
-                            testContext.MarkAsFailed(new Exception("Receive properties from the original message is not propagated to audit messages. AKA Poornima & Szymon broke something"));
+                            testContext.MarkAsFailed(new Exception("Receive properties from the original message is not propagated to audit messages."));
                         }
-                        
+
                         testContext.MarkAsCompleted(testContext.MessageAudited, testContext.FileCreatedAt == fileCreatedAt);
                     }
                 }
@@ -199,7 +200,11 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    public class TestMessage : IMessage { }
+    public class TestMessage : IMessage
+    {
+    }
 
-    public class OutgoingTestMessage : IMessage { }
+    public class OutgoingTestMessage : IMessage
+    {
+    }
 }
