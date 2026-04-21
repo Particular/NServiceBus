@@ -24,7 +24,7 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
         }
 
         context.Extensions.TryGet(out IncomingMessage? incomingMessage);
-        
+
         var incomingMessageId = incomingMessage?.Headers[Headers.MessageId];
 
         var outgoingMessageId = context.Message.Headers[Headers.MessageId];
@@ -35,7 +35,7 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
 
         ReceiveProperties? receiveProperties = null;
         var shouldPropagate = dispatchPropertyNamesToPreserve.Count > 0
-            && context.Extensions.TryGet(out receiveProperties) && string.Equals(incomingMessageId, outgoingMessageId, StringComparison.Ordinal);
+                              && context.Extensions.TryGet(out receiveProperties) && string.Equals(incomingMessageId, outgoingMessageId, StringComparison.Ordinal);
 
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;
