@@ -64,6 +64,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -116,6 +117,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -159,6 +161,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -202,6 +205,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -254,6 +258,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -293,6 +298,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -334,6 +340,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -370,6 +377,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -413,6 +421,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -444,6 +453,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -481,6 +491,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -518,6 +529,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -556,6 +568,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -594,6 +607,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -631,6 +645,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -674,6 +689,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -712,6 +728,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -751,6 +768,7 @@ public class AddHandlerGeneratorTests
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
             .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }

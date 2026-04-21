@@ -43,6 +43,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -98,6 +99,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -130,6 +132,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -161,6 +164,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -215,6 +219,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -252,6 +257,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -293,6 +299,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -329,6 +336,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -372,6 +380,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -402,6 +411,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -439,6 +449,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -476,6 +487,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -514,6 +526,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -566,6 +579,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -604,6 +618,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
@@ -643,6 +658,7 @@ public class AddHandlerInterceptorTests
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
             .WithSource(source, "test.cs")
+            .Run()
             .Approve()
             .AssertRunsAreEqual();
     }
