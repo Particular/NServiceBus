@@ -57,8 +57,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
     public async Task Should_not_override_audit_properties_with_receive_properties_when_dispatch_properties_are_used()
     {
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<SendToAnotherEndpoint>(b => b.When(session => session.SendLocal(new TestMessage())))
-            .WithEndpoint<EndPointThatReceivesFromAnotherAndAuditsEndpoint>()
+            .WithEndpoint<EndPointThatReceivesFromAnotherAndAuditsEndpoint>(b => b.When(session => session.SendLocal(new OutgoingTestMessage())))
             .WithEndpoint<AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint>()
             .Run();
 
@@ -75,26 +74,6 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         public bool MessageAudited { get; set; }
     }
 
-    class SendToAnotherEndpoint : EndpointConfigurationBuilder
-    {
-        public SendToAnotherEndpoint() => EndpointSetup<DefaultServer>(e => e.ConfigureRouting().RouteToEndpoint(typeof(OutgoingTestMessage), Conventions.EndpointNamingConvention(typeof(EndPointThatReceivesFromAnotherAndAuditsEndpoint))));
-
-        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
-        {
-            public async Task Handle(TestMessage message, IMessageHandlerContext context)
-            {
-                testContext.MessageReceived = true;
-
-                var fileCreatedAtDispatchProperty = DateTime.UtcNow.AddDays(-10).ToString("o");
-                testContext.FileCreatedAt = fileCreatedAtDispatchProperty;
-
-                SendOptions sendOptions = new();
-                sendOptions.SetHeader("LearningTransport.FileCreatedAt", fileCreatedAtDispatchProperty);
-                await context.Send(new OutgoingTestMessage(), sendOptions);
-            }
-        }
-    }
-
     class EndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
     {
         public EndPointThatReceivesFromAnotherAndAuditsEndpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
@@ -107,19 +86,31 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
 
         class OutgoingTestMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
         {
-            public async Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
+            public Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
             {
-                testContext.MarkAsCompleted(testContext.MessageReceived);
+                testContext.MessageReceived = true;
+
+                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                {
+                    if (receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                    {
+                        testContext.FileCreatedAt = fileCreatedAt;
+                    }
+                }
+                else
+                {
+                    testContext.MarkAsFailed(new Exception("Failed to propagate receive properties from the original message."));
+                }
+                return Task.CompletedTask;
             }
         }
     }
 
-    class AuditHeaderOverrideBehavior : Behavior<IAuditContext>
+    class AuditHeaderOverrideBehavior : Behavior<IRoutingContext>
     {
-        public override Task Invoke(IAuditContext context, Func<Task> next)
+        public override Task Invoke(IRoutingContext context, Func<Task> next)
         {
-            // Option B: override via audit metadata (will be copied into headers by default audit action)
-            context.AuditMetadata["LearningTransport.FileCreatedAt"] = DateTime.UtcNow.AddDays(10).ToString("o");
+            context.Extensions.Get<DispatchProperties>()["LearningTransport.FileCreatedAt"] = DateTime.UtcNow.AddDays(10).ToString("o");
 
             return next();
         }
@@ -130,9 +121,9 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         public AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint() =>
             EndpointSetup<DefaultServer>();
 
-        public class AuditMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        public class AuditMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
         {
-            public Task Handle(TestMessage message, IMessageHandlerContext context)
+            public Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageAudited = true;
 
