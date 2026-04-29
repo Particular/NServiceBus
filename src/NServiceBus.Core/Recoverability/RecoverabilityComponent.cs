@@ -181,7 +181,13 @@ class RecoverabilityComponent
         {
             if (!transportDefinition.SupportsDelayedDelivery)
             {
-                throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))'.");
+                if (settings.HasExplicitValue(NumberOfDelayedRetries))
+                {
+                    throw new Exception("Delayed retries are not supported when the transport does not support delayed delivery. Disable delayed retries using 'endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0))'.");
+                }
+
+                Logger.Info("Delayed retries have been disabled because the transport does not support delayed delivery.");
+                numberOfRetries = 0;
             }
 
             if (!transactionsOn)
