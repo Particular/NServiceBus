@@ -121,13 +121,13 @@ partial class HostingComponent
                 return;
             }
 
-            settings.Set(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
+            settings.Set(HostIdSettingsKey, LegacyDeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
         }
 
         internal void UpdateHost(string hostName)
         {
             RuntimeEnvironment.SetMachineName(hostName);
-            settings.Set(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, hostName));
+            settings.Set(HostIdSettingsKey, LegacyDeterministicGuid.Create(fullPathToStartingExe, hostName));
             Properties["Machine"] = hostName;
             settings.SetDefault(DisplayNameSettingsKey, hostName);
         }
