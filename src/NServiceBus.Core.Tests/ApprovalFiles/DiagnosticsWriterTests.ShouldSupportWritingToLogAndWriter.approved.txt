@@ -1,0 +1,3 @@
+{"Endpoint":{"EndpointName":"MyEndpointOne"}}
+<timestamp> INFO  TestingLoggerFactory Logging to testing logger with level Debug
+<timestamp> INFO  NServiceBus.HostStartupDiagnosticsWriter Startup diagnostics: {"Endpoint":{"EndpointName":"MyEndpointOne"}}.

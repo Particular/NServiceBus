@@ -1,0 +1,4 @@
+<timestamp> INFO  NServiceBus.HostStartupDiagnosticsWriter Startup diagnostics: {"Endpoint":{"EndpointName":"MyEndpointOne"}}.
+<timestamp> ERROR NServiceBus.HostStartupDiagnosticsWriter Failed to write startup diagnostics using the custom delegate defined by CustomDiagnosticsWriter
+System.InvalidOperationException: Test
+   at NServiceBus.HostStartupDiagnosticsWriter.Write(List`1 entries, CancellationToken cancellationToken) in StartupDiagnostics/HostStartupDiagnosticsWriter.cs

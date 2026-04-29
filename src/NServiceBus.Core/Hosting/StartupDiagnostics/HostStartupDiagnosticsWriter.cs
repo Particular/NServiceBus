@@ -23,21 +23,19 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
             .Select(e => new { e.Name, Data = e.Data is Func<object> func ? func() : e.Data })
             .ToDictionary(e => e.Name, e => e.Data, StringComparer.OrdinalIgnoreCase);
 
-        // Always compact AssemblyScanning section when writing to log
-        if (writeDiagnosticsToLog &&
-            dictionary.TryGetValue(AssemblyScanningDiagnostics.SectionName, out var assemblyScanningSection) &&
-            assemblyScanningSection is AssemblyScanningDiagnostics assemblyScanningDiagnostics)
+        if (writeDiagnosticsToLog)
         {
-            dictionary[AssemblyScanningDiagnostics.SectionName] = assemblyScanningDiagnostics.CreateCompactedVersion();
-        }
-
-        string data;
-
-        try
-        {
-            data = JsonSerializer.Serialize(dictionary, diagnosticsOptions);
-            if (writeDiagnosticsToLog)
+            var logDictionary = new Dictionary<string, object>(dictionary, StringComparer.OrdinalIgnoreCase);
+            // Always compact AssemblyScanning section when writing to log
+            if (logDictionary.TryGetValue(AssemblyScanningDiagnostics.SectionName, out var assemblyScanningSection) &&
+                assemblyScanningSection is AssemblyScanningDiagnostics assemblyScanningDiagnostics)
             {
+                logDictionary[AssemblyScanningDiagnostics.SectionName] = assemblyScanningDiagnostics.CreateCompactedVersion();
+            }
+
+            try
+            {
+                var data = JsonSerializer.Serialize(logDictionary, diagnosticsOptions);
                 // Safety net: truncate if still exceeds threshold (e.g., due to other large sections)
                 if (data.Length > LogSafeThreshold)
                 {
@@ -45,18 +43,18 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
                     data = string.Concat(data.AsSpan(0, LogSafeThreshold), "... (truncated)");
                 }
                 Logger.InfoFormat("Startup diagnostics: {0}.", data);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error("Failed to serialize startup diagnostics", exception);
                 return;
             }
         }
-        catch (Exception exception)
-        {
-            Logger.Error("Failed to serialize startup diagnostics", exception);
-            return;
-        }
+
         try
         {
-            await diagnosticsWriter(data, cancellationToken)
-                .ConfigureAwait(false);
+            var data = JsonSerializer.Serialize(dictionary, diagnosticsOptions);
+            await diagnosticsWriter(data, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
