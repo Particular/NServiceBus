@@ -40,7 +40,7 @@ public static class DiagnosticSettingsExtensions
     }
 
     /// <summary>
-    /// Writes diagnostics to log instead of to the file or the custom diagnostic writer.
+    /// Writes diagnostics to log in addition to the file or the custom diagnostic writer.
     /// </summary>
     /// <param name="config">Configuration object to extend.</param>
     public static void WriteDiagnosticsToLog(this EndpointConfiguration config)
