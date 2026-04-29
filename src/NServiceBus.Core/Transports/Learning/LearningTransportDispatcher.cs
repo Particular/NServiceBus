@@ -110,6 +110,12 @@ class LearningTransportDispatcher : IMessageDispatcher
             message.Headers[LearningTransportHeaders.TimeToBeReceived] = timeToBeReceived.MaxTime.ToString();
         }
 
+        DateTime? creationTime = null;
+        if (transportOperation.Properties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedString))
+        {
+            creationTime = DateTime.Parse(fileCreatedString);
+        }
+
         var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
 
         var headerPayload = HeaderSerializer.Serialize(message.Headers);
@@ -122,13 +128,13 @@ class LearningTransportDispatcher : IMessageDispatcher
 
         if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet<ILearningTransportTransaction>(out var directoryBasedTransaction))
         {
-            await directoryBasedTransaction.Enlist(messagePath, headerPayload, cancellationToken)
+            await directoryBasedTransaction.Enlist(messagePath, headerPayload, creationTime, cancellationToken)
                 .ConfigureAwait(false);
         }
         else
         {
             // atomic avoids the file being locked when the receiver tries to process it
-            await AsyncFile.WriteTextAtomic(messagePath, headerPayload, cancellationToken)
+            await AsyncFile.WriteTextAtomic(messagePath, headerPayload, creationTime, cancellationToken)
                 .ConfigureAwait(false);
         }
     }
