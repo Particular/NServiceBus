@@ -20,7 +20,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" AutomaticVersionRange="false" />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="7.0.2" AutomaticVersionRange="false" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.2" AutomaticVersionRange="false" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" AutomaticVersionRange="false" />
   </ItemGroup>
 
@@ -29,7 +28,7 @@
     <PackageReference Include="Fody" Version="6.7.0" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.9.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="5.3.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Licensing.Sources" Version="5.1.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Licensing.Sources" Version="5.1.2" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="4.2.0" PrivateAssets="All" />
     <PackageReference Include="PolySharp" Version="1.13.2" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
