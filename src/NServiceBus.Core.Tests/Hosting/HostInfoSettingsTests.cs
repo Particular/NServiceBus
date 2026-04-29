@@ -27,7 +27,7 @@ public class HostInfoSettingsTests
         busConfig.UniquelyIdentifyRunningInstance().UsingNames("Instance", "Host");
 
         var configuredId = busConfig.Settings.Get<HostingComponent.Settings>().HostId;
-        Assert.That(configuredId, Is.EqualTo(DeterministicGuid.Create("Instance", "Host")));
+        Assert.That(configuredId, Is.EqualTo(LegacyDeterministicGuid.Create("Instance", "Host")));
     }
 
     [Test]
