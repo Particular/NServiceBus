@@ -2709,3 +2709,14 @@ namespace NServiceBus.Unicast.Transport
         public static NServiceBus.Transport.OutgoingMessage Create(NServiceBus.MessageIntent intent) { }
     }
 }
+namespace NServiceBus.Utils
+{
+    public static class DeterministicGuid
+    {
+        public static System.Guid Create(System.ReadOnlySpan<byte> value) { }
+        public static System.Guid Create(System.ReadOnlySpan<char> value) { }
+        [System.Runtime.CompilerServices.SkipLocalsInit]
+        public static System.Guid Create([System.Runtime.CompilerServices.ParamCollection] [System.Runtime.CompilerServices.ScopedRef] System.ReadOnlySpan<string> values) { }
+        public static System.Guid Create(string value) { }
+    }
+}
