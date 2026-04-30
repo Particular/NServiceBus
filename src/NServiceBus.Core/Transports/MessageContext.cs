@@ -7,7 +7,7 @@ using Extensibility;
 /// <summary>
 /// Allows the transport to pass relevant info to the pipeline.
 /// </summary>
-public partial class MessageContext : IExtendable
+public class MessageContext : IExtendable
 {
     /// <summary>
     /// Initializes the context.
