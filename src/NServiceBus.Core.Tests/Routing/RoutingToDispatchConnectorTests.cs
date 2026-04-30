@@ -273,6 +273,7 @@ public class RoutingToDispatchConnectorTests
         {
             RoutingStrategies = [new UnicastRoutingStrategy("destination")]
         };
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>()));
         routingContext.Extensions.Set(receiveProperties);
 
         await behavior.Invoke(routingContext, context =>
@@ -311,6 +312,7 @@ public class RoutingToDispatchConnectorTests
         {
             RoutingStrategies = [new UnicastRoutingStrategy("destination")]
         };
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>()));
         routingContext.Extensions.Set(receiveProperties);
         routingContext.Extensions.Set(userDispatchProperties);
 
@@ -340,6 +342,7 @@ public class RoutingToDispatchConnectorTests
         {
             RoutingStrategies = [new UnicastRoutingStrategy("destination")]
         };
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>()));
         routingContext.Extensions.Set(receiveProperties);
 
         await behavior.Invoke(routingContext, context =>
@@ -375,6 +378,7 @@ public class RoutingToDispatchConnectorTests
         {
             RoutingStrategies = [new UnicastRoutingStrategy("destination")]
         };
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>()));
         routingContext.Extensions.Set(receiveProperties);
         routingContext.Extensions.Set(userDispatchProperties);
 
