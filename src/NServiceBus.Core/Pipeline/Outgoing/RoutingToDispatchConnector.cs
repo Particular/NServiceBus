@@ -23,10 +23,7 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
             dispatchConsistency = DispatchConsistency.Isolated;
         }
 
-        context.Extensions.TryGet(out IncomingMessage? incomingMessage);
-
-        var incomingMessageId = incomingMessage?.Headers[Headers.MessageId];
-        var outgoingMessageId = context.Message.Headers[Headers.MessageId];
+        _ = context.Extensions.TryGet(out IncomingMessage? incomingMessage);
 
         // HINT: Context is propagated to the message headers from the current activity, if present.
         // This may not be the outgoing message activity created by NServiceBus.
@@ -35,7 +32,7 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
         ReceiveProperties? receiveProperties = null;
         var shouldPropagate = dispatchPropertyNamesToPreserve.Count > 0
                               && context.Extensions.TryGet(out receiveProperties)
-                              && string.Equals(incomingMessageId, outgoingMessageId, StringComparison.Ordinal);
+                              && string.Equals(incomingMessage?.MessageId, context.Message.MessageId, StringComparison.Ordinal);
 
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;
