@@ -25,14 +25,16 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
 
         _ = context.Extensions.TryGet(out IncomingMessage? incomingMessage);
 
+        var outgoingMessage = context.Message;
+
         // HINT: Context is propagated to the message headers from the current activity, if present.
         // This may not be the outgoing message activity created by NServiceBus.
-        ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Message.Headers, context.Extensions);
+        ContextPropagation.PropagateContextToHeaders(Activity.Current, outgoingMessage.Headers, context.Extensions);
 
         ReceiveProperties? receiveProperties = null;
         var shouldPropagate = dispatchPropertyNamesToPreserve.Count > 0
                               && context.Extensions.TryGet(out receiveProperties)
-                              && string.Equals(incomingMessage?.MessageId, context.Message.MessageId, StringComparison.Ordinal);
+                              && string.Equals(incomingMessage?.MessageId, outgoingMessage.MessageId, StringComparison.Ordinal);
 
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;
@@ -66,7 +68,7 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
         // HINT: These tags get applied to the outgoing message activity, if present.
         if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
         {
-            ActivityDecorator.PromoteHeadersToTags(activity, context.Message.Headers);
+            ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))
