@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
@@ -58,11 +59,51 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         Assert.That(context.MessageReceived, Is.True, "Message was not received");
     }
 
+    [Test]
+    public async Task Should_preserve_file_created_time_property_when_moved_to_error_queue()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithFailingHandler>(b => b
+                .DoNotFailOnErrorMessages()
+                .When((session, ctx) => session.SendLocal(new TestMessage()))
+            )
+            .WithEndpoint<ErrorSpy>()
+            .Run();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.MessageMovedToErrorQueue, Is.True, "Message was not moved to error queue");
+            Assert.That(context.FileCreatedAt, Is.Not.Null, "FileCreatedAt property should be present on message in error queue");
+            Assert.That(DateTime.TryParse(context.FileCreatedAt, out _), Is.True, "FileCreatedAt should be a valid datetime");
+        }
+    }
+
+    [Test]
+    public async Task Should_not_override_error_queue_dispatch_properties_with_receive_properties()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<EndpointWithFailingHandlerAndDispatchOverride>(b => b
+                .DoNotFailOnErrorMessages()
+                .When((session, ctx) => session.SendLocal(new TestMessage()))
+            )
+            .WithEndpoint<ErrorSpyWithDispatchPropertyVerification>()
+            .Run();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.MessageMovedToErrorQueue, Is.True, "Message was not moved to error queue");
+            Assert.That(context.FileCreatedAt, Is.Not.Null, "FileCreatedAt property should be captured from original message");
+            Assert.That(context.ErrorQueueFileCreatedAtDiffersFromOriginal, Is.True, "Error queue message should have FileCreatedAt from dispatch properties, not receive properties");
+        }
+    }
+
     class Context : ScenarioContext
     {
         public bool MessageReceived { get; set; }
         public string FileCreatedAt { get; set; }
         public bool MessageAudited { get; set; }
+        public bool MessageMovedToErrorQueue { get; set; }
+        public bool ErrorQueueFileCreatedAtDiffersFromOriginal { get; set; }
     }
 
     class EndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
@@ -254,6 +295,138 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
                 else
                 {
                     testContext.MarkAsFailed(new Exception("Failed to propagate receive properties from the original message."));
+                }
+
+                return Task.CompletedTask;
+            }
+        }
+    }
+
+    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    {
+        public EndpointWithFailingHandler() => EndpointSetup<DefaultServer>(endpointConfiguration =>
+        {
+            endpointConfiguration.Recoverability().AddUnrecoverableException<SimulatedException>();
+            endpointConfiguration.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
+        });
+
+        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        {
+            public Task Handle(TestMessage message, IMessageHandlerContext context)
+            {
+                testContext.MessageReceived = true;
+
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                {
+                    testContext.FileCreatedAt = fileCreatedAt;
+                }
+
+                throw new SimulatedException("Message should be moved to error queue");
+            }
+        }
+    }
+
+    class EndpointWithFailingHandlerAndDispatchOverride : EndpointConfigurationBuilder
+    {
+        public EndpointWithFailingHandlerAndDispatchOverride() => EndpointSetup<DefaultServer>(endpointConfiguration =>
+        {
+            endpointConfiguration.Recoverability().AddUnrecoverableException<SimulatedException>();
+            endpointConfiguration.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpyWithDispatchPropertyVerification)));
+            endpointConfiguration.Pipeline.Register(behavior: new ErrorQueueDispatchPropertyOverrideBehavior(), description: "Override FileCreatedAt dispatch property on error queue messages");
+        });
+
+        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        {
+            public Task Handle(TestMessage message, IMessageHandlerContext context)
+            {
+                testContext.MessageReceived = true;
+
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                {
+                    testContext.FileCreatedAt = fileCreatedAt;
+                }
+
+                throw new SimulatedException("Message should be moved to error queue");
+            }
+        }
+    }
+
+    class ErrorQueueDispatchPropertyOverrideBehavior : Behavior<IRecoverabilityContext>
+    {
+        public override Task Invoke(IRecoverabilityContext context, Func<Task> next)
+        {
+            if (context.RecoverabilityAction is MoveToError)
+            {
+                context.RecoverabilityAction = new CustomMoveToError(context.RecoverabilityConfiguration.Failed.ErrorQueue);
+            }
+
+            return next();
+        }
+
+        class CustomMoveToError(string errorQueue) : MoveToError(errorQueue)
+        {
+            public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
+            {
+                var routingContexts = base.GetRoutingContexts(context);
+
+                foreach (var routingContext in routingContexts)
+                {
+                    routingContext.Extensions.GetOrCreate<DispatchProperties>()["LearningTransport.FileCreatedAt"] = DateTime.UtcNow.AddDays(10).ToString("o");
+                }
+
+                return routingContexts;
+            }
+        }
+    }
+
+    class ErrorSpy : EndpointConfigurationBuilder
+    {
+        public ErrorSpy() => EndpointSetup<DefaultServer>();
+
+        public class ErrorMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        {
+            public Task Handle(TestMessage message, IMessageHandlerContext context)
+            {
+                testContext.MessageMovedToErrorQueue = true;
+
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                {
+                    testContext.FileCreatedAt = fileCreatedAt;
+                    testContext.MarkAsCompleted(testContext.MessageMovedToErrorQueue, testContext.FileCreatedAt != null);
+                }
+                else
+                {
+                    testContext.MarkAsFailed(new Exception("Failed to propagate receive properties to error queue message."));
+                }
+
+                return Task.CompletedTask;
+            }
+        }
+    }
+
+    class ErrorSpyWithDispatchPropertyVerification : EndpointConfigurationBuilder
+    {
+        public ErrorSpyWithDispatchPropertyVerification() => EndpointSetup<DefaultServer>();
+
+        public class ErrorMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        {
+            public Task Handle(TestMessage message, IMessageHandlerContext context)
+            {
+                testContext.MessageMovedToErrorQueue = true;
+
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                {
+                    if (fileCreatedAt == testContext.FileCreatedAt)
+                    {
+                        testContext.MarkAsFailed(new Exception("Receive properties from the original message were propagated to error queue message instead of dispatch properties."));
+                    }
+
+                    testContext.ErrorQueueFileCreatedAtDiffersFromOriginal = testContext.FileCreatedAt != fileCreatedAt;
+                    testContext.MarkAsCompleted(testContext.MessageMovedToErrorQueue, testContext.ErrorQueueFileCreatedAtDiffersFromOriginal);
+                }
+                else
+                {
+                    testContext.MarkAsFailed(new Exception("Failed to retrieve receive properties from error queue message."));
                 }
 
                 return Task.CompletedTask;
