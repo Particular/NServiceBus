@@ -26,6 +26,10 @@ public static class DeterministicGuid
     const int MaxStackLimit = 256;
     const int LengthPrefixSize = sizeof(int);
 
+    // XxHash128(seed: 0) over empty input, formatted as UUID v8 / RFC 9562 variant.
+    // Precomputed so Create() with no values avoids allocating a hash state on the hot path.
+    static readonly Guid EmptyInputGuid = new("99aa06d3-0147-88d8-a001-c324468d497f");
+
     /// <summary>
     /// Creates a deterministic version 8 GUID from the specified string.
     /// </summary>
@@ -106,50 +110,53 @@ public static class DeterministicGuid
     [SkipLocalsInit]
     public static Guid Create(params ReadOnlySpan<string> values)
     {
+        if (values.Length == 0)
+        {
+            return EmptyInputGuid;
+        }
+
         var encoding = Encoding.UTF8;
-        var hash = new XxHash128();
 
-        Span<byte> lengthPrefix = stackalloc byte[LengthPrefixSize];
-        Span<byte> valueBuffer = stackalloc byte[MaxStackLimit];
-
+        // Compute total buffer size using O(1) GetMaxByteCount instead of O(n) GetByteCount.
+        // GetMaxByteCount over-estimates (up to 3× for ASCII) but avoids scanning each string
+        // and enables a single ArrayPool rent instead of per-value rent/return cycles.
+        var totalSize = 0;
         for (var i = 0; i < values.Length; i++)
         {
             ArgumentNullException.ThrowIfNull(values[i]);
-
-            var count = encoding.GetByteCount(values[i]);
-
-            BinaryPrimitives.WriteInt32LittleEndian(lengthPrefix, count);
-            hash.Append(lengthPrefix);
-
-            if (count == 0)
-            {
-                continue;
-            }
-
-            if (count <= MaxStackLimit)
-            {
-                var written = encoding.GetBytes(values[i], valueBuffer);
-                hash.Append(valueBuffer[..written]);
-            }
-            else
-            {
-                var rented = ArrayPool<byte>.Shared.Rent(count);
-                try
-                {
-                    var written = encoding.GetBytes(values[i], rented);
-                    hash.Append(rented.AsSpan(0, written));
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(rented, clearArray: true);
-                }
-            }
+            totalSize += LengthPrefixSize + encoding.GetMaxByteCount(values[i].Length);
         }
 
-        Span<byte> hashBytes = stackalloc byte[16];
-        _ = hash.GetCurrentHash(hashBytes);
+        byte[]? rented = null;
+        Span<byte> buffer = totalSize <= MaxStackLimit
+            ? stackalloc byte[MaxStackLimit]
+            : rented = ArrayPool<byte>.Shared.Rent(totalSize);
 
-        return FormatGuid(hashBytes);
+        try
+        {
+            var hash = new XxHash128();
+            var offset = 0;
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                // Encode value after the length-prefix slot, then fill the prefix with actual count.
+                var written = encoding.GetBytes(values[i], buffer[(offset + LengthPrefixSize)..]);
+                BinaryPrimitives.WriteInt32LittleEndian(buffer.Slice(offset, LengthPrefixSize), written);
+                hash.Append(buffer.Slice(offset, LengthPrefixSize + written));
+                offset += LengthPrefixSize + written;
+            }
+
+            Span<byte> hashBytes = stackalloc byte[16];
+            _ = hash.GetCurrentHash(hashBytes);
+            return FormatGuid(hashBytes);
+        }
+        finally
+        {
+            if (rented is not null)
+            {
+                ArrayPool<byte>.Shared.Return(rented, clearArray: true);
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Tests.Utils;
 
 using System;
+using System.IO.Hashing;
 using NServiceBus.Utils;
 using NUnit.Framework;
 
@@ -21,7 +22,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_return_different_guid_for_different_strings()
-
     {
         var first = DeterministicGuid.Create("endpoint-a");
 
@@ -32,7 +32,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_return_same_guid_for_string_and_char_span()
-
     {
         const string value = "endpoint-name";
 
@@ -45,7 +44,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_return_same_guid_for_utf8_bytes_and_string()
-
     {
         const string value = "endpoint-name";
 
@@ -60,7 +58,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_create_version_8_guid()
-
     {
         var guid = DeterministicGuid.Create("endpoint-name");
 
@@ -80,7 +77,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_frame_multiple_values_to_avoid_concatenation_ambiguity()
-
     {
         var first = DeterministicGuid.Create("ab", "c");
 
@@ -91,7 +87,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_not_equal_single_concatenated_value()
-
     {
         var framed = DeterministicGuid.Create("ab", "c");
 
@@ -102,7 +97,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_preserve_empty_values_in_framing()
-
     {
         var first = DeterministicGuid.Create("", "abc");
 
@@ -113,7 +107,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_handle_unicode_values()
-
     {
         var first = DeterministicGuid.Create("Grüezi", "🚀");
 
@@ -124,7 +117,6 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_handle_large_input()
-
     {
         var value = new string('x', 10_000);
 
@@ -137,28 +129,49 @@ public class DeterministicGuidTests
 
     [Test]
     public void Should_handle_empty_string()
-
     {
         var first = DeterministicGuid.Create("");
 
         var second = DeterministicGuid.Create("");
 
-        Assert.That(second, Is.EqualTo(first));
-
-        Assert.That(first, Is.Not.EqualTo(Guid.Empty));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(second, Is.EqualTo(first));
+            Assert.That(first, Is.Not.EqualTo(Guid.Empty));
+        }
     }
 
     [Test]
     public void Should_handle_empty_values_collection()
-
     {
         var first = DeterministicGuid.Create();
 
         var second = DeterministicGuid.Create();
 
-        Assert.That(second, Is.EqualTo(first));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(second, Is.EqualTo(first));
+            Assert.That(first.Version, Is.EqualTo(8));
+        }
+    }
 
-        Assert.That(first.Version, Is.EqualTo(8));
+    [Test]
+    public void Should_return_correct_hardcoded_guid_for_empty_values()
+    {
+        var result = DeterministicGuid.Create();
+
+        // Verify the hardcoded constant matches what XxHash128(seed: 0) over empty input produces.
+        Span<byte> hash = stackalloc byte[16];
+        _ = new XxHash128().GetCurrentHash(hash);
+        hash[6] = (byte)((hash[6] & 0x0F) | 0x80);
+        hash[8] = (byte)((hash[8] & 0x3F) | 0x80);
+        var expected = new Guid(hash, bigEndian: true);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Is.EqualTo(expected));
+            Assert.That(result.Version, Is.EqualTo(8));
+        }
     }
 
     [Test]
