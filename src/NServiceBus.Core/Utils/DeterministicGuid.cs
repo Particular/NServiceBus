@@ -55,13 +55,15 @@ public static class DeterministicGuid
     public static Guid Create(ReadOnlySpan<char> value)
     {
         var encoding = Encoding.UTF8;
-        var byteCount = encoding.GetByteCount(value);
+        // Use O(1) GetMaxByteCount to avoid scanning the string twice (GetByteCount + GetBytes).
+        // The over-estimation is absorbed by ArrayPool's power-of-2 bucket sizing.
+        var maxByteCount = encoding.GetMaxByteCount(value.Length);
 
         byte[]? rented = null;
 
-        Span<byte> buffer = byteCount <= MaxStackLimit
+        Span<byte> buffer = maxByteCount <= MaxStackLimit
             ? stackalloc byte[MaxStackLimit]
-            : rented = ArrayPool<byte>.Shared.Rent(byteCount);
+            : rented = ArrayPool<byte>.Shared.Rent(maxByteCount);
 
         try
         {
