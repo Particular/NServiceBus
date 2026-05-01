@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Transport;
 
 using System.Collections;
@@ -45,7 +47,7 @@ public sealed class ReceiveProperties : IReadOnlyDictionary<string, string>
     public bool ContainsKey(string key) => properties.ContainsKey(key);
 
     /// <inheritdoc />
-    public bool TryGetValue(string key, out string value) => properties.TryGetValue(key, out value);
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out string value) => properties.TryGetValue(key, out value);
 
     /// <inheritdoc />
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => properties.GetEnumerator();

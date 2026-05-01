@@ -2558,7 +2558,7 @@ namespace NServiceBus.Transport
         public static NServiceBus.Transport.ReceiveProperties Empty { get; }
         public bool ContainsKey(string key) { }
         public System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<string, string>> GetEnumerator() { }
-        public bool TryGetValue(string key, out string value) { }
+        public bool TryGetValue(string key, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out string value) { }
     }
     public class ReceiveSettings
     {

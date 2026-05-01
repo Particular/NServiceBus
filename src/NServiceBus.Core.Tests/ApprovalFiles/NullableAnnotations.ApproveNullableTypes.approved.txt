@@ -84,7 +84,6 @@ NServiceBus.Transport.OutgoingMessage
 NServiceBus.Transport.PushRuntimeSettings
 NServiceBus.Transport.QueueAddress
 NServiceBus.Transport.QueueBindings
-NServiceBus.Transport.ReceiveProperties
 NServiceBus.Transport.ReceiveSettings
 NServiceBus.Transport.TransportInfrastructure
 NServiceBus.Transport.TransportOperation
