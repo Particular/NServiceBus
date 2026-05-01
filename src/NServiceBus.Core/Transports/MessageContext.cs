@@ -51,11 +51,6 @@ public class MessageContext : IExtendable
         TransportTransaction = transportTransaction;
 
         context.GetOrCreate<IncomingPipelineMetricTags>();
-
-        if (receiveProperties != ReceiveProperties.Empty)
-        {
-            Extensions.Set(receiveProperties);
-        }
     }
 
     /// <summary>

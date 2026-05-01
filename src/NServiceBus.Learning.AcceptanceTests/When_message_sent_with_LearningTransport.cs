@@ -34,10 +34,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             .WithEndpoint<AuditSpy>()
             .Run();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(context.MessageAudited, Is.True, "Message was not audited");
-        }
+        Assert.That(context.MessageAudited, Is.True, "Message was not audited");
     }
 
     [Test]
@@ -47,10 +44,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             .WithEndpoint<SendingEndpoint>(b => b.When(session => session.SendLocal(new TestMessage())))
             .Run();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(context.MessageReceived, Is.True, "Message was received");
-        }
+        Assert.That(context.MessageReceived, Is.True, "Message was received");
     }
 
     [Test]
@@ -61,10 +55,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             .WithEndpoint<AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint>()
             .Run();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(context.MessageReceived, Is.True, "Message was not received");
-        }
+        Assert.That(context.MessageReceived, Is.True, "Message was not received");
     }
 
     class Context : ScenarioContext
@@ -79,9 +70,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         public EndPointThatReceivesFromAnotherAndAuditsEndpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
             endpointConfiguration.AuditProcessedMessagesTo(Conventions.EndpointNamingConvention(typeof(AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint)));
-            endpointConfiguration.Pipeline.Register(
-                behavior: new AuditHeaderOverrideBehavior(),
-                description: "Override headers on audit messages");
+            endpointConfiguration.Pipeline.Register(behavior: new AuditHeaderOverrideBehavior(), description: "Override headers on audit messages");
         });
 
         class OutgoingTestMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
@@ -90,17 +79,15 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             {
                 testContext.MessageReceived = true;
 
-                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
                 {
-                    if (receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
-                    {
-                        testContext.FileCreatedAt = fileCreatedAt;
-                    }
+                    testContext.FileCreatedAt = fileCreatedAt;
                 }
                 else
                 {
                     testContext.MarkAsFailed(new Exception("Failed to propagate receive properties from the original message."));
                 }
+
                 return Task.CompletedTask;
             }
         }
@@ -127,17 +114,14 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             {
                 testContext.MessageAudited = true;
 
-                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
                 {
-                    if (receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                    if (fileCreatedAt == testContext.FileCreatedAt)
                     {
-                        if (fileCreatedAt == testContext.FileCreatedAt)
-                        {
-                            testContext.MarkAsFailed(new Exception("Receive properties from the original message is propagated to audit messages."));
-                        }
-
-                        testContext.MarkAsCompleted(testContext.MessageAudited, testContext.FileCreatedAt != fileCreatedAt);
+                        testContext.MarkAsFailed(new Exception("Receive properties from the original message is propagated to audit messages."));
                     }
+
+                    testContext.MarkAsCompleted(testContext.MessageAudited, testContext.FileCreatedAt != fileCreatedAt);
                 }
                 else
                 {
@@ -158,10 +142,8 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             public async Task Handle(TestMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
-                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
                 {
-                    receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt);
-
                     testContext.FileCreatedAt = fileCreatedAt;
 
                     await context.SendLocal(new OutgoingTestMessage());
@@ -174,16 +156,13 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
 
         //handler for the outgoing message to verify that receive properties are not propagated to outgoing messages
-
         class OutgoingTestMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
         {
-            public async Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
+            public Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
             {
                 testContext.MessageReceived = true;
-                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
                 {
-                    receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt);
-
                     if (fileCreatedAt == testContext.FileCreatedAt)
                     {
                         testContext.MarkAsFailed(new Exception("Receive properties from the original message is propagated to outgoing messages."));
@@ -195,6 +174,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
                 {
                     testContext.MarkAsFailed(new Exception("Failed to retrieve receive properties from the message context."));
                 }
+                return Task.CompletedTask;
             }
         }
     }
@@ -212,12 +192,9 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             {
                 testContext.MessageReceived = true;
 
-                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
                 {
-                    if (receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
-                    {
-                        testContext.FileCreatedAt = fileCreatedAt;
-                    }
+                    testContext.FileCreatedAt = fileCreatedAt;
                 }
                 else
                 {
@@ -244,12 +221,9 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             {
                 testContext.MessageReceived = true;
 
-                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
                 {
-                    if (receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
-                    {
-                        testContext.FileCreatedAt = fileCreatedAt;
-                    }
+                    testContext.FileCreatedAt = fileCreatedAt;
                 }
 
                 return Task.CompletedTask;
@@ -268,17 +242,14 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             {
                 testContext.MessageAudited = true;
 
-                if (context.Extensions.TryGet<ReceiveProperties>(out var receiveProperties))
+                if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
                 {
-                    if (receiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                    if (fileCreatedAt != testContext.FileCreatedAt)
                     {
-                        if (fileCreatedAt != testContext.FileCreatedAt)
-                        {
-                            testContext.MarkAsFailed(new Exception("Receive properties from the original message is not propagated to audit messages."));
-                        }
-
-                        testContext.MarkAsCompleted(testContext.MessageAudited, testContext.FileCreatedAt == fileCreatedAt);
+                        testContext.MarkAsFailed(new Exception("Receive properties from the original message is not propagated to audit messages."));
                     }
+
+                    testContext.MarkAsCompleted(testContext.MessageAudited, testContext.FileCreatedAt == fileCreatedAt);
                 }
                 else
                 {
@@ -290,11 +261,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    public class TestMessage : IMessage
-    {
-    }
+    public class TestMessage : IMessage;
 
-    public class OutgoingTestMessage : IMessage
-    {
-    }
+    public class OutgoingTestMessage : IMessage;
 }

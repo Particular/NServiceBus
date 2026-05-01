@@ -28,11 +28,7 @@ public class MessageContextTests
             context: new ContextBag()
         );
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(context.ReceiveProperties, Is.SameAs(receiveProperties));
-            Assert.That(context.Extensions.Get<ReceiveProperties>(), Is.SameAs(receiveProperties));
-        }
+        Assert.That(context.ReceiveProperties, Is.SameAs(receiveProperties));
     }
 
     [Test]
@@ -47,10 +43,6 @@ public class MessageContextTests
             context: new ContextBag()
         );
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(context.ReceiveProperties, Is.SameAs(ReceiveProperties.Empty));
-            Assert.That(context.Extensions.TryGet<ReceiveProperties>(out _), Is.False);
-        }
+        Assert.That(context.ReceiveProperties, Is.SameAs(ReceiveProperties.Empty));
     }
 }
