@@ -26,7 +26,7 @@ partial class HostingComponent(HostingComponent.Configuration configuration, Ins
                 "  - Code: AppContext.SetSwitch(\"NServiceBus.Core.Hosting.UseV2DeterministicGuid\", true);\n" +
                 "  - Project file: <RuntimeHostConfigurationOption Include=\"NServiceBus.Core.Hosting.UseV2DeterministicGuid\" Value=\"true\" />\n" +
                 "  - Environment variable (.NET 9+): DOTNET_NServiceBus_Core_Hosting_UseV2DeterministicGuid=true\n" +
-                "Note: Enabling this switch changes your host ID, which may cause duplicate endpoint instances in monitoring tools until old entries expire.");
+                "Note: Enabling this switch changes the endpoint's host identifier, which may cause duplicate endpoint instances in monitoring tools until old entries expire or are removed.");
         }
 
         var serviceCollection = configuration.Services;
