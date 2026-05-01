@@ -12,6 +12,10 @@ using Utils;
 /// <summary>
 /// This is a legacy implementation of <see cref="DeterministicGuid"/> that is used to generate a deterministic guid in places where
 /// the new implementation would break existing assumptions.
+///
+/// This class should not be used anywhere else and should be removed once the legacy code that relies on it is removed as well.
+/// We are moving away from using cryptographic hashes to generate deterministic guids because they are not necessary, and they are more expensive to compute than non-cryptographic hashes. The new implementation of <see cref="DeterministicGuid"/> uses a n
+/// on-cryptographic hash algorithm to generate the guid, which is faster and still provides a good level of uniqueness for our use cases.
 /// </summary>
 static class LegacyDeterministicGuid
 {
