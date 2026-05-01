@@ -651,7 +651,7 @@ namespace NServiceBus
     public class LearningTransport : NServiceBus.Transport.TransportDefinition
     {
         public LearningTransport() { }
-        protected override System.Collections.Frozen.FrozenSet<string> DispatchPropertyNamesToPreserve { get; }
+        protected override System.Collections.Frozen.FrozenSet<string> ReceivePropertyNamesToPreserve { get; }
         public bool RestrictPayloadSize { get; set; }
         public string StorageDirectory { get; set; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes() { }
@@ -2420,6 +2420,7 @@ namespace NServiceBus.Transport
     public class ErrorContext
     {
         public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.ReceiveProperties receiveProperties, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
@@ -2482,10 +2483,12 @@ namespace NServiceBus.Transport
     public class IncomingMessage
     {
         public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body) { }
+        public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.ReceiveProperties receiveProperties) { }
         public System.ReadOnlyMemory<byte> Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public string NativeMessageId { get; }
+        public NServiceBus.Transport.ReceiveProperties ReceiveProperties { get; }
     }
     public static class IncomingMessageExtensions
     {
@@ -2495,12 +2498,13 @@ namespace NServiceBus.Transport
     public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
         public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
-        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, string receiveAddress, NServiceBus.Extensibility.ContextBag context, NServiceBus.Transport.ReceiveProperties receiveProperties) { }
+        public MessageContext(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.ReceiveProperties receiveProperties, NServiceBus.Transport.TransportTransaction transportTransaction, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
         public System.ReadOnlyMemory<byte> Body { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string NativeMessageId { get; }
         public string ReceiveAddress { get; }
+        public NServiceBus.Transport.ReceiveProperties ReceiveProperties { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
     public class MulticastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
@@ -2543,10 +2547,18 @@ namespace NServiceBus.Transport
         public System.Collections.Generic.IReadOnlyCollection<string> SendingAddresses { get; }
         public void BindSending(string transportAddress) { }
     }
-    public class ReceiveProperties : System.Collections.Generic.Dictionary<string, string>
+    public sealed class ReceiveProperties : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>, System.Collections.Generic.IReadOnlyCollection<System.Collections.Generic.KeyValuePair<string, string>>, System.Collections.Generic.IReadOnlyDictionary<string, string>, System.Collections.IEnumerable
     {
         public ReceiveProperties() { }
-        public ReceiveProperties(System.Collections.Generic.IDictionary<string, string> dictionary) { }
+        public ReceiveProperties(System.Collections.Generic.Dictionary<string, string> dictionary) { }
+        public int Count { get; }
+        public string this[string key] { get; }
+        public System.Collections.Generic.IEnumerable<string> Keys { get; }
+        public System.Collections.Generic.IEnumerable<string> Values { get; }
+        public static NServiceBus.Transport.ReceiveProperties Empty { get; }
+        public bool ContainsKey(string key) { }
+        public System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<string, string>> GetEnumerator() { }
+        public bool TryGetValue(string key, out string value) { }
     }
     public class ReceiveSettings
     {
@@ -2560,7 +2572,7 @@ namespace NServiceBus.Transport
     public abstract class TransportDefinition
     {
         protected TransportDefinition(NServiceBus.TransportTransactionMode defaultTransactionMode, bool supportsDelayedDelivery, bool supportsPublishSubscribe, bool supportsTTBR) { }
-        protected virtual System.Collections.Frozen.FrozenSet<string> DispatchPropertyNamesToPreserve { get; }
+        protected virtual System.Collections.Frozen.FrozenSet<string> ReceivePropertyNamesToPreserve { get; }
         public bool SupportsDelayedDelivery { get; }
         public bool SupportsPublishSubscribe { get; }
         public bool SupportsTTBR { get; }

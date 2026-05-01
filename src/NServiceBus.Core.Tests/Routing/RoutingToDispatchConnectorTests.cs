@@ -258,14 +258,14 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_merge_receive_properties_when_declared_by_transport()
     {
-        var dispatchPropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId"]);
-        var behavior = new RoutingToDispatchConnector(dispatchPropertyNamesToPreserve);
+        var receivePropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId"]);
+        var behavior = new RoutingToDispatchConnector(receivePropertyNamesToPreserve);
 
-        var receiveProperties = new ReceiveProperties
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
             ["AWS.SQS.MessageGroupId"] = "group-123",
             ["AWS.SQS.MessageDeduplicationId"] = "dedup-456"
-        };
+        });
 
         TransportOperation transportOperation = null;
 
@@ -273,8 +273,7 @@ public class RoutingToDispatchConnectorTests
         {
             RoutingStrategies = [new UnicastRoutingStrategy("destination")]
         };
-        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>()));
-        routingContext.Extensions.Set(receiveProperties);
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>(), receiveProperties));
 
         await behavior.Invoke(routingContext, context =>
         {
@@ -293,13 +292,13 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_not_override_user_set_dispatch_property()
     {
-        var dispatchPropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId"]);
-        var behavior = new RoutingToDispatchConnector(dispatchPropertyNamesToPreserve);
+        var receivePropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId"]);
+        var behavior = new RoutingToDispatchConnector(receivePropertyNamesToPreserve);
 
-        var receiveProperties = new ReceiveProperties
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
             ["AWS.SQS.MessageGroupId"] = "incoming-group"
-        };
+        });
 
         var userDispatchProperties = new DispatchProperties
         {
@@ -312,8 +311,7 @@ public class RoutingToDispatchConnectorTests
         {
             RoutingStrategies = [new UnicastRoutingStrategy("destination")]
         };
-        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>()));
-        routingContext.Extensions.Set(receiveProperties);
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>(), receiveProperties));
         routingContext.Extensions.Set(userDispatchProperties);
 
         await behavior.Invoke(routingContext, context =>
@@ -331,10 +329,10 @@ public class RoutingToDispatchConnectorTests
     {
         var behavior = new RoutingToDispatchConnector([]);
 
-        var receiveProperties = new ReceiveProperties
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
             ["AWS.SQS.MessageGroupId"] = "group-123"
-        };
+        });
 
         TransportOperation transportOperation = null;
 
@@ -342,8 +340,7 @@ public class RoutingToDispatchConnectorTests
         {
             RoutingStrategies = [new UnicastRoutingStrategy("destination")]
         };
-        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>()));
-        routingContext.Extensions.Set(receiveProperties);
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>(), receiveProperties));
 
         await behavior.Invoke(routingContext, context =>
         {
@@ -357,14 +354,14 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_preserve_user_dispatch_properties_even_with_receive_properties()
     {
-        var dispatchPropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId", "AWS.SQS.DeduplicationId"]);
-        var behavior = new RoutingToDispatchConnector(dispatchPropertyNamesToPreserve);
+        var receivePropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId", "AWS.SQS.DeduplicationId"]);
+        var behavior = new RoutingToDispatchConnector(receivePropertyNamesToPreserve);
 
-        var receiveProperties = new ReceiveProperties
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
             ["AWS.SQS.MessageGroupId"] = "incoming-group",
             ["AWS.SQS.DeduplicationId"] = "incoming-dedup"
-        };
+        });
 
         var userDispatchProperties = new DispatchProperties
         {
@@ -378,8 +375,7 @@ public class RoutingToDispatchConnectorTests
         {
             RoutingStrategies = [new UnicastRoutingStrategy("destination")]
         };
-        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>()));
-        routingContext.Extensions.Set(receiveProperties);
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>(), receiveProperties));
         routingContext.Extensions.Set(userDispatchProperties);
 
         await behavior.Invoke(routingContext, context =>

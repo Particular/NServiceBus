@@ -21,18 +21,36 @@ public class ErrorContext
     /// <param name="receiveAddress">The receive address.</param>
     /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
     public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, ContextBag context)
+        : this(exception, headers, nativeMessageId, body, ReceiveProperties.Empty, transportTransaction, immediateProcessingFailures, receiveAddress, context)
+    {
+    }
+
+    /// <summary>
+    /// Initializes the error context with receive properties.
+    /// </summary>
+    /// <param name="exception">The exception that caused the message processing failure.</param>
+    /// <param name="headers">The message headers.</param>
+    /// <param name="nativeMessageId">The native message ID.</param>
+    /// <param name="body">The message body.</param>
+    /// <param name="receiveProperties">Properties received from the transport that can be propagated to outgoing messages.</param>
+    /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
+    /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
+    /// <param name="receiveAddress">The receive address.</param>
+    /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
+    public ErrorContext(Exception exception, Dictionary<string, string> headers, string nativeMessageId, ReadOnlyMemory<byte> body, ReceiveProperties receiveProperties, TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, ContextBag context)
     {
         ArgumentNullException.ThrowIfNull(exception);
         ArgumentNullException.ThrowIfNull(transportTransaction);
         ArgumentOutOfRangeException.ThrowIfNegative(immediateProcessingFailures);
         ArgumentException.ThrowIfNullOrWhiteSpace(receiveAddress);
         ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(receiveProperties);
 
         Exception = exception;
         TransportTransaction = transportTransaction;
         ImmediateProcessingFailures = immediateProcessingFailures;
 
-        Message = new IncomingMessage(nativeMessageId, headers, body);
+        Message = new IncomingMessage(nativeMessageId, headers, body, receiveProperties);
 
         ReceiveAddress = receiveAddress;
 

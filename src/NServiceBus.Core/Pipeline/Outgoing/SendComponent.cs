@@ -27,7 +27,7 @@ class SendComponent
 
 
         pipelineSettings.Register(new OutgoingPhysicalToRoutingConnector(), "Starts the message dispatch pipeline");
-        pipelineSettings.Register(b => new RoutingToDispatchConnector(transportSeam.TransportDefinition.DispatchPropertyNamesToPreserve),
+        pipelineSettings.Register(b => new RoutingToDispatchConnector(transportSeam.TransportDefinition.ReceivePropertyNamesToPreserve),
             "Decides if the current message should be batched or immediately be dispatched to the transport");
         pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
         pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IMessageDispatcher>()), "Hands the outgoing messages over to the transport for immediate delivery");

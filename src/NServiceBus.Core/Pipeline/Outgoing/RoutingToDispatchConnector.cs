@@ -13,7 +13,7 @@ using Pipeline;
 using Routing;
 using Transport;
 
-class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreserve) : StageConnector<IRoutingContext, IDispatchContext>
+class RoutingToDispatchConnector(FrozenSet<string> receivePropertyNamesToPreserve) : StageConnector<IRoutingContext, IDispatchContext>
 {
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
@@ -32,9 +32,10 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
         ContextPropagation.PropagateContextToHeaders(Activity.Current, outgoingMessage.Headers, context.Extensions);
 
         ReceiveProperties? receiveProperties = null;
-        var shouldPropagate = dispatchPropertyNamesToPreserve.Count > 0
-                              && context.Extensions.TryGet(out receiveProperties)
-                              && string.Equals(incomingMessage?.MessageId, outgoingMessage.MessageId, StringComparison.Ordinal);
+        var shouldPropagate = receivePropertyNamesToPreserve.Count > 0
+                              && incomingMessage != null
+                              && (receiveProperties = incomingMessage.ReceiveProperties) != ReceiveProperties.Empty
+                              && string.Equals(incomingMessage.MessageId, outgoingMessage.MessageId, StringComparison.Ordinal);
 
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;
@@ -46,7 +47,7 @@ class RoutingToDispatchConnector(FrozenSet<string> dispatchPropertyNamesToPreser
 
             if (shouldPropagate && receiveProperties != null)
             {
-                foreach (var propertyName in dispatchPropertyNamesToPreserve)
+                foreach (var propertyName in receivePropertyNamesToPreserve)
                 {
                     //if dispatch property is not already set, set it
                     if (!transportOperation.Properties.ContainsKey(propertyName)

@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Transports;
 
 using System;
+using System.Collections.Generic;
 using NServiceBus.Extensibility;
 using NServiceBus.Transport;
 using NUnit.Framework;
@@ -11,28 +12,31 @@ public class MessageContextTests
     [Test]
     public void Should_accept_receive_properties_via_ctor()
     {
-        var receiveProperties = new ReceiveProperties
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
             ["Native.CustomProperty"] = "CustomValue",
             ["AWS.SQS.MessageGroupId"] = "group-123"
-        };
+        });
 
         var context = new MessageContext(
             nativeMessageId: "native-id",
             headers: [],
             body: ReadOnlyMemory<byte>.Empty,
+            receiveProperties: receiveProperties,
             transportTransaction: new TransportTransaction(),
             receiveAddress: "queue@machine",
-            context: new ContextBag(),
-            receiveProperties: receiveProperties
+            context: new ContextBag()
         );
 
-        var retrieved = context.Extensions.Get<ReceiveProperties>();
-        Assert.That(retrieved, Is.SameAs(receiveProperties));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.ReceiveProperties, Is.SameAs(receiveProperties));
+            Assert.That(context.Extensions.Get<ReceiveProperties>(), Is.SameAs(receiveProperties));
+        }
     }
 
     [Test]
-    public void Should_work_without_receive_properties()
+    public void Should_default_receive_properties_to_empty()
     {
         var context = new MessageContext(
             nativeMessageId: "native-id",
@@ -43,8 +47,10 @@ public class MessageContextTests
             context: new ContextBag()
         );
 
-        // Verify backward compatibility: 6-param ctor works, TryGet returns false (not stored)
-        Assert.That(context.Extensions.TryGet<ReceiveProperties>(out var props), Is.False);
-        Assert.That(props, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.ReceiveProperties, Is.SameAs(ReceiveProperties.Empty));
+            Assert.That(context.Extensions.TryGet<ReceiveProperties>(out _), Is.False);
+        }
     }
 }

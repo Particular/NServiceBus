@@ -53,7 +53,7 @@ public class LearningTransport : TransportDefinition
     /// <summary>
     /// LearningTransport preserves file creation time to enable time-based scenarios in testing.
     /// </summary>
-    protected internal override FrozenSet<string> DispatchPropertyNamesToPreserve { get; } = FrozenSet.ToFrozenSet(
+    protected internal override FrozenSet<string> ReceivePropertyNamesToPreserve { get; } = FrozenSet.ToFrozenSet(
     [
         "LearningTransport.FileCreatedAt"
     ]);

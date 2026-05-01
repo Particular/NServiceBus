@@ -39,20 +39,20 @@ public class TransportDefinitionTests
     }
 
     [Test]
-    public void DispatchPropertyNamesToPreserve_should_default_to_empty()
+    public void ReceivePropertyNamesToPreserve_should_default_to_empty()
     {
         var definition = new TestTransportDefinition();
-        Assert.That(definition.GetDispatchPropertyNamesToPreserve(), Is.Empty);
+        Assert.That(definition.GetReceivePropertyNamesToPreserve(), Is.Empty);
     }
 
     [Test]
-    public void DispatchPropertyNamesToPreserve_can_be_overridden()
+    public void ReceivePropertyNamesToPreserve_can_be_overridden()
     {
         var definition = new TransportWithPreservation();
         Assert.Multiple(() =>
         {
-            Assert.That(definition.GetDispatchPropertyNamesToPreserve(), Contains.Item("AWS.SQS.MessageGroupId"));
-            Assert.That(definition.GetDispatchPropertyNamesToPreserve(), Contains.Item("AWS.SQS.MessageDeduplicationId"));
+            Assert.That(definition.GetReceivePropertyNamesToPreserve(), Contains.Item("AWS.SQS.MessageGroupId"));
+            Assert.That(definition.GetReceivePropertyNamesToPreserve(), Contains.Item("AWS.SQS.MessageDeduplicationId"));
         });
     }
 
@@ -67,7 +67,7 @@ public class TransportDefinitionTests
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
             => [TransportTransactionMode.None];
 
-        public FrozenSet<string> GetDispatchPropertyNamesToPreserve() => DispatchPropertyNamesToPreserve;
+        public FrozenSet<string> GetReceivePropertyNamesToPreserve() => ReceivePropertyNamesToPreserve;
     }
 
     class TransportWithPreservation : TransportDefinition
@@ -81,9 +81,9 @@ public class TransportDefinitionTests
         public override IReadOnlyCollection<TransportTransactionMode> GetSupportedTransactionModes()
             => [TransportTransactionMode.None];
 
-        protected internal override FrozenSet<string> DispatchPropertyNamesToPreserve { get; }
+        protected internal override FrozenSet<string> ReceivePropertyNamesToPreserve { get; }
             = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId", "AWS.SQS.MessageDeduplicationId"]);
 
-        public FrozenSet<string> GetDispatchPropertyNamesToPreserve() => DispatchPropertyNamesToPreserve;
+        public FrozenSet<string> GetReceivePropertyNamesToPreserve() => ReceivePropertyNamesToPreserve;
     }
 }

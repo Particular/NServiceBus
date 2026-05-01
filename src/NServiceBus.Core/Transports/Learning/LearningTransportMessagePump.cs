@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -336,12 +337,12 @@ class LearningTransportMessagePump : IMessageReceiver
         }
 
         var processingContext = new ContextBag();
-        var receiveProperties = new ReceiveProperties
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
             ["LearningTransport.FileCreatedAt"] = fileCreatedAt.ToString("O")
-        };
+        });
 
-        var messageContext = new MessageContext(messageId, headers, body, transportTransaction, ReceiveAddress, processingContext, receiveProperties);
+        var messageContext = new MessageContext(messageId, headers, body, receiveProperties, transportTransaction, ReceiveAddress, processingContext);
 
         try
         {
@@ -362,7 +363,7 @@ class LearningTransportMessagePump : IMessageReceiver
             headers = HeaderSerializer.Deserialize(message);
             headers.Remove(LearningTransportHeaders.TimeToBeReceived);
 
-            var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures, ReceiveAddress, processingContext);
+            var errorContext = new ErrorContext(exception, headers, messageId, body, receiveProperties, transportTransaction, processingFailures, ReceiveAddress, processingContext);
 
             ErrorHandleResult result;
 

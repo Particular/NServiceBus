@@ -86,12 +86,12 @@ public abstract class TransportDefinition
     public bool SupportsTTBR { get; }
 
     /// <summary>
-    /// The set of dispatch property names that should be preserved from incoming messages
+    /// The set of receive property names that should be preserved from incoming messages
     /// and attached to outgoing audit and error queue dispatches.
     /// Transports override this to declare native message properties that should survive
     /// the message processing pipeline.
     /// </summary>
-    protected internal virtual FrozenSet<string> DispatchPropertyNamesToPreserve { get; } = [];
+    protected internal virtual FrozenSet<string> ReceivePropertyNamesToPreserve { get; } = [];
 
     /// <summary>
     /// Allows the transport to register required services into the service collection.

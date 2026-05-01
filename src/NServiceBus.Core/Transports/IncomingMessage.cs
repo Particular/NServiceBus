@@ -15,9 +15,22 @@ public class IncomingMessage
     /// <param name="headers">The message headers.</param>
     /// <param name="body">The message body.</param>
     public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body)
+        : this(nativeMessageId, headers, body, ReceiveProperties.Empty)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new message with receive properties.
+    /// </summary>
+    /// <param name="nativeMessageId">The native message ID.</param>
+    /// <param name="headers">The message headers.</param>
+    /// <param name="body">The message body.</param>
+    /// <param name="receiveProperties">Properties received from the transport.</param>
+    public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, ReceiveProperties receiveProperties)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nativeMessageId);
         ArgumentNullException.ThrowIfNull(headers);
+        ArgumentNullException.ThrowIfNull(receiveProperties);
 
         if (headers.TryGetValue(NServiceBus.Headers.MessageId, out var originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
         {
@@ -35,6 +48,8 @@ public class IncomingMessage
         Headers = headers;
 
         Body = body;
+
+        ReceiveProperties = receiveProperties;
     }
 
     /// <summary>
@@ -51,6 +66,11 @@ public class IncomingMessage
     /// The message headers.
     /// </summary>
     public Dictionary<string, string> Headers { get; }
+
+    /// <summary>
+    /// Properties received from the transport that can be propagated to outgoing dispatch operations.
+    /// </summary>
+    public ReceiveProperties ReceiveProperties { get; }
 
     /// <summary>
     /// Gets/sets a byte array to the body content of the message.
