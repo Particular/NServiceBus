@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using Particular.Obsoletes;
 
 static class AppContextSwitches
 {
@@ -15,10 +16,16 @@ static class AppContextSwitches
 
     static SwitchState cachedUseV2DeterministicGuid;
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7734",
+        Note = "In v11, DeterministicGuid (XxHash128) becomes the default and this switch will be inverted so that setting it to false opts into the legacy MD5 algorithm. Both the switch and LegacyDeterministicGuid will be removed in v12.",
+        ReplacementTypeOrMember = "DeterministicGuid")]
     public const string UseV2DeterministicGuidSwitchName = "NServiceBus.Core.Hosting.UseV2DeterministicGuid";
 
     public const string UsedLegacyDeterministicGuidSettingsKey = "NServiceBus.Hosting.UsedLegacyDeterministicGuid";
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7734",
+        Note = "In v11, this property will be removed or replaced by one that inverts the semantics (defaulting to true). Setting the switch to false will opt into LegacyDeterministicGuid, which is itself marked for removal in v12.",
+        ReplacementTypeOrMember = "DeterministicGuid")]
     public static bool UseV2DeterministicGuid
     {
         get

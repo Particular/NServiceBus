@@ -7,16 +7,22 @@ using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using Particular.Obsoletes;
 using Utils;
 
 /// <summary>
-/// This is a legacy implementation of <see cref="DeterministicGuid"/> that is used to generate a deterministic guid in places where
-/// the new implementation would break existing assumptions.
-///
-/// This class should not be used anywhere else and should be removed once the legacy code that relies on it is removed as well.
-/// We are moving away from using cryptographic hashes to generate deterministic guids because they are not necessary, and they are more expensive to compute than non-cryptographic hashes. The new implementation of <see cref="DeterministicGuid"/> uses a n
-/// on-cryptographic hash algorithm to generate the guid, which is faster and still provides a good level of uniqueness for our use cases.
+/// This is a legacy implementation of <see cref="DeterministicGuid"/> that uses MD5 to generate deterministic GUIDs
+/// for backward compatibility with endpoints that rely on the old host ID algorithm.
 /// </summary>
+/// <remarks>
+/// In version 11, the new <see cref="DeterministicGuid" /> (XxHash128-based) becomes the default.
+/// Endpoints that need to preserve the old MD5-based host IDs can opt in by setting the AppContext switch
+/// <c>NServiceBus.Core.Hosting.UseV2DeterministicGuid</c> to <c>false</c>.
+/// This class will be removed in version 12.
+/// </remarks>
+[PreObsolete("https://github.com/Particular/NServiceBus/issues/7734",
+    Note = "In v11, DeterministicGuid (XxHash128) becomes the default. This class remains available for endpoints that need to preserve MD5-based host IDs by setting the AppContext switch NServiceBus.Core.Hosting.UseV2DeterministicGuid to false. Will be removed in v12.",
+    ReplacementTypeOrMember = "DeterministicGuid")]
 static class LegacyDeterministicGuid
 {
     public static Guid Create(string data1, string data2) => Create($"{data1}{data2}");

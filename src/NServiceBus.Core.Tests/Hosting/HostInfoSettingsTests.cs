@@ -46,6 +46,20 @@ public class HostInfoSettingsTests
     }
 
     [Test]
+    public void UsingNames_with_v2_switch_explicitly_disabled_uses_legacy_deterministic_guid()
+    {
+        using (AppContextSwitchHelper.Disable("NServiceBus.Core.Hosting.UseV2DeterministicGuid"))
+        {
+            var busConfig = new EndpointConfiguration("myendpoint");
+
+            busConfig.UniquelyIdentifyRunningInstance().UsingNames("Instance", "Host");
+
+            var configuredId = busConfig.Settings.Get<HostingComponent.Settings>().HostId;
+            Assert.That(configuredId, Is.EqualTo(LegacyDeterministicGuid.Create("Instance", "Host")));
+        }
+    }
+
+    [Test]
     public void GenerateHostId_without_v2_switch_sets_legacy_flag()
     {
         var busConfig = new EndpointConfiguration("myendpoint");
@@ -137,6 +151,8 @@ public class HostInfoSettingsTests
         readonly string switchName;
 
         public static AppContextSwitchHelper Enable(string switchName) => new(switchName, true);
+
+        public static AppContextSwitchHelper Disable(string switchName) => new(switchName, false);
 
         AppContextSwitchHelper(string switchName, bool value)
         {
