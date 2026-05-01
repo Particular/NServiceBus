@@ -68,6 +68,7 @@ partial class HostingComponent
 
             settings.ApplyHostIdDefaultIfNeeded();
             HostInformation = new HostInformation(settings.HostId, settings.DisplayName, settings.Properties);
+            UsedLegacyDeterministicGuid = settings.UsedLegacyDeterministicGuid;
         }
 
         public bool WriteDiagnosticsToLog { get; }
@@ -91,6 +92,8 @@ partial class HostingComponent
         public void AddStartupDiagnosticsSection(string sectionName, object section) => StartupDiagnostics.Add(sectionName, section);
 
         public HostInformation HostInformation { get; }
+
+        public bool UsedLegacyDeterministicGuid { get; }
 
         public bool ShouldRunInstallers { get; }
 

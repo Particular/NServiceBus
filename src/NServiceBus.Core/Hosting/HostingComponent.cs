@@ -6,15 +6,29 @@ using System.Net;
 using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
+using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Support;
 
 partial class HostingComponent(HostingComponent.Configuration configuration, InstallerComponent installerComponent)
 {
+    static readonly ILog Logger = LogManager.GetLogger<HostingComponent>();
+
     internal Configuration Config => configuration;
 
     public static HostingComponent Initialize(Configuration configuration)
     {
+        if (configuration.UsedLegacyDeterministicGuid)
+        {
+            Logger.WarnFormat(
+                "The host ID is generated using MD5 for backward compatibility. To migrate to the new algorithm, enable the AppContext switch " +
+                "'NServiceBus.Core.Hosting.UseV2DeterministicGuid' using one of the following methods:\n" +
+                "  - Code: AppContext.SetSwitch(\"NServiceBus.Core.Hosting.UseV2DeterministicGuid\", true);\n" +
+                "  - Project file: <RuntimeHostConfigurationOption Include=\"NServiceBus.Core.Hosting.UseV2DeterministicGuid\" Value=\"true\" />\n" +
+                "  - Environment variable (.NET 9+): DOTNET_NServiceBus_Core_Hosting_UseV2DeterministicGuid=true\n" +
+                "Note: Enabling this switch changes your host ID, which may cause duplicate endpoint instances in monitoring tools until old entries expire.");
+        }
+
         var serviceCollection = configuration.Services;
 
         serviceCollection.AddSingleton(_ => configuration.HostInformation);

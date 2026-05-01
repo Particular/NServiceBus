@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Settings;
 using Support;
+using Utils;
 
 partial class HostingComponent
 {
@@ -121,16 +122,30 @@ partial class HostingComponent
                 return;
             }
 
-            settings.Set(HostIdSettingsKey, LegacyDeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
+            settings.Set(HostIdSettingsKey, GenerateHostId(fullPathToStartingExe, RuntimeEnvironment.MachineName));
         }
 
         internal void UpdateHost(string hostName)
         {
             RuntimeEnvironment.SetMachineName(hostName);
-            settings.Set(HostIdSettingsKey, LegacyDeterministicGuid.Create(fullPathToStartingExe, hostName));
+            settings.Set(HostIdSettingsKey, GenerateHostId(fullPathToStartingExe, hostName));
             Properties["Machine"] = hostName;
             settings.SetDefault(DisplayNameSettingsKey, hostName);
         }
+
+        internal Guid GenerateHostId(string input1, string input2)
+        {
+            if (AppContextSwitches.UseV2DeterministicGuid)
+            {
+                return DeterministicGuid.Create(input1, input2);
+            }
+
+            settings.Set(AppContextSwitches.UsedLegacyDeterministicGuidSettingsKey, true);
+            return LegacyDeterministicGuid.Create(input1, input2);
+        }
+
+        internal bool UsedLegacyDeterministicGuid =>
+            settings.GetOrDefault<bool>(AppContextSwitches.UsedLegacyDeterministicGuidSettingsKey);
 
         readonly SettingsHolder settings;
         readonly string fullPathToStartingExe;
