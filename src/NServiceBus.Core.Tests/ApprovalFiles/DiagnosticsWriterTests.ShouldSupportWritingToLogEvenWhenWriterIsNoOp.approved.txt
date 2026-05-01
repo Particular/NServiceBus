@@ -1,0 +1,1 @@
+<timestamp> INFO  NServiceBus.HostStartupDiagnosticsWriter Startup diagnostics: {"Endpoint":{"EndpointName":"MyEndpointOne"}}.
