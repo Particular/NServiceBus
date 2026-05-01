@@ -87,15 +87,8 @@ public static class DeterministicGuid
 
         _ = XxHash128.Hash(value, hash);
 
-        // UUID version 8
-        hash[6] = (byte)((hash[6] & 0x0F) | 0x80);
-
-        // RFC 4122 / RFC 9562 variant
-        hash[8] = (byte)((hash[8] & 0x3F) | 0x80);
-
-        return new Guid(hash, bigEndian: true);
+        return FormatGuid(hash);
     }
-
 
     /// <summary>
     /// Creates a deterministic version 8 GUID from multiple string values.
@@ -114,54 +107,60 @@ public static class DeterministicGuid
     public static Guid Create(params ReadOnlySpan<string> values)
     {
         var encoding = Encoding.UTF8;
+        var hash = new XxHash128();
 
-        var totalByteCount = 0;
-
-        Span<int> counts = values.Length <= 64
-            ? stackalloc int[values.Length]
-            : new int[values.Length];
+        Span<byte> lengthPrefix = stackalloc byte[LengthPrefixSize];
+        Span<byte> valueBuffer = stackalloc byte[MaxStackLimit];
 
         for (var i = 0; i < values.Length; i++)
         {
+            ArgumentNullException.ThrowIfNull(values[i]);
+
             var count = encoding.GetByteCount(values[i]);
-            counts[i] = count;
 
-            totalByteCount = checked(totalByteCount + LengthPrefixSize + count);
-        }
+            BinaryPrimitives.WriteInt32LittleEndian(lengthPrefix, count);
+            hash.Append(lengthPrefix);
 
-        byte[]? rented = null;
-
-        Span<byte> buffer = totalByteCount <= MaxStackLimit
-            ? stackalloc byte[MaxStackLimit]
-            : rented = ArrayPool<byte>.Shared.Rent(totalByteCount);
-
-        try
-        {
-            var written = 0;
-
-            for (var i = 0; i < values.Length; i++)
+            if (count == 0)
             {
-                var count = counts[i];
-
-                BinaryPrimitives.WriteInt32LittleEndian(
-                    buffer.Slice(written, LengthPrefixSize),
-                    count);
-
-                written += LengthPrefixSize;
-
-                written += encoding.GetBytes(
-                    values[i],
-                    buffer[written..]);
+                continue;
             }
 
-            return Create(buffer[..written]);
-        }
-        finally
-        {
-            if (rented is not null)
+            if (count <= MaxStackLimit)
             {
-                ArrayPool<byte>.Shared.Return(rented, clearArray: true);
+                var written = encoding.GetBytes(values[i], valueBuffer);
+                hash.Append(valueBuffer[..written]);
+            }
+            else
+            {
+                var rented = ArrayPool<byte>.Shared.Rent(count);
+                try
+                {
+                    var written = encoding.GetBytes(values[i], rented);
+                    hash.Append(rented.AsSpan(0, written));
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(rented, clearArray: true);
+                }
             }
         }
+
+        Span<byte> hashBytes = stackalloc byte[16];
+        _ = hash.GetCurrentHash(hashBytes);
+
+        return FormatGuid(hashBytes);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Guid FormatGuid(Span<byte> hash)
+    {
+        // UUID version 8
+        hash[6] = (byte)((hash[6] & 0x0F) | 0x80);
+
+        // RFC 4122 / RFC 9562 variant
+        hash[8] = (byte)((hash[8] & 0x3F) | 0x80);
+
+        return new Guid(hash, bigEndian: true);
     }
 }
