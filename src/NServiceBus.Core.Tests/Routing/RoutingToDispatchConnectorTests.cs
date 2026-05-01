@@ -18,7 +18,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_preserve_message_state_for_one_routing_strategy_for_allocation_reasons()
     {
-        var behavior = new RoutingToDispatchConnector(FrozenSet<string>.Empty);
+        var behavior = new RoutingToDispatchConnector();
         IEnumerable<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
@@ -60,7 +60,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_copy_message_state_for_multiple_routing_strategies()
     {
-        var behavior = new RoutingToDispatchConnector(FrozenSet<string>.Empty);
+        var behavior = new RoutingToDispatchConnector();
         List<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
@@ -136,7 +136,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_preserve_headers_generated_by_custom_routing_strategy()
     {
-        var behavior = new RoutingToDispatchConnector(FrozenSet<string>.Empty);
+        var behavior = new RoutingToDispatchConnector();
         Dictionary<string, string> headers = null;
         await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = [new HeaderModifyingRoutingStrategy()] }, context =>
             {
@@ -154,7 +154,7 @@ public class RoutingToDispatchConnectorTests
         options.RequireImmediateDispatch();
 
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector(FrozenSet<string>.Empty);
+        var behavior = new RoutingToDispatchConnector();
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -171,7 +171,7 @@ public class RoutingToDispatchConnectorTests
     public async Task Should_dispatch_immediately_if_not_sending_from_a_handler()
     {
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector(FrozenSet<string>.Empty);
+        var behavior = new RoutingToDispatchConnector();
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -188,7 +188,7 @@ public class RoutingToDispatchConnectorTests
     public async Task Should_not_dispatch_by_default()
     {
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector(FrozenSet<string>.Empty);
+        var behavior = new RoutingToDispatchConnector();
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -204,7 +204,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_promote_message_headers_to_pipeline_activity()
     {
-        var behavior = new RoutingToDispatchConnector(FrozenSet<string>.Empty);
+        var behavior = new RoutingToDispatchConnector();
         var routingContext = new TestableRoutingContext();
         routingContext.Message.Headers[Headers.ContentType] = "test content type"; // one of the headers that will be mapped to tags
 
@@ -258,13 +258,12 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_merge_receive_properties_when_declared_by_transport()
     {
-        var receivePropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId"]);
-        var behavior = new RoutingToDispatchConnector(receivePropertyNamesToPreserve);
+        var behavior = new RoutingToDispatchConnector();
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
-            ["AWS.SQS.MessageGroupId"] = "group-123",
-            ["AWS.SQS.MessageDeduplicationId"] = "dedup-456"
+            ["MessageGroupId"] = "group-123",
+            ["MessageDeduplicationId"] = "dedup-456"
         });
 
         TransportOperation transportOperation = null;
@@ -284,25 +283,24 @@ public class RoutingToDispatchConnectorTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(transportOperation, Is.Not.Null);
-            Assert.That(transportOperation!.Properties["AWS.SQS.MessageGroupId"], Is.EqualTo("group-123"));
-            Assert.That(transportOperation.Properties.ContainsKey("AWS.SQS.MessageDeduplicationId"), Is.False);
+            Assert.That(transportOperation!.Properties["MessageGroupId"], Is.EqualTo("group-123"));
+            Assert.That(transportOperation!.Properties["MessageDeduplicationId"], Is.EqualTo("dedup-456"));
         }
     }
 
     [Test]
     public async Task Should_not_override_user_set_dispatch_property()
     {
-        var receivePropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId"]);
-        var behavior = new RoutingToDispatchConnector(receivePropertyNamesToPreserve);
+        var behavior = new RoutingToDispatchConnector();
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
-            ["AWS.SQS.MessageGroupId"] = "incoming-group"
+            ["MessageGroupId"] = "incoming-group"
         });
 
         var userDispatchProperties = new DispatchProperties
         {
-            ["AWS.SQS.MessageGroupId"] = "user-specified-group"
+            ["MessageGroupId"] = "user-specified-group"
         };
 
         TransportOperation transportOperation = null;
@@ -320,52 +318,24 @@ public class RoutingToDispatchConnectorTests
             return Task.CompletedTask;
         });
 
-        Assert.That(transportOperation!.Properties["AWS.SQS.MessageGroupId"], Is.EqualTo("user-specified-group"),
+        Assert.That(transportOperation!.Properties["MessageGroupId"], Is.EqualTo("user-specified-group"),
             "User-set DispatchProperties should take precedence over ReceiveProperties");
-    }
-
-    [Test]
-    public async Task Should_not_merge_when_preserve_list_empty()
-    {
-        var behavior = new RoutingToDispatchConnector([]);
-
-        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
-        {
-            ["AWS.SQS.MessageGroupId"] = "group-123"
-        });
-
-        TransportOperation transportOperation = null;
-
-        var routingContext = new TestableRoutingContext
-        {
-            RoutingStrategies = [new UnicastRoutingStrategy("destination")]
-        };
-        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>(), receiveProperties));
-
-        await behavior.Invoke(routingContext, context =>
-        {
-            transportOperation = context.Operations.Single();
-            return Task.CompletedTask;
-        });
-
-        Assert.That(transportOperation!.Properties.ContainsKey("AWS.SQS.MessageGroupId"), Is.False);
     }
 
     [Test]
     public async Task Should_preserve_user_dispatch_properties_even_with_receive_properties()
     {
-        var receivePropertyNamesToPreserve = FrozenSet.ToFrozenSet(["AWS.SQS.MessageGroupId", "AWS.SQS.DeduplicationId"]);
-        var behavior = new RoutingToDispatchConnector(receivePropertyNamesToPreserve);
+        var behavior = new RoutingToDispatchConnector();
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
-            ["AWS.SQS.MessageGroupId"] = "incoming-group",
-            ["AWS.SQS.DeduplicationId"] = "incoming-dedup"
+            ["MessageGroupId"] = "incoming-group",
+            ["DeduplicationId"] = "incoming-dedup"
         });
 
         var userDispatchProperties = new DispatchProperties
         {
-            ["AWS.SQS.MessageGroupId"] = "user-group",
+            ["MessageGroupId"] = "user-group",
             ["Custom.Property"] = "custom-value"
         };
 
@@ -386,9 +356,9 @@ public class RoutingToDispatchConnectorTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(transportOperation!.Properties["AWS.SQS.MessageGroupId"], Is.EqualTo("user-group"),
+            Assert.That(transportOperation!.Properties["MessageGroupId"], Is.EqualTo("user-group"),
                 "User-set property wins");
-            Assert.That(transportOperation.Properties["AWS.SQS.DeduplicationId"], Is.EqualTo("incoming-dedup"),
+            Assert.That(transportOperation.Properties["DeduplicationId"], Is.EqualTo("incoming-dedup"),
                 "Receive property merged when not set by user");
             Assert.That(transportOperation.Properties["Custom.Property"], Is.EqualTo("custom-value"),
                 "User custom property preserved");

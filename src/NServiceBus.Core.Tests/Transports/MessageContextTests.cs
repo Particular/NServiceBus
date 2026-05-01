@@ -15,7 +15,7 @@ public class MessageContextTests
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
             ["Native.CustomProperty"] = "CustomValue",
-            ["AWS.SQS.MessageGroupId"] = "group-123"
+            ["MessageGroupId"] = "group-123"
         });
 
         var context = new MessageContext(

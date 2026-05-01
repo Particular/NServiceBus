@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus;
 
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,12 +48,4 @@ public class LearningTransport : TransportDefinition
     /// If set to true, limits the message maximum payload size to 64 kilobytes.
     /// </summary>
     public bool RestrictPayloadSize { get; set; } = true;
-
-    /// <summary>
-    /// LearningTransport preserves file creation time to enable time-based scenarios in testing.
-    /// </summary>
-    protected internal override FrozenSet<string> ReceivePropertyNamesToPreserve { get; } = FrozenSet.ToFrozenSet(
-    [
-        "LearningTransport.FileCreatedAt"
-    ]);
 }

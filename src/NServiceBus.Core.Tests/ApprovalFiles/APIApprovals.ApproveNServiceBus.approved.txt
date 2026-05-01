@@ -651,7 +651,6 @@ namespace NServiceBus
     public class LearningTransport : NServiceBus.Transport.TransportDefinition
     {
         public LearningTransport() { }
-        protected override System.Collections.Frozen.FrozenSet<string> ReceivePropertyNamesToPreserve { get; }
         public bool RestrictPayloadSize { get; set; }
         public string StorageDirectory { get; set; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.TransportTransactionMode> GetSupportedTransactionModes() { }
@@ -2572,7 +2571,6 @@ namespace NServiceBus.Transport
     public abstract class TransportDefinition
     {
         protected TransportDefinition(NServiceBus.TransportTransactionMode defaultTransactionMode, bool supportsDelayedDelivery, bool supportsPublishSubscribe, bool supportsTTBR) { }
-        protected virtual System.Collections.Frozen.FrozenSet<string> ReceivePropertyNamesToPreserve { get; }
         public bool SupportsDelayedDelivery { get; }
         public bool SupportsPublishSubscribe { get; }
         public bool SupportsTTBR { get; }

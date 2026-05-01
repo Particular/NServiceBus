@@ -3,7 +3,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ using Pipeline;
 using Routing;
 using Transport;
 
-class RoutingToDispatchConnector(FrozenSet<string> receivePropertyNamesToPreserve) : StageConnector<IRoutingContext, IDispatchContext>
+class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
 {
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
@@ -23,19 +22,17 @@ class RoutingToDispatchConnector(FrozenSet<string> receivePropertyNamesToPreserv
             dispatchConsistency = DispatchConsistency.Isolated;
         }
 
-        _ = context.Extensions.TryGet(out IncomingMessage? incomingMessage);
-
         var outgoingMessage = context.Message;
 
         // HINT: Context is propagated to the message headers from the current activity, if present.
         // This may not be the outgoing message activity created by NServiceBus.
         ContextPropagation.PropagateContextToHeaders(Activity.Current, outgoingMessage.Headers, context.Extensions);
 
-        ReceiveProperties? receiveProperties = null;
-        var shouldPropagate = receivePropertyNamesToPreserve.Count > 0
-                              && incomingMessage != null
-                              && (receiveProperties = incomingMessage.ReceiveProperties) != ReceiveProperties.Empty
-                              && string.Equals(incomingMessage.MessageId, outgoingMessage.MessageId, StringComparison.Ordinal);
+        // We only propagate receive properties when the message id matches the incoming message id.
+        var receiveProperties =
+            context.Extensions.TryGet(out IncomingMessage? incomingMessage) && string.Equals(incomingMessage.MessageId, outgoingMessage.MessageId, StringComparison.Ordinal)
+                ? incomingMessage.ReceiveProperties
+                : ReceiveProperties.Empty;
 
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;
@@ -45,17 +42,10 @@ class RoutingToDispatchConnector(FrozenSet<string> receivePropertyNamesToPreserv
         {
             var transportOperation = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
 
-            if (shouldPropagate && receiveProperties != null)
+            foreach (var (propertyName, propertyValue) in receiveProperties)
             {
-                foreach (var propertyName in receivePropertyNamesToPreserve)
-                {
-                    //if dispatch property is not already set, set it
-                    if (!transportOperation.Properties.ContainsKey(propertyName)
-                        && receiveProperties.TryGetValue(propertyName, out var propertyValue))
-                    {
-                        transportOperation.Properties[propertyName] = propertyValue;
-                    }
-                }
+                //if dispatch property is not already set, set it
+                _ = transportOperation.Properties.TryAdd(propertyName, propertyValue);
             }
 
             operations[index++] = transportOperation;
