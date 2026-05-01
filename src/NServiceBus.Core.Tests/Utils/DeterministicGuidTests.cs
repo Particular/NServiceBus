@@ -17,7 +17,11 @@ public class DeterministicGuidTests
 
         var second = DeterministicGuid.Create("endpoint-name");
 
-        Assert.That(second, Is.EqualTo(first));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(second, Is.EqualTo(first));
+            Assert.That(first.Version, Is.EqualTo(8));
+        }
     }
 
     [Test]
@@ -112,7 +116,11 @@ public class DeterministicGuidTests
 
         var second = DeterministicGuid.Create("Grüezi", "🚀");
 
-        Assert.That(second, Is.EqualTo(first));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(second, Is.EqualTo(first));
+            Assert.That(first.Version, Is.EqualTo(8));
+        }
     }
 
     [Test]
@@ -124,7 +132,11 @@ public class DeterministicGuidTests
 
         var second = DeterministicGuid.Create(value);
 
-        Assert.That(second, Is.EqualTo(first));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(second, Is.EqualTo(first));
+            Assert.That(first.Version, Is.EqualTo(8));
+        }
     }
 
     [Test]
@@ -138,6 +150,8 @@ public class DeterministicGuidTests
         {
             Assert.That(second, Is.EqualTo(first));
             Assert.That(first, Is.Not.EqualTo(Guid.Empty));
+            // Empty string encodes to zero bytes, so it must match Create() which hashes zero bytes directly.
+            Assert.That(first, Is.EqualTo(DeterministicGuid.Create()));
         }
     }
 
