@@ -51,7 +51,8 @@ public class HostInfoSettings
         ArgumentException.ThrowIfNullOrWhiteSpace(instanceName);
         ArgumentException.ThrowIfNullOrWhiteSpace(hostName);
 
-        config.Settings.Get<HostingComponent.Settings>().HostId = DeterministicGuid.Create(instanceName, hostName);
+        var hostSettings = config.Settings.Get<HostingComponent.Settings>();
+        hostSettings.HostId = hostSettings.GenerateHostId(instanceName, hostName);
         return this;
     }
 
