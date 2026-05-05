@@ -1954,8 +1954,8 @@ namespace NServiceBus.Pipeline
         int DelayedDeliveriesPerformed { get; }
         System.Exception Exception { get; }
         [System.Obsolete("For access to the message body, headers, native message ID or the receive propert" +
-            "ies using the corresponding properties directly exposed on the context.. Will be" +
-            " treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+            "ies use the corresponding properties directly exposed on the context.. Will be t" +
+            "reated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         NServiceBus.Transport.IncomingMessage FailedMessage { get; }
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
         int ImmediateProcessingFailures { get; }
@@ -2443,8 +2443,8 @@ namespace NServiceBus.Transport
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public int ImmediateProcessingFailures { get; }
         [System.Obsolete("For access to the message body, headers, native message ID or the receive propert" +
-            "ies using the corresponding properties directly exposed on the context.. Will be" +
-            " treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+            "ies use the corresponding properties directly exposed on the context.. Will be t" +
+            "reated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public NServiceBus.Transport.IncomingMessage Message { get; }
         public string MessageId { get; }
         public string NativeMessageId { get; }

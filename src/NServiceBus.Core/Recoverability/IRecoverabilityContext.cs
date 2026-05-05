@@ -15,8 +15,8 @@ public interface IRecoverabilityContext : IBehaviorContext
     /// <summary>
     /// The message that failed processing.
     /// </summary>
-    [ObsoleteMetadata(Message = "For access to the message body, headers, native message ID or the receive properties using the corresponding properties directly exposed on the context.", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
-    [Obsolete("For access to the message body, headers, native message ID or the receive properties using the corresponding properties directly exposed on the context.. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [ObsoleteMetadata(Message = "For access to the message body, headers, native message ID or the receive properties use the corresponding properties directly exposed on the context.", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
+    [Obsolete("For access to the message body, headers, native message ID or the receive properties use the corresponding properties directly exposed on the context.. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     IncomingMessage FailedMessage { get; }
 
 #pragma warning disable CS0618 // Type or member is obsolete. once FailedMessage is removed simply turn these properties into get only properties.
@@ -41,7 +41,7 @@ public interface IRecoverabilityContext : IBehaviorContext
     ReadOnlyMemory<byte> Body => FailedMessage.Body;
 
     /// <summary>
-    /// Properties received from the transport that can be propagated to outgoing dispatch operations.
+    /// Properties received from the transport that will be propagated to outgoing dispatch operations.
     /// </summary>
     ReceiveProperties ReceiveProperties => FailedMessage.ReceiveProperties;
 #pragma warning restore CS0618 // Type or member is obsolete
