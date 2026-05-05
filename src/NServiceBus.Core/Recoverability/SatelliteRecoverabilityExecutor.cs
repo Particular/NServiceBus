@@ -66,7 +66,7 @@ class SatelliteRecoverabilityExecutor<TState>(
         CancellationToken cancellationToken)
         : IRecoverabilityActionContext
     {
-#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete. Can be removed in the next major when FailedMessage is removed from the interface.
         public IncomingMessage FailedMessage { get; } = errorContext.Message;
 #pragma warning restore CS0618 // Type or member is obsolete
 

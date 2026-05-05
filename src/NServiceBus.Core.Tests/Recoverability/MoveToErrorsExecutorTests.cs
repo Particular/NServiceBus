@@ -48,7 +48,7 @@ public class MoveToErrorsExecutorTests
 
         var outgoingMessageHeaders = routingContext.Message.Headers;
 
-        Assert.That(recoverabilityContext.FailedMessage.Headers, Is.SupersetOf(outgoingMessageHeaders));
+        Assert.That(recoverabilityContext.Headers, Is.SupersetOf(outgoingMessageHeaders));
     }
 
     [Test]
@@ -85,7 +85,7 @@ public class MoveToErrorsExecutorTests
         {
             Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
             // check for leaking headers
-            Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
+            Assert.That(recoverabilityContext.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
         }
     }
 
@@ -93,11 +93,13 @@ public class MoveToErrorsExecutorTests
     {
         var recoverabilityContext = new TestableRecoverabilityContext
         {
-            FailedMessage = new IncomingMessage(messageId, messageHeaders ?? [], ReadOnlyMemory<byte>.Empty),
+            MessageId = messageId,
+            Headers = messageHeaders ?? [],
+            Body = ReadOnlyMemory<byte>.Empty,
             Exception = raisedException ?? new Exception(exceptionMessage)
         };
 
-        if (metadata != default)
+        if (metadata != null)
         {
             recoverabilityContext.Metadata = metadata;
         }
