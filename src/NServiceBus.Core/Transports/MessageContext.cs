@@ -7,7 +7,7 @@ using Extensibility;
 /// <summary>
 /// Allows the transport to pass relevant info to the pipeline.
 /// </summary>
-public partial class MessageContext : IExtendable
+public class MessageContext : IExtendable
 {
     /// <summary>
     /// Initializes the context.
@@ -19,9 +19,25 @@ public partial class MessageContext : IExtendable
     /// <param name="receiveAddress">The receive address.</param>
     /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
     public MessageContext(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, TransportTransaction transportTransaction, string receiveAddress, ContextBag context)
+        : this(nativeMessageId, headers, body, ReceiveProperties.Empty, transportTransaction, receiveAddress, context)
+    {
+    }
+
+    /// <summary>
+    /// Initializes the context with receive properties.
+    /// </summary>
+    /// <param name="nativeMessageId">The native message ID.</param>
+    /// <param name="headers">The message headers.</param>
+    /// <param name="body">The message body.</param>
+    /// <param name="receiveProperties">Properties received from the transport that can be propagated to outgoing messages.</param>
+    /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
+    /// <param name="receiveAddress">The receive address.</param>
+    /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
+    public MessageContext(string nativeMessageId, Dictionary<string, string> headers, ReadOnlyMemory<byte> body, ReceiveProperties receiveProperties, TransportTransaction transportTransaction, string receiveAddress, ContextBag context)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nativeMessageId);
         ArgumentNullException.ThrowIfNull(headers);
+        ArgumentNullException.ThrowIfNull(receiveProperties);
         ArgumentNullException.ThrowIfNull(transportTransaction);
         ArgumentException.ThrowIfNullOrWhiteSpace(receiveAddress);
         ArgumentNullException.ThrowIfNull(context);
@@ -29,6 +45,7 @@ public partial class MessageContext : IExtendable
         Headers = headers;
         Body = body;
         NativeMessageId = nativeMessageId;
+        ReceiveProperties = receiveProperties;
         Extensions = context;
         ReceiveAddress = receiveAddress;
         TransportTransaction = transportTransaction;
@@ -50,6 +67,11 @@ public partial class MessageContext : IExtendable
     /// The message body.
     /// </summary>
     public ReadOnlyMemory<byte> Body { get; }
+
+    /// <summary>
+    /// Properties received from the transport that can be propagated to outgoing dispatch operations.
+    /// </summary>
+    public ReceiveProperties ReceiveProperties { get; }
 
     /// <summary>
     /// Transaction (along with connection if applicable) used to receive the message.

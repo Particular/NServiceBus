@@ -22,9 +22,17 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
             dispatchConsistency = DispatchConsistency.Isolated;
         }
 
+        var outgoingMessage = context.Message;
+
         // HINT: Context is propagated to the message headers from the current activity, if present.
         // This may not be the outgoing message activity created by NServiceBus.
-        ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Message.Headers, context.Extensions);
+        ContextPropagation.PropagateContextToHeaders(Activity.Current, outgoingMessage.Headers, context.Extensions);
+
+        // We only propagate receive properties when the message id matches the incoming message id.
+        var receiveProperties =
+            context.Extensions.TryGet(out IncomingMessage? incomingMessage) && string.Equals(incomingMessage.MessageId, outgoingMessage.MessageId, StringComparison.Ordinal)
+                ? incomingMessage.ReceiveProperties
+                : ReceiveProperties.Empty;
 
         var operations = new TransportOperation[context.RoutingStrategies.Count];
         var index = 0;
@@ -32,8 +40,15 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         var copySharedMutableMessageState = context.RoutingStrategies.Count > 1;
         foreach (var strategy in context.RoutingStrategies)
         {
-            operations[index] = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
-            index++;
+            var transportOperation = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
+
+            foreach (var (propertyName, propertyValue) in receiveProperties)
+            {
+                //if dispatch property is not already set, set it
+                _ = transportOperation.Properties.TryAdd(propertyName, propertyValue);
+            }
+
+            operations[index++] = transportOperation;
         }
 
         if (isDebugEnabled)
@@ -44,7 +59,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         // HINT: These tags get applied to the outgoing message activity, if present.
         if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
         {
-            ActivityDecorator.PromoteHeadersToTags(activity, context.Message.Headers);
+            ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))

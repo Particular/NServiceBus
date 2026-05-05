@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing;
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -60,7 +61,7 @@ public class RoutingToDispatchConnectorTests
     public async Task Should_copy_message_state_for_multiple_routing_strategies()
     {
         var behavior = new RoutingToDispatchConnector();
-        IEnumerable<TransportOperation> operations = null;
+        List<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
             RoutingStrategies =
@@ -78,11 +79,11 @@ public class RoutingToDispatchConnectorTests
         testableRoutingContext.Message = new OutgoingMessage("ID", originalHeaders, Array.Empty<byte>());
         await behavior.Invoke(testableRoutingContext, context =>
         {
-            operations = context.Operations;
+            operations = [.. context.Operations];
             return Task.CompletedTask;
         });
 
-        Assert.That(operations.ToList(), Has.Count.EqualTo(2));
+        Assert.That(operations, Has.Count.EqualTo(2));
 
         TransportOperation destination1Operation = operations.ElementAt(0);
         using (Assert.EnterMultipleScope())
@@ -91,13 +92,20 @@ public class RoutingToDispatchConnectorTests
             Assert.That((destination1Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination1"));
         }
         Dictionary<string, string> destination1Headers = destination1Operation.Message.Headers;
-        Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
-        Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
-        Assert.That(destination1Headers, Does.Not.Contain(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
-        Assert.That(destination1Headers, Is.Not.SameAs(originalHeaders));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
+            Assert.That(destination1Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
+            Assert.That(destination1Headers, Does.Not.Contain(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
+            Assert.That(destination1Headers, Is.Not.SameAs(originalHeaders));
+        }
+
         DispatchProperties destination1DispatchProperties = destination1Operation.Properties;
-        Assert.That(destination1DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
-        Assert.That(destination1DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(destination1DispatchProperties, Contains.Item(new KeyValuePair<string, string>("SomeKey", "SomeValue")));
+            Assert.That(destination1DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
+        }
 
         TransportOperation destination2Operation = operations.ElementAt(1);
         using (Assert.EnterMultipleScope())
@@ -106,10 +114,14 @@ public class RoutingToDispatchConnectorTests
             Assert.That((destination2Operation.AddressTag as UnicastAddressTag)?.Destination, Is.EqualTo("destination2"));
         }
         Dictionary<string, string> destination2Headers = destination2Operation.Message.Headers;
-        Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
-        Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
-        Assert.That(destination2Headers, Does.Not.Contain(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
-        Assert.That(destination2Headers, Is.Not.SameAs(originalHeaders));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("SomeHeaderKey", "SomeHeaderValue")));
+            Assert.That(destination2Headers, Contains.Item(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy2", "HeaderValueAddedByTheRoutingStrategy2")));
+            Assert.That(destination2Headers, Does.Not.Contain(new KeyValuePair<string, string>("HeaderKeyAddedByTheRoutingStrategy1", "HeaderValueAddedByTheRoutingStrategy1")));
+            Assert.That(destination2Headers, Is.Not.SameAs(originalHeaders));
+        }
+
         DispatchProperties destination2DispatchProperties = destination2Operation.Properties;
         Assert.That(destination2DispatchProperties, Is.Not.SameAs(originalDispatchProperties));
         using (Assert.EnterMultipleScope())
@@ -242,4 +254,114 @@ public class RoutingToDispatchConnectorTests
     }
 
     class MyMessage : IMessage;
+
+    [Test]
+    public async Task Should_merge_receive_properties_when_declared_by_transport()
+    {
+        var behavior = new RoutingToDispatchConnector();
+
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
+        {
+            ["MessageGroupId"] = "group-123",
+            ["MessageDeduplicationId"] = "dedup-456"
+        });
+
+        TransportOperation transportOperation = null;
+
+        var routingContext = new TestableRoutingContext
+        {
+            RoutingStrategies = [new UnicastRoutingStrategy("destination")]
+        };
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>(), receiveProperties));
+
+        await behavior.Invoke(routingContext, context =>
+        {
+            transportOperation = context.Operations.Single();
+            return Task.CompletedTask;
+        });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(transportOperation, Is.Not.Null);
+            Assert.That(transportOperation!.Properties["MessageGroupId"], Is.EqualTo("group-123"));
+            Assert.That(transportOperation!.Properties["MessageDeduplicationId"], Is.EqualTo("dedup-456"));
+        }
+    }
+
+    [Test]
+    public async Task Should_not_override_user_set_dispatch_property()
+    {
+        var behavior = new RoutingToDispatchConnector();
+
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
+        {
+            ["MessageGroupId"] = "incoming-group"
+        });
+
+        var userDispatchProperties = new DispatchProperties
+        {
+            ["MessageGroupId"] = "user-specified-group"
+        };
+
+        TransportOperation transportOperation = null;
+
+        var routingContext = new TestableRoutingContext
+        {
+            RoutingStrategies = [new UnicastRoutingStrategy("destination")]
+        };
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>(), receiveProperties));
+        routingContext.Extensions.Set(userDispatchProperties);
+
+        await behavior.Invoke(routingContext, context =>
+        {
+            transportOperation = context.Operations.Single();
+            return Task.CompletedTask;
+        });
+
+        Assert.That(transportOperation!.Properties["MessageGroupId"], Is.EqualTo("user-specified-group"),
+            "User-set DispatchProperties should take precedence over ReceiveProperties");
+    }
+
+    [Test]
+    public async Task Should_preserve_user_dispatch_properties_even_with_receive_properties()
+    {
+        var behavior = new RoutingToDispatchConnector();
+
+        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
+        {
+            ["MessageGroupId"] = "incoming-group",
+            ["DeduplicationId"] = "incoming-dedup"
+        });
+
+        var userDispatchProperties = new DispatchProperties
+        {
+            ["MessageGroupId"] = "user-group",
+            ["Custom.Property"] = "custom-value"
+        };
+
+        TransportOperation transportOperation = null;
+
+        var routingContext = new TestableRoutingContext
+        {
+            RoutingStrategies = [new UnicastRoutingStrategy("destination")]
+        };
+        routingContext.Extensions.Set(new IncomingMessage(routingContext.Message.MessageId, [], Array.Empty<byte>(), receiveProperties));
+        routingContext.Extensions.Set(userDispatchProperties);
+
+        await behavior.Invoke(routingContext, context =>
+        {
+            transportOperation = context.Operations.Single();
+            return Task.CompletedTask;
+        });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(transportOperation!.Properties["MessageGroupId"], Is.EqualTo("user-group"),
+                "User-set property wins");
+            Assert.That(transportOperation.Properties["DeduplicationId"], Is.EqualTo("incoming-dedup"),
+                "Receive property merged when not set by user");
+            Assert.That(transportOperation.Properties["Custom.Property"], Is.EqualTo("custom-value"),
+                "User custom property preserved");
+        }
+    }
 }

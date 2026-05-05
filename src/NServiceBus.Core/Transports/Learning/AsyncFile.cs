@@ -20,7 +20,7 @@ static class AsyncFile
     }
 
     //write to temp file first so we can do a atomic move
-    public static async Task WriteTextAtomic(string targetPath, string text, CancellationToken cancellationToken = default)
+    public static async Task WriteTextAtomic(string targetPath, string text, DateTime? creationTime, CancellationToken cancellationToken = default)
     {
         var tempFile = Path.GetTempFileName();
         var bytes = Encoding.UTF8.GetBytes(text);
@@ -56,6 +56,10 @@ static class AsyncFile
         }
 
         File.Move(tempFile, targetPath);
+        if (creationTime.HasValue)
+        {
+            File.SetCreationTime(targetPath, creationTime.Value);
+        }
     }
 
     static FileStream CreateWriteStream(string filePath, FileMode fileMode)
@@ -63,11 +67,23 @@ static class AsyncFile
         return new FileStream(filePath, fileMode, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
     }
 
-    public static Task WriteText(string filePath, string text, CancellationToken cancellationToken = default)
+    public static async Task WriteText(string filePath, string text, CancellationToken cancellationToken = default)
     {
         var bytes = Encoding.UTF8.GetBytes(text);
 
-        return WriteBytes(filePath, bytes, cancellationToken);
+        await WriteBytes(filePath, bytes, cancellationToken).ConfigureAwait(false);
+    }
+
+    public static async Task WriteText(string filePath, string text, DateTime? creationTime, CancellationToken cancellationToken = default)
+    {
+        var bytes = Encoding.UTF8.GetBytes(text);
+
+        await WriteBytes(filePath, bytes, cancellationToken).ConfigureAwait(false);
+
+        if (creationTime.HasValue)
+        {
+            File.SetCreationTime(filePath, creationTime.Value);
+        }
     }
 
     public static async Task<string> ReadText(string filePath, CancellationToken cancellationToken = default)

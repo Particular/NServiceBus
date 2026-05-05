@@ -8,7 +8,8 @@ using Transport;
 
 class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMetrics metrics)
 {
-    static IncomingMessage GetDefaultIncomingMessage(MessageContext messageContext) => new(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body);
+    static IncomingMessage GetDefaultIncomingMessage(MessageContext messageContext) =>
+        new(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body, messageContext.ReceiveProperties);
 
     internal IncomingMessageHandle UnwrapEnvelope(MessageContext messageContext)
     {
@@ -36,7 +37,7 @@ class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMet
                             "Unwrapped the message (NativeID: {0} using {1}", messageContext.NativeMessageId, envelopeHandler.GetType().Name);
                     }
 
-                    return new IncomingMessageHandle(new IncomingMessage(messageContext.NativeMessageId, headers, bufferWriter.WrittenMemory), bufferWriter);
+                    return new IncomingMessageHandle(new IncomingMessage(messageContext.NativeMessageId, headers, bufferWriter.WrittenMemory, messageContext.ReceiveProperties), bufferWriter);
                 }
 
                 if (Log.IsDebugEnabled)
