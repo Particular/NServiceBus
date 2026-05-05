@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Extensibility;
+using Particular.Obsoletes;
 
 /// <summary>
 /// The context for messages that has failed processing.
@@ -49,12 +50,15 @@ public class ErrorContext
         Exception = exception;
         TransportTransaction = transportTransaction;
         ImmediateProcessingFailures = immediateProcessingFailures;
-
-        Message = new IncomingMessage(nativeMessageId, headers, body, receiveProperties);
+        NativeMessageId = nativeMessageId;
+        MessageId = IncomingMessage.GetOrSetMessageIdFromHeaders(headers, nativeMessageId);
+        Headers = headers;
+        Body = body;
+        ReceiveProperties = receiveProperties;
 
         ReceiveAddress = receiveAddress;
 
-        DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
+        DelayedDeliveriesPerformed = headers.GetDelayedDeliveriesPerformed();
         Extensions = context;
     }
 
@@ -79,9 +83,36 @@ public class ErrorContext
     public int DelayedDeliveriesPerformed { get; }
 
     /// <summary>
+    /// The message ID.
+    /// </summary>
+    public string MessageId { get; }
+
+    /// <summary>
+    /// The native message ID.
+    /// </summary>
+    public string NativeMessageId { get; }
+
+    /// <summary>
+    /// The message headers.
+    /// </summary>
+    public Dictionary<string, string> Headers { get; }
+
+    /// <summary>
+    /// The message body.
+    /// </summary>
+    public ReadOnlyMemory<byte> Body { get; }
+
+    /// <summary>
+    /// Properties received from the transport that can be propagated to outgoing dispatch operations.
+    /// </summary>
+    public ReceiveProperties ReceiveProperties { get; }
+
+    /// <summary>
     /// Failed incoming message.
     /// </summary>
-    public IncomingMessage Message { get; }
+    [ObsoleteMetadata(Message = "For access to the message body, headers, native message ID or the receive properties using the corresponding properties directly exposed on the context.", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
+    [Obsolete("For access to the message body, headers, native message ID or the receive properties using the corresponding properties directly exposed on the context.. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    public IncomingMessage Message => new(NativeMessageId, Headers, Body, ReceiveProperties);
 
     /// <summary>
     /// Transport address that received the failed message.

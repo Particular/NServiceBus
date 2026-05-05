@@ -58,8 +58,8 @@ public partial class DelayedRetriesSettings : ExposeSettings
                 return Task.CompletedTask;
             }
 
-            var headerCopy = new Dictionary<string, string>(retry.Message.Headers);
-            return notificationCallback(new DelayedRetryMessage(retry.Message.MessageId, headerCopy, retry.Message.Body, retry.Exception, retry.Attempt), cancellationToken);
+            var headerCopy = new Dictionary<string, string>(retry.Headers);
+            return notificationCallback(new DelayedRetryMessage(retry.MessageId, headerCopy, retry.Body, retry.Exception, retry.Attempt), cancellationToken);
         });
 
         return this;

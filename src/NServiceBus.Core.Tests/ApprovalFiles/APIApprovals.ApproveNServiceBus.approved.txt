@@ -1933,21 +1933,37 @@ namespace NServiceBus.Pipeline
     }
     public interface IRecoverabilityActionContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
+        System.ReadOnlyMemory<byte> Body { get; }
         int DelayedDeliveriesPerformed { get; }
         System.Exception Exception { get; }
+        [System.Obsolete("For access to the message body, headers, native message ID or the receive propert" +
+            "ies using the corresponding properties directly exposed on the context.. Will be" +
+            " treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         NServiceBus.Transport.IncomingMessage FailedMessage { get; }
+        System.Collections.Generic.Dictionary<string, string> Headers { get; }
         int ImmediateProcessingFailures { get; }
+        string MessageId { get; }
         System.Collections.Generic.IReadOnlyDictionary<string, string> Metadata { get; }
+        string NativeMessageId { get; }
         string ReceiveAddress { get; }
+        NServiceBus.Transport.ReceiveProperties ReceiveProperties { get; }
     }
     public interface IRecoverabilityContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.Pipeline.IBehaviorContext
     {
+        System.ReadOnlyMemory<byte> Body { get; }
         int DelayedDeliveriesPerformed { get; }
         System.Exception Exception { get; }
+        [System.Obsolete("For access to the message body, headers, native message ID or the receive propert" +
+            "ies using the corresponding properties directly exposed on the context.. Will be" +
+            " treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         NServiceBus.Transport.IncomingMessage FailedMessage { get; }
+        System.Collections.Generic.Dictionary<string, string> Headers { get; }
         int ImmediateProcessingFailures { get; }
+        string MessageId { get; }
         System.Collections.Generic.Dictionary<string, string> Metadata { get; }
+        string NativeMessageId { get; }
         string ReceiveAddress { get; }
+        NServiceBus.Transport.ReceiveProperties ReceiveProperties { get; }
         NServiceBus.RecoverabilityAction RecoverabilityAction { get; set; }
         NServiceBus.RecoverabilityConfig RecoverabilityConfiguration { get; }
         NServiceBus.Pipeline.IRecoverabilityActionContext PreventChanges();
@@ -2420,12 +2436,20 @@ namespace NServiceBus.Transport
     {
         public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
         public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string nativeMessageId, System.ReadOnlyMemory<byte> body, NServiceBus.Transport.ReceiveProperties receiveProperties, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, string receiveAddress, NServiceBus.Extensibility.ContextBag context) { }
+        public System.ReadOnlyMemory<byte> Body { get; }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public int ImmediateProcessingFailures { get; }
+        [System.Obsolete("For access to the message body, headers, native message ID or the receive propert" +
+            "ies using the corresponding properties directly exposed on the context.. Will be" +
+            " treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public NServiceBus.Transport.IncomingMessage Message { get; }
+        public string MessageId { get; }
+        public string NativeMessageId { get; }
         public string ReceiveAddress { get; }
+        public NServiceBus.Transport.ReceiveProperties ReceiveProperties { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
     public enum ErrorHandleResult

@@ -39,8 +39,8 @@ public class ErrorContextTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(errorContext.Message.ReceiveProperties, Is.SameAs(receiveProperties));
-            Assert.That(errorContext.Message.ReceiveProperties["Native.Key"], Is.EqualTo("Value"));
+            Assert.That(errorContext.ReceiveProperties, Is.SameAs(receiveProperties));
+            Assert.That(errorContext.ReceiveProperties["Native.Key"], Is.EqualTo("Value"));
         }
     }
 
@@ -60,6 +60,6 @@ public class ErrorContextTests
             context: context
         );
 
-        Assert.That(errorContext.Message.ReceiveProperties, Is.SameAs(ReceiveProperties.Empty));
+        Assert.That(errorContext.ReceiveProperties, Is.SameAs(ReceiveProperties.Empty));
     }
 }

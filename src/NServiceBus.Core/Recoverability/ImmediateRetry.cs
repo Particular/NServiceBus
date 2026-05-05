@@ -28,20 +28,23 @@ public class ImmediateRetry : RecoverabilityAction
     /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
-        var message = context.FailedMessage;
         var exception = context.Exception;
 
-        Logger.Info($"Immediate Retry is going to retry message '{message.MessageId}' because of an exception:", exception);
+        Logger.Info($"Immediate Retry is going to retry message '{context.MessageId}' because of an exception:", exception);
         if (context is IRecoverabilityActionContextNotifications notifications)
         {
             notifications.Add(new MessageToBeRetried(
                 attempt: context.ImmediateProcessingFailures - 1,
                 delay: TimeSpan.Zero,
                 immediateRetry: true,
-                message,
+                context.NativeMessageId,
+                context.MessageId,
+                context.Headers,
+                context.Body,
+                context.ReceiveProperties,
                 exception));
         }
-        return Array.Empty<IRoutingContext>();
+        return [];
     }
 
     static readonly ILog Logger = LogManager.GetLogger<ImmediateRetry>();

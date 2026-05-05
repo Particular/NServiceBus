@@ -34,12 +34,11 @@ public class DelayedRetry : RecoverabilityAction
     /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
-        var message = context.FailedMessage;
         var exception = context.Exception;
 
-        Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {Delay} because of an exception:", exception);
+        Logger.Warn($"Delayed Retry will reschedule message '{context.MessageId}' after a delay of {Delay} because of an exception:", exception);
 
-        var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+        var outgoingMessage = new OutgoingMessage(context.MessageId, new Dictionary<string, string>(context.Headers), context.Body);
 
         var currentDelayedRetriesAttempt = context.DelayedDeliveriesPerformed + 1;
 
@@ -49,7 +48,11 @@ public class DelayedRetry : RecoverabilityAction
                 attempt: currentDelayedRetriesAttempt,
                 delay: Delay,
                 immediateRetry: false,
-                message,
+                context.NativeMessageId,
+                context.MessageId,
+                context.Headers,
+                context.Body,
+                context.ReceiveProperties,
                 exception));
         }
 
@@ -61,7 +64,7 @@ public class DelayedRetry : RecoverabilityAction
         {
             DelayDeliveryWith = new DelayDeliveryWith(Delay)
         });
-        return new[] { routingContext };
+        return [routingContext];
     }
 
     static readonly ILog Logger = LogManager.GetLogger<DelayedRetry>();

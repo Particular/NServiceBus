@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using Transport;
 
 /// <summary>
@@ -33,7 +34,7 @@ public static class DefaultRecoverabilityPolicy
             return RecoverabilityAction.ImmediateRetry();
         }
 
-        if (TryGetDelay(errorContext.Message, errorContext.DelayedDeliveriesPerformed, config.Delayed, out var delay))
+        if (TryGetDelay(errorContext.Headers, errorContext.DelayedDeliveriesPerformed, config.Delayed, out var delay))
         {
             return RecoverabilityAction.DelayedRetry(delay);
         }
@@ -41,7 +42,7 @@ public static class DefaultRecoverabilityPolicy
         return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
     }
 
-    static bool TryGetDelay(IncomingMessage message, int delayedDeliveriesPerformed, DelayedConfig config, out TimeSpan delay)
+    static bool TryGetDelay(Dictionary<string, string> headers, int delayedDeliveriesPerformed, DelayedConfig config, out TimeSpan delay)
     {
         delay = TimeSpan.MinValue;
 
@@ -55,7 +56,7 @@ public static class DefaultRecoverabilityPolicy
             return false;
         }
 
-        if (HasReachedMaxTime(message))
+        if (HasReachedMaxTime(headers))
         {
             return false;
         }
@@ -65,9 +66,9 @@ public static class DefaultRecoverabilityPolicy
         return true;
     }
 
-    static bool HasReachedMaxTime(IncomingMessage message)
+    static bool HasReachedMaxTime(Dictionary<string, string> headers)
     {
-        if (!message.Headers.TryGetValue(Headers.DelayedRetriesTimestamp, out var timestampHeader))
+        if (!headers.TryGetValue(Headers.DelayedRetriesTimestamp, out var timestampHeader))
         {
             return false;
         }
@@ -96,5 +97,4 @@ public static class DefaultRecoverabilityPolicy
 
         return false;
     }
-
 }

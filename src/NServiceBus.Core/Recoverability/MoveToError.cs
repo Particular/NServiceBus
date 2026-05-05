@@ -33,35 +33,34 @@ public class MoveToError : RecoverabilityAction
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
         var metadata = context.Metadata;
-        var message = context.FailedMessage;
         var exception = context.Exception;
 
-        Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", exception);
+        Logger.Error($"Moving message '{context.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", exception);
 
         if (context is IRecoverabilityActionContextNotifications notifications)
         {
-            notifications.Add(new MessageFaulted(ErrorQueue, message, exception));
+            notifications.Add(new MessageFaulted(ErrorQueue, context.NativeMessageId, context.MessageId, context.Headers, context.Body, context.ReceiveProperties, exception));
         }
 
-        var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+        var outgoingMessageHeaders = new Dictionary<string, string>(context.Headers);
+        _ = outgoingMessageHeaders.Remove(Headers.DelayedRetries);
+        _ = outgoingMessageHeaders.Remove(Headers.ImmediateRetries);
+        var outgoingMessage = new OutgoingMessage(context.MessageId, outgoingMessageHeaders, context.Body);
 
-        var headers = outgoingMessage.Headers;
-        headers.Remove(Headers.DelayedRetries);
-        headers.Remove(Headers.ImmediateRetries);
-
-        if (message.Headers.ContainsKey(Headers.DiagnosticsTraceParent))
+        if (context.Headers.ContainsKey(Headers.DiagnosticsTraceParent))
         {
-            message.Headers[Headers.StartNewTrace] = bool.TrueString;
+            // TODO: Bug?
+            context.Headers[Headers.StartNewTrace] = bool.TrueString;
         }
 
         foreach (var faultMetadata in metadata)
         {
-            headers[faultMetadata.Key] = faultMetadata.Value;
+            outgoingMessageHeaders[faultMetadata.Key] = faultMetadata.Value;
         }
-        return new[]
-        {
+        return
+        [
             context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(ErrorQueue))
-        };
+        ];
     }
 
     static readonly ILog Logger = LogManager.GetLogger<MoveToError>();

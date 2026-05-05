@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using NServiceBus;
     using System;
     using System.Reflection;
     using MessageNamespaceA;
     using MessageNamespaceB;
+    using NServiceBus;
     using NServiceBus.Features;
     using NServiceBus.Routing;
     using NUnit.Framework;

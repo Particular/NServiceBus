@@ -2,7 +2,6 @@
 
 namespace NServiceBus;
 
-using System;
 using System.Collections.Generic;
 using Logging;
 using Pipeline;
@@ -16,10 +15,7 @@ public class Discard : RecoverabilityAction
     /// <summary>
     /// Creates the action with the stated reason.
     /// </summary>
-    public Discard(string reason)
-    {
-        Reason = reason;
-    }
+    public Discard(string reason) => Reason = reason;
 
     /// <summary>
     /// The reason why a message was discarded.
@@ -34,8 +30,8 @@ public class Discard : RecoverabilityAction
     /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
-        Logger.Info($"Discarding message with id '{context.FailedMessage.MessageId}'. Reason: {Reason}", context.Exception);
-        return Array.Empty<IRoutingContext>();
+        Logger.Info($"Discarding message with id '{context.MessageId}'. Reason: {Reason}", context.Exception);
+        return [];
     }
 
     static readonly ILog Logger = LogManager.GetLogger<Discard>();

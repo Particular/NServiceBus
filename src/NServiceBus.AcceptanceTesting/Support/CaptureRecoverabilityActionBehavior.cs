@@ -18,9 +18,9 @@ class CaptureRecoverabilityActionBehavior(string endpointName, bool doNotFailOnE
             case MoveToError moveToErrorAction:
                 {
                     var failedMessage = new FailedMessage(
-                        context.FailedMessage.MessageId,
-                        new Dictionary<string, string>(context.FailedMessage.Headers),
-                        context.FailedMessage.Body,
+                        context.MessageId,
+                        new Dictionary<string, string>(context.Headers),
+                        context.Body,
                         context.Exception,
                         moveToErrorAction.ErrorQueue);
 
@@ -45,6 +45,6 @@ class CaptureRecoverabilityActionBehavior(string endpointName, bool doNotFailOnE
 
         return;
 
-        void MarkMessageAsCompleted() => scenarioContext.UnfinishedFailedMessages.AddOrUpdate(context.FailedMessage.MessageId, _ => false, static (_, _) => false);
+        void MarkMessageAsCompleted() => scenarioContext.UnfinishedFailedMessages.AddOrUpdate(context.MessageId, _ => false, static (_, _) => false);
     }
 }
