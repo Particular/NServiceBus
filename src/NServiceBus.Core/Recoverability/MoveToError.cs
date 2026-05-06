@@ -47,6 +47,11 @@ public class MoveToError : RecoverabilityAction
         _ = outgoingMessageHeaders.Remove(Headers.ImmediateRetries);
         var outgoingMessage = new OutgoingMessage(context.MessageId, outgoingMessageHeaders, context.Body);
 
+        if (context.Headers.ContainsKey(Headers.DiagnosticsTraceParent))
+        {
+            outgoingMessageHeaders[Headers.StartNewTrace] = bool.TrueString;
+        }
+
         foreach (var faultMetadata in metadata)
         {
             outgoingMessageHeaders[faultMetadata.Key] = faultMetadata.Value;
