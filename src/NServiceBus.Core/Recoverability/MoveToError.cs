@@ -49,8 +49,7 @@ public class MoveToError : RecoverabilityAction
 
         if (context.Headers.ContainsKey(Headers.DiagnosticsTraceParent))
         {
-            // TODO: Bug?
-            context.Headers[Headers.StartNewTrace] = bool.TrueString;
+            outgoingMessageHeaders[Headers.StartNewTrace] = bool.TrueString;
         }
 
         foreach (var faultMetadata in metadata)
