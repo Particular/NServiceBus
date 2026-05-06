@@ -68,7 +68,7 @@
                                         (IInvokeHandlerContext context10) => InvokeHandlerTerminator.Invoke(context10)))))))))))
 
 (IRecoverabilityContext context0) => CaptureRecoverabilityActionBehavior.Invoke(context0,
-    (IRecoverabilityContext context1) => ForceNewParentWhenNecessaryDuringRecoverabilityBehavior.Invoke(context1,
+    (IRecoverabilityContext context1) => PopulateRecoverabilityTraceMetadataBehavior.Invoke(context1,
         (IRecoverabilityContext context2) => RecoverabilityRoutingConnector.Invoke(context2,
             (IRoutingContext context3) => ThrowIfCannotDeferMessageBehavior.Invoke(context3,
                 (IRoutingContext context4) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context4,

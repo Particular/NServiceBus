@@ -56,6 +56,13 @@ public class DelayedRetry : RecoverabilityAction
                 exception));
         }
 
+        // Metadata is normally only written to headers during move to error, but when we are
+        // doing delayed retries, we need to write it to the headers as well.
+        if (context.Metadata.TryGetValue(Headers.StartNewTrace, out var startNewTrace))
+        {
+            outgoingMessage.Headers[Headers.StartNewTrace] = startNewTrace;
+        }
+
         outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
         outgoingMessage.SetDelayedDeliveryTimestamp(DateTimeOffset.UtcNow);
 
