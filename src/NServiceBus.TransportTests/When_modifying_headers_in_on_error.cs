@@ -22,7 +22,7 @@ public class When_modifying_headers_in_on_error : NServiceBusTransportTest
             (context, _) =>
             {
                 retrying = true;
-                context.Message.Headers["test-header"] = "modified";
+                context.Headers["test-header"] = "modified";
                 return Task.FromResult(ErrorHandleResult.RetryRequired);
             },
             transactionMode);

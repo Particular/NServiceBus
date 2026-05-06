@@ -1,62 +1,65 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AcceptanceTesting.Support;
 using EndpointTemplates;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting;
+using NServiceBus.Pipeline;
 using NUnit.Framework;
+using Conventions = AcceptanceTesting.Customization.Conventions;
 
 public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public void Should_add_start_new_trace_header()
+    public async Task Should_add_start_new_trace_header()
     {
-        var exception = Assert.CatchAsync<MessageFailedException>(async () =>
-        {
-            await Scenario.Define<Context>()
-                .WithEndpoint<FailingEndpoint>(e => e
-                    .When(s => s.SendLocal(new FailingMessage())))
-                .Run();
-        });
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<FailingEndpoint>(e => e
+                .When(s => s.SendLocal(new FailingMessage()))
+                .DoNotFailOnErrorMessages())
+            .WithEndpoint<ErrorSpy>()
+            .Run();
 
-        var failedMessage = exception.FailedMessage;
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(failedMessage.Headers.ContainsKey(Headers.StartNewTrace), Is.True);
-            Assert.That(failedMessage.Headers[Headers.StartNewTrace], Is.EqualTo(bool.TrueString));
-        }
+        Assert.That(context.ErrorMessageHeaders[Headers.StartNewTrace], Is.EqualTo(bool.TrueString));
     }
 
     public class Context : ScenarioContext
     {
-        public bool HandlerInvoked { get; set; }
+        public Dictionary<string, string> ErrorMessageHeaders { get; set; }
     }
 
     public class FailingEndpoint : EndpointConfigurationBuilder
     {
-        public FailingEndpoint() => EndpointSetup<DefaultServer>();
+        static readonly string ErrorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+
+        public FailingEndpoint() => EndpointSetup<DefaultServer>(c => c.SendFailedMessagesTo(ErrorQueueAddress));
 
         [Handler]
-        public class FailingMessageHandler : IHandleMessages<FailingMessage>
+        public class FailingMessageHandler() : IHandleMessages<FailingMessage>
         {
+            public Task Handle(FailingMessage message, IMessageHandlerContext context) => throw new SimulatedException(ErrorMessage);
+        }
+    }
 
-            Context textContext;
+    class ErrorSpy : EndpointConfigurationBuilder
+    {
+        public ErrorSpy() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register<ErrorMessageDetector>("Detect incoming error messages"));
 
-            public FailingMessageHandler(Context textContext) => this.textContext = textContext;
-
-            public Task Handle(FailingMessage message, IMessageHandlerContext context)
+        class ErrorMessageDetector(Context testContext) : Behavior<ITransportReceiveContext>
+        {
+            public override Task Invoke(ITransportReceiveContext context, Func<Task> next)
             {
-                textContext.HandlerInvoked = true;
-                throw new SimulatedException(ErrorMessage);
+                testContext.ErrorMessageHeaders = context.Message.Headers;
+                testContext.MarkAsCompleted();
+                return next();
             }
         }
     }
 
-    public class FailingMessage : IMessage
-    {
-    }
+    public class FailingMessage : IMessage;
 
     const string ErrorMessage = "oh no!";
 }

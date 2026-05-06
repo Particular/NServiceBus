@@ -115,7 +115,7 @@ public abstract class NServiceBusTransportTest
             (context, token) =>
                 context.Headers.Contains(TestIdHeaderName, testId) ? onMessage(context, token) : Task.CompletedTask,
             (context, token) =>
-                context.Message.Headers.Contains(TestIdHeaderName, testId) ? onError(context, token) : Task.FromResult(ErrorHandleResult.Handled),
+                context.Headers.Contains(TestIdHeaderName, testId) ? onError(context, token) : Task.FromResult(ErrorHandleResult.Handled),
             cancellationToken);
     }
 

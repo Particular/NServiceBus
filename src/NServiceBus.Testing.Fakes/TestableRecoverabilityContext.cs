@@ -13,7 +13,32 @@ public partial class TestableRecoverabilityContext : TestableBehaviorContext, IR
     /// <summary>
     /// The message that failed processing.
     /// </summary>
-    public IncomingMessage FailedMessage { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), [], ReadOnlyMemory<byte>.Empty);
+    public IncomingMessage FailedMessage { get; set; } = new(Guid.NewGuid().ToString(), [], ReadOnlyMemory<byte>.Empty);
+
+    /// <summary>
+    /// The message ID of the failed message.
+    /// </summary>
+    public string MessageId { get; set; } = Guid.NewGuid().ToString();
+
+    /// <summary>
+    /// The native message ID of the failed message.
+    /// </summary>
+    public string NativeMessageId { get; set; } = Guid.NewGuid().ToString();
+
+    /// <summary>
+    /// The message headers of the failed message.
+    /// </summary>
+    public Dictionary<string, string> Headers { get; set; } = [];
+
+    /// <summary>
+    /// The message body of the failed message.
+    /// </summary>
+    public ReadOnlyMemory<byte> Body { get; set; } = ReadOnlyMemory<byte>.Empty;
+
+    /// <summary>
+    /// Properties received from the transport that will be propagated to outgoing dispatch operations.
+    /// </summary>
+    public ReceiveProperties ReceiveProperties { get; set; } = ReceiveProperties.Empty;
 
     /// <summary>
     /// The exception that caused processing to fail.

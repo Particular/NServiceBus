@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using Extensibility;
 using NServiceBus.Transport;
+using Particular.Obsoletes;
 using Pipeline;
 
 sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext, IRecoverabilityActionContext, IRecoverabilityActionContextNotifications
@@ -24,7 +25,14 @@ sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext
         ContextBag parent,
         CancellationToken cancellationToken) : base(serviceProvider, messageOperations, pipelineCache, cancellationToken, parent)
     {
+#pragma warning disable CS0618 // Type or member is obsolete. Can be removed in the next major when FailedMessage is removed from the interface.
         FailedMessage = errorContext.Message;
+#pragma warning restore CS0618 // Type or member is obsolete
+        MessageId = errorContext.MessageId;
+        NativeMessageId = errorContext.NativeMessageId;
+        Headers = errorContext.Headers;
+        Body = errorContext.Body;
+        ReceiveProperties = errorContext.ReceiveProperties;
         Exception = errorContext.Exception;
         ReceiveAddress = errorContext.ReceiveAddress;
         ImmediateProcessingFailures = errorContext.ImmediateProcessingFailures;
@@ -36,7 +44,9 @@ sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext
         Extensions.Set(errorContext.TransportTransaction);
     }
 
-    public IncomingMessage FailedMessage { get; }
+    [ObsoleteMetadata(Message = "For access to the message body, headers, native message ID, or the receive properties use the corresponding properties directly exposed on the context", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
+    [Obsolete("For access to the message body, headers, native message ID, or the receive properties use the corresponding properties directly exposed on the context. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    public IncomingMessage FailedMessage { get; } // Can be removed in the next major when FailedMessage is removed from the interface.
 
     public Exception Exception { get; }
 
@@ -45,6 +55,16 @@ sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext
     public int ImmediateProcessingFailures { get; }
 
     public int DelayedDeliveriesPerformed { get; }
+
+    public string MessageId { get; }
+
+    public string NativeMessageId { get; }
+
+    public Dictionary<string, string> Headers { get; }
+
+    public ReadOnlyMemory<byte> Body { get; }
+
+    public ReceiveProperties ReceiveProperties { get; }
 
     IReadOnlyDictionary<string, string> IRecoverabilityActionContext.Metadata => Metadata;
 

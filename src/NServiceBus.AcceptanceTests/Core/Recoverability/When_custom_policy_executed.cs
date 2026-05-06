@@ -25,10 +25,16 @@ public class When_custom_policy_executed : NServiceBusAcceptanceTest
         Assert.That(context.ErrorContexts, Has.Count.EqualTo(2), "because the custom policy should have been invoked twice");
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(context.ErrorContexts[0].Message, Is.Not.Null);
+            Assert.That(context.ErrorContexts[0].MessageId, Is.Not.Null);
+            Assert.That(context.ErrorContexts[0].NativeMessageId, Is.Not.Null);
+            Assert.That(context.ErrorContexts[0].Headers, Is.Not.Empty);
+            Assert.That(context.ErrorContexts[0].ReceiveProperties, Is.Not.Null);
             Assert.That(context.ErrorContexts[0].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.ErrorContexts[0].DelayedDeliveriesPerformed, Is.EqualTo(0));
-            Assert.That(context.ErrorContexts[1].Message, Is.Not.Null);
+            Assert.That(context.ErrorContexts[0].DelayedDeliveriesPerformed, Is.Zero);
+            Assert.That(context.ErrorContexts[1].MessageId, Is.Not.Null);
+            Assert.That(context.ErrorContexts[1].NativeMessageId, Is.Not.Null);
+            Assert.That(context.ErrorContexts[1].Headers, Is.Not.Empty);
+            Assert.That(context.ErrorContexts[1].ReceiveProperties, Is.Not.Null);
             Assert.That(context.ErrorContexts[1].Exception, Is.TypeOf<SimulatedException>());
             Assert.That(context.ErrorContexts[1].DelayedDeliveriesPerformed, Is.EqualTo(1));
         }

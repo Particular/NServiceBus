@@ -33,7 +33,7 @@ public class When_on_message_throws : NServiceBusTransportTest
         {
             Assert.That(errorContext.Exception.Message, Is.EqualTo("Simulated exception"), "Should preserve the exception");
             Assert.That(errorContext.ImmediateProcessingFailures, Is.EqualTo(1), "Should track the number of delivery attempts");
-            Assert.That(errorContext.Message.Headers["MyHeader"], Is.EqualTo("MyValue"), "Should pass the message headers");
+            Assert.That(errorContext.Headers["MyHeader"], Is.EqualTo("MyValue"), "Should pass the message headers");
         }
     }
 }

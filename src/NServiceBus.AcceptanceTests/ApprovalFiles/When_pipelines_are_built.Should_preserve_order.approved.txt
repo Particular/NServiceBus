@@ -68,8 +68,9 @@
                                         (IInvokeHandlerContext context10) => InvokeHandlerTerminator.Invoke(context10)))))))))))
 
 (IRecoverabilityContext context0) => CaptureRecoverabilityActionBehavior.Invoke(context0,
-    (IRecoverabilityContext context1) => RecoverabilityRoutingConnector.Invoke(context1,
-        (IRoutingContext context2) => ThrowIfCannotDeferMessageBehavior.Invoke(context2,
-            (IRoutingContext context3) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context3,
-                (IRoutingContext context4) => RoutingToDispatchConnector.Invoke(context4,
-                    (IDispatchContext context5) => ImmediateDispatchTerminator.Invoke(context5))))))
+    (IRecoverabilityContext context1) => ForceNewParentWhenNecessaryDuringRecoverabilityBehavior.Invoke(context1,
+        (IRecoverabilityContext context2) => RecoverabilityRoutingConnector.Invoke(context2,
+            (IRoutingContext context3) => ThrowIfCannotDeferMessageBehavior.Invoke(context3,
+                (IRoutingContext context4) => AttachSenderRelatedInfoOnMessageBehavior.Invoke(context4,
+                    (IRoutingContext context5) => RoutingToDispatchConnector.Invoke(context5,
+                        (IDispatchContext context6) => ImmediateDispatchTerminator.Invoke(context6)))))))

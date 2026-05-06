@@ -32,23 +32,10 @@ public class IncomingMessage
         ArgumentNullException.ThrowIfNull(headers);
         ArgumentNullException.ThrowIfNull(receiveProperties);
 
-        if (headers.TryGetValue(NServiceBus.Headers.MessageId, out var originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
-        {
-            MessageId = originalMessageId;
-        }
-        else
-        {
-            MessageId = nativeMessageId;
-
-            headers[NServiceBus.Headers.MessageId] = nativeMessageId;
-        }
-
         NativeMessageId = nativeMessageId;
-
+        MessageId = GetOrSetMessageIdFromHeaders(headers, nativeMessageId);
         Headers = headers;
-
         Body = body;
-
         ReceiveProperties = receiveProperties;
     }
 
@@ -76,6 +63,29 @@ public class IncomingMessage
     /// Gets/sets a byte array to the body content of the message.
     /// </summary>
     public ReadOnlyMemory<byte> Body { get; private set; }
+
+    /// <summary>
+    /// This method is used to ensure that the message ID header is present in the header dictionary.
+    /// If the header is already present, it returns its value. If not, it adds the native message ID to the headers and returns it as the message ID.
+    /// </summary>
+    /// <param name="headers">The message headers to inspects and potentially mutate.</param>
+    /// <param name="nativeMessageId">The native message ID.</param>
+    /// <returns>The original message ID or the native message ID depending on the availability of the MessageId header.</returns>
+    internal static string GetOrSetMessageIdFromHeaders(Dictionary<string, string> headers, string nativeMessageId)
+    {
+        string messageId;
+        if (headers.TryGetValue(NServiceBus.Headers.MessageId, out var originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
+        {
+            messageId = originalMessageId;
+        }
+        else
+        {
+            messageId = nativeMessageId;
+
+            headers[NServiceBus.Headers.MessageId] = nativeMessageId;
+        }
+        return messageId;
+    }
 
     /// <summary>
     /// Use this method to update the body of this message.

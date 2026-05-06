@@ -23,7 +23,7 @@ public class When_on_message_throws_after_delayed_retry : NServiceBusTransportTe
                 if (!sendingDelayedMessage)
                 {
                     sendingDelayedMessage = true;
-                    await SendMessage(InputQueueName, context.Message.Headers, context.TransportTransaction, cancellationToken: cancellationToken);
+                    await SendMessage(InputQueueName, context.Headers, context.TransportTransaction, cancellationToken: cancellationToken);
                 }
                 else
                 {

@@ -33,6 +33,6 @@ public class When_modifying_headers_before_on_error : NServiceBusTransportTest
 
         var errorContext = await errorHandled.Task;
 
-        Assert.That(errorContext.Message.Headers["test-header"], Is.EqualTo("original"));
+        Assert.That(errorContext.Headers["test-header"], Is.EqualTo("original"));
     }
 }

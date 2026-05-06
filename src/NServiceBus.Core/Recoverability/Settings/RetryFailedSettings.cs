@@ -42,8 +42,8 @@ public partial class RetryFailedSettings : ExposeSettings
         var subscriptions = Settings.Get<RecoverabilityComponent.Configuration>();
         subscriptions.MessageFaultedNotification.Subscribe((faulted, cancellationToken) =>
         {
-            var headerCopy = new Dictionary<string, string>(faulted.Message.Headers);
-            return notificationCallback(new FailedMessage(faulted.Message.MessageId, headerCopy, faulted.Message.Body, faulted.Exception, faulted.ErrorQueue), cancellationToken);
+            var headerCopy = new Dictionary<string, string>(faulted.Headers);
+            return notificationCallback(new FailedMessage(faulted.MessageId, headerCopy, faulted.Body, faulted.Exception, faulted.ErrorQueue), cancellationToken);
         });
 
         return this;

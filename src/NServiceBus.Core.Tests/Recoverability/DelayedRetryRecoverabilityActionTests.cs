@@ -46,14 +46,12 @@ public class DelayedRetryRecoverabilityActionTests
         var now = DateTimeOffset.UtcNow;
         var routingContexts = delayedRetryAction.GetRoutingContexts(recoverabilityContext);
 
-        var incomingMessage = recoverabilityContext.FailedMessage;
-
         var outgoingMessageHeaders = routingContexts.Single().Message.Headers;
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(outgoingMessageHeaders[Headers.DelayedRetries], Is.EqualTo("3"));
-            Assert.That(incomingMessage.Headers[Headers.DelayedRetries], Is.EqualTo(delayedDeliveriesPerformed.ToString()));
+            Assert.That(recoverabilityContext.Headers[Headers.DelayedRetries], Is.EqualTo(delayedDeliveriesPerformed.ToString()));
         }
 
         var utcDateTime = DateTimeOffsetHelper.ToDateTimeOffset(outgoingMessageHeaders[Headers.DelayedRetriesTimestamp]);
@@ -62,7 +60,7 @@ public class DelayedRetryRecoverabilityActionTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(utcDateTime, Is.GreaterThanOrEqualTo(adjustedNow));
-            Assert.That(incomingMessage.Headers[Headers.DelayedRetriesTimestamp], Is.EqualTo(originalHeadersTimestamp));
+            Assert.That(recoverabilityContext.Headers[Headers.DelayedRetriesTimestamp], Is.EqualTo(originalHeadersTimestamp));
         }
     }
 
@@ -79,18 +77,18 @@ public class DelayedRetryRecoverabilityActionTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(outgoingMessageHeaders[Headers.DelayedRetries], Is.EqualTo("1"));
-            Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetries), Is.False);
+            Assert.That(recoverabilityContext.Headers.ContainsKey(Headers.DelayedRetries), Is.False);
             Assert.That(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp), Is.True);
-            Assert.That(recoverabilityContext.FailedMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp), Is.False);
+            Assert.That(recoverabilityContext.Headers.ContainsKey(Headers.DelayedRetriesTimestamp), Is.False);
         }
     }
 
-    static TestableRecoverabilityContext CreateRecoverabilityContext(Dictionary<string, string> headers = null, int delayedDeliveriesPerformed = 0)
-    {
-        return new TestableRecoverabilityContext
+    static TestableRecoverabilityContext CreateRecoverabilityContext(Dictionary<string, string> headers = null, int delayedDeliveriesPerformed = 0) =>
+        new()
         {
-            FailedMessage = new IncomingMessage("messageId", headers ?? [], ReadOnlyMemory<byte>.Empty),
+            MessageId = "messageId",
+            Headers = headers ?? [],
+            Body = ReadOnlyMemory<byte>.Empty,
             DelayedDeliveriesPerformed = delayedDeliveriesPerformed
         };
-    }
 }
