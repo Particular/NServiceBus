@@ -19,8 +19,8 @@ sealed class OpenTelemetryFeature : Feature
         );
 
         context.Pipeline.Register(
-            new ForceNewParentWhenNecessaryDuringRecoverabilityBehavior(),
-            "Overrides the parent trace when necessary during recoverability to avoid creating a child trace of the delayed or failed message's trace"
+            new PopulateRecoverabilityTraceMetadataBehavior(),
+            "Populates the recoverability metadata"
         );
     }
 }
