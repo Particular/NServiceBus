@@ -110,8 +110,8 @@ public class ErrorContext
     /// <summary>
     /// Failed incoming message.
     /// </summary>
-    [ObsoleteMetadata(Message = "For access to the message body, headers, native message ID or the receive properties use the corresponding properties directly exposed on the context.", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
-    [Obsolete("For access to the message body, headers, native message ID or the receive properties use the corresponding properties directly exposed on the context.. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [ObsoleteMetadata(Message = "For access to the message body, headers, native message ID, or the receive properties use the corresponding properties directly exposed on the context", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
+    [Obsolete("For access to the message body, headers, native message ID, or the receive properties use the corresponding properties directly exposed on the context. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     public IncomingMessage Message => new(NativeMessageId, Headers, Body, ReceiveProperties);
 
     /// <summary>

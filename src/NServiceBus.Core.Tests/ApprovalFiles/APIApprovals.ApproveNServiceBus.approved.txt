@@ -1936,9 +1936,9 @@ namespace NServiceBus.Pipeline
         System.ReadOnlyMemory<byte> Body { get; }
         int DelayedDeliveriesPerformed { get; }
         System.Exception Exception { get; }
-        [System.Obsolete("For access to the message body, headers, native message ID or the receive propert" +
-            "ies using the corresponding properties directly exposed on the context.. Will be" +
-            " treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [System.Obsolete("For access to the message body, headers, native message ID, or the receive proper" +
+            "ties use the corresponding properties directly exposed on the context. Will be t" +
+            "reated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         NServiceBus.Transport.IncomingMessage FailedMessage { get; }
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
         int ImmediateProcessingFailures { get; }
@@ -1953,8 +1953,8 @@ namespace NServiceBus.Pipeline
         System.ReadOnlyMemory<byte> Body { get; }
         int DelayedDeliveriesPerformed { get; }
         System.Exception Exception { get; }
-        [System.Obsolete("For access to the message body, headers, native message ID or the receive propert" +
-            "ies use the corresponding properties directly exposed on the context.. Will be t" +
+        [System.Obsolete("For access to the message body, headers, native message ID, or the receive proper" +
+            "ties use the corresponding properties directly exposed on the context. Will be t" +
             "reated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         NServiceBus.Transport.IncomingMessage FailedMessage { get; }
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
@@ -2442,8 +2442,8 @@ namespace NServiceBus.Transport
         public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public int ImmediateProcessingFailures { get; }
-        [System.Obsolete("For access to the message body, headers, native message ID or the receive propert" +
-            "ies use the corresponding properties directly exposed on the context.. Will be t" +
+        [System.Obsolete("For access to the message body, headers, native message ID, or the receive proper" +
+            "ties use the corresponding properties directly exposed on the context. Will be t" +
             "reated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public NServiceBus.Transport.IncomingMessage Message { get; }
         public string MessageId { get; }
