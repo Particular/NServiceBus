@@ -277,15 +277,15 @@ namespace NServiceBus
     }
 
     [ObsoleteMetadata(Message = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-    [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will be removed in version 11.0.0.", true)]
+    [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation. Will be removed in version 11.0.0.", true)]
     public static class LoadMessageHandlersExtensions
     {
         [ObsoleteMetadata(Message = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-        [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will be removed in version 11.0.0.", true)]
+        [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation. Will be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, IEnumerable<Type> handlerTypes) => throw new NotImplementedException();
 
         [ObsoleteMetadata(Message = "Use AddHandler<TMessageHandler>(); to control order of handler invocation.", RemoveInVersion = "11", TreatAsErrorFromVersion = "10")]
-        [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation.. Will be removed in version 11.0.0.", true)]
+        [Obsolete("Use AddHandler<TMessageHandler>(); to control order of handler invocation. Will be removed in version 11.0.0.", true)]
         public static void ExecuteTheseHandlersFirst(this EndpointConfiguration config, params Type[] handlerTypes) => throw new NotImplementedException();
     }
 
