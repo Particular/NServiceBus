@@ -108,6 +108,16 @@ public static class EndpointConfigurationExtensions
             "Enforces all subscribed events have corresponding mappings in the PublisherMetadata");
     }
 
+    /// <summary>
+    /// Enables test independence by adding a TestRunId header to outgoing messages
+    /// and skipping messages from other test runs on receipt.
+    /// </summary>
+    public static void EnableTestIndependence(this EndpointConfiguration config)
+    {
+        config.Pipeline.Register("AcceptanceTesting.TestRunId", typeof(TestRunIdHeaderBehavior), "Adds the current TestRunId header to outgoing messages");
+        config.Pipeline.Register("AcceptanceTesting.TestRunSkip", typeof(TestRunIdSkipBehavior), "Skips messages from other test runs");
+    }
+
     static void AddHandlerWithReflection(Type handlerType, EndpointConfiguration endpointConfiguration) =>
         AddHandlerWithReflectionMethod.InvokeGeneric(null, [endpointConfiguration], [handlerType]);
 
