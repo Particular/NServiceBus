@@ -17,7 +17,7 @@ class BaseEndpointLifecycle(
             return;
         }
 
-        await createSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await lifeCycleSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
@@ -31,7 +31,7 @@ class BaseEndpointLifecycle(
         }
         finally
         {
-            createSemaphore.Release();
+            lifeCycleSemaphore.Release();
         }
     }
 
@@ -48,7 +48,26 @@ class BaseEndpointLifecycle(
             throw new InvalidOperationException("The endpoint must be created before it can be started.");
         }
 
-        endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
+        if (endpointInstance != null)
+        {
+            return;
+        }
+
+        await lifeCycleSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            if (endpointInstance != null)
+            {
+                return;
+            }
+
+            endpointInstance = await startableEndpoint.Start(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            lifeCycleSemaphore.Release();
+        }
     }
 
     public async ValueTask<RunningEndpointInstance> CreateAndStart(CancellationToken cancellationToken = default)
@@ -65,7 +84,22 @@ class BaseEndpointLifecycle(
             return;
         }
 
-        await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
+        await lifeCycleSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            if (endpointInstance == null)
+            {
+                return;
+            }
+
+            await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
+            endpointInstance = null;
+        }
+        finally
+        {
+            lifeCycleSemaphore.Release();
+        }
     }
 
     public async ValueTask DisposeAsync()
@@ -88,7 +122,7 @@ class BaseEndpointLifecycle(
         }
     }
 
-    readonly SemaphoreSlim createSemaphore = new(1, 1);
+    readonly SemaphoreSlim lifeCycleSemaphore = new(1, 1);
 
     volatile StartableEndpoint? startableEndpoint;
     RunningEndpointInstance? endpointInstance;
