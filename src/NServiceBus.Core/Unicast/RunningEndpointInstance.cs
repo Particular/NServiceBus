@@ -28,15 +28,11 @@ class RunningEndpointInstance(SettingsHolder settings,
             return;
         }
 
-        using var _ = LogManager.BeginSlotScope(endpointLogSlot);
-        var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."));
         var semaphoreEntered = false;
-
-        await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
-
         try
         {
-            // Ensures to only continue if all parallel invocations can rely on the endpoint instance to be fully stopped.
+            // Serialize Stop so only one caller owns shutdown and cleanup, while other
+            // non-cancelled callers wait until shutdown has completed before returning.
             await stopSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
             semaphoreEntered = true;
 
@@ -47,10 +43,15 @@ class RunningEndpointInstance(SettingsHolder settings,
 
             status = Status.Stopping;
 
+            using var _ = LogManager.BeginSlotScope(endpointLogSlot);
+            await using var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."))
+                .ConfigureAwait(false);
+            Log.Info("Initiating shutdown.");
+
+            await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
+
             try
             {
-                Log.Info("Initiating shutdown.");
-
                 // Cannot throw by design
                 await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
                 await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
@@ -73,6 +74,7 @@ class RunningEndpointInstance(SettingsHolder settings,
                 await serviceProviderLease.DisposeAsync()
                     .ConfigureAwait(false);
 
+                stoppingTokenSource.Dispose();
                 status = Status.Stopped;
             }
         }
@@ -82,10 +84,6 @@ class RunningEndpointInstance(SettingsHolder settings,
             {
                 stopSemaphore.Release();
             }
-
-            await tokenRegistration.DisposeAsync().ConfigureAwait(false);
-
-            stoppingTokenSource.Dispose();
         }
     }
 
