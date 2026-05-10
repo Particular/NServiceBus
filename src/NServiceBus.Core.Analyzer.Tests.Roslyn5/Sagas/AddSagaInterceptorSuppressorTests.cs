@@ -8,6 +8,10 @@ using Particular.AnalyzerTesting;
 [TestFixture]
 public class AddSagaInterceptorSuppressorTests
 {
+    static SourceGeneratorTest ConfiguredSourceGeneratorTest() =>
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+            .WithIncrementalGenerator<InterceptionsLocationAttributeGenerator>();
+
     [Test]
     public void SuppressesIL2026ForAddSaga()
     {
@@ -46,7 +50,7 @@ public class AddSagaInterceptorSuppressorTests
                      }
                      """;
 
-        var result = SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        var result = ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .WithAnalyzer<MockTrimmingAnalyzer>()
             .WithSuppressor<AddSagaInterceptorSuppressor>()
@@ -77,7 +81,7 @@ public class AddSagaInterceptorSuppressorTests
                      }
                      """;
 
-        var result = SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        var result = ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .WithAnalyzer<MockTrimmingAnalyzer>()
             .WithSuppressor<AddSagaInterceptorSuppressor>()

@@ -23,7 +23,7 @@ public partial class AddSagaGenerator
             }
             var sourceWriter = new SourceWriter()
                 .PreAmble()
-                .WithOpenNamespace(rootTypeSpec.Namespace);
+                .WithFileScopedNamespace(rootTypeSpec.Namespace);
 
             EmitHandlers(sourceWriter, sagas, rootTypeSpec);
             sourceWriter.CloseCurlies();

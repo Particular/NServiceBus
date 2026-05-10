@@ -7,6 +7,10 @@ using Particular.AnalyzerTesting;
 [TestFixture]
 public class AddSagaInterceptorTests
 {
+    static SourceGeneratorTest ConfiguredSourceGeneratorTest() =>
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+            .WithIncrementalGenerator<InterceptionsLocationAttributeGenerator>();
+
     [Test]
     public void BasicSagas()
     {
@@ -129,7 +133,7 @@ public class AddSagaInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -219,7 +223,7 @@ public class AddSagaInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -269,7 +273,7 @@ public class AddSagaInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
             .Run()
@@ -318,7 +322,7 @@ public class AddSagaInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -361,7 +365,7 @@ public class AddSagaInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -418,7 +422,7 @@ public class AddSagaInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
             .Run()
@@ -464,7 +468,7 @@ public class AddSagaInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -518,7 +522,7 @@ public class AddSagaInterceptorTests
                          }
                          """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(setupSource, "setup.cs")
             .WithSource(sagaSource, "saga.cs")
             .SuppressCompilationErrors()
@@ -570,7 +574,7 @@ public class AddSagaInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .SuppressCompilationErrors()
             .Run()
@@ -618,7 +622,7 @@ public class AddSagaInterceptorTests
                      #nullable restore
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -688,7 +692,7 @@ public class AddSagaInterceptorTests
                      #nullable restore
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -741,7 +745,7 @@ public class AddSagaInterceptorTests
                      public class OrderBilled : BaseEvent, IEvent { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()

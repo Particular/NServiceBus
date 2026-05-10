@@ -8,6 +8,10 @@ using Particular.AnalyzerTesting;
 [TestFixture]
 public class AddHandlerInterceptorSuppressorTests
 {
+    static SourceGeneratorTest ConfiguredSourceGeneratorTest() =>
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithIncrementalGenerator<InterceptionsLocationAttributeGenerator>();
+
     [Test]
     public void SuppressesIL2026ForAddHandler()
     {
@@ -31,7 +35,7 @@ public class AddHandlerInterceptorSuppressorTests
                      public class SampleCommand : ICommand { }
                      """;
 
-        var result = SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        var result = ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .WithAnalyzer<MockTrimmingAnalyzer>()
             .WithSuppressor<AddHandlerInterceptorSuppressor>()
@@ -62,7 +66,7 @@ public class AddHandlerInterceptorSuppressorTests
                      }
                      """;
 
-        var result = SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        var result = ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .WithAnalyzer<MockTrimmingAnalyzer>()
             .WithSuppressor<AddHandlerInterceptorSuppressor>()

@@ -26,7 +26,7 @@ public sealed partial class AddHandlerGenerator
 
             var sourceWriter = new SourceWriter()
                 .PreAmble()
-                .WithOpenNamespace(rootTypeSpec.Namespace);
+                .WithFileScopedNamespace(rootTypeSpec.Namespace);
 
             EmitHandlers(sourceWriter, handlers, rootTypeSpec);
             sourceWriter.CloseCurlies();

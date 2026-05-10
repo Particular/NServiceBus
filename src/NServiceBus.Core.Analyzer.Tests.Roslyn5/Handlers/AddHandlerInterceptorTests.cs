@@ -7,6 +7,10 @@ using Particular.AnalyzerTesting;
 [TestFixture]
 public class AddHandlerInterceptorTests
 {
+    static SourceGeneratorTest ConfiguredSourceGeneratorTest() =>
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+            .WithIncrementalGenerator<InterceptionsLocationAttributeGenerator>();
+
     [Test]
     public void BasicHandlers()
     {
@@ -41,7 +45,7 @@ public class AddHandlerInterceptorTests
                      public class Evt1 : IEvent { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -97,7 +101,7 @@ public class AddHandlerInterceptorTests
                      public class CmdBase : ICommand { }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -130,7 +134,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd2 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -162,7 +166,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -217,7 +221,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd2 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -255,7 +259,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -297,7 +301,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -334,7 +338,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -378,7 +382,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -409,7 +413,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -447,7 +451,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -485,7 +489,7 @@ public class AddHandlerInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -524,7 +528,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -577,7 +581,7 @@ public class AddHandlerInterceptorTests
                      }
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -616,7 +620,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()
@@ -656,7 +660,7 @@ public class AddHandlerInterceptorTests
                      public class Cmd1 : ICommand {}
                      """;
 
-        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerInterceptor>()
+        ConfiguredSourceGeneratorTest()
             .WithSource(source, "test.cs")
             .Run()
             .Approve()

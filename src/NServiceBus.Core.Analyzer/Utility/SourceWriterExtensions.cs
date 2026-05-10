@@ -25,29 +25,8 @@ static class SourceWriterExtensions
 
         public SourceWriter ForInterceptor()
         {
-            writer.PreAmble()
-                .WriteLine("""
-                           namespace System.Runtime.CompilerServices
-                           {
-                           """);
-            writer.Indentation++;
-            writer.WriteLine("""
-                             [global::System.Diagnostics.Conditional("DEBUG")]
-                             [global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = true)]
-                             sealed file class InterceptsLocationAttribute : global::System.Attribute
-                             {
-                             """);
-            writer.Indentation++;
-            writer.WriteLine("""
-                             public InterceptsLocationAttribute(int version, string data)
-                             {
-                                 _ = version;
-                                 _ = data;
-                             }
-                             """);
-            writer.CloseCurlies();
-            writer.WriteLine();
-            return writer.WithOpenNamespace("NServiceBus");
+            writer.PreAmble();
+            return writer.WithFileScopedNamespace("NServiceBus");
         }
 
         public SourceWriter WithGeneratedCodeAttribute() => writer.WithGeneratedCodeAttribute(AssemblyName);
@@ -58,16 +37,15 @@ static class SourceWriterExtensions
             return writer;
         }
 
-        public SourceWriter WithOpenNamespace(string? namespaceName)
+        public SourceWriter WithFileScopedNamespace(string? namespaceName)
         {
             if (string.IsNullOrWhiteSpace(namespaceName))
             {
                 return writer;
             }
 
-            writer.WriteLine($"namespace {namespaceName}");
-            writer.WriteLine("{");
-            writer.Indentation++;
+            writer.WriteLine($"namespace {namespaceName};");
+            writer.WriteLine();
             return writer;
         }
 
