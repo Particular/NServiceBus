@@ -150,8 +150,8 @@ partial class ReceiveComponent
         }
 
 
-        var logger = builder.GetRequiredService<ILogger<MessageHandlerRegistry>>();
-        if (logger.IsEnabled(LogLevel.Debug))
+        var logger = LogManager.GetLogger<MessageHandlerRegistry>();
+        if (logger.IsDebugEnabled)
         {
             var messageHandlerRegistry = configuration.MessageHandlerRegistry;
             foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
@@ -159,7 +159,7 @@ partial class ReceiveComponent
                 var handlers = messageHandlerRegistry.GetHandlersFor(messageType);
                 foreach (var messageHandler in handlers)
                 {
-                    logger.LogDebug("Associated '{MessageType}' message with '{HandlerType}' {Type} handler.", messageType, messageHandler.HandlerType, messageHandler.IsTimeoutHandler ? "timeout" : "message");
+                    logger.DebugFormat("Associated '{0}' message with '{1}' {2} handler.", messageType, messageHandler.HandlerType, messageHandler.IsTimeoutHandler ? "timeout" : "message");
                 }
             }
         }
