@@ -36,6 +36,13 @@ public class EndpointBehavior : IComponentBehavior
             var serviceKey = collectionAdapter.ServiceKey;
 
             collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKey);
+            // we don't want to expose the lifecycle in Core, but some super advanced scenarios require
+            // stopping the endpoint and this backdoor allows that without having to expose the lifecycle in Core
+            collectionAdapter.AddKeyedSingleton<Func<CancellationToken, Task>>("Stopper", (provider, key) =>
+            {
+                var endpointLifecycle = provider.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
+                return async token => await endpointLifecycle.Stop(token).ConfigureAwait(false);
+            });
 
             return Task.FromResult(new StartableEndpointInstance(serviceKey));
         }, static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
@@ -45,9 +52,10 @@ public class EndpointBehavior : IComponentBehavior
     {
         public async Task<Func<CancellationToken, Task>> Start(IServiceProvider builder, CancellationToken cancellationToken = default)
         {
-            var endpointLifecycle = builder.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
-            await endpointLifecycle.CreateAndStart(cancellationToken).ConfigureAwait(false);
-            return async token => await endpointLifecycle.Stop(token).ConfigureAwait(false);
+            await builder.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey)
+                .CreateAndStart(cancellationToken).ConfigureAwait(false);
+            // This is to dogfood the advanced ability to stop the endpoint
+            return builder.GetRequiredKeyedService<Func<CancellationToken, Task>>(new KeyedServiceKey(serviceKey, "Stopper"));
         }
     }
 
