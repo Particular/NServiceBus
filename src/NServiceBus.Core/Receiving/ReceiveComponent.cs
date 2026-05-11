@@ -9,10 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Outbox;
 using Pipeline;
 using Transport;
 using Unicast;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 partial class ReceiveComponent
 {
@@ -80,9 +82,7 @@ partial class ReceiveComponent
         hostingConfiguration.Services.AddSingleton(messageHandlerRegistry);
         foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
         {
-            handlerDiagnostics[messageType.FullName!] = messageHandlerRegistry.GetHandlersFor(messageType)
-                .Select(handler => handler.HandlerType.FullName!)
-                .ToList();
+            handlerDiagnostics[messageType.FullName!] = [.. messageHandlerRegistry.GetHandlersFor(messageType).Select(handler => handler.HandlerType.FullName!)];
         }
 
         var receiveSettings = new List<ReceiveSettings>
@@ -147,6 +147,21 @@ partial class ReceiveComponent
         if (configuration.IsSendOnlyEndpoint)
         {
             return;
+        }
+
+
+        var logger = builder.GetRequiredService<ILogger<MessageHandlerRegistry>>();
+        if (logger.IsEnabled(LogLevel.Debug))
+        {
+            var messageHandlerRegistry = configuration.MessageHandlerRegistry;
+            foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
+            {
+                var handlers = messageHandlerRegistry.GetHandlersFor(messageType);
+                foreach (var messageHandler in handlers)
+                {
+                    logger.LogDebug("Associated '{MessageType}' message with '{HandlerType}' {Type} handler.", messageType, messageHandler.HandlerType, messageHandler.IsTimeoutHandler ? "timeout" : "message");
+                }
+            }
         }
 
         var mainProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, MainReceiverId);

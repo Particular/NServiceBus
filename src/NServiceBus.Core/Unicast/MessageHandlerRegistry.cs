@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Particular.Obsoletes;
 using Pipeline;
@@ -124,7 +123,6 @@ public class MessageHandlerRegistry
             return;
         }
 
-        Log.DebugFormat("Associated '{0}' message with '{1}' message handler.", typeof(TMessage), typeof(THandler));
         var handlerFactories = GetOrCreate<THandler>();
         handlerFactories.Add(new MessageHandlerFactory<THandlerAdapter, TMessage, THandler>());
     }
@@ -141,7 +139,6 @@ public class MessageHandlerRegistry
             return;
         }
 
-        Log.DebugFormat("Associated '{0}' message with '{1}' timeout handler.", typeof(TMessage), typeof(THandler));
         var handlerFactories = GetOrCreate<THandler>();
         handlerFactories.Add(new TimeoutHandlerFactory<THandler, TMessage>());
     }
@@ -213,7 +210,6 @@ public class MessageHandlerRegistry
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
     readonly HashSet<HandlerAndMessage> deduplicationSet = [];
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
-    static readonly ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
     internal const string TrimmingMessage = "Registering handlers using assembly scanning is not supported in trimming scenarios.";
 
