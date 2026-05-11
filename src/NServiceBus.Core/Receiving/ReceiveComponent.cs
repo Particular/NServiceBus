@@ -9,12 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Outbox;
 using Pipeline;
 using Transport;
 using Unicast;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 partial class ReceiveComponent
 {
@@ -149,7 +147,9 @@ partial class ReceiveComponent
             return;
         }
 
-
+        // Resolving the logger here with the LogManager for now since we want to do a consistent sweep of all LogManager usage
+        // in the next minor when GetLogger might be deprecated. But we do it late when the service provider is available
+        // to make sure the logger is already properly wired up.
         var logger = LogManager.GetLogger<MessageHandlerRegistry>();
         if (logger.IsDebugEnabled)
         {
