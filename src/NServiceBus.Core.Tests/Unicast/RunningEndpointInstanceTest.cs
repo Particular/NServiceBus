@@ -38,6 +38,16 @@ public class RunningEndpointInstanceTest
     }
 
     [Test]
+    public async Task ShouldAllowMultipleDispose()
+    {
+        var testInstance = Create();
+
+        await testInstance.DisposeAsync();
+
+        Assert.That(async () => await testInstance.DisposeAsync(), Throws.Nothing);
+    }
+
+    [Test]
     public async Task ShouldThrowExceptionAfterInvokingStop()
     {
         var testInstance = Create();
