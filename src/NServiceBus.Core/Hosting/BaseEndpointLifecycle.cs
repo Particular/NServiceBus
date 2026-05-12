@@ -79,11 +79,6 @@ class BaseEndpointLifecycle(
 
     public async ValueTask Stop(CancellationToken cancellationToken = default)
     {
-        if (Interlocked.CompareExchange(ref isStopped, 1, 0) == 1)
-        {
-            return;
-        }
-
         // The semaphore is an internal serialization mechanism; the caller's token
         // must not be able to abort the wait. A failed wait leaves endpointInstance
         // non-null, allowing a subsequent DisposeAsync -> Stop(None) re-entry to
@@ -134,5 +129,4 @@ class BaseEndpointLifecycle(
     RunningEndpointInstance? endpointInstance;
     IAsyncDisposable? providerLease;
     int isDisposed;
-    int isStopped;
 }
