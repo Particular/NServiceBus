@@ -23,8 +23,7 @@ public class When_stop_is_called_with_cancelled_token : NServiceBusAcceptanceTes
         //
         // This test cancels the Run token after the endpoint starts, which causes
         // StopEndpoints to call Stop with an already-canceled token, then DisposeAsync
-        // in the finally block. This is the same scenario that triggered the bug in
-        // NServiceBus.Metrics.ServiceControl acceptance tests.
+        // in the finally block.
         using var cts = new CancellationTokenSource();
         Context? context = null;
 
