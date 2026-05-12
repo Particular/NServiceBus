@@ -21,7 +21,22 @@ class RunningEndpointInstance(SettingsHolder settings,
     object endpointLogSlot) : IEndpointInstance, IAsyncDisposable
 #pragma warning restore CS0618 // Type or member is obsolete
 {
+    // Stop is the legacy interface for shutting down the endpoint over the public API
+    // The modern hosted variant has Stop and DisposeAsync as separate steps, so the legacy Stop implementation
+    // must call DisposeAsync to ensure the endpoint is fully shut down and resources are released.
     public async Task Stop(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await StopCore(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            await DisposeAsync().ConfigureAwait(false);
+        }
+    }
+
+    public async Task StopCore(CancellationToken cancellationToken = default)
     {
         if (status >= Status.Stopping)
         {
@@ -82,7 +97,7 @@ class RunningEndpointInstance(SettingsHolder settings,
             return;
         }
 
-        await Stop().ConfigureAwait(false);
+        await StopCore().ConfigureAwait(false);
 
         // Unregister the slot before disposing the service provider so no thread can
         // route through the (soon-to-be-disposed) ILoggerFactory after the provider is torn down.

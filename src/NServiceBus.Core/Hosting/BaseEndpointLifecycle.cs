@@ -92,7 +92,7 @@ class BaseEndpointLifecycle(
                 return;
             }
 
-            await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
+            await endpointInstance.StopCore(cancellationToken).ConfigureAwait(false);
         }
         finally
         {
