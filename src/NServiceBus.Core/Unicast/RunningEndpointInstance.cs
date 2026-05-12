@@ -77,6 +77,11 @@ class RunningEndpointInstance(SettingsHolder settings,
 
     public async ValueTask DisposeAsync()
     {
+        if (Interlocked.Exchange(ref isDisposed, 1) == 1)
+        {
+            return;
+        }
+
         await Stop().ConfigureAwait(false);
 
         // Unregister the slot before disposing the service provider so no thread can
@@ -150,6 +155,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
     }
 
+    int isDisposed;
     volatile Status status = Status.Running;
     readonly SemaphoreSlim stopSemaphore = new(1);
 
