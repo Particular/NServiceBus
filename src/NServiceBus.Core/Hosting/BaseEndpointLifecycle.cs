@@ -79,22 +79,25 @@ class BaseEndpointLifecycle(
 
     public async ValueTask Stop(CancellationToken cancellationToken = default)
     {
-        if (endpointInstance is null)
+        if (Interlocked.CompareExchange(ref isStopped, 1, 0) == 1)
         {
             return;
         }
 
-        await lifeCycleSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        // The semaphore is an internal serialization mechanism; the caller's token
+        // must not be able to abort the wait. A failed wait leaves endpointInstance
+        // non-null, allowing a subsequent DisposeAsync -> Stop(None) re-entry to
+        // attempt full shutdown against a DI container that is already torn down.
+        await lifeCycleSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
         try
         {
-            if (endpointInstance == null)
+            if (endpointInstance is null)
             {
                 return;
             }
 
             await endpointInstance.Stop(cancellationToken).ConfigureAwait(false);
-            endpointInstance = null;
         }
         finally
         {
@@ -109,16 +112,19 @@ class BaseEndpointLifecycle(
             return;
         }
 
-        try
+        var instance = endpointInstance;
+        endpointInstance = null;
+
+        // DisposeAsync calls Stop internally, which is idempotent. This ensures
+        // cleanup runs even if Stop was never called or threw.
+        if (instance is not null)
         {
-            await Stop().ConfigureAwait(false);
+            await instance.DisposeAsync().ConfigureAwait(false);
         }
-        finally
+
+        if (providerLease is not null)
         {
-            if (providerLease is not null)
-            {
-                await providerLease.DisposeAsync().ConfigureAwait(false);
-            }
+            await providerLease.DisposeAsync().ConfigureAwait(false);
         }
     }
 
@@ -128,4 +134,5 @@ class BaseEndpointLifecycle(
     RunningEndpointInstance? endpointInstance;
     IAsyncDisposable? providerLease;
     int isDisposed;
+    int isStopped;
 }

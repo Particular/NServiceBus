@@ -18,25 +18,27 @@ class RunningEndpointInstance(SettingsHolder settings,
     CancellationTokenSource stoppingTokenSource,
     IAsyncDisposable serviceProviderLease,
 #pragma warning disable CS0618 // Type or member is obsolete -- Change the interface to IMessageSession in the next major
-    object endpointLogSlot) : IEndpointInstance
+    object endpointLogSlot) : IEndpointInstance, IAsyncDisposable
 #pragma warning restore CS0618 // Type or member is obsolete
 {
     public async Task Stop(CancellationToken cancellationToken = default)
     {
-        if (status is Status.Stopped)
+        if (status >= Status.Stopping)
         {
             return;
         }
 
-        var semaphoreEntered = false;
+        // Serialize Stop so only one caller owns shutdown, while other callers wait
+        // until shutdown has completed before returning. The semaphore is an internal
+        // serialization mechanism; the caller's token must not be able to abort the wait
+        // because a failed wait leaves status as Running, allowing a subsequent
+        // DisposeAsync -> Stop(None) re-entry to attempt full shutdown against a DI
+        // container that is already torn down.
+        await stopSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+
         try
         {
-            // Serialize Stop so only one caller owns shutdown and cleanup, while other
-            // non-cancelled callers wait until shutdown has completed before returning.
-            await stopSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-            semaphoreEntered = true;
-
-            if (status >= Status.Stopping) // Another invocation is already handling Stop
+            if (status >= Status.Stopping)
             {
                 return;
             }
@@ -63,28 +65,27 @@ class RunningEndpointInstance(SettingsHolder settings,
             {
                 Log.Error("Shutdown of the transport infrastructure failed.", ex);
             }
-            finally
-            {
-                settings.Clear();
-                Log.Info("Shutdown complete.");
-                // Remove all per-slot logging state before disposing the service provider so
-                // no thread can route through the (soon-to-be-disposed) ILoggerFactory after
-                // the provider is torn down.
-                LogManager.UnregisterSlot(endpointLogSlot);
-                await serviceProviderLease.DisposeAsync()
-                    .ConfigureAwait(false);
 
-                stoppingTokenSource.Dispose();
-                status = Status.Stopped;
-            }
+            Log.Info("Shutdown complete.");
         }
         finally
         {
-            if (semaphoreEntered)
-            {
-                stopSemaphore.Release();
-            }
+            status = Status.Stopped;
+            stopSemaphore.Release();
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Stop().ConfigureAwait(false);
+
+        // Unregister the slot before disposing the service provider so no thread can
+        // route through the (soon-to-be-disposed) ILoggerFactory after the provider is torn down.
+        LogManager.UnregisterSlot(endpointLogSlot);
+
+        settings.Clear();
+        stoppingTokenSource.Dispose();
+        await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
     }
 
     public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
