@@ -21,9 +21,11 @@ class RunningEndpointInstance(SettingsHolder settings,
     object endpointLogSlot) : IEndpointInstance, IAsyncDisposable
 #pragma warning restore CS0618 // Type or member is obsolete
 {
-    // Stop is the legacy interface for shutting down the endpoint over the public API
-    // The modern hosted variant has Stop and DisposeAsync as separate steps, so the legacy Stop implementation
-    // must call DisposeAsync to ensure the endpoint is fully shut down and resources are released.
+    // Stop is the legacy interface for shutting down the endpoint over the public API.
+    // The modern hosted variant has Stop and DisposeAsync as separate steps:
+    // BaseEndpointLifecycle.Stop calls StopCore (shutdown only), then DisposeAsync (cleanup).
+    // The legacy Stop implementation must call DisposeAsync to ensure the endpoint is fully
+    // shut down and resources are released.
     public async Task Stop(CancellationToken cancellationToken = default)
     {
         try
@@ -43,11 +45,11 @@ class RunningEndpointInstance(SettingsHolder settings,
             return;
         }
 
-        // Serialize Stop so only one caller owns shutdown, while other callers wait
-        // until shutdown has completed before returning. The semaphore is an internal
-        // serialization mechanism; the caller's token must not be able to abort the wait
-        // because a failed wait leaves status as Running, allowing a subsequent
-        // DisposeAsync -> Stop(None) re-entry to attempt full shutdown against a DI
+        // The first caller to enter StopCore owns shutdown. Later callers that observe
+        // Stopping or Stopped return immediately without waiting. The semaphore is an
+        // internal serialization mechanism; the caller's token must not be able to abort
+        // the wait because a failed wait leaves status as Running, allowing a subsequent
+        // DisposeAsync -> StopCore re-entry to attempt full shutdown against a DI
         // container that is already torn down.
         await stopSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
