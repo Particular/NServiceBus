@@ -49,7 +49,8 @@ public class ScenarioRunner(
 
             runResult.ActiveEndpoints = [.. endpoints.Select(r => r.Name)];
 
-            runDescriptor.ServiceProvider = runDescriptor.Services.BuildServiceProvider(runDescriptor.Settings.Get<ServiceProviderOptions>());
+            var services = runDescriptor.Services is ThreadSafeServiceCollection safe ? safe.Unwrap() : runDescriptor.Services;
+            runDescriptor.ServiceProvider = services.BuildServiceProvider(runDescriptor.Settings.Get<ServiceProviderOptions>());
 
             await PerformScenarios(endpoints, cancellationToken).ConfigureAwait(false);
 
