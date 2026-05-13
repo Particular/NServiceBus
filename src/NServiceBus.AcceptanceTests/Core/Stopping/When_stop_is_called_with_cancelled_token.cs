@@ -34,7 +34,7 @@ public class When_stop_is_called_with_cancelled_token : NServiceBusAcceptanceTes
                     context = ctx;
                 })
                 .WithEndpoint<Endpoint>(b => b
-                    .Resolves(async (_, _, _) =>
+                    .ServiceResolve(async (_, _, _) =>
                     {
                         // Cancel the Run token so that StopEndpoints receives an
                         // already-canceled token, reproducing the race condition.
