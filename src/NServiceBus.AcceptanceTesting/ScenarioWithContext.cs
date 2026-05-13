@@ -171,7 +171,9 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     readonly List<IComponentBehavior> behaviors = [];
     int componentCount = 0;
-    readonly IServiceCollection services = new ServiceCollection();
+    // The default service collection is not thread safe but the acceptance testing framework does concurrent starting of endpoints and service registration, so we need to use a thread safe collection here.
+    // In the future we probably want to change the framework to not allow concurrent modifications to the service collection, but for now this is a simpler change.
+    readonly IServiceCollection services = new ThreadSafeServiceCollection();
     Task? doneTask;
     readonly TaskCompletionSource<(TContext scenarioContext, CancellationToken cancellationToken)> kickOffTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     Func<TContext, TaskCompletionSource>? doneFunc;
