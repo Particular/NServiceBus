@@ -35,14 +35,23 @@ public class EndpointBehavior : IComponentBehavior
 
             var serviceKey = collectionAdapter.ServiceKey;
 
-            collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKey);
-            // we don't want to expose the lifecycle in Core, but some super advanced scenarios require
-            // stopping the endpoint and this backdoor allows that without having to expose the lifecycle in Core
-            collectionAdapter.AddKeyedSingleton<Func<CancellationToken, Task>>("Stopper", (provider, key) =>
+            // Prevent concurrent access to AddNServiceBusEndpoint, which enumerates and modifies the service collection
+            configureSemaphore.Wait();
+            try
             {
-                var endpointLifecycle = provider.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
-                return async token => await endpointLifecycle.Stop(token).ConfigureAwait(false);
-            });
+                collectionAdapter.Inner.AddNServiceBusEndpoint(config, serviceKey);
+                // we don't want to expose the lifecycle in Core, but some super advanced scenarios require
+                // stopping the endpoint and this backdoor allows that without having to expose the lifecycle in Core
+                collectionAdapter.AddKeyedSingleton<Func<CancellationToken, Task>>("Stopper", (provider, key) =>
+                {
+                    var endpointLifecycle = provider.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
+                    return async token => await endpointLifecycle.Stop(token).ConfigureAwait(false);
+                });
+            }
+            finally
+            {
+                configureSemaphore.Release();
+            }
 
             return Task.FromResult(new StartableEndpointInstance(serviceKey));
         }, static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
@@ -107,4 +116,6 @@ public class EndpointBehavior : IComponentBehavior
 
     Func<IServiceCollection, EndpointConfiguration, Task<object>> createInstanceCallback;
     Func<object, IServiceProvider, CancellationToken, Task<Func<CancellationToken, Task>>> startInstanceCallback;
+
+    static readonly SemaphoreSlim configureSemaphore = new SemaphoreSlim(1, 1);
 }
