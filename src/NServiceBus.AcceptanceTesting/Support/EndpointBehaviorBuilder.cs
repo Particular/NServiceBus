@@ -75,7 +75,7 @@ public class EndpointBehaviorBuilder<TContext>(IEndpointConfigurationFactory end
         return this;
     }
 
-    public EndpointBehaviorBuilder<TContext> Resolves(Func<IServiceProvider, TContext, CancellationToken, Task> action, bool afterStart = false)
+    public EndpointBehaviorBuilder<TContext> ServiceResolve(Func<IServiceProvider, TContext, CancellationToken, Task> action, bool afterStart = false)
     {
         var actions = afterStart ? behavior.ResolveAfterStart : behavior.ResolvesBeforeStart;
         actions.Add((services, context, token) => action(services, (TContext)context, token));
