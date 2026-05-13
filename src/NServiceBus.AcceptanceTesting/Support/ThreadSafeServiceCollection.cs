@@ -88,6 +88,8 @@ sealed class ThreadSafeServiceCollection : IServiceCollection
         inner.RemoveAt(index);
     }
 
+    internal IServiceCollection Unwrap() => inner;
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     readonly ServiceCollection inner = [];
