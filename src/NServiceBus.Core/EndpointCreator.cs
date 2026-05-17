@@ -9,12 +9,9 @@ using Logging;
 using MessageInterfaces;
 using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Pipeline;
 using Settings;
 using Unicast.Messages;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 class EndpointCreator
 {
@@ -79,6 +76,13 @@ class EndpointCreator
         var services = hostingConfiguration.Services;
         services.AddSingleton<IReadOnlySettings>(settings);
 
+        var endpointLogSlot = hostingConfiguration.EndpointLogSlot;
+        services.AddSingleton(new EndpointLoggingScope
+        {
+            EndpointName = endpointLogSlot.EndpointName,
+            EndpointIdentifier = endpointLogSlot.EndpointIdentifier
+        });
+
         // Logging is a global service concern
         var loggingConfig = LogManager.GetLoggingConfiguration();
         var globalServices = services.Unwrap();
@@ -88,37 +92,14 @@ class EndpointCreator
             // (e.g., via LogManager.UseFactory(new ExtensionsLoggerFactory(...)))
             if (loggingConfig is not null)
             {
-                builder.Services.Configure<RollingLoggerProviderOptions>(o =>
-                {
-                    o.Directory = loggingConfig.LoggingDirectory;
-                    o.LogLevel = loggingConfig.MicrosoftLogLevel;
-                });
-                builder.Services.AddSingleton<ILoggerProvider, RollingLoggerProvider>();
-                builder.Services.AddSingleton<ILoggerProvider, ColoredConsoleLoggerProvider>();
-
-                // Register a per-provider filter rule so RollingLoggerProviderOptions.LogLevel
-                // is honoured by the MEL pipeline. This works for both the legacy path
-                // (where o.LogLevel is seeded above from loggingConfig) and the new path
-                // (where users set o.LogLevel via services.PostConfigure<RollingLoggerProviderOptions>()).
-                builder.Services.AddSingleton<IConfigureOptions<LoggerFilterOptions>>(sp =>
-                {
-                    var rollingOptions = sp.GetRequiredService<IOptions<RollingLoggerProviderOptions>>();
-                    return new ConfigureOptions<LoggerFilterOptions>(filterOptions =>
-                    {
-                        filterOptions.Rules.Add(new LoggerFilterRule(
-                            providerName: typeof(RollingLoggerProvider).FullName,
-                            categoryName: null,
-                            logLevel: rollingOptions.Value.LogLevel,
-                            filter: null));
-                    });
-                });
-
-                if (loggingConfig.MicrosoftLogLevel != LogLevel.Information)
-                {
-                    builder.SetMinimumLevel(loggingConfig.MicrosoftLogLevel);
-                }
+                builder.AddNServiceBusLoggingProviders(loggingConfig.LoggingDirectory, loggingConfig.MicrosoftLogLevel);
             }
         });
+
+        // Register slot cleanup as IAsyncDisposable right after AddLogging so that MS DI's
+        // reverse-order disposal unregisters the slot BEFORE ILoggerFactory is disposed.
+        // This ensures no thread routes logs through a disposed factory during shutdown.
+        globalServices.AddSingleton<IAsyncDisposable>(new SlotUnregisterer(endpointLogSlot));
 
         var featureSettings = settings.Get<FeatureComponent.Settings>();
 

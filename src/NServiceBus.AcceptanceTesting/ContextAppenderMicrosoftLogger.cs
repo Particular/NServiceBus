@@ -1,7 +1,6 @@
 namespace NServiceBus.AcceptanceTesting;
 
 using System;
-using System.Diagnostics;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
@@ -14,8 +13,10 @@ class ContextAppenderMicrosoftLogger(string name, ScenarioContext scenarioContex
             return;
         }
 
+        var context = ScenarioContext.Current ?? scenarioContext;
+
         string message = exception is null ? formatter(state, exception) : $"{formatter(state, exception)} {exception}";
-        if (scenarioContext.IncludeLoggingScopes)
+        if (context.IncludeLoggingScopes)
         {
             var stringBuilder = new StringBuilder();
             _ = stringBuilder.Append(message);
@@ -31,8 +32,7 @@ class ContextAppenderMicrosoftLogger(string name, ScenarioContext scenarioContex
             message = stringBuilder.ToString();
         }
 
-        Trace.WriteLine(message);
-        scenarioContext.Logs.Enqueue(new ScenarioContext.LogItem
+        context.Logs.Enqueue(new ScenarioContext.LogItem
         {
             Endpoint = ScenarioContext.CurrentEndpoint,
             LoggerName = name,
@@ -45,23 +45,28 @@ class ContextAppenderMicrosoftLogger(string name, ScenarioContext scenarioContex
 
     bool IsEnabled(LogLevel logLevel, out NServiceBus.Logging.LogLevel nserviceBusLogLevel)
     {
+        var context = ScenarioContext.Current ?? scenarioContext;
         switch (logLevel)
         {
             case LogLevel.Debug:
-                nserviceBusLogLevel = Logging.LogLevel.Debug;
-                return scenarioContext.LogLevel <= Logging.LogLevel.Debug;
+                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Debug;
+                return context.LogLevel <= NServiceBus.Logging.LogLevel.Debug;
             case LogLevel.Information:
-                nserviceBusLogLevel = Logging.LogLevel.Info;
-                return scenarioContext.LogLevel <= Logging.LogLevel.Info;
+                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Info;
+                return context.LogLevel <= NServiceBus.Logging.LogLevel.Info;
             case LogLevel.Warning:
-                nserviceBusLogLevel = Logging.LogLevel.Warn;
-                return scenarioContext.LogLevel <= Logging.LogLevel.Warn;
+                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Warn;
+                return context.LogLevel <= NServiceBus.Logging.LogLevel.Warn;
             case LogLevel.Error:
-                nserviceBusLogLevel = Logging.LogLevel.Error;
-                return scenarioContext.LogLevel <= Logging.LogLevel.Error;
-            case LogLevel.Trace or LogLevel.Critical or LogLevel.None:
+                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Error;
+                return context.LogLevel <= NServiceBus.Logging.LogLevel.Error;
+            case LogLevel.Critical:
+                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Fatal;
+                return context.LogLevel <= NServiceBus.Logging.LogLevel.Fatal;
+            case LogLevel.Trace:
+            case LogLevel.None:
             default:
-                nserviceBusLogLevel = Logging.LogLevel.Debug; // default to Debug for unsupported levels
+                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Debug;
                 return false;
         }
     }

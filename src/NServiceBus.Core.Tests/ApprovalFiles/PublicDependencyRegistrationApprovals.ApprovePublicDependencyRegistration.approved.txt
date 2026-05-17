@@ -4,6 +4,10 @@
     "Lifecycle": "Singleton"
   },
   {
+    "Type": "NServiceBus.Logging.EndpointLoggingScope",
+    "Lifecycle": "Singleton"
+  },
+  {
     "Type": "NServiceBus.Transport.IMessageDispatcher",
     "Lifecycle": "Singleton"
   },

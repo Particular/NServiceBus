@@ -59,7 +59,16 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors);
 
         sw.Start();
-        var runSummary = await scenarioRunner.Run(cancellationToken).ConfigureAwait(false);
+        RunSummary runSummary;
+        try
+        {
+            runSummary = await scenarioRunner.Run(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            ScenarioContext.Current = null;
+            ScenarioContext.CurrentEndpoint = null;
+        }
         sw.Stop();
 
         await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);

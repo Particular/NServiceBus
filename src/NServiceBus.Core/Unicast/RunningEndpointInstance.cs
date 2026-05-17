@@ -101,10 +101,6 @@ class RunningEndpointInstance(SettingsHolder settings,
 
         await StopCore().ConfigureAwait(false);
 
-        // Unregister the slot before disposing the service provider so no thread can
-        // route through the (soon-to-be-disposed) ILoggerFactory after the provider is torn down.
-        LogManager.UnregisterSlot(endpointLogSlot);
-
         settings.Clear();
         stoppingTokenSource.Dispose();
         await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
