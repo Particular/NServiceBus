@@ -89,7 +89,7 @@ public static class LogManager
     /// </summary>
     internal static void SetAmbientDefaultFactory(MicrosoftILoggerFactory? factory) => ambientDefaultFactory.Value = factory;
 
-    static MicrosoftILoggerFactory? GetAmbientDefaultFactory() => ambientDefaultFactory.Value;
+    internal static MicrosoftILoggerFactory? GetAmbientDefaultFactory() => ambientDefaultFactory.Value;
 
     internal sealed class DefaultLoggingConfiguration(string loggingDirectory, LogLevel nsbLogLevel)
     {
