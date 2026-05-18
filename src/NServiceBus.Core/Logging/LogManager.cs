@@ -145,7 +145,7 @@ public static class LogManager
         slotLoggerFactories[slotKey] = loggerFactory;
         var slotContext = GetOrAddSlotContext(slotKey);
 
-        using var _ = new SlotScope(slotContext, activateExternalScope: true);
+        using var _ = new SlotScope(slotContext);
         DrainScopedStartupLogs(slotKey, loggerFactory);
     }
 
@@ -183,7 +183,7 @@ public static class LogManager
 
         var slotKey = new SlotKey(slot);
         var slotContext = GetOrAddSlotContext(slotKey);
-        return new SlotScope(slotContext, activateExternalScope: true);
+        return new SlotScope(slotContext);
     }
 
     internal static bool TryGetCurrentEndpointScopeState([NotNullWhen(true)] out LogScopeState? scopeState)
@@ -599,12 +599,20 @@ public static class LogManager
 
     internal readonly struct SlotScope : IDisposable
     {
-        internal SlotScope(SlotContext slot, bool activateExternalScope)
+        internal SlotScope(SlotContext slot)
         {
             previousSlot = currentSlot.Value;
             currentSlot.Value = slot;
 
-            if (activateExternalScope && slotLoggerFactories.TryGetValue(slot.Key, out var loggerFactory) && loggerFactory is ISlotScopedLoggerFactory slotScopedLoggerFactory)
+            // Skip pushing a duplicate MEL scope when already inside the same slot.
+            // The endpoint's slot scope is activated at multiple points in the call stack:
+            // endpoint startup, message pump receive, and MessageSession operations.
+            // The AsyncLocal routing correctly nests via previousSlot/restore, but MEL
+            // BeginScope is additive — without this check the same endpoint metadata
+            // would appear multiple times in scope state.
+            var alreadyInSameSlot = previousSlot is not null && previousSlot.Key.Equals(slot.Key);
+
+            if (!alreadyInSameSlot && slotLoggerFactories.TryGetValue(slot.Key, out var loggerFactory) && loggerFactory is ISlotScopedLoggerFactory slotScopedLoggerFactory)
             {
                 activeScope = slotScopedLoggerFactory.BeginScope(slot.ScopeState);
             }

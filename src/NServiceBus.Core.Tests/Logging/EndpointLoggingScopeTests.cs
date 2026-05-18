@@ -681,6 +681,53 @@ public class EndpointLoggingScopeTests
             new KeyValuePair<string, object>("EndpointIdentifier", "green"));
     }
 
+    [Test]
+    public void Nested_slot_scopes_with_same_slot_should_not_duplicate_mel_scope()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot("Sales", "blue");
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            // Inner scope re-enters the same slot (simulates MessageSession inside a receiver)
+            using (LogManager.BeginSlotScope(slot))
+            {
+                logger.Info("nested-same-slot");
+            }
+        }
+
+        Assert.That(loggerFactory.Logger.CapturedLogScopes, Has.Count.EqualTo(1),
+            "Re-entering the same slot should not push a duplicate MEL scope");
+    }
+
+    [Test]
+    public void Nested_slot_scopes_with_different_slots_should_each_push_mel_scope()
+    {
+        var satelliteLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var endpointSlot = new EndpointLogSlot("Sales", "blue");
+        var satelliteSlot = new EndpointSatelliteLogSlot(endpointSlot, "TimeoutManager");
+        LogManager.RegisterSlotFactory(satelliteSlot, new MicrosoftLoggerFactoryAdapter(satelliteLoggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(endpointSlot))
+        {
+            using (LogManager.BeginSlotScope(satelliteSlot))
+            {
+                logger.Info("nested-different-slots");
+            }
+        }
+
+        // The inner (satellite) slot routes to the satellite factory, with both Endpoint and Satellite scope entries
+        AssertScopeWasUsed(satelliteLoggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Sales"),
+            new KeyValuePair<string, object>("EndpointIdentifier", "blue"),
+            new KeyValuePair<string, object>("Satellite", "TimeoutManager"));
+    }
+
     sealed class AmbientScope : IDisposable
     {
         readonly Microsoft.Extensions.Logging.ILoggerFactory? previous;
