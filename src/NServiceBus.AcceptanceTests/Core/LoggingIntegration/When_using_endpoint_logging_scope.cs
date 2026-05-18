@@ -18,7 +18,7 @@ public class When_using_endpoint_logging_scope : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_expose_endpoint_metadata()
     {
-        var context = await Scenario.Define<Context>()
+        var context = await Scenario.Define<Context>(ctx => ctx.IncludeLoggingScopes = true)
             .WithEndpoint<EndpointWithScope>(b => b
                 .ServiceResolve(static (provider, ctx, _) =>
                 {
@@ -44,7 +44,8 @@ public class When_using_endpoint_logging_scope : NServiceBusAcceptanceTest
             Assert.That(context.ResolvedEndpointIdentifier, Is.EqualTo("UsingEndpointLoggingScope.EndpointWithScope0"));
             Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
                 l.LoggerName == "ScopeTest" &&
-                (l.Message ?? string.Empty).Contains("Message inside logging scope")));
+                (l.Message ?? string.Empty).Contains("Message inside logging scope") &&
+                (l.Message ?? string.Empty).Contains("Endpoint = UsingEndpointLoggingScope.EndpointWithScope, EndpointIdentifier = UsingEndpointLoggingScope.EndpointWithScope0")));
         }
     }
 
