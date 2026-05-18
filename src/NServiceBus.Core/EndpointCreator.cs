@@ -80,7 +80,8 @@ class EndpointCreator
         services.AddSingleton(new EndpointLoggingScope
         {
             EndpointName = endpointLogSlot.EndpointName,
-            EndpointIdentifier = endpointLogSlot.EndpointIdentifier
+            EndpointIdentifier = endpointLogSlot.EndpointIdentifier,
+            Slot = endpointLogSlot
         });
 
         // Logging is a global service concern
