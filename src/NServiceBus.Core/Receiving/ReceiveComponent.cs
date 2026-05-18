@@ -80,9 +80,7 @@ partial class ReceiveComponent
         hostingConfiguration.Services.AddSingleton(messageHandlerRegistry);
         foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
         {
-            handlerDiagnostics[messageType.FullName!] = messageHandlerRegistry.GetHandlersFor(messageType)
-                .Select(handler => handler.HandlerType.FullName!)
-                .ToList();
+            handlerDiagnostics[messageType.FullName!] = [.. messageHandlerRegistry.GetHandlersFor(messageType).Select(handler => handler.HandlerType.FullName!)];
         }
 
         var receiveSettings = new List<ReceiveSettings>
@@ -147,6 +145,23 @@ partial class ReceiveComponent
         if (configuration.IsSendOnlyEndpoint)
         {
             return;
+        }
+
+        // Resolving the logger here with the LogManager for now since we want to do a consistent sweep of all LogManager usage
+        // in the next minor when GetLogger might be deprecated. But we do it late when the service provider is available
+        // to make sure the logger is already properly wired up.
+        var logger = LogManager.GetLogger<MessageHandlerRegistry>();
+        if (logger.IsDebugEnabled)
+        {
+            var messageHandlerRegistry = configuration.MessageHandlerRegistry;
+            foreach (var messageType in messageHandlerRegistry.GetMessageTypes())
+            {
+                var handlers = messageHandlerRegistry.GetHandlersFor(messageType);
+                foreach (var messageHandler in handlers)
+                {
+                    logger.DebugFormat("Associated '{0}' message with '{1}' {2} handler.", messageType, messageHandler.HandlerType, messageHandler.IsTimeoutHandler ? "timeout" : "message");
+                }
+            }
         }
 
         var mainProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, MainReceiverId);
