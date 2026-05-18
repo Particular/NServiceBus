@@ -26,11 +26,11 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
     public ServiceDescriptor this[int index]
     {
-        get => descriptors[index];
+        get => originalDescriptors[index];
         set => throw new NotSupportedException("Replacing service descriptors is not supported for multi endpoint services.");
     }
 
-    public int Count => descriptors.Count;
+    public int Count => originalDescriptors.Count;
 
     public bool IsReadOnly => false;
 
@@ -39,18 +39,20 @@ class KeyedServiceCollectionAdapter : IServiceCollection
         ArgumentNullException.ThrowIfNull(item);
 
         var keyedDescriptor = EnsureKeyedDescriptor(item);
-        descriptors.Add(keyedDescriptor);
+        originalDescriptors.Add(item);
+        keyedDescriptors.Add(keyedDescriptor);
         Inner.Add(keyedDescriptor);
     }
 
     public void Clear()
     {
-        foreach (var descriptor in descriptors)
+        foreach (var descriptor in keyedDescriptors)
         {
             _ = Inner.Remove(descriptor);
         }
 
-        descriptors.Clear();
+        keyedDescriptors.Clear();
+        originalDescriptors.Clear();
         serviceTypeCounts.Clear();
     }
 
@@ -58,18 +60,18 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        return descriptors.Contains(item);
+        return originalDescriptors.Contains(item) || keyedDescriptors.Contains(item);
     }
 
-    public void CopyTo(ServiceDescriptor[] array, int arrayIndex) => descriptors.CopyTo(array, arrayIndex);
+    public void CopyTo(ServiceDescriptor[] array, int arrayIndex) => originalDescriptors.CopyTo(array, arrayIndex);
 
-    public IEnumerator<ServiceDescriptor> GetEnumerator() => ((IEnumerable<ServiceDescriptor>)[.. descriptors]).GetEnumerator();
+    public IEnumerator<ServiceDescriptor> GetEnumerator() => originalDescriptors.GetEnumerator();
 
     public int IndexOf(ServiceDescriptor item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        return descriptors.IndexOf(item);
+        return originalDescriptors.IndexOf(item);
     }
 
     public void Insert(int index, ServiceDescriptor item) => throw new NotSupportedException("Inserting service descriptors at specific positions is not supported for multi endpoint services.");
@@ -78,22 +80,27 @@ class KeyedServiceCollectionAdapter : IServiceCollection
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        if (!descriptors.Remove(item))
+        var index = originalDescriptors.IndexOf(item);
+        if (index < 0)
         {
             return false;
         }
 
-        _ = Inner.Remove(item);
-        DecrementServiceTypeCount(item.ServiceType);
+        var keyedDescriptor = keyedDescriptors[index];
+        originalDescriptors.RemoveAt(index);
+        keyedDescriptors.RemoveAt(index);
+        _ = Inner.Remove(keyedDescriptor);
+        DecrementServiceTypeCount(keyedDescriptor.ServiceType);
         return true;
     }
 
     public void RemoveAt(int index)
     {
-        var descriptor = descriptors[index];
-        descriptors.RemoveAt(index);
-        _ = Inner.Remove(descriptor);
-        DecrementServiceTypeCount(descriptor.ServiceType);
+        var keyedDescriptor = keyedDescriptors[index];
+        keyedDescriptors.RemoveAt(index);
+        originalDescriptors.RemoveAt(index);
+        _ = Inner.Remove(keyedDescriptor);
+        DecrementServiceTypeCount(keyedDescriptor.ServiceType);
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -214,7 +221,8 @@ class KeyedServiceCollectionAdapter : IServiceCollection
         public static extern ref Type GetImplementationType(ServiceDescriptor descriptor);
     }
 
-    readonly List<ServiceDescriptor> descriptors = [];
+    readonly List<ServiceDescriptor> originalDescriptors = [];
+    readonly List<ServiceDescriptor> keyedDescriptors = [];
     readonly Dictionary<Type, int> serviceTypeCounts = [];
     readonly ConcurrentDictionary<Type, ObjectFactory> factories = new();
 }
