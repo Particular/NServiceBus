@@ -642,6 +642,45 @@ public class EndpointLoggingScopeTests
         }
     }
 
+    [Test]
+    public void BeginEndpointScope_should_return_noop_when_inside_slot_scope()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot("Sales", "blue");
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+
+        var logger = loggerFactory.CreateLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+        var endpointScope = new EndpointLoggingScope { EndpointName = "Sales", EndpointIdentifier = "blue" };
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            using (logger.BeginEndpointScope(endpointScope))
+            {
+                logger.LogInformation("inside-slot");
+            }
+        }
+
+        Assert.That(loggerFactory.Logger.CapturedLogScopes.Count, Is.EqualTo(1),
+            "Only the slot scope should appear, not a duplicate from BeginEndpointScope");
+    }
+
+    [Test]
+    public void BeginEndpointScope_should_push_scope_when_outside_slot_scope()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var logger = loggerFactory.CreateLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+        var endpointScope = new EndpointLoggingScope { EndpointName = "Billing", EndpointIdentifier = "green" };
+
+        using (logger.BeginEndpointScope(endpointScope))
+        {
+            logger.LogInformation("outside-slot");
+        }
+
+        AssertScopeWasUsed(loggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Billing"),
+            new KeyValuePair<string, object>("EndpointIdentifier", "green"));
+    }
+
     sealed class AmbientScope : IDisposable
     {
         readonly Microsoft.Extensions.Logging.ILoggerFactory? previous;

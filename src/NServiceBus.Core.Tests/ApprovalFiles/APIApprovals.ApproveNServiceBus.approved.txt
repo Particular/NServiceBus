@@ -1627,6 +1627,10 @@ namespace NServiceBus.Logging
         public required string EndpointName { get; init; }
         public override string ToString() { }
     }
+    public static class EndpointLoggingScopeExtensions
+    {
+        public static System.IDisposable BeginEndpointScope(this Microsoft.Extensions.Logging.ILogger logger, NServiceBus.Logging.EndpointLoggingScope endpointScope) { }
+    }
     public interface ILog
     {
         bool IsDebugEnabled { get; }
