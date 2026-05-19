@@ -27,12 +27,6 @@ public class When_using_default_logging : NServiceBusAcceptanceTest
     [TearDown]
     public void Teardown()
     {
-        // Reset LogManager to the default factory so the disposed externalLoggerFactory
-        // is no longer referenced and subsequent tests start with a clean slate.
-#pragma warning disable CS0618 // Test exercises deprecated DefaultFactory API intentionally
-        LogManager.Use<DefaultFactory>();
-#pragma warning restore CS0618
-
         if (Directory.Exists(logDirectory))
         {
             Directory.Delete(logDirectory, true);

@@ -55,20 +55,28 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
             kickOffTcs.SetResult((scenarioContext, cancellationToken));
         }
 
-        var sw = new Stopwatch();
         var scenarioRunner = new ScenarioRunner(runDescriptor, behaviors);
 
-        sw.Start();
-        var runSummary = await scenarioRunner.Run(cancellationToken).ConfigureAwait(false);
-        sw.Stop();
+        try
+        {
+            var sw = Stopwatch.StartNew();
+            var runSummary = await scenarioRunner.Run(cancellationToken).ConfigureAwait(false);
 
-        await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);
+            sw.Stop();
 
-        TestContext.Out.WriteLine("Test {0}: Scenario completed in {1:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
+            await runDescriptor.RaiseOnTestCompleted(runSummary).ConfigureAwait(false);
 
-        runSummary.Result.Exception?.Throw();
+            TestContext.Out.WriteLine("Test {0}: Scenario completed in {1:0.0}s", TestContext.CurrentContext.Test.FullName, sw.Elapsed.TotalSeconds);
 
-        return (TContext)runDescriptor.ScenarioContext;
+            runSummary.Result.Exception?.Throw();
+
+            return (TContext)runDescriptor.ScenarioContext;
+        }
+        finally
+        {
+            ScenarioContext.Current = null;
+            ScenarioContext.CurrentEndpoint = null;
+        }
     }
 
     public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>()

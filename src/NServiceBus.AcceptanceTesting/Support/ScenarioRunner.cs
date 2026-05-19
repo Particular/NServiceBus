@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using NServiceBus.Logging;
 
 public class ScenarioRunner(
     RunDescriptor runDescriptor,
@@ -51,6 +52,8 @@ public class ScenarioRunner(
 
             var services = runDescriptor.Services is ThreadSafeServiceCollection safe ? safe.Unwrap() : runDescriptor.Services;
             runDescriptor.ServiceProvider = services.BuildServiceProvider(runDescriptor.Settings.Get<ServiceProviderOptions>());
+
+            LogManager.SetAmbientDefaultFactory(runDescriptor.ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILoggerFactory>());
 
             await PerformScenarios(endpoints, cancellationToken).ConfigureAwait(false);
 
@@ -191,6 +194,13 @@ public class ScenarioRunner(
             {
                 await runDescriptor.ServiceProvider.DisposeAsync().ConfigureAwait(false);
             }
+
+            // Disconnect ambient default factory AFTER disposing ServiceProvider.
+            // MS DI disposes in reverse registration order, and AddLogging is called
+            // early (in EndpointCreator.Configure), so ILoggerFactory is disposed
+            // last. This means shutdown/disposal logs from earlier-disposed services
+            // still route through the ambient factory to ScenarioContext.
+            LogManager.SetAmbientDefaultFactory(null);
         }
     }
 

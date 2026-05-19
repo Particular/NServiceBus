@@ -33,13 +33,16 @@ sealed class LogScopeStates(object endpointName, object? endpointIdentifier) : L
         ? $"Endpoint = {endpointName}"
         : $"Endpoint = {endpointName}, EndpointIdentifier = {endpointIdentifier}";
 
-    readonly KeyValuePair<string, object?>[] entries = endpointIdentifier is null
-        ? [new KeyValuePair<string, object?>("Endpoint", endpointName)]
-        :
-        [
-            new KeyValuePair<string, object?>("Endpoint", endpointName),
-            new KeyValuePair<string, object?>("EndpointIdentifier", endpointIdentifier)
-        ];
+    readonly KeyValuePair<string, object?>[] entries = BuildScopeEntries(endpointName, endpointIdentifier);
+
+    internal static KeyValuePair<string, object?>[] BuildScopeEntries(object endpointName, object? endpointIdentifier) =>
+        endpointIdentifier is null
+            ? [new KeyValuePair<string, object?>("Endpoint", endpointName)]
+            :
+            [
+                new KeyValuePair<string, object?>("Endpoint", endpointName),
+                new KeyValuePair<string, object?>("EndpointIdentifier", endpointIdentifier)
+            ];
 }
 
 sealed class ExtendedLogScopeState(LogScopeState parentScope, string key, object value) : LogScopeState
@@ -71,6 +74,8 @@ sealed class ExtendedLogScopeState(LogScopeState parentScope, string key, object
 
 sealed class EndpointLogSlot(string endpointName, object? endpointIdentifier) : LogSlot
 {
+    public string EndpointName => endpointName;
+    public object? EndpointIdentifier => endpointIdentifier;
     public override LogScopeState ScopeState { get; } = new LogScopeStates(endpointName, endpointIdentifier);
 }
 

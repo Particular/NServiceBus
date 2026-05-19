@@ -6,10 +6,8 @@ namespace NServiceBus.AcceptanceTests.Core.LoggingIntegration;
 
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using AcceptanceTesting.Support;
 using EndpointTemplates;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -31,11 +29,6 @@ public class When_using_default_logging_internally_managed : NServiceBusAcceptan
     [TearDown]
     public void Teardown()
     {
-        // Reset LogManager to the default factory so the disposed externalLoggerFactory
-        // is no longer referenced and subsequent tests start with a clean slate.
-        // Test exercises deprecated DefaultFactory API intentionally
-        LogManager.Use<DefaultFactory>();
-
         if (Directory.Exists(logDirectory))
         {
             Directory.Delete(logDirectory, true);

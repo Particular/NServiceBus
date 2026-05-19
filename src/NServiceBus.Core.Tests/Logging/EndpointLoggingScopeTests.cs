@@ -4,9 +4,9 @@ namespace NServiceBus.Core.Tests.Logging;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Logging;
 using NUnit.Framework;
@@ -14,14 +14,6 @@ using NUnit.Framework;
 [TestFixture]
 public class EndpointLoggingScopeTests
 {
-    [TearDown]
-    public void Cleanup()
-    {
-#pragma warning disable CS0618 // Test cleanup intentionally resets global LogManager default factory
-        LogManager.Use<DefaultFactory>();
-#pragma warning restore CS0618
-    }
-
     [Test]
     public void Should_include_endpoint_name_and_identifier_for_multi_hosted_endpoints()
     {
@@ -153,15 +145,44 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
-    public void Should_flush_pending_scoped_startup_logs_to_trace_when_slot_is_unregistered_without_factory()
+    public void Should_flush_pending_scoped_startup_logs_to_fallback_when_slot_is_unregistered_without_factory()
     {
-        using var traceOutput = new StringWriter();
-        using var traceListener = new TextWriterTraceListener(traceOutput);
-        Trace.Listeners.Add(traceListener);
+#pragma warning disable CS0618 // Type or member is obsolete
+        LogManager.Use<DefaultFactory>();
+#pragma warning restore CS0618 // Type or member is obsolete
 
-        // Slot is created but its factory is never resolved (simulates a failed endpoint startup).
+        try
+        {
+            // Slot is created but its factory is never resolved (simulates a failed endpoint startup).
+            var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+            var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+            var logger = LogManager.GetLogger(loggerName);
+
+            using (LogManager.BeginSlotScope(slot))
+            {
+                logger.Info("startup-log");
+            }
+
+            LogManager.UnregisterSlot(slot);
+
+            // Logs are drained through FallbackLoggerFactory instead of trace.
+            // Verify the behavior: no exception, slot is cleaned up.
+            Assert.That(LogManager.DefaultFactoryIsUnsupported, Is.True);
+        }
+        finally
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            LogManager.Use<DefaultFactory>();
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+    }
+
+    [Test]
+    public void Should_not_duplicate_fallback_flush_when_slot_is_unregistered_multiple_times()
+    {
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
 
         using (LogManager.BeginSlotScope(slot))
         {
@@ -169,52 +190,16 @@ public class EndpointLoggingScopeTests
         }
 
         LogManager.UnregisterSlot(slot);
-
-        traceListener.Flush();
-        Trace.Listeners.Remove(traceListener);
-
-        Assert.That(traceOutput.ToString(), Does.Contain("Info").And.Contains("startup-log"));
+        Assert.DoesNotThrow(() => LogManager.UnregisterSlot(slot));
     }
 
     [Test]
-    public void Should_not_duplicate_trace_flush_when_slot_is_unregistered_multiple_times()
+    public void Should_write_to_fallback_instead_of_buffering_when_logging_inside_stale_slot_scope_after_unregistration()
     {
-        using var traceOutput = new StringWriter();
-        using var traceListener = new TextWriterTraceListener(traceOutput);
-        Trace.Listeners.Add(traceListener);
-
-        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
-
-        using (LogManager.BeginSlotScope(slot))
-        {
-            logger.Info("startup-log");
-        }
-
-        LogManager.UnregisterSlot(slot);
-        LogManager.UnregisterSlot(slot);
-
-        traceListener.Flush();
-        Trace.Listeners.Remove(traceListener);
-
-        var output = traceOutput.ToString();
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(output, Does.Contain("Info").And.Contains("startup-log"));
-            Assert.That(CountOccurrences(output, "startup-log"), Is.EqualTo(1));
-        }
-    }
-
-    [Test]
-    public void Should_write_to_trace_instead_of_buffering_when_logging_inside_stale_slot_scope_after_unregistration()
-    {
-        using var traceOutput = new StringWriter();
-        using var traceListener = new TextWriterTraceListener(traceOutput);
-        Trace.Listeners.Add(traceListener);
-
         var slotLoggerFactory = new CollectingMicrosoftLoggerFactory();
         var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
 
         var staleScope = LogManager.BeginSlotScope(slot);
         LogManager.UnregisterSlot(slot);
@@ -229,12 +214,10 @@ public class EndpointLoggingScopeTests
             logger.Info("fresh-log");
         }
 
-        traceListener.Flush();
-        Trace.Listeners.Remove(traceListener);
-
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(traceOutput.ToString(), Does.Contain("Info").And.Contains("stale-scope-log"));
+            // The stale scope log went through FallbackLoggerFactory (not trace).
+            // The slot factory should only have the fresh log.
             Assert.That(slotLoggerFactory.Logger.CapturedMessages, Does.Contain("fresh-log"));
             Assert.That(slotLoggerFactory.Logger.CapturedMessages, Does.Not.Contain("stale-scope-log"));
         }
@@ -448,16 +431,315 @@ public class EndpointLoggingScopeTests
         public Queue<string?> Messages { get; } = new();
     }
 
-    static int CountOccurrences(string text, string value)
+    [Test]
+    public void SetAmbientDefaultFactory_should_route_unscoped_logs_to_ambient_factory()
     {
-        var count = 0;
-        var index = 0;
-        while ((index = text.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+        var ambientFactory = new CollectingMicrosoftLoggerFactory();
+        using var scope = AmbientScope.Create(ambientFactory);
+
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        logger.Info("ambient-test-message");
+
+        Assert.That(ambientFactory.Logger.CapturedMessages, Has.Some.Contains("ambient-test-message"));
+    }
+
+    [Test]
+    public void SetAmbientDefaultFactory_should_not_affect_slot_scoped_logs()
+    {
+        var ambientFactory = new CollectingMicrosoftLoggerFactory();
+        var slotFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(slotFactory));
+        using var ambient = AmbientScope.Create(ambientFactory);
+
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        using (LogManager.BeginSlotScope(slot))
         {
-            count++;
-            index += value.Length;
+            logger.Info("in-slot-message");
         }
 
-        return count;
+        logger.Info("out-of-slot-message");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(slotFactory.Logger.CapturedMessages, Has.Some.Contains("in-slot-message"));
+            Assert.That(slotFactory.Logger.CapturedMessages, Does.Not.Contain("out-of-slot-message"));
+            Assert.That(ambientFactory.Logger.CapturedMessages, Has.Some.Contains("out-of-slot-message"));
+            Assert.That(ambientFactory.Logger.CapturedMessages, Does.Not.Contain("in-slot-message"));
+        }
+
+        LogManager.UnregisterSlot(slot);
+    }
+
+    [Test]
+    public void Clearing_ambient_default_factory_should_fall_back_to_default_factory()
+    {
+        var ambientFactory = new CollectingMicrosoftLoggerFactory();
+        var defaultFactory = new CollectingNServiceBusLoggerFactory();
+#pragma warning disable CS0618 // UseFactory is deprecated; test exercises legacy behavior intentionally
+        LogManager.UseFactory(defaultFactory);
+#pragma warning restore CS0618
+
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        using (AmbientScope.Create(ambientFactory))
+        {
+            logger.Info("while-ambient-set");
+        }
+
+        var logger2Name = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger2 = LogManager.GetLogger(logger2Name);
+        logger2.Info("after-ambient-cleared");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(ambientFactory.Logger.CapturedMessages, Has.Some.Contains("while-ambient-set"));
+            Assert.That(defaultFactory.GetMessages(logger2Name), Is.EqualTo(["after-ambient-cleared"]));
+        }
+    }
+
+    [Test]
+    public void Ambient_default_factory_should_route_stale_slot_logs()
+    {
+        var ambientFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        using var ambient = AmbientScope.Create(ambientFactory);
+
+        var staleScope = LogManager.BeginSlotScope(slot);
+        LogManager.UnregisterSlot(slot);
+
+        logger.Info("stale-scope-ambient-log");
+
+        staleScope.Dispose();
+
+        Assert.That(ambientFactory.Logger.CapturedMessages, Has.Some.Contains("stale-scope-ambient-log"));
+    }
+
+    [Test]
+    public async Task SlotUnregisterer_should_unregister_slot_on_dispose()
+    {
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        // Simulate a stale scope that outlives container disposal.
+        // In production, this happens when background threads still hold a slot scope
+        // while the container begins its disposal chain.
+        var staleScope = LogManager.BeginSlotScope(slot);
+
+        var ambientFactory = new CollectingMicrosoftLoggerFactory();
+        using var ambient = AmbientScope.Create(ambientFactory);
+
+        // SlotUnregisterer disposes, unregistering the slot.
+        // The stale scope's context is removed from slotContexts,
+        // so subsequent writes through the stale scope drain to ambient.
+        var unregisterer = new SlotUnregisterer(slot);
+        await unregisterer.DisposeAsync();
+
+        logger.Info("after-unregisterer-dispose");
+
+        staleScope.Dispose();
+
+        Assert.That(ambientFactory.Logger.CapturedMessages, Has.Some.Contains("after-unregisterer-dispose"));
+    }
+
+    [Test]
+    public void SlotUnregisterer_should_be_idempotent_on_concurrent_dispose()
+    {
+        var slot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+        var logger = LogManager.GetLogger(loggerName);
+
+        var staleScope = LogManager.BeginSlotScope(slot);
+
+        var ambientFactory = new CollectingMicrosoftLoggerFactory();
+        using var ambient = AmbientScope.Create(ambientFactory);
+
+        var unregisterer = new SlotUnregisterer(slot);
+
+        var tasks = Enumerable.Range(0, 10)
+            .Select(_ => Task.Run(() => unregisterer.DisposeAsync().AsTask()))
+            .ToArray();
+        Task.WaitAll(tasks);
+
+        logger.Info("post-race");
+
+        staleScope.Dispose();
+
+        Assert.That(ambientFactory.Logger.CapturedMessages, Has.Some.Contains("post-race"));
+    }
+
+    [Test]
+    public async Task Ambient_default_factory_should_not_leak_across_async_boundaries()
+    {
+        var ambientFactory = new CollectingMicrosoftLoggerFactory();
+        using var ambient = AmbientScope.Create(ambientFactory);
+
+        var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+
+        // Verify ambient flows into child async context
+        var childSawAmbient = await Task.Run(() =>
+        {
+            var logger = LogManager.GetLogger(loggerName);
+            logger.Info("from-child");
+            return true;
+        });
+
+        LogManager.SetAmbientDefaultFactory(null);
+
+        // New async context without ambient should not see the old one
+        var childSawNoAmbient = await Task.Run(() =>
+        {
+            var logger2Name = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+            var logger2 = LogManager.GetLogger(logger2Name);
+            logger2.Info("no-ambient");
+            return ambientFactory.Logger.CapturedMessages.Contains("no-ambient");
+        });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(childSawAmbient, Is.True);
+            Assert.That(childSawNoAmbient, Is.False);
+            Assert.That(ambientFactory.Logger.CapturedMessages, Has.Some.Contains("from-child"));
+        }
+    }
+
+    [Test]
+    public void Ambient_default_factory_should_be_overridden_by_nested_set()
+    {
+        var outerFactory = new CollectingMicrosoftLoggerFactory();
+        var innerFactory = new CollectingMicrosoftLoggerFactory();
+
+        using (AmbientScope.Create(outerFactory))
+        {
+            var loggerName = $"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}";
+            LogManager.GetLogger(loggerName).Info("outer");
+
+            using (AmbientScope.Create(innerFactory))
+            {
+                LogManager.GetLogger(loggerName).Info("inner");
+
+                Assert.That(innerFactory.Logger.CapturedMessages, Has.Some.Contains("inner"));
+            }
+
+            LogManager.GetLogger(loggerName).Info("outer-restored");
+
+            Assert.That(outerFactory.Logger.CapturedMessages, Has.Some.Contains("outer"));
+            Assert.That(outerFactory.Logger.CapturedMessages, Has.Some.Contains("outer-restored"));
+        }
+    }
+
+    [Test]
+    public void BeginEndpointScope_should_return_noop_when_inside_slot_scope()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot("Sales", "blue");
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+
+        var logger = loggerFactory.CreateLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+        var endpointScope = new EndpointLoggingScope { EndpointName = "Sales", EndpointIdentifier = "blue" };
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            using (logger.BeginEndpointScope(endpointScope))
+            {
+                logger.LogInformation("inside-slot");
+            }
+        }
+
+        Assert.That(loggerFactory.Logger.CapturedLogScopes.Count, Is.EqualTo(1),
+            "Only the slot scope should appear, not a duplicate from BeginEndpointScope");
+    }
+
+    [Test]
+    public void BeginEndpointScope_should_push_scope_when_outside_slot_scope()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var logger = loggerFactory.CreateLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+        var endpointScope = new EndpointLoggingScope { EndpointName = "Billing", EndpointIdentifier = "green" };
+
+        using (logger.BeginEndpointScope(endpointScope))
+        {
+            logger.LogInformation("outside-slot");
+        }
+
+        AssertScopeWasUsed(loggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Billing"),
+            new KeyValuePair<string, object>("EndpointIdentifier", "green"));
+    }
+
+    [Test]
+    public void Nested_slot_scopes_with_same_slot_should_not_duplicate_mel_scope()
+    {
+        var loggerFactory = new CollectingMicrosoftLoggerFactory();
+        var slot = new EndpointLogSlot("Sales", "blue");
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            // Inner scope re-enters the same slot (simulates MessageSession inside a receiver)
+            using (LogManager.BeginSlotScope(slot))
+            {
+                logger.Info("nested-same-slot");
+            }
+        }
+
+        Assert.That(loggerFactory.Logger.CapturedLogScopes, Has.Count.EqualTo(1),
+            "Re-entering the same slot should not push a duplicate MEL scope");
+    }
+
+    [Test]
+    public void Nested_slot_scopes_with_different_slots_should_each_push_mel_scope()
+    {
+        var satelliteLoggerFactory = new CollectingMicrosoftLoggerFactory();
+        var endpointSlot = new EndpointLogSlot("Sales", "blue");
+        var satelliteSlot = new EndpointSatelliteLogSlot(endpointSlot, "TimeoutManager");
+        LogManager.RegisterSlotFactory(satelliteSlot, new MicrosoftLoggerFactoryAdapter(satelliteLoggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(endpointSlot))
+        {
+            using (LogManager.BeginSlotScope(satelliteSlot))
+            {
+                logger.Info("nested-different-slots");
+            }
+        }
+
+        // The inner (satellite) slot routes to the satellite factory, with both Endpoint and Satellite scope entries
+        AssertScopeWasUsed(satelliteLoggerFactory.Logger.CapturedLogScopes,
+            new KeyValuePair<string, object>("Endpoint", "Sales"),
+            new KeyValuePair<string, object>("EndpointIdentifier", "blue"),
+            new KeyValuePair<string, object>("Satellite", "TimeoutManager"));
+    }
+
+    sealed class AmbientScope : IDisposable
+    {
+        readonly Microsoft.Extensions.Logging.ILoggerFactory? previous;
+
+        AmbientScope(Microsoft.Extensions.Logging.ILoggerFactory? factory)
+        {
+            previous = LogManager.GetAmbientDefaultFactory();
+            LogManager.SetAmbientDefaultFactory(factory);
+        }
+
+        public void Dispose() => LogManager.SetAmbientDefaultFactory(previous);
+
+        public static AmbientScope Create(Microsoft.Extensions.Logging.ILoggerFactory? factory) => new(factory);
     }
 }

@@ -5,10 +5,13 @@ namespace NServiceBus.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Particular.Obsoletes;
+using MicrosoftILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
+using MicrosoftLogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 /// <summary>
 /// Responsible for the creation of <see cref="ILog" /> instances and used as an extension point to redirect log events to
@@ -77,20 +80,31 @@ public static class LogManager
 
     static bool IsExternalFactoryConfigured => defaultLoggerFactoryDefinition is null;
 
+    internal static bool DefaultFactoryIsUnsupported => defaultLoggerFactory.Value is IUnsupportedDefaultFactoryLoggerFactory;
+
+    /// <summary>
+    /// Sets the ambient default factory for the current async context.
+    /// Used by acceptance testing to route out-of-slot logs to the scenario's MEL factory
+    /// without mutating process-global static state.
+    /// </summary>
+    internal static void SetAmbientDefaultFactory(MicrosoftILoggerFactory? factory) => ambientDefaultFactory.Value = factory;
+
+    internal static MicrosoftILoggerFactory? GetAmbientDefaultFactory() => ambientDefaultFactory.Value;
+
     internal sealed class DefaultLoggingConfiguration(string loggingDirectory, LogLevel nsbLogLevel)
     {
         public string LoggingDirectory { get; } = loggingDirectory;
-        public Microsoft.Extensions.Logging.LogLevel MicrosoftLogLevel => ConvertLogLevel(nsbLogLevel);
+        public MicrosoftLogLevel MicrosoftLogLevel => ConvertLogLevel(nsbLogLevel);
 
-        static Microsoft.Extensions.Logging.LogLevel ConvertLogLevel(LogLevel level) =>
+        static MicrosoftLogLevel ConvertLogLevel(LogLevel level) =>
             level switch
             {
-                LogLevel.Debug => Microsoft.Extensions.Logging.LogLevel.Debug,
-                LogLevel.Info => Microsoft.Extensions.Logging.LogLevel.Information,
-                LogLevel.Warn => Microsoft.Extensions.Logging.LogLevel.Warning,
-                LogLevel.Error => Microsoft.Extensions.Logging.LogLevel.Error,
-                LogLevel.Fatal => Microsoft.Extensions.Logging.LogLevel.Critical,
-                _ => Microsoft.Extensions.Logging.LogLevel.Information
+                LogLevel.Debug => MicrosoftLogLevel.Debug,
+                LogLevel.Info => MicrosoftLogLevel.Information,
+                LogLevel.Warn => MicrosoftLogLevel.Warning,
+                LogLevel.Error => MicrosoftLogLevel.Error,
+                LogLevel.Fatal => MicrosoftLogLevel.Critical,
+                _ => MicrosoftLogLevel.Information
             };
     }
 
@@ -117,7 +131,7 @@ public static class LogManager
         return loggers.GetOrAdd(name, static loggerName => new SlotAwareLogger(loggerName));
     }
 
-    internal static ILoggerFactory Adapt(Microsoft.Extensions.Logging.ILoggerFactory microsoftLoggerFactory) =>
+    internal static ILoggerFactory Adapt(MicrosoftILoggerFactory microsoftLoggerFactory) =>
         GetExternalFactoryIfAvailable() is { } externalFactory
             ? new ExternalLoggerFactoryAdapter(externalFactory, microsoftLoggerFactory)
             : new MicrosoftLoggerFactoryAdapter(microsoftLoggerFactory);
@@ -131,7 +145,7 @@ public static class LogManager
         slotLoggerFactories[slotKey] = loggerFactory;
         var slotContext = GetOrAddSlotContext(slotKey);
 
-        using var _ = new SlotScope(slotContext, activateExternalScope: true);
+        using var _ = new SlotScope(slotContext);
         DrainScopedStartupLogs(slotKey, loggerFactory);
     }
 
@@ -143,9 +157,13 @@ public static class LogManager
 
         if (!slotLoggerFactories.ContainsKey(slotKey) && scopedStartupLogsBySlot.TryRemove(slotKey, out var pendingScopedLogs))
         {
+            var drainLogger = GetAmbientDefaultFactory() is { } ambientFactory
+                ? new MicrosoftLoggerAdapter(ambientFactory.CreateLogger(nameof(LogManager)))
+                : FallbackLoggerFactory.Instance.Value.GetLogger(nameof(LogManager));
+
             while (pendingScopedLogs.TryDequeue(out var entry))
             {
-                entry.WriteToTrace();
+                entry.WriteTo(drainLogger);
             }
         }
 
@@ -165,7 +183,7 @@ public static class LogManager
 
         var slotKey = new SlotKey(slot);
         var slotContext = GetOrAddSlotContext(slotKey);
-        return new SlotScope(slotContext, activateExternalScope: true);
+        return new SlotScope(slotContext);
     }
 
     internal static bool TryGetCurrentEndpointScopeState([NotNullWhen(true)] out LogScopeState? scopeState)
@@ -341,6 +359,11 @@ public static class LogManager
 
         ILog GetDefaultLogger()
         {
+            if (GetAmbientDefaultFactory() is { } ambientFactory)
+            {
+                return new MicrosoftLoggerAdapter(ambientFactory.CreateLogger(name));
+            }
+
             var currentFactoryVersion = Volatile.Read(ref defaultLoggerFactoryVersion);
             if (defaultLoggerFactoryVersionSnapshot == currentFactoryVersion && defaultLogger is { } cached)
             {
@@ -349,7 +372,7 @@ public static class LogManager
 
             var loggerFactory = defaultLoggerFactory.Value;
             var createdLogger = loggerFactory is IUnsupportedDefaultFactoryLoggerFactory
-                ? new TraceFallbackLog(name)
+                ? FallbackLoggerFactory.Instance.Value.GetLogger(name)
                 : loggerFactory.GetLogger(name);
 
             defaultLogger = createdLogger;
@@ -404,7 +427,13 @@ public static class LogManager
                 return;
             }
 
-            entry.WriteToTrace();
+            if (GetAmbientDefaultFactory() is { } ambientFactory)
+            {
+                entry.WriteTo(new MicrosoftLoggerAdapter(ambientFactory.CreateLogger(entry.LoggerName)));
+                return;
+            }
+
+            entry.WriteTo(FallbackLoggerFactory.Instance.Value.GetLogger(entry.LoggerName));
         }
 
         ILog? defaultLogger;
@@ -421,40 +450,44 @@ public static class LogManager
         }
     }
 
-    sealed class TraceFallbackLog(string name) : ILog
+    sealed class FallbackLoggerFactory : ILoggerFactory
     {
-        public bool IsDebugEnabled => true;
-        public bool IsInfoEnabled => true;
-        public bool IsWarnEnabled => true;
-        public bool IsErrorEnabled => true;
-        public bool IsFatalEnabled => true;
+        public static readonly Lazy<ILoggerFactory> Instance = new(Create);
 
-        public void Debug(string? message) => Write(LogLevel.Debug, message, null);
-        public void Debug(string? message, Exception? exception) => Write(LogLevel.Debug, message, exception);
-        public void DebugFormat(string format, params object?[] args) => Write(LogLevel.Debug, string.Format(format, args), null);
-        public void Info(string? message) => Write(LogLevel.Info, message, null);
-        public void Info(string? message, Exception? exception) => Write(LogLevel.Info, message, exception);
-        public void InfoFormat(string format, params object?[] args) => Write(LogLevel.Info, string.Format(format, args), null);
-        public void Warn(string? message) => Write(LogLevel.Warn, message, null);
-        public void Warn(string? message, Exception? exception) => Write(LogLevel.Warn, message, exception);
-        public void WarnFormat(string format, params object?[] args) => Write(LogLevel.Warn, string.Format(format, args), null);
-        public void Error(string? message) => Write(LogLevel.Error, message, null);
-        public void Error(string? message, Exception? exception) => Write(LogLevel.Error, message, exception);
-        public void ErrorFormat(string format, params object?[] args) => Write(LogLevel.Error, string.Format(format, args), null);
-        public void Fatal(string? message) => Write(LogLevel.Fatal, message, null);
-        public void Fatal(string? message, Exception? exception) => Write(LogLevel.Fatal, message, exception);
-        public void FatalFormat(string format, params object?[] args) => Write(LogLevel.Fatal, string.Format(format, args), null);
+        readonly MicrosoftILoggerFactory melFactory;
 
-        void Write(LogLevel level, string? message, Exception? exception)
+        FallbackLoggerFactory(MicrosoftILoggerFactory melFactory) => this.melFactory = melFactory;
+
+        ILog ILoggerFactory.GetLogger(string name) => new MicrosoftLoggerAdapter(melFactory.CreateLogger(name));
+
+        ILog ILoggerFactory.GetLogger(Type type) => GetLogger(type.FullName ?? type.Name);
+
+        static FallbackLoggerFactory Create()
         {
-            var formatted = exception is null ? message : $"{message}{Environment.NewLine}{exception}";
-            Trace.WriteLine($"{level} [{name}]: {formatted}");
+            var config = GetLoggingConfiguration();
+            var directory = config?.LoggingDirectory ?? Host.GetOutputDirectory();
+            var level = config?.MicrosoftLogLevel ?? MicrosoftLogLevel.Information;
+
+            var services = new ServiceCollection();
+            services.AddLogging(builder =>
+            {
+                builder.Services.Configure<RollingLoggerProviderOptions>(o =>
+                {
+                    o.Directory = directory;
+                    o.LogLevel = level;
+                });
+                builder.AddNServiceBusLoggingProviders(directory, level);
+                builder.SetMinimumLevel(level);
+            });
+
+            var serviceProvider = services.BuildServiceProvider();
+            var factory = serviceProvider.GetRequiredService<MicrosoftILoggerFactory>();
+            return new FallbackLoggerFactory(factory);
         }
     }
 
     readonly struct DeferredLogEntry(string loggerName, DeferredLogEntryKind kind, LogLevel level, string? text, Exception? exception, object?[]? args)
     {
-        TraceFallbackLog TraceFallbackLog { get; } = new(loggerName);
         public string LoggerName { get; } = loggerName;
 
         public static DeferredLogEntry Message(string loggerName, LogLevel level, string? message) =>
@@ -483,8 +516,6 @@ public static class LogManager
                     throw new InvalidOperationException($"Unsupported deferred log entry kind '{kind}'.");
             }
         }
-
-        public void WriteToTrace() => WriteTo(TraceFallbackLog);
 
         static void WriteMessage(ILog logger, LogLevel level, string? message)
         {
@@ -568,12 +599,20 @@ public static class LogManager
 
     internal readonly struct SlotScope : IDisposable
     {
-        internal SlotScope(SlotContext slot, bool activateExternalScope)
+        internal SlotScope(SlotContext slot)
         {
             previousSlot = currentSlot.Value;
             currentSlot.Value = slot;
 
-            if (activateExternalScope && slotLoggerFactories.TryGetValue(slot.Key, out var loggerFactory) && loggerFactory is ISlotScopedLoggerFactory slotScopedLoggerFactory)
+            // Skip pushing a duplicate MEL scope when already inside the same slot.
+            // The endpoint's slot scope is activated at multiple points in the call stack:
+            // endpoint startup, message pump receive, and MessageSession operations.
+            // The AsyncLocal routing correctly nests via previousSlot/restore, but MEL
+            // BeginScope is additive — without this check the same endpoint metadata
+            // would appear multiple times in scope state.
+            var alreadyInSameSlot = previousSlot is not null && previousSlot.Key.Equals(slot.Key);
+
+            if (!alreadyInSameSlot && slotLoggerFactories.TryGetValue(slot.Key, out var loggerFactory) && loggerFactory is ISlotScopedLoggerFactory slotScopedLoggerFactory)
             {
                 activeScope = slotScopedLoggerFactory.BeginScope(slot.ScopeState);
             }
@@ -611,6 +650,7 @@ public static class LogManager
     static LoggingFactoryDefinition? defaultLoggerFactoryDefinition = new DefaultFactory();
 #pragma warning restore CS0618
     static readonly AsyncLocal<SlotContext?> currentSlot = new();
+    static readonly AsyncLocal<MicrosoftILoggerFactory?> ambientDefaultFactory = new();
     static readonly ConcurrentDictionary<string, SlotAwareLogger> loggers = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<SlotKey, SlotContext> slotContexts = new();
     static readonly ConcurrentDictionary<SlotKey, ILoggerFactory> slotLoggerFactories = new();

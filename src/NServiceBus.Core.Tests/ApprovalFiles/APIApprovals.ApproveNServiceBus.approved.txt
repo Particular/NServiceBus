@@ -1620,6 +1620,17 @@ namespace NServiceBus.Logging
         [System.Obsolete(@"Use 'RollingLoggerProviderOptions.LogLevel' instead. Note: NServiceBus.Logging.LogLevel.Info maps to Microsoft.Extensions.Logging.LogLevel.Information, Warn to Warning, Fatal to Critical. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public void Level(NServiceBus.Logging.LogLevel level) { }
     }
+    public sealed class EndpointLoggingScope : System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, object?>>, System.Collections.Generic.IReadOnlyCollection<System.Collections.Generic.KeyValuePair<string, object?>>, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string, object?>>, System.Collections.IEnumerable
+    {
+        public EndpointLoggingScope() { }
+        public object? EndpointIdentifier { get; init; }
+        public required string EndpointName { get; init; }
+        public override string ToString() { }
+    }
+    public static class EndpointLoggingScopeExtensions
+    {
+        public static System.IDisposable BeginEndpointScope(this Microsoft.Extensions.Logging.ILogger logger, NServiceBus.Logging.EndpointLoggingScope endpointScope) { }
+    }
     public interface ILog
     {
         bool IsDebugEnabled { get; }
