@@ -19,6 +19,7 @@ abstract class LogScopeState : IReadOnlyList<KeyValuePair<string, object?>>
 abstract class LogSlot
 {
     public abstract LogScopeState ScopeState { get; }
+    internal volatile bool IsFactoryRegistered;
 }
 
 sealed class LogScopeStates(object endpointName, object? endpointIdentifier) : LogScopeState

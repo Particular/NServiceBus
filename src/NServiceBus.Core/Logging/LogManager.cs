@@ -143,6 +143,7 @@ public static class LogManager
 
         var slotKey = new SlotKey(slot);
         slotLoggerFactories[slotKey] = loggerFactory;
+        slot.IsFactoryRegistered = true;
         var slotContext = GetOrAddSlotContext(slotKey);
 
         using var _ = new SlotScope(slotContext);

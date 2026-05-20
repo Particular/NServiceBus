@@ -33,7 +33,7 @@ public static class EndpointLoggingScopeExtensions
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(endpointScope);
 
-        if (endpointScope.Slot is not null)
+        if (endpointScope.Slot is { IsFactoryRegistered: true })
         {
             return LogManager.BeginSlotScope(endpointScope.Slot);
         }
