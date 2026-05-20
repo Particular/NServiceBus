@@ -27,7 +27,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
         services.AddScenarioContext(scenarioContext);
         services.AddLogging(builder =>
         {
-            builder.AddProvider(new ContextAppenderLoggerProvider(scenarioContext));
+            builder.AddContextAppender(scenarioContext);
 
             builder.SetMinimumLevel(scenarioContext.LogLevel switch
             {
