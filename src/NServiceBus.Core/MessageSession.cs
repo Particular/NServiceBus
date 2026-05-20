@@ -10,7 +10,7 @@ using Logging;
 
 class MessageSession : IMessageSession
 {
-    internal MessageSession(object loggingSlot)
+    internal MessageSession(LogSlot loggingSlot)
     {
         this.loggingSlot = loggingSlot;
         initializedTaskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -84,7 +84,7 @@ class MessageSession : IMessageSession
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(sendOptions);
 
-        using var _ = LogManager.BeginSlotScope(loggingSlot!);
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
@@ -95,7 +95,7 @@ class MessageSession : IMessageSession
         ArgumentNullException.ThrowIfNull(messageConstructor);
         ArgumentNullException.ThrowIfNull(sendOptions);
 
-        using var _ = LogManager.BeginSlotScope(loggingSlot!);
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
@@ -106,7 +106,7 @@ class MessageSession : IMessageSession
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(publishOptions);
 
-        using var _ = LogManager.BeginSlotScope(loggingSlot!);
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
@@ -117,7 +117,7 @@ class MessageSession : IMessageSession
         ArgumentNullException.ThrowIfNull(messageConstructor);
         ArgumentNullException.ThrowIfNull(publishOptions);
 
-        using var _ = LogManager.BeginSlotScope(loggingSlot!);
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Publish(CreateContext(linkedTokenSource.Token), messageConstructor, publishOptions).ConfigureAwait(false);
@@ -128,7 +128,7 @@ class MessageSession : IMessageSession
         ArgumentNullException.ThrowIfNull(eventType);
         ArgumentNullException.ThrowIfNull(subscribeOptions);
 
-        using var _ = LogManager.BeginSlotScope(loggingSlot!);
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Subscribe(CreateContext(linkedTokenSource.Token), eventType, subscribeOptions).ConfigureAwait(false);
@@ -136,7 +136,7 @@ class MessageSession : IMessageSession
 
     public async Task SubscribeAll(Type[] eventTypes, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
     {
-        using var _ = LogManager.BeginSlotScope(loggingSlot!);
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         // set a flag on the context so that subscribe implementations know which send API was used.
         subscribeOptions.Context.Set(SubscribeAllFlagKey, true);
@@ -149,13 +149,13 @@ class MessageSession : IMessageSession
         ArgumentNullException.ThrowIfNull(eventType);
         ArgumentNullException.ThrowIfNull(unsubscribeOptions);
 
-        using var _ = LogManager.BeginSlotScope(loggingSlot!);
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Unsubscribe(CreateContext(linkedTokenSource.Token), eventType, unsubscribeOptions).ConfigureAwait(false);
     }
 
-    readonly object? loggingSlot;
+    readonly LogSlot loggingSlot;
     IServiceProvider? serviceProvider;
     MessageOperations? messageOperations;
     IPipelineCache? pipelineCache;

@@ -16,7 +16,7 @@ using Unicast;
 
 partial class ReceiveComponent
 {
-    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, object endpointLogSlot)
+    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, LogSlot endpointLogSlot)
     {
         this.configuration = configuration;
         this.activityFactory = activityFactory;
@@ -265,7 +265,7 @@ partial class ReceiveComponent
         return Task.WhenAll(receiverStopTasks);
     }
 
-    static LogWrappedMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver, object endpointLogSlot)
+    static LogWrappedMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver, LogSlot endpointLogSlot)
     {
         var effectiveReceiver = consecutiveFailuresConfiguration.RateLimitSettings is not null
             ? new WrappedMessageReceiver(consecutiveFailuresConfiguration, receiver)
@@ -274,7 +274,7 @@ partial class ReceiveComponent
         return new LogWrappedMessageReceiver(effectiveReceiver, endpointLogSlot);
     }
 
-    static object CreateReceiverProcessingLogSlot(object endpointLogSlot, string receiverId)
+    static LogSlot CreateReceiverProcessingLogSlot(LogSlot endpointLogSlot, string receiverId)
     {
         if (endpointLogSlot is not EndpointLogSlot endpointSlot)
         {
@@ -284,11 +284,11 @@ partial class ReceiveComponent
         return receiverId == InstanceSpecificReceiverId ? new EndpointReceiverLogSlot(endpointSlot, receiverId) : endpointLogSlot;
     }
 
-    static object CreateSatelliteProcessingLogSlot(object endpointLogSlot, string satelliteName) => endpointLogSlot is not EndpointLogSlot endpointSlot ? endpointLogSlot : new EndpointSatelliteLogSlot(endpointSlot, satelliteName);
+    static LogSlot CreateSatelliteProcessingLogSlot(LogSlot endpointLogSlot, string satelliteName) => endpointLogSlot is not EndpointLogSlot endpointSlot ? endpointLogSlot : new EndpointSatelliteLogSlot(endpointSlot, satelliteName);
 
     readonly Configuration configuration;
     readonly IActivityFactory activityFactory;
-    readonly object endpointLogSlot;
+    readonly LogSlot endpointLogSlot;
     readonly List<IMessageReceiver> receivers = [];
 
     const string MainReceiverId = "Main";

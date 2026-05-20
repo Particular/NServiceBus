@@ -18,7 +18,7 @@ class RunningEndpointInstance(SettingsHolder settings,
     CancellationTokenSource stoppingTokenSource,
     IAsyncDisposable serviceProviderLease,
 #pragma warning disable CS0618 // Type or member is obsolete -- Change the interface to IMessageSession in the next major
-    object endpointLogSlot) : IEndpointInstance, IAsyncDisposable
+    LogSlot endpointLogSlot) : IEndpointInstance, IAsyncDisposable
 #pragma warning restore CS0618 // Type or member is obsolete
 {
     // Stop is the legacy interface for shutting down the endpoint over the public API.
