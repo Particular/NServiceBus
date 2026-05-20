@@ -53,6 +53,36 @@ public class When_using_endpoint_logging_scope : NServiceBusAcceptanceTest
     }
 
     [Test]
+    public async Task Should_enrich_mel_logger_before_endpoint_start()
+    {
+        // Uses ServiceResolve without afterStart (runs before endpoint start) so the
+        // slot factory is not yet registered. BeginEndpointScope must still enrich
+        // ILogger output via logger.BeginScope because the host hasn't started.
+        var context = await Scenario.Define<Context>(ctx => ctx.IncludeLoggingScopes = true)
+            .WithEndpoint<EndpointWithScope>(b => b
+                .ServiceResolve(static (provider, ctx, _) =>
+                {
+                    var endpointScope = provider.GetRequiredService<EndpointLoggingScope>();
+
+                    var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+                    var logger = loggerFactory.CreateLogger("PreStartScopeTest");
+                    using (logger.BeginEndpointScope(endpointScope))
+                    {
+                        logger.LogInformation("Message before endpoint start inside scope");
+                    }
+
+                    ctx.MarkAsCompleted();
+                    return Task.CompletedTask;
+                }))
+            .Run();
+
+        Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
+            l.LoggerName == "PreStartScopeTest" &&
+            (l.Message ?? string.Empty).Contains("Message before endpoint start inside scope") &&
+            (l.Message ?? string.Empty).Contains("Endpoint = UsingEndpointLoggingScope.EndpointWithScope")));
+    }
+
+    [Test]
     public async Task Should_not_duplicate_scope_when_inside_pipeline()
     {
         var context = await Scenario.Define<Context>(ctx => ctx.IncludeLoggingScopes = true)
