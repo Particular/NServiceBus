@@ -53,22 +53,24 @@ public class When_using_endpoint_logging_scope : NServiceBusAcceptanceTest
     }
 
     [Test]
-    public async Task Should_enrich_mel_logger_before_endpoint_start()
+    public async Task Should_enrich_both_loggers_before_endpoint_start()
     {
         // Uses ServiceResolve without afterStart (runs before endpoint start) so the
         // slot factory is not yet registered. BeginEndpointScope must still enrich
-        // ILogger output via logger.BeginScope because the host hasn't started.
+        // both ILogger and legacy ILog output — ILogger via logger.BeginScope,
+        // and ILog via SlotScope deferral (queued and flushed after endpoint start).
         var context = await Scenario.Define<Context>(ctx => ctx.IncludeLoggingScopes = true)
             .WithEndpoint<EndpointWithScope>(b => b
                 .ServiceResolve(static (provider, ctx, _) =>
                 {
                     var endpointScope = provider.GetRequiredService<EndpointLoggingScope>();
 
-                    var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-                    var logger = loggerFactory.CreateLogger("PreStartScopeTest");
-                    using (logger.BeginEndpointScope(endpointScope))
+                    var legacyLogger = LogManager.GetLogger("PreStartLegacyLogger");
+                    var melLogger = provider.GetRequiredService<ILoggerFactory>().CreateLogger("PreStartMelLogger");
+                    using (melLogger.BeginEndpointScope(endpointScope))
                     {
-                        logger.LogInformation("Message before endpoint start inside scope");
+                        legacyLogger.Info("Legacy logger before endpoint start inside scope");
+                        melLogger.LogInformation("MEL logger before endpoint start inside scope");
                     }
 
                     ctx.MarkAsCompleted();
@@ -76,10 +78,20 @@ public class When_using_endpoint_logging_scope : NServiceBusAcceptanceTest
                 }))
             .Run();
 
-        Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
-            l.LoggerName == "PreStartScopeTest" &&
-            (l.Message ?? string.Empty).Contains("Message before endpoint start inside scope") &&
-            (l.Message ?? string.Empty).Contains("Endpoint = UsingEndpointLoggingScope.EndpointWithScope")));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
+                l.LoggerName == "PreStartMelLogger" &&
+                (l.Message ?? string.Empty).Contains("MEL logger before endpoint start inside scope") &&
+                (l.Message ?? string.Empty).Contains("Endpoint = UsingEndpointLoggingScope.EndpointWithScope")),
+                "MEL ILogger should be enriched via logger.BeginScope before endpoint start");
+
+            Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
+                l.LoggerName == "PreStartLegacyLogger" &&
+                (l.Message ?? string.Empty).Contains("Legacy logger before endpoint start inside scope") &&
+                (l.Message ?? string.Empty).Contains("Endpoint = UsingEndpointLoggingScope.EndpointWithScope")),
+                "Legacy ILog should be deferred and flushed with scope enrichment after endpoint start");
+        }
     }
 
     [Test]
