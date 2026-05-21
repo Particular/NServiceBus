@@ -32,7 +32,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new object());
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
         await session.Send(new object());
@@ -56,7 +56,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new object());
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), new CancellationToken(true));
 
         Assert.ThrowsAsync<OperationCanceledException>(async () =>
@@ -77,7 +77,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new object());
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
         Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken(true)));
@@ -86,7 +86,7 @@ public class MessageSessionTests
     [Test]
     public async Task Deferred_session_should_wait_until_initialized()
     {
-        var deferredSession = new MessageSession(loggingSlot: new object());
+        var deferredSession = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
         var messageOperations = new TestableMessageOperations();
 
         var sendTask = deferredSession.Send(new object(), new SendOptions());

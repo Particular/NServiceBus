@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 
-sealed class SlotUnregisterer(object slot) : IAsyncDisposable
+sealed class SlotUnregisterer(LogSlot slot) : IAsyncDisposable
 {
     int unregistered;
 

@@ -6,13 +6,13 @@ using System;
 
 interface IEndpointCreationStrategy
 {
-    object EndpointLogSlot { get; }
+    LogSlot EndpointLogSlot { get; }
     StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider);
 }
 
 sealed class InternalContainerEndpointCreationStrategy(EndpointCreator endpointCreator, IAsyncDisposable? serviceProviderLease = null) : IEndpointCreationStrategy
 {
-    public object EndpointLogSlot => endpointCreator.EndpointLogSlot;
+    public LogSlot EndpointLogSlot => endpointCreator.EndpointLogSlot;
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider)
     {
@@ -25,7 +25,7 @@ sealed class InternalContainerEndpointCreationStrategy(EndpointCreator endpointC
 
 sealed class ExternalContainerEndpointCreationStrategy(EndpointCreator endpointCreator) : IEndpointCreationStrategy
 {
-    public object EndpointLogSlot => endpointCreator.EndpointLogSlot;
+    public LogSlot EndpointLogSlot => endpointCreator.EndpointLogSlot;
 
     public StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider)
     {

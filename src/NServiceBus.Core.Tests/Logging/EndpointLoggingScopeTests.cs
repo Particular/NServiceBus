@@ -650,7 +650,7 @@ public class EndpointLoggingScopeTests
         LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
 
         var logger = loggerFactory.CreateLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
-        var endpointScope = new EndpointLoggingScope { EndpointName = "Sales", EndpointIdentifier = "blue" };
+        var endpointScope = new EndpointLoggingScope { EndpointName = "Sales", EndpointIdentifier = "blue", Slot = slot };
 
         using (LogManager.BeginSlotScope(slot))
         {
@@ -665,14 +665,17 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
-    public void BeginEndpointScope_should_push_scope_when_outside_slot_scope()
+    public void BeginEndpointScope_should_push_both_slot_and_mel_scope_when_factory_not_registered()
     {
         var loggerFactory = new CollectingMicrosoftLoggerFactory();
         var logger = loggerFactory.CreateLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
-        var endpointScope = new EndpointLoggingScope { EndpointName = "Billing", EndpointIdentifier = "green" };
+        var slot = new EndpointLogSlot("Billing", "green");
+        var endpointScope = new EndpointLoggingScope { EndpointName = "Billing", EndpointIdentifier = "green", Slot = slot };
 
         using (logger.BeginEndpointScope(endpointScope))
         {
+            Assert.That(LogManager.TryGetCurrentEndpointScopeState(out _), Is.True,
+                "SlotScope should be active even when factory is not registered");
             logger.LogInformation("outside-slot");
         }
 

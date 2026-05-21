@@ -136,20 +136,21 @@ public static class LogManager
             ? new ExternalLoggerFactoryAdapter(externalFactory, microsoftLoggerFactory)
             : new MicrosoftLoggerFactoryAdapter(microsoftLoggerFactory);
 
-    internal static void RegisterSlotFactory(object slot, ILoggerFactory loggerFactory)
+    internal static void RegisterSlotFactory(LogSlot slot, ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(slot);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         var slotKey = new SlotKey(slot);
         slotLoggerFactories[slotKey] = loggerFactory;
+        slot.IsFactoryRegistered = true;
         var slotContext = GetOrAddSlotContext(slotKey);
 
         using var _ = new SlotScope(slotContext);
         DrainScopedStartupLogs(slotKey, loggerFactory);
     }
 
-    internal static void UnregisterSlot(object slot)
+    internal static void UnregisterSlot(LogSlot slot)
     {
         ArgumentNullException.ThrowIfNull(slot);
 
@@ -177,7 +178,7 @@ public static class LogManager
         }
     }
 
-    internal static SlotScope BeginSlotScope(object slot)
+    internal static SlotScope BeginSlotScope(LogSlot slot)
     {
         ArgumentNullException.ThrowIfNull(slot);
 

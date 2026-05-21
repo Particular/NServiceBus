@@ -235,7 +235,7 @@ class EndpointCreator
     }
 
     internal MessageSession MessageSession { get; private set; }
-    internal object EndpointLogSlot => hostingConfiguration.EndpointLogSlot;
+    internal LogSlot EndpointLogSlot => hostingConfiguration.EndpointLogSlot;
 
     PipelineComponent pipelineComponent;
     FeatureComponent featureComponent;

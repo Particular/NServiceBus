@@ -35,9 +35,25 @@ public static class EndpointLoggingScopeExtensions
 
         if (endpointScope.Slot is not null)
         {
-            return LogManager.BeginSlotScope(endpointScope.Slot);
+            var slotScope = LogManager.BeginSlotScope(endpointScope.Slot);
+
+            if (!endpointScope.Slot.IsFactoryRegistered)
+            {
+                return new CompositeDisposable(slotScope, logger.BeginScope(endpointScope));
+            }
+
+            return slotScope;
         }
 
         return logger.BeginScope(endpointScope) ?? NullScope.Instance;
+    }
+
+    sealed class CompositeDisposable(IDisposable first, IDisposable? second) : IDisposable
+    {
+        public void Dispose()
+        {
+            first.Dispose();
+            second?.Dispose();
+        }
     }
 }

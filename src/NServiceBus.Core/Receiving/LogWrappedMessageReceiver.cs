@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using NServiceBus.Logging;
 using NServiceBus.Transport;
 
-class LogWrappedMessageReceiver(IMessageReceiver receiver, object endpointLogSlot) : IMessageReceiver
+class LogWrappedMessageReceiver(IMessageReceiver receiver, LogSlot endpointLogSlot) : IMessageReceiver
 {
     public ISubscriptionManager Subscriptions => receiver.Subscriptions;
     public string Id => receiver.Id;
