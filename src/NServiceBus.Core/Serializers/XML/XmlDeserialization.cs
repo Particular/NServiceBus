@@ -92,7 +92,6 @@ class XmlDeserialization(IMessageMapper mapper, XmlSerializerCache cache, bool s
 
     void ProcessChildNodes(IList<Type> messageTypesToDeserialize, XmlDocument doc, List<object> result)
     {
-
         if (doc.DocumentElement is null)
         {
             return;
