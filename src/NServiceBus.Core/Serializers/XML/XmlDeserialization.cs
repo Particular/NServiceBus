@@ -14,16 +14,8 @@ using Logging;
 using MessageInterfaces;
 
 [RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
-class XmlDeserialization
+class XmlDeserialization(IMessageMapper mapper, XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
 {
-    public XmlDeserialization(IMessageMapper mapper, XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
-    {
-        this.mapper = mapper;
-        this.cache = cache;
-        this.skipWrappingRawXml = skipWrappingRawXml;
-        this.sanitizeInput = sanitizeInput;
-    }
-
     public object[] Deserialize(Stream stream, IList<Type> messageTypesToDeserialize = null)
     {
         if (stream == null)
@@ -60,13 +52,10 @@ class XmlDeserialization
             }
         }
 
-        return result.ToArray();
+        return [.. result];
     }
 
-    static bool NothingToBeProcessed(XmlDocument doc)
-    {
-        return doc.DocumentElement == null;
-    }
+    static bool NothingToBeProcessed(XmlDocument doc) => doc.DocumentElement == null;
 
     static XmlDocument ReadStreamIntoDocument(Stream stream, bool sanitizeInput)
     {
@@ -103,6 +92,12 @@ class XmlDeserialization
 
     void ProcessChildNodes(IList<Type> messageTypesToDeserialize, XmlDocument doc, List<object> result)
     {
+
+        if (doc.DocumentElement is null)
+        {
+            return;
+        }
+
         var position = 0;
         foreach (XmlNode node in doc.DocumentElement.ChildNodes)
         {
@@ -133,18 +128,23 @@ class XmlDeserialization
 
     void CacheDefaultNamespaceMessageBaseTypesAndPrefixes(XmlDocument doc)
     {
+        if (doc.DocumentElement == null)
+        {
+            return;
+        }
+
         foreach (XmlAttribute attr in doc.DocumentElement.Attributes)
         {
             if (attr.Name == "xmlns")
             {
-                defaultNamespace = attr.Value.Substring(attr.Value.LastIndexOf('/') + 1);
+                defaultNamespace = attr.Value[(attr.Value.LastIndexOf('/') + 1)..];
             }
             else
             {
                 if (attr.Name.Contains("xmlns:"))
                 {
                     var colonIndex = attr.Name.LastIndexOf(':');
-                    var prefix = attr.Name.Substring(colonIndex + 1);
+                    var prefix = attr.Name[(colonIndex + 1)..];
 
                     if (prefix.Contains(BASETYPE))
                     {
@@ -163,10 +163,7 @@ class XmlDeserialization
         }
     }
 
-    static bool ContainsMultipleMessages(XmlDocument doc)
-    {
-        return doc.DocumentElement.Name.Equals("messages", StringComparison.OrdinalIgnoreCase);
-    }
+    static bool ContainsMultipleMessages(XmlDocument doc) => doc.DocumentElement?.Name.Equals("messages", StringComparison.OrdinalIgnoreCase) ?? false;
 
     static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
     {
@@ -189,10 +186,7 @@ class XmlDeserialization
 
     object Process(XmlNode node, object parent, Type nodeType = null)
     {
-        if (nodeType == null)
-        {
-            nodeType = InferNodeType(node, parent);
-        }
+        nodeType ??= InferNodeType(node, parent);
 
         return GetObjectOfTypeFromNode(nodeType, node);
     }
@@ -210,11 +204,11 @@ class XmlDeserialization
         if (name.Contains(':'))
         {
             var colonIndex = node.Name.IndexOf(':');
-            name = name.Substring(colonIndex + 1);
-            var prefix = node.Name.Substring(0, colonIndex);
+            name = name[(colonIndex + 1)..];
+            var prefix = node.Name[..colonIndex];
             var ns = prefixesToNamespaces[prefix];
 
-            typeName = $"{ns.Substring(ns.LastIndexOf('/') + 1)}.{name}";
+            typeName = $"{ns[(ns.LastIndexOf('/') + 1)..]}.{name}";
         }
 
         if (name.Contains("NServiceBus."))
@@ -280,12 +274,7 @@ class XmlDeserialization
 
     object GetObjectOfTypeFromNode(Type t, XmlNode node)
     {
-        if (t.IsSimpleType() || t == typeof(Uri) || t.IsNullableType())
-        {
-            return GetPropertyValue(t, node);
-        }
-
-        if (typeof(IEnumerable).IsAssignableFrom(t))
+        if (t.IsSimpleType() || t == typeof(Uri) || t.IsNullableType() || typeof(IEnumerable).IsAssignableFrom(t))
         {
             return GetPropertyValue(t, node);
         }
@@ -297,7 +286,7 @@ class XmlDeserialization
             Type type = null;
             if (n.Name.Contains(':'))
             {
-                type = Type.GetType($"System.{n.Name.Substring(0, n.Name.IndexOf(':'))}", false, true);
+                type = Type.GetType($"System.{n.Name[..n.Name.IndexOf(':')]}", false, true);
             }
 
             if (!cache.typeMembers.TryGetValue(t, out var typeMembers))
@@ -353,9 +342,9 @@ class XmlDeserialization
 
     object GetPropertyValue(Type type, XmlNode n)
     {
-        if ((n.ChildNodes.Count == 1) && n.ChildNodes[0] is XmlCharacterData)
+        if (n.ChildNodes is [XmlCharacterData data])
         {
-            var text = n.ChildNodes[0].InnerText;
+            var text = data.InnerText;
 
             var args = type.GetGenericArguments();
             if (args.Length == 1 && args[0].IsValueType)
@@ -605,12 +594,12 @@ class XmlDeserialization
 
                     if (isArray)
                     {
-                        return typeToCreate.GetMethod("ToArray").Invoke(list, null);
+                        return typeToCreate.GetMethod("ToArray")?.Invoke(list, null);
                     }
 
                     if (isISet)
                     {
-                        return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
+                        return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray")?.Invoke(list, null));
                     }
                 }
 
@@ -661,13 +650,9 @@ class XmlDeserialization
         return n;
     }
 
-    readonly XmlSerializerCache cache;
     string defaultNamespace;
-    readonly IMessageMapper mapper;
     readonly List<Type> messageBaseTypes = [];
     readonly Dictionary<string, string> prefixesToNamespaces = [];
-    readonly bool sanitizeInput;
-    readonly bool skipWrappingRawXml;
 
     const string BASETYPE = "baseType";
     static readonly ILog logger = LogManager.GetLogger<XmlDeserialization>();
