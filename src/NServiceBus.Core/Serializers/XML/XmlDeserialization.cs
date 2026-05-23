@@ -127,7 +127,7 @@ class XmlDeserialization(IMessageMapper mapper, XmlSerializerCache cache, bool s
 
     void CacheDefaultNamespaceMessageBaseTypesAndPrefixes(XmlDocument doc)
     {
-        if (doc.DocumentElement == null)
+        if (doc.DocumentElement is null)
         {
             return;
         }
