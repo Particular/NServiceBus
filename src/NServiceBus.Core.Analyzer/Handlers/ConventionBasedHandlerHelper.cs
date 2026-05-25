@@ -91,7 +91,41 @@ static class ConventionBasedHandlerHelper
         {
             return false;
         }
+
+        // If this Handle method is the implementation of an interface member, it is interface-based,
+        // not convention-based. This covers custom interfaces that derive from IHandleMessages<T> and
+        // expose an extended Handle signature (e.g. an additional CancellationToken parameter) backed
+        // by a default interface method that forwards to the two-parameter IHandleMessages<T>.Handle.
+        if (ImplementsInterfaceMember(method))
+        {
+            return false;
+        }
+
         return true;
+    }
+
+    static bool ImplementsInterfaceMember(IMethodSymbol method)
+    {
+        var containingType = method.ContainingType;
+        if (containingType is null)
+        {
+            return false;
+        }
+
+        foreach (var iface in containingType.AllInterfaces)
+        {
+            foreach (var interfaceMethod in iface.GetMembers(HandleMethodName).OfType<IMethodSymbol>())
+            {
+                var implementation = containingType.FindImplementationForInterfaceMember(interfaceMethod);
+                if (implementation is not null &&
+                    SymbolEqualityComparer.Default.Equals(implementation, method))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static bool IsConventionBasedHandlerWithBoundCancellationToken(IMethodSymbol method, Compilation compilation)
