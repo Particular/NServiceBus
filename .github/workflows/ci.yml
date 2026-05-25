@@ -31,7 +31,9 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5.1.0
         with:
-          global-json-file: global.json
+          dotnet-version: |
+            8.0.x
+            11.0.x
       - name: Build
         run: dotnet build src --configuration Release
       - name: Upload packages
