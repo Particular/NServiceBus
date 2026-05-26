@@ -152,7 +152,7 @@ public static partial class Handlers
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (!ConventionBasedHandlerHelper.IsValidConventionBasedHandleMethod(method, knownTypes, interfaceMessageTypes))
+                if (!ConventionBasedHandlerHelper.IsValidConventionBasedHandleMethod(method, knownTypes, interfaceMessageTypes, handlerType))
                 {
                     continue;
                 }
