@@ -95,11 +95,11 @@ static class ConventionBasedHandlerHelper
             return false;
         }
 
-        // If this Handle method is the implementation of an interface member, it is interface-based,
-        // not convention-based. This covers custom interfaces that derive from IHandleMessages<T> and
-        // expose an extended Handle signature (e.g. an additional CancellationToken parameter) backed
-        // by a default interface method that forwards to the two-parameter IHandleMessages<T>.Handle.
-        if (ImplementsInterfaceMember(method, interfaceImplementationType))
+        // If this Handle method is the implementation of an interface member that belongs to a handler
+        // interface hierarchy (IHandleMessages<T>, IHandleTimeouts<T>, IAmStartedByMessages<T>, or an
+        // interface deriving from them), it is interface-based, not convention-based.
+        // Unrelated interfaces with a Handle-like method do NOT disqualify a convention-based handler.
+        if (ImplementsHandlerInterfaceMember(method, knownTypes, interfaceImplementationType))
         {
             return false;
         }
@@ -107,12 +107,21 @@ static class ConventionBasedHandlerHelper
         return true;
     }
 
-    static bool ImplementsInterfaceMember(IMethodSymbol method, INamedTypeSymbol? interfaceImplementationType)
+    static bool ImplementsHandlerInterfaceMember(IMethodSymbol method, HandlerKnownTypes knownTypes, INamedTypeSymbol? interfaceImplementationType)
     {
         // Fast path: check explicit interface implementations first (O(1))
         if (!method.ExplicitInterfaceImplementations.IsEmpty)
         {
-            return true;
+            // Only count as handler interface member if the explicit implementation targets a handler interface
+            foreach (var explicitImpl in method.ExplicitInterfaceImplementations)
+            {
+                if (IsHandlerInterfaceOrDerived(explicitImpl.ContainingType, knownTypes))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         interfaceImplementationType ??= method.ContainingType;
@@ -121,9 +130,14 @@ static class ConventionBasedHandlerHelper
             return false;
         }
 
-        // Check implicit interface implementations
+        // Check implicit interface implementations — only for handler interface hierarchies
         foreach (var iface in interfaceImplementationType.AllInterfaces)
         {
+            if (!IsHandlerInterfaceOrDerived(iface, knownTypes))
+            {
+                continue;
+            }
+
             foreach (var interfaceMethod in iface.GetMembers(method.Name).OfType<IMethodSymbol>())
             {
                 if (interfaceMethod.Parameters.Length != method.Parameters.Length)
@@ -136,6 +150,26 @@ static class ConventionBasedHandlerHelper
                 {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    static bool IsHandlerInterfaceOrDerived(INamedTypeSymbol iface, HandlerKnownTypes knownTypes)
+    {
+        // Direct check: is this one of the known handler interface definitions?
+        if (iface.IsGenericType && HandlerConventions.IsHandlerInterface(iface.OriginalDefinition, knownTypes))
+        {
+            return true;
+        }
+
+        // Derived check: does this interface inherit from a handler interface?
+        foreach (var baseInterface in iface.AllInterfaces)
+        {
+            if (baseInterface.IsGenericType && HandlerConventions.IsHandlerInterface(baseInterface.OriginalDefinition, knownTypes))
+            {
+                return true;
             }
         }
 
