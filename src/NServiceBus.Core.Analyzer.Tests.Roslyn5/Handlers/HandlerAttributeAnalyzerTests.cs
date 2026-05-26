@@ -660,6 +660,31 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task DoesNotReportConventionBasedHandlerImplementingUnrelatedInterfaceWithHandleMethod()
+    {
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            interface IUnrelatedHandler
+            {
+                Task Handle(MyMessage message, IMessageHandlerContext context);
+            }
+
+            [Handler]
+            class MyHandler : IUnrelatedHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task ReportsMisplacedAttributeOnComplexBase()
     {
         var source =
