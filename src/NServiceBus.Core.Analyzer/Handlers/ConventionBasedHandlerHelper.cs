@@ -14,7 +14,7 @@ static class ConventionBasedHandlerHelper
     {
         for (var current = classType; current is not null; current = current.BaseType)
         {
-            if (HasValidConventionBasedHandleMethods(current, knownTypes))
+            if (HasValidConventionBasedHandleMethods(current, knownTypes, classType))
             {
                 return true;
             }
@@ -23,10 +23,13 @@ static class ConventionBasedHandlerHelper
         return false;
     }
 
-    public static bool HasValidConventionBasedHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes)
+    public static bool HasValidConventionBasedHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes) =>
+        HasValidConventionBasedHandleMethods(classType, knownTypes, classType);
+
+    static bool HasValidConventionBasedHandleMethods(INamedTypeSymbol classType, HandlerKnownTypes knownTypes, INamedTypeSymbol interfaceImplementationType)
     {
         var interfaceMessageTypes = new HashSet<string>(System.StringComparer.Ordinal);
-        foreach (var iface in classType.AllInterfaces)
+        foreach (var iface in interfaceImplementationType.AllInterfaces)
         {
             if (iface.IsGenericType && HandlerConventions.IsHandlerInterface(iface.OriginalDefinition, knownTypes) &&
                 iface.TypeArguments[0] is INamedTypeSymbol msgType)
@@ -42,7 +45,7 @@ static class ConventionBasedHandlerHelper
                 continue;
             }
 
-            if (IsValidConventionBasedHandleMethod(method, knownTypes, interfaceMessageTypes))
+            if (IsValidConventionBasedHandleMethod(method, knownTypes, interfaceMessageTypes, interfaceImplementationType))
             {
                 return true;
             }
@@ -51,7 +54,7 @@ static class ConventionBasedHandlerHelper
         return false;
     }
 
-    public static bool IsValidConventionBasedHandleMethod(IMethodSymbol method, HandlerKnownTypes knownTypes, HashSet<string> interfaceMessageTypes)
+    public static bool IsValidConventionBasedHandleMethod(IMethodSymbol method, HandlerKnownTypes knownTypes, HashSet<string> interfaceMessageTypes, INamedTypeSymbol? interfaceImplementationType = null)
     {
         if (method.Name != HandleMethodName ||
             method.DeclaredAccessibility != Accessibility.Public ||
@@ -96,7 +99,7 @@ static class ConventionBasedHandlerHelper
         // not convention-based. This covers custom interfaces that derive from IHandleMessages<T> and
         // expose an extended Handle signature (e.g. an additional CancellationToken parameter) backed
         // by a default interface method that forwards to the two-parameter IHandleMessages<T>.Handle.
-        if (ImplementsInterfaceMember(method))
+        if (ImplementsInterfaceMember(method, interfaceImplementationType))
         {
             return false;
         }
@@ -104,21 +107,32 @@ static class ConventionBasedHandlerHelper
         return true;
     }
 
-    static bool ImplementsInterfaceMember(IMethodSymbol method)
+    static bool ImplementsInterfaceMember(IMethodSymbol method, INamedTypeSymbol? interfaceImplementationType)
     {
-        var containingType = method.ContainingType;
-        if (containingType is null)
+        // Fast path: check explicit interface implementations first (O(1))
+        if (!method.ExplicitInterfaceImplementations.IsEmpty)
+        {
+            return true;
+        }
+
+        interfaceImplementationType ??= method.ContainingType;
+        if (interfaceImplementationType is null)
         {
             return false;
         }
 
-        foreach (var iface in containingType.AllInterfaces)
+        // Check implicit interface implementations
+        foreach (var iface in interfaceImplementationType.AllInterfaces)
         {
-            foreach (var interfaceMethod in iface.GetMembers(HandleMethodName).OfType<IMethodSymbol>())
+            foreach (var interfaceMethod in iface.GetMembers(method.Name).OfType<IMethodSymbol>())
             {
-                var implementation = containingType.FindImplementationForInterfaceMember(interfaceMethod);
-                if (implementation is not null &&
-                    SymbolEqualityComparer.Default.Equals(implementation, method))
+                if (interfaceMethod.Parameters.Length != method.Parameters.Length)
+                {
+                    continue;
+                }
+
+                var implementation = interfaceImplementationType.FindImplementationForInterfaceMember(interfaceMethod);
+                if (SymbolEqualityComparer.Default.Equals(implementation, method))
                 {
                     return true;
                 }
