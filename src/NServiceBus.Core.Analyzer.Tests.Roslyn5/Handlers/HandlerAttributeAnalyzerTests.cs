@@ -626,6 +626,40 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task DoesNotReportMixedStyleForDerivedHandlerInterfaceWithExtendedHandleImplementedByBaseClass()
+    {
+        var source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            interface IExtendedHandler<T> : IHandleMessages<T>
+            {
+                Task IHandleMessages<T>.Handle(T message, IMessageHandlerContext context) =>
+                    Handle(message, context, context.CancellationToken);
+
+                Task Handle(T message, IMessageHandlerContext context, CancellationToken cancellation = default);
+            }
+
+            abstract class BaseHandler
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context, CancellationToken cancellation = default) =>
+                    Task.CompletedTask;
+            }
+
+            [Handler]
+            class MyHandler : BaseHandler, IExtendedHandler<MyMessage>
+            {
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task ReportsMisplacedAttributeOnComplexBase()
     {
         var source =
