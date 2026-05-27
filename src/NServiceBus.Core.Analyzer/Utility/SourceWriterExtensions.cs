@@ -50,6 +50,12 @@ static class SourceWriterExtensions
             return writer.WithOpenNamespace("NServiceBus");
         }
 
+        public SourceWriter WithCompilerGeneratedAttribute()
+        {
+            writer.WriteLine("[global::System.Runtime.CompilerServices.CompilerGenerated]");
+            return writer;
+        }
+
         public SourceWriter WithGeneratedCodeAttribute() => writer.WithGeneratedCodeAttribute(AssemblyName);
 
         public SourceWriter WithGeneratedCodeAttribute(AssemblyName assemblyName)

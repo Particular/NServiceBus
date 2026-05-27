@@ -42,6 +42,7 @@ namespace NServiceBus
     }
 }
 
+[global::System.Runtime.CompilerServices.CompilerGenerated]
 [global::System.Diagnostics.StackTraceHidden]
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderShippedHandler__Handle__Cmd1_df918940d9a78851 : global::NServiceBus.IHandleMessages<global::Cmd1>

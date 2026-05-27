@@ -64,6 +64,7 @@ namespace NServiceBus
     }
 }
 
+[global::System.Runtime.CompilerServices.CompilerGenerated]
 [global::System.Diagnostics.StackTraceHidden]
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea : global::NServiceBus.IHandleMessages<global::Cmd1>
@@ -84,6 +85,7 @@ sealed file class OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea : global::N
     }
 }
 
+[global::System.Runtime.CompilerServices.CompilerGenerated]
 [global::System.Diagnostics.StackTraceHidden]
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a : global::NServiceBus.IHandleMessages<global::Cmd2>
@@ -95,6 +97,7 @@ sealed file class OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a : global::NS
     }
 }
 
+[global::System.Runtime.CompilerServices.CompilerGenerated]
 [global::System.Diagnostics.StackTraceHidden]
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8 : global::NServiceBus.IHandleMessages<global::Cmd1>
@@ -112,6 +115,7 @@ sealed file class OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8 : global::
     }
 }
 
+[global::System.Runtime.CompilerServices.CompilerGenerated]
 [global::System.Diagnostics.StackTraceHidden]
 [global::System.Diagnostics.DebuggerNonUserCode]
 sealed file class OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7 : global::NServiceBus.IHandleMessages<global::Cmd2>
