@@ -112,6 +112,7 @@ namespace NServiceBus
         }
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderBilledOrderIdAccessor_f7dc3394c771851e : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Billing.OrderBilled>
     {
@@ -125,6 +126,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_f7dc3394c771851e();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderPlacedOrderIdAccessor_ae6ad694572b9fcb : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Billing.OrderPlaced>
     {
@@ -138,6 +140,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_ae6ad694572b9fcb();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderBilledOrderIdAccessor_08b7b00354e1d041 : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Shipping.OrderBilled>
     {
@@ -151,6 +154,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_08b7b00354e1d041();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderPlacedOrderIdAccessor_13dea9c2dc628538 : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Shipping.OrderPlaced>
     {
@@ -164,6 +168,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_13dea9c2dc628538();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderBilledOrderIdAccessor_2fd27f5436ef20b9 : NServiceBus.Sagas.MessagePropertyAccessor<global::Payments.OrderBilled>
     {
@@ -177,6 +182,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_2fd27f5436ef20b9();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderPlacedOrderIdAccessor_c561311f0fcc5cf0 : NServiceBus.Sagas.MessagePropertyAccessor<global::Payments.OrderPlaced>
     {
@@ -190,6 +196,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_c561311f0fcc5cf0();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderIdAsStringAccessor_4a76700cf8410b3a : NServiceBus.Sagas.CorrelationPropertyAccessor
     {

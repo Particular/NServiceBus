@@ -98,7 +98,8 @@ public static partial class Sagas
             {
                 var mapping = allPropertyMappings[index];
                 var accessorClassName = MessagePropertyAccessorName(mapping);
-                _ = sourceWriter.WithGeneratedCodeAttribute();
+                _ = sourceWriter.WithCompilerGeneratedAttribute()
+                    .WithGeneratedCodeAttribute();
                 sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.MessagePropertyAccessor<{mapping.MessageType}>");
                 sourceWriter.WriteLine("{");
 
@@ -159,7 +160,8 @@ public static partial class Sagas
             {
                 var mapping = allPropertyMappings[index];
                 var accessorClassName = CorrelationPropertyAccessorName(mapping);
-                _ = sourceWriter.WithGeneratedCodeAttribute();
+                _ = sourceWriter.WithCompilerGeneratedAttribute()
+                    .WithGeneratedCodeAttribute();
                 sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.CorrelationPropertyAccessor");
                 sourceWriter.WriteLine("{");
 

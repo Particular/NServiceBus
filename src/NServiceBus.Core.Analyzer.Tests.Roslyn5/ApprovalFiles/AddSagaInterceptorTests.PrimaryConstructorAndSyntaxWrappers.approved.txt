@@ -53,6 +53,7 @@ namespace NServiceBus
         }
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class StartPartitionSagaCommandCorrelationIdAccessor_82483382109e24ab : NServiceBus.Sagas.MessagePropertyAccessor<global::StartPartitionSagaCommand>
     {
@@ -66,6 +67,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new StartPartitionSagaCommandCorrelationIdAccessor_82483382109e24ab();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class CorrelationIdAsStringAccessor_566e8fad769818c2 : NServiceBus.Sagas.CorrelationPropertyAccessor
     {
