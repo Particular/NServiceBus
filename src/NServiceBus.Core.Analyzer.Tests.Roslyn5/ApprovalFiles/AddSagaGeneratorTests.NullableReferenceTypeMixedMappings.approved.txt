@@ -69,6 +69,7 @@ namespace NServiceBus
         }
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class NonNullableMessageOrderIdAccessor_e023774f080a36b1 : NServiceBus.Sagas.MessagePropertyAccessor<global::NonNullableMessage>
     {
@@ -82,6 +83,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new NonNullableMessageOrderIdAccessor_e023774f080a36b1();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class NullableMessageOrderIdAccessor_9894122651576960 : NServiceBus.Sagas.MessagePropertyAccessor<global::NullableMessage>
     {
@@ -95,6 +97,7 @@ namespace NServiceBus
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new NullableMessageOrderIdAccessor_9894122651576960();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderIdAsStringAccessor_4a76700cf8410b3a : NServiceBus.Sagas.CorrelationPropertyAccessor
     {

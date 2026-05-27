@@ -54,6 +54,7 @@ namespace CustomRegistrations
         }
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderBilledOrderIdAccessor_6b40737e550b4237 : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.OrderBilled>
     {
@@ -67,6 +68,7 @@ namespace CustomRegistrations
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_6b40737e550b4237();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderPlacedOrderIdAccessor_92819afdda929c86 : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.OrderPlaced>
     {
@@ -80,6 +82,7 @@ namespace CustomRegistrations
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_92819afdda929c86();
     }
 
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     file sealed class OrderIdAsStringAccessor_4a76700cf8410b3a : NServiceBus.Sagas.CorrelationPropertyAccessor
     {
