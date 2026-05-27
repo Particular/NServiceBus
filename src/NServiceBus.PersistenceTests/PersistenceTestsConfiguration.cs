@@ -33,8 +33,10 @@ public partial class PersistenceTestsConfiguration
     {
         SagaIdGenerator = new LearningSagaIdGenerator();
 
+        storageLocation = Path.Combine(Path.GetTempPath(), ".sagas", TestContext.CurrentContext.Test.ID);
+
         var sagaManifests = new SagaManifestCollection(SagaMetadataCollection,
-            Path.Combine(Path.GetTempPath(), ".sagas", TestContext.CurrentContext.Test.ID),
+            storageLocation,
             name => DeterministicGuid.Create(name).ToString());
 
         SagaStorage = new LearningSagaPersister(sagaManifests);
@@ -44,5 +46,15 @@ public partial class PersistenceTestsConfiguration
         return Task.CompletedTask;
     }
 
-    public Task Cleanup(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public Task Cleanup(CancellationToken cancellationToken = default)
+    {
+        if (storageLocation != null && Directory.Exists(storageLocation))
+        {
+            Directory.Delete(storageLocation, true);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    string storageLocation;
 }

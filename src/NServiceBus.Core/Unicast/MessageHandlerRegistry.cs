@@ -107,6 +107,7 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific message type. Should only be called by a source generator.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void AddMessageHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage>() where THandler : class, IHandleMessages<TMessage>
         => AddMessageHandlerForMessage<THandler, TMessage, THandler>();
 
@@ -130,6 +131,7 @@ public class MessageHandlerRegistry
     /// <summary>
     /// Add a handler for a specific timeout type. Should only be called by a source generator.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public void AddTimeoutHandlerForMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage>() where THandler : class, IHandleTimeouts<TMessage>
     {
         // We are keeping a small deduplication set to avoid registering the same handler+message combination multiple times

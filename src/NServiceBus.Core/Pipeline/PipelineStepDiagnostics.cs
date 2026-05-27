@@ -25,7 +25,7 @@ static class PipelineStepDiagnostics
             var nextContextName = $"context{i}";
 
             sb.AppendLine();
-            sb.Append(new string(' ', i * 4));
+            sb.Append(' ', i * 4);
             sb.Append($"({step.InputContextType.Name} {nextContextName}) => {step.BehaviorType.Name}.Invoke({nextContextName}{(i + 1 < steps.Count ? "," : string.Empty)}");
         }
 

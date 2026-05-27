@@ -36,8 +36,10 @@ namespace NServiceBus
     }
 }
 
-[global::System.Diagnostics.StackTraceHidden]
-[global::System.Diagnostics.DebuggerNonUserCode]
+[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+[global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
+[global::System.Diagnostics.StackTraceHiddenAttribute]
+[global::System.Diagnostics.DebuggerNonUserCodeAttribute]
 sealed file class OrderShippedHandler__Handle__Cmd1_fa2b89e238cf7fd6 : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
     readonly global::IServiceC _serviceCFromCtor;
