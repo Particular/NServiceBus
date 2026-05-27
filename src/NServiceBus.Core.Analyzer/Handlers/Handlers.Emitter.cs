@@ -57,8 +57,8 @@ public static partial class Handlers
         static void EmitAdapterType(SourceWriter sourceWriter, ConventionBasedMethodSpec method)
         {
             sourceWriter.WithCompilerGeneratedAttribute();
-            sourceWriter.WriteLine("[global::System.Diagnostics.StackTraceHidden]");
-            sourceWriter.WriteLine("[global::System.Diagnostics.DebuggerNonUserCode]");
+            sourceWriter.WriteLine("[global::System.Diagnostics.StackTraceHiddenAttribute]");
+            sourceWriter.WriteLine("[global::System.Diagnostics.DebuggerNonUserCodeAttribute]");
             sourceWriter.WriteLine($"sealed file class {method.AdapterName} : global::NServiceBus.IHandleMessages<{method.MessageType}>");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;

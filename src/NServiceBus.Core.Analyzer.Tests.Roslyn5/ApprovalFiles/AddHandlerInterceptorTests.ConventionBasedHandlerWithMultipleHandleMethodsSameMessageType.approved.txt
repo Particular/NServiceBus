@@ -46,9 +46,9 @@ namespace NServiceBus
     }
 }
 
-[global::System.Runtime.CompilerServices.CompilerGenerated]
-[global::System.Diagnostics.StackTraceHidden]
-[global::System.Diagnostics.DebuggerNonUserCode]
+[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+[global::System.Diagnostics.StackTraceHiddenAttribute]
+[global::System.Diagnostics.DebuggerNonUserCodeAttribute]
 sealed file class OrderHandler__Handle__Cmd1_6d4631ee145fdd52 : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
 
@@ -59,9 +59,9 @@ sealed file class OrderHandler__Handle__Cmd1_6d4631ee145fdd52 : global::NService
     }
 }
 
-[global::System.Runtime.CompilerServices.CompilerGenerated]
-[global::System.Diagnostics.StackTraceHidden]
-[global::System.Diagnostics.DebuggerNonUserCode]
+[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+[global::System.Diagnostics.StackTraceHiddenAttribute]
+[global::System.Diagnostics.DebuggerNonUserCodeAttribute]
 sealed file class OrderHandler__Handle__Cmd1_f018c527f72a5f56 : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
     readonly global::IServiceA _serviceAFromMethod;
@@ -78,9 +78,9 @@ sealed file class OrderHandler__Handle__Cmd1_f018c527f72a5f56 : global::NService
     }
 }
 
-[global::System.Runtime.CompilerServices.CompilerGenerated]
-[global::System.Diagnostics.StackTraceHidden]
-[global::System.Diagnostics.DebuggerNonUserCode]
+[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+[global::System.Diagnostics.StackTraceHiddenAttribute]
+[global::System.Diagnostics.DebuggerNonUserCodeAttribute]
 sealed file class OrderHandler__Handle__Cmd1_8f0c4c684fd6fad3 : global::NServiceBus.IHandleMessages<global::Cmd1>
 {
     readonly global::IServiceA _serviceAFromMethod;

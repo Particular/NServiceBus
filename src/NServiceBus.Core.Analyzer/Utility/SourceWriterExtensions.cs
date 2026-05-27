@@ -52,7 +52,7 @@ static class SourceWriterExtensions
 
         public SourceWriter WithCompilerGeneratedAttribute()
         {
-            writer.WriteLine("[global::System.Runtime.CompilerServices.CompilerGenerated]");
+            writer.WriteLine("[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]");
             return writer;
         }
 
