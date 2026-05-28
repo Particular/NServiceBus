@@ -169,7 +169,7 @@ public class EndpointLoggingScopeTests
             }
         }
 
-        Assert.That(endpointLoggerFactory.CapturedMessages.Count(m => m is not null && m.StartsWith("satellite-log-")), Is.EqualTo(100),
+        Assert.That(endpointLoggerFactory.CapturedMessages.Count(m => m.StartsWith("satellite-log-")), Is.EqualTo(100),
             "Every satellite log must be delivered to the endpoint factory, not buffered into a never-drained queue.");
 
         LogManager.UnregisterSlot(satelliteSlot);
