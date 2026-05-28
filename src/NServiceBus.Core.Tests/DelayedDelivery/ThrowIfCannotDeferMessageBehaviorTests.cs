@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Tests.Timeout;
+namespace NServiceBus.Core.Tests.DelayedDelivery;
 
 using System;
 using System.Threading.Tasks;

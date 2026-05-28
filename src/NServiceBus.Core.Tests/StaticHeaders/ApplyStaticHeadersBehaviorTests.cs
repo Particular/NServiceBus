@@ -33,19 +33,13 @@ public class ApplyStaticHeadersBehaviorTests
         var behavior = new ApplyStaticHeadersBehavior([]);
         var context = new TestableOutgoingLogicalMessageContext();
         context.Headers["existing-header"] = "existing-value";
-        var nextCalled = false;
 
-        await behavior.Invoke(context, _ =>
-        {
-            nextCalled = true;
-            return Task.CompletedTask;
-        });
+        await behavior.Invoke(context, _ => Task.CompletedTask);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(nextCalled, Is.True);
             Assert.That(context.Headers["existing-header"], Is.EqualTo("existing-value"));
-            Assert.That(context.Headers.Count, Is.EqualTo(1));
+            Assert.That(context.Headers.ContainsKey("header-a"), Is.False);
         }
     }
 

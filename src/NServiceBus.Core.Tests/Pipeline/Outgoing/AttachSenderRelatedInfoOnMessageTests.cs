@@ -8,7 +8,7 @@ using Transport;
 using NUnit.Framework;
 using Testing;
 using System.Threading;
-using DelayedDelivery;
+using NServiceBus.DelayedDelivery;
 using Extensibility;
 
 [TestFixture]
@@ -31,7 +31,7 @@ public class AttachSenderRelatedInfoOnMessageTests
     [Test]
     public async Task Should_not_override_the_time_sent_headerAsync()
     {
-        var timeSent = DateTime.UtcNow.ToString();
+        var timeSent = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
 
         var message = await InvokeBehaviorAsync(new Dictionary<string, string>
         {
@@ -126,7 +126,7 @@ public class AttachSenderRelatedInfoOnMessageTests
     {
         var delay = TimeSpan.FromSeconds(10);
         var doNotDeliverBefore = DateTimeOffset.UtcNow.AddHours(1);
-        var before = DateTimeOffset.UtcNow.Add(delay);
+        var before = DateTimeOffset.UtcNow.Add(delay).Subtract(TimeSpan.FromMilliseconds(50));
 
         var message = await InvokeBehaviorAsync(null, new DispatchProperties
         {

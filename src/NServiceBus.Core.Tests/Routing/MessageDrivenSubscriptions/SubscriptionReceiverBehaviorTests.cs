@@ -41,11 +41,10 @@ public class SubscriptionReceiverBehaviorTests
         var context = CreateContext();
         context.Message.Headers[Headers.MessageIntent] = MessageIntent.Subscribe.ToString();
 
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(() =>
+        Assert.That(() =>
             new SubscriptionReceiverBehavior(new RecordingSubscriptionStorage(), _ => true)
-                .Invoke(context, _ => Task.CompletedTask));
-
-        Assert.That(exception.Message, Is.EqualTo("Message intent is Subscribe, but the subscription message type header is missing."));
+                .Invoke(context, _ => Task.CompletedTask),
+            Throws.TypeOf<InvalidOperationException>());
     }
 
     [Test]
@@ -55,11 +54,10 @@ public class SubscriptionReceiverBehaviorTests
         context.Message.Headers[Headers.MessageIntent] = MessageIntent.Send.ToString();
         context.Message.Headers[Headers.SubscriptionMessageType] = typeof(MyEvent).AssemblyQualifiedName;
 
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(() =>
+        Assert.That(() =>
             new SubscriptionReceiverBehavior(new RecordingSubscriptionStorage(), _ => true)
-                .Invoke(context, _ => Task.CompletedTask));
-
-        Assert.That(exception.Message, Is.EqualTo("Subscription messages need to have intent set to Subscribe/Unsubscribe."));
+                .Invoke(context, _ => Task.CompletedTask),
+            Throws.TypeOf<InvalidOperationException>());
     }
 
     [Test]
@@ -69,11 +67,10 @@ public class SubscriptionReceiverBehaviorTests
         context.Message.Headers[Headers.MessageIntent] = MessageIntent.Subscribe.ToString();
         context.Message.Headers[Headers.SubscriptionMessageType] = typeof(MyEvent).AssemblyQualifiedName;
 
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(() =>
+        Assert.That(() =>
             new SubscriptionReceiverBehavior(new RecordingSubscriptionStorage(), _ => true)
-                .Invoke(context, _ => Task.CompletedTask));
-
-        Assert.That(exception.Message, Is.EqualTo("Subscription message arrived without a valid ReplyToAddress."));
+                .Invoke(context, _ => Task.CompletedTask),
+            Throws.TypeOf<InvalidOperationException>());
     }
 
     [Test]

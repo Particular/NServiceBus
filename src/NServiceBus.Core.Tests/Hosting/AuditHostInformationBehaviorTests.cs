@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Tests.HostInfo;
+namespace NServiceBus.Core.Tests.Hosting;
 
 using System;
 using System.Threading.Tasks;
@@ -13,7 +13,7 @@ public class AuditHostInformationBehaviorTests
     [Test]
     public async Task Should_set_audit_host_metadata()
     {
-        var hostId = Guid.NewGuid();
+        var hostId = Guid.Parse("907ace7e-35f7-4fe3-9226-21a6d47e8f53");
         var behavior = new AuditHostInformationBehavior(new HostInformation(hostId, "display-name"), "endpoint-name");
         var context = new TestableAuditContext();
 
@@ -21,7 +21,7 @@ public class AuditHostInformationBehaviorTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(context.AuditMetadata[Headers.HostId], Is.EqualTo(hostId.ToString("N")));
+            Assert.That(context.AuditMetadata[Headers.HostId], Is.EqualTo("907ace7e35f74fe3922621a6d47e8f53"));
             Assert.That(context.AuditMetadata[Headers.HostDisplayName], Is.EqualTo("display-name"));
             Assert.That(context.AuditMetadata[Headers.ProcessingMachine], Is.EqualTo(RuntimeEnvironment.MachineName));
             Assert.That(context.AuditMetadata[Headers.ProcessingEndpoint], Is.EqualTo("endpoint-name"));
@@ -43,7 +43,7 @@ public class AuditHostInformationBehaviorTests
     [Test]
     public async Task Should_overwrite_existing_audit_host_metadata()
     {
-        var hostId = Guid.NewGuid();
+        var hostId = Guid.Parse("907ace7e-35f7-4fe3-9226-21a6d47e8f53");
         var behavior = new AuditHostInformationBehavior(new HostInformation(hostId, "display-name"), "endpoint-name");
         var context = new TestableAuditContext();
 
@@ -56,7 +56,7 @@ public class AuditHostInformationBehaviorTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(context.AuditMetadata[Headers.HostId], Is.EqualTo(hostId.ToString("N")));
+            Assert.That(context.AuditMetadata[Headers.HostId], Is.EqualTo("907ace7e35f74fe3922621a6d47e8f53"));
             Assert.That(context.AuditMetadata[Headers.HostDisplayName], Is.EqualTo("display-name"));
             Assert.That(context.AuditMetadata[Headers.ProcessingMachine], Is.EqualTo(RuntimeEnvironment.MachineName));
             Assert.That(context.AuditMetadata[Headers.ProcessingEndpoint], Is.EqualTo("endpoint-name"));
