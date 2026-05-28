@@ -5,7 +5,6 @@ namespace NServiceBus.Core.Tests.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
@@ -92,6 +91,89 @@ public class EndpointLoggingScopeTests
             new KeyValuePair<string, object>("Endpoint", "Shipping"),
             new KeyValuePair<string, object>("EndpointIdentifier", "green"),
             new KeyValuePair<string, object>("Receiver", "InstanceSpecific"));
+    }
+
+    [Test]
+    public void Should_route_satellite_logs_to_endpoint_factory_when_only_endpoint_slot_is_registered()
+    {
+        // In production only the endpoint slot gets a factory registered (EndpointPreparation
+        // calls RegisterSlotFactory for the EndpointLogSlot). Satellite slots are created
+        // per-satellite by ReceiveComponent and never registered, so logs emitted during
+        // satellite message processing must still reach the endpoint's logger factory rather
+        // than being buffered into a per-slot queue that is never drained.
+        var endpointLoggerFactory = new FakeLoggerLoggerFactory();
+        var endpointSlot = new EndpointLogSlot($"Shipping-{Guid.NewGuid():N}", "green");
+        var satelliteSlot = new EndpointSatelliteLogSlot(endpointSlot, "TimeoutMigration");
+        LogManager.RegisterSlotFactory(endpointSlot, new MicrosoftLoggerFactoryAdapter(endpointLoggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(satelliteSlot))
+        {
+            logger.Info("satellite-processing-log");
+        }
+
+        Assert.That(endpointLoggerFactory.CapturedMessages, Does.Contain("satellite-processing-log"),
+            "Logs written inside an (unregistered) satellite slot scope must be routed to the parent endpoint factory, not silently dropped.");
+
+        LogManager.UnregisterSlot(satelliteSlot);
+        LogManager.UnregisterSlot(endpointSlot);
+    }
+
+    [Test]
+    public void Should_route_instance_specific_receiver_logs_to_endpoint_factory_when_only_endpoint_slot_is_registered()
+    {
+        // Same production scenario as satellites: ReceiveComponent creates an
+        // EndpointReceiverLogSlot for the instance-specific receiver but never registers a
+        // factory for it. Logs during instance-specific message processing must reach the
+        // endpoint factory.
+        var endpointLoggerFactory = new FakeLoggerLoggerFactory();
+        var endpointSlot = new EndpointLogSlot($"Shipping-{Guid.NewGuid():N}", "green");
+        var receiverSlot = new EndpointReceiverLogSlot(endpointSlot, "InstanceSpecific");
+        LogManager.RegisterSlotFactory(endpointSlot, new MicrosoftLoggerFactoryAdapter(endpointLoggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(receiverSlot))
+        {
+            logger.Info("instance-receiver-processing-log");
+        }
+
+        Assert.That(endpointLoggerFactory.CapturedMessages, Does.Contain("instance-receiver-processing-log"),
+            "Logs written inside an (unregistered) instance-specific receiver slot scope must be routed to the parent endpoint factory, not silently dropped.");
+
+        LogManager.UnregisterSlot(receiverSlot);
+        LogManager.UnregisterSlot(endpointSlot);
+    }
+
+    [Test]
+    public void Should_not_buffer_satellite_logs_indefinitely_when_slot_is_never_registered()
+    {
+        // Guards against the unbounded-growth side of the same defect: if satellite logs are
+        // enqueued into the per-slot deferred-startup queue (because the satellite slot is
+        // never registered), that queue is never drained for the life of the process. Writing
+        // many entries and then unregistering the endpoint must not leave the satellite logs
+        // stranded — they should have been delivered to the endpoint factory as they were written.
+        var endpointLoggerFactory = new FakeLoggerLoggerFactory();
+        var endpointSlot = new EndpointLogSlot($"Shipping-{Guid.NewGuid():N}", "green");
+        var satelliteSlot = new EndpointSatelliteLogSlot(endpointSlot, "TimeoutMigration");
+        LogManager.RegisterSlotFactory(endpointSlot, new MicrosoftLoggerFactoryAdapter(endpointLoggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(satelliteSlot))
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                logger.Info($"satellite-log-{i}");
+            }
+        }
+
+        Assert.That(endpointLoggerFactory.CapturedMessages.Count(m => m is not null && m.StartsWith("satellite-log-")), Is.EqualTo(100),
+            "Every satellite log must be delivered to the endpoint factory, not buffered into a never-drained queue.");
+
+        LogManager.UnregisterSlot(satelliteSlot);
+        LogManager.UnregisterSlot(endpointSlot);
     }
 
     [Test]
