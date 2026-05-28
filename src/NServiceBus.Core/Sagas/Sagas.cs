@@ -15,6 +15,7 @@ public sealed class Sagas : Feature
     {
         Enable<SynchronizedStorage>();
         DependsOn<SynchronizedStorage>();
+        Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Sagas are only relevant for endpoints receiving messages.");
         Prerequisite(s => s.Settings.Get<SagaMetadataCollection>().HasMetadata, "No sagas were found. Either enable assembly scanning or manually register sagas using AddSaga<TSaga>().");
     }
 
