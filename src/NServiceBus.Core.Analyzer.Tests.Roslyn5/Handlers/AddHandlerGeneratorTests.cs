@@ -734,6 +734,53 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void CollidingHandlerNamesAfterSuffixNormalization()
+    {
+        // GetHandlerMethodName appends the "Handler" suffix only when it is absent, so a handler
+        // named "Order" and one named "OrderHandler" in the same namespace both map to the
+        // registration method "AddOrderHandler". Without de-duplication the generated registry
+        // emits "public void AddOrderHandler()" twice (and calls it twice from AddAllHandlersCore),
+        // producing CS0111/CS0121 in the generated code. This test must compile cleanly.
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CollidingHandlerNamesAfterSuffixNormalizationAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Orders
+                     {
+                         [Handler]
+                         public class Order : IHandleMessages<Cmd1>
+                         {
+                             public Task Handle(Cmd1 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+
+                         [Handler]
+                         public class OrderHandler : IHandleMessages<Cmd2>
+                         {
+                             public Task Handle(Cmd2 cmd, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class Cmd1 : ICommand { }
+                     public class Cmd2 : ICommand { }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Run()
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void ConventionBasedHandlerHidingBaseClassMethodWithNew()
     {
         var source = """
