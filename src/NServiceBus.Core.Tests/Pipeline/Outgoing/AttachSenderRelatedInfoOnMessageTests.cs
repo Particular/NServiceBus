@@ -17,9 +17,15 @@ public class AttachSenderRelatedInfoOnMessageTests
     [Test]
     public async Task Should_set_the_time_sent_headerAsync()
     {
+        var before = DateTimeOffset.UtcNow;
         var message = await InvokeBehaviorAsync();
+        var after = DateTimeOffset.UtcNow;
 
-        Assert.That(message.Headers.ContainsKey(Headers.TimeSent), Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(message.Headers.ContainsKey(Headers.TimeSent), Is.True);
+            Assert.That(DateTimeOffsetHelper.ToDateTimeOffset(message.Headers[Headers.TimeSent]), Is.InRange(before, after));
+        }
     }
 
     [Test]
@@ -71,7 +77,11 @@ public class AttachSenderRelatedInfoOnMessageTests
             DelayDeliveryWith = new DelayDeliveryWith(TimeSpan.FromSeconds(2))
         });
 
-        Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
+            Assert.That(message.GetStash().Get<string>(Headers.StartNewTrace), Is.EqualTo(bool.TrueString));
+        }
     }
 
     [Test]
@@ -87,6 +97,7 @@ public class AttachSenderRelatedInfoOnMessageTests
         {
             Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
             Assert.That(message.Headers[Headers.DeliverAt], Is.EqualTo(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore)));
+            Assert.That(message.GetStash().Get<string>(Headers.StartNewTrace), Is.EqualTo(bool.TrueString));
         }
     }
 
@@ -106,10 +117,35 @@ public class AttachSenderRelatedInfoOnMessageTests
         {
             Assert.That(message.Headers.ContainsKey(Headers.DeliverAt), Is.True);
             Assert.That(message.Headers[Headers.DeliverAt], Is.EqualTo(DateTimeOffsetHelper.ToWireFormattedString(doNotDeliverBefore)));
+            Assert.That(message.GetStash().TryGet(Headers.StartNewTrace, out string _), Is.False);
         }
     }
 
-    static async Task<OutgoingMessage> InvokeBehaviorAsync(Dictionary<string, string> headers = null, DispatchProperties dispatchProperties = null, CancellationToken cancellationToken = default)
+    [Test]
+    public async Task Should_prefer_delay_delivery_with_when_both_delay_and_do_not_deliver_before_are_setAsync()
+    {
+        var delay = TimeSpan.FromSeconds(10);
+        var doNotDeliverBefore = DateTimeOffset.UtcNow.AddHours(1);
+        var before = DateTimeOffset.UtcNow.Add(delay);
+
+        var message = await InvokeBehaviorAsync(null, new DispatchProperties
+        {
+            DelayDeliveryWith = new DelayDeliveryWith(delay),
+            DoNotDeliverBefore = new DoNotDeliverBefore(doNotDeliverBefore)
+        });
+
+        var deliverAt = DateTimeOffsetHelper.ToDateTimeOffset(message.Headers[Headers.DeliverAt]);
+        var after = DateTimeOffset.UtcNow.Add(delay);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(deliverAt, Is.InRange(before, after));
+            Assert.That(deliverAt, Is.Not.EqualTo(doNotDeliverBefore));
+            Assert.That(message.GetStash().Get<string>(Headers.StartNewTrace), Is.EqualTo(bool.TrueString));
+        }
+    }
+
+    static async Task<TestBehaviorResult> InvokeBehaviorAsync(Dictionary<string, string> headers = null, DispatchProperties dispatchProperties = null, CancellationToken cancellationToken = default)
     {
         var message = new OutgoingMessage("id", headers ?? [], null);
         var stash = new ContextBag();
@@ -122,6 +158,12 @@ public class AttachSenderRelatedInfoOnMessageTests
         await new AttachSenderRelatedInfoOnMessageBehavior()
             .Invoke(new TestableRoutingContext { Message = message, Extensions = stash, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") }, CancellationToken = cancellationToken }, _ => Task.CompletedTask);
 
-        return message;
+        return new TestBehaviorResult(message, stash);
+    }
+
+    readonly record struct TestBehaviorResult(OutgoingMessage Message, ContextBag Stash)
+    {
+        public Dictionary<string, string> Headers => Message.Headers;
+        public ContextBag GetStash() => Stash;
     }
 }
