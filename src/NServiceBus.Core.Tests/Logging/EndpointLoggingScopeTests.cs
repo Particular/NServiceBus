@@ -77,7 +77,7 @@ public class EndpointLoggingScopeTests
     {
         var loggerFactory = new FakeLoggerLoggerFactory();
         var endpointSlot = new EndpointLogSlot("Shipping", "green");
-        var receiverSlot = new EndpointReceiverLogSlot(endpointSlot, "InstanceSpecific");
+        var receiverSlot = new EndpointDiscriminatorLogSlot(endpointSlot, "InstanceSpecific");
         LogManager.RegisterSlotFactory(receiverSlot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
 
         var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");

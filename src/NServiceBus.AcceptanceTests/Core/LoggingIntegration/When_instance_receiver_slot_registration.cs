@@ -36,7 +36,7 @@ public class When_instance_receiver_slot_registration : NServiceBusAcceptanceTes
             l.LoggerName.EndsWith("InstanceHandler") &&
             (l.Message ?? string.Empty).Contains("Instance processed") &&
             (l.Message ?? string.Empty).Contains("Endpoint = InstanceReceiverSlotRegistration.EndpointWithInstance, EndpointIdentifier = InstanceReceiverSlotRegistration.EndpointWithInstance0") &&
-            (l.Message ?? string.Empty).Contains("Receiver = InstanceSpecific")));
+            (l.Message ?? string.Empty).Contains($"EndpointDiscriminator = {InstanceDiscriminator}")));
     }
 
     public class Context : ScenarioContext;

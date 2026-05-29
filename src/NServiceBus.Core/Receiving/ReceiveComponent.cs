@@ -192,7 +192,8 @@ partial class ReceiveComponent
 
         if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
         {
-            var instanceProcessingLogSlot = new EndpointReceiverLogSlot(endpointLogSlot, InstanceSpecificReceiverId);
+            string discriminator = configuration.InstanceSpecificQueueAddress?.Discriminator ?? InstanceSpecificReceiverId;
+            var instanceProcessingLogSlot = new EndpointDiscriminatorLogSlot(endpointLogSlot, discriminator);
             var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump, instanceProcessingLogSlot, slotFactory, manageSlotLifecycle: true);
             var instancePipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
 

@@ -128,7 +128,7 @@ public class LogWrappedMessageReceiverTests
     public async Task Should_register_slot_factory_for_instance_receiver_on_initialize()
     {
         var endpointSlot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "green");
-        var receiverSlot = new EndpointReceiverLogSlot(endpointSlot, "InstanceSpecific");
+        var receiverSlot = new EndpointDiscriminatorLogSlot(endpointSlot, "InstanceSpecific");
         var fakeFactory = new FakeLoggerLoggerFactory();
         var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
         var receiver = new TestReceiver();
