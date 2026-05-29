@@ -244,6 +244,7 @@ public class SagaMetadataCreationTests
         services.AddSingleton<ISagaPersister>(fakeSagaPersister);
         await using var provider = services.BuildServiceProvider();
 
+        // Using the non-trimming friendly path here for the test
         var finder = SagaMetadata.CreateMany([sagaType]).Single().Finders.Single();
 
         await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), message, new Dictionary<string, string>()).ConfigureAwait(false);
