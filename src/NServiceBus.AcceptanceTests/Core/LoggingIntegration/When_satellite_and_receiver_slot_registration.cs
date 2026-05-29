@@ -15,6 +15,8 @@ using Transport;
 
 public class When_satellite_and_receiver_slot_registration : NServiceBusAcceptanceTest
 {
+    const string SateliteName = "MySatellite";
+
     [Test]
     public async Task Should_enrich_satellite_logs_with_satellite_scope()
     {
@@ -27,7 +29,7 @@ public class When_satellite_and_receiver_slot_registration : NServiceBusAcceptan
             l.LoggerName == "SatelliteHandler" &&
             (l.Message ?? string.Empty).Contains("Satellite processed") &&
             (l.Message ?? string.Empty).Contains("Endpoint = SatelliteAndReceiverSlotRegistration.EndpointWithSatellite, EndpointIdentifier = SatelliteAndReceiverSlotRegistration.EndpointWithSatellite0") &&
-            (l.Message ?? string.Empty).Contains("Satellite = MySatellite")));
+            (l.Message ?? string.Empty).Contains($"Satellite = {SateliteName}")));
     }
 
     public class Context : ScenarioContext;
@@ -43,10 +45,10 @@ public class When_satellite_and_receiver_slot_registration : NServiceBusAcceptan
             protected override void Setup(FeatureConfigurationContext context)
             {
                 var endpointQueueName = context.Settings.EndpointQueueName();
-                var queueAddress = new QueueAddress(endpointQueueName, qualifier: "MySatellite");
+                var queueAddress = new QueueAddress(endpointQueueName, qualifier: SateliteName);
 
                 context.AddSatelliteReceiver(
-                    "MySatellite",
+                    SateliteName,
                     queueAddress,
                     PushRuntimeSettings.Default,
                     (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
