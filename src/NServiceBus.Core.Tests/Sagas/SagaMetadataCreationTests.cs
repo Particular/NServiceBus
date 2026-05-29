@@ -224,22 +224,36 @@ public class SagaMetadataCreationTests
         Assert.That(metadata.SagaEntityType, Is.EqualTo(typeof(SagaWithInheritanceChain.SagaData)));
     }
 
-    [Test]
-    public async Task PropertyFinder_UsesExpressionsByDefault()
+    static IEnumerable<TestCaseData> PropertyFinderValueCases()
+    {
+        yield return new TestCaseData(typeof(PropertySagaWithStringMapping), new StringPropertyMessage { UniqueProperty = "some-value" }, "some-value");
+        yield return new TestCaseData(typeof(PropertySagaWithGuidMapping), new GuidPropertyMessage { UniqueProperty = new Guid("d5c9a3e7-8b2f-4a1e-9c6d-3f8b2a5e7c1d") }, new Guid("d5c9a3e7-8b2f-4a1e-9c6d-3f8b2a5e7c1d"));
+        yield return new TestCaseData(typeof(PropertySagaWithLongMapping), new LongPropertyMessage { UniqueProperty = 456L }, 456L);
+        yield return new TestCaseData(typeof(PropertySagaWithULongMapping), new ULongPropertyMessage { UniqueProperty = 456UL }, 456UL);
+        yield return new TestCaseData(typeof(PropertySagaWithIntMapping), new IntPropertyMessage { UniqueProperty = 456 }, 456);
+        yield return new TestCaseData(typeof(PropertySagaWithUIntMapping), new UIntPropertyMessage { UniqueProperty = 456U }, 456U);
+        yield return new TestCaseData(typeof(PropertySagaWithShortMapping), new ShortPropertyMessage { UniqueProperty = 456 }, (short)456);
+        yield return new TestCaseData(typeof(PropertySagaWithUShortMapping), new UShortPropertyMessage { UniqueProperty = 456 }, (ushort)456);
+    }
+
+    [TestCaseSource(nameof(PropertyFinderValueCases))]
+    public async Task PropertyFinder_UsesExpressionsByDefault(Type sagaType, object message, object expectedValue)
     {
         var services = new ServiceCollection();
         var fakeSagaPersister = new FakeSagaPersister();
         services.AddSingleton<ISagaPersister>(fakeSagaPersister);
         await using var provider = services.BuildServiceProvider();
 
-        var metadata = SagaMetadata.Create<MySaga, MySaga.MyEntity>([new SagaMessage(typeof(StartingMessage), true, false)]);
-        var finder = metadata.Finders.Single();
+        // Using the non-trimming friendly path here for the test
+        var finder = SagaMetadata.CreateMany([sagaType]).Single().Finders.Single();
 
-        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartingMessage { UniqueProperty = 123 }, new Dictionary<string, string>()).ConfigureAwait(false);
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), message, new Dictionary<string, string>()).ConfigureAwait(false);
 
-        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_123"));
+        Assert.That(fakeSagaPersister.PropertyValue, Is.EqualTo(expectedValue).And.TypeOf(expectedValue.GetType()));
     }
 
+    // Not testing type permutations here because that would only exercise the
+    // test-local unsafe accessors, not production code paths.
     [Test]
     public async Task PropertyFinder_AllowsPassingAccessor()
     {
@@ -251,32 +265,46 @@ public class SagaMetadataCreationTests
         var metadata = SagaMetadata.Create<MySaga, MySaga.MyEntity>([new SagaMessage(typeof(StartingMessage), true, false)], propertyAccessors: [new StartingMessageAccessor()]);
         var finder = metadata.Finders.Single();
 
-        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartingMessage { UniqueProperty = 123 }, new Dictionary<string, string>()).ConfigureAwait(false);
+        var startingMessage = new StartingMessage { UniqueProperty = 123 };
 
-        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_123"));
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), startingMessage, new Dictionary<string, string>()).ConfigureAwait(false);
+
+        Assert.That(fakeSagaPersister.PropertyValue, Is.EqualTo(startingMessage.UniqueProperty).And.TypeOf(startingMessage.UniqueProperty.GetType()));
     }
 
-    [Test]
-    public async Task HeaderFinder_WorksAsExpected()
+    static IEnumerable<TestCaseData> CorrelationHeaderValueCases()
+    {
+        yield return new TestCaseData(typeof(SagaWithStringHeaderMapping), "some-value", "some-value");
+        yield return new TestCaseData(typeof(SagaWithGuidHeaderMapping), "d5c9a3e7-8b2f-4a1e-9c6d-3f8b2a5e7c1d", new Guid("d5c9a3e7-8b2f-4a1e-9c6d-3f8b2a5e7c1d"));
+        yield return new TestCaseData(typeof(SagaWithLongHeaderMapping), "456", (long)456);
+        yield return new TestCaseData(typeof(SagaWithULongHeaderMapping), "456", (ulong)456);
+        yield return new TestCaseData(typeof(SagaWithIntHeaderMapping), "456", 456);
+        yield return new TestCaseData(typeof(SagaWithUIntHeaderMapping), "456", (uint)456);
+        yield return new TestCaseData(typeof(SagaWithShortHeaderMapping), "456", (short)456);
+        yield return new TestCaseData(typeof(SagaWithUShortHeaderMapping), "456", (ushort)456);
+    }
+
+    [TestCaseSource(nameof(CorrelationHeaderValueCases))]
+    public async Task HeaderFinder_ConvertsCorrelationHeaderValue(Type sagaType, string headerValue, object expectedValue)
     {
         var services = new ServiceCollection();
         var fakeSagaPersister = new FakeSagaPersister();
         services.AddSingleton<ISagaPersister>(fakeSagaPersister);
         await using var provider = services.BuildServiceProvider();
 
-        var metadata = SagaMetadata.Create<MySagaWithMappedHeader, MySagaWithMappedHeader.SagaData>([new SagaMessage(typeof(SomeMessage), true, false)]);
-        var finder = metadata.Finders.Single();
+        // Using the non-trimming friendly path here for the test
+        var finder = SagaMetadata.CreateMany([sagaType]).Single().Finders.Single();
 
-        var headers = new Dictionary<string, string> { { "CorrelationHeader", "456" } };
+        var headers = new Dictionary<string, string> { { "CorrelationHeader", headerValue } };
 
-        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new SomeMessage(), headers).ConfigureAwait(false);
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new HeaderTestMessage(), headers).ConfigureAwait(false);
 
-        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_456"));
+        Assert.That(fakeSagaPersister.PropertyValue, Is.EqualTo(expectedValue).And.TypeOf(expectedValue.GetType()));
     }
 
     class FakeSagaPersister : ISagaPersister
     {
-        public string Property { get; set; }
+        public object PropertyValue { get; set; }
 
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session,
             ContextBag context, CancellationToken cancellationToken = default) =>
@@ -293,7 +321,7 @@ public class SagaMetadataCreationTests
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ISynchronizedStorageSession session, ContextBag context,
             CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
         {
-            Property = $"{propertyName}_{propertyValue}";
+            PropertyValue = propertyValue;
             return Task.FromResult(default(TSagaData));
         }
 
@@ -318,6 +346,110 @@ public class SagaMetadataCreationTests
         }
 
         return finder;
+    }
+
+    class PropertySagaWithStringMapping : Saga<PropertySagaWithStringMapping.SagaData>, IAmStartedByMessages<StringPropertyMessage>
+    {
+        public Task Handle(StringPropertyMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<StringPropertyMessage>(m => m.UniqueProperty);
+
+        public class SagaData : ContainSagaData
+        {
+            public string UniqueProperty { get; set; }
+        }
+    }
+
+    class PropertySagaWithGuidMapping : Saga<PropertySagaWithGuidMapping.SagaData>, IAmStartedByMessages<GuidPropertyMessage>
+    {
+        public Task Handle(GuidPropertyMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<GuidPropertyMessage>(m => m.UniqueProperty);
+
+        public class SagaData : ContainSagaData
+        {
+            public Guid UniqueProperty { get; set; }
+        }
+    }
+
+    class PropertySagaWithLongMapping : Saga<PropertySagaWithLongMapping.SagaData>, IAmStartedByMessages<LongPropertyMessage>
+    {
+        public Task Handle(LongPropertyMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<LongPropertyMessage>(m => m.UniqueProperty);
+
+        public class SagaData : ContainSagaData
+        {
+            public long UniqueProperty { get; set; }
+        }
+    }
+
+    class PropertySagaWithULongMapping : Saga<PropertySagaWithULongMapping.SagaData>, IAmStartedByMessages<ULongPropertyMessage>
+    {
+        public Task Handle(ULongPropertyMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<ULongPropertyMessage>(m => m.UniqueProperty);
+
+        public class SagaData : ContainSagaData
+        {
+            public ulong UniqueProperty { get; set; }
+        }
+    }
+
+    class PropertySagaWithIntMapping : Saga<PropertySagaWithIntMapping.SagaData>, IAmStartedByMessages<IntPropertyMessage>
+    {
+        public Task Handle(IntPropertyMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<IntPropertyMessage>(m => m.UniqueProperty);
+
+        public class SagaData : ContainSagaData
+        {
+            public int UniqueProperty { get; set; }
+        }
+    }
+
+    class PropertySagaWithUIntMapping : Saga<PropertySagaWithUIntMapping.SagaData>, IAmStartedByMessages<UIntPropertyMessage>
+    {
+        public Task Handle(UIntPropertyMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<UIntPropertyMessage>(m => m.UniqueProperty);
+
+        public class SagaData : ContainSagaData
+        {
+            public uint UniqueProperty { get; set; }
+        }
+    }
+
+    class PropertySagaWithShortMapping : Saga<PropertySagaWithShortMapping.SagaData>, IAmStartedByMessages<ShortPropertyMessage>
+    {
+        public Task Handle(ShortPropertyMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<ShortPropertyMessage>(m => m.UniqueProperty);
+
+        public class SagaData : ContainSagaData
+        {
+            public short UniqueProperty { get; set; }
+        }
+    }
+
+    class PropertySagaWithUShortMapping : Saga<PropertySagaWithUShortMapping.SagaData>, IAmStartedByMessages<UShortPropertyMessage>
+    {
+        public Task Handle(UShortPropertyMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessage<UShortPropertyMessage>(m => m.UniqueProperty);
+
+        public class SagaData : ContainSagaData
+        {
+            public ushort UniqueProperty { get; set; }
+        }
     }
 
     class MyNonGenericSaga : Saga
@@ -449,6 +581,110 @@ public class SagaMetadataCreationTests
         }
     }
 
+    class SagaWithStringHeaderMapping : Saga<SagaWithStringHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public string UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithGuidHeaderMapping : Saga<SagaWithGuidHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public Guid UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithLongHeaderMapping : Saga<SagaWithLongHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public long UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithULongHeaderMapping : Saga<SagaWithULongHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public ulong UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithIntHeaderMapping : Saga<SagaWithIntHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public int UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithUIntHeaderMapping : Saga<SagaWithUIntHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public uint UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithShortHeaderMapping : Saga<SagaWithShortHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public short UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithUShortHeaderMapping : Saga<SagaWithUShortHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public ushort UniqueProperty { get; set; }
+        }
+    }
+
     class MySagaWithUnmappedStartProperty : Saga<MySagaWithUnmappedStartProperty.SagaData>,
         IAmStartedByMessages<MySagaWithUnmappedStartProperty.MessageThatStartsTheSaga>,
         IHandleMessages<MySagaWithUnmappedStartProperty.MessageThatDoesNotStartTheSaga>
@@ -472,11 +708,8 @@ public class SagaMetadataCreationTests
             public int SomeProperty { get; set; }
         }
 
-        public class SagaData : ContainSagaData
-        {
-        }
+        public class SagaData : ContainSagaData;
     }
-
 
     class SagaWith2StartersAnd1Handler : Saga<SagaWith2StartersAnd1Handler.SagaData>,
         IAmStartedByMessages<SagaWith2StartersAnd1Handler.StartMessage1>,
@@ -507,18 +740,14 @@ public class SagaMetadataCreationTests
             public string SomeId { get; set; }
         }
 
-        public class Message3 : IMessage
-        {
-        }
+        public class Message3 : IMessage;
 
         public class SagaData : ContainSagaData
         {
             public string SomeId { get; set; }
         }
 
-        public class MyTimeout
-        {
-        }
+        public class MyTimeout;
     }
 
     class SagaWithIdMappedToStringMessageProperty : Saga<SagaWithIdMappedToStringMessageProperty.SagaData>,
@@ -692,6 +921,48 @@ class SomeMessageWithField : IMessage
 class SomeMessage : IMessage
 {
     public int SomeProperty { get; set; }
+}
+
+class HeaderTestMessage : IMessage;
+
+class StringPropertyMessage : IMessage
+{
+    public string UniqueProperty { get; set; }
+}
+
+class GuidPropertyMessage : IMessage
+{
+    public Guid UniqueProperty { get; set; }
+}
+
+class LongPropertyMessage : IMessage
+{
+    public long UniqueProperty { get; set; }
+}
+
+class ULongPropertyMessage : IMessage
+{
+    public ulong UniqueProperty { get; set; }
+}
+
+class IntPropertyMessage : IMessage
+{
+    public int UniqueProperty { get; set; }
+}
+
+class UIntPropertyMessage : IMessage
+{
+    public uint UniqueProperty { get; set; }
+}
+
+class ShortPropertyMessage : IMessage
+{
+    public short UniqueProperty { get; set; }
+}
+
+class UShortPropertyMessage : IMessage
+{
+    public ushort UniqueProperty { get; set; }
 }
 
 class SomeMessageWithStringProperty : IMessage
