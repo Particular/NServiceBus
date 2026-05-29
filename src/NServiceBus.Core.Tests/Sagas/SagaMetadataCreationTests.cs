@@ -595,9 +595,7 @@ public class SagaMetadataCreationTests
             public int SomeProperty { get; set; }
         }
 
-        public class SagaData : ContainSagaData
-        {
-        }
+        public class SagaData : ContainSagaData;
     }
 
     class SagaWith2StartersAnd1Handler : Saga<SagaWith2StartersAnd1Handler.SagaData>,
@@ -629,18 +627,14 @@ public class SagaMetadataCreationTests
             public string SomeId { get; set; }
         }
 
-        public class Message3 : IMessage
-        {
-        }
+        public class Message3 : IMessage;
 
         public class SagaData : ContainSagaData
         {
             public string SomeId { get; set; }
         }
 
-        public class MyTimeout
-        {
-        }
+        public class MyTimeout;
     }
 
     class SagaWithIdMappedToStringMessageProperty : Saga<SagaWithIdMappedToStringMessageProperty.SagaData>,
