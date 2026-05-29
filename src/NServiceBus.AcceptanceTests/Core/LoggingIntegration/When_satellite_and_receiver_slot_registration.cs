@@ -30,11 +30,11 @@ public class When_satellite_and_receiver_slot_registration : NServiceBusAcceptan
             (l.Message ?? string.Empty).Contains("Satellite = MySatellite")));
     }
 
-    class Context : ScenarioContext;
+    public class Context : ScenarioContext;
 
-    class EndpointWithSatellite : EndpointConfigurationBuilder
+    public class EndpointWithSatellite : EndpointConfigurationBuilder
     {
-        public static string? SatelliteAddress;
+        public static string? SatelliteAddress { get; set; }
 
         public EndpointWithSatellite() => EndpointSetup<DefaultServer>(c => c.EnableFeature<MySatelliteFeature>());
 
