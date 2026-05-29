@@ -168,6 +168,7 @@ public static class LogManager
             }
         }
 
+        slot.IsFactoryRegistered = false;
         slotContexts.TryRemove(slotKey, out _);
         slotLoggerFactories.TryRemove(slotKey, out _);
         scopedStartupLogsBySlot.TryRemove(slotKey, out _);
