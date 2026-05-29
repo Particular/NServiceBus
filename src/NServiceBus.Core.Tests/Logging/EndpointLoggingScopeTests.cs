@@ -5,7 +5,6 @@ namespace NServiceBus.Core.Tests.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
@@ -74,16 +73,16 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
-    public void Should_include_receiver_name_for_instance_specific_receiver_scope()
+    public void Should_include_discriminator_for_instance_specific_receiver_scope()
     {
         var loggerFactory = new FakeLoggerLoggerFactory();
         var endpointSlot = new EndpointLogSlot("Shipping", "green");
-        var receiverSlot = new EndpointReceiverLogSlot(endpointSlot, "InstanceSpecific");
-        LogManager.RegisterSlotFactory(receiverSlot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+        var discriminatorSlot = new EndpointDiscriminatorLogSlot(endpointSlot, "InstanceSpecific");
+        LogManager.RegisterSlotFactory(discriminatorSlot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
 
         var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
 
-        using (LogManager.BeginSlotScope(receiverSlot))
+        using (LogManager.BeginSlotScope(discriminatorSlot))
         {
             logger.Info("message");
         }
@@ -91,7 +90,7 @@ public class EndpointLoggingScopeTests
         AssertScopeWasUsed(loggerFactory.CapturedLogScopes,
             new KeyValuePair<string, object>("Endpoint", "Shipping"),
             new KeyValuePair<string, object>("EndpointIdentifier", "green"),
-            new KeyValuePair<string, object>("Receiver", "InstanceSpecific"));
+            new KeyValuePair<string, object>("EndpointDiscriminator", "InstanceSpecific"));
     }
 
     [Test]

@@ -85,7 +85,7 @@ sealed class EndpointSatelliteLogSlot(EndpointLogSlot endpointSlot, string satel
     public override LogScopeState ScopeState { get; } = new ExtendedLogScopeState(endpointSlot.ScopeState, "Satellite", satelliteName);
 }
 
-sealed class EndpointReceiverLogSlot(EndpointLogSlot endpointSlot, string receiverName) : LogSlot
+sealed class EndpointDiscriminatorLogSlot(EndpointLogSlot endpointSlot, string discriminator) : LogSlot
 {
-    public override LogScopeState ScopeState { get; } = new ExtendedLogScopeState(endpointSlot.ScopeState, "Receiver", receiverName);
+    public override LogScopeState ScopeState { get; } = new ExtendedLogScopeState(endpointSlot.ScopeState, "EndpointDiscriminator", discriminator);
 }
