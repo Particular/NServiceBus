@@ -235,9 +235,11 @@ public class SagaMetadataCreationTests
         var metadata = SagaMetadata.Create<MySaga, MySaga.MyEntity>([new SagaMessage(typeof(StartingMessage), true, false)]);
         var finder = metadata.Finders.Single();
 
-        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartingMessage { UniqueProperty = 123 }, new Dictionary<string, string>()).ConfigureAwait(false);
+        var startingMessage = new StartingMessage { UniqueProperty = 123 };
 
-        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_123"));
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), startingMessage, new Dictionary<string, string>()).ConfigureAwait(false);
+
+        Assert.That(fakeSagaPersister.PropertyValue, Is.EqualTo(startingMessage.UniqueProperty).And.TypeOf(startingMessage.UniqueProperty.GetType()));
     }
 
     [Test]
@@ -251,9 +253,11 @@ public class SagaMetadataCreationTests
         var metadata = SagaMetadata.Create<MySaga, MySaga.MyEntity>([new SagaMessage(typeof(StartingMessage), true, false)], propertyAccessors: [new StartingMessageAccessor()]);
         var finder = metadata.Finders.Single();
 
-        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new StartingMessage { UniqueProperty = 123 }, new Dictionary<string, string>()).ConfigureAwait(false);
+        var startingMessage = new StartingMessage { UniqueProperty = 123 };
 
-        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_123"));
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), startingMessage, new Dictionary<string, string>()).ConfigureAwait(false);
+
+        Assert.That(fakeSagaPersister.PropertyValue, Is.EqualTo(startingMessage.UniqueProperty).And.TypeOf(startingMessage.UniqueProperty.GetType()));
     }
 
     static IEnumerable<TestCaseData> CorrelationHeaderValueCases()
@@ -286,14 +290,11 @@ public class SagaMetadataCreationTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(fakeSagaPersister.PropertyValue, Is.EqualTo(expectedValue).And.TypeOf(expectedValue.GetType()));
-            Assert.That(fakeSagaPersister.Property, Is.EqualTo($"UniqueProperty_{expectedValue}"));
         }
     }
 
     class FakeSagaPersister : ISagaPersister
     {
-        public string Property { get; set; }
-
         public object PropertyValue { get; set; }
 
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session,
@@ -311,7 +312,6 @@ public class SagaMetadataCreationTests
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, ISynchronizedStorageSession session, ContextBag context,
             CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
         {
-            Property = $"{propertyName}_{propertyValue}";
             PropertyValue = propertyValue;
             return Task.FromResult(default(TSagaData));
         }
