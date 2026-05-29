@@ -17,7 +17,7 @@ using Unicast;
 
 partial class ReceiveComponent
 {
-    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, LogSlot endpointLogSlot)
+    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, EndpointLogSlot endpointLogSlot)
     {
         this.configuration = configuration;
         this.activityFactory = activityFactory;
@@ -168,8 +168,7 @@ partial class ReceiveComponent
             }
         }
 
-        var mainProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, MainReceiverId);
-        var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId], mainProcessingLogSlot, slotFactory, manageSlotLifecycle: false);
+        var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId], endpointLogSlot, slotFactory, manageSlotLifecycle: false);
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
@@ -193,7 +192,7 @@ partial class ReceiveComponent
 
         if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
         {
-            var instanceProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, InstanceSpecificReceiverId);
+            var instanceProcessingLogSlot = new EndpointReceiverLogSlot(endpointLogSlot, InstanceSpecificReceiverId);
             var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump, instanceProcessingLogSlot, slotFactory, manageSlotLifecycle: true);
             var instancePipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
 
@@ -210,7 +209,7 @@ partial class ReceiveComponent
         {
             try
             {
-                var satelliteLogSlot = CreateSatelliteProcessingLogSlot(endpointLogSlot, satellite.Name);
+                var satelliteLogSlot = new EndpointSatelliteLogSlot(endpointLogSlot, satellite.Name);
                 var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name], satelliteLogSlot, slotFactory, manageSlotLifecycle: true);
 
                 var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
@@ -278,21 +277,9 @@ partial class ReceiveComponent
         return new LogWrappedMessageReceiver(effectiveReceiver, logSlot, slotFactory, manageSlotLifecycle);
     }
 
-    static LogSlot CreateReceiverProcessingLogSlot(LogSlot logSlot, string receiverId)
-    {
-        if (logSlot is not EndpointLogSlot endpointSlot)
-        {
-            return logSlot;
-        }
-
-        return receiverId == InstanceSpecificReceiverId ? new EndpointReceiverLogSlot(endpointSlot, receiverId) : logSlot;
-    }
-
-    static LogSlot CreateSatelliteProcessingLogSlot(LogSlot endpointLogSlot, string satelliteName) => endpointLogSlot is not EndpointLogSlot endpointSlot ? endpointLogSlot : new EndpointSatelliteLogSlot(endpointSlot, satelliteName);
-
     readonly Configuration configuration;
     readonly IActivityFactory activityFactory;
-    readonly LogSlot endpointLogSlot;
+    readonly EndpointLogSlot endpointLogSlot;
     readonly List<IMessageReceiver> receivers = [];
 
     const string MainReceiverId = "Main";
