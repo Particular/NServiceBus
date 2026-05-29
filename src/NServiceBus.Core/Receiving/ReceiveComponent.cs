@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
+using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using Outbox;
 using Pipeline;
 using Transport;
@@ -16,7 +17,7 @@ using Unicast;
 
 partial class ReceiveComponent
 {
-    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, LogSlot endpointLogSlot)
+    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, EndpointLogSlot endpointLogSlot)
     {
         this.configuration = configuration;
         this.activityFactory = activityFactory;
@@ -147,6 +148,9 @@ partial class ReceiveComponent
             return;
         }
 
+        // It is fine to adapt multiple times since the deduplication happens inside the microsoft logger factory anyway.
+        var slotFactory = LogManager.Adapt(builder.GetRequiredService<MicrosoftLoggerFactory>());
+
         // Resolving the logger here with the LogManager for now since we want to do a consistent sweep of all LogManager usage
         // in the next minor when GetLogger might be deprecated. But we do it late when the service provider is available
         // to make sure the logger is already properly wired up.
@@ -164,8 +168,7 @@ partial class ReceiveComponent
             }
         }
 
-        var mainProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, MainReceiverId);
-        var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId], mainProcessingLogSlot);
+        var mainPump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[MainReceiverId], endpointLogSlot, slotFactory, manageSlotLifecycle: false);
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
@@ -189,8 +192,9 @@ partial class ReceiveComponent
 
         if (transportInfrastructure.Receivers.TryGetValue(InstanceSpecificReceiverId, out var instanceSpecificPump))
         {
-            var instanceProcessingLogSlot = CreateReceiverProcessingLogSlot(endpointLogSlot, InstanceSpecificReceiverId);
-            var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump, instanceProcessingLogSlot);
+            string discriminator = configuration.InstanceSpecificQueueAddress?.Discriminator ?? InstanceSpecificReceiverId;
+            var instanceProcessingLogSlot = new EndpointDiscriminatorLogSlot(endpointLogSlot, discriminator);
+            var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump, instanceProcessingLogSlot, slotFactory, manageSlotLifecycle: true);
             var instancePipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
 
             await instancePump.Initialize(
@@ -206,8 +210,8 @@ partial class ReceiveComponent
         {
             try
             {
-                var satelliteLogSlot = CreateSatelliteProcessingLogSlot(endpointLogSlot, satellite.Name);
-                var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name], satelliteLogSlot);
+                var satelliteLogSlot = new EndpointSatelliteLogSlot(endpointLogSlot, satellite.Name);
+                var satellitePump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[satellite.Name], satelliteLogSlot, slotFactory, manageSlotLifecycle: true);
 
                 var satellitePipeline = new SatellitePipelineExecutor(builder, satellite);
                 var satelliteRecoverabilityExecutor = recoverabilityComponent.CreateSatelliteRecoverabilityExecutor(builder, satellite.RecoverabilityPolicy);
@@ -265,30 +269,18 @@ partial class ReceiveComponent
         return Task.WhenAll(receiverStopTasks);
     }
 
-    static LogWrappedMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver, LogSlot endpointLogSlot)
+    static LogWrappedMessageReceiver CreateReceiver(ConsecutiveFailuresConfiguration consecutiveFailuresConfiguration, IMessageReceiver receiver, LogSlot logSlot, ILoggerFactory slotFactory, bool manageSlotLifecycle)
     {
         var effectiveReceiver = consecutiveFailuresConfiguration.RateLimitSettings is not null
             ? new WrappedMessageReceiver(consecutiveFailuresConfiguration, receiver)
             : receiver;
 
-        return new LogWrappedMessageReceiver(effectiveReceiver, endpointLogSlot);
+        return new LogWrappedMessageReceiver(effectiveReceiver, logSlot, slotFactory, manageSlotLifecycle);
     }
-
-    static LogSlot CreateReceiverProcessingLogSlot(LogSlot endpointLogSlot, string receiverId)
-    {
-        if (endpointLogSlot is not EndpointLogSlot endpointSlot)
-        {
-            return endpointLogSlot;
-        }
-
-        return receiverId == InstanceSpecificReceiverId ? new EndpointReceiverLogSlot(endpointSlot, receiverId) : endpointLogSlot;
-    }
-
-    static LogSlot CreateSatelliteProcessingLogSlot(LogSlot endpointLogSlot, string satelliteName) => endpointLogSlot is not EndpointLogSlot endpointSlot ? endpointLogSlot : new EndpointSatelliteLogSlot(endpointSlot, satelliteName);
 
     readonly Configuration configuration;
     readonly IActivityFactory activityFactory;
-    readonly LogSlot endpointLogSlot;
+    readonly EndpointLogSlot endpointLogSlot;
     readonly List<IMessageReceiver> receivers = [];
 
     const string MainReceiverId = "Main";

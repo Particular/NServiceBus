@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using NServiceBus.Logging;
 using NServiceBus.Transport;
 
-class LogWrappedMessageReceiver(IMessageReceiver receiver, LogSlot endpointLogSlot) : IMessageReceiver
+class LogWrappedMessageReceiver(IMessageReceiver receiver, LogSlot logSlot, ILoggerFactory slotFactory, bool manageSlotLifecycle) : IMessageReceiver
 {
     public ISubscriptionManager Subscriptions => receiver.Subscriptions;
     public string Id => receiver.Id;
@@ -20,25 +20,42 @@ class LogWrappedMessageReceiver(IMessageReceiver receiver, LogSlot endpointLogSl
     public Task StartReceive(CancellationToken cancellationToken = default) =>
         receiver.StartReceive(cancellationToken);
 
-    public Task StopReceive(CancellationToken cancellationToken = default) =>
-        receiver.StopReceive(cancellationToken);
+    public async Task StopReceive(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await receiver.StopReceive(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            if (manageSlotLifecycle)
+            {
+                LogManager.UnregisterSlot(logSlot);
+            }
+        }
+    }
 
     public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(onMessage);
         ArgumentNullException.ThrowIfNull(onError);
 
+        if (manageSlotLifecycle)
+        {
+            LogManager.RegisterSlotFactory(logSlot, slotFactory);
+        }
+
         return receiver.Initialize(limitations, ScopedOnMessage, ScopedOnError, cancellationToken);
 
         async Task ScopedOnMessage(MessageContext messageContext, CancellationToken ct)
         {
-            using var _ = LogManager.BeginSlotScope(endpointLogSlot);
+            using var _ = LogManager.BeginSlotScope(logSlot);
             await onMessage(messageContext, ct).ConfigureAwait(false);
         }
 
         async Task<ErrorHandleResult> ScopedOnError(ErrorContext errorContext, CancellationToken ct)
         {
-            using var _ = LogManager.BeginSlotScope(endpointLogSlot);
+            using var _ = LogManager.BeginSlotScope(logSlot);
             return await onError(errorContext, ct).ConfigureAwait(false);
         }
     }
