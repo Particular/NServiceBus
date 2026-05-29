@@ -81,9 +81,9 @@ class HeaderPropertySagaFinder<TSagaData>(string headerName, string correlationP
             _ when correlationPropertyType == typeof(uint) =>
                 uint.Parse(headerValue, CultureInfo.InvariantCulture),
             _ when correlationPropertyType == typeof(short) =>
-                int.Parse(headerValue, CultureInfo.InvariantCulture),
+                short.Parse(headerValue, CultureInfo.InvariantCulture),
             _ when correlationPropertyType == typeof(ushort) =>
-                uint.Parse(headerValue, CultureInfo.InvariantCulture),
+                ushort.Parse(headerValue, CultureInfo.InvariantCulture),
             _ => ThrowUnsupportedExceptionForCorrelationPropertyType(correlationPropertyType)
         };
     }
