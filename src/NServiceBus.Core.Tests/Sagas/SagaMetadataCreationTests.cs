@@ -256,71 +256,38 @@ public class SagaMetadataCreationTests
         Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_123"));
     }
 
-    [Test]
-    public async Task HeaderFinder_WorksAsExpected()
+    static IEnumerable<TestCaseData> CorrelationHeaderValueCases()
     {
-        var services = new ServiceCollection();
-        var fakeSagaPersister = new FakeSagaPersister();
-        services.AddSingleton<ISagaPersister>(fakeSagaPersister);
-        await using var provider = services.BuildServiceProvider();
-
-        var metadata = SagaMetadata.Create<MySagaWithMappedHeader, MySagaWithMappedHeader.SagaData>([new SagaMessage(typeof(SomeMessage), true, false)]);
-        var finder = metadata.Finders.Single();
-
-        var headers = new Dictionary<string, string> { { "CorrelationHeader", "456" } };
-
-        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new SomeMessage(), headers).ConfigureAwait(false);
-
-        Assert.That(fakeSagaPersister.Property, Is.EqualTo("UniqueProperty_456"));
+        yield return new TestCaseData(typeof(SagaWithStringHeaderMapping), "some-value", "some-value");
+        yield return new TestCaseData(typeof(SagaWithGuidHeaderMapping), "d5c9a3e7-8b2f-4a1e-9c6d-3f8b2a5e7c1d", new Guid("d5c9a3e7-8b2f-4a1e-9c6d-3f8b2a5e7c1d"));
+        yield return new TestCaseData(typeof(SagaWithLongHeaderMapping), "456", (long)456);
+        yield return new TestCaseData(typeof(SagaWithULongHeaderMapping), "456", (ulong)456);
+        yield return new TestCaseData(typeof(SagaWithIntHeaderMapping), "456", 456);
+        yield return new TestCaseData(typeof(SagaWithUIntHeaderMapping), "456", (uint)456);
+        yield return new TestCaseData(typeof(SagaWithShortHeaderMapping), "456", (short)456);
+        yield return new TestCaseData(typeof(SagaWithUShortHeaderMapping), "456", (ushort)456);
     }
 
-    [Test]
-    public async Task HeaderFinder_ConvertsToShortForShortCorrelationProperty()
-    {
-        // The header value must be converted to a boxed short (the correlation property type),
-        // because persisters key their correlation index on the boxed property value. If it is
-        // converted to a boxed int instead, the lookup never matches the stored saga (a boxed int
-        // is not equal to a boxed short) and creating a new instance fails when the boxed int is
-        // unboxed to short.
-        var services = new ServiceCollection();
-        var fakeSagaPersister = new FakeSagaPersister();
-        services.AddSingleton<ISagaPersister>(fakeSagaPersister);
-        await using var provider = services.BuildServiceProvider();
-
-        var metadata = SagaMetadata.Create<MySagaWithShortMappedHeader, MySagaWithShortMappedHeader.SagaData>(
-        [
-            new SagaMessage(typeof(ShortHeaderMessage), true, false)
-        ]);
-        var finder = metadata.Finders.Single();
-
-        var headers = new Dictionary<string, string> { { "CorrelationHeader", "456" } };
-
-        var session = new FakeSynchronizedStorageSession();
-        await finder.SagaFinder.Find(provider, session, new ContextBag(), new ShortHeaderMessage(), headers).ConfigureAwait(false);
-
-        Assert.That(fakeSagaPersister.PropertyValue, Is.TypeOf<short>());
-    }
-
-    [Test]
-    public async Task HeaderFinder_ConvertsToUShortForUShortCorrelationProperty()
+    [TestCaseSource(nameof(CorrelationHeaderValueCases))]
+    public async Task HeaderFinder_ConvertsCorrelationHeaderValue(Type sagaType, string headerValue, object expectedValue)
     {
         var services = new ServiceCollection();
         var fakeSagaPersister = new FakeSagaPersister();
         services.AddSingleton<ISagaPersister>(fakeSagaPersister);
         await using var provider = services.BuildServiceProvider();
 
-        var metadata = SagaMetadata.Create<MySagaWithUShortMappedHeader, MySagaWithUShortMappedHeader.SagaData>(
-        [
-            new SagaMessage(typeof(UShortHeaderMessage), true, false)
-        ]);
-        var finder = metadata.Finders.Single();
+        // Using the non-trimming friendly path here for the test
+        var finder = SagaMetadata.CreateMany([sagaType]).Single().Finders.Single();
 
-        var headers = new Dictionary<string, string> { { "CorrelationHeader", "456" } };
+        var headers = new Dictionary<string, string> { { "CorrelationHeader", headerValue } };
 
-        var session = new FakeSynchronizedStorageSession();
-        await finder.SagaFinder.Find(provider, session, new ContextBag(), new UShortHeaderMessage(), headers).ConfigureAwait(false);
+        await finder.SagaFinder.Find(provider, new FakeSynchronizedStorageSession(), new ContextBag(), new HeaderTestMessage(), headers).ConfigureAwait(false);
 
-        Assert.That(fakeSagaPersister.PropertyValue, Is.TypeOf<ushort>());
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(fakeSagaPersister.PropertyValue, Is.EqualTo(expectedValue).And.TypeOf(expectedValue.GetType()));
+            Assert.That(fakeSagaPersister.Property, Is.EqualTo($"UniqueProperty_{expectedValue}"));
+        }
     }
 
     class FakeSagaPersister : ISagaPersister
@@ -501,12 +468,90 @@ public class SagaMetadataCreationTests
         }
     }
 
-    class MySagaWithShortMappedHeader : Saga<MySagaWithShortMappedHeader.SagaData>, IAmStartedByMessages<ShortHeaderMessage>
+    class SagaWithStringHeaderMapping : Saga<SagaWithStringHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
     {
-        public Task Handle(ShortHeaderMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
-            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<ShortHeaderMessage>("CorrelationHeader");
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public string UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithGuidHeaderMapping : Saga<SagaWithGuidHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public Guid UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithLongHeaderMapping : Saga<SagaWithLongHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public long UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithULongHeaderMapping : Saga<SagaWithULongHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public ulong UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithIntHeaderMapping : Saga<SagaWithIntHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public int UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithUIntHeaderMapping : Saga<SagaWithUIntHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
+
+        public class SagaData : ContainSagaData
+        {
+            public uint UniqueProperty { get; set; }
+        }
+    }
+
+    class SagaWithShortHeaderMapping : Saga<SagaWithShortHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
+    {
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
 
         public class SagaData : ContainSagaData
         {
@@ -514,12 +559,12 @@ public class SagaMetadataCreationTests
         }
     }
 
-    class MySagaWithUShortMappedHeader : Saga<MySagaWithUShortMappedHeader.SagaData>, IAmStartedByMessages<UShortHeaderMessage>
+    class SagaWithUShortHeaderMapping : Saga<SagaWithUShortHeaderMapping.SagaData>, IAmStartedByMessages<HeaderTestMessage>
     {
-        public Task Handle(UShortHeaderMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
+        public Task Handle(HeaderTestMessage message, IMessageHandlerContext context) => throw new NotImplementedException();
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
-            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<UShortHeaderMessage>("CorrelationHeader");
+            mapper.MapSaga(s => s.UniqueProperty).ToMessageHeader<HeaderTestMessage>("CorrelationHeader");
 
         public class SagaData : ContainSagaData
         {
@@ -554,7 +599,6 @@ public class SagaMetadataCreationTests
         {
         }
     }
-
 
     class SagaWith2StartersAnd1Handler : Saga<SagaWith2StartersAnd1Handler.SagaData>,
         IAmStartedByMessages<SagaWith2StartersAnd1Handler.StartMessage1>,
@@ -772,9 +816,7 @@ class SomeMessage : IMessage
     public int SomeProperty { get; set; }
 }
 
-class ShortHeaderMessage : IMessage;
-
-class UShortHeaderMessage : IMessage;
+class HeaderTestMessage : IMessage;
 
 class SomeMessageWithStringProperty : IMessage
 {
