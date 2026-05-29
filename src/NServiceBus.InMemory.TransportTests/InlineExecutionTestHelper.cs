@@ -119,8 +119,8 @@ static class InlineExecutionTestHelper
 
     public static Task DispatchRecoverabilityMessage(IMessageDispatcher dispatcher, ErrorContext errorContext, string destination, DispatchProperties dispatchProperties, CancellationToken cancellationToken = default)
     {
-        var headers = new Dictionary<string, string>(errorContext.Message.Headers);
-        var message = new OutgoingMessage(errorContext.Message.MessageId, headers, errorContext.Message.Body);
+        var headers = new Dictionary<string, string>(errorContext.Headers);
+        var message = new OutgoingMessage(errorContext.MessageId, headers, errorContext.Body);
         var operation = new TransportOperation(message, new UnicastAddressTag(destination), dispatchProperties, DispatchConsistency.Isolated);
         return dispatcher.Dispatch(new TransportOperations(operation), errorContext.TransportTransaction, cancellationToken);
     }
