@@ -20,7 +20,7 @@ public class LogWrappedMessageReceiverTests
     [Test]
     public async Task Should_scope_on_message_callback()
     {
-        var slot = new EndpointLogSlot("Sales", endpointIdentifier: "blue");
+        var slot = new TestLogSlot();
         var fakeFactory = new FakeLoggerLoggerFactory();
         var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
         var receiver = new TestReceiver();
@@ -44,20 +44,13 @@ public class LogWrappedMessageReceiverTests
 
         await receiver.InvokeMessage(CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(scope, Is.Not.Null);
-            Assert.That(scope![0].Key, Is.EqualTo("Endpoint"));
-            Assert.That(scope[0].Value, Is.EqualTo("Sales"));
-            Assert.That(scope[1].Key, Is.EqualTo("EndpointIdentifier"));
-            Assert.That(scope[1].Value, Is.EqualTo("blue"));
-        }
+        Assert.That(scope, Is.SameAs(slot.ScopeState));
     }
 
     [Test]
     public async Task Should_scope_on_error_callback()
     {
-        var slot = new EndpointLogSlot("Billing", endpointIdentifier: null);
+        var slot = new TestLogSlot();
         var fakeFactory = new FakeLoggerLoggerFactory();
         var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
         var receiver = new TestReceiver();
@@ -79,27 +72,19 @@ public class LogWrappedMessageReceiverTests
             return Task.FromResult(ErrorHandleResult.Handled);
         });
 
-        var result = await receiver.InvokeError(CancellationToken.None);
+        await receiver.InvokeError(CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result, Is.EqualTo(ErrorHandleResult.Handled));
-            Assert.That(scope, Is.Not.Null);
-            Assert.That(scope!.Count, Is.EqualTo(1));
-            Assert.That(scope[0].Key, Is.EqualTo("Endpoint"));
-            Assert.That(scope[0].Value, Is.EqualTo("Billing"));
-        }
+        Assert.That(scope, Is.SameAs(slot.ScopeState));
     }
 
     [Test]
-    public async Task Should_register_slot_factory_for_satellite_on_initialize()
+    public async Task Should_register_and_unregister_slot_when_managing_lifecycle()
     {
-        var endpointSlot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var satelliteSlot = new EndpointSatelliteLogSlot(endpointSlot, "TimeoutMigration");
+        var slot = new TestLogSlot();
         var fakeFactory = new FakeLoggerLoggerFactory();
         var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
         var receiver = new TestReceiver();
-        var wrapped = new LogWrappedMessageReceiver(receiver, satelliteSlot, slotFactory, manageSlotLifecycle: true);
+        var wrapped = new LogWrappedMessageReceiver(receiver, slot, slotFactory, manageSlotLifecycle: true);
 
         await wrapped.Initialize(new PushRuntimeSettings(1), (messageContext, ct) =>
         {
@@ -113,26 +98,22 @@ public class LogWrappedMessageReceiverTests
             return Task.FromResult(ErrorHandleResult.Handled);
         });
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(satelliteSlot.IsFactoryRegistered, Is.True, "Satellite slot factory should be registered after Initialize");
-            Assert.That(endpointSlot.IsFactoryRegistered, Is.False, "Endpoint slot factory should NOT be registered by satellite receiver");
-        }
+        Assert.That(slot.IsFactoryRegistered, Is.True, "Slot factory should be registered after Initialize");
 
         await wrapped.StopReceive(CancellationToken.None);
 
-        Assert.That(satelliteSlot.IsFactoryRegistered, Is.False, "Satellite slot factory should be unregistered after StopReceive");
+        Assert.That(slot.IsFactoryRegistered, Is.False, "Slot factory should be unregistered after StopReceive");
     }
 
     [Test]
-    public async Task Should_register_slot_factory_for_instance_receiver_on_initialize()
+    public async Task Should_not_register_or_unregister_slot_when_not_managing_lifecycle()
     {
-        var endpointSlot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "green");
-        var receiverSlot = new EndpointDiscriminatorLogSlot(endpointSlot, "InstanceSpecific");
+        var slot = new TestLogSlot();
         var fakeFactory = new FakeLoggerLoggerFactory();
         var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
+        LogManager.RegisterSlotFactory(slot, slotFactory);
         var receiver = new TestReceiver();
-        var wrapped = new LogWrappedMessageReceiver(receiver, receiverSlot, slotFactory, manageSlotLifecycle: true);
+        var wrapped = new LogWrappedMessageReceiver(receiver, slot, slotFactory, manageSlotLifecycle: false);
 
         await wrapped.Initialize(new PushRuntimeSettings(1), (messageContext, ct) =>
         {
@@ -146,57 +127,30 @@ public class LogWrappedMessageReceiverTests
             return Task.FromResult(ErrorHandleResult.Handled);
         });
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(receiverSlot.IsFactoryRegistered, Is.True, "Receiver slot factory should be registered after Initialize");
-            Assert.That(endpointSlot.IsFactoryRegistered, Is.False, "Endpoint slot factory should NOT be registered by instance receiver");
-        }
+        Assert.That(slot.IsFactoryRegistered, Is.True, "Slot should remain registered after Initialize");
 
         await wrapped.StopReceive(CancellationToken.None);
 
-        Assert.That(receiverSlot.IsFactoryRegistered, Is.False, "Receiver slot factory should be unregistered after StopReceive");
+        Assert.That(slot.IsFactoryRegistered, Is.True, "Slot should remain registered after StopReceive");
+
+        LogManager.UnregisterSlot(slot);
     }
 
     [Test]
-    public async Task Should_not_register_slot_factory_for_endpoint_log_slot()
+    public async Task Should_route_logs_through_registered_slot_factory()
     {
-        var endpointSlot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
+        var slot = new TestLogSlot();
         var fakeFactory = new FakeLoggerLoggerFactory();
         var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
         var receiver = new TestReceiver();
-        var wrapped = new LogWrappedMessageReceiver(receiver, endpointSlot, slotFactory, manageSlotLifecycle: false);
-
-        await wrapped.Initialize(new PushRuntimeSettings(1), (messageContext, ct) =>
-        {
-            _ = messageContext;
-            _ = ct;
-            return Task.CompletedTask;
-        }, (errorContext, ct) =>
-        {
-            _ = errorContext;
-            _ = ct;
-            return Task.FromResult(ErrorHandleResult.Handled);
-        });
-
-        Assert.That(endpointSlot.IsFactoryRegistered, Is.False, "Endpoint slot should not self-register via LogWrappedMessageReceiver");
-    }
-
-    [Test]
-    public async Task Should_route_satellite_logs_to_registered_slot_factory()
-    {
-        var endpointSlot = new EndpointLogSlot($"Shipping-{Guid.NewGuid():N}", "green");
-        var satelliteSlot = new EndpointSatelliteLogSlot(endpointSlot, "TimeoutMigration");
-        var fakeFactory = new FakeLoggerLoggerFactory();
-        var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
-        var receiver = new TestReceiver();
-        var wrapped = new LogWrappedMessageReceiver(receiver, satelliteSlot, slotFactory, manageSlotLifecycle: true);
+        var wrapped = new LogWrappedMessageReceiver(receiver, slot, slotFactory, manageSlotLifecycle: true);
 
         var loggerName = $"{nameof(LogWrappedMessageReceiverTests)}-{Guid.NewGuid():N}";
         var logger = LogManager.GetLogger(loggerName);
 
         await wrapped.Initialize(new PushRuntimeSettings(1), (messageContext, ct) =>
         {
-            logger.Info("satellite-processing-log");
+            logger.Info("slot-processed-log");
             return Task.CompletedTask;
         }, (errorContext, ct) =>
         {
@@ -207,68 +161,22 @@ public class LogWrappedMessageReceiverTests
 
         await receiver.InvokeMessage(CancellationToken.None);
 
-        Assert.That(fakeFactory.CapturedMessages, Does.Contain("satellite-processing-log"),
-            "Logs written during satellite message processing must reach the registered slot factory.");
+        Assert.That(fakeFactory.CapturedMessages, Does.Contain("slot-processed-log"),
+            "Logs written during slot-scoped message processing must reach the registered slot factory.");
 
         await wrapped.StopReceive(CancellationToken.None);
     }
 
-    [Test]
-    public async Task Should_unregister_satellite_slot_on_stop_receive()
+    sealed class TestLogSlot : LogSlot
     {
-        var endpointSlot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var satelliteSlot = new EndpointSatelliteLogSlot(endpointSlot, "TimeoutMigration");
-        var fakeFactory = new FakeLoggerLoggerFactory();
-        var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
-        var receiver = new TestReceiver();
-        var wrapped = new LogWrappedMessageReceiver(receiver, satelliteSlot, slotFactory, manageSlotLifecycle: true);
+        public override LogScopeState ScopeState { get; } = new TestLogScopeState();
 
-        await wrapped.Initialize(new PushRuntimeSettings(1), (messageContext, ct) =>
+        sealed class TestLogScopeState : LogScopeState
         {
-            _ = messageContext;
-            _ = ct;
-            return Task.CompletedTask;
-        }, (errorContext, ct) =>
-        {
-            _ = errorContext;
-            _ = ct;
-            return Task.FromResult(ErrorHandleResult.Handled);
-        });
-
-        Assert.That(satelliteSlot.IsFactoryRegistered, Is.True);
-
-        await wrapped.StopReceive(CancellationToken.None);
-
-        Assert.That(satelliteSlot.IsFactoryRegistered, Is.False, "Satellite slot factory should be unregistered after StopReceive");
-    }
-
-    [Test]
-    public async Task Should_not_unregister_endpoint_slot_on_stop_receive()
-    {
-        var endpointSlot = new EndpointLogSlot($"Sales-{Guid.NewGuid():N}", "blue");
-        var fakeFactory = new FakeLoggerLoggerFactory();
-        var slotFactory = new MicrosoftLoggerFactoryAdapter(fakeFactory);
-        LogManager.RegisterSlotFactory(endpointSlot, slotFactory);
-        var receiver = new TestReceiver();
-        var wrapped = new LogWrappedMessageReceiver(receiver, endpointSlot, slotFactory, manageSlotLifecycle: false);
-
-        await wrapped.Initialize(new PushRuntimeSettings(1), (messageContext, ct) =>
-        {
-            _ = messageContext;
-            _ = ct;
-            return Task.CompletedTask;
-        }, (errorContext, ct) =>
-        {
-            _ = errorContext;
-            _ = ct;
-            return Task.FromResult(ErrorHandleResult.Handled);
-        });
-
-        await wrapped.StopReceive(CancellationToken.None);
-
-        Assert.That(endpointSlot.IsFactoryRegistered, Is.True, "Endpoint slot should NOT be unregistered by LogWrappedMessageReceiver");
-
-        LogManager.UnregisterSlot(endpointSlot);
+            public override KeyValuePair<string, object?> this[int index] => throw new IndexOutOfRangeException();
+            public override int Count => 0;
+            public override IEnumerator<KeyValuePair<string, object?>> GetEnumerator() => Enumerable.Empty<KeyValuePair<string, object?>>().GetEnumerator();
+        }
     }
 
     sealed class TestReceiver : IMessageReceiver
