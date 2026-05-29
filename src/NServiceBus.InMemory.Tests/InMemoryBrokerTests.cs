@@ -366,12 +366,12 @@ public class InMemoryBrokerTests
         Assert.That(broker.TryDequeueDelayed(DateTimeOffset.UtcNow, out var dequeued2), Is.True);
         Assert.That(broker.TryDequeueDelayed(DateTimeOffset.UtcNow, out var dequeued3), Is.True);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(dequeued1!.MessageId, Is.EqualTo("msg-1"));
             Assert.That(dequeued2!.MessageId, Is.EqualTo("msg-2"));
             Assert.That(dequeued3!.MessageId, Is.EqualTo("msg-3"));
-        });
+        }
     }
 
     [Test]
@@ -472,12 +472,12 @@ public class InMemoryBrokerTests
 
         await infrastructure.Dispatcher.Dispatch(new TransportOperations(operation), new TransportTransaction(), CancellationToken.None).ConfigureAwait(false);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(serviceProviderBroker.TryGetQueue("destination", out var queue), Is.True);
             Assert.That(queue!.Count, Is.EqualTo(1));
             Assert.That(constructorBroker.TryGetQueue("destination", out _), Is.False);
-        });
+        }
 
         await serviceProviderBroker.DisposeAsync();
         await constructorBroker.DisposeAsync();

@@ -20,7 +20,8 @@ class InMemoryOutboxPersistence : Feature
         var configuredStorage = context.Settings.GetOrDefault<InMemoryStorage>(InMemoryStorageRuntime.StorageKey);
         InMemoryStorageRuntime.Configure(context.Services, configuredStorage);
 
-        context.Services.AddSingleton<InMemoryOutboxStorage>(sp => new InMemoryOutboxStorage(sp.GetRequiredService<InMemoryStorage>()));
+        var endpointName = context.Settings.EndpointName();
+        context.Services.AddSingleton<InMemoryOutboxStorage>(sp => new InMemoryOutboxStorage(endpointName, sp.GetRequiredService<InMemoryStorage>()));
         context.Services.AddSingleton<IOutboxStorage>(sp => sp.GetRequiredService<InMemoryOutboxStorage>());
 
         var timeToKeepDeduplicationEntries = context.Settings.Get<TimeSpan>("Outbox.TimeToKeepDeduplicationEntries");

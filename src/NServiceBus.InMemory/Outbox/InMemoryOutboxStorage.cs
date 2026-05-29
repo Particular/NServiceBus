@@ -11,16 +11,17 @@ using System.Threading.Tasks;
 using Extensibility;
 using Outbox;
 
-class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
+class InMemoryOutboxStorage(string endpointName, InMemoryStorage storage) : IOutboxStorage
 {
-    public InMemoryOutboxStorage() : this(new InMemoryStorage())
+    public InMemoryOutboxStorage(string endpointName) : this(endpointName, new InMemoryStorage())
     {
     }
 
     public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default)
     {
         using var activity = InMemoryPersistenceTracing.StartOutboxGet(messageId);
-        if (!Storage.TryGetValue(messageId, out var storedMessage))
+        var storageKey = OutboxStorageKey(messageId);
+        if (!Storage.TryGetValue(storageKey, out var storedMessage))
         {
             InMemoryPersistenceTracing.AddMissEvent(activity);
             InMemoryPersistenceTracing.MarkSuccess(activity);
@@ -43,17 +44,18 @@ class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
     public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default)
     {
         using var activity = InMemoryPersistenceTracing.StartOutboxStore(message.MessageId, message.TransportOperations.Length);
+        var storageKey = OutboxStorageKey(message.MessageId);
         var tx = (InMemoryOutboxTransaction)transaction;
         tx.Enlist(
-            new StoreOperationState(Storage, message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray()),
+            new StoreOperationState(Storage, storageKey, message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray()),
             static state =>
             {
-                if (!state.Storage.TryAdd(state.MessageId, new StoredOutboxMessage(state.MessageId, state.TransportOperations)))
+                if (!state.Storage.TryAdd(state.StorageKey, new StoredOutboxMessage(state.MessageId, state.TransportOperations)))
                 {
                     throw new Exception($"Outbox message with id '{state.MessageId}' is already present in storage.");
                 }
             },
-            static state => state.Storage.TryRemove(state.MessageId, out _));
+            static state => state.Storage.TryRemove(state.StorageKey, out _));
         InMemoryPersistenceTracing.AddStagedEvent(activity, message.TransportOperations.Length);
         InMemoryPersistenceTracing.MarkSuccess(activity);
 
@@ -63,7 +65,8 @@ class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
     public Task SetAsDispatched(string messageId, ContextBag context, CancellationToken cancellationToken = default)
     {
         using var activity = InMemoryPersistenceTracing.StartOutboxSetAsDispatched(messageId);
-        if (!Storage.TryGetValue(messageId, out var storedMessage))
+        var storageKey = OutboxStorageKey(messageId);
+        if (!Storage.TryGetValue(storageKey, out var storedMessage))
         {
             InMemoryPersistenceTracing.AddMissEvent(activity);
             InMemoryPersistenceTracing.MarkSuccess(activity);
@@ -89,10 +92,13 @@ class InMemoryOutboxStorage(InMemoryStorage storage) : IOutboxStorage
         }
     }
 
+    string OutboxStorageKey(string messageId) => $"{endpointName}_{messageId}";
+
     internal ConcurrentDictionary<string, StoredOutboxMessage> Messages => Storage;
 
     readonly record struct StoreOperationState(
         ConcurrentDictionary<string, StoredOutboxMessage> Storage,
+        string StorageKey,
         string MessageId,
         TransportOperation[] TransportOperations);
 

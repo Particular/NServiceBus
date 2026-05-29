@@ -47,7 +47,7 @@ public class When_emitting_persistence_spans
 
         var activities = listener.CompletedFrom(InMemoryPersistenceTracing.ActivitySourceName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.SagaSaveActivityName), Is.True);
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.SagaGetByIdActivityName && Equals(a.GetTagItem("nservicebus.persistence.result"), "hit")), Is.True);
@@ -55,14 +55,14 @@ public class When_emitting_persistence_spans
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.SagaCompleteActivityName), Is.True);
             Assert.That(activities.Any(a => a.Events.Any(e => e.Name == "inmemory.persistence.transaction.enlisted")), Is.True);
             Assert.That(root.Events.Any(e => e.Name == "inmemory.persistence.transaction.committed"), Is.True);
-        });
+        }
     }
 
     [Test]
     public async Task Should_create_outbox_spans()
     {
         var storage = new InMemoryStorage();
-        var outbox = new InMemoryOutboxStorage(storage);
+        var outbox = new InMemoryOutboxStorage("test-endpoint", storage);
         using var listener = new TestingActivityListener(InMemoryPersistenceTracing.ActivitySourceName);
         using var root = StartRootActivity();
         var context = new ContextBag();
@@ -77,13 +77,13 @@ public class When_emitting_persistence_spans
 
         var activities = listener.CompletedFrom(InMemoryPersistenceTracing.ActivitySourceName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.OutboxBeginTransactionActivityName), Is.True);
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.OutboxStoreActivityName), Is.True);
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.OutboxGetActivityName && Equals(a.GetTagItem("nservicebus.persistence.result"), "hit")), Is.True);
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.OutboxSetAsDispatchedActivityName && a.Events.Any(e => e.Name == "inmemory.persistence.marked_dispatched")), Is.True);
-        });
+        }
     }
 
     [Test]
@@ -104,13 +104,13 @@ public class When_emitting_persistence_spans
 
         var activities = listener.CompletedFrom(InMemoryPersistenceTracing.ActivitySourceName);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.SubscriptionSubscribeActivityName), Is.True);
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.SubscriptionGetSubscribersActivityName && a.Events.Any(e => e.Name == "inmemory.persistence.resolved_subscribers")), Is.True);
             Assert.That(activities.Any(a => a.OperationName == InMemoryPersistenceTracing.SubscriptionUnsubscribeActivityName), Is.True);
             Assert.That(subscribers.Single().TransportAddress, Is.EqualTo("endpoint-a"));
-        });
+        }
     }
 
     [Test]

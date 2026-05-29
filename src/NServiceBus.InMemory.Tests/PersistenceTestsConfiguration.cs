@@ -1,6 +1,8 @@
 namespace NServiceBus.PersistenceTesting;
 
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus.Outbox;
@@ -30,14 +32,10 @@ public partial class PersistenceTestsConfiguration
     {
         SagaIdGenerator = new TestSagaIdGenerator();
 
-        var settings = new InMemorySagaPersisterSettings(
-            new System.Text.Json.JsonSerializerOptions
-            {
-                Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
-            });
+        var settings = new InMemorySagaPersisterSettings(new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } });
 
         SagaStorage = new InMemorySagaPersister(settings);
-        OutboxStorage = new InMemoryOutboxStorage();
+        OutboxStorage = new InMemoryOutboxStorage("test-endpoint");
         CreateStorageSession = () => new InMemorySynchronizedStorageSession();
 
         return Task.CompletedTask;

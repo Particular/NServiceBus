@@ -11,7 +11,7 @@ public class When_dispatched_outbox_entries_expire
     [Test]
     public async Task Should_expire_from_dispatch_time()
     {
-        var storage = new InMemoryOutboxStorage();
+        var storage = new InMemoryOutboxStorage("test-endpoint", new InMemoryStorage());
         var message = new OutboxMessage("message-id",
         [
             new TransportOperation("operation-id", [], new byte[] { 1 }, [])
@@ -23,7 +23,7 @@ public class When_dispatched_outbox_entries_expire
             await transaction.Commit(TestContext.CurrentContext.CancellationToken);
         }
 
-        storage.Messages[message.MessageId].StoredAt = DateTime.UtcNow.AddDays(-1);
+        storage.Messages[$"test-endpoint_{message.MessageId}"].StoredAt = DateTime.UtcNow.AddDays(-1);
 
         await storage.SetAsDispatched(message.MessageId, new(), TestContext.CurrentContext.CancellationToken);
 
