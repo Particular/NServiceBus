@@ -3,7 +3,6 @@ namespace NServiceBus.Persistence.InMemory;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using NServiceBus.Unicast.Subscriptions;
 using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
 
@@ -148,12 +147,12 @@ static class InMemoryPersistenceTracing
         "subscription",
         CreateSubscriptionTags(subscriber, messageType));
 
-    public static Activity? StartGetSubscribers(IEnumerable<MessageType> messageTypes) => StartActivity(
+    public static Activity? StartGetSubscribers(int messageTypesCount) => StartActivity(
         SubscriptionGetSubscribersActivityName,
         SubscriptionType,
         "get_subscribers",
         "subscription",
-        new TagList { { CountTag, messageTypes.Count() } });
+        new TagList { { CountTag, messageTypesCount } });
 
     public static void AddTransactionEnlistedEvent(string operationType) =>
         Activity.Current?.AddEvent(new ActivityEvent(TransactionEnlistedEvent, tags: new ActivityTagsCollection
@@ -226,7 +225,7 @@ static class InMemoryPersistenceTracing
         activity.SetStatus(ActivityStatusCode.Ok);
     }
 
-    public static void MarkError(Activity? activity, Exception ex)
+    public static void MarkError(Activity? activity, Exception ex, bool exceptionEscaped = true)
     {
         if (activity == null)
         {
@@ -239,7 +238,7 @@ static class InMemoryPersistenceTracing
         activity.SetTag(ErrorTypeTag, ex.GetType().Name);
         activity.AddEvent(new ActivityEvent("exception", DateTimeOffset.UtcNow,
         [
-            new KeyValuePair<string, object?>("exception.escaped", true),
+            new KeyValuePair<string, object?>("exception.escaped", exceptionEscaped),
             new KeyValuePair<string, object?>("exception.type", ex.GetType()),
             new KeyValuePair<string, object?>("exception.message", ex.Message),
             new KeyValuePair<string, object?>("exception.stacktrace", ex.ToString())
@@ -248,6 +247,11 @@ static class InMemoryPersistenceTracing
 
     static Activity? StartActivity(string activityName, string persistenceType, string operation, string entity, TagList additionalTags)
     {
+        if (!activitySource.HasListeners())
+        {
+            return null;
+        }
+
         var tags = new TagList
         {
             { PersistenceStorageTag, StorageName },

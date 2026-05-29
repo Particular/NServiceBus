@@ -68,7 +68,7 @@ static class InMemoryTransportTracing
         activity.AddEvent(new ActivityEvent(EnqueuedEventName));
     }
 
-    public static void MarkError(Activity? activity, Exception ex)
+    public static void MarkError(Activity? activity, Exception ex, bool exceptionEscaped = true)
     {
         if (activity == null)
         {
@@ -80,7 +80,7 @@ static class InMemoryTransportTracing
         activity.SetTag("otel.status_description", ex.Message);
         activity.AddEvent(new ActivityEvent("exception", DateTimeOffset.UtcNow,
         [
-            new KeyValuePair<string, object?>("exception.escaped", true),
+            new KeyValuePair<string, object?>("exception.escaped", exceptionEscaped),
             new KeyValuePair<string, object?>("exception.type", ex.GetType()),
             new KeyValuePair<string, object?>("exception.message", ex.Message),
             new KeyValuePair<string, object?>("exception.stacktrace", ex.ToString())
@@ -121,6 +121,11 @@ static class InMemoryTransportTracing
 
     static Activity? StartActivity(string activityName, ActivityKind kind, ActivityContext parentContext, string destination, string operationName, string operationType, string messageId, IReadOnlyDictionary<string, string> headers)
     {
+        if (!activitySource.HasListeners())
+        {
+            return null;
+        }
+
         var tags = new TagList
         {
             { MessagingSystem, InMemorySystemName },

@@ -3,6 +3,7 @@ namespace NServiceBus.Persistence.InMemory.SubscriptionStorage;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -37,10 +38,11 @@ class InMemorySubscriptionStorage(InMemoryStorage storage) : ISubscriptionStorag
 
     public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context, CancellationToken cancellationToken = default)
     {
-        using var activity = InMemoryPersistenceTracing.StartGetSubscribers(messageTypes);
+        var messageTypesList = messageTypes as IList<MessageType> ?? messageTypes.ToList();
+        using var activity = InMemoryPersistenceTracing.StartGetSubscribers(messageTypesList.Count);
         Dictionary<(string TransportAddress, string Endpoint), Subscriber> subscribers = [];
 
-        foreach (var messageType in messageTypes)
+        foreach (var messageType in messageTypesList)
         {
             if (!storage.TryGetValue(messageType, out var subscriptions))
             {

@@ -56,7 +56,7 @@ class InMemoryOutboxStorage(string endpointName, InMemoryStorage storage) : IOut
                 }
             },
             static state => state.Storage.TryRemove(state.StorageKey, out _));
-        InMemoryPersistenceTracing.AddStagedEvent(activity, message.TransportOperations.Length);
+        InMemoryPersistenceTracing.AddStagedEvent(activity);
         InMemoryPersistenceTracing.MarkSuccess(activity);
 
         return Task.CompletedTask;
