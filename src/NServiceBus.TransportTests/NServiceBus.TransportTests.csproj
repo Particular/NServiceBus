@@ -14,6 +14,7 @@
     <PackageReference Include="NUnit" Version="4.6.1" />
     <PackageReference Include="NUnit.Analyzers" Version="4.13.0" PrivateAssets="All" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Approvals" Version="2.0.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 
@@ -26,6 +27,7 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="ConfigureLearningTransportInfrastructure.cs" />
+    <RemoveSourceFileFromPackage Include="ShippedSourceFilesApproval.cs" />
     <RemoveSourceFileFromPackage Include="TransportTestPolicy.cs" />
     <RemoveSourceFileFromPackage Include="TransportTestsConfiguration.cs" />
   </ItemGroup>
