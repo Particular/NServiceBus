@@ -739,7 +739,7 @@ public class AddHandlerGeneratorTests
         // When a handler named "Order" and another named "OrderHandler" both exist,
         // the default naming convention produces "AddOrderHandler" for both:
         //   "Order"        -> "Add" + "Order" + "Handler" suffix = AddOrderHandler
-        //   "OrderHandler" -> "Add" + "OrderHandler"              = AddOrderHandler
+        //   "OrderHandler" -> "Add" + "OrderHandler"             = AddOrderHandler
         // This collision can only be resolved by explicitly registering a custom
         // RegistrationMethodNamePattern via [HandlerRegistryExtensions]. We intentionally
         // do not auto-prefix or auto-postfix generated registration method names because
@@ -761,9 +761,7 @@ public class AddHandlerGeneratorTests
                      namespace CustomRegistrations
                      {
                          [HandlerRegistryExtensions(EntryPointName = "CollisionDemo", RegistrationMethodNamePatterns = ["^OrderHandler$=>AddOrderMessageHandler"])]
-                         internal static partial class MyCustomHandlerRegistryExtensions
-                         {
-                         }
+                         internal static partial class MyCustomHandlerRegistryExtensions;
                      }
 
                      namespace Orders
@@ -781,8 +779,8 @@ public class AddHandlerGeneratorTests
                          }
                      }
 
-                     public class OrderPlaced : IEvent { }
-                     public class OrderCancelled : IEvent { }
+                     public class OrderPlaced : IEvent;
+                     public class OrderCancelled : IEvent;
                      """;
 
         SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
