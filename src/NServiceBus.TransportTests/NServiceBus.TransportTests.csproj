@@ -18,6 +18,10 @@
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Shared\ShippedSourceFilesApproval.cs" Link="ShippedSourceFilesApproval.cs" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>NServiceBus.TransportTests.Sources</PackageId>
     <Description>Tests for transport seam implementations</Description>
@@ -27,7 +31,7 @@
 
   <ItemGroup>
     <RemoveSourceFileFromPackage Include="ConfigureLearningTransportInfrastructure.cs" />
-    <RemoveSourceFileFromPackage Include="ShippedSourceFilesApproval.cs" />
+    <RemoveSourceFileFromPackage Include="TransportTestsShippedSourceFilesApproval.cs" />
     <RemoveSourceFileFromPackage Include="TransportTestPolicy.cs" />
     <RemoveSourceFileFromPackage Include="TransportTestsConfiguration.cs" />
   </ItemGroup>

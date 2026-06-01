@@ -1,19 +1,17 @@
-// This test project is shipped as a source package (NServiceBus.TransportTests.Sources) to
-// downstream transport implementers. By default, Particular.Packaging includes ALL .cs files
-// in the package unless explicitly excluded via RemoveSourceFileFromPackage.
+// Source packages (e.g. NServiceBus.PersistenceTests.Sources) ship all .cs files to downstream
+// implementers by default via Particular.Packaging's IncludeSourceFilesInPackage. Files must be
+// explicitly excluded via RemoveSourceFileFromPackage in the .csproj.
 //
-// This approval test ensures that adding a new .cs file is a deliberate choice:
-// - If the file should be shipped to downstream, the approved list must be updated.
-// - If the file should NOT be shipped (e.g. it tests learning-transport internals),
-//   it must be added to RemoveSourceFileFromPackage in the .csproj.
+// This approval test helper ensures that adding a new .cs file to a source package project is a
+// deliberate choice — either add RemoveSourceFileFromPackage to exclude it, or update the approved
+// list to acknowledge it should be shipped.
 //
-// IMPORTANT: This test itself is excluded from shipping via RemoveSourceFileFromPackage.
-// However, when shipping a new source package release, be aware that changes to the approved
-// list will also propagate to downstream repositories. Any newly approved file that is not
-// excluded may cause downstream test failures until those repositories are updated.
-// Consider validating against a select set of downstream repositories before shipping.
+// IMPORTANT: When shipping a new source package release, changes to the approved list propagate to
+// downstream repositories. Any newly approved file that is not excluded may cause downstream test
+// failures until those repositories are updated. Consider validating against a select set of
+// downstream repositories before shipping.
 
-namespace NServiceBus.TransportTests;
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -22,22 +20,18 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using NUnit.Framework;
-using Particular.Approvals;
 
-[TestFixture]
-public class ShippedSourceFilesApproval
+/// <summary>
+/// Verifies that the set of source files shipped in a source package matches an approved list.
+/// When a new .cs file is added to the project, the test will fail until the file is either
+/// excluded via RemoveSourceFileFromPackage or the approved list is updated.
+/// </summary>
+static class ShippedSourceFilesApproval
 {
-    [Test]
-    public void ApproveShippedSourceFiles()
+    public static string GetShippedFiles()
     {
-        var projectDirectory = TestContext.CurrentContext.TestDirectory;
-        while (!File.Exists(Path.Combine(projectDirectory, "NServiceBus.TransportTests.csproj")))
-        {
-            projectDirectory = Directory.GetParent(projectDirectory)?.FullName
-                ?? throw new InvalidOperationException("Could not find project directory.");
-        }
-
-        var csprojPath = Path.Combine(projectDirectory, "NServiceBus.TransportTests.csproj");
+        var projectDirectory = FindProjectDirectory();
+        var csprojPath = FindCsproj(projectDirectory);
         var csproj = XDocument.Load(csprojPath);
 
         var removePatterns = csproj.Descendants("RemoveSourceFileFromPackage")
@@ -63,8 +57,27 @@ public class ShippedSourceFilesApproval
             .Concat(addFiles)
             .ToList();
 
-        Approver.Verify(string.Join("\n", shippedFiles));
+        return string.Join("\n", shippedFiles);
     }
+
+    static string FindProjectDirectory()
+    {
+        var directory = TestContext.CurrentContext.TestDirectory;
+        while (directory != null)
+        {
+            if (Directory.GetFiles(directory, "*.csproj").Length == 1)
+            {
+                return directory;
+            }
+
+            directory = Directory.GetParent(directory)?.FullName;
+        }
+
+        throw new InvalidOperationException("Could not find project directory containing a .csproj file.");
+    }
+
+    static string FindCsproj(string projectDirectory) =>
+        Directory.GetFiles(projectDirectory, "*.csproj")[0];
 
     static string NormalizePath(string path) => path.Replace('\\', '/');
 

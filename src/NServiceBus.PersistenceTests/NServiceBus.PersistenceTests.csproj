@@ -20,6 +20,10 @@
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Shared\ShippedSourceFilesApproval.cs" Link="ShippedSourceFilesApproval.cs" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>NServiceBus.PersistenceTests.Sources</PackageId>
     <Description>Tests for persistence seam implementations</Description>
@@ -31,7 +35,7 @@
     <AddSourceFileToPackage Include="..\NServiceBus.Core\IdGeneration\CombGuid.cs" />
     <AddSourceFileToPackage Include="..\NServiceBus.Core\Sagas\DefaultSagaIdGenerator.cs" />
     <RemoveSourceFileFromPackage Include="PersistenceTestsConfiguration.cs" />
-    <RemoveSourceFileFromPackage Include="ShippedSourceFilesApproval.cs" />
+    <RemoveSourceFileFromPackage Include="PersistenceTestsShippedSourceFilesApproval.cs" />
   </ItemGroup>
 
 </Project>
