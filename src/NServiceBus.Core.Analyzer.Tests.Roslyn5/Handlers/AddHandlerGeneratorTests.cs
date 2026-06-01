@@ -754,13 +754,13 @@ public class AddHandlerGeneratorTests
                      {
                          public void Configure(EndpointConfiguration cfg)
                          {
-                             cfg.Handlers.HandlerNameCollisionResolvedByRegistrationMethodNamePatternsAssembly.AddAll();
+                             cfg.Handlers.CollisionDemo.AddAll();
                          }
                      }
 
                      namespace CustomRegistrations
                      {
-                         [HandlerRegistryExtensions(RegistrationMethodNamePatterns = ["^OrderHandler$=>AddOrderMessageHandler"])]
+                         [HandlerRegistryExtensions(EntryPointName = "CollisionDemo", RegistrationMethodNamePatterns = ["^OrderHandler$=>AddOrderMessageHandler"])]
                          internal static partial class MyCustomHandlerRegistryExtensions
                          {
                          }

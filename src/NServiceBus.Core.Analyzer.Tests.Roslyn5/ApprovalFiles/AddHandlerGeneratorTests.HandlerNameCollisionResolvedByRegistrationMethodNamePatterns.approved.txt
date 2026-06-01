@@ -74,7 +74,7 @@ namespace CustomRegistrations
             /// <remarks>
             /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
             /// </remarks>
-            public MyCustomRootRegistry HandlerNameCollisionResolvedByRegistrationMethodNamePatternsAssembly => new(registry.Configuration);
+            public MyCustomRootRegistry CollisionDemo => new(registry.Configuration);
         }
 
         /// <summary>
