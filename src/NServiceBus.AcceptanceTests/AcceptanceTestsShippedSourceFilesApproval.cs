@@ -20,7 +20,7 @@ using Particular.Approvals;
 // Consider validating against a select set of downstream repositories before shipping.
 
 [TestFixture]
-public class AcceptanceTestsShippedSourceFilesApproval
+public class AcceptanceTestsShippedSourceFilesApproval : NServiceBusAcceptanceTest
 {
     [Test]
     public void ApproveShippedSourceFiles() => Approver.Verify(ShippedSourceFilesApproval.GetShippedFiles());
