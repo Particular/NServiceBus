@@ -11,6 +11,8 @@
 // failures until those repositories are updated. Consider validating against a select set of
 // downstream repositories before shipping.
 
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -34,9 +36,10 @@ static class ShippedSourceFilesApproval
         var csprojPath = FindCsproj(projectDirectory);
         var csproj = XDocument.Load(csprojPath);
 
-        var removePatterns = csproj.Descendants("RemoveSourceFileFromPackage")
+        var removeEntries = csproj.Descendants("RemoveSourceFileFromPackage")
             .Select(e => e.Attribute("Include")?.Value)
             .Where(v => v != null)
+            .Select(CompileRemovePattern)
             .ToList();
 
         var addFiles = csproj.Descendants("AddSourceFileToPackage")
@@ -52,7 +55,7 @@ static class ShippedSourceFilesApproval
             .ToList();
 
         var shippedFiles = projectFiles
-            .Where(f => !IsRemoved(f, removePatterns))
+            .Where(f => !IsRemoved(f, removeEntries))
             .OrderBy(f => f, StringComparer.Ordinal)
             .Concat(addFiles)
             .ToList();
@@ -87,22 +90,26 @@ static class ShippedSourceFilesApproval
         return normalized.Contains("/obj/") || normalized.Contains("/bin/");
     }
 
-    static bool IsRemoved(string filePath, List<string> removePatterns)
+    record RemoveEntry(string Pattern, Regex? Regex);
+
+    static RemoveEntry CompileRemovePattern(string rawPattern)
     {
-        var normalizedFilePath = NormalizePath(filePath);
+        var pattern = NormalizePath(rawPattern);
+        return pattern.Contains('*') ? new RemoveEntry(pattern, new Regex(GlobToRegex(pattern), RegexOptions.CultureInvariant)) : new RemoveEntry(pattern, null);
+    }
 
-        foreach (var rawPattern in removePatterns)
+    static bool IsRemoved(string filePath, List<RemoveEntry> removeEntries)
+    {
+        foreach (var entry in removeEntries)
         {
-            var pattern = NormalizePath(rawPattern);
-
-            if (pattern.Contains("**"))
+            if (entry.Regex != null)
             {
-                if (Regex.IsMatch(normalizedFilePath, GlobToRegex(pattern), RegexOptions.CultureInvariant))
+                if (entry.Regex.IsMatch(filePath))
                 {
                     return true;
                 }
             }
-            else if (Path.GetFileName(normalizedFilePath) == pattern || normalizedFilePath == pattern)
+            else if (Path.GetFileName(filePath) == entry.Pattern || filePath == entry.Pattern)
             {
                 return true;
             }
