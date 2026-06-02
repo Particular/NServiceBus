@@ -17,7 +17,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -41,14 +40,16 @@ static class ShippedSourceFilesApproval
             .Select(e => e.Attribute("Include")?.Value)
             .Where(v => v is not null)
             .Select(CompileRemovePattern!)
-            .ToList();
+            .ToList()
+            .AsReadOnly();
 
         var addFiles = csproj.Descendants("AddSourceFileToPackage")
             .Select(e => e.Attribute("Include")?.Value)
             .Where(v => v is not null)
             .Select(NormalizePath!)
             .OrderBy(v => v, StringComparer.Ordinal)
-            .ToList();
+            .ToList()
+            .AsReadOnly();
 
         var projectFiles = Directory.EnumerateFiles(projectDirectory, "*.cs", SearchOption.AllDirectories)
             .Where(f => !IsObjOrBin(f))
@@ -99,7 +100,7 @@ static class ShippedSourceFilesApproval
         return pattern.Contains('*') ? new RemoveEntry(pattern, new Regex(GlobToRegex(pattern), RegexOptions.CultureInvariant)) : new RemoveEntry(pattern, null);
     }
 
-    static bool IsRemoved(string filePath, List<RemoveEntry> removeEntries)
+    static bool IsRemoved(string filePath, IReadOnlyCollection<RemoveEntry> removeEntries)
     {
         foreach (var entry in removeEntries)
         {
