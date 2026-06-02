@@ -17,6 +17,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -38,14 +39,14 @@ static class ShippedSourceFilesApproval
 
         var removeEntries = csproj.Descendants("RemoveSourceFileFromPackage")
             .Select(e => e.Attribute("Include")?.Value)
-            .Where(v => v != null)
-            .Select(CompileRemovePattern)
+            .Where(v => v is not null)
+            .Select(CompileRemovePattern!)
             .ToList();
 
         var addFiles = csproj.Descendants("AddSourceFileToPackage")
             .Select(e => e.Attribute("Include")?.Value)
-            .Where(v => v != null)
-            .Select(NormalizePath)
+            .Where(v => v is not null)
+            .Select(NormalizePath!)
             .OrderBy(v => v, StringComparer.Ordinal)
             .ToList();
 
@@ -155,6 +156,6 @@ static class ShippedSourceFilesApproval
             }
         }
 
-        return "^" + result + "$";
+        return $"^{result}$";
     }
 }
