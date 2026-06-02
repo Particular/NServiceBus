@@ -65,7 +65,11 @@ class MessageOperations
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, ActivityDisplayNames.PublishEvent, publishContext);
+        var publishDisplayName = activityFactory.Options.UseMessageDestinationInSpanNames
+            ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
+            : ActivityDisplayNames.PublishEvent;
+
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, publishDisplayName, publishContext);
 
         await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
     }

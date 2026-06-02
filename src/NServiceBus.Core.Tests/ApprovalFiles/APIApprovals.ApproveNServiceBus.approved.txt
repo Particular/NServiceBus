@@ -632,6 +632,12 @@ namespace NServiceBus
         StopApplication = 0,
         Continue = 1,
     }
+    public class InstrumentationOptions
+    {
+        public InstrumentationOptions() { }
+        public NServiceBus.MessagePayloadAsTag MessagePayloadAsTag { get; set; }
+        public bool UseMessageDestinationInSpanNames { get; set; }
+    }
     public sealed class KeyedServiceKey
     {
         public const string Any = "_______<ANY>_______";
@@ -718,6 +724,13 @@ namespace NServiceBus
         Unsubscribe = 4,
         Reply = 5,
     }
+    public enum MessagePayloadAsTag
+    {
+        None = 0,
+        IncomingMessage = 1,
+        OutgoingMessage = 2,
+        All = 3,
+    }
     public static class MessageProcessingContextExtensions
     {
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
@@ -772,6 +785,7 @@ namespace NServiceBus
     {
         public static void ContinueExistingTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
         public static void StartNewTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
+        public static NServiceBus.InstrumentationOptions Tracing(this NServiceBus.EndpointConfiguration config) { }
     }
     public static class OutboxConfigExtensions
     {

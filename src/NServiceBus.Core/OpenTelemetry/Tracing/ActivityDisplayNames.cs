@@ -10,4 +10,9 @@ static class ActivityDisplayNames
     public const string UnsubscribeEvent = "unsubscribe event";
     public const string SendMessage = "send message";
     public const string ReplyMessage = "reply";
+
+    // Operation-only prefixes used when UseMessageDestinationInSpanNames is enabled
+    internal const string ProcessOperation = "process";
+    internal const string PublishOperation = "publish";
+    internal const string SendOperation = "send";
 }

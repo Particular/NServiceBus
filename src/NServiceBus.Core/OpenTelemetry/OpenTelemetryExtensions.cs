@@ -2,11 +2,24 @@
 
 namespace NServiceBus;
 
+using System;
+
 /// <summary>
 /// Gives users control over the depth of an OpenTelemetry trace.
 /// </summary>
 public static class OpenTelemetryExtensions
 {
+    /// <summary>
+    /// Provides access to instrumentation options for OpenTelemetry tracing.
+    /// </summary>
+    /// <param name="config">The endpoint configuration.</param>
+    /// <returns>The <see cref="InstrumentationOptions"/> instance for this endpoint.</returns>
+    public static InstrumentationOptions Tracing(this EndpointConfiguration config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Settings.GetOrCreate<InstrumentationOptions>();
+    }
+
     /// <summary>
     /// Start a new OpenTelemetry trace conversation.
     /// </summary>

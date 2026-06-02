@@ -55,6 +55,40 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
         }
     }
 
+    [Test]
+    public async Task Should_use_destination_in_reply_span_name_when_opted_in()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpointWithDestinationNaming>(b => b
+                .When(s => s.SendLocal(new IncomingMessage())))
+            .Run();
+
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are being sent");
+        var replyMessage = outgoingMessageActivities[1];
+
+        Assert.That(replyMessage.DisplayName, Does.StartWith("reply "));
+    }
+
+    public class TestEndpointWithDestinationNaming : EndpointConfigurationBuilder
+    {
+        public TestEndpointWithDestinationNaming() =>
+            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageDestinationInSpanNames = true);
+
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>,
+            IHandleMessages<OutgoingReply>
+        {
+            public Task Handle(IncomingMessage message, IMessageHandlerContext context) => context.Reply(new OutgoingReply());
+
+            public Task Handle(OutgoingReply message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
     public class IncomingMessage : IMessage;
 
     public class OutgoingReply : IMessage;
