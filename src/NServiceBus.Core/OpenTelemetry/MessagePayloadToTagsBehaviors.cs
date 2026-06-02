@@ -4,7 +4,8 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
-using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Pipeline;
 
@@ -15,24 +16,17 @@ class IncomingMessagePayloadToTagsBehavior : IBehavior<IIncomingLogicalMessageCo
         var activity = Activity.Current;
         if (activity?.IsAllDataRequested == true)
         {
-            PromoteProperties(activity, context.Message.Instance);
+            SetMessageBodyTag(activity, context.Message.Instance);
         }
 
         return next(context);
     }
 
-   // this needs to be changed to be base64 encoding of the entire body not just the properties
-
-    internal static void PromoteProperties(Activity activity, object instance)
+    internal static void SetMessageBodyTag(Activity activity, object instance)
     {
-        foreach (var property in instance.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            var value = property.GetValue(instance);
-            if (value is not null)
-            {
-                activity.SetTag($"nservicebus.message.{property.Name}", value.ToString());
-            }
-        }
+        var json = JsonSerializer.Serialize(instance, instance.GetType());
+        var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+        activity.SetTag("nservicebus.message.body", base64);
     }
 }
 
@@ -43,7 +37,7 @@ class OutgoingMessagePayloadToTagsBehavior : IBehavior<IOutgoingLogicalMessageCo
         var activity = Activity.Current;
         if (activity?.IsAllDataRequested == true)
         {
-            IncomingMessagePayloadToTagsBehavior.PromoteProperties(activity, context.Message.Instance);
+            IncomingMessagePayloadToTagsBehavior.SetMessageBodyTag(activity, context.Message.Instance);
         }
 
         return next(context);
