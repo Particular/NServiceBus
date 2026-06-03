@@ -35,7 +35,7 @@ class OutgoingMessagePayloadToTagsBehavior : IBehavior<IOutgoingLogicalMessageCo
     public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
     {
         var activity = Activity.Current;
-        if (activity?.IsAllDataRequested == true)
+        if (activity?.IsAllDataRequested)
         {
             IncomingMessagePayloadToTagsBehavior.SetMessageBodyTag(activity, context.Message.Instance);
         }
