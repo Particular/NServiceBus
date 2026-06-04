@@ -11,18 +11,21 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Particular.Approvals;
 
-/// <summary>
-/// As part of the assembly scanning efforts, many code paths that require dynamically
-/// referenced code have been annotated or restructured to satisfy the trimming analyzer.
-/// This test captures the current set of trimming warnings so that any new regressions
-/// are immediately visible. When the test fails because new warnings appeared, revisit
-/// the changes and consider whether the dynamic access can be avoided. It is acceptable
-/// to approve new warnings in minor releases when truly necessary, but the goal is to
-/// keep the list shrinking over time and never grow without deliberate justification.
-/// Once all warnings are resolved and the approved file is empty, this test can be
-/// deleted and trimming warnings can be enabled directly in NServiceBus.Core.csproj.
-/// <see href="https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/prepare-libraries-for-trimming"/>
-/// </summary>
+// As part of the assembly scanning efforts, many code paths that require dynamically
+// referenced code have been annotated or restructured to satisfy the trimming analyzer.
+// This test captures the current set of trimming warnings so that any new regressions
+// are immediately visible. When the test fails because new warnings appeared, revisit
+// the changes and consider whether the dynamic access can be avoided. It is acceptable
+// to approve new warnings in minor releases when truly necessary, but the goal is to
+// keep the list shrinking over time and never grow without deliberate justification.
+// Once all warnings are resolved and the approved file is empty, this test can be
+// deleted and trimming warnings can be enabled directly in NServiceBus.Core.csproj.
+// 
+// To enable the analyzer to see the warnings in your IDE, add this to the <PropertyGroup> at the
+// top of NServiceBus.Core.csproj:
+// <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+//
+// See https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/prepare-libraries-for-trimming for more details.
 [TestFixture]
 public partial class TrimmabilityWarnings
 {
