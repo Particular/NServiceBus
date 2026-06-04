@@ -125,7 +125,7 @@ public partial class TrimmabilityWarnings
     [GeneratedRegex(@"\(\d+,\d+\)")]
     private static partial Regex LineNumbersRegex();
 
-    [GeneratedRegex(@"\s*\[.+\]$")]
+    [GeneratedRegex(@"\s*\[[^\]]+[/\\][^\]]+\]$")]
     private static partial Regex ProjectPathSuffixRegex();
 
     [GeneratedRegex(@".+: warning IL[23]\d{3}.+")]
