@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Particular.Approvals;
@@ -26,7 +27,8 @@ using Particular.Approvals;
 public partial class TrimmabilityWarnings
 {
     [Test]
-    public async Task ApproveTrimmabilityWarnings()
+    [CancelAfter(30_000)]
+    public async Task ApproveTrimmabilityWarnings(CancellationToken cancellationToken = default)
     {
         var projectPath = Path.GetFullPath(Path.Combine(
             TestContext.CurrentContext.TestDirectory,
@@ -34,6 +36,25 @@ public partial class TrimmabilityWarnings
             "NServiceBus.Core",
             "NServiceBus.Core.csproj"));
 
+        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "out.binlog");
+
+        try
+        {
+            var warnings = await BuildWithTrimmingAnalyzerEnabled(projectPath, binlogPath, cancellationToken);
+
+            Approver.Verify(warnings);
+        }
+        finally
+        {
+            if (File.Exists(binlogPath))
+            {
+                File.Delete(binlogPath);
+            }
+        }
+    }
+
+    static async Task<string> BuildWithTrimmingAnalyzerEnabled(string projectPath, string binlogPath, CancellationToken cancellationToken = default)
+    {
         var startInfo = new ProcessStartInfo
         {
             FileName = "dotnet",
@@ -48,14 +69,14 @@ public partial class TrimmabilityWarnings
         startInfo.ArgumentList.Add("-p:EnableTrimAnalyzer=true");
         startInfo.ArgumentList.Add("-p:TreatWarningsAsErrors=false");
         startInfo.ArgumentList.Add("-p:IsPackable=false");
-        startInfo.ArgumentList.Add("-bl:out.binlog");
+        startInfo.ArgumentList.Add($"-bl:{binlogPath}");
 
         using var process = Process.Start(startInfo)!;
 
-        var outputTask = process.StandardOutput.ReadToEndAsync();
-        var errorTask = process.StandardError.ReadToEndAsync();
+        var outputTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
+        var errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
 
-        await process.WaitForExitAsync();
+        await process.WaitForExitAsync(cancellationToken);
 
         var output = await outputTask;
         var error = await errorTask;
@@ -86,7 +107,7 @@ public partial class TrimmabilityWarnings
             }
         }
 
-        Approver.Verify(result.ToString());
+        return result.ToString();
     }
 
     static string ScrubLine(string line)
