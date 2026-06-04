@@ -48,6 +48,7 @@ public partial class TrimmabilityWarnings
         startInfo.ArgumentList.Add("-p:EnableTrimAnalyzer=true");
         startInfo.ArgumentList.Add("-p:TreatWarningsAsErrors=false");
         startInfo.ArgumentList.Add("-p:IsPackable=false");
+        startInfo.ArgumentList.Add("-bl:out.binlog");
         startInfo.ArgumentList.Add("-v");
         startInfo.ArgumentList.Add("minimal");
         startInfo.ArgumentList.Add("--no-incremental");
