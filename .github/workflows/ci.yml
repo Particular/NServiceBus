@@ -32,6 +32,7 @@ jobs:
         uses: actions/setup-dotnet@v5.3.0
         with:
           global-json-file: global.json
+          dotnet-version: 10.0.x
       - name: Build
         run: dotnet build src --configuration Release
       - name: Upload packages
