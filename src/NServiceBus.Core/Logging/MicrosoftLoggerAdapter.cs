@@ -8,9 +8,6 @@ using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 sealed class MicrosoftLoggerAdapter(ILogger logger) : ILog
 {
-    static readonly Func<string?, Exception?, string> MessageFormatter = static (state, _) => state ?? string.Empty;
-    static readonly Func<(string format, object?[] args), Exception?, string> FormatMessageFormatter = static (state, _) => string.Format(state.format, state.args);
-
     public bool IsDebugEnabled => logger.IsEnabled(LogLevel.Debug);
     public bool IsInfoEnabled => logger.IsEnabled(LogLevel.Information);
     public bool IsWarnEnabled => logger.IsEnabled(LogLevel.Warning);
@@ -47,6 +44,7 @@ sealed class MicrosoftLoggerAdapter(ILogger logger) : ILog
 
     public void FatalFormat(string format, params object?[] args) => WriteFormat(LogLevel.Critical, format, args);
 
+#pragma warning disable CA2254 // Template should be a static expression -- this is infrastructure, not application code
     void Write(LogLevel level, string? message, Exception? exception = null)
     {
         if (!logger.IsEnabled(level))
@@ -54,7 +52,7 @@ sealed class MicrosoftLoggerAdapter(ILogger logger) : ILog
             return;
         }
 
-        logger.Log(level, default, message, exception, MessageFormatter);
+        logger.Log(level, default, exception, message);
     }
 
     void WriteFormat(LogLevel level, string format, object?[] args)
@@ -64,6 +62,7 @@ sealed class MicrosoftLoggerAdapter(ILogger logger) : ILog
             return;
         }
 
-        logger.Log(level, default, (format, args), null, FormatMessageFormatter);
+        logger.Log(level, default, null, format, args);
     }
+#pragma warning restore CA2254
 }
