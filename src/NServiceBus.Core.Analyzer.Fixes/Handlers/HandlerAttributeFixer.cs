@@ -164,7 +164,7 @@ public class HandlerAttributeFixer : CodeFixProvider
             }
 
             var isInterfaceBasedHandler = type.ImplementsGenericInterface(knownTypes.IHandleMessages);
-            var isConventionBasedHandler = !isInterfaceBasedHandler && ConventionBasedHandlerHelper.HasValidConventionBasedHandleMethods(type, knownTypes);
+            var isConventionBasedHandler = !isInterfaceBasedHandler && ConventionBasedHandlerHelper.HasValidConventionBasedHandleMethods(type, knownTypes, cancellationToken: cancellationToken);
 
             if (!isInterfaceBasedHandler && !isConventionBasedHandler)
             {
