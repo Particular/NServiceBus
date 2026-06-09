@@ -106,11 +106,12 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
 
         using var disposeCancelSource = new CancellationTokenSource(disposeShutdownTimeout);
+        var disposeCancellationToken = disposeCancelSource.Token;
         try
         {
-            await StopCore(disposeCancelSource.Token).ConfigureAwait(false);
+            await StopCore(disposeCancellationToken).ConfigureAwait(false);
         }
-        catch (OperationCanceledException) when (disposeCancelSource.IsCancellationRequested)
+        catch (OperationCanceledException) when (disposeCancellationToken.IsCancellationRequested)
         {
             Log.Warn($"Graceful shutdown timed out after {disposeShutdownTimeout} during DisposeAsync; continuing with resource cleanup.");
         }
