@@ -99,12 +99,27 @@ class RunningEndpointInstance(SettingsHolder settings,
             return;
         }
 
-        await StopCore().ConfigureAwait(false);
+        // Bound the shutdown wait. DisposeAsync is reached when an IHost is disposed
+        // without an explicit StopAsync (e.g. `using var host` or `await using var host`
+        // followed by scope exit), so no host shutdown token reaches us here. Without a
+        // bound, a slow or stuck transport.Shutdown blocks disposal indefinitely.
+        // Mirrors HostOptions.ShutdownTimeout default.
+        using var disposeCts = new CancellationTokenSource(DisposeShutdownTimeout);
+        try
+        {
+            await StopCore(disposeCts.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (disposeCts.IsCancellationRequested)
+        {
+            Log.Warn($"Graceful shutdown timed out after {DisposeShutdownTimeout.TotalSeconds:F0}s during DisposeAsync; continuing with resource cleanup.");
+        }
 
         settings.Clear();
         stoppingTokenSource.Dispose();
         await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
     }
+
+    static readonly TimeSpan DisposeShutdownTimeout = TimeSpan.FromSeconds(30);
 
     public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
