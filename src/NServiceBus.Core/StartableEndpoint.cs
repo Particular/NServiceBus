@@ -7,6 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Features;
 using Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Settings;
 using Transport;
 
@@ -82,7 +85,15 @@ class StartableEndpoint(
 
             await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, serviceProviderLease, hostingComponent.Config.EndpointLogSlot);
+            // Honour HostOptions.ShutdownTimeout when running under Microsoft.Extensions.Hosting
+            // so DisposeAsync uses the same budget the host applies during a graceful StopAsync.
+            // When IOptions<HostOptions> isn't registered (legacy self-hosted Endpoint.Start),
+            // RunningEndpointInstance falls back to its own default.
+            var disposeShutdownTimeout = serviceProvider
+                .GetService<IOptions<HostOptions>>()
+                ?.Value.ShutdownTimeout;
+
+            var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, serviceProviderLease, hostingComponent.Config.EndpointLogSlot, disposeShutdownTimeout);
 
             hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 
