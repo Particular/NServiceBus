@@ -18,9 +18,15 @@ class RunningEndpointInstance(SettingsHolder settings,
     CancellationTokenSource stoppingTokenSource,
     IAsyncDisposable serviceProviderLease,
 #pragma warning disable CS0618 // Type or member is obsolete -- Change the interface to IMessageSession in the next major
-    LogSlot endpointLogSlot) : IEndpointInstance, IAsyncDisposable
+    LogSlot endpointLogSlot,
+    TimeSpan? disposeShutdownTimeout = null) : IEndpointInstance, IAsyncDisposable
 #pragma warning restore CS0618 // Type or member is obsolete
 {
+    // Bound the shutdown wait inside DisposeAsync. DisposeAsync is reached when an IHost
+    // is disposed without an explicit StopAsync (e.g. `using var host` / `await using var
+    // host` followed by scope exit), so no host shutdown token reaches us. Mirrors
+    // HostOptions.ShutdownTimeout's default of 30s.
+    readonly TimeSpan disposeShutdownTimeout = disposeShutdownTimeout ?? TimeSpan.FromSeconds(30);
     // Stop is the legacy interface for shutting down the endpoint over the public API.
     // The modern hosted variant has Stop and DisposeAsync as separate steps:
     // BaseEndpointLifecycle.Stop calls StopCore (shutdown only), then DisposeAsync (cleanup).
@@ -99,28 +105,20 @@ class RunningEndpointInstance(SettingsHolder settings,
             return;
         }
 
-        // Bound the shutdown wait. DisposeAsync is reached when an IHost is disposed
-        // without an explicit StopAsync (e.g. `using var host` or `await using var host`
-        // followed by scope exit), so no host shutdown token reaches us here. Without a
-        // bound, a slow or stuck transport.Shutdown blocks disposal indefinitely.
-        // Mirrors HostOptions.ShutdownTimeout default.
-        using var disposeCts = new CancellationTokenSource(DisposeShutdownTimeout);
+        using var disposeCancelSource = new CancellationTokenSource(disposeShutdownTimeout);
         try
         {
-            await StopCore(disposeCts.Token).ConfigureAwait(false);
+            await StopCore(disposeCancelSource.Token).ConfigureAwait(false);
         }
-        catch (OperationCanceledException) when (disposeCts.IsCancellationRequested)
+        catch (OperationCanceledException) when (disposeCancelSource.IsCancellationRequested)
         {
-            Log.Warn($"Graceful shutdown timed out after {DisposeShutdownTimeout} during DisposeAsync; continuing with resource cleanup.");
+            Log.Warn($"Graceful shutdown timed out after {disposeShutdownTimeout} during DisposeAsync; continuing with resource cleanup.");
         }
 
         settings.Clear();
         stoppingTokenSource.Dispose();
         await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
     }
-
-    // Mutable for tests. Defaults to HostOptions.ShutdownTimeout's default of 30s.
-    internal static TimeSpan DisposeShutdownTimeout = TimeSpan.FromSeconds(30);
 
     public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {

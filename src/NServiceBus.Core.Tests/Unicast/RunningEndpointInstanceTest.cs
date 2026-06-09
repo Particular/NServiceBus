@@ -18,10 +18,10 @@ public class RunningEndpointInstanceTest
 
         var testInstance = new RunningEndpointInstance(
             settings,
-            null,
+            null!,
             new FeatureComponent(new FeatureComponent.Settings()),
             new TestableMessageSession(),
-            null,
+            null!,
             new CancellationTokenSource(),
             NoOpAsyncDisposable.Instance,
             new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
@@ -92,34 +92,26 @@ public class RunningEndpointInstanceTest
         // and hangs forever, disposal still hangs. Confirm the timeout actually fires and
         // disposal proceeds past a stuck transport.Shutdown.
 
-        var originalTimeout = RunningEndpointInstance.DisposeShutdownTimeout;
-        RunningEndpointInstance.DisposeShutdownTimeout = TimeSpan.FromMilliseconds(250);
-        try
-        {
-            var hangingTransport = new HangingTransportInfrastructure();
+        var hangingTransport = new HangingTransportInfrastructure();
 
-            var testInstance = new RunningEndpointInstance(
-                new SettingsHolder(),
-                CreateEmptyReceiveComponent(),
-                new FeatureComponent(new FeatureComponent.Settings()),
-                new TestableMessageSession(),
-                hangingTransport,
-                new CancellationTokenSource(),
-                NoOpAsyncDisposable.Instance,
-                new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+        var testInstance = new RunningEndpointInstance(
+            new SettingsHolder(),
+            CreateEmptyReceiveComponent(),
+            new FeatureComponent(new FeatureComponent.Settings()),
+            new TestableMessageSession(),
+            hangingTransport,
+            new CancellationTokenSource(),
+            NoOpAsyncDisposable.Instance,
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null),
+            disposeShutdownTimeout: TimeSpan.FromMilliseconds(250));
 
-            var dispose = testInstance.DisposeAsync().AsTask();
-            var winner = await Task.WhenAny(dispose, Task.Delay(TimeSpan.FromSeconds(5)));
+        var dispose = testInstance.DisposeAsync().AsTask();
+        var winner = await Task.WhenAny(dispose, Task.Delay(TimeSpan.FromSeconds(5)));
 
-            Assert.That(winner, Is.SameAs(dispose),
-                "DisposeAsync did not complete within 5s of a 250ms internal timeout — " +
-                "DisposeShutdownTimeout must fire and let disposal proceed past a stuck transport.Shutdown.");
-            await dispose;
-        }
-        finally
-        {
-            RunningEndpointInstance.DisposeShutdownTimeout = originalTimeout;
-        }
+        Assert.That(winner, Is.SameAs(dispose),
+            "DisposeAsync did not complete within 5s of a 250ms internal timeout — " +
+            "the disposeShutdownTimeout must fire and let disposal proceed past a stuck transport.Shutdown.");
+        await dispose;
     }
 
     [Test]
