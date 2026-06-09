@@ -39,6 +39,13 @@ static class ConventionBasedHandlerHelper
             }
         }
 
+        // Single pass: find all interface Handle implementations and the methods they call
+        HashSet<IMethodSymbol>? interfaceHandleCallees = null;
+        if (compilation is not null)
+        {
+            interfaceHandleCallees = CollectInterfaceHandleCallees(interfaceImplementationType, knownTypes, compilation);
+        }
+
         foreach (var member in classType.GetMembers())
         {
             if (member is not IMethodSymbol method)
@@ -46,16 +53,24 @@ static class ConventionBasedHandlerHelper
                 continue;
             }
 
-            if (IsValidConventionBasedHandleMethod(method, knownTypes, interfaceMessageTypes, interfaceImplementationType, compilation))
+            if (!IsValidConventionBasedHandleMethod(method, knownTypes, interfaceMessageTypes, interfaceImplementationType))
             {
-                return true;
+                continue;
             }
+
+            // Exclude methods that are helpers called from within an interface Handle implementation
+            if (interfaceHandleCallees is not null && interfaceHandleCallees.Contains(method))
+            {
+                continue;
+            }
+
+            return true;
         }
 
         return false;
     }
 
-    public static bool IsValidConventionBasedHandleMethod(IMethodSymbol method, HandlerKnownTypes knownTypes, HashSet<string> interfaceMessageTypes, INamedTypeSymbol? interfaceImplementationType = null, Compilation? compilation = null)
+    public static bool IsValidConventionBasedHandleMethod(IMethodSymbol method, HandlerKnownTypes knownTypes, HashSet<string> interfaceMessageTypes, INamedTypeSymbol? interfaceImplementationType = null)
     {
         if (method.Name != HandleMethodName ||
             method.DeclaredAccessibility != Accessibility.Public ||
@@ -105,25 +120,21 @@ static class ConventionBasedHandlerHelper
             return false;
         }
 
-        // If this Handle method is called from within an interface-implementing Handle method
-        // on the same class, it is a helper, not a convention-based handler.
-        if (compilation is not null && interfaceImplementationType is not null &&
-            IsCalledFromInterfaceHandlerMethod(method, interfaceImplementationType, knownTypes, compilation))
-        {
-            return false;
-        }
-
         return true;
     }
 
-    // If a Handle method is invoked from within any IHandleMessages<T>.Handle implementation
-    // on the same class, it is an internal helper, not a convention-based handler.
-    static bool IsCalledFromInterfaceHandlerMethod(
-        IMethodSymbol suspectMethod,
+    // Collects all methods that are called from within interface Handle method implementations.
+    // These are helper methods, not convention-based handlers.
+    static HashSet<IMethodSymbol> CollectInterfaceHandleCallees(
         INamedTypeSymbol classType,
         HandlerKnownTypes knownTypes,
         Compilation compilation)
     {
+        var visitedImplementations = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+        var callees = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+        SyntaxTree? cachedTree = null;
+        SemanticModel? cachedModel = null;
+
         foreach (var iface in classType.AllInterfaces)
         {
             if (!iface.IsGenericType)
@@ -136,10 +147,10 @@ static class ConventionBasedHandlerHelper
                 continue;
             }
 
-            foreach (var ifaceMethod in iface.GetMembers("Handle").OfType<IMethodSymbol>())
+            foreach (var ifaceMethod in iface.GetMembers(HandleMethodName).OfType<IMethodSymbol>())
             {
-                var impl = classType.FindImplementationForInterfaceMember(ifaceMethod);
-                if (impl is null || SymbolEqualityComparer.Default.Equals(impl, suspectMethod))
+                if (classType.FindImplementationForInterfaceMember(ifaceMethod) is not IMethodSymbol impl ||
+                    !visitedImplementations.Add(impl))
                 {
                     continue;
                 }
@@ -147,28 +158,32 @@ static class ConventionBasedHandlerHelper
                 foreach (var syntaxRef in impl.DeclaringSyntaxReferences)
                 {
                     var syntax = syntaxRef.GetSyntax();
-                    var semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
+
+                    if (syntax.SyntaxTree != cachedTree)
+                    {
+                        cachedTree = syntax.SyntaxTree;
+                        cachedModel = compilation.GetSemanticModel(cachedTree);
+                    }
 
                     foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
                     {
-                        var symbolInfo = semanticModel.GetSymbolInfo(invocation);
-                        if (symbolInfo.Symbol is IMethodSymbol invokedMethod &&
-                            SymbolEqualityComparer.Default.Equals(invokedMethod, suspectMethod))
-                        {
-                            return true;
-                        }
+                        var symbolInfo = cachedModel!.GetSymbolInfo(invocation);
 
-                        if (symbolInfo.Symbol is IMethodSymbol { ReducedFrom: { } reduced } &&
-                            SymbolEqualityComparer.Default.Equals(reduced, suspectMethod))
+                        if (symbolInfo.Symbol is IMethodSymbol invokedMethod)
                         {
-                            return true;
+                            callees.Add(invokedMethod);
+
+                            if (invokedMethod.ReducedFrom is { } reduced)
+                            {
+                                callees.Add(reduced);
+                            }
                         }
                     }
                 }
             }
         }
 
-        return false;
+        return callees;
     }
 
     static bool ImplementsHandlerInterfaceMember(IMethodSymbol method, HandlerKnownTypes knownTypes, INamedTypeSymbol? interfaceImplementationType)
