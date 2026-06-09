@@ -51,17 +51,6 @@ public class RunningEndpointInstanceTest
     [Test]
     public async Task DisposeAsync_should_pass_a_bounded_cancellation_token_to_transport_Shutdown()
     {
-        // DisposeAsync is the cleanup path taken when an IHost is disposed without an
-        // explicit StopAsync (e.g. `using var host = ...` or `await using var host = ...`
-        // with no prior host.StopAsync()). It calls StopCore internally, which awaits
-        // transport.Shutdown. If StopCore is invoked with CancellationToken.None then
-        // the transport's shutdown wait is unbounded — a slow or stuck transport hangs
-        // disposal forever instead of being aborted by the host's shutdown timeout.
-        //
-        // Repro from the field: NServiceBus.SqlServerTransport receive loop in flight
-        // at the moment the test host is disposed; 5+ minute hang until the hangdump
-        // timeout fires.
-
         var capturingTransport = new TokenCapturingTransportInfrastructure();
 
         var testInstance = new RunningEndpointInstance(
@@ -76,22 +65,21 @@ public class RunningEndpointInstanceTest
 
         await testInstance.DisposeAsync();
 
-        Assert.That(capturingTransport.ShutdownWasCalled, Is.True,
-            "transport.Shutdown was not called during DisposeAsync.");
-        Assert.That(capturingTransport.ObservedToken.CanBeCanceled, Is.True,
-            "DisposeAsync passed CancellationToken.None to StopCore (which then passes it to " +
-            "transport.Shutdown). Disposal must be bounded by an internal cancellation token so " +
-            "a stuck transport cannot hang shutdown indefinitely. " +
-            "See RunningEndpointInstance.DisposeAsync — `await StopCore()` is missing a token.");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(capturingTransport.ShutdownWasCalled, Is.True,
+                    "transport.Shutdown was not called during DisposeAsync.");
+            Assert.That(capturingTransport.ObservedToken.CanBeCanceled, Is.True,
+                "DisposeAsync passed CancellationToken.None to StopCore (which then passes it to " +
+                "transport.Shutdown). Disposal must be bounded by an internal cancellation token so " +
+                "a stuck transport cannot hang shutdown indefinitely. " +
+                "See RunningEndpointInstance.DisposeAsync — `await StopCore()` is missing a token.");
+        }
     }
 
     [Test]
     public async Task DisposeAsync_should_complete_even_when_transport_Shutdown_hangs()
     {
-        // The bounded token alone is not enough — if transport.Shutdown ignores the token
-        // and hangs forever, disposal still hangs. Confirm the timeout actually fires and
-        // disposal proceeds past a stuck transport.Shutdown.
-
         var hangingTransport = new HangingTransportInfrastructure();
 
         var testInstance = new RunningEndpointInstance(
@@ -102,8 +90,7 @@ public class RunningEndpointInstanceTest
             hangingTransport,
             new CancellationTokenSource(),
             NoOpAsyncDisposable.Instance,
-            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null),
-            disposeShutdownTimeout: TimeSpan.FromMilliseconds(250));
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
 
         var dispose = testInstance.DisposeAsync().AsTask();
         var winner = await Task.WhenAny(dispose, Task.Delay(TimeSpan.FromSeconds(5)));
@@ -111,7 +98,7 @@ public class RunningEndpointInstanceTest
         Assert.That(winner, Is.SameAs(dispose),
             "DisposeAsync did not complete within 5s of a 250ms internal timeout — " +
             "the disposeShutdownTimeout must fire and let disposal proceed past a stuck transport.Shutdown.");
-        await dispose;
+        Assert.DoesNotThrowAsync(() => dispose, "DisposeAsync threw an exception when transport.Shutdown hung. DisposeAsync should complete successfully even if transport.Shutdown does not.");
     }
 
     [Test]
