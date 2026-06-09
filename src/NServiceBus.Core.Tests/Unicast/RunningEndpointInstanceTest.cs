@@ -86,6 +86,43 @@ public class RunningEndpointInstanceTest
     }
 
     [Test]
+    public async Task DisposeAsync_should_complete_even_when_transport_Shutdown_hangs()
+    {
+        // The bounded token alone is not enough — if transport.Shutdown ignores the token
+        // and hangs forever, disposal still hangs. Confirm the timeout actually fires and
+        // disposal proceeds past a stuck transport.Shutdown.
+
+        var originalTimeout = RunningEndpointInstance.DisposeShutdownTimeout;
+        RunningEndpointInstance.DisposeShutdownTimeout = TimeSpan.FromMilliseconds(250);
+        try
+        {
+            var hangingTransport = new HangingTransportInfrastructure();
+
+            var testInstance = new RunningEndpointInstance(
+                new SettingsHolder(),
+                CreateEmptyReceiveComponent(),
+                new FeatureComponent(new FeatureComponent.Settings()),
+                new TestableMessageSession(),
+                hangingTransport,
+                new CancellationTokenSource(),
+                NoOpAsyncDisposable.Instance,
+                new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+
+            var dispose = testInstance.DisposeAsync().AsTask();
+            var winner = await Task.WhenAny(dispose, Task.Delay(TimeSpan.FromSeconds(5)));
+
+            Assert.That(winner, Is.SameAs(dispose),
+                "DisposeAsync did not complete within 5s of a 250ms internal timeout — " +
+                "DisposeShutdownTimeout must fire and let disposal proceed past a stuck transport.Shutdown.");
+            await dispose;
+        }
+        finally
+        {
+            RunningEndpointInstance.DisposeShutdownTimeout = originalTimeout;
+        }
+    }
+
+    [Test]
     public async Task ShouldThrowExceptionAfterInvokingStop()
     {
         var testInstance = Create();
@@ -116,6 +153,14 @@ public class RunningEndpointInstanceTest
             ObservedToken = cancellationToken;
             return Task.CompletedTask;
         }
+
+        public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
+    }
+
+    sealed class HangingTransportInfrastructure : TransportInfrastructure
+    {
+        public override Task Shutdown(CancellationToken cancellationToken = default) =>
+            Task.Delay(Timeout.Infinite, cancellationToken);
 
         public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
     }

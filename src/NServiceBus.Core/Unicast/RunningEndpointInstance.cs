@@ -111,7 +111,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
         catch (OperationCanceledException) when (disposeCts.IsCancellationRequested)
         {
-            Log.Warn($"Graceful shutdown timed out after {DisposeShutdownTimeout.TotalSeconds:F0}s during DisposeAsync; continuing with resource cleanup.");
+            Log.Warn($"Graceful shutdown timed out after {DisposeShutdownTimeout} during DisposeAsync; continuing with resource cleanup.");
         }
 
         settings.Clear();
@@ -119,7 +119,8 @@ class RunningEndpointInstance(SettingsHolder settings,
         await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
     }
 
-    static readonly TimeSpan DisposeShutdownTimeout = TimeSpan.FromSeconds(30);
+    // Mutable for tests. Defaults to HostOptions.ShutdownTimeout's default of 30s.
+    internal static TimeSpan DisposeShutdownTimeout = TimeSpan.FromSeconds(30);
 
     public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
