@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests;
 
 using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
@@ -101,17 +100,10 @@ public class RunningEndpointInstanceTest
         Assert.Throws<InvalidOperationException>(() => testInstance.Unsubscribe(typeof(object), new UnsubscribeOptions()), "Invoking messaging operations on the endpoint instance after it has been triggered to stop is not supported.");
     }
 
-    // ReceiveComponent has a private constructor; reflection is the lightest way to
-    // get a real instance for tests. An empty `receivers` list (the field default)
-    // makes Stop a no-op, so we can reach transport.Shutdown without standing up
-    // the full receive pipeline.
+    // Empty ReceiveComponent (no receivers) so Stop is a no-op and StopCore reaches
+    // transport.Shutdown without us having to stand up the full receive pipeline.
     static ReceiveComponent CreateEmptyReceiveComponent() =>
-        (ReceiveComponent)Activator.CreateInstance(
-            typeof(ReceiveComponent),
-            BindingFlags.Instance | BindingFlags.NonPublic,
-            binder: null,
-            args: [null, null, null],
-            culture: null)!;
+        new(configuration: null!, activityFactory: null!, endpointLogSlot: null!);
 
     sealed class TokenCapturingTransportInfrastructure : TransportInfrastructure
     {
