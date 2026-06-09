@@ -663,9 +663,8 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     public Task DoesNotReportMixedStyleForHelperMethodNamedHandleWithNonMessageFirstParameter()
     {
         // A pure interface-based handler with an unrelated public helper overload that happens to be
-        // named Handle and takes IMessageHandlerContext, but whose first parameter is a framework type
-        // (string) that can never be a message. The helper is not a convention-based handler, so this
-        // is not a mixed style.
+        // named Handle and takes IMessageHandlerContext. The helper is called from the interface Handle
+        // method, so it is not a convention-based handler — this is not a mixed style.
         var source =
             """
             using System.Threading;
@@ -682,6 +681,113 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
             }
 
             class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportMixedStyleForHelperWithUserDefinedTypeCalledFromInterfaceHandle()
+    {
+        // A helper with a user-defined DTO as first param that is called from the interface Handle method.
+        // The call-site analysis detects the invocation, so this is not a mixed style.
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            class MyDto {}
+
+            [Handler]
+            class MyHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Handle(new MyDto(), context);
+
+                public Task Handle(MyDto dto, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task DoesNotReportMixedStyleForHelperCalledFromBlockBodiedInterfaceHandle()
+    {
+        // Same pattern but with a block-bodied interface Handle method.
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler : IHandleMessages<MyMessage>
+            {
+                public async Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    await Handle("text", context);
+                }
+
+                public Task Handle(string text, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task ReportsMixedStyleWhenConventionBasedMethodNotCalledFromInterfaceHandle()
+    {
+        // A convention-based Handle method that is NOT called from the interface Handle method
+        // should still be reported as mixed style.
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class [|MyHandler|] : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+
+                public Task Handle(OtherMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            class OtherMessage : IMessage {}
+            """;
+
+        return Assert(source, DiagnosticIds.ConventionBasedHandlerMixedStyle);
+    }
+
+    [Test]
+    public Task DoesNotReportMixedStyleForHelperPassingMessageProperties()
+    {
+        // A helper that receives individual properties extracted from the message.
+        // The call-site analysis detects it is called from the interface Handle method.
+        var source =
+            """
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) =>
+                    Handle(message.Id, message.Name, context);
+
+                public Task Handle(string id, string name, IMessageHandlerContext context) =>
+                    Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage
+            {
+                public string Id { get; set; }
+                public string Name { get; set; }
+            }
             """;
 
         return Assert(source);

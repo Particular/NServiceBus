@@ -37,7 +37,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
 
                 var isInterfaceBasedHandler = classType.ImplementsGenericInterface(knownTypes.IHandleMessages);
                 var isSaga = classType.ImplementsGenericType(knownTypes.SagaBase);
-                var isConventionBasedHandler = !isSaga && ConventionBasedHandlerHelper.IsConventionBasedHandlerType(classType, knownTypes);
+                var isConventionBasedHandler = !isSaga && ConventionBasedHandlerHelper.IsConventionBasedHandlerType(classType, knownTypes, context.Compilation);
 
                 if (!isInterfaceBasedHandler || isSaga)
                 {
@@ -150,7 +150,7 @@ public class HandlerAttributeAnalyzer : DiagnosticAnalyzer
                 }
 
                 // Interface-based handler: check for mixed-style (also has convention-based Handle methods)
-                if (ConventionBasedHandlerHelper.HasValidConventionBasedHandleMethods(classType, knownTypes))
+                if (ConventionBasedHandlerHelper.HasValidConventionBasedHandleMethods(classType, knownTypes, context.Compilation))
                 {
                     var classLocation = classType.GetClassIdentifierLocation(context.CancellationToken);
                     if (classLocation is not null)
