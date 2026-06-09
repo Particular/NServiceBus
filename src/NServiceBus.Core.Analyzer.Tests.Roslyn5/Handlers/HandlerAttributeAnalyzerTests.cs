@@ -660,6 +660,34 @@ public class HandlerAttributeAnalyzerTests : AnalyzerTestFixture<HandlerAttribut
     }
 
     [Test]
+    public Task DoesNotReportMixedStyleForHelperMethodNamedHandleWithNonMessageFirstParameter()
+    {
+        // A pure interface-based handler with an unrelated public helper overload that happens to be
+        // named Handle and takes IMessageHandlerContext, but whose first parameter is a framework type
+        // (string) that can never be a message. The helper is not a convention-based handler, so this
+        // is not a mixed style.
+        var source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using NServiceBus;
+
+            [Handler]
+            class MyHandler : IHandleMessages<MyMessage>
+            {
+                public Task Handle(MyMessage message, IMessageHandlerContext context) => Handle("text", context);
+
+                public Task Handle(string text, IMessageHandlerContext context, CancellationToken cancellation = default) =>
+                    Task.CompletedTask;
+            }
+
+            class MyMessage : IMessage {}
+            """;
+
+        return Assert(source);
+    }
+
+    [Test]
     public Task DoesNotReportConventionBasedHandlerImplementingUnrelatedInterfaceWithHandleMethod()
     {
         var source =

@@ -69,7 +69,8 @@ static class ConventionBasedHandlerHelper
             return false;
         }
 
-        if (method.Parameters[0].Type is not INamedTypeSymbol messageType)
+        if (method.Parameters[0].Type is not INamedTypeSymbol messageType ||
+            !IsPlausibleMessageType(messageType))
         {
             return false;
         }
@@ -105,6 +106,37 @@ static class ConventionBasedHandlerHelper
         }
 
         return true;
+    }
+
+    // NServiceBus messages are user-defined types. Framework/system types (string, primitives,
+    // object, Guid, Uri, etc.) and value types can never be messages, so a Handle method whose
+    // first parameter is such a type is an unrelated helper overload, not a convention-based handler.
+    static bool IsPlausibleMessageType(INamedTypeSymbol type)
+    {
+        if (type.SpecialType != SpecialType.None)
+        {
+            return false;
+        }
+
+        if (type.TypeKind is not (TypeKind.Class or TypeKind.Interface))
+        {
+            return false;
+        }
+
+        return !IsInSystemNamespace(type);
+    }
+
+    static bool IsInSystemNamespace(ITypeSymbol type)
+    {
+        for (var ns = type.ContainingNamespace; ns is { IsGlobalNamespace: false }; ns = ns.ContainingNamespace)
+        {
+            if (ns.ContainingNamespace is { IsGlobalNamespace: true })
+            {
+                return ns.Name == "System";
+            }
+        }
+
+        return false;
     }
 
     static bool ImplementsHandlerInterfaceMember(IMethodSymbol method, HandlerKnownTypes knownTypes, INamedTypeSymbol? interfaceImplementationType)
