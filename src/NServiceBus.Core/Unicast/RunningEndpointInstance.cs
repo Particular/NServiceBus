@@ -109,8 +109,11 @@ class RunningEndpointInstance(SettingsHolder settings,
         {
             await StopCore(cancellationToken).ConfigureAwait(false);
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+#pragma warning disable PS0019
+        catch (Exception)
+#pragma warning restore PS0019
         {
+            // ignored because we're already disposing and we don't want to throw from DisposeAsync. Any exceptions from StopCore are already logged, so we can safely ignore them here.
         }
         finally
         {
