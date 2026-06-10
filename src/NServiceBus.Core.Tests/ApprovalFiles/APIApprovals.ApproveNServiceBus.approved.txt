@@ -635,7 +635,6 @@ namespace NServiceBus
     public class InstrumentationOptions
     {
         public InstrumentationOptions() { }
-        public NServiceBus.MessagePayloadAsTag MessagePayloadAsTag { get; set; }
         public bool UseMessageDestinationInSpanNames { get; set; }
     }
     public sealed class KeyedServiceKey
@@ -723,13 +722,6 @@ namespace NServiceBus
         Subscribe = 3,
         Unsubscribe = 4,
         Reply = 5,
-    }
-    public enum MessagePayloadAsTag
-    {
-        None = 0,
-        IncomingMessage = 1,
-        OutgoingMessage = 2,
-        All = 3,
     }
     public static class MessageProcessingContextExtensions
     {

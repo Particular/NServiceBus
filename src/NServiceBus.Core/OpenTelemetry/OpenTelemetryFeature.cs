@@ -22,20 +22,5 @@ sealed class OpenTelemetryFeature : Feature
             new PopulateRecoverabilityTraceMetadataBehavior(),
             "Populates the recoverability metadata"
         );
-
-        var options = context.Settings.GetOrDefault<InstrumentationOptions>();
-        if (options?.MessagePayloadAsTag is MessagePayloadAsTag.IncomingMessage or MessagePayloadAsTag.All)
-        {
-            context.Pipeline.Register(
-                new IncomingMessagePayloadToTagsBehavior(),
-                "Promotes incoming message properties to span tags");
-        }
-
-        if (options?.MessagePayloadAsTag is MessagePayloadAsTag.OutgoingMessage or MessagePayloadAsTag.All)
-        {
-            context.Pipeline.Register(
-                new OutgoingMessagePayloadToTagsBehavior(),
-                "Promotes outgoing message properties to span tags");
-        }
     }
 }
