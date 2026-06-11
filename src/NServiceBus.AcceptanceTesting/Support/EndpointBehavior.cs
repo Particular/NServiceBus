@@ -44,6 +44,14 @@ public class EndpointBehavior : IComponentBehavior
                 return async token => await endpointLifecycle.Stop(token).ConfigureAwait(false);
             });
 
+            // For some super advanced scenarios require
+            // disposing the endpoint, and this backdoor allows that without having to expose the lifecycle in Core
+            collectionAdapter.AddKeyedSingleton<Func<ValueTask>>("Disposer", (provider, key) =>
+            {
+                var endpointLifecycle = provider.GetRequiredKeyedService<IEndpointLifecycle>(serviceKey);
+                return async () => await endpointLifecycle.DisposeAsync().ConfigureAwait(false);
+            });
+
             return Task.FromResult(new StartableEndpointInstance(serviceKey));
         }, static (startableEndpoint, provider, cancellationToken) => startableEndpoint.Start(provider, cancellationToken));
     }
