@@ -99,11 +99,28 @@ class RunningEndpointInstance(SettingsHolder settings,
             return;
         }
 
-        await StopCore().ConfigureAwait(false);
+        // In case Stop was not called, we need to trigger shutdown before cleaning up resources.
+        // Since we're already disposing, we want to bypass any waits and just trigger shutdown with a canceled token.
+        // We are effectively indicating the graceful shutdown period has already elapsed and any ongoing operations should
+        // be aborted immediately if they participate in the cooperative cancellation.
+        var cancellationToken = new CancellationToken(true);
 
-        settings.Clear();
-        stoppingTokenSource.Dispose();
-        await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
+        try
+        {
+            await StopCore(cancellationToken).ConfigureAwait(false);
+        }
+#pragma warning disable PS0019
+        catch (Exception)
+#pragma warning restore PS0019
+        {
+            // ignored because we're already disposing and we don't want to throw from DisposeAsync. Any exceptions from StopCore are already logged, so we can safely ignore them here.
+        }
+        finally
+        {
+            settings.Clear();
+            stoppingTokenSource.Dispose();
+            await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
+        }
     }
 
     public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
