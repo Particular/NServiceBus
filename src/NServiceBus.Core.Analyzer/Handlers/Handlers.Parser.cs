@@ -109,12 +109,12 @@ public static partial class Handlers
                 .ToList();
 
             // Collect message types already handled by IHandleMessages<T> interface implementations
-            var interfaceMessageTypes = new HashSet<string>(StringComparer.Ordinal);
+            var interfaceMessageTypes = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
             foreach (var @interface in handlerType.AllInterfaces.Where(IsHandlerInterface))
             {
                 if (@interface.TypeArguments[0] is INamedTypeSymbol msgType)
                 {
-                    interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                    interfaceMessageTypes.Add(msgType);
                 }
             }
 
@@ -137,7 +137,7 @@ public static partial class Handlers
         static List<ConventionBasedMethodSpec> ParseConventionBasedMethods(
             INamedTypeSymbol handlerType,
             HandlerKnownTypes knownTypes,
-            HashSet<string> interfaceMessageTypes,
+            HashSet<ITypeSymbol> interfaceMessageTypes,
             bool includeInheritedMethods,
             CancellationToken cancellationToken)
         {
