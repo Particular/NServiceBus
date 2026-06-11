@@ -17,7 +17,7 @@ using Unicast;
 
 partial class ReceiveComponent
 {
-    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, EndpointLogSlot endpointLogSlot)
+    internal ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, EndpointLogSlot endpointLogSlot)
     {
         this.configuration = configuration;
         this.activityFactory = activityFactory;
