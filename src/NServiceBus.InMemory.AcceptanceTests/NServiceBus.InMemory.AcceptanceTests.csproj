@@ -36,6 +36,7 @@ projects will have the analyzers running
   <ItemGroup>
     <Compile Include="../NServiceBus.AcceptanceTests/**/*.cs" Exclude="../NServiceBus.AcceptanceTests/obj/**/*.*;../NServiceBus.AcceptanceTests/Core/**/*.cs" />
     <Compile Remove="../NServiceBus.AcceptanceTests/Core/TestSuiteConstraints.cs" />
+    <Compile Remove="../NServiceBus.AcceptanceTests/AcceptanceTestsShippedSourceFilesApproval.cs" />
   </ItemGroup>
 
 </Project>

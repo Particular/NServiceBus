@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Compile Include="../NServiceBus.TransportTests/**/*.cs" Exclude="../NServiceBus.TransportTests/obj/**/*.*;../NServiceBus.TransportTests/ConfigureLearningTransportInfrastructure.cs;../NServiceBus.TransportTests/TransportTestsConfiguration.cs" />
+    <Compile Remove="../NServiceBus.TransportTests/TransportTestsShippedSourceFilesApproval.cs" />
   </ItemGroup>
 
   <PropertyGroup>

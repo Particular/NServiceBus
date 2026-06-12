@@ -15,6 +15,7 @@
   <ItemGroup>
     <!-- Include source files from PersistenceTests -->
     <Compile Include="..\NServiceBus.PersistenceTests\**\*.cs" Exclude="..\NServiceBus.PersistenceTests\PersistenceTestsConfiguration.cs;..\NServiceBus.PersistenceTests\obj\**\*.*" />
+    <Compile Remove="../NServiceBus.PersistenceTests/PersistenceTestsShippedSourceFilesApproval.cs" />
   </ItemGroup>
 
   <ItemGroup>
