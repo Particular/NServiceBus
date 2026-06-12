@@ -409,6 +409,12 @@ public sealed class InMemoryBroker : IAsyncDisposable
             queue.TryComplete();
         }
 
+        foreach (var limiter in customLimiters.Values)
+        {
+            await limiter.DisposeAsync().ConfigureAwait(false);
+        }
+
+        customLimiters.Clear();
         delayedPumpCancelSource.Dispose();
     }
 
