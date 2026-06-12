@@ -183,7 +183,17 @@ sealed class InlineExecutionRunner(
                     DispatchConsistency.Default);
             }
 
-            await dispatcher.Dispatch(new TransportOperations(operations), new TransportTransaction(), cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await dispatcher.Dispatch(new TransportOperations(operations), new TransportTransaction(), cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                foreach (var envelope in envelopes)
+                {
+                    envelope.Dispose();
+                }
+            }
         }
     }
 

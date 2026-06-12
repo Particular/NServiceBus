@@ -47,6 +47,10 @@ class InMemoryReceiveTransaction : IInMemoryReceiveTransaction
         lock (lockObj)
         {
             StorageTransaction.Rollback();
+            foreach (var envelope in pendingEnvelopes)
+            {
+                envelope.Dispose();
+            }
             pendingEnvelopes.Clear();
             committed = false;
         }
