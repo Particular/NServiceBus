@@ -94,8 +94,10 @@ public class ContextPropagationTests
             headers[Headers.DiagnosticsBaggage] = testCase.BaggageHeaderValue;
         }
 
-        var activity = new Activity(ActivityNames.IncomingMessageActivityName);
-
+        using var activity = new Activity(ActivityNames.IncomingMessageActivityName);
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.Start();
+        
         ContextPropagation.PropagateContextFromHeaders(activity, headers);
 
         foreach (var baggageItem in testCase.ExpectedBaggageItems)
@@ -114,7 +116,9 @@ public class ContextPropagationTests
 
         var headers = new Dictionary<string, string>();
 
-        var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        using var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.Start();
 
         foreach (var baggageItem in testCase.ExpectedBaggageItems.Reverse())
         {
@@ -146,7 +150,9 @@ public class ContextPropagationTests
         TestContext.Out.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
         var outgoingHeaders = new Dictionary<string, string>();
-        var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        using var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        outgoingActivity.SetIdFormat(ActivityIdFormat.W3C);
+        outgoingActivity.Start();
 
         foreach (var baggageItem in testCase.ExpectedBaggageItems.Reverse())
         {
@@ -157,7 +163,9 @@ public class ContextPropagationTests
 
         // Simulate wire transfer
         var incomingHeaders = outgoingHeaders;
-        var incomingActivity = new Activity(ActivityNames.IncomingMessageActivityName);
+        using var incomingActivity = new Activity(ActivityNames.IncomingMessageActivityName);
+        incomingActivity.SetIdFormat(ActivityIdFormat.W3C);
+        incomingActivity.Start();
 
         ContextPropagation.PropagateContextFromHeaders(incomingActivity, incomingHeaders);
 
@@ -218,7 +226,7 @@ public class ContextPropagationTests
 
         public string BaggageHeaderValue => string.Join(",", from kvp in baggageItems select $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}");
         public string BaggageHeaderValueWithoutOptionalWhitespace
-            => string.Join(",", from kvp in baggageItems select $"{kvp.Key.Trim()}={Uri.EscapeDataString(kvp.Value)}");
+            => string.Join("", from kvp in baggageItems select $" {kvp.Key.Trim()} = {Uri.EscapeDataString(kvp.Value)},").TrimStart().TrimEnd(',');
         public IEnumerable<KeyValuePair<string, string>> ExpectedBaggageItems => from kvp in baggageItems
                                                                                  select new KeyValuePair<string, string>(
                                                                                      kvp.Key.Trim(),
