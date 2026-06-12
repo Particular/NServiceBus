@@ -140,7 +140,11 @@ public class When_simulating_send_reject
             await Dispatch(dispatcher, "msg-2", "queue", CancellationToken.None);
         });
     }
+}
 
+[TestFixture]
+public class When_simulated_send_rejects_during_broker_dispatch
+{
     [Test]
     public async Task Should_return_payload_buffer_when_broker_dispatch_rejects()
     {

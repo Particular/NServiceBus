@@ -29,7 +29,11 @@ public class When_disposing_broker_with_rate_limiter_factory
 
         Assert.That(limiter.Disposed, Is.True);
     }
+}
 
+[TestFixture]
+public class When_disposing_broker_with_direct_rate_limiter
+{
     [Test]
     public async Task Should_not_dispose_direct_limiters()
     {
@@ -49,35 +53,35 @@ public class When_disposing_broker_with_rate_limiter_factory
 
         Assert.That(limiter.Disposed, Is.False);
     }
+}
 
-    sealed class DisposableRateLimiter : RateLimiter
+sealed class DisposableRateLimiter : RateLimiter
+{
+    public bool Disposed { get; private set; }
+
+    public override TimeSpan? IdleDuration => null;
+
+    public override RateLimiterStatistics GetStatistics() => null;
+
+    protected override RateLimitLease AttemptAcquireCore(int permitCount) => SuccessfulLease.Instance;
+
+    protected override ValueTask<RateLimitLease> AcquireAsyncCore(int permitCount, CancellationToken cancellationToken = default) =>
+        ValueTask.FromResult<RateLimitLease>(SuccessfulLease.Instance);
+
+    protected override void Dispose(bool disposing) => Disposed = true;
+
+    sealed class SuccessfulLease : RateLimitLease
     {
-        public bool Disposed { get; private set; }
+        public static SuccessfulLease Instance { get; } = new();
 
-        public override TimeSpan? IdleDuration => null;
+        public override bool IsAcquired => true;
 
-        public override RateLimiterStatistics GetStatistics() => null;
+        public override IEnumerable<string> MetadataNames => [];
 
-        protected override RateLimitLease AttemptAcquireCore(int permitCount) => SuccessfulLease.Instance;
-
-        protected override ValueTask<RateLimitLease> AcquireAsyncCore(int permitCount, CancellationToken cancellationToken = default) =>
-            ValueTask.FromResult<RateLimitLease>(SuccessfulLease.Instance);
-
-        protected override void Dispose(bool disposing) => Disposed = true;
-
-        sealed class SuccessfulLease : RateLimitLease
+        public override bool TryGetMetadata(string metadataName, out object metadata)
         {
-            public static SuccessfulLease Instance { get; } = new();
-
-            public override bool IsAcquired => true;
-
-            public override IEnumerable<string> MetadataNames => [];
-
-            public override bool TryGetMetadata(string metadataName, out object metadata)
-            {
-                metadata = null;
-                return false;
-            }
+            metadata = null;
+            return false;
         }
     }
 }
