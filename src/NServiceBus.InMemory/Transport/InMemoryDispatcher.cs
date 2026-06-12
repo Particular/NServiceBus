@@ -198,10 +198,10 @@ class InMemoryDispatcher(
 
         var preparation = DispatchRegularUnicast(operation, inlineEnvelope, headers, deliverAt, cancellationToken);
 
-        return preparation.IsCompletedSuccessfully ? completion : AwaitInlineDispatch(preparation, inlineEnvelope, scope, completion, cancellationToken);
+        return preparation.IsCompletedSuccessfully ? completion : AwaitInlineDispatch(preparation, scope, completion, cancellationToken);
     }
 
-    static async Task AwaitInlineDispatch(Task preparation, BrokerEnvelope envelope, InlineExecutionScope scope, Task completion, CancellationToken cancellationToken)
+    static async Task AwaitInlineDispatch(Task preparation, InlineExecutionScope scope, Task completion, CancellationToken cancellationToken)
     {
         try
         {
@@ -209,13 +209,11 @@ class InMemoryDispatcher(
         }
         catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
         {
-            envelope.Dispose();
             scope.CompleteDispatchCanceled(ex);
             await completion.ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            envelope.Dispose();
             scope.CompleteDispatchFailure(ex);
             await completion.ConfigureAwait(false);
         }
@@ -244,6 +242,8 @@ class InMemoryDispatcher(
     async Task DispatchToBroker(string destination, string messageId, Dictionary<string, string> headers, BrokerEnvelope envelope, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
     {
         Activity? activity = null;
+        var ownsEnvelope = true;
+
         if (InMemoryTransportTracing.HasListeners())
         {
             activity = InMemoryTransportTracing.StartSend(destination, messageId, headers, deliverAt.HasValue);
@@ -261,11 +261,13 @@ class InMemoryDispatcher(
             if (deliverAt.HasValue)
             {
                 broker.EnqueueDelayed(envelope, deliverAt.Value);
+                ownsEnvelope = false;
             }
             else
             {
                 var queue = broker.GetOrCreateQueue(destination);
                 await queue.Enqueue(envelope, cancellationToken).ConfigureAwait(false);
+                ownsEnvelope = false;
             }
 
             InMemoryTransportTracing.AddProducerDispatchEvent(activity, deliverAt);
@@ -273,10 +275,20 @@ class InMemoryDispatcher(
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            if (ownsEnvelope)
+            {
+                envelope.Dispose();
+            }
+
             throw;
         }
         catch (Exception ex)
         {
+            if (ownsEnvelope)
+            {
+                envelope.Dispose();
+            }
+
             InMemoryTransportTracing.MarkError(activity, ex);
             throw;
         }
