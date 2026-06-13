@@ -20,7 +20,7 @@ class InMemoryDispatcher(
         var unicastTask = DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction, cancellationToken);
         var multicastTask = DispatchMulticast(outgoingMessages.MulticastTransportOperations, transaction, cancellationToken);
 
-        return CombineTasks(cancellationToken, unicastTask, multicastTask);
+        return CombineTasks(unicastTask, multicastTask, cancellationToken);
     }
 
     Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction, CancellationToken cancellationToken)
@@ -33,6 +33,23 @@ class InMemoryDispatcher(
         }
 
         return CombineTasks(tasks, cancellationToken);
+    }
+
+    static Task CombineTasks(Task task1, Task task2, CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        if (task1 == Task.CompletedTask)
+        {
+            return task2;
+        }
+
+        if (task2 == Task.CompletedTask)
+        {
+            return task1;
+        }
+
+        return Task.WhenAll(task1, task2);
     }
 
     HashSet<string> GetSubscribersForType(Type messageType)
@@ -342,18 +359,25 @@ class InMemoryDispatcher(
         return true;
     }
 
-    static Task CombineTasks(CancellationToken cancellationToken, params Task[] tasks) => CombineTasks(tasks, cancellationToken);
-
-    static Task CombineTasks(IEnumerable<Task> tasks, CancellationToken cancellationToken)
+    static Task CombineTasks(List<Task> tasks, CancellationToken cancellationToken)
     {
         _ = cancellationToken;
-        var materialized = tasks.Where(static task => task != Task.CompletedTask).ToList();
+        var writeIndex = 0;
 
-        return materialized.Count switch
+        for (var i = 0; i < tasks.Count; i++)
+        {
+            var task = tasks[i];
+            if (task != Task.CompletedTask)
+            {
+                tasks[writeIndex++] = task;
+            }
+        }
+
+        return writeIndex switch
         {
             0 => Task.CompletedTask,
-            1 => materialized[0],
-            _ => Task.WhenAll(materialized)
+            1 => tasks[0],
+            _ => Task.WhenAll(tasks.ToArray())
         };
     }
 
