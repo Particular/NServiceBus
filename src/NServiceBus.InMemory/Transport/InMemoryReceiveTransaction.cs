@@ -6,7 +6,7 @@ using Persistence.InMemory;
 
 class InMemoryReceiveTransaction : IInMemoryReceiveTransaction
 {
-    readonly List<BrokerEnvelope> pendingEnvelopes = [];
+    List<BrokerEnvelope> pendingEnvelopes = [];
     readonly Lock lockObj = new();
     bool committed;
 
@@ -26,7 +26,9 @@ class InMemoryReceiveTransaction : IInMemoryReceiveTransaction
         {
             if (committed)
             {
-                return pendingEnvelopes.ToArray();
+                var result = pendingEnvelopes;
+                pendingEnvelopes = [];
+                return result;
             }
             pendingEnvelopes.Clear();
             return [];
