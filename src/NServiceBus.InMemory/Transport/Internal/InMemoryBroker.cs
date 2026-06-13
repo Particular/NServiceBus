@@ -24,42 +24,67 @@ public sealed class InMemoryBroker : IAsyncDisposable
     public void Subscribe(string publisherAddress, string topic) =>
         subscriptions.AddOrUpdate(
             topic,
-            _ => [publisherAddress],
-            (_, list) =>
+            static (_, address) => new Lazy<string[]>([address]),
+            static (_, currentLazy, address) =>
             {
-                lock (list)
+                if (currentLazy.Value.AsSpan().IndexOf(address) >= 0)
                 {
-                    if (!list.Contains(publisherAddress))
-                    {
-                        list.Add(publisherAddress);
-                    }
+                    return currentLazy;
                 }
-                return list;
-            });
 
-    public void Unsubscribe(string publisherAddress, string topic)
-    {
-        if (subscriptions.TryGetValue(topic, out var list))
-        {
-            lock (list)
+                return new Lazy<string[]>(() =>
+                {
+                    var current = currentLazy.Value;
+                    var currentSpan = current.AsSpan();
+                    if (currentSpan.IndexOf(address) >= 0)
+                    {
+                        return current;
+                    }
+
+                    var next = new string[current.Length + 1];
+                    currentSpan.CopyTo(next);
+                    next[^1] = address;
+                    return next;
+                });
+            },
+            publisherAddress);
+
+    public void Unsubscribe(string publisherAddress, string topic) =>
+        subscriptions.AddOrUpdate(
+            topic,
+            static (_, _) => new Lazy<string[]>([]),
+            static (_, currentLazy, address) =>
             {
-                list.Remove(publisherAddress);
-            }
-        }
-    }
+                if (currentLazy.Value.AsSpan().IndexOf(address) < 0)
+                {
+                    return currentLazy;
+                }
 
-    public IReadOnlyList<string> GetSubscribers(string topic)
-    {
-        if (!subscriptions.TryGetValue(topic, out var list))
-        {
-            return [];
-        }
+                return new Lazy<string[]>(() =>
+                {
+                    var current = currentLazy.Value;
+                    var currentSpan = current.AsSpan();
+                    var index = currentSpan.IndexOf(address);
+                    if (index < 0)
+                    {
+                        return current;
+                    }
 
-        lock (list)
-        {
-            return [.. list];
-        }
-    }
+                    if (current.Length == 1)
+                    {
+                        return [];
+                    }
+
+                    var next = new string[current.Length - 1];
+                    var nextSpan = next.AsSpan();
+                    currentSpan[..index].CopyTo(nextSpan[..index]);
+                    currentSpan[(index + 1)..].CopyTo(nextSpan[index..]);
+                    return next;
+                });
+            },
+            publisherAddress);
+
+    public IReadOnlyList<string> GetSubscribers(string topic) => subscriptions.TryGetValue(topic, out var lazy) ? lazy.Value : [];
 
     public long GetNextSequenceNumber() => Interlocked.Increment(ref sequenceNumber);
 
@@ -80,25 +105,9 @@ public sealed class InMemoryBroker : IAsyncDisposable
         }
     }
 
-    internal Task SimulateSendAsync(string destination, CancellationToken cancellationToken = default)
-    {
-        if (!HasSimulationFor(InMemorySimulationOperation.Send, destination))
-        {
-            return Task.CompletedTask;
-        }
+    internal Task SimulateSendAsync(string destination, CancellationToken cancellationToken = default) => !HasSimulationFor(InMemorySimulationOperation.Send, destination) ? Task.CompletedTask : ApplySimulationAsync(InMemorySimulationOperation.Send, destination, cancellationToken);
 
-        return ApplySimulationAsync(InMemorySimulationOperation.Send, destination, cancellationToken);
-    }
-
-    internal Task SimulateReceiveAsync(string destination, CancellationToken cancellationToken = default)
-    {
-        if (!HasSimulationFor(InMemorySimulationOperation.Receive, destination))
-        {
-            return Task.CompletedTask;
-        }
-
-        return ApplySimulationAsync(InMemorySimulationOperation.Receive, destination, cancellationToken);
-    }
+    internal Task SimulateReceiveAsync(string destination, CancellationToken cancellationToken = default) => !HasSimulationFor(InMemorySimulationOperation.Receive, destination) ? Task.CompletedTask : ApplySimulationAsync(InMemorySimulationOperation.Receive, destination, cancellationToken);
 
     bool HasSimulationFor(InMemorySimulationOperation operation, string queue)
     {
@@ -216,12 +225,12 @@ public sealed class InMemoryBroker : IAsyncDisposable
         var factory = resolved.RateLimiterFactory;
         var limiter = resolved.RateLimiter ?? customLimiters.GetOrAdd(
             (operation, queue),
-            static (key, state) => state.RateLimiterFactory(state.TimeProvider),
+            static (_, state) => state.RateLimiterFactory(state.TimeProvider),
             (RateLimiterFactory: factory!, resolved.TimeProvider));
 
         if (resolved.Mode == InMemorySimulationMode.Reject)
         {
-            using var lease = limiter.AttemptAcquire(1);
+            using var lease = limiter.AttemptAcquire();
             if (lease.IsAcquired)
             {
                 return;
@@ -388,7 +397,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
         return deliverAt - now;
     }
 
-    bool TryDequeueDelayedCore(DateTimeOffset now, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out BrokerEnvelope? envelope)
+    bool TryDequeueDelayedCore(DateTimeOffset now, [NotNullWhen(true)] out BrokerEnvelope? envelope)
     {
         if (delayedMessages.Count == 0)
         {
@@ -456,7 +465,7 @@ public sealed class InMemoryBroker : IAsyncDisposable
     }
 
     readonly ConcurrentDictionary<string, InMemoryChannel> queues = new();
-    readonly ConcurrentDictionary<string, List<string>> subscriptions = new();
+    readonly ConcurrentDictionary<string, Lazy<string[]>> subscriptions = new();
     readonly PriorityQueue<BrokerEnvelope, (DateTimeOffset DeliverAt, long SequenceNumber)> delayedMessages = new();
     readonly Lock delayedMessagesLock = new();
     long sequenceNumber;
