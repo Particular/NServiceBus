@@ -35,16 +35,16 @@ public class When_simulated_send_rejects_during_broker_dispatch
 
         Assert.ThrowsAsync<InMemorySimulationException>(async () =>
         {
-            await DispatchToBroker(dispatcher, "queue", headers, envelope, CancellationToken.None);
+            await DispatchToBroker(dispatcher, "queue", envelope, CancellationToken.None);
         });
 
         Assert.That(pool.ReturnCount, Is.EqualTo(1));
     }
 
-    static Task DispatchToBroker(IMessageDispatcher dispatcher, string destination, Dictionary<string, string> headers, BrokerEnvelope envelope, CancellationToken cancellationToken)
+    static Task DispatchToBroker(IMessageDispatcher dispatcher, string destination, BrokerEnvelope envelope, CancellationToken cancellationToken)
     {
         var dispatchToBroker = dispatcher.GetType().GetMethod("DispatchToBroker", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        return (Task)dispatchToBroker.Invoke(dispatcher, [destination, envelope.MessageId, headers, envelope, null, cancellationToken])!;
+        return (Task)dispatchToBroker.Invoke(dispatcher, [destination, envelope.MessageId, envelope, null, cancellationToken])!;
     }
 
     sealed class TrackingArrayPool<T> : ArrayPool<T>

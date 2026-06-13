@@ -94,12 +94,10 @@ class InMemoryDispatcher(
             var now = broker.GetCurrentTime();
             var deliverAt = GetDeliverAt(transportOperation.Properties, now);
             var discardAfter = GetDiscardAfter(transportOperation.Properties, now);
-            var headers = new Dictionary<string, string>(message.Headers);
-
             var envelope = BrokerPayloadStore.Borrow(
                 messageId,
                 message.Body.Span,
-                headers,
+                message.Headers,
                 subscriber,
                 isPublished: true,
                 sequenceNumber,
@@ -111,7 +109,7 @@ class InMemoryDispatcher(
                 continue;
             }
 
-            await DispatchToBroker(subscriber, messageId, headers, envelope, deliverAt, cancellationToken).ConfigureAwait(false);
+            await DispatchToBroker(subscriber, messageId, envelope, deliverAt, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -123,12 +121,10 @@ class InMemoryDispatcher(
         var now = broker.GetCurrentTime();
         var deliverAt = GetDeliverAt(operation.Properties, now);
         var discardAfter = GetDiscardAfter(operation.Properties, now);
-        var headers = new Dictionary<string, string>(message.Headers);
-
         var envelope = BrokerPayloadStore.Borrow(
             messageId,
             message.Body.Span,
-            headers,
+            message.Headers,
             operation.Destination,
             isPublished: false,
             sequenceNumber,
@@ -150,12 +146,12 @@ class InMemoryDispatcher(
                     (preservedDispatchContext?.Depth ?? 0) == 0)
             };
 
-            return DispatchRegularUnicast(operation, preservedEnvelope, headers, deliverAt, cancellationToken);
+            return DispatchRegularUnicast(operation, preservedEnvelope, deliverAt, cancellationToken);
         }
 
         if (ShouldInline(operation, transaction, deliverAt))
         {
-            return DispatchInlineLocalUnicast(operation, envelope, headers, transaction, deliverAt, cancellationToken);
+            return DispatchInlineLocalUnicast(operation, envelope, transaction, deliverAt, cancellationToken);
         }
 
         if (TryEnlistToReceiveTransaction(transaction, envelope, operation.RequiredDispatchConsistency))
@@ -163,10 +159,10 @@ class InMemoryDispatcher(
             return Task.CompletedTask;
         }
 
-        return DispatchRegularUnicast(operation, envelope, headers, deliverAt, cancellationToken);
+        return DispatchRegularUnicast(operation, envelope, deliverAt, cancellationToken);
     }
 
-    Task DispatchInlineLocalUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, Dictionary<string, string> headers, TransportTransaction transaction, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
+    Task DispatchInlineLocalUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, TransportTransaction transaction, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
     {
         var existingScope = TryGetInlineScope(transaction, out var scope);
         scope ??= new InlineExecutionScope(Guid.NewGuid());
@@ -196,7 +192,7 @@ class InMemoryDispatcher(
             return processing;
         }
 
-        var preparation = DispatchRegularUnicast(operation, inlineEnvelope, headers, deliverAt, cancellationToken);
+        var preparation = DispatchRegularUnicast(operation, inlineEnvelope, deliverAt, cancellationToken);
 
         return preparation.IsCompletedSuccessfully ? completion : AwaitInlineDispatch(preparation, scope, completion, cancellationToken);
     }
@@ -236,22 +232,19 @@ class InMemoryDispatcher(
             TaskScheduler.Default);
     }
 
-    Task DispatchRegularUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, Dictionary<string, string> headers, DateTimeOffset? deliverAt, CancellationToken cancellationToken) =>
-        DispatchToBroker(operation.Destination, envelope.MessageId, headers, envelope, deliverAt, cancellationToken);
+    Task DispatchRegularUnicast(UnicastTransportOperation operation, BrokerEnvelope envelope, DateTimeOffset? deliverAt, CancellationToken cancellationToken) =>
+        DispatchToBroker(operation.Destination, envelope.MessageId, envelope, deliverAt, cancellationToken);
 
-    async Task DispatchToBroker(string destination, string messageId, Dictionary<string, string> headers, BrokerEnvelope envelope, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
+    async Task DispatchToBroker(string destination, string messageId, BrokerEnvelope envelope, DateTimeOffset? deliverAt, CancellationToken cancellationToken)
     {
         Activity? activity = null;
         var ownsEnvelope = true;
 
         if (InMemoryTransportTracing.HasListeners())
         {
+            var headers = (Dictionary<string, string>)envelope.Headers;
             activity = InMemoryTransportTracing.StartSend(destination, messageId, headers, deliverAt.HasValue);
             InMemoryTransportTracing.PropagateContextToHeaders(activity, headers);
-            if (envelope.Headers is IDictionary<string, string> envelopeHeaders)
-            {
-                InMemoryTransportTracing.PropagateContextToHeaders(activity, envelopeHeaders);
-            }
         }
 
         try
