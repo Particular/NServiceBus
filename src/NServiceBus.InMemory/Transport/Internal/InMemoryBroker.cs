@@ -410,8 +410,11 @@ public sealed class InMemoryBroker : IAsyncDisposable
 
     void SignalDelayedMessagesChanged()
     {
-        _ = delayedMessagesChanged.TrySetResult();
-        delayedMessagesChanged = CreateDelayedMessagesChangedSignal();
+        if (!delayedMessagesChanged.Task.IsCompleted)
+        {
+            _ = delayedMessagesChanged.TrySetResult();
+            delayedMessagesChanged = CreateDelayedMessagesChangedSignal();
+        }
     }
 
     static TaskCompletionSource CreateDelayedMessagesChangedSignal() => new(TaskCreationOptions.RunContinuationsAsynchronously);
