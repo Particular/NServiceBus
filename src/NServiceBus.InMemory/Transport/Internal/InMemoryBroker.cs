@@ -80,9 +80,31 @@ public sealed class InMemoryBroker : IAsyncDisposable
         }
     }
 
-    internal Task SimulateSendAsync(string destination, CancellationToken cancellationToken = default) => ApplySimulationAsync(InMemorySimulationOperation.Send, destination, cancellationToken);
+    internal Task SimulateSendAsync(string destination, CancellationToken cancellationToken = default)
+    {
+        if (!HasSimulationFor(InMemorySimulationOperation.Send, destination))
+        {
+            return Task.CompletedTask;
+        }
 
-    internal Task SimulateReceiveAsync(string destination, CancellationToken cancellationToken = default) => ApplySimulationAsync(InMemorySimulationOperation.Receive, destination, cancellationToken);
+        return ApplySimulationAsync(InMemorySimulationOperation.Send, destination, cancellationToken);
+    }
+
+    internal Task SimulateReceiveAsync(string destination, CancellationToken cancellationToken = default)
+    {
+        if (!HasSimulationFor(InMemorySimulationOperation.Receive, destination))
+        {
+            return Task.CompletedTask;
+        }
+
+        return ApplySimulationAsync(InMemorySimulationOperation.Receive, destination, cancellationToken);
+    }
+
+    bool HasSimulationFor(InMemorySimulationOperation operation, string queue)
+    {
+        var resolved = ResolveSimulation(operation, queue);
+        return resolved.RateLimit is not null || resolved.RateLimiter is not null || resolved.RateLimiterFactory is not null;
+    }
 
     async Task StartDelayedMessagePump(CancellationToken cancellationToken)
     {
