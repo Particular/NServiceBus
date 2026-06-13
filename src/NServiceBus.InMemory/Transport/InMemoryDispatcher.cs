@@ -1,9 +1,9 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Transport;
@@ -65,22 +65,27 @@ class InMemoryDispatcher(
         return result;
     }
 
-    static HashSet<Type> GetPotentialEventTypes(Type messageType)
-    {
-        HashSet<Type> allEventTypes = [];
-        for (var current = messageType; current != null && !IsCoreMarkerInterface(current); current = current.BaseType)
+    static Type[] GetPotentialEventTypes(Type messageType) =>
+        potentialEventTypesCache.GetOrAdd(messageType, static type =>
         {
-            allEventTypes.Add(current);
-        }
-        foreach (var iface in messageType.GetInterfaces())
-        {
-            if (!IsCoreMarkerInterface(iface))
+            HashSet<Type> allEventTypes = [];
+            for (var current = type; current != null && !IsCoreMarkerInterface(current); current = current.BaseType)
             {
-                allEventTypes.Add(iface);
+                allEventTypes.Add(current);
             }
-        }
-        return allEventTypes;
-    }
+            foreach (var iface in type.GetInterfaces())
+            {
+                if (!IsCoreMarkerInterface(iface))
+                {
+                    allEventTypes.Add(iface);
+                }
+            }
+            var result = new Type[allEventTypes.Count];
+            allEventTypes.CopyTo(result);
+            return result;
+        });
+
+    static readonly ConcurrentDictionary<Type, Type[]> potentialEventTypesCache = new();
 
     static bool IsCoreMarkerInterface(Type type) =>
         type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
