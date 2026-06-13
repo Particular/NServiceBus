@@ -378,11 +378,14 @@ class InMemoryDispatcher(
             }
         }
 
+        tasks.RemoveRange(writeIndex, tasks.Count - writeIndex);
+
         return writeIndex switch
         {
             0 => Task.CompletedTask,
             1 => tasks[0],
-            _ => Task.WhenAll(tasks.ToArray())
+            2 => Task.WhenAll(tasks[0], tasks[1]),
+            _ => Task.WhenAll(tasks)
         };
     }
 
