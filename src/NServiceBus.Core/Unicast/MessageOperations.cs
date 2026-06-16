@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
@@ -36,7 +37,7 @@ class MessageOperations
         this.activityFactory = activityFactory;
     }
 
-    public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
+    public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
     {
         return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
@@ -103,7 +104,7 @@ class MessageOperations
         await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
     }
 
-    public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
+    public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
     {
         return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
@@ -144,7 +145,7 @@ class MessageOperations
         return ReplyMessage(context, messageType, message, options);
     }
 
-    public Task Reply<T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
+    public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
     {
         return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }

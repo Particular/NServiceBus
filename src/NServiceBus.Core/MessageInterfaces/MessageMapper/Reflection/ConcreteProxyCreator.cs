@@ -4,12 +4,14 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
 class ConcreteProxyCreator
 {
+    [RequiresDynamicCode("Generating message proxies uses System.Reflection.Emit to emit concrete types at runtime, which is not supported when dynamic code generation is unavailable (e.g. trimming or NativeAOT).")]
     public ConcreteProxyCreator()
     {
         var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("NServiceBusMessageProxies"), AssemblyBuilderAccess.Run);
@@ -20,6 +22,8 @@ class ConcreteProxyCreator
     /// Generates the concrete implementation of the given type.
     /// Only properties on the given type are generated in the concrete implementation.
     /// </summary>
+    [RequiresDynamicCode("Generating message proxies uses System.Reflection.Emit to emit concrete types at runtime, which is not supported when dynamic code generation is unavailable (e.g. trimming or NativeAOT).")]
+    [RequiresUnreferencedCode("Generating message proxies reflects over all properties and custom attributes of the source interface, which cannot be statically analyzed by the trimmer.")]
     public Type CreateTypeFrom(Type type)
     {
         var typeBuilder = moduleBuilder.DefineType($"{type.FullName}{SUFFIX}",
@@ -136,6 +140,7 @@ class ConcreteProxyCreator
     /// <summary>
     /// Returns all properties on the given type, going up the inheritance hierarchy.
     /// </summary>
+    [RequiresUnreferencedCode("Reflects over all properties and implemented interfaces of the given type, which cannot be statically analyzed by the trimmer.")]
     static List<PropertyInfo> GetAllProperties(Type type)
     {
         var props = new List<PropertyInfo>(type.GetProperties());

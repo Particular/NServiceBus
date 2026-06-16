@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
@@ -132,7 +133,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         return messageSession.Send(message, sendOptions, cancellationToken);
     }
 
-    public Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(messageConstructor);
         ArgumentNullException.ThrowIfNull(sendOptions);
@@ -150,7 +151,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         return messageSession.Publish(message, publishOptions, cancellationToken);
     }
 
-    public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(messageConstructor);
         ArgumentNullException.ThrowIfNull(publishOptions);

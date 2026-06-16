@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +27,7 @@ public interface IMessageSession
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="sendOptions">The options for the send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    Task Send<T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default);
+    Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Publish the message to subscribers.
@@ -43,7 +44,7 @@ public interface IMessageSession
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="publishOptions">Specific options for this event.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default);
+    Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Subscribes to receive published messages of the specified type.

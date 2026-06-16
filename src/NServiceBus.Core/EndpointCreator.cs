@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Features;
 using Logging;
 using MessageInterfaces;
@@ -116,8 +117,8 @@ class EndpointCreator
 
         var routingConfiguration = RoutingComponent.Configure(settings.Get<RoutingComponent.Settings>());
 
-        var messageMapper = new MessageMapper();
-        settings.Set<IMessageMapper>(messageMapper);
+        IMessageMapper messageMapper = RuntimeFeature.IsDynamicCodeSupported ? CreateDynamicCodeMessageMapper() : new TrimmingSafeMessageMapper();
+        settings.Set(messageMapper);
 
         recoverabilityComponent = new RecoverabilityComponent(settings);
 
@@ -251,4 +252,10 @@ class EndpointCreator
     readonly Conventions conventions;
 
     internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
+
+    internal const string DynamicCodeMessageMapperSuppressJustification = "The MessageMapper relies on System.Reflection.Emit to generate interface proxies, which is only constructed when RuntimeFeature.IsDynamicCodeSupported is true, so it is unreachable when the application is trimmed or published as NativeAOT.";
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026", Justification = DynamicCodeMessageMapperSuppressJustification)]
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = DynamicCodeMessageMapperSuppressJustification)]
+    static MessageMapper CreateDynamicCodeMessageMapper() => new();
 }
