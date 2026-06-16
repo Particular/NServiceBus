@@ -60,6 +60,6 @@ static class ContextPropagation
         static (carrier, key, out value, out values) =>
         {
             values = null;
-            value = ((IReadOnlyDictionary<string, string>)carrier!).TryGetValue(key, out var v) ? v : null;
+            value = ((IReadOnlyDictionary<string, string>)carrier!).GetValueOrDefault(key);
         };
 }
