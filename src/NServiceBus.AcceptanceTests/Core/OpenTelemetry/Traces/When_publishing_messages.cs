@@ -203,7 +203,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         Assert.That(publishedMessage.DisplayName, Is.EqualTo("publish ThisIsAnEvent"));
     }
 
-    class PublisherWithDestinationNaming : EndpointConfigurationBuilder
+    public class PublisherWithDestinationNaming : EndpointConfigurationBuilder
     {
         public PublisherWithDestinationNaming() =>
             EndpointSetup<DefaultServer>(b =>
@@ -222,7 +222,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             });
     }
 
-    class SubscriberForPublisherWithDestinationNaming : EndpointConfigurationBuilder
+    public class SubscriberForPublisherWithDestinationNaming : EndpointConfigurationBuilder
     {
         public SubscriberForPublisherWithDestinationNaming() =>
             EndpointSetup<DefaultServer>(c => { },
