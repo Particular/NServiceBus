@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
