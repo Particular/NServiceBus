@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -94,7 +93,9 @@ public class ContextPropagationTests
             headers[Headers.DiagnosticsBaggage] = testCase.BaggageHeaderValue;
         }
 
-        var activity = new Activity(ActivityNames.IncomingMessageActivityName);
+        using var activity = new Activity(ActivityNames.IncomingMessageActivityName);
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.Start();
 
         ContextPropagation.PropagateContextFromHeaders(activity, headers);
 
@@ -114,7 +115,9 @@ public class ContextPropagationTests
 
         var headers = new Dictionary<string, string>();
 
-        var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        using var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.Start();
 
         foreach (var baggageItem in testCase.ExpectedBaggageItems.Reverse())
         {
@@ -131,7 +134,7 @@ public class ContextPropagationTests
             {
                 Assert.That(baggageHeaderSet, Is.True, "Should have a baggage header if there is baggage");
 
-                Assert.That(baggageValue, Is.EqualTo(testCase.BaggageHeaderValueWithoutOptionalWhitespace), "baggage header is set but is not correct");
+                Assert.That(baggageValue, Is.EqualTo(testCase.BaggageHeaderValue), "baggage header is set but is not correct");
             }
         }
         else
@@ -146,7 +149,9 @@ public class ContextPropagationTests
         TestContext.Out.WriteLine($"Baggage header: {testCase.BaggageHeaderValue}");
 
         var outgoingHeaders = new Dictionary<string, string>();
-        var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        using var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        outgoingActivity.SetIdFormat(ActivityIdFormat.W3C);
+        outgoingActivity.Start();
 
         foreach (var baggageItem in testCase.ExpectedBaggageItems.Reverse())
         {
@@ -157,7 +162,9 @@ public class ContextPropagationTests
 
         // Simulate wire transfer
         var incomingHeaders = outgoingHeaders;
-        var incomingActivity = new Activity(ActivityNames.IncomingMessageActivityName);
+        using var incomingActivity = new Activity(ActivityNames.IncomingMessageActivityName);
+        incomingActivity.SetIdFormat(ActivityIdFormat.W3C);
+        incomingActivity.Start();
 
         ContextPropagation.PropagateContextFromHeaders(incomingActivity, incomingHeaders);
 
@@ -170,45 +177,73 @@ public class ContextPropagationTests
         }
     }
 
+    [Test]
+    public void Can_not_roundtrip_baggage_value_with_optional_whitespaces()
+    {
+        var outgoingHeaders = new Dictionary<string, string>();
+        using var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        outgoingActivity.SetIdFormat(ActivityIdFormat.W3C);
+        outgoingActivity.Start();
+
+        outgoingActivity.AddBaggage("key1", " value1");
+        outgoingActivity.AddBaggage("key2", "value2 ");
+
+        ContextPropagation.PropagateContextToHeaders(outgoingActivity, outgoingHeaders, new ContextBag());
+
+        // Simulate wire transfer
+        var incomingHeaders = outgoingHeaders;
+        using var incomingActivity = new Activity(ActivityNames.IncomingMessageActivityName);
+        incomingActivity.SetIdFormat(ActivityIdFormat.W3C);
+        incomingActivity.Start();
+
+        ContextPropagation.PropagateContextFromHeaders(incomingActivity, incomingHeaders);
+
+        using (Assert.EnterMultipleScope())
+        {
+            foreach (var baggageItem in outgoingActivity.Baggage)
+            {
+                var key = baggageItem.Key;
+                var actualValue = incomingActivity.GetBaggageItem(key);
+                Assert.That(actualValue, Is.Not.Null, $"Baggage is missing item with key |{key}|");
+                Assert.That(actualValue, Is.EqualTo(baggageItem.Value.Trim()), $"Baggage item |{key}| has the wrong value");
+            }
+        }
+    }
+
     // HINT: Many of these test cases are given as examples in the spec https://www.w3.org/TR/baggage/#example
     static IEnumerable TestCases => new object[]
     {
         new ContextPropagationTestCase("without any baggage"),
 
         new ContextPropagationTestCase("with a single key")
-            .WithBaggage("key1", "value1"),
+            .WithBaggage("key1", "value1")
+            .WithHeaderValue("key1 = value1"),
 
         new ContextPropagationTestCase("with multiple keys")
             .WithBaggage("key1", "value1")
-            .WithBaggage("key2", "value2"),
-
-        new ContextPropagationTestCase("with whitespace")
-            .WithBaggage("key1 ", " value1")
-            .WithBaggage(" key2", "value2 ")
-            .WithBaggage(" key3 ", " value3 "),
+            .WithBaggage("key2", "value2")
+            .WithHeaderValue("key1 = value1, key2 = value2"),
 
         new ContextPropagationTestCase("with properties that do not have keys")
-            .WithBaggage("key1", "value1;property1;property2"),
+            .WithBaggage("key1", "value1;property1;property2")
+            .WithHeaderValue("key1 = value1%3Bproperty1%3Bproperty2"),
 
         new ContextPropagationTestCase("with properties that have keys")
-            .WithBaggage("key3", "value3; propertyKey=propertyValue"),
+            .WithBaggage("key3", "value3; propertyKey=propertyValue")
+            .WithHeaderValue("key3 = value3%3B%20propertyKey=propertyValue"),
 
         new ContextPropagationTestCase("with values containing whitespace")
-            .WithBaggage("serverNode", "DF 28"),
+            .WithBaggage("serverNode", "DF 28")
+            .WithHeaderValue("serverNode = DF%2028"),
 
         new ContextPropagationTestCase("with values containing unicode")
             .WithBaggage("userId", "Amélie")
+            .WithHeaderValue("userId = Am%C3%A9lie")
     };
 
-    public class ContextPropagationTestCase
+    public class ContextPropagationTestCase(string caseName)
     {
-        string caseName;
-        Dictionary<string, string> baggageItems = [];
-
-        public ContextPropagationTestCase(string caseName)
-        {
-            this.caseName = caseName;
-        }
+        readonly Dictionary<string, string> baggageItems = [];
 
         public ContextPropagationTestCase WithBaggage(string key, string value)
         {
@@ -216,9 +251,13 @@ public class ContextPropagationTests
             return this;
         }
 
-        public string BaggageHeaderValue => string.Join(",", from kvp in baggageItems select $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}");
-        public string BaggageHeaderValueWithoutOptionalWhitespace
-            => string.Join(",", from kvp in baggageItems select $"{kvp.Key.Trim()}={Uri.EscapeDataString(kvp.Value)}");
+        public ContextPropagationTestCase WithHeaderValue(string headerValue)
+        {
+            BaggageHeaderValue = headerValue;
+            return this;
+        }
+
+        public string BaggageHeaderValue { get; private set; }
         public IEnumerable<KeyValuePair<string, string>> ExpectedBaggageItems => from kvp in baggageItems
                                                                                  select new KeyValuePair<string, string>(
                                                                                      kvp.Key.Trim(),

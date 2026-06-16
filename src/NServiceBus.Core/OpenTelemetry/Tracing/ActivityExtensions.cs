@@ -41,6 +41,8 @@ static class ActivityExtensions
         activity.SetStatus(ActivityStatusCode.Error, ex.Message);
         activity.SetTag("otel.status_code", "ERROR");
         activity.SetTag("otel.status_description", ex.Message);
+
+
         activity.AddEvent(new ActivityEvent("exception", DateTimeOffset.UtcNow,
             [
                 new KeyValuePair<string, object?>("exception.escaped", true),
