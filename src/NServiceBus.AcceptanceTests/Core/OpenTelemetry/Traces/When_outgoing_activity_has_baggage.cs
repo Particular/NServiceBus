@@ -33,7 +33,7 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
             )
             .Run();
 
-        Assert.That(context.BaggageHeader, Is.EqualTo("key3=,key2=value2,key1=value1"));
+        Assert.That(context.BaggageHeader, Is.EqualTo("key3 = , key2 = value2, key1 = value1"));
     }
 
     public class TestEndpoint : EndpointConfigurationBuilder
