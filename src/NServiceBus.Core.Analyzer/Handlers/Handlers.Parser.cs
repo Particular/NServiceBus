@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Utility;
 using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
@@ -41,7 +42,13 @@ public static partial class Handlers
 
     public readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy, string HandlerType);
 
-    public readonly record struct InjectedParamSpec(string ParameterName, string FullyQualifiedType, bool IsCancellationToken);
+    // KeyedServiceKey carries the [FromKeyedServices(...)] key folded to its compile-time constant
+    // value, rendered as a valid C# expression for re-application in the generated adapter ctor.
+    // Sentinel semantics:
+    //  - null          : no [FromKeyedServices] attribute present
+    //  - "" (empty)    : attribute present with no argument (bare [FromKeyedServices])
+    //  - any other value: the folded key (e.g. "\"MyKey\"", "null", "typeof(global::T)", "(global::E)1")
+    public readonly record struct InjectedParamSpec(string ParameterName, string FullyQualifiedType, bool IsCancellationToken, string? KeyedServiceKey);
 
     public readonly record struct ConventionBasedMethodSpec(
         string MessageType,
@@ -146,7 +153,7 @@ public static partial class Handlers
 
             // Ctor params of the handler type (for instance methods)
             var selectedConstructor = SelectConstructor(handlerType, knownTypes.ActivatorUtilitiesConstructorAttributeType);
-            var ctorParams = GetCtorParams(selectedConstructor, knownTypes.CancellationTokenType);
+            var ctorParams = GetCtorParams(selectedConstructor, knownTypes.CancellationTokenType, knownTypes.FromKeyedServicesAttributeType);
 
             foreach (var method in GetHandleMethods(handlerType, includeInheritedMethods))
             {
@@ -174,10 +181,12 @@ public static partial class Handlers
                     var param = method.Parameters[i];
                     bool isCt = knownTypes.CancellationTokenType is not null &&
                                 SymbolEqualityComparer.Default.Equals(param.Type, knownTypes.CancellationTokenType);
+                    var keyedServiceKey = TryGetKeyedServiceKey(param, knownTypes.FromKeyedServicesAttributeType);
                     methodParams.Add(new InjectedParamSpec(
                         param.Name,
                         param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                        isCt));
+                        isCt,
+                        keyedServiceKey));
                 }
 
                 var hierarchy = new ImmutableEquatableArray<string>(
@@ -234,7 +243,8 @@ public static partial class Handlers
 
         static ImmutableEquatableArray<InjectedParamSpec> GetCtorParams(
             IMethodSymbol? constructor,
-            INamedTypeSymbol? cancellationTokenType)
+            INamedTypeSymbol? cancellationTokenType,
+            INamedTypeSymbol? fromKeyedServicesAttributeType)
         {
             if (constructor is null || constructor.Parameters.Length == 0)
             {
@@ -247,10 +257,69 @@ public static partial class Handlers
                 var p = constructor.Parameters[i];
                 bool isCt = cancellationTokenType is not null &&
                             SymbolEqualityComparer.Default.Equals(p.Type, cancellationTokenType);
-                specs[i] = new InjectedParamSpec(p.Name, p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), isCt);
+                var keyedServiceKey = TryGetKeyedServiceKey(p, fromKeyedServicesAttributeType);
+                specs[i] = new InjectedParamSpec(p.Name, p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), isCt, keyedServiceKey);
             }
 
             return specs.ToImmutableEquatableArray();
+        }
+
+        // Extracts the [FromKeyedServices(...)] key for a parameter, folded to its compile-time
+        // constant value. Folding guarantees the value resolves in the generated adapter,
+        // which lives at global scope. Covers every valid attribute-argument
+        // form uniformly: string literals, const fields, nameof, typeof, named arguments, and null.
+        // Sentinel: null = no FromKeyedServices attribute; "" (empty) = bare attribute with no key;
+        // otherwise the folded key rendered as a valid C# expression.
+        static string? TryGetKeyedServiceKey(IParameterSymbol param, INamedTypeSymbol? fromKeyedServicesAttributeType)
+        {
+            if (fromKeyedServicesAttributeType is null)
+            {
+                return null;
+            }
+
+            foreach (var attribute in param.GetAttributes())
+            {
+                if (attribute.AttributeClass is null)
+                {
+                    continue;
+                }
+
+                if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, fromKeyedServicesAttributeType) &&
+                    !SymbolEqualityComparer.Default.Equals(attribute.AttributeClass.OriginalDefinition, fromKeyedServicesAttributeType))
+                {
+                    continue;
+                }
+
+                return FormatKeyedServiceKey(attribute);
+            }
+
+            return null;
+        }
+
+        static string FormatKeyedServiceKey(AttributeData attribute)
+        {
+            if (attribute.ConstructorArguments.Length == 0)
+            {
+                // Bare attribute with no key argument.
+                return string.Empty;
+            }
+
+            var arg = attribute.ConstructorArguments[0];
+
+            // typeof(T) -> typeof(global::T) so it resolves at the adapter's global scope.
+            if (arg is { Kind: TypedConstantKind.Type, Value: ITypeSymbol typeSymbol })
+            {
+                return $"typeof({typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})";
+            }
+
+            // Enum constant -> cast the underlying integral value to the fully-qualified enum type.
+            if (arg is { Kind: TypedConstantKind.Enum, Type: INamedTypeSymbol enumType })
+            {
+                return $"({enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}){arg.Value}";
+            }
+
+            // Primitives (string/int/bool/...) and null -> C# literal form via the shared formatter.
+            return SymbolDisplay.FormatPrimitive(arg.Value, quoteStrings: true, useHexadecimalNumbers: false) ?? "null";
         }
 
         static IMethodSymbol? SelectConstructor(INamedTypeSymbol handlerType, INamedTypeSymbol? activatorUtilitiesConstructorAttributeType)
