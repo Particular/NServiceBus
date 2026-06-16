@@ -21,7 +21,7 @@ static class ContextPropagation
         });
 
         var traceParentExists = headers.ContainsKey(Headers.DiagnosticsTraceParent);
-        var startNewTraceOnReceive = contextBag.TryGet<string>(OpenTelemetrySendBehavior.StartNewTraceOnReceive, out var startNewTrace);
+        var startNewTraceOnReceive = contextBag.TryGet<string>(Headers.StartNewTrace, out var startNewTrace);
 
         if (traceParentExists && startNewTraceOnReceive)
         {
