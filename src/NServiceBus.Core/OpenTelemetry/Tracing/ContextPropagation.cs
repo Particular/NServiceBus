@@ -15,10 +15,7 @@ static class ContextPropagation
             return;
         }
 
-        DistributedContextPropagator.Current.Inject(activity, headers, static (carrier, fieldName, fieldValue) =>
-        {
-            ((Dictionary<string, string>)carrier!)[fieldName] = fieldValue;
-        });
+        DistributedContextPropagator.Current.Inject(activity, headers, Setter);
 
         var traceParentExists = headers.ContainsKey(Headers.DiagnosticsTraceParent);
         var startNewTraceOnReceive = contextBag.TryGet<string>(Headers.StartNewTrace, out var startNewTrace);
@@ -36,15 +33,7 @@ static class ContextPropagation
             return;
         }
 
-        DistributedContextPropagator.Current.ExtractTraceIdAndState(
-            headers,
-            static (object? carrier, string fieldName, out string? fieldValue, out IEnumerable<string>? fieldValues) =>
-            {
-                fieldValues = null;
-                ((IDictionary<string, string>)carrier!).TryGetValue(fieldName, out fieldValue);
-            },
-            out _,
-            out var traceState);
+        DistributedContextPropagator.Current.ExtractTraceIdAndState(headers, Getter, out _, out var traceState);
 
         if (traceState is not null)
         {
@@ -58,13 +47,7 @@ static class ContextPropagation
             return;
         }
 
-        foreach (var baggageItem in DistributedContextPropagator.Current.ExtractBaggage(
-                     headers,
-                     static (object? carrier, string fieldName, out string? fieldValue, out IEnumerable<string>? fieldValues) =>
-                     {
-                         fieldValues = null;
-                         ((IDictionary<string, string>)carrier!).TryGetValue(fieldName, out fieldValue);
-                     })!)
+        foreach (var baggageItem in baggage)
         {
             activity.AddBaggage(baggageItem.Key, baggageItem.Value);
         }
@@ -74,7 +57,7 @@ static class ContextPropagation
         ((IDictionary<string, string>)carrier!)[key] = value;
 
     static readonly DistributedContextPropagator.PropagatorGetterCallback Getter =
-        static (object? carrier, string key, out string? value, out IEnumerable<string>? values) =>
+        static (carrier, key, out value, out values) =>
         {
             values = null;
             value = ((IReadOnlyDictionary<string, string>)carrier!).TryGetValue(key, out var v) ? v : null;
