@@ -81,6 +81,22 @@ public class ContextPropagationTests
         Assert.That(activity.Id, Is.EqualTo(headers[Headers.DiagnosticsTraceParent]));
     }
 
+    [Test]
+    public void Should_not_throw_when_baggage_value_is_null()
+    {
+        // Reproduces https://github.com/Particular/NServiceBus/issues/6983
+        // A baggage item with a null value used to make the hand-written propagator call
+        // Uri.EscapeDataString(null), throwing ArgumentNullException while sending a message.
+        using var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.Start();
+        activity.AddBaggage("test", null);
+
+        var headers = new Dictionary<string, string>();
+
+        Assert.DoesNotThrow(() => ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag()));
+    }
+
     [TestCaseSource(nameof(TestCases))]
     public void Can_propagate_baggage_from_header_to_activity(ContextPropagationTestCase testCase)
     {
