@@ -39,6 +39,12 @@ In all other cases, you should define your types as classes.
                 continue;
             }
 
+            // InlineArray types are compiler-generated and don't follow normal struct conventions
+            if (type.GetCustomAttribute<InlineArrayAttribute>() != null)
+            {
+                continue;
+            }
+
             // readonly structs can probably be ignored
             if (type.GetCustomAttribute<IsReadOnlyAttribute>() != null)
             {
