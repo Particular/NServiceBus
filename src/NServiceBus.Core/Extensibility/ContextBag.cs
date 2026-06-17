@@ -265,7 +265,7 @@ public class ContextBag : IReadOnlyContextBag
                 }
             }
 
-            if (count < 8)
+            if (count < SlotArray.Length)
             {
                 slots[count] = new Slot
                 {
@@ -310,9 +310,10 @@ public class ContextBag : IReadOnlyContextBag
         public object? Value;
     }
 
-    [InlineArray(8)]
+    [InlineArray(Length)]
     struct SlotArray
     {
+        public const int Length = 8;
         Slot _element0;
     }
 }
