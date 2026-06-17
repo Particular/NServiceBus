@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +11,21 @@ using NUnit.Framework;
 [TestFixture]
 public class ContextPropagationTests
 {
+    // These tests assert the W3C DistributedContextPropagator wire format, which is opt-in until v11.
+    [SetUp]
+    public void EnableDistributedContextPropagator()
+    {
+        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, true);
+        ObsoleteV11.ResetUseDistributedContextPropagator();
+    }
+
+    [TearDown]
+    public void ResetDistributedContextPropagator()
+    {
+        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, false);
+        ObsoleteV11.ResetUseDistributedContextPropagator();
+    }
+
     [Test]
     public void Propagate_activity_id_to_header()
     {

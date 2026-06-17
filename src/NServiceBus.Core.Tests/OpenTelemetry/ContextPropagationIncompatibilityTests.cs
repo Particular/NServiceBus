@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests.OpenTelemetry;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Extensibility;
@@ -8,6 +9,22 @@ using NUnit.Framework;
 [TestFixture]
 public class ContextPropagationIncompatibilityTests
 {
+    // The "New*" delegates route through ContextPropagation, whose DistributedContextPropagator
+    // path is opt-in until v11, so the switch must be enabled for these tests.
+    [SetUp]
+    public void EnableDistributedContextPropagator()
+    {
+        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, true);
+        ObsoleteV11.ResetUseDistributedContextPropagator();
+    }
+
+    [TearDown]
+    public void ResetDistributedContextPropagator()
+    {
+        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, false);
+        ObsoleteV11.ResetUseDistributedContextPropagator();
+    }
+
     delegate void Writer(Activity activity, Dictionary<string, string> headers, ContextBag context);
     delegate void Reader(Activity activity, IDictionary<string, string> headers);
 

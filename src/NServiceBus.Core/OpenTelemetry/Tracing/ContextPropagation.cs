@@ -10,6 +10,13 @@ static class ContextPropagation
 {
     public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers, ContextBag contextBag)
     {
+        // Removed in v11, see obsolete_v11.cs
+        if (!ObsoleteV11.UseDistributedContextPropagator)
+        {
+            ObsoleteV11.PropagateContextToHeaders(activity, headers, contextBag);
+            return;
+        }
+
         if (activity is null)
         {
             return;
@@ -28,6 +35,13 @@ static class ContextPropagation
 
     public static void PropagateContextFromHeaders(Activity? activity, IDictionary<string, string> headers)
     {
+        // Removed in v11, see obsolete_v11.cs
+        if (!ObsoleteV11.UseDistributedContextPropagator)
+        {
+            ObsoleteV11.PropagateContextFromHeaders(activity, headers);
+            return;
+        }
+
         if (activity is null)
         {
             return;
