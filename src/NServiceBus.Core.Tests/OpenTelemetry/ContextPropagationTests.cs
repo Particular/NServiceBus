@@ -15,15 +15,15 @@ public class ContextPropagationTests
     [SetUp]
     public void EnableDistributedContextPropagator()
     {
-        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, true);
-        ObsoleteV11.ResetUseDistributedContextPropagator();
+        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, true);
+        LegacyContextPropagation.ResetUseDistributedContextPropagator();
     }
 
     [TearDown]
     public void ResetDistributedContextPropagator()
     {
-        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, false);
-        ObsoleteV11.ResetUseDistributedContextPropagator();
+        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, false);
+        LegacyContextPropagation.ResetUseDistributedContextPropagator();
     }
 
     [Test]

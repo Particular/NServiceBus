@@ -22,7 +22,7 @@ using Particular.Obsoletes;
 // remove the two `if (!ObsoleteV11.UseDistributedContextPropagator)` delegation
 // blocks in ContextPropagation.cs.
 // =============================================================================
-static class ObsoleteV11
+static class LegacyContextPropagation
 {
     enum SwitchState : byte
     {
@@ -33,14 +33,12 @@ static class ObsoleteV11
 
     static SwitchState cachedUseDistributedContextPropagator;
 
-    // TODO: replace with the real tracking issue before merge.
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/0000",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7825",
         Note = "In v11, DistributedContextPropagator-based context propagation becomes the default and this switch will be removed together with the legacy propagator in obsolete_v11.cs.",
         ReplacementTypeOrMember = "ContextPropagation")]
     public const string UseDistributedContextPropagatorSwitchName = "NServiceBus.Core.OpenTelemetry.UseDistributedContextPropagator";
 
-    // TODO: replace with the real tracking issue before merge.
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/0000",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7825",
         Note = "In v11, DistributedContextPropagator-based context propagation becomes the default and this switch will be removed together with the legacy propagator in obsolete_v11.cs.",
         ReplacementTypeOrMember = "ContextPropagation")]
     public static bool UseDistributedContextPropagator
@@ -63,8 +61,6 @@ static class ObsoleteV11
     }
 
     internal static void ResetUseDistributedContextPropagator() => cachedUseDistributedContextPropagator = SwitchState.Unchecked;
-
-    // ===== Legacy propagator (pre-10.3 behavior, default until v11) ==========
 
     public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers, ContextBag contextBag)
     {

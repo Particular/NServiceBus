@@ -14,8 +14,8 @@ public class ContextPropagationDefaultBehaviorTests
     [SetUp]
     public void EnsureDefault()
     {
-        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, false);
-        ObsoleteV11.ResetUseDistributedContextPropagator();
+        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, false);
+        LegacyContextPropagation.ResetUseDistributedContextPropagator();
     }
 
     [Test]

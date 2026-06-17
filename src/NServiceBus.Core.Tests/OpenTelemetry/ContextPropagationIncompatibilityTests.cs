@@ -14,15 +14,15 @@ public class ContextPropagationIncompatibilityTests
     [SetUp]
     public void EnableDistributedContextPropagator()
     {
-        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, true);
-        ObsoleteV11.ResetUseDistributedContextPropagator();
+        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, true);
+        LegacyContextPropagation.ResetUseDistributedContextPropagator();
     }
 
     [TearDown]
     public void ResetDistributedContextPropagator()
     {
-        AppContext.SetSwitch(ObsoleteV11.UseDistributedContextPropagatorSwitchName, false);
-        ObsoleteV11.ResetUseDistributedContextPropagator();
+        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, false);
+        LegacyContextPropagation.ResetUseDistributedContextPropagator();
     }
 
     delegate void Writer(Activity activity, Dictionary<string, string> headers, ContextBag context);
@@ -39,7 +39,7 @@ public class ContextPropagationIncompatibilityTests
     // value isolates "what happens to special characters" from the separate edge-whitespace
     // issue covered by New_propagation_loses_leading_whitespace_in_a_value.
     // This already includes property-like syntax (the ';' and '=' delimiters), so a value such as
-    // "zone=eu;sensitive" is just a subset and needs no separate case here. 
+    // "zone=eu;sensitive" is just a subset and needs no separate case here.
     const string AllSpecialCharacters = "a b,c;d=e&f'g\"h\\i(j)k{l}m[n]o%p/q?r:s@t~u|v<w>x é ü 😀 z";
 
     static Dictionary<string, string> Send(string value, Writer write)
