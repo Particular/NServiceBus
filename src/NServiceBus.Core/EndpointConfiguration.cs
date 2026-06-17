@@ -4,9 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Transactions;
 using Configuration.AdvancedExtensibility;
 using Features;
+using MessageInterfaces;
+using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Particular.Obsoletes;
 using Pipeline;
@@ -32,6 +35,8 @@ public class EndpointConfiguration : ExposeSettings
         Settings.SetDefault("Endpoint.SendOnly", false);
         Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
         Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+
+        Settings.SetDefault<IMessageMapper>(RuntimeFeature.IsDynamicCodeSupported ? CreateDynamicCodeMessageMapper() : new TrimmingSafeMessageMapper());
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
         Settings.Set(new HostingComponent.Settings(Settings));
@@ -168,4 +173,10 @@ public class EndpointConfiguration : ExposeSettings
 
         static bool HasDefaultConstructor([DynamicallyAccessedMembers(DynamicMemberTypeAccess.InitializationExtension)] Type type) => type.GetConstructor(Type.EmptyTypes) != null;
     }
+
+    const string DynamicCodeMessageMapperSuppressJustification = "The MessageMapper relies on System.Reflection.Emit to generate interface proxies, which is only constructed when RuntimeFeature.IsDynamicCodeSupported is true, so it is unreachable when the application is trimmed or published as NativeAOT.";
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026", Justification = DynamicCodeMessageMapperSuppressJustification)]
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = DynamicCodeMessageMapperSuppressJustification)]
+    static MessageMapper CreateDynamicCodeMessageMapper() => new();
 }

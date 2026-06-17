@@ -117,9 +117,6 @@ class EndpointCreator
 
         var routingConfiguration = RoutingComponent.Configure(settings.Get<RoutingComponent.Settings>());
 
-        IMessageMapper messageMapper = RuntimeFeature.IsDynamicCodeSupported ? CreateDynamicCodeMessageMapper() : new TrimmingSafeMessageMapper();
-        settings.Set(messageMapper);
-
         recoverabilityComponent = new RecoverabilityComponent(settings);
 
         var sagaSettings = settings.Get<SagaComponent.Settings>();
@@ -147,7 +144,7 @@ class EndpointCreator
             pipelineSettings,
             hostingConfiguration);
 
-        sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
+        sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, settings.Get<IMessageMapper>());
 
         envelopeComponent = new EnvelopeComponent(settings.Get<EnvelopeComponent.Settings>());
 
@@ -252,10 +249,4 @@ class EndpointCreator
     readonly Conventions conventions;
 
     internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
-
-    internal const string DynamicCodeMessageMapperSuppressJustification = "The MessageMapper relies on System.Reflection.Emit to generate interface proxies, which is only constructed when RuntimeFeature.IsDynamicCodeSupported is true, so it is unreachable when the application is trimmed or published as NativeAOT.";
-
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026", Justification = DynamicCodeMessageMapperSuppressJustification)]
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL3050", Justification = DynamicCodeMessageMapperSuppressJustification)]
-    static MessageMapper CreateDynamicCodeMessageMapper() => new();
 }
