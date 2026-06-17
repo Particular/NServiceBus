@@ -13,7 +13,13 @@ public class When_using_unicode_characters_in_headers : NServiceBusTransportTest
         var messageProcessed = CreateTaskCompletionSource<MessageContext>();
 
         await StartPump(
-            (context, _) => messageProcessed.SetCompleted(context),
+            (context, _) => messageProcessed.SetCompleted(new MessageContext(
+                context.NativeMessageId,
+                new Dictionary<string, string>(context.Headers),
+                context.Body.ToArray(),
+                context.TransportTransaction,
+                context.ReceiveAddress,
+                context.Extensions)),
             (_, __) => Task.FromResult(ErrorHandleResult.Handled),
             TransportTransactionMode.None);
 
