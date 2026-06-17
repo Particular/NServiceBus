@@ -29,12 +29,15 @@ public class When_mapping_with_trimming_safe_mapper
     }
 
     [Test]
-    public void GetMappedTypeFor_returns_the_same_interface_type_unchanged()
+    public void GetMappedTypeFor_for_interface_throws_not_supported()
     {
         var mapper = new TrimmingSafeMessageMapper();
 
-        // No mapping is available without dynamic code; the type is returned as-is.
-        Assert.That(mapper.GetMappedTypeFor(typeof(IInterfaceWithOnlyProperties)), Is.SameAs(typeof(IInterfaceWithOnlyProperties)));
+        // Failing here keeps the deserialization error actionable instead of letting the serializer fail opaquely
+        // later on an interface it cannot target.
+        var ex = Assert.Throws<NotSupportedException>(() => mapper.GetMappedTypeFor(typeof(IInterfaceWithOnlyProperties)));
+
+        Assert.That(ex!.Message, Does.Contain("not supported").And.Contain("dynamic code"));
     }
 
     [Test]

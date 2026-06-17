@@ -29,12 +29,22 @@ public sealed class TrimmingSafeMessageMapper : IMessageMapper
     }
 
     /// <summary>
-    /// Returns the given type unchanged. No interface-to-concrete mapping is available without
-    /// dynamic code generation.
+    /// Returns the given concrete type unchanged. Interface or abstract types cannot be mapped to a generated
+    /// concrete implementation without dynamic code generation; requesting such a mapping throws
+    /// <see cref="NotSupportedException" />. Failing here (rather than returning the interface and
+    /// letting the serializer fail opaquely later) keeps the deserialization error actionable.
     /// </summary>
     public Type? GetMappedTypeFor(Type t)
     {
         ArgumentNullException.ThrowIfNull(t);
+
+        if (t.IsInterface || t.IsAbstract)
+        {
+            throw new NotSupportedException(
+                $"Mapping interface or an abstract type '{t.FullName}' to a concrete implementation is not supported when dynamic code generation is unavailable (e.g. under trimming or NativeAOT), because no proxy can be generated. " +
+                "Publish a concrete type that implements the interface instead of the interface itself so it can be deserialized directly.");
+        }
+
         return t;
     }
 
