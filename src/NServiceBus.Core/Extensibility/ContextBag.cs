@@ -136,13 +136,17 @@ public class ContextBag : IReadOnlyContextBag
 
             if (StringComparer.Ordinal.Equals(key, slot.Key))
             {
+                // The number of slots in use decreases by one
                 count--;
 
+                // If we're abandoning the last slot, in-use slots are still contiguous (order doesn't matter)
                 if (i != count)
                 {
+                    // If removing from the begining/middle, swap the last slot into the hole
                     slots[i] = slots[count];
                 }
 
+                // Then clear out the (previously) last slot
                 slots[count] = default;
                 return;
             }
