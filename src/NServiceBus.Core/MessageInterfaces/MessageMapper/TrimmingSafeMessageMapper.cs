@@ -30,10 +30,10 @@ public sealed class TrimmingSafeMessageMapper : IMessageMapper
 
     /// <summary>
     /// Returns the given concrete type unchanged. Interface or abstract types cannot be mapped to a generated
-    /// concrete implementation without dynamic code generation; requesting such a mapping throws
-    /// <see cref="NotSupportedException" />. Failing here (rather than returning the interface and
-    /// letting the serializer fail opaquely later) keeps the deserialization error actionable.
+    /// concrete implementation without dynamic code generation. Failing here (rather than returning the
+    /// interface and letting the serializer fail opaquely later) keeps the deserialization error actionable.
     /// </summary>
+    /// <exception cref="NotSupportedException">Thrown when <paramref name="t" /> is an interface or abstract type. Interface-based messages require a proxy that can only be generated with dynamic code; publish a concrete type that implements the interface instead.</exception>
     public Type? GetMappedTypeFor(Type t)
     {
         ArgumentNullException.ThrowIfNull(t);
@@ -41,7 +41,7 @@ public sealed class TrimmingSafeMessageMapper : IMessageMapper
         if (t.IsInterface || t.IsAbstract)
         {
             throw new NotSupportedException(
-                $"Mapping interface or an abstract type '{t.FullName}' to a concrete implementation is not supported when dynamic code generation is unavailable (e.g. under trimming or NativeAOT), because no proxy can be generated. " +
+                $"Mapping interface or abstract type '{t.FullName}' to a concrete implementation is not supported when dynamic code generation is unavailable (e.g. under trimming or NativeAOT), because no proxy can be generated. " +
                 "Publish a concrete type that implements the interface instead of the interface itself so it can be deserialized directly.");
         }
 
@@ -54,15 +54,15 @@ public sealed class TrimmingSafeMessageMapper : IMessageMapper
     public Type? GetMappedTypeFor(string typeName) => null;
 
     /// <summary>
-    /// Instantiates a concrete message type. Instantiating an interface or abstract type throws
-    /// <see cref="NotSupportedException" /> because proxy generation requires dynamic code.
+    /// Instantiates a concrete message type.
     /// </summary>
+    /// <exception cref="NotSupportedException">Thrown when <typeparamref name="T" /> is an interface or abstract type. Interface-based messages require a proxy that can only be generated with dynamic code; use a concrete type instead.</exception>
     public T CreateInstance<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>() => (T)CreateInstance(typeof(T));
 
     /// <summary>
-    /// Instantiates a concrete message type, then applies the given action. Instantiating an
-    /// interface or abstract type throws <see cref="NotSupportedException" />.
+    /// Instantiates a concrete message type, then applies the given action.
     /// </summary>
+    /// <exception cref="NotSupportedException">Thrown when <typeparamref name="T" /> is an interface or abstract type. Interface-based messages require a proxy that can only be generated with dynamic code; use a concrete type instead.</exception>
     public T CreateInstance<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> action)
     {
         var result = CreateInstance<T>();
@@ -71,9 +71,9 @@ public sealed class TrimmingSafeMessageMapper : IMessageMapper
     }
 
     /// <summary>
-    /// Instantiates a concrete message type. Instantiating an interface or abstract type throws
-    /// <see cref="NotSupportedException" /> because proxy generation requires dynamic code.
+    /// Instantiates a concrete message type.
     /// </summary>
+    /// <exception cref="NotSupportedException">Thrown when <paramref name="t" /> is an interface or abstract type. Interface-based messages require a proxy that can only be generated with dynamic code; use a concrete type instead.</exception>
     public object CreateInstance([DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] Type t)
     {
         ArgumentNullException.ThrowIfNull(t);
