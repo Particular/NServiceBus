@@ -3,9 +3,11 @@ namespace NServiceBus.Serializers.SystemJson;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.Serialization;
 
@@ -27,7 +29,18 @@ class JsonMessageSerializer : IMessageSerializer
     public string ContentType { get; }
 
     public void Serialize(object message, Stream stream)
-        => JsonSerializer.Serialize(stream, message, serializerOptions);
+    {
+        var messageType = message.GetType();
+        var typeInfo = ResolveTypeInfo(messageType, serializerOptions);
+        if (typeInfo is not null)
+        {
+            JsonSerializer.Serialize(stream, message, typeInfo);
+        }
+        else
+        {
+            SerializeWithReflection(message, stream, messageType, serializerOptions);
+        }
+    }
 
     public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type>? messageTypes = null)
     {
@@ -49,9 +62,56 @@ class JsonMessageSerializer : IMessageSerializer
     object Deserialize(ReadOnlyMemory<byte> body, Type type)
     {
         var actualType = GetMappedType(type);
-        using var stream = new ReadOnlyStream(body);
-        return JsonSerializer.Deserialize(stream, actualType, serializerOptions)!;
+        var typeInfo = ResolveTypeInfo(actualType, serializerOptions);
+        if (typeInfo is not null)
+        {
+            using var stream = new ReadOnlyStream(body);
+            return JsonSerializer.Deserialize(stream, typeInfo)!;
+        }
+        else
+        {
+            using var stream = new ReadOnlyStream(body);
+            return DeserializeWithReflection(stream, actualType, serializerOptions)!;
+        }
     }
+
+    static JsonTypeInfo? ResolveTypeInfo(Type runtimeType, JsonSerializerOptions? options)
+    {
+        if (options is null)
+        {
+            return null;
+        }
+
+        var typeInfo = options.TypeInfoResolver?.GetTypeInfo(runtimeType, options);
+        if (typeInfo is not null)
+        {
+            return typeInfo;
+        }
+
+        return JsonSerializer.IsReflectionEnabledByDefault ? null : throw new InvalidOperationException($"No JSON metadata was found for '{runtimeType.FullName}'.");
+    }
+
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    [UnconditionalSuppressMessage(
+        "AOT",
+        "IL3050",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    static void SerializeWithReflection(object message, Stream stream, Type messageType, JsonSerializerOptions? options)
+        => JsonSerializer.Serialize(stream, message, messageType, options);
+
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    [UnconditionalSuppressMessage(
+        "AOT",
+        "IL3050",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    static object DeserializeWithReflection(Stream stream, Type type, JsonSerializerOptions? options)
+        => JsonSerializer.Deserialize(stream, type, options)!;
 
     static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
     {
