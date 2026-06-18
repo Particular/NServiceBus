@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 /// Interface-based messages require a generated concrete proxy and therefore cannot be supported when
 /// dynamic code generation is unavailable (trimming / NativeAOT). This mapper maps types as identity
 /// (concrete types stay as-is) and instantiates concrete types directly. Any attempt to create or
-/// resolve a proxy for an interface throws <see cref="NotSupportedException" /> at the point of use,
+/// resolve a proxy for an interface or an abstract class throws <see cref="NotSupportedException" /> at the point of use,
 /// rather than at startup.
 /// </remarks>
 public sealed class TrimmingSafeMessageMapper : IMessageMapper
