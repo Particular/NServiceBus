@@ -33,6 +33,23 @@ public class ContextPropagationDefaultBehaviorTests
     }
 
     [Test]
+    public void Default_does_not_throw_when_baggage_value_is_null()
+    {
+        // Reproduces https://github.com/Particular/NServiceBus/issues/6983 on the legacy propagator.
+        // A null baggage value must not make the legacy propagator call Uri.EscapeDataString(null).
+        // Calls LegacyContextPropagation directly so the assertion is independent of the AppContext switch.
+        using var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.Start();
+        activity.AddBaggage("test", null);
+
+        var headers = new Dictionary<string, string>();
+
+        Assert.DoesNotThrow(() => LegacyContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag()));
+        Assert.That(headers[Headers.DiagnosticsBaggage], Is.EqualTo("test="));
+    }
+
+    [Test]
     public void Default_round_trip_preserves_value_whitespace()
     {
         using var outgoing = new Activity(ActivityNames.OutgoingMessageActivityName);
