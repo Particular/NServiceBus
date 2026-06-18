@@ -5,6 +5,7 @@ namespace NServiceBus.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Pipeline;
 
@@ -48,6 +49,18 @@ public class ContextBag : IReadOnlyContextBag
     public bool TryGet<T>(string key, [NotNullWhen(true)] out T? result)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
+        for (int i = 0; i < count; i++)
+        {
+            ref var slot = ref slots[i];
+
+            if (StringComparer.Ordinal.Equals(key, slot.Key))
+            {
+                result = (T)slot.Value!;
+                return true;
+            }
+        }
+
         if (stash?.TryGetValue(key, out var value) == true)
         {
             result = (T)value;
@@ -116,6 +129,29 @@ public class ContextBag : IReadOnlyContextBag
     public void Remove(string key)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
+        for (int i = 0; i < count; i++)
+        {
+            ref var slot = ref slots[i];
+
+            if (StringComparer.Ordinal.Equals(key, slot.Key))
+            {
+                // The number of slots in use decreases by one
+                count--;
+
+                // If we're abandoning the last slot, in-use slots are still contiguous (order doesn't matter)
+                if (i != count)
+                {
+                    // If removing from the begining/middle, swap the last slot into the hole
+                    slots[i] = slots[count];
+                }
+
+                // Then clear out the (previously) last slot
+                slots[count] = default;
+                return;
+            }
+        }
+
         _ = stash?.Remove(key);
     }
 
@@ -127,7 +163,32 @@ public class ContextBag : IReadOnlyContextBag
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
         ArgumentNullException.ThrowIfNull(t);
 
-        GetOrCreateStash()[key] = t;
+        for (int i = 0; i < count; i++)
+        {
+            ref var slot = ref slots[i];
+
+            if (StringComparer.Ordinal.Equals(key, slot.Key))
+            {
+                slot.Value = t;
+                return;
+            }
+        }
+
+        if (count < InlineArrayLength)
+        {
+            slots[count] = new Slot { Key = key, Value = t };
+            count++;
+            return;
+        }
+
+        var s = stash;
+        if (s is null)
+        {
+            s = [];
+            stash = s;
+        }
+
+        s[key] = t;
     }
 
     /// <summary>
@@ -151,23 +212,90 @@ public class ContextBag : IReadOnlyContextBag
     /// <param name="context">The source context.</param>
     internal void Merge(ContextBag context)
     {
-        if (context.stash == null)
+        if (count == 0 && stash is null && context.stash is null)
+        {
+            var sourceCount = context.count;
+
+            for (int i = 0; i < sourceCount; i++)
+            {
+                slots[i] = context.slots[i];
+            }
+
+            count = sourceCount;
+            return;
+        }
+
+        for (int i = 0; i < context.count; i++)
+        {
+            ref var sourceSlot = ref context.slots[i];
+            SetInlineOrStash(sourceSlot.Key!, sourceSlot.Value!);
+        }
+
+        var sourceStash = context.stash;
+        if (sourceStash is null)
         {
             return;
         }
 
-        var targetStash = GetOrCreateStash();
-        foreach (var kvp in context.stash)
+        if (count == InlineArrayLength)
         {
-            targetStash[kvp.Key] = kvp.Value;
+            var targetStash = stash ??= [];
+
+            foreach (var kvp in sourceStash)
+            {
+                targetStash[kvp.Key] = kvp.Value;
+            }
+
+            return;
+        }
+
+        foreach (var kvp in sourceStash)
+        {
+            SetInlineOrStash(kvp.Key, kvp.Value);
+        }
+
+        return;
+
+        void SetInlineOrStash(string key, object value)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                ref var slot = ref slots[i];
+
+                if (StringComparer.Ordinal.Equals(key, slot.Key))
+                {
+                    slot.Value = value;
+                    return;
+                }
+            }
+
+            if (count < InlineArrayLength)
+            {
+                slots[count] = new Slot
+                {
+                    Key = key,
+                    Value = value
+                };
+                count++;
+                return;
+            }
+
+            (stash ??= [])[key] = value;
         }
     }
 
-    Dictionary<string, object> GetOrCreateStash()
+    /// <summary>
+    /// Removes all entries from the context.
+    /// </summary>
+    internal void Clear()
     {
-        stash ??= [];
+        for (int i = 0; i < count; i++)
+        {
+            slots[i] = default;
+        }
 
-        return stash;
+        count = 0;
+        stash?.Clear();
     }
 
     internal Func<IBehaviorContext, Task> Invoker { get; set; }
@@ -176,5 +304,26 @@ public class ContextBag : IReadOnlyContextBag
 
     private protected ContextBag root;
 
+    SlotArray slots;
+    int count;
     Dictionary<string, object>? stash;
+
+    // The number of slots that can be stored inline in the struct before falling back to a dictionary.
+    // This number was carefully chosen after benchmarking and analyzing typical usage patterns of the
+    // context bag in the main and recoverability pipelines.
+    // The goal was to minimize allocations while keeping lookups efficient for the most common cases.
+    // Do not blindly change this.
+    const int InlineArrayLength = 8;
+
+    struct Slot
+    {
+        public string? Key;
+        public object? Value;
+    }
+
+    [InlineArray(InlineArrayLength)]
+    struct SlotArray
+    {
+        Slot _element0;
+    }
 }
