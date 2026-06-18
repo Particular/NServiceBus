@@ -33,7 +33,10 @@ static class LegacyContextPropagator
             headers[Headers.StartNewTrace] = headerContent;
         }
 
-        var baggage = string.Join(",", activity.Baggage.Select(item => $"{item.Key}={Uri.EscapeDataString(item.Value ?? string.Empty)}"));
+        // System.Diagnostics.DistributedContextPropagator trims values before escaping
+        // For backwards compatibility we DO NOT replicate this behavior
+
+        var baggage = string.Join(',', activity.Baggage.Select(item => $"{item.Key}={Uri.EscapeDataString(item.Value ?? string.Empty)}"));
         if (!string.IsNullOrEmpty(baggage))
         {
             headers[Headers.DiagnosticsBaggage] = baggage;
@@ -80,6 +83,10 @@ static class LegacyContextPropagator
 
                 var key = baggageItem[..firstEquals].Trim();
                 var value = baggageItem[(firstEquals + 1)..];
+
+                // System.Diagnostics.DistributedContextPropagator will convert whitespace only values to empty string
+                // For backwards compatibility we DO NOT replicate this behavior.
+
                 activity.AddBaggage(key.ToString(), Uri.UnescapeDataString(value));
             }
         }
