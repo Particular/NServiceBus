@@ -108,7 +108,7 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
         fileStream.Position = 0;
 
         var sagaDataType = sagaData.GetType();
-        var typeInfo = ResolveTypeInfo(sagaDataType, options);
+        var typeInfo = options.ResolveTypeInfo(sagaDataType);
         if (typeInfo is not null)
         {
             await JsonSerializer.SerializeAsync(fileStream, sagaData, typeInfo, cancellationToken)
@@ -131,7 +131,7 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
     {
         ObjectDisposedException.ThrowIf(fileStream is null, this);
 
-        var typeInfo = ResolveTypeInfo(typeof(TSagaData), options);
+        var typeInfo = options.ResolveTypeInfo(typeof(TSagaData));
         if (typeInfo is not null)
         {
             return ReadWithTypeInfoAsync<TSagaData>(fileStream, typeInfo, cancellationToken);
@@ -144,22 +144,6 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
 
     static async ValueTask<TSagaData?> ReadWithTypeInfoAsync<TSagaData>(Stream stream, JsonTypeInfo typeInfo, CancellationToken cancellationToken) where TSagaData : class
         => (TSagaData?)await JsonSerializer.DeserializeAsync(stream, typeInfo, cancellationToken).ConfigureAwait(false);
-
-    static JsonTypeInfo? ResolveTypeInfo(Type runtimeType, JsonSerializerOptions? options)
-    {
-        if (options is null)
-        {
-            return null;
-        }
-
-        var typeInfo = options.TypeInfoResolver?.GetTypeInfo(runtimeType, options);
-        if (typeInfo is not null)
-        {
-            return typeInfo;
-        }
-
-        return JsonSerializer.IsReflectionEnabledByDefault ? null : throw new InvalidOperationException($"No JSON metadata was found for '{runtimeType.FullName}'.");
-    }
 
     [UnconditionalSuppressMessage(
         "Trimming",

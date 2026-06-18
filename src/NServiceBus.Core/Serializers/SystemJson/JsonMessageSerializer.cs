@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.Serialization;
 
@@ -31,7 +30,7 @@ class JsonMessageSerializer : IMessageSerializer
     public void Serialize(object message, Stream stream)
     {
         var messageType = message.GetType();
-        var typeInfo = ResolveTypeInfo(messageType, serializerOptions);
+        var typeInfo = serializerOptions.ResolveTypeInfo(messageType);
         if (typeInfo is not null)
         {
             JsonSerializer.Serialize(stream, message, typeInfo);
@@ -62,7 +61,7 @@ class JsonMessageSerializer : IMessageSerializer
     object Deserialize(ReadOnlyMemory<byte> body, Type type)
     {
         var actualType = GetMappedType(type);
-        var typeInfo = ResolveTypeInfo(actualType, serializerOptions);
+        var typeInfo = serializerOptions.ResolveTypeInfo(actualType);
         if (typeInfo is not null)
         {
             using var stream = new ReadOnlyStream(body);
@@ -73,22 +72,6 @@ class JsonMessageSerializer : IMessageSerializer
             using var stream = new ReadOnlyStream(body);
             return DeserializeWithReflection(stream, actualType, serializerOptions)!;
         }
-    }
-
-    static JsonTypeInfo? ResolveTypeInfo(Type runtimeType, JsonSerializerOptions? options)
-    {
-        if (options is null)
-        {
-            return null;
-        }
-
-        var typeInfo = options.TypeInfoResolver?.GetTypeInfo(runtimeType, options);
-        if (typeInfo is not null)
-        {
-            return typeInfo;
-        }
-
-        return JsonSerializer.IsReflectionEnabledByDefault ? null : throw new InvalidOperationException($"No JSON metadata was found for '{runtimeType.FullName}'.");
     }
 
     [UnconditionalSuppressMessage(
