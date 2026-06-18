@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Text.Json;
 using Features;
 
 /// <summary>
@@ -21,5 +22,18 @@ public static class LearningSagaPersisterConfigurationExtensions
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         persistenceExtensions.Settings.Set(LearningSagaPersistence.StorageLocationKey, path);
+    }
+
+    /// <summary>
+    /// Configures the <see cref="JsonSerializerOptions" /> to use for serializing saga data.
+    /// </summary>
+    /// <param name="persistenceExtensions">The persistence extensions to extend.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions" /> to use.</param>
+    public static void SagaSerializerOptions(this PersistenceExtensions<LearningPersistence> persistenceExtensions, JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(persistenceExtensions);
+        ArgumentNullException.ThrowIfNull(options);
+
+        persistenceExtensions.Settings.Set(LearningSagaPersistence.SerializerOptionsKey, options);
     }
 }
