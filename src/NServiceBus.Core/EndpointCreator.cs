@@ -7,7 +7,6 @@ using System.Linq;
 using Features;
 using Logging;
 using MessageInterfaces;
-using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
@@ -116,9 +115,6 @@ class EndpointCreator
 
         var routingConfiguration = RoutingComponent.Configure(settings.Get<RoutingComponent.Settings>());
 
-        var messageMapper = new MessageMapper();
-        settings.Set<IMessageMapper>(messageMapper);
-
         recoverabilityComponent = new RecoverabilityComponent(settings);
 
         var sagaSettings = settings.Get<SagaComponent.Settings>();
@@ -146,7 +142,7 @@ class EndpointCreator
             pipelineSettings,
             hostingConfiguration);
 
-        sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
+        sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, settings.Get<IMessageMapper>());
 
         envelopeComponent = new EnvelopeComponent(settings.Get<EnvelopeComponent.Settings>());
 

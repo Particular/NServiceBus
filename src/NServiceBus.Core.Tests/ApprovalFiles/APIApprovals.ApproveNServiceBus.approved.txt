@@ -515,9 +515,9 @@ namespace NServiceBus
     }
     public interface IMessageCreator
     {
-        object CreateInstance(System.Type messageType);
-        T CreateInstance<T>();
-        T CreateInstance<T>(System.Action<T> action);
+        object CreateInstance([System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)] System.Type messageType);
+        T CreateInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>();
+        T CreateInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(System.Action<T> action);
     }
     public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
     {
@@ -531,14 +531,14 @@ namespace NServiceBus
         string ReplyToAddress { get; }
         System.Threading.Tasks.Task ForwardCurrentMessageTo(string destination);
         System.Threading.Tasks.Task Reply(object message, NServiceBus.ReplyOptions options);
-        System.Threading.Tasks.Task Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
+        System.Threading.Tasks.Task Reply<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
     }
     public interface IMessageSession
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions sendOptions, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions sendOptions, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(System.Action<T> messageConstructor, NServiceBus.SendOptions sendOptions, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions subscribeOptions, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions unsubscribeOptions, System.Threading.CancellationToken cancellationToken = default);
     }
@@ -549,9 +549,9 @@ namespace NServiceBus
     public interface IPipelineContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
+        System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
+        System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
     public interface ISagaNotFoundHandler
     {
@@ -720,7 +720,7 @@ namespace NServiceBus
     public static class MessageProcessingContextExtensions
     {
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
-        public static System.Threading.Tasks.Task Reply<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Reply<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
     }
     public static class MessageProcessingOptimizationExtensions
     {
@@ -732,14 +732,14 @@ namespace NServiceBus
     public static class MessageSessionExtensions
     {
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.Task SendLocal<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
@@ -816,14 +816,14 @@ namespace NServiceBus
     public static class PipelineContextExtensions
     {
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IPipelineContext context) { }
+        public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendLocal<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
     }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -1699,12 +1699,28 @@ namespace NServiceBus.MessageInterfaces
 }
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 {
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("The message mapper generates concrete proxies for interface-based messages using " +
+        "System.Reflection.Emit, which is not supported when dynamic code generation is u" +
+        "navailable (e.g. trimming or NativeAOT).")]
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("The message mapper reflects over all fields, properties, constructors and custom " +
+        "attributes of the provided message types to generate concrete proxies, which can" +
+        "not be statically analyzed by the trimmer.")]
     public class MessageMapper : NServiceBus.IMessageCreator, NServiceBus.MessageInterfaces.IMessageMapper
     {
         public MessageMapper() { }
-        public object CreateInstance(System.Type t) { }
-        public T CreateInstance<T>() { }
-        public T CreateInstance<T>(System.Action<T> action) { }
+        public object CreateInstance([System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)] System.Type t) { }
+        public T CreateInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>() { }
+        public T CreateInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(System.Action<T> action) { }
+        public System.Type? GetMappedTypeFor(System.Type t) { }
+        public System.Type? GetMappedTypeFor(string typeName) { }
+        public void Initialize(System.Collections.Generic.IEnumerable<System.Type>? types) { }
+    }
+    public sealed class TrimmingSafeMessageMapper : NServiceBus.IMessageCreator, NServiceBus.MessageInterfaces.IMessageMapper
+    {
+        public TrimmingSafeMessageMapper() { }
+        public object CreateInstance([System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)] System.Type t) { }
+        public T CreateInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>() { }
+        public T CreateInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors)]  T>(System.Action<T> action) { }
         public System.Type? GetMappedTypeFor(System.Type t) { }
         public System.Type? GetMappedTypeFor(string typeName) { }
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type>? types) { }

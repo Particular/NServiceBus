@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Pipeline;
 
@@ -27,7 +28,7 @@ abstract class OutgoingContext : BehaviorContext, IOutgoingContext
         return MessageOperations.Send(this, message, options);
     }
 
-    public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+    public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions options)
     {
         return MessageOperations.Send(this, messageConstructor, options);
     }
@@ -37,7 +38,7 @@ abstract class OutgoingContext : BehaviorContext, IOutgoingContext
         return MessageOperations.Publish(this, message, options);
     }
 
-    public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+    public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions)
     {
         return MessageOperations.Publish(this, messageConstructor, publishOptions);
     }

@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Extensibility;
 
@@ -22,7 +23,7 @@ public interface IPipelineContext : ICancellableContext, IExtendable
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="options">The options for the send.</param>
-    Task Send<T>(Action<T> messageConstructor, SendOptions options);
+    Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions options);
 
     /// <summary>
     /// Publish the message to subscribers.
@@ -37,5 +38,5 @@ public interface IPipelineContext : ICancellableContext, IExtendable
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="publishOptions">Specific options for this event.</param>
-    Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions);
+    Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions);
 }

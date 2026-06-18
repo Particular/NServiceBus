@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -13,6 +14,8 @@ using System.Threading;
 /// <summary>
 /// Uses reflection to map between interfaces and their generated concrete implementations.
 /// </summary>
+[RequiresDynamicCode("The message mapper generates concrete proxies for interface-based messages using System.Reflection.Emit, which is not supported when dynamic code generation is unavailable (e.g. trimming or NativeAOT).")]
+[RequiresUnreferencedCode("The message mapper reflects over all fields, properties, constructors and custom attributes of the provided message types to generate concrete proxies, which cannot be statically analyzed by the trimmer.")]
 public class MessageMapper : IMessageMapper
 {
     /// <summary>
@@ -77,12 +80,12 @@ public class MessageMapper : IMessageMapper
     /// <summary>
     /// Calls the <see cref="CreateInstance(Type)" /> and returns its result cast to <typeparamref name="T" />.
     /// </summary>
-    public T CreateInstance<T>() => (T)CreateInstance(typeof(T));
+    public T CreateInstance<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>() => (T)CreateInstance(typeof(T));
 
     /// <summary>
     /// Calls the generic CreateInstance and performs the given action on the result.
     /// </summary>
-    public T CreateInstance<T>(Action<T> action)
+    public T CreateInstance<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> action)
     {
         var result = CreateInstance<T>();
 
@@ -95,13 +98,13 @@ public class MessageMapper : IMessageMapper
     /// If the given type is an interface, finds its generated concrete implementation, instantiates it, and returns the
     /// result.
     /// </summary>
-    public object CreateInstance(Type t)
+    public object CreateInstance([DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] Type t)
     {
         ArgumentNullException.ThrowIfNull(t);
 
         InitType(t);
 
-        if ((t.IsInterface || t.IsAbstract) && GetMappedTypeFor(t) is Type mapped)
+        if ((t.IsInterface || t.IsAbstract) && GetMappedTypeFor(t) is { } mapped)
         {
             return RuntimeHelpers.GetUninitializedObject(mapped);
         }

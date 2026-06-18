@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -32,7 +33,7 @@ public static class PipelineContextExtensions
     /// <remarks>
     /// The message will be sent to the destination configured for <typeparamref name="T" />.
     /// </remarks>
-    public static Task Send<T>(this IPipelineContext context, Action<T> messageConstructor)
+    public static Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IPipelineContext context, Action<T> messageConstructor)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(messageConstructor);
@@ -66,7 +67,7 @@ public static class PipelineContextExtensions
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="destination">The destination to which the message will be sent.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-    public static Task Send<T>(this IPipelineContext context, string destination, Action<T> messageConstructor)
+    public static Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IPipelineContext context, string destination, Action<T> messageConstructor)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentException.ThrowIfNullOrWhiteSpace(destination);
@@ -102,7 +103,7 @@ public static class PipelineContextExtensions
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
     /// <param name="context">Object being extended.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-    public static Task SendLocal<T>(this IPipelineContext context, Action<T> messageConstructor)
+    public static Task SendLocal<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IPipelineContext context, Action<T> messageConstructor)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(messageConstructor);
@@ -132,7 +133,7 @@ public static class PipelineContextExtensions
     /// </summary>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <typeparam name="T">The message type.</typeparam>
-    public static Task Publish<T>(this IPipelineContext context)
+    public static Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IPipelineContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -145,7 +146,7 @@ public static class PipelineContextExtensions
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-    public static Task Publish<T>(this IPipelineContext context, Action<T> messageConstructor)
+    public static Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IPipelineContext context, Action<T> messageConstructor)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(messageConstructor);

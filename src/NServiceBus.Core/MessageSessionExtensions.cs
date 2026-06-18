@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,7 +34,7 @@ public static class MessageSessionExtensions
     /// <remarks>
     /// The message will be sent to the destination configured for <typeparamref name="T" />.
     /// </remarks>
-    public static Task Send<T>(this IMessageSession session, Action<T> messageConstructor, CancellationToken cancellationToken = default)
+    public static Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IMessageSession session, Action<T> messageConstructor, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(messageConstructor);
@@ -69,7 +70,7 @@ public static class MessageSessionExtensions
     /// <param name="destination">The destination to which the message will be sent.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    public static Task Send<T>(this IMessageSession session, string destination, Action<T> messageConstructor, CancellationToken cancellationToken = default)
+    public static Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IMessageSession session, string destination, Action<T> messageConstructor, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentException.ThrowIfNullOrWhiteSpace(destination);
@@ -107,7 +108,7 @@ public static class MessageSessionExtensions
     /// <param name="session">Object being extended.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    public static Task SendLocal<T>(this IMessageSession session, Action<T> messageConstructor, CancellationToken cancellationToken = default)
+    public static Task SendLocal<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IMessageSession session, Action<T> messageConstructor, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(messageConstructor);
@@ -139,7 +140,7 @@ public static class MessageSessionExtensions
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <typeparam name="T">The message type.</typeparam>
-    public static Task Publish<T>(this IMessageSession session, CancellationToken cancellationToken = default)
+    public static Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IMessageSession session, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);
 
@@ -153,7 +154,7 @@ public static class MessageSessionExtensions
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    public static Task Publish<T>(this IMessageSession session, Action<T> messageConstructor, CancellationToken cancellationToken = default)
+    public static Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IMessageSession session, Action<T> messageConstructor, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(messageConstructor);
