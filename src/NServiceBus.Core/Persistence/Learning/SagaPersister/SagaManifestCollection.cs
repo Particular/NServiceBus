@@ -12,6 +12,7 @@ class SagaManifestCollection
 {
     public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter, JsonSerializerOptions? serializerOptions = null)
     {
+        serializerOptions ??= new JsonSerializerOptions();
         foreach (var metadata in sagas)
         {
             var sagaStorageDir = Path.Combine(storageLocation, sagaNameConverter(metadata.SagaType.FullName!));
@@ -25,7 +26,7 @@ class SagaManifestCollection
             {
                 StorageDirectory = sagaStorageDir,
                 SagaEntityType = metadata.SagaEntityType,
-                SerializerOptions = serializerOptions ?? JsonSerializerOptions.Default
+                SerializerOptions = serializerOptions
             };
 
             sagaManifests[metadata.SagaEntityType] = manifest;
