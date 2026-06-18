@@ -3,6 +3,7 @@
 namespace NServiceBus.Features;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -36,10 +37,21 @@ sealed class LearningSagaPersistence : Feature
         context.Services.AddSingleton<ISagaPersister, LearningSagaPersister>();
     }
 
-    static JsonSerializerOptions GetDefaultOptions() => new()
+    static JsonSerializerOptions GetDefaultOptions()
     {
-        Converters = { new JsonStringEnumConverter() }
-    };
+        var options = new JsonSerializerOptions();
+        if (JsonSerializer.IsReflectionEnabledByDefault)
+        {
+            options.Converters.Add(CreateDefaultConverter());
+        }
+        return options;
+    }
+
+    [UnconditionalSuppressMessage(
+        "AOT",
+        "IL3050",
+        Justification = "Only used when System.Text.Json reflection is enabled.")]
+    static JsonStringEnumConverter CreateDefaultConverter() => new();
 
     internal static readonly string StorageLocationKey = "LearningSagaPersistence.StorageLocation";
     internal static readonly string SerializerOptionsKey = "LearningSagaPersistence.SerializerOptions";
