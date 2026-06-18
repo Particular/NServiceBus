@@ -10,7 +10,7 @@ using Sagas;
 
 class SagaManifestCollection
 {
-    public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter, JsonSerializerOptions serializerOptions)
+    public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter, JsonSerializerOptions? serializerOptions = null)
     {
         foreach (var metadata in sagas)
         {
@@ -25,7 +25,7 @@ class SagaManifestCollection
             {
                 StorageDirectory = sagaStorageDir,
                 SagaEntityType = metadata.SagaEntityType,
-                SerializerOptions = serializerOptions
+                SerializerOptions = serializerOptions ?? JsonSerializerOptions.Default
             };
 
             sagaManifests[metadata.SagaEntityType] = manifest;

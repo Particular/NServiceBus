@@ -38,8 +38,7 @@ public partial class PersistenceTestsConfiguration
 
         var sagaManifests = new SagaManifestCollection(SagaMetadataCollection,
             storageLocation,
-            name => DeterministicGuid.Create(name).ToString(),
-            JsonSerializerOptions.Default);
+            name => DeterministicGuid.Create(name).ToString());
 
         SagaStorage = new LearningSagaPersister(sagaManifests);
 
