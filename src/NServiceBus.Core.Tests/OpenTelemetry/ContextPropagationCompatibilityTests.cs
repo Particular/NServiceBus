@@ -7,7 +7,7 @@ using Extensibility;
 using NUnit.Framework;
 
 [TestFixture]
-public class ContextPropagationIncompatibilityTests
+public class ContextPropagationCompatibilityTests
 {
     // The "New*" delegates route through ContextPropagation, whose DistributedContextPropagator
     // path is opt-in until v11, so the switch must be enabled for these tests.
@@ -96,6 +96,23 @@ public class ContextPropagationIncompatibilityTests
                 "legacy propagation preserves leading whitespace via percent-encoding");
             Assert.That(newRoundTrip, Is.EqualTo("hasLeadingSpace"),
                 "new propagation strips the leading whitespace from the value");
+        }
+    }
+
+    [TestCase(null, "", "")]
+    [TestCase("", "", "")]
+    [TestCase("    ", "", "    ")]
+    [TestCase("  x  ", "x", "  x  ")]
+    [TestCase("  x x  ", "x x", "  x x  ")]
+    public void ValidateThatLegacyPropagatorPreservesLeadingAndTrailingWhitespaceInBaggageValues(string input, string expectedNew, string expectedLegacy)
+    {
+        var outputNew = Transmit(input, NewWrite, NewRead);
+        var outputLegacy = Transmit(input, LegacyWrite, LegacyRead);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(expectedNew, Is.EqualTo(outputNew), "Native propagator isn't trimming all leading and trailing whitespaces");
+            Assert.That(expectedLegacy, Is.EqualTo(outputLegacy), "Legacy propagator isn't preserving leading and trailing whitespace for backwards compatibility");
         }
     }
 }
