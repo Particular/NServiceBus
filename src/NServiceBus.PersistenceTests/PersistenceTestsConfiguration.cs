@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -37,7 +38,8 @@ public partial class PersistenceTestsConfiguration
 
         var sagaManifests = new SagaManifestCollection(SagaMetadataCollection,
             storageLocation,
-            name => DeterministicGuid.Create(name).ToString());
+            name => DeterministicGuid.Create(name).ToString(),
+            JsonSerializerOptions.Default);
 
         SagaStorage = new LearningSagaPersister(sagaManifests);
 
