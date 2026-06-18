@@ -174,7 +174,7 @@ public class ContextBag : IReadOnlyContextBag
             }
         }
 
-        if (count < 8)
+        if (count < InlineArrayLength)
         {
             slots[count] = new Slot { Key = key, Value = t };
             count++;
@@ -237,7 +237,7 @@ public class ContextBag : IReadOnlyContextBag
             return;
         }
 
-        if (count == 8)
+        if (count == InlineArrayLength)
         {
             var targetStash = stash ??= [];
 
@@ -269,7 +269,7 @@ public class ContextBag : IReadOnlyContextBag
                 }
             }
 
-            if (count < SlotArray.Length)
+            if (count < InlineArrayLength)
             {
                 slots[count] = new Slot
                 {
@@ -308,16 +308,22 @@ public class ContextBag : IReadOnlyContextBag
     int count;
     Dictionary<string, object>? stash;
 
+    // The number of slots that can be stored inline in the struct before falling back to a dictionary.
+    // This number was carefully chosen after benchmarking and analyzing typical usage patterns of the
+    // context bag in the main and recoverability pipelines.
+    // The goal was to minimize allocations while keeping lookups efficient for the most common cases.
+    // Do not blindly change this.
+    const int InlineArrayLength = 8;
+
     struct Slot
     {
         public string? Key;
         public object? Value;
     }
 
-    [InlineArray(Length)]
+    [InlineArray(InlineArrayLength)]
     struct SlotArray
     {
-        public const int Length = 8;
         Slot _element0;
     }
 }
