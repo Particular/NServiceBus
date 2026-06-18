@@ -45,10 +45,6 @@ src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/NamespacePublisherSource
 src/NServiceBus.Core/Routing/NamespaceRouteSource.cs
   IL2026: Using member 'System.Reflection.Assembly.GetTypes()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Types might be removed.
 
-src/NServiceBus.Core/Serializers/SystemJson/JsonMessageSerializer.cs
-  IL2026: Using member 'System.Text.Json.JsonSerializer.Deserialize(Stream, Type, JsonSerializerOptions)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. JSON serialization and deserialization might require types that cannot be statically analyzed. Use the overload that takes a JsonTypeInfo or JsonSerializerContext, or make sure all of the required types are preserved.
-  IL2026: Using member 'System.Text.Json.JsonSerializer.Serialize<TValue>(Stream, TValue, JsonSerializerOptions)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. JSON serialization and deserialization might require types that cannot be statically analyzed. Use the overload that takes a JsonTypeInfo or JsonSerializerContext, or make sure all of the required types are preserved.
-
 src/NServiceBus.Core/Transports/Learning/LearningTransportDispatcher.cs
   IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'messageType' of method 'NServiceBus.LearningTransportDispatcher.GetPotentialEventTypes(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
 
