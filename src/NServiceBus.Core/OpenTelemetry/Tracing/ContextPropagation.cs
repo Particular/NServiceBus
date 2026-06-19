@@ -19,6 +19,8 @@ static class ContextPropagation
             return;
         }
 
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11 
         if (activity is null)
         {
             return;
@@ -44,6 +46,8 @@ static class ContextPropagation
             return;
         }
 
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11 
         if (activity is null)
         {
             return;
