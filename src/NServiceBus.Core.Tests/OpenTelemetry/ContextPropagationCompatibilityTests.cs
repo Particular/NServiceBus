@@ -9,8 +9,6 @@ using NUnit.Framework;
 [TestFixture]
 public class ContextPropagationCompatibilityTests
 {
-    // The "New*" delegates route through ContextPropagation, whose DistributedContextPropagator
-    // path is opt-in until v11, so the switch must be enabled for these tests.
     [SetUp]
     public void EnableDistributedContextPropagator()
     {
@@ -28,8 +26,8 @@ public class ContextPropagationCompatibilityTests
     delegate void Writer(Activity activity, Dictionary<string, string> headers, ContextBag context);
     delegate void Reader(Activity activity, IDictionary<string, string> headers);
 
-    static readonly Writer LegacyWrite = LegacyContextPropagator.PropagateContextToHeaders;
-    static readonly Reader LegacyRead = LegacyContextPropagator.PropagateContextFromHeaders;
+    static readonly Writer LegacyWrite = LegacyContextPropagation.PropagateContextToHeaders;
+    static readonly Reader LegacyRead = LegacyContextPropagation.PropagateContextFromHeaders;
     static readonly Writer NewWrite = ContextPropagation.PropagateContextToHeaders;
     static readonly Reader NewRead = ContextPropagation.PropagateContextFromHeaders;
 
