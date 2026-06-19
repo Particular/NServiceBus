@@ -8,12 +8,11 @@ using Extensibility;
 
 static class ContextPropagation
 {
-    static readonly bool UseLegacyContextPropagator = !LegacyContextPropagation.UseDistributedContextPropagator;
-
     public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers, ContextBag contextBag)
     {
+        // TODO: investigate if we need to improve the switch check for better performance
         // Removed in v11, see obsolete_v11.cs
-        if (UseLegacyContextPropagator)
+        if (!LegacyContextPropagation.UseDistributedContextPropagator)
         {
             LegacyContextPropagation.PropagateContextToHeaders(activity, headers, contextBag);
             return;
@@ -40,7 +39,7 @@ static class ContextPropagation
     public static void PropagateContextFromHeaders(Activity? activity, IDictionary<string, string> headers)
     {
         // Removed in v11, see obsolete_v11.cs
-        if (UseLegacyContextPropagator)
+        if (!LegacyContextPropagation.UseDistributedContextPropagator)
         {
             LegacyContextPropagation.PropagateContextFromHeaders(activity, headers);
             return;
