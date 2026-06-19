@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>ContentionTraceParser</RootNamespace>
+    <AssemblyName>ContentionTraceParser</AssemblyName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <NoWarn>$(NoWarn);CA1822;CA1051;CA1707;CA1851;IDE0060</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent">
+      <Version>3.2.3</Version>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
