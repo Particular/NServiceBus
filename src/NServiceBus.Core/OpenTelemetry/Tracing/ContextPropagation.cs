@@ -10,6 +10,16 @@ static class ContextPropagation
 {
     public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers, ContextBag contextBag)
     {
+        // TODO: investigate if we need to improve the switch check for better performance
+        // Removed in v11, see obsolete_v11.cs
+        if (!LegacyContextPropagation.UseDistributedContextPropagator)
+        {
+            LegacyContextPropagation.PropagateContextToHeaders(activity, headers, contextBag);
+            return;
+        }
+
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11 
         if (activity is null)
         {
             return;
@@ -28,6 +38,15 @@ static class ContextPropagation
 
     public static void PropagateContextFromHeaders(Activity? activity, IDictionary<string, string> headers)
     {
+        // Removed in v11, see obsolete_v11.cs
+        if (!LegacyContextPropagation.UseDistributedContextPropagator)
+        {
+            LegacyContextPropagation.PropagateContextFromHeaders(activity, headers);
+            return;
+        }
+
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11 
         if (activity is null)
         {
             return;

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,7 +9,7 @@ using Extensibility;
 using NUnit.Framework;
 
 [TestFixture]
-public class ContextPropagationTests
+public class LegacyContextPropagationTests
 {
     [Test]
     public void Propagate_activity_id_to_header()
@@ -193,39 +194,6 @@ public class ContextPropagationTests
         }
     }
 
-    [Test]
-    public void Can_not_roundtrip_baggage_value_with_optional_whitespaces()
-    {
-        var outgoingHeaders = new Dictionary<string, string>();
-        using var outgoingActivity = new Activity(ActivityNames.OutgoingMessageActivityName);
-        outgoingActivity.SetIdFormat(ActivityIdFormat.W3C);
-        outgoingActivity.Start();
-
-        outgoingActivity.AddBaggage("key1", " value1");
-        outgoingActivity.AddBaggage("key2", "value2 ");
-
-        ContextPropagation.PropagateContextToHeaders(outgoingActivity, outgoingHeaders, new ContextBag());
-
-        // Simulate wire transfer
-        var incomingHeaders = outgoingHeaders;
-        using var incomingActivity = new Activity(ActivityNames.IncomingMessageActivityName);
-        incomingActivity.SetIdFormat(ActivityIdFormat.W3C);
-        incomingActivity.Start();
-
-        ContextPropagation.PropagateContextFromHeaders(incomingActivity, incomingHeaders);
-
-        using (Assert.EnterMultipleScope())
-        {
-            foreach (var baggageItem in outgoingActivity.Baggage)
-            {
-                var key = baggageItem.Key;
-                var actualValue = incomingActivity.GetBaggageItem(key);
-                Assert.That(actualValue, Is.Not.Null, $"Baggage is missing item with key |{key}|");
-                Assert.That(actualValue, Is.EqualTo(baggageItem.Value.Trim()), $"Baggage item |{key}| has the wrong value");
-            }
-        }
-    }
-
     // HINT: Many of these test cases are given as examples in the spec https://www.w3.org/TR/baggage/#example
     static IEnumerable TestCases => new object[]
     {
@@ -233,28 +201,28 @@ public class ContextPropagationTests
 
         new ContextPropagationTestCase("with a single key")
             .WithBaggage("key1", "value1")
-            .WithHeaderValue("key1 = value1"),
+            .WithHeaderValue("key1=value1"),
 
         new ContextPropagationTestCase("with multiple keys")
             .WithBaggage("key1", "value1")
             .WithBaggage("key2", "value2")
-            .WithHeaderValue("key1 = value1, key2 = value2"),
+            .WithHeaderValue("key1=value1,key2=value2"),
 
         new ContextPropagationTestCase("with properties that do not have keys")
             .WithBaggage("key1", "value1;property1;property2")
-            .WithHeaderValue("key1 = value1%3Bproperty1%3Bproperty2"),
+            .WithHeaderValue("key1=value1%3Bproperty1%3Bproperty2"),
 
         new ContextPropagationTestCase("with properties that have keys")
             .WithBaggage("key3", "value3; propertyKey=propertyValue")
-            .WithHeaderValue("key3 = value3%3B%20propertyKey=propertyValue"),
+            .WithHeaderValue("key3=value3%3B%20propertyKey%3DpropertyValue"),
 
         new ContextPropagationTestCase("with values containing whitespace")
             .WithBaggage("serverNode", "DF 28")
-            .WithHeaderValue("serverNode = DF%2028"),
+            .WithHeaderValue("serverNode=DF%2028"),
 
         new ContextPropagationTestCase("with values containing unicode")
             .WithBaggage("userId", "Amélie")
-            .WithHeaderValue("userId = Am%C3%A9lie")
+            .WithHeaderValue("userId=Am%C3%A9lie")
     };
 
     public class ContextPropagationTestCase(string caseName)

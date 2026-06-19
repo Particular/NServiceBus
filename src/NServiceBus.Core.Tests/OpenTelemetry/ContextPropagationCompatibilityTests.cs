@@ -1,18 +1,33 @@
 namespace NServiceBus.Core.Tests.OpenTelemetry;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Extensibility;
 using NUnit.Framework;
 
 [TestFixture]
-public class ContextPropagationIncompatibilityTests
+public class ContextPropagationCompatibilityTests
 {
+    [SetUp]
+    public void EnableDistributedContextPropagator()
+    {
+        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, true);
+        LegacyContextPropagation.ResetUseDistributedContextPropagator();
+    }
+
+    [TearDown]
+    public void ResetDistributedContextPropagator()
+    {
+        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, false);
+        LegacyContextPropagation.ResetUseDistributedContextPropagator();
+    }
+
     delegate void Writer(Activity activity, Dictionary<string, string> headers, ContextBag context);
     delegate void Reader(Activity activity, IDictionary<string, string> headers);
 
-    static readonly Writer LegacyWrite = LegacyContextPropagator.PropagateContextToHeaders;
-    static readonly Reader LegacyRead = LegacyContextPropagator.PropagateContextFromHeaders;
+    static readonly Writer LegacyWrite = LegacyContextPropagation.PropagateContextToHeaders;
+    static readonly Reader LegacyRead = LegacyContextPropagation.PropagateContextFromHeaders;
     static readonly Writer NewWrite = ContextPropagation.PropagateContextToHeaders;
     static readonly Reader NewRead = ContextPropagation.PropagateContextFromHeaders;
 
@@ -22,7 +37,7 @@ public class ContextPropagationIncompatibilityTests
     // value isolates "what happens to special characters" from the separate edge-whitespace
     // issue covered by New_propagation_loses_leading_whitespace_in_a_value.
     // This already includes property-like syntax (the ';' and '=' delimiters), so a value such as
-    // "zone=eu;sensitive" is just a subset and needs no separate case here. 
+    // "zone=eu;sensitive" is just a subset and needs no separate case here.
     const string AllSpecialCharacters = "a b,c;d=e&f'g\"h\\i(j)k{l}m[n]o%p/q?r:s@t~u|v<w>x é ü 😀 z";
 
     static Dictionary<string, string> Send(string value, Writer write)
@@ -79,6 +94,23 @@ public class ContextPropagationIncompatibilityTests
                 "legacy propagation preserves leading whitespace via percent-encoding");
             Assert.That(newRoundTrip, Is.EqualTo("hasLeadingSpace"),
                 "new propagation strips the leading whitespace from the value");
+        }
+    }
+
+    [TestCase(null, "", "")]
+    [TestCase("", "", "")]
+    [TestCase("    ", "", "    ")]
+    [TestCase("  x  ", "x", "  x  ")]
+    [TestCase("  x x  ", "x x", "  x x  ")]
+    public void ValidateThatLegacyPropagatorPreservesLeadingAndTrailingWhitespaceInBaggageValues(string input, string expectedNew, string expectedLegacy)
+    {
+        var outputNew = Transmit(input, NewWrite, NewRead);
+        var outputLegacy = Transmit(input, LegacyWrite, LegacyRead);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(expectedNew, Is.EqualTo(outputNew), "Native propagator isn't trimming all leading and trailing whitespaces");
+            Assert.That(expectedLegacy, Is.EqualTo(outputLegacy), "Legacy propagator isn't preserving leading and trailing whitespace for backwards compatibility");
         }
     }
 }
