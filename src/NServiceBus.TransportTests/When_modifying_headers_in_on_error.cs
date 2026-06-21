@@ -18,7 +18,13 @@ public class When_modifying_headers_in_on_error : NServiceBusTransportTest
         var retrying = false;
 
         await StartPump(
-            (context, _) => retrying ? retried.SetCompleted(context) : throw new Exception(),
+            (context, _) => retrying ? retried.SetCompleted(new MessageContext(
+                context.NativeMessageId,
+                new Dictionary<string, string>(context.Headers),
+                context.Body.ToArray(),
+                context.TransportTransaction,
+                context.ReceiveAddress,
+                context.Extensions)) : throw new Exception(),
             (context, _) =>
             {
                 retrying = true;

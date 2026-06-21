@@ -87,7 +87,7 @@ public class When_message_is_faulted : NServiceBusAcceptanceTest
         {
             public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
             {
-                testContext.Headers = context.MessageHeaders;
+                testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                 testContext.IsMessageHandledByTheAuditEndpoint = true;
                 testContext.MaybeCompleted();
                 return Task.CompletedTask;

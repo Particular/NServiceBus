@@ -39,7 +39,7 @@ public class When_requesting_message_to_be_forwarded : NServiceBusAcceptanceTest
         {
             public Task Handle(MessageToForward message, IMessageHandlerContext context)
             {
-                testContext.ForwardedHeaders = context.MessageHeaders;
+                testContext.ForwardedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                 testContext.GotForwardedMessage = true;
                 testContext.MarkAsCompleted();
                 return Task.CompletedTask;
