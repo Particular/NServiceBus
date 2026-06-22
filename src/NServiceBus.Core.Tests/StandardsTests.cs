@@ -51,15 +51,12 @@ public class StandardsTests
         }
     }
 
-    static bool IsCompilerGenerated(Type x)
-    {
-        return Attribute.IsDefined(x, typeof(CompilerGeneratedAttribute), false);
-    }
+    static bool IsCompilerGenerated(Type x) => Attribute.IsDefined(x, typeof(CompilerGeneratedAttribute), false);
 
     [Test]
     public void LoggersShouldBeStaticField()
     {
-        foreach (var type in typeof(EndpointCreator).Assembly.GetTypes())
+        foreach (var type in typeof(EndpointCreator).Assembly.GetTypes().Where(t => !IsCompilerGenerated(t)))
         {
             // Logging namespace contains special adapter types that are not expected to have static loggers
             if (type.Namespace == "NServiceBus.Logging")
@@ -100,20 +97,15 @@ public class StandardsTests
         }
     }
 
-    static IEnumerable<Type> GetBehaviors()
-    {
-        return typeof(EndpointCreator).Assembly.GetTypes()
+    static IEnumerable<Type> GetBehaviors() =>
+        typeof(EndpointCreator).Assembly.GetTypes()
             .Where(type => type.GetInterfaces().Any(face => face.Name == nameof(NServiceBus.Pipeline.IBehavior)) && !type.IsAbstract && !type.IsGenericType);
-    }
-    static IEnumerable<Type> GetFeatures()
-    {
-        return typeof(EndpointCreator).Assembly.GetTypes()
-            .Where(type => typeof(Feature).IsAssignableFrom(type) && type.IsPublic && !type.IsAbstract);
-    }
 
-    static IEnumerable<Type> GetAttributeTypes()
-    {
-        return typeof(EndpointCreator).Assembly.GetTypes()
+    static IEnumerable<Type> GetFeatures() =>
+        typeof(EndpointCreator).Assembly.GetTypes()
+            .Where(type => typeof(Feature).IsAssignableFrom(type) && type.IsPublic && !type.IsAbstract);
+
+    static IEnumerable<Type> GetAttributeTypes() =>
+        typeof(EndpointCreator).Assembly.GetTypes()
             .Where(type => typeof(Attribute).IsAssignableFrom(type));
-    }
 }

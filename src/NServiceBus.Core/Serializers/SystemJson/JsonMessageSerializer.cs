@@ -3,6 +3,7 @@ namespace NServiceBus.Serializers.SystemJson;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -27,7 +28,18 @@ class JsonMessageSerializer : IMessageSerializer
     public string ContentType { get; }
 
     public void Serialize(object message, Stream stream)
-        => JsonSerializer.Serialize(stream, message, serializerOptions);
+    {
+        var messageType = message.GetType();
+        var typeInfo = serializerOptions.ResolveTypeInfo(messageType);
+        if (typeInfo is not null)
+        {
+            JsonSerializer.Serialize(stream, message, typeInfo);
+        }
+        else
+        {
+            SerializeWithReflection(message, stream, messageType, serializerOptions);
+        }
+    }
 
     public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type>? messageTypes = null)
     {
@@ -49,9 +61,40 @@ class JsonMessageSerializer : IMessageSerializer
     object Deserialize(ReadOnlyMemory<byte> body, Type type)
     {
         var actualType = GetMappedType(type);
-        using var stream = new ReadOnlyStream(body);
-        return JsonSerializer.Deserialize(stream, actualType, serializerOptions)!;
+        var typeInfo = serializerOptions.ResolveTypeInfo(actualType);
+        if (typeInfo is not null)
+        {
+            using var stream = new ReadOnlyStream(body);
+            return JsonSerializer.Deserialize(stream, typeInfo)!;
+        }
+        else
+        {
+            using var stream = new ReadOnlyStream(body);
+            return DeserializeWithReflection(stream, actualType, serializerOptions)!;
+        }
     }
+
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    [UnconditionalSuppressMessage(
+        "AOT",
+        "IL3050",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    static void SerializeWithReflection(object message, Stream stream, Type messageType, JsonSerializerOptions? options)
+        => JsonSerializer.Serialize(stream, message, messageType, options);
+
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    [UnconditionalSuppressMessage(
+        "AOT",
+        "IL3050",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    static object DeserializeWithReflection(Stream stream, Type type, JsonSerializerOptions? options)
+        => JsonSerializer.Deserialize(stream, type, options)!;
 
     static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
     {
