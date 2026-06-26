@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -221,49 +222,54 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     // this allows resolving services by either the KeyedServiceKey or the base key and makes the experience consistent
     static object? GetBaseKeyOrServiceKey(object? serviceKey) => serviceKey is KeyedServiceKey key ? key.BaseKey : serviceKey;
 
-    bool ContainsLocalEndpointService(Type serviceType, KeyedServiceKey key) => Equals(serviceKeyedServiceKey.BaseKey, key.BaseKey) && serviceCollection.ContainsLocalService(serviceType, key.ServiceKey);
+    bool ContainsLocalEndpointService(Type serviceType, KeyedServiceKey key) =>
+        Equals(serviceKeyedServiceKey.BaseKey, key.BaseKey) &&
+        localEndpointServiceLookup.GetOrAdd((serviceType, key.ServiceKey), static (lookupKey, collection) =>
+            collection.ContainsLocalService(lookupKey.ServiceType, lookupKey.ServiceKey), serviceCollection);
 
     KeyedServiceKey GetLocalEndpointServiceKey(KeyedServiceKey key) => serviceCollection.GetLocalServiceKey(key.ServiceKey);
 
     bool ContainsRootEndpointKeyedService(Type serviceType) => ContainsRootKeyedService(serviceType, serviceKeyedServiceKey.BaseKey);
 
-    bool ContainsRootService(Type serviceType)
-    {
-        var rootServiceProbe = serviceProvider?.GetService<IServiceProviderIsService>();
-        if (rootServiceProbe?.IsService(serviceType) is true)
+    bool ContainsRootService(Type serviceType) =>
+        rootServiceLookup.GetOrAdd(serviceType, static (lookupServiceType, state) =>
         {
-            return true;
-        }
-
-        foreach (var descriptor in serviceCollection.Inner)
-        {
-            if (!descriptor.IsKeyedService && ServiceTypeMatches(descriptor.ServiceType, serviceType))
+            var rootServiceProbe = state.ServiceProvider?.GetService<IServiceProviderIsService>();
+            if (rootServiceProbe?.IsService(lookupServiceType) is true)
             {
                 return true;
             }
-        }
 
-        return false;
-    }
+            foreach (var descriptor in state.ServiceCollection.Inner)
+            {
+                if (!descriptor.IsKeyedService && ServiceTypeMatches(descriptor.ServiceType, lookupServiceType))
+                {
+                    return true;
+                }
+            }
 
-    bool ContainsRootKeyedService(Type serviceType, object? serviceKey)
-    {
-        var rootKeyedServiceProbe = serviceProvider?.GetService<IServiceProviderIsKeyedService>();
-        if (rootKeyedServiceProbe?.IsKeyedService(serviceType, serviceKey) is true)
+            return false;
+        }, (ServiceProvider: serviceProvider, ServiceCollection: serviceCollection));
+
+    bool ContainsRootKeyedService(Type serviceType, object? serviceKey) =>
+        rootKeyedServiceLookup.GetOrAdd((serviceType, serviceKey), static (lookupKey, state) =>
         {
-            return true;
-        }
-
-        foreach (var descriptor in serviceCollection.Inner)
-        {
-            if (descriptor.IsKeyedService && ServiceTypeMatches(descriptor.ServiceType, serviceType) && Equals(serviceKey, descriptor.ServiceKey))
+            var rootKeyedServiceProbe = state.ServiceProvider?.GetService<IServiceProviderIsKeyedService>();
+            if (rootKeyedServiceProbe?.IsKeyedService(lookupKey.ServiceType, lookupKey.ServiceKey) is true)
             {
                 return true;
             }
-        }
 
-        return false;
-    }
+            foreach (var descriptor in state.ServiceCollection.Inner)
+            {
+                if (descriptor.IsKeyedService && ServiceTypeMatches(descriptor.ServiceType, lookupKey.ServiceType) && Equals(lookupKey.ServiceKey, descriptor.ServiceKey))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }, (ServiceProvider: serviceProvider, ServiceCollection: serviceCollection));
 
     KeyedServiceKey GetOrCreateComputedKey(object? serviceKey)
     {
@@ -298,4 +304,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     readonly bool ownsProvider;
     readonly KeyedServiceKey anyKey;
     readonly KeyedServiceScopeFactory keyedScopeFactory;
+    readonly ConcurrentDictionary<(Type ServiceType, object? ServiceKey), bool> localEndpointServiceLookup = new();
+    readonly ConcurrentDictionary<Type, bool> rootServiceLookup = new();
+    readonly ConcurrentDictionary<(Type ServiceType, object? ServiceKey), bool> rootKeyedServiceLookup = new();
 }
