@@ -230,7 +230,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     bool ContainsRootService(Type serviceType)
     {
         var rootServiceProbe = serviceProvider?.GetService<IServiceProviderIsService>();
-        if (rootServiceProbe?.IsService(serviceType) == true)
+        if (rootServiceProbe?.IsService(serviceType) is true)
         {
             return true;
         }
@@ -249,7 +249,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     bool ContainsRootKeyedService(Type serviceType, object? serviceKey)
     {
         var rootKeyedServiceProbe = serviceProvider?.GetService<IServiceProviderIsKeyedService>();
-        if (rootKeyedServiceProbe?.IsKeyedService(serviceType, serviceKey) == true)
+        if (rootKeyedServiceProbe?.IsKeyedService(serviceType, serviceKey) is true)
         {
             return true;
         }
