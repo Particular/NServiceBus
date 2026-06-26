@@ -53,7 +53,6 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
         keyedDescriptors.Clear();
         originalDescriptors.Clear();
-        serviceTypeCounts.Clear();
     }
 
     public bool Contains(ServiceDescriptor item)
@@ -90,7 +89,6 @@ class KeyedServiceCollectionAdapter : IServiceCollection
         originalDescriptors.RemoveAt(index);
         keyedDescriptors.RemoveAt(index);
         _ = Inner.Remove(keyedDescriptor);
-        DecrementServiceTypeCount(keyedDescriptor.ServiceType);
         return true;
     }
 
@@ -100,28 +98,38 @@ class KeyedServiceCollectionAdapter : IServiceCollection
         keyedDescriptors.RemoveAt(index);
         originalDescriptors.RemoveAt(index);
         _ = Inner.Remove(keyedDescriptor);
-        DecrementServiceTypeCount(keyedDescriptor.ServiceType);
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public bool ContainsService(Type serviceType)
+    public bool ContainsLocalService(Type serviceType, object? serviceKey)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
 
-        if (serviceTypeCounts.ContainsKey(serviceType))
+        foreach (var descriptor in originalDescriptors)
+        {
+            if (ServiceTypeMatches(descriptor.ServiceType, serviceType) && Equals(GetServiceKey(descriptor), serviceKey))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public KeyedServiceKey GetLocalServiceKey(object? serviceKey) => new(ServiceKey, serviceKey);
+
+    static bool ServiceTypeMatches(Type registeredServiceType, Type requestedServiceType)
+    {
+        if (registeredServiceType == requestedServiceType)
         {
             return true;
         }
 
-        if (!serviceType.IsGenericType)
-        {
-            return false;
-        }
-
-        var definition = serviceType.GetGenericTypeDefinition();
-        return serviceTypeCounts.ContainsKey(definition);
+        return requestedServiceType.IsGenericType && registeredServiceType == requestedServiceType.GetGenericTypeDefinition();
     }
+
+    static object? GetServiceKey(ServiceDescriptor descriptor) => descriptor.IsKeyedService ? descriptor.ServiceKey : null;
 
     ServiceDescriptor EnsureKeyedDescriptor(ServiceDescriptor descriptor)
     {
@@ -191,28 +199,7 @@ class KeyedServiceCollectionAdapter : IServiceCollection
             }
         }
 
-        if (!serviceTypeCounts.TryAdd(keyedDescriptor.ServiceType, 1))
-        {
-            serviceTypeCounts[keyedDescriptor.ServiceType]++;
-        }
-
         return keyedDescriptor;
-    }
-
-    void DecrementServiceTypeCount(Type serviceType)
-    {
-        if (!serviceTypeCounts.TryGetValue(serviceType, out var count))
-        {
-            return;
-        }
-
-        if (count <= 1)
-        {
-            _ = serviceTypeCounts.Remove(serviceType);
-            return;
-        }
-
-        serviceTypeCounts[serviceType] = count - 1;
     }
 
     static class UnsafeAccessor
@@ -223,6 +210,5 @@ class KeyedServiceCollectionAdapter : IServiceCollection
 
     readonly List<ServiceDescriptor> originalDescriptors = [];
     readonly List<ServiceDescriptor> keyedDescriptors = [];
-    readonly Dictionary<Type, int> serviceTypeCounts = [];
     readonly ConcurrentDictionary<Type, ObjectFactory> factories = new();
 }
