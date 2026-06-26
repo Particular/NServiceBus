@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -27,21 +28,22 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         keyedScopeFactory = new KeyedServiceScopeFactory(serviceProvider.GetRequiredService<IServiceScopeFactory>(), serviceKeyedServiceKey, serviceCollection);
     }
 
-    public bool IsService(Type serviceType) => serviceCollection.ContainsService(serviceType);
+    public bool IsService(Type serviceType)
+    {
+        ArgumentNullException.ThrowIfNull(serviceType);
+
+        if (IsServiceProvider(serviceType) || IsScopeFactory(serviceType) || IsServicesRequest(serviceType))
+        {
+            return true;
+        }
+
+        return ContainsLocalEndpointService(serviceType, serviceKeyedServiceKey) || ContainsRootEndpointKeyedService(serviceType) || ContainsRootService(serviceType);
+    }
 
     public bool IsKeyedService(Type serviceType, object? serviceKey)
     {
-        if (!serviceCollection.ContainsService(serviceType))
-        {
-            return false;
-        }
-
-        if (serviceKey is KeyedServiceKey key)
-        {
-            return Equals(serviceKeyedServiceKey.BaseKey, key.BaseKey);
-        }
-
-        return false;
+        var computedKey = GetOrCreateComputedKey(serviceKey);
+        return ContainsLocalEndpointService(serviceType, computedKey) || ContainsRootKeyedService(serviceType, GetBaseKeyOrServiceKey(serviceKey));
     }
 
     public object? GetService(Type serviceType)
@@ -61,13 +63,21 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
 
         if (!IsServicesRequest(serviceType))
         {
-            return IsKeyedService(serviceType, serviceKeyedServiceKey)
-                ? serviceProvider.GetKeyedService(serviceType, serviceKeyedServiceKey)
-                : serviceProvider.GetService(serviceType);
+            if (ContainsLocalEndpointService(serviceType, serviceKeyedServiceKey))
+            {
+                return serviceProvider.GetKeyedService(serviceType, GetLocalEndpointServiceKey(serviceKeyedServiceKey));
+            }
+
+            return ContainsRootEndpointKeyedService(serviceType) ? serviceProvider.GetKeyedService(serviceType, serviceKeyedServiceKey.BaseKey) : serviceProvider.GetService(serviceType);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(itemType, serviceKeyedServiceKey) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey) : serviceProvider.GetServices(itemType);
+        if (ContainsLocalEndpointService(itemType, serviceKeyedServiceKey))
+        {
+            return serviceProvider.GetKeyedServices(itemType, GetLocalEndpointServiceKey(serviceKeyedServiceKey));
+        }
+
+        return ContainsRootEndpointKeyedService(itemType) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey.BaseKey) : serviceProvider.GetServices(itemType);
     }
 
     public object GetRequiredService(Type serviceType)
@@ -87,13 +97,21 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
 
         if (!IsServicesRequest(serviceType))
         {
-            return IsKeyedService(serviceType, serviceKeyedServiceKey)
-                ? serviceProvider.GetRequiredKeyedService(serviceType, serviceKeyedServiceKey)
-                : serviceProvider.GetRequiredService(serviceType);
+            if (ContainsLocalEndpointService(serviceType, serviceKeyedServiceKey))
+            {
+                return serviceProvider.GetRequiredKeyedService(serviceType, GetLocalEndpointServiceKey(serviceKeyedServiceKey));
+            }
+
+            return ContainsRootEndpointKeyedService(serviceType) ? serviceProvider.GetRequiredKeyedService(serviceType, serviceKeyedServiceKey.BaseKey) : serviceProvider.GetRequiredService(serviceType);
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
-        return IsKeyedService(itemType, serviceKeyedServiceKey) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey) : serviceProvider.GetServices(itemType);
+        if (ContainsLocalEndpointService(itemType, serviceKeyedServiceKey))
+        {
+            return serviceProvider.GetKeyedServices(itemType, GetLocalEndpointServiceKey(serviceKeyedServiceKey));
+        }
+
+        return ContainsRootEndpointKeyedService(itemType) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey.BaseKey) : serviceProvider.GetServices(itemType);
     }
 
     public object? GetKeyedService(Type serviceType, object? serviceKey)
@@ -114,16 +132,16 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         var computedKey = GetOrCreateComputedKey(serviceKey);
         if (!IsServicesRequest(serviceType))
         {
-            return IsKeyedService(serviceType, computedKey)
-                ? serviceProvider.GetKeyedService(serviceType, computedKey)
+            return ContainsLocalEndpointService(serviceType, computedKey)
+                ? serviceProvider.GetKeyedService(serviceType, GetLocalEndpointServiceKey(computedKey))
                 : serviceProvider.GetKeyedService(serviceType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
         if (!Equals(computedKey, anyKey))
         {
-            return IsKeyedService(itemType, computedKey)
-                ? serviceProvider.GetKeyedServices(itemType, computedKey)
+            return ContainsLocalEndpointService(itemType, computedKey)
+                ? serviceProvider.GetKeyedServices(itemType, GetLocalEndpointServiceKey(computedKey))
                 : serviceProvider.GetKeyedServices(itemType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
@@ -148,16 +166,16 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         var computedKey = GetOrCreateComputedKey(serviceKey);
         if (!IsServicesRequest(serviceType))
         {
-            return IsKeyedService(serviceType, computedKey)
-                ? serviceProvider.GetRequiredKeyedService(serviceType, computedKey)
+            return ContainsLocalEndpointService(serviceType, computedKey)
+                ? serviceProvider.GetRequiredKeyedService(serviceType, GetLocalEndpointServiceKey(computedKey))
                 : serviceProvider.GetRequiredKeyedService(serviceType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
         var itemType = serviceType.GetGenericArguments()[0];
         if (!Equals(computedKey, anyKey))
         {
-            return IsKeyedService(itemType, computedKey)
-                ? serviceProvider.GetKeyedServices(itemType, computedKey)
+            return ContainsLocalEndpointService(itemType, computedKey)
+                ? serviceProvider.GetKeyedServices(itemType, GetLocalEndpointServiceKey(computedKey))
                 : serviceProvider.GetKeyedServices(itemType, GetBaseKeyOrServiceKey(serviceKey));
         }
 
@@ -204,6 +222,55 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     // this allows resolving services by either the KeyedServiceKey or the base key and makes the experience consistent
     static object? GetBaseKeyOrServiceKey(object? serviceKey) => serviceKey is KeyedServiceKey key ? key.BaseKey : serviceKey;
 
+    bool ContainsLocalEndpointService(Type serviceType, KeyedServiceKey key) =>
+        Equals(serviceKeyedServiceKey.BaseKey, key.BaseKey) &&
+        localEndpointServiceLookup.GetOrAdd((serviceType, key.ServiceKey), static (lookupKey, collection) =>
+            collection.ContainsLocalService(lookupKey.ServiceType, lookupKey.ServiceKey), serviceCollection);
+
+    KeyedServiceKey GetLocalEndpointServiceKey(KeyedServiceKey key) => serviceCollection.GetLocalServiceKey(key.ServiceKey);
+
+    bool ContainsRootEndpointKeyedService(Type serviceType) => ContainsRootKeyedService(serviceType, serviceKeyedServiceKey.BaseKey);
+
+    bool ContainsRootService(Type serviceType) =>
+        rootServiceLookup.GetOrAdd(serviceType, static (lookupServiceType, state) =>
+        {
+            var rootServiceProbe = state.ServiceProvider?.GetService<IServiceProviderIsService>();
+            if (rootServiceProbe?.IsService(lookupServiceType) is true)
+            {
+                return true;
+            }
+
+            foreach (var descriptor in state.ServiceCollection.Inner)
+            {
+                if (!descriptor.IsKeyedService && ServiceTypeMatches(descriptor.ServiceType, lookupServiceType))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }, (ServiceProvider: serviceProvider, ServiceCollection: serviceCollection));
+
+    bool ContainsRootKeyedService(Type serviceType, object? serviceKey) =>
+        rootKeyedServiceLookup.GetOrAdd((serviceType, serviceKey), static (lookupKey, state) =>
+        {
+            var rootKeyedServiceProbe = state.ServiceProvider?.GetService<IServiceProviderIsKeyedService>();
+            if (rootKeyedServiceProbe?.IsKeyedService(lookupKey.ServiceType, lookupKey.ServiceKey) is true)
+            {
+                return true;
+            }
+
+            foreach (var descriptor in state.ServiceCollection.Inner)
+            {
+                if (descriptor.IsKeyedService && ServiceTypeMatches(descriptor.ServiceType, lookupKey.ServiceType) && Equals(lookupKey.ServiceKey, descriptor.ServiceKey))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }, (ServiceProvider: serviceProvider, ServiceCollection: serviceCollection));
+
     KeyedServiceKey GetOrCreateComputedKey(object? serviceKey)
     {
         if (serviceKey is KeyedServiceKey key && Equals(serviceKeyedServiceKey.BaseKey, key.BaseKey))
@@ -226,6 +293,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     }
 
     static bool IsServicesRequest(Type serviceType) => serviceType.IsGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+    static bool ServiceTypeMatches(Type registeredServiceType, Type requestedServiceType) => registeredServiceType == requestedServiceType || (requestedServiceType.IsGenericType && registeredServiceType == requestedServiceType.GetGenericTypeDefinition());
     static bool IsServiceProvider(Type serviceType) => serviceType == typeof(IServiceProvider) || serviceType == typeof(ISupportRequiredService) || serviceType == typeof(IServiceProviderIsKeyedService) || serviceType == typeof(IServiceProviderIsService);
     static bool IsScopeFactory(Type serviceType) => serviceType == typeof(IServiceScopeFactory);
 
@@ -236,4 +304,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
     readonly bool ownsProvider;
     readonly KeyedServiceKey anyKey;
     readonly KeyedServiceScopeFactory keyedScopeFactory;
+    readonly ConcurrentDictionary<(Type ServiceType, object? ServiceKey), bool> localEndpointServiceLookup = new();
+    readonly ConcurrentDictionary<Type, bool> rootServiceLookup = new();
+    readonly ConcurrentDictionary<(Type ServiceType, object? ServiceKey), bool> rootKeyedServiceLookup = new();
 }

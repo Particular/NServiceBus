@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection;
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
