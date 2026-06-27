@@ -131,5 +131,37 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         }
     }
 
+    [Test]
+    public async Task Should_use_destination_in_send_span_name_when_opted_in()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpointWithDestinationNaming>(b => b
+                .When(s => s.SendLocal(new OutgoingMessage())))
+            .Run();
+
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1));
+
+        var sentMessage = outgoingMessageActivities.Single();
+        Assert.That(sentMessage.DisplayName, Does.StartWith("send "));
+        Assert.That(sentMessage.DisplayName, Is.Not.EqualTo("send message"));
+    }
+
+    public class TestEndpointWithDestinationNaming : EndpointConfigurationBuilder
+    {
+        public TestEndpointWithDestinationNaming() =>
+            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageDestinationInSpanNames = true);
+
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
+        {
+            public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
     public class OutgoingMessage : IMessage;
 }

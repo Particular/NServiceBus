@@ -33,6 +33,9 @@ public class When_outgoing_activity_has_baggage : OpenTelemetryAcceptanceTest
             )
             .Run();
 
+        // Default (backwards-compatible) propagation produces the legacy comma-separated, percent-encoded format.
+        // The W3C OWS format ("key3 = , key2 = value2, key1 = value1") is produced only when the
+        // NServiceBus.Core.OpenTelemetry.UseDistributedContextPropagator AppContext switch is enabled (default in v11).
         Assert.That(context.BaggageHeader, Is.EqualTo("key3=,key2=value2,key1=value1"));
     }
 

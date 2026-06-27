@@ -179,5 +179,68 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         }
     }
 
+    [Test]
+    public async Task Should_use_event_type_in_span_name_when_opted_in()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<PublisherWithDestinationNaming>(b => b
+                .When(ctx => ctx.SomeEventSubscribed, s => s.Publish<ThisIsAnEvent>()))
+            .WithEndpoint<SubscriberForPublisherWithDestinationNaming>(b => b.When((session, ctx) =>
+            {
+                if (ctx.HasNativePubSubSupport)
+                {
+                    ctx.SomeEventSubscribed = true;
+                }
+
+                return Task.CompletedTask;
+            }))
+            .Run();
+
+        var outgoingEventActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
+        Assert.That(outgoingEventActivities, Has.Count.EqualTo(1));
+
+        var publishedMessage = outgoingEventActivities.Single();
+        Assert.That(publishedMessage.DisplayName, Is.EqualTo("publish ThisIsAnEvent"));
+    }
+
+    public class PublisherWithDestinationNaming : EndpointConfigurationBuilder
+    {
+        public PublisherWithDestinationNaming() =>
+            EndpointSetup<DefaultServer>(b =>
+            {
+                b.Tracing().UseMessageDestinationInSpanNames = true;
+                b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(SubscriberForPublisherWithDestinationNaming))))
+                    {
+                        if (s.MessageType == typeof(ThisIsAnEvent).AssemblyQualifiedName)
+                        {
+                            context.SomeEventSubscribed = true;
+                        }
+                    }
+                });
+            });
+    }
+
+    public class SubscriberForPublisherWithDestinationNaming : EndpointConfigurationBuilder
+    {
+        public SubscriberForPublisherWithDestinationNaming() =>
+            EndpointSetup<DefaultServer>(c => { },
+                metadata =>
+                {
+                    metadata.RegisterPublisherFor<ThisIsAnEvent, PublisherWithDestinationNaming>();
+                });
+
+        [Handler]
+        public class ThisHandlesSomethingHandler(Context testContext) : IHandleMessages<ThisIsAnEvent>
+        {
+            public Task Handle(ThisIsAnEvent @event, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
     public class ThisIsAnEvent : IEvent;
 }

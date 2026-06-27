@@ -17,7 +17,7 @@ using NUnit.Framework;
 [TestFixture]
 public class ActivityFactoryTests
 {
-    readonly ActivityFactory activityFactory = new();
+    readonly ActivityFactory activityFactory = new(new InstrumentationOptions());
 
     TestingActivityListener nsbActivityListener;
 
@@ -29,7 +29,7 @@ public class ActivityFactoryTests
 
     class NoDiagnosticListeners
     {
-        readonly ActivityFactory activityFactory = new();
+        readonly ActivityFactory activityFactory = new(new InstrumentationOptions());
 
         [Test]
         public void Should_return_null_incoming_activity_when_no_listeners()
