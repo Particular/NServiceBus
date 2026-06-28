@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Hosting.Helpers;
+using NServiceBus.Hosting.Helpers;
 using NUnit.Framework;
 using Particular.Approvals;
 

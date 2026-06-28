@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
-using Hosting.Helpers;
+using NServiceBus.Hosting.Helpers;
 using NUnit.Framework;
 
 [TestFixture]

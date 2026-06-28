@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Hosting.Helpers;
+using NServiceBus.Hosting.Helpers;
 using NUnit.Framework;
 
 [TestFixture]
