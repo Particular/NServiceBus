@@ -246,6 +246,14 @@ namespace NServiceBus
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
         public static void WriteDiagnosticsToLog(this NServiceBus.EndpointConfiguration config) { }
     }
+    public sealed class DictionaryPool<TKey, TValue>
+        where TKey :  notnull
+    {
+        public DictionaryPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 1024) { }
+        public static NServiceBus.DictionaryPool<TKey, TValue> Shared { get; }
+        public System.Collections.Generic.Dictionary<TKey, TValue> Rent(int minimumCapacity = 0) { }
+        public void Return(System.Collections.Generic.Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
+    }
     public class Discard : NServiceBus.RecoverabilityAction
     {
         public Discard(string reason) { }
