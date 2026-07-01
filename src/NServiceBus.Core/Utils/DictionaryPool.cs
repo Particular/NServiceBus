@@ -47,6 +47,10 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     readonly int maxRetainedCapacityPerItem;
     int count; // approximate size, maintained via Interlocked
 
+#pragma warning disable PS0025 // DIAGNOSTIC: reference-keyed tracker mirrors the stack to detect double-return
+    readonly ConcurrentDictionary<Dictionary<TKey, TValue>, int> pooledTracker = new();
+#pragma warning restore PS0025
+
     /// <summary>
     /// Approximate number of dictionaries currently retained in the pool.
     /// Thread-safe and safe to read at any time, but may lag behind the actual
@@ -87,6 +91,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
         if (stack.TryPop(out var taken))
         {
             Interlocked.Decrement(ref count);
+            pooledTracker.TryRemove(taken, out _); // DIAGNOSTIC: keep tracker in sync with the stack
             item = taken;
         }
         else
@@ -115,6 +120,14 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     {
         ArgumentNullException.ThrowIfNull(dictionary);
 
+        // DIAGNOSTIC: detect double-return. A dict returned while already pooled would sit in the stack
+        // twice, so two later Rents pop the same instance (aliasing). Throwing here surfaces the second
+        // Return site via the stack trace.
+        if (!pooledTracker.TryAdd(dictionary, 0))
+        {
+            throw new InvalidOperationException("DIAG double-return: dictionary was returned to the pool while already pooled. ConcurrentStack would then hand the same instance to two renters.");
+        }
+
         bool tooLarge = dictionary.Count > maxRetainedCapacityPerItem;
 
         if (clearDictionary || tooLarge)
@@ -132,6 +145,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
         if (Interlocked.Increment(ref count) > maxPoolSize)
         {
             Interlocked.Decrement(ref count);
+            pooledTracker.TryRemove(dictionary, out _); // DIAGNOSTIC: dropped, not actually pooled
             return; // pool is full: drop it and let the GC reclaim it
         }
 
