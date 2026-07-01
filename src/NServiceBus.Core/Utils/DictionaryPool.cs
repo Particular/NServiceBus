@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace NServiceBus;
+namespace NServiceBus.Utils;
 
 using System;
 using System.Collections.Concurrent;
@@ -36,7 +36,7 @@ using System.Threading;
 /// doesn't permanently inflate the pool's footprint. This is not the common path.
 /// </para>
 /// </remarks>
-public sealed class DictionaryPool<TKey, TValue> where TKey : notnull
+public class DictionaryPool<TKey, TValue> where TKey : notnull
 {
     /// <summary>A shared, process-wide pool instance, analogous to <c>ArrayPool&lt;T&gt;.Shared</c>.</summary>
     public static DictionaryPool<TKey, TValue> Shared { get; } = new();
