@@ -7,19 +7,22 @@ using System.Threading.Tasks;
 using Pipeline;
 using Transport;
 
-class ImmediateDispatchTerminator : PipelineTerminator<IDispatchContext>
+class ImmediateDispatchTerminator(IMessageDispatcher dispatcher) : PipelineTerminator<IDispatchContext>
 {
-    public ImmediateDispatchTerminator(IMessageDispatcher dispatcher)
-    {
-        this.dispatcher = dispatcher;
-    }
-
-    protected override Task Terminate(IDispatchContext context)
+    protected override async Task Terminate(IDispatchContext context)
     {
         var transaction = context.Extensions.GetOrCreate<TransportTransaction>();
         var operations = context.Operations as TransportOperation[] ?? context.Operations.ToArray();
-        return dispatcher.Dispatch(new TransportOperations(operations), transaction, context.CancellationToken);
+        try
+        {
+            await dispatcher.Dispatch(new TransportOperations(operations), transaction, context.CancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            foreach (var operation in operations)
+            {
+                DictionaryPool<string, string>.Shared.Return(operation.Message.Headers);
+            }
+        }
     }
-
-    readonly IMessageDispatcher dispatcher;
 }
