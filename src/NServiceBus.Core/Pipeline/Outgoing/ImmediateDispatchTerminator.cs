@@ -21,7 +21,7 @@ class ImmediateDispatchTerminator(IMessageDispatcher dispatcher) : PipelineTermi
         {
             foreach (var operation in operations)
             {
-                DictionaryPool<string, string>.Shared.Return(operation.Message.Headers);
+                HeaderPool.Shared.Return(operation.Message.Headers);
             }
         }
     }
