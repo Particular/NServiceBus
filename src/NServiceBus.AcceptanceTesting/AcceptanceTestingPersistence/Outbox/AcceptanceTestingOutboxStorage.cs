@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,12 +18,11 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
             return NoOutboxMessageTask!;
         }
 
-        // Return deep copies so callers (the dispatch pipeline) own their header dictionaries.
-        // The dispatch pipeline now pools and clears outgoing header dictionaries after dispatch, so a real
-        // outbox must hand out freshly-deserialized dictionaries on every Get. Sharing the stored references
-        // would let dispatch clear/pool the stored dictionaries, corrupting storage and leaking aliased
-        // dictionaries back into the process-wide header pool.
-        return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations.Select(o => o.DeepCopy()).ToArray()));
+        // Return copies so callers (the dispatch pipeline) own their header dictionaries. The dispatch
+        // pipeline pools and clears outgoing header dictionaries after dispatch, so the outbox must hand out
+        // fresh dictionaries on every Get. Sharing the stored references would let dispatch clear/pool the
+        // stored dictionaries, corrupting storage and leaking aliased dictionaries into the header pool.
+        return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations.Select(CopyOperation).ToArray()));
     }
 
     public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) => Task.FromResult<IOutboxTransaction>(new AcceptanceTestingOutboxTransaction());
@@ -32,7 +32,7 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
         var tx = (AcceptanceTestingOutboxTransaction)transaction;
         tx.Enlist(() =>
         {
-            if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.Select(o => o.DeepCopy()).ToArray())))
+            if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray())))
             {
                 throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
             }
@@ -61,6 +61,25 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
                 storage.TryRemove(entry.Key, out _);
             }
         }
+    }
+
+    // Copies headers/options/body into fresh instances so stored data is independent of the live pipeline
+    // dictionaries (which are pooled and cleared after dispatch). Mirrors NonDurableOutboxStorage.CopyOperation.
+    static TransportOperation CopyOperation(TransportOperation operation)
+    {
+        var headers = operation.Headers != null
+            ? new Dictionary<string, string>(operation.Headers)
+            : [];
+
+        var options = operation.Options != null
+            ? new NServiceBus.Transport.DispatchProperties(operation.Options)
+            : [];
+
+        var body = operation.Body.IsEmpty
+            ? []
+            : operation.Body.ToArray();
+
+        return new TransportOperation(operation.MessageId, options, body, headers);
     }
 
     readonly ConcurrentDictionary<string, StoredMessage> storage = new();
