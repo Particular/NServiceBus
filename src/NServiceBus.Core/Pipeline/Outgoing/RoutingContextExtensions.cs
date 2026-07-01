@@ -11,7 +11,19 @@ static class RoutingContextExtensions
 {
     public static TransportOperation ToTransportOperation(this IRoutingContext context, RoutingStrategy strategy, DispatchConsistency dispatchConsistency, bool copySharedMutableMessageState)
     {
-        var headers = copySharedMutableMessageState ? new Dictionary<string, string>(context.Message.Headers) : context.Message.Headers;
+        Dictionary<string, string> headers;
+        if (copySharedMutableMessageState)
+        {
+            headers = DictionaryPool<string, string>.Shared.Rent(context.Message.Headers.Count);
+            foreach (var kvp in context.Message.Headers)
+            {
+                headers[kvp.Key] = kvp.Value;
+            }
+        }
+        else
+        {
+            headers = context.Message.Headers;
+        }
         var dispatchProperties = context.Extensions.TryGet<DispatchProperties>(out var properties)
             ? copySharedMutableMessageState ? new DispatchProperties(properties) : properties
             : [];
