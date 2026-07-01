@@ -62,6 +62,14 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
             ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
         }
 
+        // When copies were made for multicast, the original headers dictionary is no longer
+        // needed by any transport operation. Return it to the pool. When copies were NOT made
+        // (unicast), the original is in the transport operations and will be returned after dispatch.
+        if (copySharedMutableMessageState)
+        {
+            HeaderPool.Shared.Return(outgoingMessage.Headers);
+        }
+
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))
         {
             pendingOperations.AddRange(operations);
