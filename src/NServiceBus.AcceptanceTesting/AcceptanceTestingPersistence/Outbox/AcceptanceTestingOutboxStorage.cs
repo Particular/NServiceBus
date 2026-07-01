@@ -17,7 +17,12 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
             return NoOutboxMessageTask!;
         }
 
-        return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
+        // Return deep copies so callers (the dispatch pipeline) own their header dictionaries.
+        // The dispatch pipeline now pools and clears outgoing header dictionaries after dispatch, so a real
+        // outbox must hand out freshly-deserialized dictionaries on every Get. Sharing the stored references
+        // would let dispatch clear/pool the stored dictionaries, corrupting storage and leaking aliased
+        // dictionaries back into the process-wide header pool.
+        return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations.Select(o => o.DeepCopy()).ToArray()));
     }
 
     public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) => Task.FromResult<IOutboxTransaction>(new AcceptanceTestingOutboxTransaction());
