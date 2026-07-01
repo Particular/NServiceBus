@@ -246,14 +246,6 @@ namespace NServiceBus
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
         public static void WriteDiagnosticsToLog(this NServiceBus.EndpointConfiguration config) { }
     }
-    public sealed class DictionaryPool<TKey, TValue>
-        where TKey :  notnull
-    {
-        public DictionaryPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 1024) { }
-        public static NServiceBus.DictionaryPool<TKey, TValue> Shared { get; }
-        public System.Collections.Generic.Dictionary<TKey, TValue> Rent(int minimumCapacity = 0) { }
-        public void Return(System.Collections.Generic.Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
-    }
     public class Discard : NServiceBus.RecoverabilityAction
     {
         public Discard(string reason) { }
@@ -2492,6 +2484,11 @@ namespace NServiceBus.Transport
         Handled = 0,
         RetryRequired = 1,
     }
+    public class HeaderPool : NServiceBus.Utils.DictionaryPool<string, string>
+    {
+        public HeaderPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 64) { }
+        public new static NServiceBus.Transport.HeaderPool Shared { get; }
+    }
     public class HostSettings
     {
         public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.IReadOnlySettings? coreSettings = null) { }
@@ -2795,5 +2792,18 @@ namespace NServiceBus.Utils
         [System.Runtime.CompilerServices.SkipLocalsInit]
         public static System.Guid Create([System.Runtime.CompilerServices.ParamCollection] [System.Runtime.CompilerServices.ScopedRef] System.ReadOnlySpan<string> values) { }
         public static System.Guid Create(string value) { }
+    }
+    public class DictionaryPool<TKey, TValue>
+        where TKey :  notnull
+    {
+        public DictionaryPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 1024) { }
+        public static NServiceBus.Utils.DictionaryPool<TKey, TValue> Shared { get; }
+        public System.Collections.Generic.Dictionary<TKey, TValue> Rent(int minimumCapacity = 0) { }
+        public void Return(System.Collections.Generic.Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
+    }
+    public static class ReadOnlyDictionaryExtensions
+    {
+        public static void CopyTo<TKey, TValue>(this System.Collections.Generic.IReadOnlyDictionary<TKey, TValue> source, System.Collections.Generic.Dictionary<TKey, TValue> destination)
+            where TKey :  notnull { }
     }
 }

@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Extensibility;
+using Utils;
 using MessageInterfaces;
 using Pipeline;
 using Transport;
-using HeaderPool = DictionaryPool<string, string>;
 
 class MessageOperations
 {
@@ -162,10 +162,7 @@ class MessageOperations
     static Dictionary<string, string> RentOutgoingHeaders(Dictionary<string, string> outgoingHeaders, string messageId)
     {
         var headers = HeaderPool.Shared.Rent(outgoingHeaders.Count);
-        foreach (var kvp in outgoingHeaders)
-        {
-            headers[kvp.Key] = kvp.Value;
-        }
+        outgoingHeaders.CopyTo(headers);
         headers[Headers.MessageId] = messageId;
         return headers;
     }

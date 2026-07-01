@@ -67,7 +67,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         // (unicast), the original is in the transport operations and will be returned after dispatch.
         if (copySharedMutableMessageState)
         {
-            DictionaryPool<string, string>.Shared.Return(outgoingMessage.Headers);
+            HeaderPool.Shared.Return(outgoingMessage.Headers);
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))
