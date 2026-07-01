@@ -13,11 +13,12 @@ using System.Threading;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Backed by a <see cref="ConcurrentBag{T}"/>, which gives per-thread work-stealing
-/// queues: returns are pushed onto the returning thread's local queue, and rents
-/// preferentially take from the current thread's queue (zero contention) before
-/// stealing from others. This mirrors the thread-local-affinity design behind
-/// <see cref="System.Buffers.ArrayPool{T}.Shared"/> without us reimplementing it.
+/// Backed by a <see cref="ConcurrentStack{T}"/>, a lock-free (CAS) linked stack:
+/// <see cref="Rent"/> (<c>TryPop</c>) and <see cref="Return"/> (<c>Push</c>) are wait-free
+/// and never take a monitor lock. Header dictionaries are rented and returned across
+/// <c>await</c> boundaries (rent on the pump/handler thread, return on a dispatch
+/// continuation thread), so there is no thread-local locality to exploit; a single
+/// lock-free structure minimizes the unavoidable cross-thread synchronization cost.
 /// </para>
 /// <para>
 /// A soft capacity cap (enforced via an atomic counter) bounds retention: returns
@@ -41,7 +42,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// <summary>A shared, process-wide pool instance, analogous to <c>ArrayPool&lt;T&gt;.Shared</c>.</summary>
     public static DictionaryPool<TKey, TValue> Shared { get; } = new();
 
-    readonly ConcurrentBag<Dictionary<TKey, TValue>> bag = [];
+    readonly ConcurrentStack<Dictionary<TKey, TValue>> stack = [];
     readonly int maxPoolSize;
     readonly int maxRetainedCapacityPerItem;
     int count; // approximate size, maintained via Interlocked
@@ -83,7 +84,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     public Dictionary<TKey, TValue> Rent(int minimumCapacity = 0)
     {
         Dictionary<TKey, TValue> item;
-        if (bag.TryTake(out var taken))
+        if (stack.TryPop(out var taken))
         {
             Interlocked.Decrement(ref count);
             item = taken;
@@ -134,6 +135,6 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
             return; // pool is full: drop it and let the GC reclaim it
         }
 
-        bag.Add(dictionary);
+        stack.Push(dictionary);
     }
 }
