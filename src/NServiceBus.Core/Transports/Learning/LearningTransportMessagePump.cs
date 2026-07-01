@@ -11,7 +11,6 @@ using Extensibility;
 using Logging;
 using Transport;
 
-using HeaderPool = DictionaryPool<string, string>;
 
 class LearningTransportMessagePump : IMessageReceiver
 {

@@ -3,10 +3,10 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Pipeline;
 using Transport;
+using NServiceBus.Utils;
 
 class InvokeAuditPipelineBehavior : IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>
 {
@@ -22,7 +22,9 @@ class InvokeAuditPipelineBehavior : IForkConnector<IIncomingPhysicalMessageConte
 
         context.Message.RevertToOriginalBodyIfNeeded();
 
-        var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.Body);
+        var auditHeaders = HeaderPool.Shared.Rent(context.Message.Headers.Count);
+        context.Message.Headers.CopyTo(auditHeaders);
+        var processedMessage = new OutgoingMessage(context.Message.MessageId, auditHeaders, context.Message.Body);
 
         var auditContext = this.CreateAuditContext(processedMessage, auditAddress, timeToBeReceived, context);
 

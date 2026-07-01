@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using NUnit.Framework;
 using Particular.Approvals;
+using NServiceBus.Utils;
 
 public class HeaderSerializerTests
 {
@@ -76,7 +77,7 @@ public class HeaderSerializerTests
         var input = new Dictionary<string, string>();
         var serialized = HeaderSerializer.Serialize(input);
         var deserialized = HeaderSerializer.Deserialize(serialized);
-        Assert.That(deserialized.Count, Is.EqualTo(0));
+        Assert.That(deserialized, Is.Empty);
     }
 
     [Test]
@@ -168,10 +169,7 @@ public class HeaderSerializerTests
     [TestCase("{ \"key\": { \"nested\": true } }")]
     [TestCase("{ \"key\": }")]
     [TestCase("{ \"key\": \"value\"")]
-    public void Deserialize_throws_for_malformed_json(string malformed)
-    {
-        Assert.That(() => HeaderSerializer.Deserialize(malformed), Throws.InstanceOf<JsonException>());
-    }
+    public void Deserialize_throws_for_malformed_json(string malformed) => Assert.That(() => HeaderSerializer.Deserialize(malformed), Throws.InstanceOf<JsonException>());
 
     [Test]
     public void Deserialize_with_pool_returns_dict_that_can_be_returned_to_pool()
@@ -186,26 +184,26 @@ public class HeaderSerializerTests
         var bytes = Encoding.UTF8.GetBytes(serialized);
 
         var dict = HeaderSerializer.Deserialize(bytes, pool);
-        Assert.That(dict.Count, Is.EqualTo(2));
+        Assert.That(dict, Has.Count.EqualTo(2));
 
         // Returning and re-renting should give back the same (cleared) dictionary.
         pool.Return(dict);
         var reused = pool.Rent();
         Assert.That(reused, Is.SameAs(dict));
-        Assert.That(reused.Count, Is.EqualTo(0));
+        Assert.That(reused, Is.Empty);
     }
 
     [Test]
     public void Deserialize_from_bytes_with_pool_returns_dict_on_parse_failure()
     {
         var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
-        var badJson = Encoding.UTF8.GetBytes("not valid json");
+        var badJson = "not valid json"u8.ToArray();
 
         Assert.That(() => HeaderSerializer.Deserialize(badJson, pool), Throws.InstanceOf<JsonException>());
 
         // The failed-parse dictionary was returned to the pool (cleared).
         // A subsequent rent should succeed normally.
         var dict = pool.Rent();
-        Assert.That(dict.Count, Is.EqualTo(0));
+        Assert.That(dict, Is.Empty);
     }
 }
