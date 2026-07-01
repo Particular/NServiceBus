@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using NServiceBus.Utils;
 
 static partial class HeaderSerializer
 {
     public static string Serialize(Dictionary<string, string> dictionary) =>
         JsonSerializer.Serialize(dictionary, HeaderSerializationContext.Default.DictionaryStringString);
 
+    // TODO: Remove since this is only used in tests?
     public static Dictionary<string, string> Deserialize(string value) =>
         Deserialize(Encoding.UTF8.GetBytes(value), pool: null);
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Pipeline;
 using Routing;
 using Transport;
+using NServiceBus.Utils;
 
 static class RoutingContextExtensions
 {
@@ -14,11 +15,8 @@ static class RoutingContextExtensions
         Dictionary<string, string> headers;
         if (copySharedMutableMessageState)
         {
-            headers = DictionaryPool<string, string>.Shared.Rent(context.Message.Headers.Count);
-            foreach (var kvp in context.Message.Headers)
-            {
-                headers[kvp.Key] = kvp.Value;
-            }
+            headers = HeaderPool.Shared.Rent(context.Message.Headers.Count);
+            context.Message.Headers.CopyTo(headers);
         }
         else
         {
