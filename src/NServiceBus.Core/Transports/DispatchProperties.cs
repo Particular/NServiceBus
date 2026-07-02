@@ -359,7 +359,7 @@ public class DispatchProperties : IDictionary<string, string>
     }
 
     /// <inheritdoc />
-    public bool TryGetValue(string key, out string value)
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out string value)
     {
         ArgumentNullException.ThrowIfNull(key);
         if (TryGetValueFromFields(key, out var fieldValue))
