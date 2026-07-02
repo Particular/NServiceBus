@@ -15,6 +15,7 @@ namespace System
     using System.ArrayExtensions;
     using System.Collections.Generic;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
 
     [Diagnostics.CodeAnalysis.SuppressMessage("Code", "PS0025:Dictionary keys should implement IEquatable<T>",
         Justification = "A DeepCopy algorithm requires reference counting necessitating dictionaries keyed on objects by reference")]
@@ -123,7 +124,11 @@ namespace System
                 return 0;
             }
 
-            return obj.GetHashCode();
+            // RuntimeHelpers.GetHashCode returns the identity hash code, which avoids
+            // calling ValueType.GetHashCode() on structs marked with [InlineArray]
+            // (that throws NotSupportedException). This matches the BCL
+            // System.Collections.Generic.ReferenceEqualityComparer behavior.
+            return RuntimeHelpers.GetHashCode(obj);
         }
     }
 
