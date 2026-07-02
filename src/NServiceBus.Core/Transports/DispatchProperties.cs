@@ -36,26 +36,31 @@ public class DispatchProperties : IDictionary<string, string>
     /// <summary>
     /// Creates a new instance of <see cref="DispatchProperties"/> an copies the values from the provided dictionary.
     /// </summary>
-    public DispatchProperties(Dictionary<string, string> properties)
+    public DispatchProperties(IDictionary<string, string> properties)
     {
         if (properties is null)
         {
             return;
         }
 
-        foreach (var kvp in properties)
+        if (properties is DispatchProperties source)
         {
-            AddInternal(kvp.Key, kvp.Value);
-        }
-    }
+            // Fast path: direct field copy when source is a DispatchProperties
+            deliverAt = source.deliverAt;
+            delayDeliveryFor = source.delayDeliveryFor;
+            timeToBeReceived = source.timeToBeReceived;
 
-    /// <summary>
-    /// Creates a new instance of <see cref="DispatchProperties"/> an copies the values from the provided dictionary.
-    /// </summary>
-    public DispatchProperties(IDictionary<string, string> properties)
-    {
-        if (properties is null)
-        {
+            count = source.count;
+            for (int i = 0; i < count; i++)
+            {
+                slots[i] = source.slots[i];
+            }
+
+            if (source.stash is { Count: > 0 })
+            {
+                stash = new Dictionary<string, string>(source.stash);
+            }
+
             return;
         }
 
