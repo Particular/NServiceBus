@@ -111,6 +111,7 @@ public class DispatchProperties : IDictionary<string, string>
     {
         get
         {
+            ArgumentNullException.ThrowIfNull(key);
             if (TryGetValueFromFields(key, out var fieldValue))
             {
                 return fieldValue;
@@ -136,6 +137,7 @@ public class DispatchProperties : IDictionary<string, string>
         }
         set
         {
+            ArgumentNullException.ThrowIfNull(key);
             if (TrySetField(key, value))
             {
                 return;
@@ -279,6 +281,7 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public void Add(string key, string value)
     {
+        ArgumentNullException.ThrowIfNull(key);
         if (ContainsKeyInFields(key))
         {
             throw new ArgumentException($"An item with the same key '{key}' has already been added.");
@@ -305,6 +308,7 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public bool ContainsKey(string key)
     {
+        ArgumentNullException.ThrowIfNull(key);
         if (ContainsKeyInFields(key))
         {
             return true;
@@ -326,6 +330,7 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public bool Remove(string key)
     {
+        ArgumentNullException.ThrowIfNull(key);
         if (RemoveFromFields(key))
         {
             return true;
@@ -356,6 +361,7 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public bool TryGetValue(string key, out string value)
     {
+        ArgumentNullException.ThrowIfNull(key);
         if (TryGetValueFromFields(key, out var fieldValue))
         {
             value = fieldValue;
@@ -391,6 +397,7 @@ public class DispatchProperties : IDictionary<string, string>
     /// <returns>true if the key/value pair was added; false if the key already exists.</returns>
     public bool TryAdd(string key, string value)
     {
+        ArgumentNullException.ThrowIfNull(key);
         if (ContainsKeyInFields(key))
         {
             return false;
