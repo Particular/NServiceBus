@@ -21,10 +21,11 @@ class IncomingPipelineMetrics
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
     const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
+    const string ActiveMessageHandlers = "nservicebus.messaging.active_handlers";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
-        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.2.0");
+        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.3.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
         totalFetched = meter.CreateCounter<long>(TotalFetched,
@@ -45,6 +46,8 @@ class IncomingPipelineMetrics
             description: "Total number of messages sent to the error queue.");
         totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
             description: "Total number of unwrapping attempts by the endpoint.");
+        activeMessageHandlers = meter.CreateUpDownCounter<long>(ActiveMessageHandlers,
+            description: "Number of message handlers currently executing.");
 
         queueNameBase = queueName;
         endpointDiscriminator = discriminator;
@@ -243,6 +246,42 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
+    public void RecordHandlerInvocationStarting(IInvokeHandlerContext context)
+    {
+        if (!activeMessageHandlers.Enabled)
+        {
+            return;
+        }
+
+        activeMessageHandlers.Add(1, BuildActiveHandlerTags(context));
+    }
+
+    public void RecordHandlerInvocationFinished(IInvokeHandlerContext context)
+    {
+        if (!activeMessageHandlers.Enabled)
+        {
+            return;
+        }
+
+        activeMessageHandlers.Add(-1, BuildActiveHandlerTags(context));
+    }
+
+    // The increment and the matching decrement must carry identical tags so they apply to the same
+    // time series; building them in one place keeps the two Record methods in sync.
+    // The TagList is a stack struck with 8 pre allocated slots, so adding 4 tags does not 
+    // require a heap allocation.
+    static TagList BuildActiveHandlerTags(IInvokeHandlerContext context)
+    {
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator]);
+        tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, context.MessageMetadata.MessageType.FullName));
+        tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName));
+        return tags;
+    }
+
     public void EnvelopeUnwrappingSucceeded(MessageContext messageContext, IEnvelopeHandler type) => RecordEnvelopeUnwrapping(messageContext, type, true, null);
     public void EnvelopeUnwrappingFailed(MessageContext messageContext, IEnvelopeHandler type, Exception? exception) => RecordEnvelopeUnwrapping(messageContext, type, false, exception);
     void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
@@ -276,6 +315,7 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalDelayedRetries;
     readonly Counter<long> totalSentToErrorQueue;
     readonly Counter<long> totalEnvelopeUnwrapping;
+    readonly UpDownCounter<long> activeMessageHandlers;
     string queueNameBase;
     string endpointDiscriminator;
 }
