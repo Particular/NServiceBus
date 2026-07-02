@@ -2469,7 +2469,7 @@ namespace NServiceBus.Transport
         public System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<string, string>> GetEnumerator() { }
         public bool Remove(string key) { }
         public bool TryAdd(string key, string value) { }
-        public bool TryGetValue(string key, out string value) { }
+        public bool TryGetValue(string key, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out string value) { }
     }
     public class ErrorContext
     {
