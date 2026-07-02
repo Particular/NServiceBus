@@ -67,6 +67,7 @@ NServiceBus.Settings.SettingsHolder
 NServiceBus.StaticHeadersConfigExtensions
 NServiceBus.SubscriptionMigrationModeSettings
 NServiceBus.Transport.DispatchProperties
+NServiceBus.Support.RuntimeEnvironment
 NServiceBus.Transport.ErrorContext
 NServiceBus.Transport.IMessageDispatcher
 NServiceBus.Transport.IMessageReceiver

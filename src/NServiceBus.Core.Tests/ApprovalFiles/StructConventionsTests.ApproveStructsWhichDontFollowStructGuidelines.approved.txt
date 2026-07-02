@@ -19,3 +19,21 @@ NServiceBus.Extensibility.ContextBag+Slot violates the following rules:
       - Field Value of type System.Object is a reference type.
    - The size cannot be determined because there are fields that are reference types.
 
+NServiceBus.Transport.DispatchProperties+Slot violates the following rules:
+   - The following fields are public, so the type is not immutable:
+      - Field Key of type System.String is public.
+      - Field Value of type System.String is public.
+   - The following fields are reference types, which are potentially mutable:
+      - Field Key of type System.String is a reference type.
+      - Field Value of type System.String is a reference type.
+   - The size cannot be determined because there are fields that are reference types.
+
+NServiceBus.Transport.ReceiveProperties+Slot violates the following rules:
+   - The following fields are public, so the type is not immutable:
+      - Field Key of type System.String is public.
+      - Field Value of type System.String is public.
+   - The following fields are reference types, which are potentially mutable:
+      - Field Key of type System.String is a reference type.
+      - Field Value of type System.String is a reference type.
+   - The size cannot be determined because there are fields that are reference types.
+

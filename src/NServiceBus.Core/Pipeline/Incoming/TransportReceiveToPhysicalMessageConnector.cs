@@ -113,7 +113,7 @@ class TransportReceiveToPhysicalMessageConnector(
         return transportOperations;
     }
 
-    static void SerializeRoutingStrategy(AddressTag addressTag, Dictionary<string, string> options)
+    static void SerializeRoutingStrategy(AddressTag addressTag, DispatchProperties options)
     {
         switch (addressTag)
         {
@@ -128,7 +128,7 @@ class TransportReceiveToPhysicalMessageConnector(
         }
     }
 
-    static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
+    static AddressTag DeserializeRoutingStrategy(DispatchProperties options)
     {
         if (options.Remove("Destination", out var destination))
         {
