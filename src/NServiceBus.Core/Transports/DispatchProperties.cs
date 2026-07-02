@@ -21,6 +21,11 @@ public class DispatchProperties : IDictionary<string, string>
     static readonly string DelayDeliveryWithKeyName = "DelayDeliveryFor";
     static readonly string DiscardIfNotReceivedBeforeKeyName = "TimeToBeReceived";
 
+    // Dedicated fields for the three well-known properties, avoiding string-key lookups
+    string? deliverAt;
+    string? delayDeliveryFor;
+    string? timeToBeReceived;
+
     /// <summary>
     /// Creates a new instance of <see cref="DispatchProperties"/>.
     /// </summary>
@@ -65,11 +70,11 @@ public class DispatchProperties : IDictionary<string, string>
     /// </summary>
     public DoNotDeliverBefore? DoNotDeliverBefore
     {
-        get => ContainsKey(DoNotDeliverBeforeKeyName)
-            ? new DoNotDeliverBefore(DateTimeOffsetHelper.ToDateTimeOffset(this[DoNotDeliverBeforeKeyName]))
+        get => deliverAt is not null
+            ? new DoNotDeliverBefore(DateTimeOffsetHelper.ToDateTimeOffset(deliverAt))
             : null;
 
-        set => this[DoNotDeliverBeforeKeyName] = DateTimeOffsetHelper.ToWireFormattedString(value!.At);
+        set => deliverAt = value is not null ? DateTimeOffsetHelper.ToWireFormattedString(value.At) : null;
     }
 
     /// <summary>
@@ -77,11 +82,11 @@ public class DispatchProperties : IDictionary<string, string>
     /// </summary>
     public DelayDeliveryWith? DelayDeliveryWith
     {
-        get => ContainsKey(DelayDeliveryWithKeyName)
-            ? new DelayDeliveryWith(TimeSpan.Parse(this[DelayDeliveryWithKeyName]))
+        get => delayDeliveryFor is not null
+            ? new DelayDeliveryWith(TimeSpan.Parse(delayDeliveryFor))
             : null;
 
-        set => this[DelayDeliveryWithKeyName] = value!.Delay.ToString();
+        set => delayDeliveryFor = value?.Delay.ToString();
     }
 
     /// <summary>
@@ -89,11 +94,11 @@ public class DispatchProperties : IDictionary<string, string>
     /// </summary>
     public DiscardIfNotReceivedBefore? DiscardIfNotReceivedBefore
     {
-        get => ContainsKey(DiscardIfNotReceivedBeforeKeyName)
-            ? new DiscardIfNotReceivedBefore(TimeSpan.Parse(this[DiscardIfNotReceivedBeforeKeyName]))
+        get => timeToBeReceived is not null
+            ? new DiscardIfNotReceivedBefore(TimeSpan.Parse(timeToBeReceived))
             : null;
 
-        set => this[DiscardIfNotReceivedBeforeKeyName] = value!.MaxTime.ToString();
+        set => timeToBeReceived = value?.MaxTime.ToString();
     }
 
     /// <inheritdoc />
@@ -101,6 +106,11 @@ public class DispatchProperties : IDictionary<string, string>
     {
         get
         {
+            if (TryGetValueFromFields(key, out var fieldValue))
+            {
+                return fieldValue;
+            }
+
             for (int i = 0; i < count; i++)
             {
                 ref var slot = ref slots[i];
@@ -121,6 +131,11 @@ public class DispatchProperties : IDictionary<string, string>
         }
         set
         {
+            if (TrySetField(key, value))
+            {
+                return;
+            }
+
             for (int i = 0; i < count; i++)
             {
                 ref var slot = ref slots[i];
@@ -148,8 +163,23 @@ public class DispatchProperties : IDictionary<string, string>
     {
         get
         {
-            var keys = new string[count + (stash?.Count ?? 0)];
+            var keys = new string[Count];
             int index = 0;
+
+            if (deliverAt is not null)
+            {
+                keys[index++] = DoNotDeliverBeforeKeyName;
+            }
+
+            if (delayDeliveryFor is not null)
+            {
+                keys[index++] = DelayDeliveryWithKeyName;
+            }
+
+            if (timeToBeReceived is not null)
+            {
+                keys[index++] = DiscardIfNotReceivedBeforeKeyName;
+            }
 
             for (int i = 0; i < count; i++)
             {
@@ -173,8 +203,23 @@ public class DispatchProperties : IDictionary<string, string>
     {
         get
         {
-            var values = new string[count + (stash?.Count ?? 0)];
+            var values = new string[Count];
             int index = 0;
+
+            if (deliverAt is not null)
+            {
+                values[index++] = deliverAt;
+            }
+
+            if (delayDeliveryFor is not null)
+            {
+                values[index++] = delayDeliveryFor;
+            }
+
+            if (timeToBeReceived is not null)
+            {
+                values[index++] = timeToBeReceived;
+            }
 
             for (int i = 0; i < count; i++)
             {
@@ -194,7 +239,30 @@ public class DispatchProperties : IDictionary<string, string>
     }
 
     /// <inheritdoc />
-    public int Count => count + (stash?.Count ?? 0);
+    public int Count
+    {
+        get
+        {
+            int fieldCount = 0;
+
+            if (deliverAt is not null)
+            {
+                fieldCount++;
+            }
+
+            if (delayDeliveryFor is not null)
+            {
+                fieldCount++;
+            }
+
+            if (timeToBeReceived is not null)
+            {
+                fieldCount++;
+            }
+
+            return fieldCount + count + (stash?.Count ?? 0);
+        }
+    }
 
     /// <inheritdoc />
     public bool IsReadOnly => false;
@@ -202,6 +270,11 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public void Add(string key, string value)
     {
+        if (ContainsKeyInFields(key))
+        {
+            throw new ArgumentException($"An item with the same key '{key}' has already been added.");
+        }
+
         for (int i = 0; i < count; i++)
         {
             ref var slot = ref slots[i];
@@ -223,6 +296,11 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public bool ContainsKey(string key)
     {
+        if (ContainsKeyInFields(key))
+        {
+            return true;
+        }
+
         for (int i = 0; i < count; i++)
         {
             ref var slot = ref slots[i];
@@ -239,6 +317,11 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public bool Remove(string key)
     {
+        if (RemoveFromFields(key))
+        {
+            return true;
+        }
+
         for (int i = 0; i < count; i++)
         {
             ref var slot = ref slots[i];
@@ -263,6 +346,12 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public bool TryGetValue(string key, out string value)
     {
+        if (TryGetValueFromFields(key, out var fieldValue))
+        {
+            value = fieldValue;
+            return true;
+        }
+
         for (int i = 0; i < count; i++)
         {
             ref var slot = ref slots[i];
@@ -290,6 +379,11 @@ public class DispatchProperties : IDictionary<string, string>
     /// <returns>true if the key/value pair was added; false if the key already exists.</returns>
     public bool TryAdd(string key, string value)
     {
+        if (ContainsKeyInFields(key))
+        {
+            return false;
+        }
+
         for (int i = 0; i < count; i++)
         {
             ref var slot = ref slots[i];
@@ -312,9 +406,13 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public void Clear()
     {
+        deliverAt = null;
+        delayDeliveryFor = null;
+        timeToBeReceived = null;
+
         for (int i = 0; i < count; i++)
         {
-            slots[i] = default;
+            slots[i] = new Slot();
         }
 
         count = 0;
@@ -324,6 +422,21 @@ public class DispatchProperties : IDictionary<string, string>
     /// <inheritdoc />
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
+        if (deliverAt is not null)
+        {
+            yield return new KeyValuePair<string, string>(DoNotDeliverBeforeKeyName, deliverAt);
+        }
+
+        if (delayDeliveryFor is not null)
+        {
+            yield return new KeyValuePair<string, string>(DelayDeliveryWithKeyName, delayDeliveryFor);
+        }
+
+        if (timeToBeReceived is not null)
+        {
+            yield return new KeyValuePair<string, string>(DiscardIfNotReceivedBeforeKeyName, timeToBeReceived);
+        }
+
         for (int i = 0; i < count; i++)
         {
             ref var slot = ref slots[i];
@@ -341,8 +454,103 @@ public class DispatchProperties : IDictionary<string, string>
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    bool ContainsKeyInFields(string key)
+    {
+        if (deliverAt is not null && key == DoNotDeliverBeforeKeyName)
+        {
+            return true;
+        }
+
+        if (delayDeliveryFor is not null && key == DelayDeliveryWithKeyName)
+        {
+            return true;
+        }
+
+        if (timeToBeReceived is not null && key == DiscardIfNotReceivedBeforeKeyName)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryGetValueFromFields(string key, out string value)
+    {
+        if (deliverAt is not null && key == DoNotDeliverBeforeKeyName)
+        {
+            value = deliverAt;
+            return true;
+        }
+
+        if (delayDeliveryFor is not null && key == DelayDeliveryWithKeyName)
+        {
+            value = delayDeliveryFor;
+            return true;
+        }
+
+        if (timeToBeReceived is not null && key == DiscardIfNotReceivedBeforeKeyName)
+        {
+            value = timeToBeReceived;
+            return true;
+        }
+
+        value = default!;
+        return false;
+    }
+
+    bool TrySetField(string key, string value)
+    {
+        if (key == DoNotDeliverBeforeKeyName)
+        {
+            deliverAt = value;
+            return true;
+        }
+
+        if (key == DelayDeliveryWithKeyName)
+        {
+            delayDeliveryFor = value;
+            return true;
+        }
+
+        if (key == DiscardIfNotReceivedBeforeKeyName)
+        {
+            timeToBeReceived = value;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool RemoveFromFields(string key)
+    {
+        if (deliverAt is not null && key == DoNotDeliverBeforeKeyName)
+        {
+            deliverAt = null;
+            return true;
+        }
+
+        if (delayDeliveryFor is not null && key == DelayDeliveryWithKeyName)
+        {
+            delayDeliveryFor = null;
+            return true;
+        }
+
+        if (timeToBeReceived is not null && key == DiscardIfNotReceivedBeforeKeyName)
+        {
+            timeToBeReceived = null;
+            return true;
+        }
+
+        return false;
+    }
+
     void AddInternal(string key, string value)
     {
+        if (TrySetField(key, value))
+        {
+            return;
+        }
+
         if (count < InlineArrayLength)
         {
             slots[count] = new Slot { Key = key, Value = value };
@@ -371,6 +579,21 @@ public class DispatchProperties : IDictionary<string, string>
         }
 
         int index = arrayIndex;
+
+        if (deliverAt is not null)
+        {
+            array[index++] = new KeyValuePair<string, string>(DoNotDeliverBeforeKeyName, deliverAt);
+        }
+
+        if (delayDeliveryFor is not null)
+        {
+            array[index++] = new KeyValuePair<string, string>(DelayDeliveryWithKeyName, delayDeliveryFor);
+        }
+
+        if (timeToBeReceived is not null)
+        {
+            array[index++] = new KeyValuePair<string, string>(DiscardIfNotReceivedBeforeKeyName, timeToBeReceived);
+        }
 
         for (int i = 0; i < count; i++)
         {
@@ -404,7 +627,9 @@ public class DispatchProperties : IDictionary<string, string>
     int count;
     Dictionary<string, string>? stash;
 
-    const int InlineArrayLength = 4;
+    // Only needed for custom properties added by transports; the three well-known
+    // properties are stored as dedicated fields to avoid string-key lookups.
+    const int InlineArrayLength = 2;
 
     struct Slot
     {
