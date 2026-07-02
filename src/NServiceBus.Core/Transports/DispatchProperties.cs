@@ -17,9 +17,9 @@ using Performance.TimeToBeReceived;
 public class DispatchProperties : IDictionary<string, string>
 {
     //These can't be changed to be backwards compatible with previous versions of the core
-    static readonly string DoNotDeliverBeforeKeyName = "DeliverAt";
-    static readonly string DelayDeliveryWithKeyName = "DelayDeliveryFor";
-    static readonly string DiscardIfNotReceivedBeforeKeyName = "TimeToBeReceived";
+    const string DoNotDeliverBeforeKeyName = "DeliverAt";
+    const string DelayDeliveryWithKeyName = "DelayDeliveryFor";
+    const string DiscardIfNotReceivedBeforeKeyName = "TimeToBeReceived";
 
     // Dedicated fields for the three well-known properties, avoiding string-key lookups
     string? deliverAt;
@@ -132,7 +132,7 @@ public class DispatchProperties : IDictionary<string, string>
             }
 
             ThrowKeyNotFoundException(key);
-            return default;
+            return null;
         }
         set
         {
@@ -191,12 +191,14 @@ public class DispatchProperties : IDictionary<string, string>
                 keys[index++] = slots[i].Key;
             }
 
-            if (stash is not null)
+            if (stash is null)
             {
-                foreach (var key in stash.Keys)
-                {
-                    keys[index++] = key;
-                }
+                return keys;
+            }
+
+            foreach (var key in stash.Keys)
+            {
+                keys[index++] = key;
             }
 
             return keys;
@@ -231,12 +233,14 @@ public class DispatchProperties : IDictionary<string, string>
                 values[index++] = slots[i].Value;
             }
 
-            if (stash is not null)
+            if (stash is null)
             {
-                foreach (var value in stash.Values)
-                {
-                    values[index++] = value;
-                }
+                return values;
+            }
+
+            foreach (var value in stash.Values)
+            {
+                values[index++] = value;
             }
 
             return values;
@@ -331,18 +335,19 @@ public class DispatchProperties : IDictionary<string, string>
         {
             ref var slot = ref slots[i];
 
-            if (StringComparer.Ordinal.Equals(key, slot.Key))
+            if (!StringComparer.Ordinal.Equals(key, slot.Key))
             {
-                count--;
-
-                if (i != count)
-                {
-                    slots[i] = slots[count];
-                }
-
-                slots[count] = new Slot();
-                return true;
+                continue;
             }
+
+            count--;
+            if (i != count)
+            {
+                slots[i] = slots[count];
+            }
+
+            slots[count] = new Slot();
+            return true;
         }
 
         return stash?.Remove(key) ?? false;
@@ -361,11 +366,13 @@ public class DispatchProperties : IDictionary<string, string>
         {
             ref var slot = ref slots[i];
 
-            if (StringComparer.Ordinal.Equals(key, slot.Key))
+            if (!StringComparer.Ordinal.Equals(key, slot.Key))
             {
-                value = slot.Value;
-                return true;
+                continue;
             }
+
+            value = slot.Value;
+            return true;
         }
 
         if (stash is not null && stash.TryGetValue(key, out var stashedValue))
@@ -374,7 +381,7 @@ public class DispatchProperties : IDictionary<string, string>
             return true;
         }
 
-        value = default!;
+        value = null!;
         return false;
     }
 
@@ -448,12 +455,14 @@ public class DispatchProperties : IDictionary<string, string>
             yield return new KeyValuePair<string, string>(slot.Key, slot.Value);
         }
 
-        if (stash is not null)
+        if (stash is null)
         {
-            foreach (var kvp in stash)
-            {
-                yield return kvp;
-            }
+            yield break;
+        }
+
+        foreach (var kvp in stash)
+        {
+            yield return kvp;
         }
     }
 
@@ -471,12 +480,7 @@ public class DispatchProperties : IDictionary<string, string>
             return true;
         }
 
-        if (timeToBeReceived is not null && key == DiscardIfNotReceivedBeforeKeyName)
-        {
-            return true;
-        }
-
-        return false;
+        return timeToBeReceived is not null && key == DiscardIfNotReceivedBeforeKeyName;
     }
 
     bool TryGetValueFromFields(string key, out string value)
@@ -499,31 +503,26 @@ public class DispatchProperties : IDictionary<string, string>
             return true;
         }
 
-        value = default!;
+        value = null!;
         return false;
     }
 
     bool TrySetField(string key, string value)
     {
-        if (key == DoNotDeliverBeforeKeyName)
+        switch (key)
         {
-            deliverAt = value;
-            return true;
+            case DoNotDeliverBeforeKeyName:
+                deliverAt = value;
+                return true;
+            case DelayDeliveryWithKeyName:
+                delayDeliveryFor = value;
+                return true;
+            case DiscardIfNotReceivedBeforeKeyName:
+                timeToBeReceived = value;
+                return true;
+            default:
+                return false;
         }
-
-        if (key == DelayDeliveryWithKeyName)
-        {
-            delayDeliveryFor = value;
-            return true;
-        }
-
-        if (key == DiscardIfNotReceivedBeforeKeyName)
-        {
-            timeToBeReceived = value;
-            return true;
-        }
-
-        return false;
     }
 
     bool RemoveFromFields(string key)
@@ -540,13 +539,14 @@ public class DispatchProperties : IDictionary<string, string>
             return true;
         }
 
-        if (timeToBeReceived is not null && key == DiscardIfNotReceivedBeforeKeyName)
+        if (timeToBeReceived is null || key != DiscardIfNotReceivedBeforeKeyName)
         {
-            timeToBeReceived = null;
-            return true;
+            return false;
         }
 
-        return false;
+        timeToBeReceived = null;
+        return true;
+
     }
 
     void AddInternal(string key, string value)
@@ -568,10 +568,7 @@ public class DispatchProperties : IDictionary<string, string>
 
     void ICollection<KeyValuePair<string, string>>.Add(KeyValuePair<string, string> item) => Add(item.Key, item.Value);
 
-    bool ICollection<KeyValuePair<string, string>>.Contains(KeyValuePair<string, string> item)
-    {
-        return TryGetValue(item.Key, out var value) && StringComparer.Ordinal.Equals(value, item.Value);
-    }
+    bool ICollection<KeyValuePair<string, string>>.Contains(KeyValuePair<string, string> item) => TryGetValue(item.Key, out var value) && StringComparer.Ordinal.Equals(value, item.Value);
 
     void ICollection<KeyValuePair<string, string>>.CopyTo(KeyValuePair<string, string>[] array, int arrayIndex)
     {
@@ -606,24 +603,18 @@ public class DispatchProperties : IDictionary<string, string>
             array[index++] = new KeyValuePair<string, string>(slot.Key, slot.Value);
         }
 
-        if (stash is not null)
+        if (stash is null)
         {
-            foreach (var kvp in stash)
-            {
-                array[index++] = kvp;
-            }
+            return;
+        }
+
+        foreach (var kvp in stash)
+        {
+            array[index++] = kvp;
         }
     }
 
-    bool ICollection<KeyValuePair<string, string>>.Remove(KeyValuePair<string, string> item)
-    {
-        if (!((ICollection<KeyValuePair<string, string>>)this).Contains(item))
-        {
-            return false;
-        }
-
-        return Remove(item.Key);
-    }
+    bool ICollection<KeyValuePair<string, string>>.Remove(KeyValuePair<string, string> item) => ((ICollection<KeyValuePair<string, string>>)this).Contains(item) && Remove(item.Key);
 
     [DoesNotReturn]
     static void ThrowKeyNotFoundException(string key) => throw new KeyNotFoundException($"The given key '{key}' was not present in the dictionary.");
