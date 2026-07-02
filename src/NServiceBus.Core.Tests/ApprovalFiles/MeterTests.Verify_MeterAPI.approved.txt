@@ -1,7 +1,7 @@
 {
   "Note": "Changes to metrics API should result in an update to NServiceBusMeter version.",
   "MetricsSourceName": "NServiceBus.Core.Pipeline.Incoming",
-  "MetricsSourceVersion": "0.2.0",
+  "MetricsSourceVersion": "0.3.0",
   "Tags": [
     "error.type",
     "execution.result",
@@ -14,6 +14,7 @@
   ],
   "Metrics": [
     "nservicebus.envelope.unwrapped => Counter",
+    "nservicebus.messaging.active_handlers => UpDownCounter",
     "nservicebus.messaging.critical_time => Histogram, Unit: s",
     "nservicebus.messaging.failures => Counter",
     "nservicebus.messaging.fetches => Counter",
