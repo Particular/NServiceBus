@@ -45,6 +45,7 @@ public sealed class ReceiveProperties : IReadOnlyDictionary<string, string>
     {
         get
         {
+            ArgumentNullException.ThrowIfNull(key);
             for (int i = 0; i < count; i++)
             {
                 ref var slot = ref slots[i];
@@ -61,7 +62,7 @@ public sealed class ReceiveProperties : IReadOnlyDictionary<string, string>
             }
 
             ThrowKeyNotFoundException(key);
-            return default;
+            return null;
         }
     }
 
@@ -111,6 +112,7 @@ public sealed class ReceiveProperties : IReadOnlyDictionary<string, string>
     /// <inheritdoc />
     public bool ContainsKey(string key)
     {
+        ArgumentNullException.ThrowIfNull(key);
         for (int i = 0; i < count; i++)
         {
             ref var slot = ref slots[i];
@@ -127,15 +129,18 @@ public sealed class ReceiveProperties : IReadOnlyDictionary<string, string>
     /// <inheritdoc />
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out string value)
     {
+        ArgumentNullException.ThrowIfNull(key);
         for (int i = 0; i < count; i++)
         {
             ref var slot = ref slots[i];
 
-            if (StringComparer.Ordinal.Equals(key, slot.Key))
+            if (!StringComparer.Ordinal.Equals(key, slot.Key))
             {
-                value = slot.Value;
-                return true;
+                continue;
             }
+
+            value = slot.Value;
+            return true;
         }
 
         if (stash is not null && stash.TryGetValue(key, out var stashedValue))
@@ -144,7 +149,7 @@ public sealed class ReceiveProperties : IReadOnlyDictionary<string, string>
             return true;
         }
 
-        value = default;
+        value = null;
         return false;
     }
 
@@ -157,12 +162,14 @@ public sealed class ReceiveProperties : IReadOnlyDictionary<string, string>
             yield return new KeyValuePair<string, string>(slot.Key, slot.Value);
         }
 
-        if (stash is not null)
+        if (stash is null)
         {
-            foreach (var kvp in stash)
-            {
-                yield return kvp;
-            }
+            yield break;
+        }
+
+        foreach (var kvp in stash)
+        {
+            yield return kvp;
         }
     }
 
