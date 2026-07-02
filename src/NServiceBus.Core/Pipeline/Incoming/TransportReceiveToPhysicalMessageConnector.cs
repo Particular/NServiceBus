@@ -113,7 +113,7 @@ class TransportReceiveToPhysicalMessageConnector(
         return transportOperations;
     }
 
-    static void SerializeRoutingStrategy(AddressTag addressTag, Dictionary<string, string> options)
+    static void SerializeRoutingStrategy(AddressTag addressTag, DispatchProperties options)
     {
         switch (addressTag)
         {
@@ -128,19 +128,16 @@ class TransportReceiveToPhysicalMessageConnector(
         }
     }
 
-    static AddressTag DeserializeRoutingStrategy(Dictionary<string, string>? options)
+    static AddressTag DeserializeRoutingStrategy(DispatchProperties options)
     {
-        if (options is not null)
+        if (options.Remove("Destination", out var destination))
         {
-            if (options.Remove("Destination", out var destination))
-            {
-                return new UnicastAddressTag(destination);
-            }
+            return new UnicastAddressTag(destination);
+        }
 
-            if (options.Remove("EventType", out var eventType))
-            {
-                return new MulticastAddressTag(Type.GetType(eventType, true));
-            }
+        if (options.Remove("EventType", out var eventType))
+        {
+            return new MulticastAddressTag(Type.GetType(eventType, true));
         }
 
         throw new Exception("Could not find routing strategy to deserialize");
