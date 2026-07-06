@@ -137,3 +137,53 @@ static class LegacyContextPropagation
         }
     }
 }
+
+// Handler spans move from the "NServiceBus.Core" ActivitySource to the dedicated
+// "NServiceBus.Core.Handler" source so they can be filtered/sampled independently
+// (https://github.com/Particular/NServiceBus/issues/7284). Existing OpenTelemetry
+// configurations only subscribe to "NServiceBus.Core" and would silently lose handler
+// spans, so the new source is opt-in via an AppContext switch until v11.
+//
+// In v11 the dedicated source becomes the default: delete this class and remove the
+// source selection in ActivityFactory.StartHandlerActivity so it always uses
+// ActivitySources.Handler.
+static class HandlerActivitySourceSwitch
+{
+    enum SwitchState : byte
+    {
+        Unchecked = 0,
+        Enabled = 1,
+        Disabled = 2
+    }
+
+    static SwitchState cachedUseHandlerActivitySource;
+
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7284",
+        Note = "In v11, handler spans are always emitted from the NServiceBus.Core.Handler ActivitySource and this switch will be removed.",
+        ReplacementTypeOrMember = "ActivitySources.Handler")]
+    public const string UseHandlerActivitySourceSwitchName = "NServiceBus.Core.OpenTelemetry.UseHandlerActivitySource";
+
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7284",
+        Note = "In v11, handler spans are always emitted from the NServiceBus.Core.Handler ActivitySource and this switch will be removed.",
+        ReplacementTypeOrMember = "ActivitySources.Handler")]
+    public static bool UseHandlerActivitySource
+    {
+        get
+        {
+            var state = cachedUseHandlerActivitySource;
+            if (state != SwitchState.Unchecked)
+            {
+                return state == SwitchState.Enabled;
+            }
+
+            state = AppContext.TryGetSwitch(UseHandlerActivitySourceSwitchName, out var isEnabled) && isEnabled
+                ? SwitchState.Enabled
+                : SwitchState.Disabled;
+            cachedUseHandlerActivitySource = state;
+
+            return state == SwitchState.Enabled;
+        }
+    }
+
+    internal static void ResetUseHandlerActivitySource() => cachedUseHandlerActivitySource = SwitchState.Unchecked;
+}
