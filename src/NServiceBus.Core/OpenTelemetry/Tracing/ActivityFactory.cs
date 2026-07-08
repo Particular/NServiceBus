@@ -111,7 +111,13 @@ sealed class ActivityFactory : IActivityFactory
             return null;
         }
 
-        var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
+        // Until v11 the dedicated handler source is opt-in; existing configurations only
+        // subscribe to the main source and must keep receiving handler spans from it.
+        var source = HandlerActivitySourceSwitch.UseHandlerActivitySource
+            ? ActivitySources.Handler
+            : ActivitySources.Main;
+
+        var activity = source.StartActivity(ActivityNames.InvokeHandlerActivityName);
 
         if (activity is null)
         {
