@@ -41,4 +41,5 @@ static class ActivityTags
     public const string HandlerSagaId = "nservicebus.handler.saga_id";
     public const string EventTypes = "nservicebus.event_types";
     public const string CancelledTask = "nservicebus.cancelled";
+    public const string RecoverabilityAction = "nservicebus.recoverability_action";
 }
