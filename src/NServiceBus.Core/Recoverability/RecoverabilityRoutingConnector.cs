@@ -34,24 +34,28 @@ class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IR
             await stage(routingContext).ConfigureAwait(false);
         }
 
+        var activity = context.Extensions.TryGet<Activity>(out var transportActivity)
+            ? transportActivity
+            : Activity.Current;
+
         if (context.RecoverabilityAction is ImmediateRetry)
         {
             incomingPipelineMetrics.RecordImmediateRetry(context);
-            Activity.Current?.AddTag("NServiceBus.RecoverabilityAction", "ImmediateRetry");
+            activity?.AddTag("NServiceBus.RecoverabilityAction", "ImmediateRetry");
         }
         else if (context.RecoverabilityAction is DelayedRetry)
         {
             incomingPipelineMetrics.RecordDelayedRetry(context);
-            Activity.Current?.AddTag("NServiceBus.RecoverabilityAction", "DelayedRetry`");
+            activity?.AddTag("NServiceBus.RecoverabilityAction", "DelayedRetry`");
         }
         else if (context.RecoverabilityAction is MoveToError)
         {
             incomingPipelineMetrics.RecordSendToErrorQueue(context);
-            Activity.Current?.AddTag("NServiceBus.RecoverabilityAction", "MoveToError");
+            activity?.AddTag("NServiceBus.RecoverabilityAction", "MoveToError");
         }
         else if (context.RecoverabilityAction is Discard)
         {
-            Activity.Current?.AddTag("NServiceBus.RecoverabilityAction", "Discard");
+            activity?.AddTag("NServiceBus.RecoverabilityAction", "Discard");
         }
 
         if (context is IRecoverabilityActionContextNotifications events)
