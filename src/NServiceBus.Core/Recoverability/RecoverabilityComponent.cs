@@ -74,7 +74,8 @@ class RecoverabilityComponent
         IServiceProvider serviceProvider,
         IPipelineCache pipelineCache,
         PipelineComponent pipeline,
-        MessageOperations messageOperations)
+        MessageOperations messageOperations,
+        IActivityFactory activityFactory)
     {
         ArgumentNullException.ThrowIfNull(recoverabilityConfig);
         ArgumentNullException.ThrowIfNull(faultMetadataExtractor);
@@ -103,7 +104,9 @@ class RecoverabilityComponent
             },
             recoverabilityPipeline,
             faultMetadataExtractor,
-            (this, policy));
+            (this, policy),
+            activityFactory
+            );
     }
 
     public IRecoverabilityPipelineExecutor CreateSatelliteRecoverabilityExecutor(
