@@ -189,9 +189,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
         ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
 
-        activity.DisplayName = Options.UseMessageDestinationInSpanNames
-            ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
-            : ActivityDisplayNames.ProcessMessage;
+        activity.DisplayName = $"{ActivityDisplayNames.Recoverability} {context.ReceiveAddress}";
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
 
