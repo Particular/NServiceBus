@@ -10,4 +10,5 @@ static class ActivityNames
     public const string SubscribeActivityName = "NServiceBus.Diagnostics.Subscribe";
     public const string UnsubscribeActivityName = "NServiceBus.Diagnostics.Unsubscribe";
     public const string InvokeHandlerActivityName = "NServiceBus.Diagnostics.InvokeHandler";
+    public const string RecoverabilityActivityName = "NServiceBus.Diagnostics.Recoverability";
 }

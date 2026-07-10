@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
 
@@ -36,14 +37,21 @@ class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IR
         if (context.RecoverabilityAction is ImmediateRetry)
         {
             incomingPipelineMetrics.RecordImmediateRetry(context);
+            Activity.Current?.AddTag("NServiceBus.RecoverabilityAction", "ImmediateRetry");
         }
         else if (context.RecoverabilityAction is DelayedRetry)
         {
             incomingPipelineMetrics.RecordDelayedRetry(context);
+            Activity.Current?.AddTag("NServiceBus.RecoverabilityAction", "DelayedRetry`");
         }
         else if (context.RecoverabilityAction is MoveToError)
         {
             incomingPipelineMetrics.RecordSendToErrorQueue(context);
+            Activity.Current?.AddTag("NServiceBus.RecoverabilityAction", "MoveToError");
+        }
+        else if (context.RecoverabilityAction is Discard)
+        {
+            Activity.Current?.AddTag("NServiceBus.RecoverabilityAction", "Discard");
         }
 
         if (context is IRecoverabilityActionContextNotifications events)
