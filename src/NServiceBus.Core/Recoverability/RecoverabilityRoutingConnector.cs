@@ -34,28 +34,31 @@ class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IR
             await stage(routingContext).ConfigureAwait(false);
         }
 
-        var activity = context.Extensions.TryGet<Activity>(out var transportActivity)
-            ? transportActivity
-            : Activity.Current;
+        var activity = Activity.Current;
 
         if (context.RecoverabilityAction is ImmediateRetry)
         {
             incomingPipelineMetrics.RecordImmediateRetry(context);
-            activity?.AddTag("NServiceBus.RecoverabilityAction", "ImmediateRetry");
+            activity?.AddTag("NServiceBus.RecoverabilityAction", "immediate_retry");
+            activity?.DisplayName += " immediate retry";
+
         }
         else if (context.RecoverabilityAction is DelayedRetry)
         {
             incomingPipelineMetrics.RecordDelayedRetry(context);
-            activity?.AddTag("NServiceBus.RecoverabilityAction", "DelayedRetry`");
+            activity?.AddTag("NServiceBus.RecoverabilityAction", "delayed_retry");
+            activity?.DisplayName += " delayed retry";
         }
         else if (context.RecoverabilityAction is MoveToError)
         {
             incomingPipelineMetrics.RecordSendToErrorQueue(context);
-            activity?.AddTag("NServiceBus.RecoverabilityAction", "MoveToError");
+            activity?.AddTag("NServiceBus.RecoverabilityAction", "move_to_error");
+            activity?.DisplayName += " move to error queue";
         }
         else if (context.RecoverabilityAction is Discard)
         {
-            activity?.AddTag("NServiceBus.RecoverabilityAction", "Discard");
+            activity?.AddTag("NServiceBus.RecoverabilityAction", "discard");
+            activity?.DisplayName += " discard";
         }
 
         if (context is IRecoverabilityActionContextNotifications events)
