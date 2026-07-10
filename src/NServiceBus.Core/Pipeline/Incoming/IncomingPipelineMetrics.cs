@@ -246,29 +246,26 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
-    public void RecordHandlerInvocationStarting(IInvokeHandlerContext context)
+    public ActiveHandlerScope TrackHandlerInvocation(IInvokeHandlerContext context)
     {
         if (!activeMessageHandlers.Enabled)
         {
-            return;
+            return default;
         }
 
-        activeMessageHandlers.Add(1, BuildActiveHandlerTags(context));
+        var tags = BuildActiveHandlerTags(context);
+        activeMessageHandlers.Add(1, tags);
+        return new ActiveHandlerScope(activeMessageHandlers, tags);
     }
 
-    public void RecordHandlerInvocationFinished(IInvokeHandlerContext context)
+    public readonly struct ActiveHandlerScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
     {
-        if (!activeMessageHandlers.Enabled)
-        {
-            return;
-        }
-
-        activeMessageHandlers.Add(-1, BuildActiveHandlerTags(context));
+        public void Dispose() => counter?.Add(-1, tags);
     }
 
     // The increment and the matching decrement must carry identical tags so they apply to the same
     // time series; building them in one place keeps the two Record methods in sync.
-    // The TagList is a stack struck with 8 pre allocated slots, so adding 4 tags does not 
+    // The TagList is a stack struct with 8 pre-allocated slots, so adding 4 tags does not
     // require a heap allocation.
     static TagList BuildActiveHandlerTags(IInvokeHandlerContext context)
     {

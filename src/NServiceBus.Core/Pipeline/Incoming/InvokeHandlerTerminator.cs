@@ -26,7 +26,7 @@ class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMeters) : 
         // Might as well abort before invoking the handler if we're shutting down
         context.CancellationToken.ThrowIfCancellationRequested();
         var startTime = DateTimeOffset.UtcNow;
-        messagingMetricsMeters.RecordHandlerInvocationStarting(context);
+        using var handlerScope = messagingMetricsMeters.TrackHandlerInvocation(context);
         try
         {
             await messageHandler
@@ -48,10 +48,6 @@ class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMeters) : 
 
             messagingMetricsMeters.RecordFailedMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime, ex);
             throw;
-        }
-        finally
-        {
-            messagingMetricsMeters.RecordHandlerInvocationFinished(context);
         }
     }
 }
