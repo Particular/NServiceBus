@@ -1,6 +1,6 @@
 #nullable enable
 
- namespace NServiceBus;
+namespace NServiceBus;
 
 using System.Collections.Generic;
 using Hosting.Helpers;
