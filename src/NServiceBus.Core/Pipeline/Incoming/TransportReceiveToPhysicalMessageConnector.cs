@@ -15,7 +15,8 @@ using TransportOperation = Outbox.TransportOperation;
 
 class TransportReceiveToPhysicalMessageConnector(
     IOutboxStorage outboxStorage,
-    IncomingPipelineMetrics incomingPipelineMetrics)
+    IncomingPipelineMetrics incomingPipelineMetrics,
+    InstrumentationOptions instrumentationOptions)
     : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
     public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
@@ -65,10 +66,11 @@ class TransportReceiveToPhysicalMessageConnector(
         {
             var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
-            if (context.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
+            Activity? activity = null;
+            if (!instrumentationOptions.SuppressDispatchingActivityEvents)
             {
-                var activityTagsCollection = new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } };
-                activity.AddEvent(new ActivityEvent("Start dispatching", tags: activityTagsCollection));
+                context.Extensions.TryGetRecordingIncomingPipelineActivity(out activity);
+                activity?.AddEvent(new ActivityEvent("Start dispatching", tags: new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } }));
             }
 
             await this.Fork(batchDispatchContext).ConfigureAwait(false);

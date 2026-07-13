@@ -192,7 +192,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         fakeOutbox = new FakeOutboxStorage();
         fakeBatchPipeline = new FakeBatchPipeline();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), new InstrumentationOptions());
     }
 
     Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));
