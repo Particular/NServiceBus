@@ -22,7 +22,7 @@ static partial class LicenseManager
 
         LogFindResults(result);
 
-        var licenseStatus = result.License.GetLicenseStatus();
+        var licenseStatus = result.License?.GetLicenseStatus();
         LogLicenseStatus(licenseStatus, Logger, result.License, developerLicenseUrl);
 
         if (licenseStatus == LicenseStatus.InvalidDueToExpiredTrial)
@@ -33,39 +33,32 @@ static partial class LicenseManager
         return result;
     }
 
-    public static void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license, string developerLicenseUrl)
+    public static void LogLicenseStatus(LicenseStatus? licenseStatus, ILog logger, License? license, string developerLicenseUrl)
     {
-        var whenLicenseExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilLicenseExpires());
-        var whenUpgradeProtectedExpiresPhrase = GetRemainingDaysString(license.GetDaysUntilUpgradeProtectionExpires());
+        var whenLicenseExpiresPhrase = GetRemainingDaysString(license?.GetDaysUntilLicenseExpires());
 
         switch (licenseStatus)
         {
             case LicenseStatus.Valid:
                 break;
-            case LicenseStatus.ValidWithExpiredUpgradeProtection:
-                logger.Warn("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net");
-                break;
             case LicenseStatus.ValidWithExpiringTrial:
-                logger.Warn(license.IsExtendedTrial
+                logger.Warn(license?.IsExtendedTrial ?? false
                     ? $"Development license expiring {whenLicenseExpiresPhrase}. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net"
                     : $"Trial license expiring {whenLicenseExpiresPhrase}. Get your free development license at {developerLicenseUrl}");
                 break;
             case LicenseStatus.ValidWithExpiringSubscription:
                 logger.Warn($"License expiring {whenLicenseExpiresPhrase}. Contact us to renew your license: contact@particular.net");
                 break;
-            case LicenseStatus.ValidWithExpiringUpgradeProtection:
-                logger.Warn($"Upgrade protection expiring {whenUpgradeProtectedExpiresPhrase}. Contact us to renew your license: contact@particular.net");
-                break;
             case LicenseStatus.InvalidDueToExpiredTrial:
-                logger.Error(license.IsExtendedTrial
+                logger.Error(license?.IsExtendedTrial ?? false
                     ? $"Development license expired. If you’re still in development, renew your license for free at {developerLicenseUrl} otherwise email contact@particular.net"
                     : $"Trial license expired. Get your free development license at {developerLicenseUrl}");
                 break;
             case LicenseStatus.InvalidDueToExpiredSubscription:
                 logger.Error("License expired. Contact us to renew your license: contact@particular.net");
                 break;
-            case LicenseStatus.InvalidDueToExpiredUpgradeProtection:
-                logger.Error("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net");
+            case LicenseStatus.InvalidDueToUpgradeProtectionNoLongerBeingSupported:
+                logger.Error("Licenses with ugprade protection are no longer supported. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net");
                 break;
             default:
                 break;
@@ -137,7 +130,7 @@ static partial class LicenseManager
     static string CreateDeveloperLicenseUrl(ActiveLicenseFindResult result)
     {
         var version = VersionInformation.MajorMinorPatch;
-        var isRenewal = result.License.IsExtendedTrial ? "1" : "0";
+        var isRenewal = result.License?.IsExtendedTrial ?? false ? "1" : "0";
         var platform = GetPlatformCode();
         var frameworkVersion = GetFrameworkVersion();
         return $"https://particular.net/license/nservicebus?v={version}&t={isRenewal}&p={platform}&f={frameworkVersion}";
