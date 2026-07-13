@@ -635,6 +635,7 @@ namespace NServiceBus
     public class InstrumentationOptions
     {
         public InstrumentationOptions() { }
+        public bool SuppressDispatchingActivityEvents { get; set; }
         public bool UseMessageDestinationInSpanNames { get; set; }
     }
     public sealed class KeyedServiceKey
