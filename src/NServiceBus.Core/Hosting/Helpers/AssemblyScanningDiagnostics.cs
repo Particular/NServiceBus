@@ -1,4 +1,6 @@
-namespace NServiceBus;
+#nullable enable
+
+ namespace NServiceBus;
 
 using System.Collections.Generic;
 using Hosting.Helpers;
@@ -24,5 +26,6 @@ sealed class AssemblyScanningDiagnostics(
             Settings
         );
 }
+ 
 
-record AssemblyDetails(string FullName, string FileVersion);
+record AssemblyDetails(string? FullName, string FileVersion);
