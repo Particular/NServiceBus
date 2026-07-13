@@ -1,4 +1,5 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+namespace NServiceBus;
 
 /// <summary>
 /// Marker interface for pipeline terminators.
