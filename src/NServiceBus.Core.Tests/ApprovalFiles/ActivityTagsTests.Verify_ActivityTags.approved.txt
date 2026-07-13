@@ -1,6 +1,6 @@
 {
   "Note": "Changes to activity tags should result in ActivitySource version updates",
-  "ActivitySourceVersion": "0.2.0",
+  "ActivitySourceVersion": "1.0.0",
   "Tags": [
     "SagaId => nservicebus.saga.saga_id",
     "MessageId => nservicebus.message_id",
