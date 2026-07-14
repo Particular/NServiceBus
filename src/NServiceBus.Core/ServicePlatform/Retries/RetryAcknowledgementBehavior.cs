@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +38,7 @@ class RetryAcknowledgementBehavior : IForkConnector<ITransportReceiveContext, IT
                 new Dictionary<string, string>
                 {
                     { "ServiceControl.Retry.Successful", DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow) },
-                    { RetryUniqueMessageIdHeaderKey, id },
+                    { RetryUniqueMessageIdHeaderKey, id! },
                     { Headers.ControlMessageHeader, bool.TrueString }
                 },
                 Array.Empty<byte>());
@@ -45,7 +47,7 @@ class RetryAcknowledgementBehavior : IForkConnector<ITransportReceiveContext, IT
         }
     }
 
-    static bool IsRetriedMessage(ITransportReceiveContext context, out string retryUniqueMessageId, out string retryAcknowledgementQueue)
+    static bool IsRetriedMessage(ITransportReceiveContext context, out string? retryUniqueMessageId, out string? retryAcknowledgementQueue)
     {
         // check if the message is coming from a manual retry attempt
         if (context.Message.Headers.TryGetValue(RetryUniqueMessageIdHeaderKey, out var uniqueMessageId) &&
