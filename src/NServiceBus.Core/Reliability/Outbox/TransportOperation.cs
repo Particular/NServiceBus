@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Outbox;
+﻿#nullable enable
+namespace NServiceBus.Outbox;
 
 using System;
 using System.Collections.Generic;

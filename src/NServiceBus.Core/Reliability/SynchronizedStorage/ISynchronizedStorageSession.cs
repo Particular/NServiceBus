@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Persistence;
+﻿#nullable enable
+namespace NServiceBus.Persistence;
 
 /// <summary>
 /// Represents a storage session.
