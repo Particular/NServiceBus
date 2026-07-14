@@ -35,17 +35,17 @@ class LicenseManagerTests
     }
 
     [Test]
-    public void WhenUpgradeProtectionExpiredForThisRelease()
+    public void WhenUpgradeProtectionNoLongerBeingSupported()
     {
         var logger = new TestableLogger();
 
-        LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredUpgradeProtection, logger, new License(), "fake-url");
+        LicenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToUpgradeProtectionNoLongerBeingSupported, logger, new License(), "fake-url");
 
         Assert.That(logger.Logs, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Error));
-            Assert.That(logger.Logs[0].message, Is.EqualTo("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net"));
+            Assert.That(logger.Logs[0].message, Is.EqualTo("Licenses with ugprade protection are no longer supported. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net"));
         }
     }
 
@@ -113,51 +113,6 @@ class LicenseManagerTests
         {
             Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
             Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
-        }
-    }
-
-    [TestCase(3, "Upgrade protection expiring in 3 days. Contact us to renew your license: contact@particular.net")]
-    [TestCase(1, "Upgrade protection expiring in 1 day. Contact us to renew your license: contact@particular.net")]
-    [TestCase(0, "Upgrade protection expiring today. Contact us to renew your license: contact@particular.net")]
-    public void WhenUpgradeProtectionAboutToExpire(int daysRemaining, string expectedMessage)
-    {
-        var logger = new TestableLogger();
-        var today = new DateTime(2012, 12, 12);
-        var license = new License
-        {
-            utcDateTimeProvider = () => today,
-            UpgradeProtectionExpiration = today.AddDays(daysRemaining)
-        };
-
-        LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringUpgradeProtection, logger, license, "fake-url");
-
-        Assert.That(logger.Logs, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
-            Assert.That(logger.Logs[0].message, Is.EqualTo(expectedMessage));
-        }
-    }
-
-    [Test]
-    public void WhenUpgradeProtectionExpiredForFutureVersions()
-    {
-        var logger = new TestableLogger();
-        var today = new DateTime(2012, 12, 12);
-        var license = new License
-        {
-            utcDateTimeProvider = () => today,
-            releaseDateProvider = () => today.AddDays(-20),
-            UpgradeProtectionExpiration = today.AddDays(-10)
-        };
-
-        LicenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiredUpgradeProtection, logger, license, "fake-url");
-
-        Assert.That(logger.Logs, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(logger.Logs[0].level, Is.EqualTo(LogLevel.Warn));
-            Assert.That(logger.Logs[0].message, Is.EqualTo("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, contact us to renew your license: contact@particular.net"));
         }
     }
 

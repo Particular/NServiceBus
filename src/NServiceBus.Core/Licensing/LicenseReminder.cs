@@ -45,17 +45,16 @@ sealed class LicenseReminder : Feature
     static object GenerateLicenseDiagnostics(ActiveLicenseFindResult result) =>
         new
         {
-            result.License.RegisteredTo,
-            result.License.LicenseType,
-            result.License.Edition,
-            Tier = result.License.Edition,
-            LicenseStatus = result.License.GetLicenseStatus(),
+            result.License?.RegisteredTo,
+            result.License?.LicenseType,
+            result.License?.Edition,
+            Tier = result.License?.Edition,
+            LicenseStatus = result.License?.GetLicenseStatus(),
             LicenseLocation = result.Location,
-            ValidApplications = string.Join(",", result.License.ValidApplications),
-            CommercialLicense = result.License.IsCommercialLicense,
+            ValidApplications = string.Join(",", result.License?.ValidApplications ?? []),
+            CommercialLicense = result.License?.IsCommercialLicense,
             IsExpired = result.HasLicenseExpired(),
-            result.License.ExpirationDate,
-            UpgradeProtectionExpirationDate = result.License.UpgradeProtectionExpiration
+            result.License?.ExpirationDate,
         };
 
     public const string LicenseTextSettingsKey = "LicenseText";
