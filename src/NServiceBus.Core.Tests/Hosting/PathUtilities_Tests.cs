@@ -54,4 +54,11 @@ public class PathUtilities_Tests
 
         Assert.That(path2, Is.EqualTo(path1));
     }
+
+    [Test]
+    public void Null_path_returns_empty_string()
+    {
+        var path = PathUtilities.SanitizedPath(null);
+        Assert.That(path, Is.EqualTo(string.Empty));
+    }
 }
