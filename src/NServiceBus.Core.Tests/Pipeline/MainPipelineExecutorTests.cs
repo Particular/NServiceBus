@@ -124,9 +124,8 @@ public class MainPipelineExecutorTests
 
     static MainPipelineExecutor CreateMainPipelineExecutor(ServiceProvider serviceProvider, IPipeline<ITransportReceiveContext> receivePipeline)
     {
-        var registry = new MessageMetadataRegistry();
-        var incomingPipelineMetrics = new IncomingPipelineMetrics(new TestMeterFactory(), new MessageMetadataRegistry(), "queue", "disc");
-        registry.Initialize(new Conventions().IsMessageType, true);
+        var incomingPipelineMetrics = new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc");
+
         var executor = new MainPipelineExecutor(
             serviceProvider,
             new PipelineCache(serviceProvider, new PipelineModifications()),

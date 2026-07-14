@@ -6,6 +6,7 @@
     "error.type",
     "execution.result",
     "nservicebus.discriminator",
+    "nservicebus.enclosed_message_types",
     "nservicebus.envelope.unwrapper_type",
     "nservicebus.message_handler_type",
     "nservicebus.message_handler_types",

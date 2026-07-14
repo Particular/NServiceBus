@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Transport;
 using Pipeline;
-using Unicast.Messages;
 
 class IncomingPipelineMetrics
 {
@@ -24,7 +23,7 @@ class IncomingPipelineMetrics
     const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
     const string ActiveMessages = "nservicebus.messaging.active_messages";
 
-    public IncomingPipelineMetrics(IMeterFactory meterFactory, MessageMetadataRegistry messageMetadataRegistry, string queueName, string discriminator)
+    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.3.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
@@ -50,7 +49,6 @@ class IncomingPipelineMetrics
         activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
             description: "Number of messages currently being processed by the endpoint.");
 
-        this.messageMetadataRegistry = messageMetadataRegistry;
         queueNameBase = queueName;
         endpointDiscriminator = discriminator;
     }
@@ -58,7 +56,7 @@ class IncomingPipelineMetrics
     public void AddDefaultIncomingPipelineMetricTags(IncomingPipelineMetricTags incomingPipelineMetricsTags)
     {
         incomingPipelineMetricsTags.Add(MeterTags.QueueName, queueNameBase);
-        incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? "");
+        incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator);
     }
 
     public void RecordProcessingTime(ITransportReceiveContext context, TimeSpan elapsed)
@@ -248,56 +246,22 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
-    public ActiveMessageScope TrackMessageProcessing(MessageContext messageContext)
+    public ActiveMessageScope TrackMessageProcessing(IncomingPipelineMetricTags incomingPipelineMetricTags, IncomingMessage message)
     {
         if (!activeMessages.Enabled)
         {
             return default;
         }
 
-        // The increment and the matching decrement must carry identical tags so they apply to the
-        // same time series. The message type comes from the EnclosedMessageTypes header because
-        // the message has not been deserialized yet when processing starts.
         TagList tags;
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.QueueName, queueNameBase));
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? ""));
-        if (TryGetMostConcreteMessageTypeName(messageContext, out string? messageTypeName))
+        incomingPipelineMetricTags.ApplyTags(ref tags, [MeterTags.QueueName, MeterTags.EndpointDiscriminator]);
+        if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes))
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, messageTypeName));
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.EnclosedMessageTypes, enclosedMessageTypes));
         }
 
         activeMessages.Add(1, tags);
         return new ActiveMessageScope(activeMessages, tags);
-    }
-
-    bool TryGetMostConcreteMessageTypeName(MessageContext messageContext, out string? messageTypeName)
-    {
-        messageTypeName = null;
-        if (!messageContext.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes))
-        {
-            return false;
-        }
-
-        // The header lists the serialized message hierarchy with the most concrete type first,
-        // so the first entry known to the endpoint wins. The registry caches lookups by identifier.
-        var headerSpan = enclosedMessageTypes.AsSpan();
-        foreach (var messageTypeRange in headerSpan.Split(';'))
-        {
-            var messageTypeIdentifier = headerSpan[messageTypeRange].Trim();
-            if (messageTypeIdentifier.IsEmpty)
-            {
-                continue;
-            }
-
-            var metadata = messageMetadataRegistry.GetMessageMetadata(messageTypeIdentifier.ToString());
-            if (metadata != null)
-            {
-                messageTypeName = metadata.MessageType.FullName;
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public readonly struct ActiveMessageScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
@@ -339,7 +303,7 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalSentToErrorQueue;
     readonly Counter<long> totalEnvelopeUnwrapping;
     readonly UpDownCounter<long> activeMessages;
-    readonly MessageMetadataRegistry messageMetadataRegistry;
-    string queueNameBase;
-    string endpointDiscriminator;
+
+    readonly string queueNameBase;
+    readonly string endpointDiscriminator;
 }

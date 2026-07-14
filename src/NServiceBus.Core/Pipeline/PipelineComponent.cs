@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics.Metrics;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
-using Unicast.Messages;
 
 sealed class PipelineComponent
 {
@@ -20,8 +19,7 @@ sealed class PipelineComponent
         {
             var meterFactory = sp.GetRequiredService<IMeterFactory>();
             string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
-            var messageMetadataRegistry = sp.GetRequiredService<MessageMetadataRegistry>();
-            return new IncomingPipelineMetrics(meterFactory, messageMetadataRegistry, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator);
+            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator);
         });
 
         return new PipelineComponent(settings.modifications);

@@ -29,13 +29,13 @@ class MainPipelineExecutor(
 
         incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
 
-        using var activeMessageScope = incomingPipelineMetrics.TrackMessageProcessing(messageContext);
-
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
             using var incomingMessageHandle = envelopeUnwrapper.UnwrapEnvelope(messageContext);
             IncomingMessage message = incomingMessageHandle;
+
+            using var activeMessageScope = incomingPipelineMetrics.TrackMessageProcessing(incomingPipelineMetricsTags, message);
 
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,

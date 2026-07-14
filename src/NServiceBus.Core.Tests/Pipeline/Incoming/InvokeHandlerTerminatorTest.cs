@@ -12,7 +12,7 @@ using Unicast.Messages;
 [TestFixture]
 public class InvokeHandlerTerminatorTest
 {
-    readonly InvokeHandlerTerminator terminator = new(new IncomingPipelineMetrics(new TestMeterFactory(), new MessageMetadataRegistry(), "queue", "disc"));
+    readonly InvokeHandlerTerminator terminator = new(new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
     [Test]
     public async Task When_saga_found_and_handler_is_saga_should_invoke_handler()

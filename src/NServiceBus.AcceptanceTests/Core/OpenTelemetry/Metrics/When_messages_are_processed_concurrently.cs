@@ -43,7 +43,7 @@ public class When_messages_are_processed_concurrently : OpenTelemetryAcceptanceT
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
                 ["nservicebus.discriminator"] = "instanceId",
-                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
+                ["nservicebus.enclosed_message_types"] = typeof(OutgoingMessage).AssemblyQualifiedName
             });
     }
 
