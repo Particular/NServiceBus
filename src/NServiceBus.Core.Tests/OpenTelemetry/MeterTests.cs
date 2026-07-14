@@ -5,6 +5,7 @@ using System.Reflection;
 using AcceptanceTests.Core.OpenTelemetry.Metrics;
 using NUnit.Framework;
 using Particular.Approvals;
+using Unicast.Messages;
 
 [TestFixture]
 public class MeterTests
@@ -22,7 +23,7 @@ public class MeterTests
         using var meterFactory = new TestMeterFactory();
         //The IncomingPipelineMetrics constructor creates the meters, therefore a new instance before collecting the metrics.
 #pragma warning disable CA1806
-        new IncomingPipelineMetrics(meterFactory, "queue", "disc");
+        new IncomingPipelineMetrics(meterFactory, new MessageMetadataRegistry(), "queue", "disc");
 #pragma warning restore CA1806
 
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();

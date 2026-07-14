@@ -9,13 +9,13 @@ using AcceptanceTesting;
 using NUnit.Framework;
 using Conventions = AcceptanceTesting.Customization.Conventions;
 
-public class When_handlers_are_invoked : OpenTelemetryAcceptanceTest
+public class When_messages_are_processed_concurrently : OpenTelemetryAcceptanceTest
 {
-    const string ActiveHandlersMetric = "nservicebus.messaging.active_handlers";
+    const string ActiveMessagesMetric = "nservicebus.messaging.active_messages";
     const int numberOfMessages = 5;
 
     [Test]
-    public async Task Should_report_active_handlers_gauge_that_balances_once_idle()
+    public async Task Should_report_active_messages_gauge_that_balances_once_idle()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
@@ -33,18 +33,17 @@ public class When_handlers_are_invoked : OpenTelemetryAcceptanceTest
                 }))
             .Run();
 
-        Assert.That(metricsListener.ReportedMeters.TryGetValue(ActiveHandlersMetric, out var net), Is.True,
-            $"'{ActiveHandlersMetric}' gauge should be reported");
+        Assert.That(metricsListener.ReportedMeters.TryGetValue(ActiveMessagesMetric, out var net), Is.True,
+            $"'{ActiveMessagesMetric}' gauge should be reported");
         Assert.That(net, Is.EqualTo(0),
-            "increments and decrements should balance once all handlers have completed");
+            "increments and decrements should balance once all messages have been processed");
 
-        metricsListener.AssertTags(ActiveHandlersMetric,
+        metricsListener.AssertTags(ActiveMessagesMetric,
             new Dictionary<string, object>
             {
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
                 ["nservicebus.discriminator"] = "instanceId",
-                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName,
-                ["nservicebus.message_handler_type"] = typeof(EndpointWithMetrics.MessageHandler).FullName
+                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
             });
     }
 

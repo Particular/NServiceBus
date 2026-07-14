@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Reliability.Outbox;
+namespace NServiceBus.Core.Tests.Reliability.Outbox;
 
 using System;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ using NUnit.Framework;
 using OpenTelemetry;
 using Testing;
 using Transport;
+using Unicast.Messages;
 using TransportOperation = Transport.TransportOperation;
 
 [TestFixture]

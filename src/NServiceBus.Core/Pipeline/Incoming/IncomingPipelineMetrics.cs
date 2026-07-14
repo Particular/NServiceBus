@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Transport;
 using Pipeline;
+using Unicast.Messages;
 
 class IncomingPipelineMetrics
 {
@@ -21,9 +22,9 @@ class IncomingPipelineMetrics
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
     const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
-    const string ActiveMessageHandlers = "nservicebus.messaging.active_handlers";
+    const string ActiveMessages = "nservicebus.messaging.active_messages";
 
-    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
+    public IncomingPipelineMetrics(IMeterFactory meterFactory, MessageMetadataRegistry messageMetadataRegistry, string queueName, string discriminator)
     {
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.3.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
@@ -46,9 +47,10 @@ class IncomingPipelineMetrics
             description: "Total number of messages sent to the error queue.");
         totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
             description: "Total number of unwrapping attempts by the endpoint.");
-        activeMessageHandlers = meter.CreateUpDownCounter<long>(ActiveMessageHandlers,
-            description: "Number of message handlers currently executing.");
+        activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
+            description: "Number of messages currently being processed by the endpoint.");
 
+        this.messageMetadataRegistry = messageMetadataRegistry;
         queueNameBase = queueName;
         endpointDiscriminator = discriminator;
     }
@@ -246,37 +248,61 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
-    public ActiveHandlerScope TrackHandlerInvocation(IInvokeHandlerContext context)
+    public ActiveMessageScope TrackMessageProcessing(MessageContext messageContext)
     {
-        if (!activeMessageHandlers.Enabled)
+        if (!activeMessages.Enabled)
         {
             return default;
         }
 
-        var tags = BuildActiveHandlerTags(context);
-        activeMessageHandlers.Add(1, tags);
-        return new ActiveHandlerScope(activeMessageHandlers, tags);
+        // The increment and the matching decrement must carry identical tags so they apply to the
+        // same time series. The message type comes from the EnclosedMessageTypes header because
+        // the message has not been deserialized yet when processing starts.
+        TagList tags;
+        tags.Add(new KeyValuePair<string, object?>(MeterTags.QueueName, queueNameBase));
+        tags.Add(new KeyValuePair<string, object?>(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? ""));
+        if (TryGetMostConcreteMessageTypeName(messageContext, out string? messageTypeName))
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, messageTypeName));
+        }
+
+        activeMessages.Add(1, tags);
+        return new ActiveMessageScope(activeMessages, tags);
     }
 
-    public readonly struct ActiveHandlerScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
+    bool TryGetMostConcreteMessageTypeName(MessageContext messageContext, out string? messageTypeName)
+    {
+        messageTypeName = null;
+        if (!messageContext.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes))
+        {
+            return false;
+        }
+
+        // The header lists the serialized message hierarchy with the most concrete type first,
+        // so the first entry known to the endpoint wins. The registry caches lookups by identifier.
+        var headerSpan = enclosedMessageTypes.AsSpan();
+        foreach (var messageTypeRange in headerSpan.Split(';'))
+        {
+            var messageTypeIdentifier = headerSpan[messageTypeRange].Trim();
+            if (messageTypeIdentifier.IsEmpty)
+            {
+                continue;
+            }
+
+            var metadata = messageMetadataRegistry.GetMessageMetadata(messageTypeIdentifier.ToString());
+            if (metadata != null)
+            {
+                messageTypeName = metadata.MessageType.FullName;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public readonly struct ActiveMessageScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
     {
         public void Dispose() => counter?.Add(-1, tags);
-    }
-
-    // The increment and the matching decrement must carry identical tags so they apply to the same
-    // time series; building them in one place keeps the two Record methods in sync.
-    // The TagList is a stack struct with 8 pre-allocated slots, so adding 4 tags does not
-    // require a heap allocation.
-    static TagList BuildActiveHandlerTags(IInvokeHandlerContext context)
-    {
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
-        TagList tags;
-        incomingPipelineMetricTags.ApplyTags(ref tags, [
-            MeterTags.QueueName,
-            MeterTags.EndpointDiscriminator]);
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, context.MessageMetadata.MessageType.FullName));
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName));
-        return tags;
     }
 
     public void EnvelopeUnwrappingSucceeded(MessageContext messageContext, IEnvelopeHandler type) => RecordEnvelopeUnwrapping(messageContext, type, true, null);
@@ -312,7 +338,8 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalDelayedRetries;
     readonly Counter<long> totalSentToErrorQueue;
     readonly Counter<long> totalEnvelopeUnwrapping;
-    readonly UpDownCounter<long> activeMessageHandlers;
+    readonly UpDownCounter<long> activeMessages;
+    readonly MessageMetadataRegistry messageMetadataRegistry;
     string queueNameBase;
     string endpointDiscriminator;
 }

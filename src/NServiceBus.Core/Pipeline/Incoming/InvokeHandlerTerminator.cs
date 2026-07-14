@@ -26,7 +26,6 @@ class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMeters) : 
         // Might as well abort before invoking the handler if we're shutting down
         context.CancellationToken.ThrowIfCancellationRequested();
         var startTime = DateTimeOffset.UtcNow;
-        using var handlerScope = messagingMetricsMeters.TrackHandlerInvocation(context);
         try
         {
             await messageHandler

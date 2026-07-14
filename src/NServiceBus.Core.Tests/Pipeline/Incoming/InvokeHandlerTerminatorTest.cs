@@ -7,11 +7,12 @@ using NServiceBus.Sagas;
 using NUnit.Framework;
 using OpenTelemetry;
 using Testing;
+using Unicast.Messages;
 
 [TestFixture]
 public class InvokeHandlerTerminatorTest
 {
-    InvokeHandlerTerminator terminator = new(new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+    readonly InvokeHandlerTerminator terminator = new(new IncomingPipelineMetrics(new TestMeterFactory(), new MessageMetadataRegistry(), "queue", "disc"));
 
     [Test]
     public async Task When_saga_found_and_handler_is_saga_should_invoke_handler()

@@ -4,11 +4,10 @@ using OpenTelemetry;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Text;
 using Extensibility;
 using NUnit.Framework;
 using Transport;
-
+using Unicast.Messages;
 
 public class EnvelopeUnwrapperTests
 {
@@ -31,7 +30,7 @@ public class EnvelopeUnwrapperTests
         originalBody = "payload"u8.ToArray().AsMemory();
         messageContext = new MessageContext(nativeId, originalHeaders, originalBody, new TransportTransaction(), "receiveAddress", new ContextBag());
         meterFactory = new TestMeterFactory();
-        incomingPipelineMetrics = new IncomingPipelineMetrics(meterFactory, "queue", "disc");
+        incomingPipelineMetrics = new IncomingPipelineMetrics(meterFactory, new MessageMetadataRegistry(), "queue", "disc");
     }
 
     [TearDown]

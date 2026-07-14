@@ -14,7 +14,7 @@
   ],
   "Metrics": [
     "nservicebus.envelope.unwrapped => Counter",
-    "nservicebus.messaging.active_handlers => UpDownCounter",
+    "nservicebus.messaging.active_messages => UpDownCounter",
     "nservicebus.messaging.critical_time => Histogram, Unit: s",
     "nservicebus.messaging.failures => Counter",
     "nservicebus.messaging.fetches => Counter",
