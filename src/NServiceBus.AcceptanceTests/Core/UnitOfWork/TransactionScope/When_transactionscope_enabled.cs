@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope;
+﻿#nullable enable
+
+namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope;
 
 using System.Threading.Tasks;
 using System.Transactions;
@@ -47,7 +49,7 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
                 if (Transaction.Current != null)
                 {
                     testContext.AmbientTransactionPresent = Transaction.Current != null;
-                    testContext.IsolationLevel = Transaction.Current.IsolationLevel;
+                    testContext.IsolationLevel = Transaction.Current!.IsolationLevel;
                 }
                 testContext.MarkAsCompleted();
                 return Task.CompletedTask;
