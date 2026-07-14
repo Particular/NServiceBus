@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Serialization;
+﻿#nullable enable
+namespace NServiceBus.Serialization;
 
 using Configuration.AdvancedExtensibility;
 using Settings;

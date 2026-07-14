@@ -1,3 +1,4 @@
+#nullable enable
 namespace NServiceBus.Serialization;
 
 using System;
@@ -30,5 +31,5 @@ public interface IMessageSerializer
     /// serialized data.
     /// </param>
     /// <returns>Deserialized messages.</returns>
-    object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null);
+    object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type>? messageTypes = null);
 }

@@ -56,12 +56,6 @@ NServiceBus.Sagas.SagaCorrelationProperty
 NServiceBus.Sagas.SagaFinderDefinition
 NServiceBus.Sagas.SagaIdGeneratorContext
 NServiceBus.SagasConfigExtensions
-NServiceBus.Serialization.IMessageSerializer
-NServiceBus.Serialization.SerializationDefinition
-NServiceBus.Serialization.SerializationExtensions`1
-NServiceBus.SerializationConfigExtensions
-NServiceBus.SerializationContextExtensions
-NServiceBus.SerializationExtensionsExtensions
 NServiceBus.Settings.IReadOnlySettings
 NServiceBus.Settings.SettingsHolder
 NServiceBus.StaticHeadersConfigExtensions
