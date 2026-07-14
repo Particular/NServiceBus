@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Unicast.Queuing;
 
 using System;
@@ -25,5 +27,5 @@ public class QueueNotFoundException : Exception
     /// <summary>
     /// The queue address.
     /// </summary>
-    public string Queue { get; set; }
+    public string Queue { get; set; } = string.Empty;
 }

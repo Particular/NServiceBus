@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Unicast;
+﻿#nullable enable
+
+namespace NServiceBus.Unicast;
 
 using System;
 using System.Collections.Generic;

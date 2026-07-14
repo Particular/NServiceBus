@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Unicast.Messages;
+﻿#nullable enable
+
+namespace NServiceBus.Unicast.Messages;
 
 using System;
 using System.Collections.Concurrent;
