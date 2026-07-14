@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using Extensibility;
 using NUnit.Framework;
 using Transport;
-using Unicast.Messages;
 
 public class EnvelopeUnwrapperTests
 {

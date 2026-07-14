@@ -5,7 +5,6 @@ using System.Reflection;
 using AcceptanceTests.Core.OpenTelemetry.Metrics;
 using NUnit.Framework;
 using Particular.Approvals;
-using Unicast.Messages;
 
 [TestFixture]
 public class MeterTests

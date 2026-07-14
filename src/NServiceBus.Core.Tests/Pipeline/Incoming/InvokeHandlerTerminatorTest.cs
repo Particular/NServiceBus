@@ -7,7 +7,6 @@ using NServiceBus.Sagas;
 using NUnit.Framework;
 using OpenTelemetry;
 using Testing;
-using Unicast.Messages;
 
 [TestFixture]
 public class InvokeHandlerTerminatorTest

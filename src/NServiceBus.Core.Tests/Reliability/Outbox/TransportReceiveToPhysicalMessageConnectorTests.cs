@@ -13,7 +13,6 @@ using NUnit.Framework;
 using OpenTelemetry;
 using Testing;
 using Transport;
-using Unicast.Messages;
 using TransportOperation = Transport.TransportOperation;
 
 [TestFixture]

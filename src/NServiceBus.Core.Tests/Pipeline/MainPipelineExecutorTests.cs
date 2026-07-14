@@ -10,7 +10,6 @@ using NUnit.Framework;
 using OpenTelemetry;
 using OpenTelemetry.Helpers;
 using Transport;
-using Unicast.Messages;
 
 [TestFixture]
 public class MainPipelineExecutorTests
@@ -125,7 +124,6 @@ public class MainPipelineExecutorTests
     static MainPipelineExecutor CreateMainPipelineExecutor(ServiceProvider serviceProvider, IPipeline<ITransportReceiveContext> receivePipeline)
     {
         var incomingPipelineMetrics = new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc");
-
         var executor = new MainPipelineExecutor(
             serviceProvider,
             new PipelineCache(serviceProvider, new PipelineModifications()),
