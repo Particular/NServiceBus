@@ -67,7 +67,7 @@ class TransportReceiveToPhysicalMessageConnector(
             var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
             Activity? activity = null;
-            if (!instrumentationOptions.SuppressDispatchingActivityEvents)
+            if (instrumentationOptions.EmitMessageDispatchingEvents)
             {
                 context.Extensions.TryGetRecordingIncomingPipelineActivity(out activity);
                 activity?.AddEvent(new ActivityEvent("Start dispatching", tags: new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } }));

@@ -16,9 +16,10 @@ public class InstrumentationOptions
     public bool UseMessageDestinationInSpanNames { get; set; }
 
     /// <summary>
-    /// Suppresses the "Start dispatching" and "Finished dispatching" activity events
-    /// added to the incoming message span when outgoing messages are dispatched.
-    /// Useful when these events add ingestion cost without diagnostic value.
+    /// Controls whether the "Start dispatching" and "Finished dispatching" activity events
+    /// are added to the incoming message span when outgoing messages are dispatched.
+    /// Enabled by default for backward compatibility. Disable to avoid the ingestion cost
+    /// of these events when they add no diagnostic value.
     /// </summary>
-    public bool SuppressDispatchingActivityEvents { get; set; }
+    public bool EmitMessageDispatchingEvents { get; set; } = true;
 }
