@@ -1,4 +1,5 @@
 ﻿#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -75,7 +76,7 @@ class AssemblyScanningComponent
 
     public class Configuration(SettingsHolder settings)
     {
-        // This is only used for testability until we have a dedicated AOT test project. Not called on the hot path so has no performance implications. 
+        // This is only used for testability until we have a dedicated AOT test project. Not called on the hot path so has no performance implications.
         public bool DynamicCodeSupported { get; set; } = System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported;
 
         public List<Type>? UserProvidedTypes { get; set; }

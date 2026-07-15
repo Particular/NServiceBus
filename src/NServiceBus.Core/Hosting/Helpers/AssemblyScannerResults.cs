@@ -1,4 +1,5 @@
 ﻿#nullable enable
+
 namespace NServiceBus.Hosting.Helpers;
 
 using System;
