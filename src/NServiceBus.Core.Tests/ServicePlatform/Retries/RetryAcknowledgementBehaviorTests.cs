@@ -46,7 +46,8 @@ public class RetryAcknowledgementBehaviorTests
         var addressTag = outgoingMessage.RoutingStrategies.Single().Apply([]) as UnicastAddressTag;
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(addressTag.Destination, Is.EqualTo(acknowledgementQueue));
+            Assert.That(addressTag is not null);
+            Assert.That(addressTag!.Destination, Is.EqualTo(acknowledgementQueue));
 
             Assert.That(context.Extensions.TryGet<MarkAsAcknowledgedBehavior.State>(out _), Is.True);
         }
