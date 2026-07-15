@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Pipeline;
 using Routing;
@@ -47,7 +48,7 @@ class RetryAcknowledgementBehavior : IForkConnector<ITransportReceiveContext, IT
         }
     }
 
-    static bool IsRetriedMessage(ITransportReceiveContext context, out string? retryUniqueMessageId, out string? retryAcknowledgementQueue)
+    static bool IsRetriedMessage(ITransportReceiveContext context, [NotNullWhen(true)] out string? retryUniqueMessageId, [NotNullWhen(true)] out string? retryAcknowledgementQueue)
     {
         // check if the message is coming from a manual retry attempt
         if (context.Message.Headers.TryGetValue(RetryUniqueMessageIdHeaderKey, out var uniqueMessageId) &&
