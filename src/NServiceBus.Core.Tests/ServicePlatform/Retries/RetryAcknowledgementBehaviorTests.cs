@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.ServicePlatform.Retries;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests.ServicePlatform.Retries;
 
 using System;
 using System.Collections.Generic;
