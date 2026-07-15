@@ -58,6 +58,7 @@ class TransportReceiveToPhysicalMessageConnector(
             Log.InfoFormat("Outbox duplicate detected for message '{0}'. Skipping handler execution", messageId);
             context.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity);
             activity?.AddTag("nservicebus.outbox.deduplicate-message", true);
+            incomingPipelineMetrics.RecordDeduplicatedMessage(context);
             ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
         }
 

@@ -14,6 +14,7 @@ class IncomingPipelineMetrics
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
     const string TotalFailures = "nservicebus.messaging.failures";
+    const string TotalDeduplicated = "nservicebus.messaging.deduplications";
     const string MessageHandlerTime = "nservicebus.messaging.handler_time";
     const string CriticalTime = "nservicebus.messaging.critical_time";
     const string ProcessingTime = "nservicebus.messaging.processing_time";
@@ -24,13 +25,15 @@ class IncomingPipelineMetrics
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
-        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.2.0");
+        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.3.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
         totalFetched = meter.CreateCounter<long>(TotalFetched,
             description: "Total number of messages fetched from the queue by the endpoint.");
         totalFailures = meter.CreateCounter<long>(TotalFailures,
             description: "Total number of messages processed unsuccessfully by the endpoint.");
+        totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
+            description: "Total number of duplicate messages detected by the Outbox.");
         messageHandlerTime = meter.CreateHistogram<double>(MessageHandlerTime, "s",
             "The time in seconds for the execution of the business code.");
         criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
@@ -143,6 +146,23 @@ class IncomingPipelineMetrics
             MeterTags.MessageType]);
 
         totalFetched.Add(1, tags);
+    }
+
+    public void RecordDeduplicatedMessage(ITransportReceiveContext context)
+    {
+        if (!totalDeduplicated.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.EndpointDiscriminator,
+            MeterTags.QueueName,
+            MeterTags.MessageType]);
+
+        totalDeduplicated.Add(1, tags);
     }
 
     public void RecordSuccessfulMessageHandlerTime(IInvokeHandlerContext invokeHandlerContext, TimeSpan elapsed)
@@ -269,6 +289,7 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalProcessedSuccessfully;
     readonly Counter<long> totalFetched;
     readonly Counter<long> totalFailures;
+    readonly Counter<long> totalDeduplicated;
     readonly Histogram<double> messageHandlerTime;
     readonly Histogram<double> criticalTime;
     readonly Histogram<double> processingTime;
