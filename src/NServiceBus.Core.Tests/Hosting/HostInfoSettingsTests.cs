@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Host;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests.Host;
 
 using System;
 using NServiceBus.Support;
