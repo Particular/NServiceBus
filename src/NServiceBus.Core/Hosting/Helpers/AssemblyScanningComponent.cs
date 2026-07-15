@@ -1,4 +1,5 @@
 ﻿#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -39,7 +40,7 @@ class AssemblyScanningComponent
 
         // Deliberately strongly typed because we need to truncate this super large section when writing to the logs
         var assemblyScanningDiagnostics = new AssemblyScanningDiagnostics(
-            scannableAssemblies.Assemblies.Select(a => new AssemblyDetails(a.FullName, FileVersionRetriever.GetFileVersion(a))),
+            scannableAssemblies.Assemblies.Select(a => new AssemblyDetails(a.FullName ?? "Unknown assembly", FileVersionRetriever.GetFileVersion(a))),
             scannableAssemblies.SkippedFiles.Select(f => new SkippedFile(f.FilePath, f.SkipReason)),
             scannableAssemblies.ErrorsThrownDuringScanning,
             assemblyScannerSettings
@@ -75,7 +76,7 @@ class AssemblyScanningComponent
 
     public class Configuration(SettingsHolder settings)
     {
-        // This is only used for testability until we have a dedicated AOT test project. Not called on the hot path so has no performance implications. 
+        // This is only used for testability until we have a dedicated AOT test project. Not called on the hot path so has no performance implications.
         public bool DynamicCodeSupported { get; set; } = System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported;
 
         public List<Type>? UserProvidedTypes { get; set; }
