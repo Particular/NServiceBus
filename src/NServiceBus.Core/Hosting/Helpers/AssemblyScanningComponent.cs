@@ -39,7 +39,7 @@ class AssemblyScanningComponent
 
         // Deliberately strongly typed because we need to truncate this super large section when writing to the logs
         var assemblyScanningDiagnostics = new AssemblyScanningDiagnostics(
-            scannableAssemblies.Assemblies.Select(a => new AssemblyDetails(a.FullName, FileVersionRetriever.GetFileVersion(a))),
+            scannableAssemblies.Assemblies.Select(a => new AssemblyDetails(a.FullName ?? "Unknown assembly", FileVersionRetriever.GetFileVersion(a))),
             scannableAssemblies.SkippedFiles.Select(f => new SkippedFile(f.FilePath, f.SkipReason)),
             scannableAssemblies.ErrorsThrownDuringScanning,
             assemblyScannerSettings

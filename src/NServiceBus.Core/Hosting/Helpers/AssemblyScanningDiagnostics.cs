@@ -26,4 +26,4 @@ sealed class AssemblyScanningDiagnostics(
             Settings
         );
 }
-record AssemblyDetails(string? FullName, string FileVersion);
+record AssemblyDetails(string FullName, string FileVersion);
