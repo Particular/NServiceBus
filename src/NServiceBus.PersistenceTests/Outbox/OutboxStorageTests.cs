@@ -33,7 +33,7 @@ public class OutboxStorageTests(TestVariant param)
         _ = await storage.Get(messageId, ctx);
 
         string transportOperationMessageId = Guid.NewGuid().ToString();
-        var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation(transportOperationMessageId, null, null, null) });
+        var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation(transportOperationMessageId, new(), Array.Empty<byte>(), new()) });
         await using (var transaction = await storage.BeginTransaction(ctx))
         {
             await storage.Store(messageToStore, transaction, ctx);
@@ -44,12 +44,13 @@ public class OutboxStorageTests(TestVariant param)
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
         Assert.That(message, Is.Not.Null);
+        var notNullMessage = message!;
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(message.MessageId, Is.EqualTo(messageId));
-            Assert.That(message.TransportOperations, Has.Length.EqualTo(1));
+            Assert.That(notNullMessage.MessageId, Is.EqualTo(messageId));
+            Assert.That(notNullMessage.TransportOperations, Has.Length.EqualTo(1));
         }
-        Assert.That(message.TransportOperations[0].MessageId, Is.EqualTo(transportOperationMessageId));
+        Assert.That(notNullMessage.TransportOperations[0].MessageId, Is.EqualTo(transportOperationMessageId));
     }
 
     [Test]
@@ -63,7 +64,7 @@ public class OutboxStorageTests(TestVariant param)
         var messageId = Guid.NewGuid().ToString();
         _ = await storage.Get(messageId, ctx);
 
-        var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
+        var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", new(), Array.Empty<byte>(), new()) });
         await using (var transaction = await storage.BeginTransaction(ctx))
         {
             await storage.Store(messageToStore, transaction, ctx);
@@ -76,7 +77,8 @@ public class OutboxStorageTests(TestVariant param)
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
         Assert.That(message, Is.Not.Null);
-        Assert.That(message.TransportOperations, Is.Empty);
+        var notNullMessage = message!;
+        Assert.That(notNullMessage.TransportOperations, Is.Empty);
     }
 
     [Test]
@@ -120,7 +122,7 @@ public class OutboxStorageTests(TestVariant param)
 
         await using (var transaction = await storage.BeginTransaction(ctx))
         {
-            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", null, null, null)]);
+            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", new(), Array.Empty<byte>(), new())]);
             await storage.Store(messageToStore, transaction, ctx);
 
             // do not commit
@@ -143,7 +145,7 @@ public class OutboxStorageTests(TestVariant param)
 
         await using (var transaction = await storage.BeginTransaction(ctx))
         {
-            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", null, null, null)]);
+            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", new(), Array.Empty<byte>(), new())]);
             await storage.Store(messageToStore, transaction, ctx);
 
             await transaction.Commit();

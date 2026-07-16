@@ -16,6 +16,8 @@ public class TransportOperation
     public TransportOperation(string messageId, DispatchProperties properties, ReadOnlyMemory<byte> body, Dictionary<string, string> headers)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
+        ArgumentNullException.ThrowIfNull(properties);
+        ArgumentNullException.ThrowIfNull(headers);
 
         MessageId = messageId;
         Options = properties;
