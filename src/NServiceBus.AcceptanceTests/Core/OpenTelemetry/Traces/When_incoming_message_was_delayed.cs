@@ -152,6 +152,161 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         }
     }
 
+    [Test]
+    public async Task By_sendoptions_Should_continue_trace_when_endpoint_connector_is_child_span()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<ChildSpanConnectorEndpoint>(b => b
+                .When(s =>
+                {
+                    var sendOptions = new SendOptions();
+                    sendOptions.DelayDeliveryWith(TimeSpan.FromMilliseconds(5));
+                    sendOptions.RouteToThisEndpoint();
+                    return s.Send(new DelayedMessage(), sendOptions);
+                }))
+            .Run();
+
+        var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(incomingMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+            Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+        }
+
+        var sendRequest = outgoingMessageActivities[0];
+        var receiveRequest = incomingMessageActivities[0];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(receiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "delayed send and receive operations are part of the same root activity");
+            Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming delayed message does have a parent");
+        }
+
+        Assert.That(receiveRequest.Links, Is.Empty, "receive does not have links");
+    }
+
+    [Test]
+    public async Task By_sendoptions_Should_start_new_trace_when_option_overrides_child_span_connector()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<ChildSpanConnectorEndpoint>(b => b
+                .When(s =>
+                {
+                    var sendOptions = new SendOptions();
+                    sendOptions.DelayDeliveryWith(TimeSpan.FromMilliseconds(5));
+                    sendOptions.RouteToThisEndpoint();
+                    sendOptions.StartNewTraceOnReceive();
+                    return s.Send(new DelayedMessage(), sendOptions);
+                }))
+            .Run();
+
+        var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(incomingMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+            Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+        }
+
+        var sendRequest = outgoingMessageActivities[0];
+        var receiveRequest = incomingMessageActivities[0];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(receiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "per-message override wins: send and receive are different root activities");
+            Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
+        }
+
+        ActivityLink link = receiveRequest.Links.FirstOrDefault();
+        Assert.That(link, Is.Not.Default, "receive has a link");
+        Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "receive is linked to the send operation");
+    }
+
+    [Test]
+    public void By_retry_Should_continue_trace_when_endpoint_connector_is_child_span()
+    {
+        _ = Assert.CatchAsync(async () =>
+        {
+            await Scenario.Define<Context>()
+                .WithEndpoint<ChildSpanRetryConnectorEndpoint>(b => b
+                    .When(session => session.SendLocal(new MessageToBeRetried())))
+                .Run();
+        });
+
+        var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(incomingMessageActivities, Has.Count.EqualTo(2), "2 messages are received as part of this test (2 attempts)");
+            Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1), "1 message sent as part of this test");
+        }
+
+        var sendRequest = outgoingMessageActivities[0];
+        var firstAttemptReceiveRequest = incomingMessageActivities[0];
+        var secondAttemptReceiveRequest = incomingMessageActivities[1];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(firstAttemptReceiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
+            Assert.That(secondAttemptReceiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "delayed retry stays in the same trace when connector is child span");
+            Assert.That(secondAttemptReceiveRequest.ParentId, Is.Not.Null, "second incoming message does have a parent");
+        }
+
+        Assert.That(secondAttemptReceiveRequest.Links, Is.Empty, "second receive does not have links");
+    }
+
+    public class ChildSpanConnectorEndpoint : EndpointConfigurationBuilder
+    {
+        public ChildSpanConnectorEndpoint()
+        {
+            var template = new DefaultServer
+            {
+                TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
+            };
+            EndpointSetup(
+                template,
+                (c, _) => c.Tracing().DelayedSendTraceMode = TraceMode.ContinueExisting,
+                metadata => { });
+        }
+
+        [Handler]
+        public class DelayedMessageHandler(Context testContext) : IHandleMessages<DelayedMessage>
+        {
+            public Task Handle(DelayedMessage message, IMessageHandlerContext context)
+            {
+                testContext.DelayedMessageReceived = true;
+                testContext.MaybeCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
+    public class ChildSpanRetryConnectorEndpoint : EndpointConfigurationBuilder
+    {
+        public ChildSpanRetryConnectorEndpoint()
+        {
+            var template = new DefaultServer
+            {
+                TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
+            };
+            EndpointSetup(
+                template,
+                (c, _) =>
+                {
+                    c.Tracing().DelayedRetryTraceMode = TraceMode.ContinueExisting;
+                    var recoverability = c.Recoverability();
+                    recoverability.Delayed(settings => settings.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                }, metadata => { });
+        }
+
+        [Handler]
+        public class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
+        {
+            public Task Handle(MessageToBeRetried message, IMessageHandlerContext context) => throw new SimulatedException();
+        }
+    }
+
     public class Context : ScenarioContext
     {
         public bool ReplyMessageReceived { get; set; }

@@ -26,6 +26,36 @@ public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanc
         Assert.That(context.ErrorMessageHeaders[Headers.StartNewTrace], Is.EqualTo(bool.TrueString));
     }
 
+    [Test]
+    public async Task Should_not_add_start_new_trace_header_when_error_connector_is_child_span()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<FailingEndpointWithChildSpanConnector>(e => e
+                .When(s => s.SendLocal(new FailingMessage()))
+                .DoNotFailOnErrorMessages())
+            .WithEndpoint<ErrorSpy>()
+            .Run();
+
+        Assert.That(context.ErrorMessageHeaders[Headers.StartNewTrace], Is.EqualTo(bool.FalseString));
+    }
+
+    public class FailingEndpointWithChildSpanConnector : EndpointConfigurationBuilder
+    {
+        static readonly string ErrorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+
+        public FailingEndpointWithChildSpanConnector() => EndpointSetup<DefaultServer>(c =>
+        {
+            c.SendFailedMessagesTo(ErrorQueueAddress);
+            c.Tracing().ErrorMessageTraceMode = TraceMode.ContinueExisting;
+        });
+
+        [Handler]
+        public class FailingMessageHandler() : IHandleMessages<FailingMessage>
+        {
+            public Task Handle(FailingMessage message, IMessageHandlerContext context) => throw new SimulatedException(ErrorMessage);
+        }
+    }
+
     public class Context : ScenarioContext
     {
         public Dictionary<string, string> ErrorMessageHeaders { get; set; }
