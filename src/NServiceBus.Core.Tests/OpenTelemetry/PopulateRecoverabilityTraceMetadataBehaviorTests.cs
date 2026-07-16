@@ -95,6 +95,22 @@ public class PopulateRecoverabilityTraceMetadataBehaviorTests
     }
 
     [Test]
+    public async Task Should_not_apply_delayed_retry_connector_to_move_to_error()
+    {
+        var behavior = new PopulateRecoverabilityTraceMetadataBehavior(new InstrumentationOptions { DelayedRetryTraceMode = TraceMode.ContinueExisting });
+
+        var context = new TestableRecoverabilityContext
+        {
+            Headers = { { Headers.DiagnosticsTraceParent, "traceparent" } },
+            RecoverabilityAction = new MoveToError("errorqueue")
+        };
+
+        await behavior.Invoke(context, _ => Task.CompletedTask);
+
+        Assert.That(context.Metadata[Headers.StartNewTrace], Is.EqualTo(bool.TrueString));
+    }
+
+    [Test]
     public async Task Should_start_new_trace_for_other_actions_regardless_of_connectors()
     {
         var behavior = new PopulateRecoverabilityTraceMetadataBehavior(new InstrumentationOptions

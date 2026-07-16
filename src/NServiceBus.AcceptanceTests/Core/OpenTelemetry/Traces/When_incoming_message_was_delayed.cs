@@ -249,6 +249,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(firstAttemptReceiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
+            Assert.That(firstAttemptReceiveRequest.ParentId, Is.EqualTo(sendRequest.Id), "first incoming message is correlated to the first send operation");
             Assert.That(secondAttemptReceiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "delayed retry stays in the same trace when connector is child span");
             Assert.That(secondAttemptReceiveRequest.ParentId, Is.Not.Null, "second incoming message does have a parent");
         }
