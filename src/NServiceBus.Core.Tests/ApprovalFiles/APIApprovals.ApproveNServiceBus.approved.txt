@@ -635,6 +635,7 @@ namespace NServiceBus
     public class InstrumentationOptions
     {
         public InstrumentationOptions() { }
+        public bool EmitMessageDispatchingEvents { get; set; }
         public NServiceBus.TraceConnector PublishedMessageTraceConnector { get; set; }
         public NServiceBus.TraceConnector SentMessageTraceConnector { get; set; }
         public bool UseMessageDestinationInSpanNames { get; set; }
