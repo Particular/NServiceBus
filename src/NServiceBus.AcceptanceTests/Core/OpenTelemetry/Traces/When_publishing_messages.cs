@@ -242,5 +242,125 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         }
     }
 
+    [Test]
+    public async Task Should_create_child_on_receive_when_endpoint_defaults_to_child_span()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<PublisherWithChildSpanConnector>(b => b
+                .When(ctx => ctx.SomeEventSubscribed, s => s.Publish(new ThisIsAnEvent())))
+            .WithEndpoint<SubscriberForPublisherWithChildSpanConnector>(b => b.When((session, ctx) =>
+            {
+                if (ctx.HasNativePubSubSupport)
+                {
+                    ctx.SomeEventSubscribed = true;
+                }
+
+                return Task.CompletedTask;
+            }))
+            .Run();
+
+        var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(publishMessageActivities, Has.Count.EqualTo(1), "1 message is published as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+        }
+
+        var publishRequest = publishMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(receiveRequest.RootId, Is.EqualTo(publishRequest.RootId), "publish and receive operations are part the same root activity");
+            Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming message does have a parent");
+        }
+
+        Assert.That(receiveRequest.Links, Is.Empty, "receive does not have links");
+    }
+
+    [Test]
+    public async Task Should_create_new_linked_trace_on_receive_when_option_overrides_endpoint_connector()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<PublisherWithChildSpanConnector>(b => b
+                .When(ctx => ctx.SomeEventSubscribed, s =>
+                {
+                    var publishOptions = new PublishOptions();
+                    publishOptions.StartNewTraceOnReceive();
+                    return s.Publish(new ThisIsAnEvent(), publishOptions);
+                }))
+            .WithEndpoint<SubscriberForPublisherWithChildSpanConnector>(b => b.When((session, ctx) =>
+            {
+                if (ctx.HasNativePubSubSupport)
+                {
+                    ctx.SomeEventSubscribed = true;
+                }
+
+                return Task.CompletedTask;
+            }))
+            .Run();
+
+        var publishMessageActivities = NServiceBusActivityListener.CompletedActivities.GetPublishEventActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(publishMessageActivities, Has.Count.EqualTo(1), "1 message is published as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+        }
+
+        var publishRequest = publishMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(receiveRequest.RootId, Is.Not.EqualTo(publishRequest.RootId), "publish and receive operations are part of different root activities");
+            Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
+        }
+
+        ActivityLink link = receiveRequest.Links.FirstOrDefault();
+        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "Receive has a link");
+        Assert.That(link.Context.TraceId, Is.EqualTo(publishRequest.TraceId), "receive is linked to publish operation");
+    }
+
+    public class PublisherWithChildSpanConnector : EndpointConfigurationBuilder
+    {
+        public PublisherWithChildSpanConnector() =>
+            EndpointSetup<DefaultServer>(b =>
+            {
+                b.Tracing().PublishTraceMode = TraceMode.ContinueExisting;
+                b.OnEndpointSubscribed<Context>((s, context) =>
+                {
+                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(SubscriberForPublisherWithChildSpanConnector))))
+                    {
+                        if (s.MessageType == typeof(ThisIsAnEvent).AssemblyQualifiedName)
+                        {
+                            context.SomeEventSubscribed = true;
+                        }
+                    }
+                });
+            });
+    }
+
+    public class SubscriberForPublisherWithChildSpanConnector : EndpointConfigurationBuilder
+    {
+        public SubscriberForPublisherWithChildSpanConnector() =>
+            EndpointSetup<DefaultServer>(c => { },
+                metadata =>
+                {
+                    metadata.RegisterPublisherFor<ThisIsAnEvent, PublisherWithChildSpanConnector>();
+                });
+
+        [Handler]
+        public class ThisHandlesSomethingHandler(Context testContext) : IHandleMessages<ThisIsAnEvent>
+        {
+            public Task Handle(ThisIsAnEvent @event, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
     public class ThisIsAnEvent : IEvent;
 }

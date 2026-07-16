@@ -8,13 +8,15 @@ sealed class OpenTelemetryFeature : Feature
 {
     protected override void Setup(FeatureConfigurationContext context)
     {
+        var instrumentationOptions = context.Settings.GetOrDefault<InstrumentationOptions>() ?? new InstrumentationOptions();
+
         context.Pipeline.Register(
-            new OpenTelemetryPublishBehavior(),
+            new OpenTelemetryPublishBehavior(instrumentationOptions),
             "Manages the depth of the trace for publishes"
         );
 
         context.Pipeline.Register(
-            new OpenTelemetrySendBehavior(),
+            new OpenTelemetrySendBehavior(instrumentationOptions),
             "Manages the depth of the trace for sends"
         );
 

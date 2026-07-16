@@ -636,6 +636,8 @@ namespace NServiceBus
     {
         public InstrumentationOptions() { }
         public bool EmitMessageDispatchingEvents { get; set; }
+        public NServiceBus.TraceMode PublishTraceMode { get; set; }
+        public NServiceBus.TraceMode SendTraceMode { get; set; }
         public bool UseMessageDestinationInSpanNames { get; set; }
     }
     public sealed class KeyedServiceKey
@@ -777,6 +779,8 @@ namespace NServiceBus
     public static class OpenTelemetryExtensions
     {
         public static void ContinueExistingTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
+        public static void ContinueExistingTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
+        public static void StartNewTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
         public static void StartNewTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
         public static NServiceBus.InstrumentationOptions Tracing(this NServiceBus.EndpointConfiguration config) { }
     }
@@ -1173,6 +1177,11 @@ namespace NServiceBus
     {
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaEntityProperty) { }
+    }
+    public enum TraceMode
+    {
+        ContinueExisting = 0,
+        StartNew = 1,
     }
     public static class TransportConfig
     {
