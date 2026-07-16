@@ -636,8 +636,8 @@ namespace NServiceBus
     {
         public InstrumentationOptions() { }
         public bool EmitMessageDispatchingEvents { get; set; }
-        public NServiceBus.TraceConnector PublishedMessageTraceConnector { get; set; }
-        public NServiceBus.TraceConnector SentMessageTraceConnector { get; set; }
+        public NServiceBus.TraceMode PublishTraceMode { get; set; }
+        public NServiceBus.TraceMode SendTraceMode { get; set; }
         public bool UseMessageDestinationInSpanNames { get; set; }
     }
     public sealed class KeyedServiceKey
@@ -1178,10 +1178,10 @@ namespace NServiceBus
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaEntityProperty) { }
     }
-    public enum TraceConnector
+    public enum TraceMode
     {
-        ChildSpan = 0,
-        SpanLink = 1,
+        ContinueExisting = 0,
+        StartNew = 1,
     }
     public static class TransportConfig
     {
