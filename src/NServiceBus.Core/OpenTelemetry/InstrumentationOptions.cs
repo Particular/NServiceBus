@@ -14,4 +14,12 @@ public class InstrumentationOptions
     /// Disabled by default for backward compatibility.
     /// </summary>
     public bool UseMessageDestinationInSpanNames { get; set; }
+
+    /// <summary>
+    /// Controls whether the "Start dispatching" and "Finished dispatching" activity events
+    /// are added to the incoming message span when outgoing messages are dispatched.
+    /// Enabled by default for backward compatibility. Disable to avoid the ingestion cost
+    /// of these events when they add no diagnostic value.
+    /// </summary>
+    public bool EmitMessageDispatchingEvents { get; set; } = true;
 }
