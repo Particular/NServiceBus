@@ -21,6 +21,11 @@ sealed class OpenTelemetryFeature : Feature
         );
 
         context.Pipeline.Register(
+            new OpenTelemetryDelayedMessageBehavior(instrumentationOptions),
+            "Manages the depth of the trace for delayed messages"
+        );
+
+        context.Pipeline.Register(
             new PopulateRecoverabilityTraceMetadataBehavior(),
             "Populates the recoverability metadata"
         );

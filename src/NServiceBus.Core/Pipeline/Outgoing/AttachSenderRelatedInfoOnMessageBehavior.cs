@@ -35,12 +35,10 @@ class AttachSenderRelatedInfoOnMessageBehavior : IBehavior<IRoutingContext, IRou
                 {
                     var timeDelay = dispatchProperties.DelayDeliveryWith.Delay;
                     message.Headers[Headers.DeliverAt] = DateTimeOffsetHelper.ToWireFormattedString(utcNow.Add(timeDelay));
-                    context.Extensions.Set(Headers.StartNewTrace, bool.TrueString);
                 }
                 else if (dispatchProperties.DoNotDeliverBefore != null)
                 {
                     message.Headers[Headers.DeliverAt] = DateTimeOffsetHelper.ToWireFormattedString(dispatchProperties.DoNotDeliverBefore.At);
-                    context.Extensions.Set(Headers.StartNewTrace, bool.TrueString);
                 }
             }
         }

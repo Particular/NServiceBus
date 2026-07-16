@@ -109,6 +109,23 @@ public class AttachSenderRelatedInfoOnMessageTests
         }
     }
 
+    [Test]
+    public async Task Should_not_set_start_new_trace_context_entry()
+    {
+        var message = new OutgoingMessage("id", [], null);
+        var stash = new ContextBag();
+        stash.Set(new DispatchProperties
+        {
+            DelayDeliveryWith = new DelayDeliveryWith(TimeSpan.FromSeconds(2))
+        });
+        var context = new TestableRoutingContext { Message = message, Extensions = stash, RoutingStrategies = new List<UnicastRoutingStrategy> { new UnicastRoutingStrategy("_") } };
+
+        await new AttachSenderRelatedInfoOnMessageBehavior().Invoke(context, _ => Task.CompletedTask);
+
+        Assert.That(context.Extensions.TryGet<string>(Headers.StartNewTrace, out _), Is.False,
+            "the trace boundary decision for delayed messages is owned by OpenTelemetryDelayedMessageBehavior");
+    }
+
     static async Task<OutgoingMessage> InvokeBehaviorAsync(Dictionary<string, string> headers = null, DispatchProperties dispatchProperties = null, CancellationToken cancellationToken = default)
     {
         var message = new OutgoingMessage("id", headers ?? [], null);
