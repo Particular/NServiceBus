@@ -264,11 +264,6 @@ class IncomingPipelineMetrics
         return new ActiveMessageScope(activeMessages, tags);
     }
 
-    public readonly struct ActiveMessageScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
-    {
-        public void Dispose() => counter?.Add(-1, tags);
-    }
-
     public void EnvelopeUnwrappingSucceeded(MessageContext messageContext, IEnvelopeHandler type) => RecordEnvelopeUnwrapping(messageContext, type, true, null);
     public void EnvelopeUnwrappingFailed(MessageContext messageContext, IEnvelopeHandler type, Exception? exception) => RecordEnvelopeUnwrapping(messageContext, type, false, exception);
     void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
@@ -290,6 +285,11 @@ class IncomingPipelineMetrics
         }
 
         totalEnvelopeUnwrapping.Add(succeeded ? 0 : 1, meterTags);
+    }
+
+    public readonly struct ActiveMessageScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
+    {
+        public void Dispose() => counter?.Add(-1, tags);
     }
 
     readonly Counter<long> totalProcessedSuccessfully;
