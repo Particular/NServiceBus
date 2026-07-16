@@ -21,7 +21,7 @@ public class OpenTelemetryPublishBehaviorTests
     [Test]
     public async Task Should_continue_trace_on_receive_when_endpoint_connector_is_child_span()
     {
-        var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishedMessageTraceConnector = TraceConnector.ChildSpan });
+        var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishTraceMode = TraceMode.ContinueExisting });
         var context = new TestableOutgoingPublishContext();
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
@@ -32,9 +32,9 @@ public class OpenTelemetryPublishBehaviorTests
     [Test]
     public async Task Should_prefer_child_span_option_over_endpoint_connector()
     {
-        var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishedMessageTraceConnector = TraceConnector.SpanLink });
+        var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishTraceMode = TraceMode.StartNew });
         var context = new TestableOutgoingPublishContext();
-        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceConnector.ChildSpan);
+        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceMode.ContinueExisting);
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
@@ -44,9 +44,9 @@ public class OpenTelemetryPublishBehaviorTests
     [Test]
     public async Task Should_prefer_span_link_option_over_endpoint_connector()
     {
-        var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishedMessageTraceConnector = TraceConnector.ChildSpan });
+        var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishTraceMode = TraceMode.ContinueExisting });
         var context = new TestableOutgoingPublishContext();
-        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceConnector.SpanLink);
+        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceMode.StartNew);
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 

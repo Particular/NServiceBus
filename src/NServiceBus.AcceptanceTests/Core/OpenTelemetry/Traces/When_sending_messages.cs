@@ -230,7 +230,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
     public class TestEndpointWithSpanLinkConnector : EndpointConfigurationBuilder
     {
         public TestEndpointWithSpanLinkConnector() =>
-            EndpointSetup<DefaultServer>(b => b.Tracing().SentMessageTraceConnector = TraceConnector.SpanLink);
+            EndpointSetup<DefaultServer>(b => b.Tracing().SendTraceMode = TraceMode.StartNew);
 
         [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>

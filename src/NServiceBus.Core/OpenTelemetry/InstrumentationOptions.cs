@@ -17,17 +17,17 @@ public class InstrumentationOptions
 
     /// <summary>
     /// Controls how the receive-side processing span relates to the send span for messages sent by this endpoint.
-    /// Defaults to <see cref="TraceConnector.ChildSpan"/>: receivers continue the trace.
+    /// Defaults to <see cref="TraceMode.ContinueExisting"/>: receivers continue the trace.
     /// Can be overridden per message via <see cref="OpenTelemetryExtensions.StartNewTraceOnReceive(SendOptions)"/>
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(SendOptions)"/>.
     /// </summary>
-    public TraceConnector SentMessageTraceConnector { get; set; } = TraceConnector.ChildSpan;
+    public TraceMode SendTraceMode { get; set; } = TraceMode.ContinueExisting;
 
     /// <summary>
     /// Controls how the receive-side processing span relates to the publish span for events published by this endpoint.
-    /// Defaults to <see cref="TraceConnector.SpanLink"/>: receivers start a new trace linked back to the publish span.
+    /// Defaults to <see cref="TraceMode.StartNew"/>: receivers start a new trace linked back to the publish span.
     /// Can be overridden per message via <see cref="OpenTelemetryExtensions.StartNewTraceOnReceive(PublishOptions)"/>
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
-    public TraceConnector PublishedMessageTraceConnector { get; set; } = TraceConnector.SpanLink;
+    public TraceMode PublishTraceMode { get; set; } = TraceMode.StartNew;
 }

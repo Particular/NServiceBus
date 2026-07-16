@@ -21,7 +21,7 @@ public class OpenTelemetrySendBehaviorTests
     [Test]
     public async Task Should_start_new_trace_on_receive_when_endpoint_connector_is_span_link()
     {
-        var behavior = new OpenTelemetrySendBehavior(new InstrumentationOptions { SentMessageTraceConnector = TraceConnector.SpanLink });
+        var behavior = new OpenTelemetrySendBehavior(new InstrumentationOptions { SendTraceMode = TraceMode.StartNew });
         var context = new TestableOutgoingSendContext();
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
@@ -32,9 +32,9 @@ public class OpenTelemetrySendBehaviorTests
     [Test]
     public async Task Should_prefer_span_link_option_over_endpoint_connector()
     {
-        var behavior = new OpenTelemetrySendBehavior(new InstrumentationOptions { SentMessageTraceConnector = TraceConnector.ChildSpan });
+        var behavior = new OpenTelemetrySendBehavior(new InstrumentationOptions { SendTraceMode = TraceMode.ContinueExisting });
         var context = new TestableOutgoingSendContext();
-        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceConnector.SpanLink);
+        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceMode.StartNew);
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
@@ -44,9 +44,9 @@ public class OpenTelemetrySendBehaviorTests
     [Test]
     public async Task Should_prefer_child_span_option_over_endpoint_connector()
     {
-        var behavior = new OpenTelemetrySendBehavior(new InstrumentationOptions { SentMessageTraceConnector = TraceConnector.SpanLink });
+        var behavior = new OpenTelemetrySendBehavior(new InstrumentationOptions { SendTraceMode = TraceMode.StartNew });
         var context = new TestableOutgoingSendContext();
-        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceConnector.ChildSpan);
+        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceMode.ContinueExisting);
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 

@@ -328,7 +328,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         public PublisherWithChildSpanConnector() =>
             EndpointSetup<DefaultServer>(b =>
             {
-                b.Tracing().PublishedMessageTraceConnector = TraceConnector.ChildSpan;
+                b.Tracing().PublishTraceMode = TraceMode.ContinueExisting;
                 b.OnEndpointSubscribed<Context>((s, context) =>
                 {
                     if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(SubscriberForPublisherWithChildSpanConnector))))

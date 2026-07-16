@@ -11,11 +11,11 @@ class OpenTelemetrySendBehavior(InstrumentationOptions instrumentationOptions) :
     public Task Invoke(IOutgoingSendContext context, Func<IOutgoingSendContext, Task> next)
     {
         // the per-message override wins over the endpoint-level default
-        var connector = context.Extensions.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceConnector requestedConnector)
+        var connector = context.Extensions.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode requestedConnector)
             ? requestedConnector
-            : instrumentationOptions.SentMessageTraceConnector;
+            : instrumentationOptions.SendTraceMode;
 
-        context.Headers[Headers.StartNewTrace] = connector == TraceConnector.SpanLink ? bool.TrueString : bool.FalseString;
+        context.Headers[Headers.StartNewTrace] = connector == TraceMode.StartNew ? bool.TrueString : bool.FalseString;
 
         return next(context);
     }

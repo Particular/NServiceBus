@@ -12,8 +12,8 @@ public class InstrumentationOptionsTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(options.SentMessageTraceConnector, Is.EqualTo(TraceConnector.ChildSpan), "sends continue the trace by default");
-            Assert.That(options.PublishedMessageTraceConnector, Is.EqualTo(TraceConnector.SpanLink), "publishes start a new linked trace by default");
+            Assert.That(options.SendTraceMode, Is.EqualTo(TraceMode.ContinueExisting), "sends continue the trace by default");
+            Assert.That(options.PublishTraceMode, Is.EqualTo(TraceMode.StartNew), "publishes start a new linked trace by default");
         }
     }
 }

@@ -12,8 +12,8 @@ public class OpenTelemetryExtensionsTests
 
         options.StartNewTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceConnector connector), Is.True);
-        Assert.That(connector, Is.EqualTo(TraceConnector.SpanLink));
+        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(connector, Is.EqualTo(TraceMode.StartNew));
     }
 
     [Test]
@@ -23,8 +23,8 @@ public class OpenTelemetryExtensionsTests
 
         options.ContinueExistingTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceConnector connector), Is.True);
-        Assert.That(connector, Is.EqualTo(TraceConnector.ChildSpan));
+        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(connector, Is.EqualTo(TraceMode.ContinueExisting));
     }
 
     [Test]
@@ -34,8 +34,8 @@ public class OpenTelemetryExtensionsTests
 
         options.StartNewTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceConnector connector), Is.True);
-        Assert.That(connector, Is.EqualTo(TraceConnector.SpanLink));
+        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(connector, Is.EqualTo(TraceMode.StartNew));
     }
 
     [Test]
@@ -45,8 +45,8 @@ public class OpenTelemetryExtensionsTests
 
         options.ContinueExistingTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceConnector connector), Is.True);
-        Assert.That(connector, Is.EqualTo(TraceConnector.ChildSpan));
+        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(connector, Is.EqualTo(TraceMode.ContinueExisting));
     }
 
     [Test]
@@ -57,7 +57,7 @@ public class OpenTelemetryExtensionsTests
         options.ContinueExistingTraceOnReceive();
         options.StartNewTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceConnector connector), Is.True);
-        Assert.That(connector, Is.EqualTo(TraceConnector.SpanLink));
+        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(connector, Is.EqualTo(TraceMode.StartNew));
     }
 }

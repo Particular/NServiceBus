@@ -22,46 +22,46 @@ public static class OpenTelemetryExtensions
 
     /// <summary>
     /// Start a new OpenTelemetry trace on receive of this message, linked back to the send span.
-    /// Overrides <see cref="InstrumentationOptions.SentMessageTraceConnector"/> for this message.
+    /// Overrides <see cref="InstrumentationOptions.SendTraceMode"/> for this message.
     /// </summary>
     /// <param name="sendOptions">The option being extended.</param>
     public static void StartNewTraceOnReceive(this SendOptions sendOptions)
     {
         ArgumentNullException.ThrowIfNull(sendOptions);
-        sendOptions.Context.Set(TraceConnectorOverrideKey, TraceConnector.SpanLink);
+        sendOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.StartNew);
     }
 
     /// <summary>
     /// Continue the existing OpenTelemetry trace on receive of this message.
-    /// Overrides <see cref="InstrumentationOptions.SentMessageTraceConnector"/> for this message.
+    /// Overrides <see cref="InstrumentationOptions.SendTraceMode"/> for this message.
     /// </summary>
     /// <param name="sendOptions">The option being extended.</param>
     public static void ContinueExistingTraceOnReceive(this SendOptions sendOptions)
     {
         ArgumentNullException.ThrowIfNull(sendOptions);
-        sendOptions.Context.Set(TraceConnectorOverrideKey, TraceConnector.ChildSpan);
+        sendOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.ContinueExisting);
     }
 
     /// <summary>
     /// Start a new OpenTelemetry trace on receive of this event, linked back to the publish span.
-    /// Overrides <see cref="InstrumentationOptions.PublishedMessageTraceConnector"/> for this message.
+    /// Overrides <see cref="InstrumentationOptions.PublishTraceMode"/> for this message.
     /// </summary>
     /// <param name="publishOptions">The option being extended.</param>
     public static void StartNewTraceOnReceive(this PublishOptions publishOptions)
     {
         ArgumentNullException.ThrowIfNull(publishOptions);
-        publishOptions.Context.Set(TraceConnectorOverrideKey, TraceConnector.SpanLink);
+        publishOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.StartNew);
     }
 
     /// <summary>
     /// Continue the existing OpenTelemetry trace on receive of this event.
-    /// Overrides <see cref="InstrumentationOptions.PublishedMessageTraceConnector"/> for this message.
+    /// Overrides <see cref="InstrumentationOptions.PublishTraceMode"/> for this message.
     /// </summary>
     /// <param name="publishOptions">The option being extended.</param>
     public static void ContinueExistingTraceOnReceive(this PublishOptions publishOptions)
     {
         ArgumentNullException.ThrowIfNull(publishOptions);
-        publishOptions.Context.Set(TraceConnectorOverrideKey, TraceConnector.ChildSpan);
+        publishOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.ContinueExisting);
     }
 
     internal const string TraceConnectorOverrideKey = "NServiceBus.OpenTelemetry.TraceConnectorOverride";
