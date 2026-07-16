@@ -69,8 +69,10 @@ class TransportReceiveToPhysicalMessageConnector(
             Activity? activity = null;
             if (instrumentationOptions.EmitMessageDispatchingEvents)
             {
-                context.Extensions.TryGetRecordingIncomingPipelineActivity(out activity);
-                activity?.AddEvent(new ActivityEvent("Start dispatching", tags: new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } }));
+                if (context.Extensions.TryGetRecordingIncomingPipelineActivity(out activity))
+                {
+                    activity.AddEvent(new ActivityEvent("Start dispatching", tags: new ActivityTagsCollection { { "message-count", batchDispatchContext.Operations.Count } }));
+                }
             }
 
             await this.Fork(batchDispatchContext).ConfigureAwait(false);
