@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +19,7 @@
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
 
-  <!-- 
+  <!--
   We are enabling interceptors and analyzers on the acceptance tests to make sure
   the follow the necessary conventions because when they are shipped as sources the downstream
   projects will have the analyzers running
