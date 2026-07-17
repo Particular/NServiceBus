@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.7.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageReference Include="Microsoft.Testing.Extensions.GitHubActionsReport" Version="1.0.0-alpha.26363.8" />
     <PackageReference Include="Microsoft.Testing.Platform.MSBuild" Version="2.3.2" />
     <PackageReference Include="NuDoq" Version="2.0.1" NoWarn="NU1701" />
     <PackageReference Include="NUnit" Version="4.6.1" />
