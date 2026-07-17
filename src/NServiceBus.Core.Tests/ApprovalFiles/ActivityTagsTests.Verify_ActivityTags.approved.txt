@@ -1,6 +1,6 @@
 {
   "Note": "Changes to activity tags should result in ActivitySource version updates",
-  "ActivitySourceVersion": "0.1.0",
+  "ActivitySourceVersion": "1.0.0",
   "Tags": [
     "SagaId => nservicebus.saga.saga_id",
     "MessageId => nservicebus.message_id",
@@ -38,6 +38,7 @@
     "HandlerType => nservicebus.handler.handler_type",
     "HandlerSagaId => nservicebus.handler.saga_id",
     "EventTypes => nservicebus.event_types",
-    "CancelledTask => nservicebus.cancelled"
+    "CancelledTask => nservicebus.cancelled",
+    "RecoverabilityAction => nservicebus.recoverability_action"
   ]
 }

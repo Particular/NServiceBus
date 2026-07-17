@@ -17,7 +17,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_preserve_message_state_for_one_routing_strategy_for_allocation_reasons()
     {
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
         IEnumerable<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
@@ -59,7 +59,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_copy_message_state_for_multiple_routing_strategies()
     {
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
         List<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
@@ -135,7 +135,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_preserve_headers_generated_by_custom_routing_strategy()
     {
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
         Dictionary<string, string> headers = null;
         await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = [new HeaderModifyingRoutingStrategy()] }, context =>
             {
@@ -153,7 +153,7 @@ public class RoutingToDispatchConnectorTests
         options.RequireImmediateDispatch();
 
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -170,7 +170,7 @@ public class RoutingToDispatchConnectorTests
     public async Task Should_dispatch_immediately_if_not_sending_from_a_handler()
     {
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -187,7 +187,7 @@ public class RoutingToDispatchConnectorTests
     public async Task Should_not_dispatch_by_default()
     {
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -203,7 +203,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_promote_message_headers_to_pipeline_activity()
     {
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
         var routingContext = new TestableRoutingContext();
         routingContext.Message.Headers[Headers.ContentType] = "test content type"; // one of the headers that will be mapped to tags
 
@@ -257,7 +257,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_merge_receive_properties_when_declared_by_transport()
     {
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
@@ -290,7 +290,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_not_override_user_set_dispatch_property()
     {
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
@@ -324,7 +324,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_preserve_user_dispatch_properties_even_with_receive_properties()
     {
-        var behavior = new RoutingToDispatchConnector(new NoOpActivityFactory());
+        var behavior = new RoutingToDispatchConnector(NoOpActivityFactory.Instance);
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
