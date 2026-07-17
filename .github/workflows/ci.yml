@@ -42,4 +42,11 @@ jobs:
           path: nugets/
           retention-days: 7
       - name: Run tests
-        run: dotnet test src --zero-tests-policy strict --report-gh
+        run: |
+          src\NServiceBus.AcceptanceTests\bin\Release\net10.0\NServiceBus.AcceptanceTests.exe --zero-tests-policy strict --report-gh
+          src\NServiceBus.Core.Analyzer.Tests.Roslyn5\bin\Release\net10.0\NServiceBus.Core.Analyzer.Tests.Roslyn5.exe --zero-tests-policy strict --report-gh
+          src\NServiceBus.Core.Tests\bin\Release\net10.0\NServiceBus.Core.Tests.exe --zero-tests-policy strict --report-gh
+          src\NServiceBus.Learning.AcceptanceTests\bin\Release\net10.0\NServiceBus.Learning.AcceptanceTests.exe --zero-tests-policy strict --report-gh
+          src\NServiceBus.PersistenceTests\bin\Release\net10.0\NServiceBus.PersistenceTests.exe --zero-tests-policy strict --report-gh
+          src\NServiceBus.TransportTests\bin\Release\net10.0\NServiceBus.TransportTests.exe --zero-tests-policy strict --report-gh
+
