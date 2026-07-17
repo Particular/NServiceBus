@@ -42,4 +42,4 @@ jobs:
           path: nugets/
           retention-days: 7
       - name: Run tests
-        run: dotnet test src
+        run: dotnet test src --zero-tests-policy strict --report-gh
