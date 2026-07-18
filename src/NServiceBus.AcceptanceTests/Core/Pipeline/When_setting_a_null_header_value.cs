@@ -16,7 +16,7 @@ public class When_setting_a_null_header_value : NServiceBusAcceptanceTest
             .WithEndpoint<Endpoint>(b => b.When(session =>
             {
                 var options = new SendOptions();
-                options.SetHeader("NullHeader", null);
+                options.SetHeader("MyHeader", null);
                 options.RouteToThisEndpoint();
 
                 return session.Send(new MyMessage(), options);
