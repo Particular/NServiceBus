@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Testing;
+﻿#nullable enable
+
+namespace NServiceBus.Testing;
 
 using System;
 using System.Collections.Generic;
