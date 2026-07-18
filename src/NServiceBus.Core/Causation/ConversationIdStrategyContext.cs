@@ -14,7 +14,7 @@ public class ConversationIdStrategyContext
     /// <summary>
     /// Creates a new context.
     /// </summary>
-    public ConversationIdStrategyContext(OutgoingLogicalMessage message, IReadOnlyDictionary<string, string> headers)
+    public ConversationIdStrategyContext(OutgoingLogicalMessage message, IReadOnlyDictionary<string, string?> headers)
     {
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(headers);
@@ -32,5 +32,5 @@ public class ConversationIdStrategyContext
     /// <summary>
     /// The headers attached to the outgoing message.
     /// </summary>
-    public IReadOnlyDictionary<string, string> Headers { get; }
+    public IReadOnlyDictionary<string, string?> Headers { get; }
 }

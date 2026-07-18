@@ -46,7 +46,7 @@ class MessageOperations
 
     public Task Publish(IBehaviorContext context, object message, PublishOptions options)
     {
-        var messageType = messageMapper.GetMappedTypeFor(message.GetType());
+        var messageType = messageMapper.GetMappedTypeFor(message.GetType()) ?? message.GetType();
 
         return Publish(context, messageType, message, options);
     }
@@ -113,7 +113,7 @@ class MessageOperations
 
     public Task Send(IBehaviorContext context, object message, SendOptions options)
     {
-        var messageType = messageMapper.GetMappedTypeFor(message.GetType());
+        var messageType = messageMapper.GetMappedTypeFor(message.GetType()) ?? message.GetType();
 
         return SendMessage(context, messageType, message, options);
     }
@@ -142,7 +142,7 @@ class MessageOperations
 
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
     {
-        var messageType = messageMapper.GetMappedTypeFor(message.GetType());
+        var messageType = messageMapper.GetMappedTypeFor(message.GetType()) ?? message.GetType();
 
         return ReplyMessage(context, messageType, message, options);
     }
