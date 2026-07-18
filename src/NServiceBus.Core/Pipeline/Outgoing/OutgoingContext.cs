@@ -10,7 +10,7 @@ using Pipeline;
 
 abstract class OutgoingContext : BehaviorContext, IOutgoingContext
 {
-    protected OutgoingContext(string messageId, Dictionary<string, string> headers, IBehaviorContext parentContext)
+    protected OutgoingContext(string messageId, Dictionary<string, string?> headers, IBehaviorContext parentContext)
         : base(parentContext)
     {
         Headers = headers;
@@ -21,7 +21,7 @@ abstract class OutgoingContext : BehaviorContext, IOutgoingContext
 
     public string MessageId { get; }
 
-    public Dictionary<string, string> Headers { get; }
+    public Dictionary<string, string?> Headers { get; }
 
     public Task Send(object message, SendOptions options)
     {

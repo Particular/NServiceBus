@@ -38,5 +38,5 @@ public partial class TestableOutgoingContext : TestablePipelineContext, IOutgoin
     /// <summary>
     /// The headers of the outgoing message.
     /// </summary>
-    public Dictionary<string, string> Headers { get; set; } = [];
+    public Dictionary<string, string?> Headers { get; set; } = [];
 }

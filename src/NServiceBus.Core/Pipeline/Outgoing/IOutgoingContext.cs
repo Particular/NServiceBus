@@ -17,5 +17,5 @@ public interface IOutgoingContext : IBehaviorContext, IPipelineContext
     /// <summary>
     /// The headers of the outgoing message.
     /// </summary>
-    Dictionary<string, string> Headers { get; }
+    Dictionary<string, string?> Headers { get; }
 }
