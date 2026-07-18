@@ -41,7 +41,7 @@ class MessageOperations
 
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
     {
-        return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+        return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor)!, options);
     }
 
     public Task Publish(IBehaviorContext context, object message, PublishOptions options)
@@ -108,7 +108,7 @@ class MessageOperations
 
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
     {
-        return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+        return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor)!, options);
     }
 
     public Task Send(IBehaviorContext context, object message, SendOptions options)
@@ -149,7 +149,7 @@ class MessageOperations
 
     public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
     {
-        return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+        return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor)!, options);
     }
 
     async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
