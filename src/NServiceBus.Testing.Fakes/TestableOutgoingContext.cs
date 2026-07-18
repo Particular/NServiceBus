@@ -20,7 +20,7 @@ public partial class TestableOutgoingContext : TestablePipelineContext, IOutgoin
 
     IServiceProvider IBehaviorContext.Builder => GetBuilder();
 
-    IServiceProvider builder = null;
+    IServiceProvider? builder = null;
 
     /// <summary>
     /// Selects the builder returned by <see cref="IBehaviorContext.Builder" />. Override this method to provide your custom
