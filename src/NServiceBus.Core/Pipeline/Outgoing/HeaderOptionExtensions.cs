@@ -18,7 +18,7 @@ public static class HeaderOptionExtensions
     /// <param name="options">The options to extend.</param>
     /// <param name="key">The header key.</param>
     /// <param name="value">The header value.</param>
-    public static void SetHeader(this ExtendableOptions options, string key, string value)
+    public static void SetHeader(this ExtendableOptions options, string key, string? value)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
@@ -29,10 +29,10 @@ public static class HeaderOptionExtensions
     /// <summary>
     /// Returns all headers set by <see cref="SetHeader" /> on the outgoing message.
     /// </summary>
-    public static IReadOnlyDictionary<string, string> GetHeaders(this ExtendableOptions options)
+    public static IReadOnlyDictionary<string, string?> GetHeaders(this ExtendableOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        return new ReadOnlyDictionary<string, string>(options.OutgoingHeaders);
+        return new ReadOnlyDictionary<string, string?>(options.OutgoingHeaders);
     }
 }

@@ -30,5 +30,5 @@ public abstract class ExtendableOptions
 
     internal string? UserDefinedMessageId { get; set; }
 
-    internal Dictionary<string, string> OutgoingHeaders { get; }
+    internal Dictionary<string, string?> OutgoingHeaders { get; }
 }

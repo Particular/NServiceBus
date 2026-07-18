@@ -15,7 +15,7 @@ public class MutateOutgoingMessageContext : ICancellableContext
     /// <summary>
     /// Initializes the context.
     /// </summary>
-    public MutateOutgoingMessageContext(object outgoingMessage, Dictionary<string, string> outgoingHeaders, object? incomingMessage, IReadOnlyDictionary<string, string>? incomingHeaders, CancellationToken cancellationToken = default)
+    public MutateOutgoingMessageContext(object outgoingMessage, Dictionary<string, string?> outgoingHeaders, object? incomingMessage, IReadOnlyDictionary<string, string>? incomingHeaders, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(outgoingHeaders);
         ArgumentNullException.ThrowIfNull(outgoingMessage);
@@ -43,7 +43,7 @@ public class MutateOutgoingMessageContext : ICancellableContext
     /// <summary>
     /// The current outgoing headers.
     /// </summary>
-    public Dictionary<string, string> OutgoingHeaders { get; }
+    public Dictionary<string, string?> OutgoingHeaders { get; }
 
     /// <summary>
     /// A <see cref="CancellationToken"/> to observe.

@@ -52,7 +52,7 @@ class MessageOperations
     async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+        var headers = new Dictionary<string, string?>(options.OutgoingHeaders)
         {
             [Headers.MessageId] = messageId
         };
@@ -119,7 +119,7 @@ class MessageOperations
     async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+        var headers = new Dictionary<string, string?>(options.OutgoingHeaders)
         {
             [Headers.MessageId] = messageId
         };
@@ -153,7 +153,7 @@ class MessageOperations
     async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+        var headers = new Dictionary<string, string?>(options.OutgoingHeaders)
         {
             [Headers.MessageId] = messageId
         };
