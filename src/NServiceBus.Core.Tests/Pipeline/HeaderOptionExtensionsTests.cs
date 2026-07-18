@@ -18,4 +18,15 @@ public class HeaderOptionExtensionsTests
         Assert.That(result.Values, Has.Member("custom header value 1"));
         Assert.That(result.Values, Has.Member("custom header value 2"));
     }
+
+    [Test]
+    public void SetHeader_allows_null_value()
+    {
+        var options = new SendOptions();
+
+        Assert.DoesNotThrow(() => options.SetHeader("MyHeader", null));
+
+        var headers = options.GetHeaders();
+        Assert.That(headers["MyHeader"], Is.Null);
+    }
 }
