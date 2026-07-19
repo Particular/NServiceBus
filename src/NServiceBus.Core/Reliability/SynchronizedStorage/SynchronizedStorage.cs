@@ -1,4 +1,5 @@
 #nullable enable
+
 namespace NServiceBus.Features;
 
 using Microsoft.Extensions.DependencyInjection;
