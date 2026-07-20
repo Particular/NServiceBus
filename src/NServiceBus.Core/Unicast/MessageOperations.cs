@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Extensibility;
+using Utils;
 using MessageInterfaces;
 using Pipeline;
 using Transport;
@@ -52,10 +53,7 @@ class MessageOperations
     async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
-        {
-            [Headers.MessageId] = messageId
-        };
+        var headers = RentOutgoingHeaders(options.OutgoingHeaders, messageId);
 
         var publishContext = new OutgoingPublishContext(
             new OutgoingLogicalMessage(messageType, message),
@@ -71,10 +69,7 @@ class MessageOperations
         await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
     }
 
-    public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
-    {
-        return Subscribe(context, new Type[] { eventType }, options);
-    }
+    public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options) => Subscribe(context, [eventType], options);
 
     public async Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
     {
@@ -104,10 +99,7 @@ class MessageOperations
         await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
     }
 
-    public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
-    {
-        return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
-    }
+    public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options) => SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
 
     public Task Send(IBehaviorContext context, object message, SendOptions options)
     {
@@ -119,10 +111,7 @@ class MessageOperations
     async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
-        {
-            [Headers.MessageId] = messageId
-        };
+        var headers = RentOutgoingHeaders(options.OutgoingHeaders, messageId);
 
         var outgoingContext = new OutgoingSendContext(
             new OutgoingLogicalMessage(messageType, message),
@@ -145,18 +134,12 @@ class MessageOperations
         return ReplyMessage(context, messageType, message, options);
     }
 
-    public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
-    {
-        return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
-    }
+    public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options) => ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
 
     async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
-        {
-            [Headers.MessageId] = messageId
-        };
+        var headers = RentOutgoingHeaders(options.OutgoingHeaders, messageId);
 
         var outgoingContext = new OutgoingReplyContext(
             new OutgoingLogicalMessage(messageType, message),
@@ -172,9 +155,15 @@ class MessageOperations
         await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
     }
 
-    static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
-    {
+    static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties) =>
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
         context.Set(new DispatchProperties(dispatchProperties));
+
+    static Dictionary<string, string> RentOutgoingHeaders(Dictionary<string, string> outgoingHeaders, string messageId)
+    {
+        var headers = HeaderPool.Shared.Rent(outgoingHeaders.Count);
+        outgoingHeaders.CopyTo(headers);
+        headers[Headers.MessageId] = messageId;
+        return headers;
     }
 }
