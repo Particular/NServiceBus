@@ -42,7 +42,7 @@ public class DispatchProperties : IDictionary<string, string>, IReadOnlyDictiona
     }
 
     /// <summary>
-    /// Creates a new instance of <see cref="DispatchProperties"/> an copies the values from the provided dictionary.
+    /// Creates a new instance of <see cref="DispatchProperties"/> and copies the values from the provided dictionary.
     /// </summary>
     public DispatchProperties(IDictionary<string, string> properties)
     {
