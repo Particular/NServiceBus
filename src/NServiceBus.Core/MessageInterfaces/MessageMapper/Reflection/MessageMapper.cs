@@ -1,4 +1,5 @@
 #nullable enable
+
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 
 using System;
