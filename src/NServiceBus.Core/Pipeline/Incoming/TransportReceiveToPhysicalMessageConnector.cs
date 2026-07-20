@@ -128,16 +128,19 @@ class TransportReceiveToPhysicalMessageConnector(
         }
     }
 
-    static AddressTag DeserializeRoutingStrategy(DispatchProperties options)
+    static AddressTag DeserializeRoutingStrategy(DispatchProperties? options)
     {
-        if (options.Remove("Destination", out var destination))
+        if (options is not null)
         {
-            return new UnicastAddressTag(destination);
-        }
+            if (options.Remove("Destination", out var destination))
+            {
+                return new UnicastAddressTag(destination);
+            }
 
-        if (options.Remove("EventType", out var eventType))
-        {
-            return new MulticastAddressTag(Type.GetType(eventType, true));
+            if (options.Remove("EventType", out var eventType))
+            {
+                return new MulticastAddressTag(Type.GetType(eventType, true));
+            }
         }
 
         throw new Exception("Could not find routing strategy to deserialize");
