@@ -2451,9 +2451,10 @@ namespace NServiceBus.Transport
         Default = 1,
         Isolated = 2,
     }
-    public class DispatchProperties : System.Collections.Generic.ICollection<System.Collections.Generic.KeyValuePair<string, string>>, System.Collections.Generic.IDictionary<string, string>, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>, System.Collections.IEnumerable
+    public class DispatchProperties : System.Collections.Generic.ICollection<System.Collections.Generic.KeyValuePair<string, string>>, System.Collections.Generic.IDictionary<string, string>, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string, string>>, System.Collections.Generic.IReadOnlyCollection<System.Collections.Generic.KeyValuePair<string, string>>, System.Collections.Generic.IReadOnlyDictionary<string, string>, System.Collections.IEnumerable
     {
         public DispatchProperties() { }
+        public DispatchProperties(System.Collections.Generic.Dictionary<string, string> properties) { }
         public DispatchProperties(System.Collections.Generic.IDictionary<string, string> properties) { }
         public int Count { get; }
         public NServiceBus.DelayedDelivery.DelayDeliveryWith? DelayDeliveryWith { get; set; }

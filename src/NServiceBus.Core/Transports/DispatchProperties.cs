@@ -14,7 +14,7 @@ using Performance.TimeToBeReceived;
 /// Describes additional properties for an outgoing message.
 /// </summary>
 [SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "Name reflects domain semantics, not collection implementation.")]
-public class DispatchProperties : IDictionary<string, string>
+public class DispatchProperties : IDictionary<string, string>, IReadOnlyDictionary<string, string>
 {
     //These can't be changed to be backwards compatible with previous versions of the core
     const string DoNotDeliverBeforeKeyName = "DeliverAt";
@@ -30,6 +30,14 @@ public class DispatchProperties : IDictionary<string, string>
     /// Creates a new instance of <see cref="DispatchProperties"/>.
     /// </summary>
     public DispatchProperties()
+    {
+    }
+
+    /// <summary>
+    /// Creates a new instance of <see cref="DispatchProperties"/> and copies the values from the provided dictionary.
+    /// </summary>
+    public DispatchProperties(Dictionary<string, string> properties)
+        : this((IDictionary<string, string>)properties)
     {
     }
 
@@ -572,6 +580,9 @@ public class DispatchProperties : IDictionary<string, string>
 
         (stash ??= [])[key] = value;
     }
+
+    IEnumerable<string> IReadOnlyDictionary<string, string>.Keys => Keys;
+    IEnumerable<string> IReadOnlyDictionary<string, string>.Values => Values;
 
     void ICollection<KeyValuePair<string, string>>.Add(KeyValuePair<string, string> item) => Add(item.Key, item.Value);
 
