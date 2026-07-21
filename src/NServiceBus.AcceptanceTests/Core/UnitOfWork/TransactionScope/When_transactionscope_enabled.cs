@@ -46,12 +46,16 @@ public class When_transactionscope_enabled : NServiceBusAcceptanceTest
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                if (Transaction.Current != null)
+                var transaction = Transaction.Current;
+
+                if (transaction is not null)
                 {
-                    testContext.AmbientTransactionPresent = Transaction.Current != null;
-                    testContext.IsolationLevel = Transaction.Current!.IsolationLevel;
+                    testContext.AmbientTransactionPresent = true;
+                    testContext.IsolationLevel = transaction.IsolationLevel;
                 }
+
                 testContext.MarkAsCompleted();
+
                 return Task.CompletedTask;
             }
         }
