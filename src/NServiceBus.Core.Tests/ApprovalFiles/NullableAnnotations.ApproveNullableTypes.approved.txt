@@ -97,6 +97,5 @@ NServiceBus.Unicast.Queuing.QueueNotFoundException
 NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorage
 NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber
 NServiceBus.Unicast.Subscriptions.MessageType
-NServiceBus.UnitOfWorkSettingsExtensions
 NServiceBus.XmlSerializationExtensions
 NServiceBus.XmlSerializer
