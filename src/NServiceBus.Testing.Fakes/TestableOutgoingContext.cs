@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Testing;
+﻿#nullable enable
+
+namespace NServiceBus.Testing;
 
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ public partial class TestableOutgoingContext : TestablePipelineContext, IOutgoin
 
     IServiceProvider IBehaviorContext.Builder => GetBuilder();
 
-    IServiceProvider builder = null;
+    IServiceProvider? builder = null;
 
     /// <summary>
     /// Selects the builder returned by <see cref="IBehaviorContext.Builder" />. Override this method to provide your custom
@@ -38,5 +40,5 @@ public partial class TestableOutgoingContext : TestablePipelineContext, IOutgoin
     /// <summary>
     /// The headers of the outgoing message.
     /// </summary>
-    public Dictionary<string, string> Headers { get; set; } = [];
+    public Dictionary<string, string?> Headers { get; set; } = [];
 }

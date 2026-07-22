@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -39,12 +41,12 @@ class MessageOperations
 
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
     {
-        return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+        return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor)!, options);
     }
 
     public Task Publish(IBehaviorContext context, object message, PublishOptions options)
     {
-        var messageType = messageMapper.GetMappedTypeFor(message.GetType());
+        var messageType = messageMapper.GetMappedTypeFor(message.GetType()) ?? message.GetType();
 
         return Publish(context, messageType, message, options);
     }
@@ -52,7 +54,7 @@ class MessageOperations
     async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+        var headers = new Dictionary<string, string?>(options.OutgoingHeaders)
         {
             [Headers.MessageId] = messageId
         };
@@ -106,12 +108,12 @@ class MessageOperations
 
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
     {
-        return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+        return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor)!, options);
     }
 
     public Task Send(IBehaviorContext context, object message, SendOptions options)
     {
-        var messageType = messageMapper.GetMappedTypeFor(message.GetType());
+        var messageType = messageMapper.GetMappedTypeFor(message.GetType()) ?? message.GetType();
 
         return SendMessage(context, messageType, message, options);
     }
@@ -119,7 +121,7 @@ class MessageOperations
     async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+        var headers = new Dictionary<string, string?>(options.OutgoingHeaders)
         {
             [Headers.MessageId] = messageId
         };
@@ -140,20 +142,20 @@ class MessageOperations
 
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
     {
-        var messageType = messageMapper.GetMappedTypeFor(message.GetType());
+        var messageType = messageMapper.GetMappedTypeFor(message.GetType()) ?? message.GetType();
 
         return ReplyMessage(context, messageType, message, options);
     }
 
     public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
     {
-        return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+        return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor)!, options);
     }
 
     async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+        var headers = new Dictionary<string, string?>(options.OutgoingHeaders)
         {
             [Headers.MessageId] = messageId
         };

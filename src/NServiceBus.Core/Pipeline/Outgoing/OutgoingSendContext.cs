@@ -9,7 +9,7 @@ using Pipeline;
 
 class OutgoingSendContext : OutgoingContext, IOutgoingSendContext
 {
-    public OutgoingSendContext(OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, ContextBag extensions, IBehaviorContext parentContext)
+    public OutgoingSendContext(OutgoingLogicalMessage message, string messageId, Dictionary<string, string?> headers, ContextBag extensions, IBehaviorContext parentContext)
         : base(messageId, headers, parentContext)
     {
         ArgumentNullException.ThrowIfNull(parentContext);
