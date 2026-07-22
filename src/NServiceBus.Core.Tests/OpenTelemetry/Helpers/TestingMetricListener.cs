@@ -10,7 +10,11 @@ using NUnit.Framework;
 class TestingMetricListener : IDisposable
 {
     readonly MeterListener meterListener;
-    readonly ConcurrentDictionary<string, byte> subscribedInstruments = new(StringComparer.Ordinal);
+#pragma warning disable PS0025 // Reference equality is intentional: different Instrument objects can share the same
+    // name across meter instances created by other tests running in the same process, and each distinct instance
+    // must be subscribed independently.
+    readonly ConcurrentDictionary<Instrument, byte> subscribedInstruments = new(ReferenceEqualityComparer.Instance);
+#pragma warning restore PS0025
     public readonly List<Instrument> metrics = [];
     public string version = "";
     public string metricsSourceName = "";
@@ -26,8 +30,7 @@ class TestingMetricListener : IDisposable
                     return;
                 }
 
-                var instrumentKey = $"{instrument.Meter.Name}|{instrument.Name}|{instrument.GetType().FullName}";
-                if (!subscribedInstruments.TryAdd(instrumentKey, 0))
+                if (!subscribedInstruments.TryAdd(instrument, 0))
                 {
                     return;
                 }
