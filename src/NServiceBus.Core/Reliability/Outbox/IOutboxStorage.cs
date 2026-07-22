@@ -18,7 +18,8 @@ public interface IOutboxStorage
     /// If there is no <see cref="OutboxMessage" /> present for the given <paramref name="messageId" /> then null is
     /// returned.
     /// </returns>
-    Task<OutboxMessage?> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default);
+    /// TODO : change this to a TryGet pattern to avoid throwing exceptions for non-existing messages.
+    Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Stores the outbox message to enable deduplication an re-dispatching of related transport operations.
