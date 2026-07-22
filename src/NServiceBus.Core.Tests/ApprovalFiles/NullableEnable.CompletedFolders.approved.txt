@@ -1,0 +1,54 @@
+The following directories have every .cs file annotated with #nullable enable.
+Changes that remove a directory from this list, or add a directory whose files are not
+all annotated, should not be approved. New files added to a listed directory must also
+be annotated with #nullable enable.
+-----
+NServiceBus.AcceptanceTests/Core/LoggingIntegration
+NServiceBus.Core.Analyzer/Features
+NServiceBus.Core.Tests/Receiving
+NServiceBus.Core.Tests/Utils
+NServiceBus.Core/Audit
+NServiceBus.Core/Causation
+NServiceBus.Core/CircuitBreakers
+NServiceBus.Core/Conventions
+NServiceBus.Core/Correlation
+NServiceBus.Core/CriticalError
+NServiceBus.Core/DelayedDelivery
+NServiceBus.Core/Envelopes
+NServiceBus.Core/Extensibility
+NServiceBus.Core/Features
+NServiceBus.Core/Hosting
+NServiceBus.Core/Hosting/Helpers
+NServiceBus.Core/Hosting/KeyedServices
+NServiceBus.Core/Hosting/StartupDiagnostics
+NServiceBus.Core/IdGeneration
+NServiceBus.Core/Installation
+NServiceBus.Core/Licensing
+NServiceBus.Core/Logging
+NServiceBus.Core/MessageInterfaces
+NServiceBus.Core/MessageInterfaces/MessageMapper
+NServiceBus.Core/MessageInterfaces/MessageMapper/Reflection
+NServiceBus.Core/MessageMutators
+NServiceBus.Core/MessageMutators/MutateInstanceMessage
+NServiceBus.Core/MessageMutators/MutateTransportMessage
+NServiceBus.Core/Notifications
+NServiceBus.Core/OpenTelemetry
+NServiceBus.Core/OpenTelemetry/Metrics
+NServiceBus.Core/OpenTelemetry/Tracing
+NServiceBus.Core/Performance/MessageProcessingOptimizations
+NServiceBus.Core/Performance/Statistics
+NServiceBus.Core/Performance/TimeToBeReceived
+NServiceBus.Core/Persistence
+NServiceBus.Core/Persistence/Learning
+NServiceBus.Core/Persistence/Learning/SagaPersister
+NServiceBus.Core/Pipeline
+NServiceBus.Core/Pipeline/Incoming
+NServiceBus.Core/Pipeline/Outgoing
+NServiceBus.Core/Receiving
+NServiceBus.Core/Recoverability
+NServiceBus.Core/Recoverability/DelayedRetries
+NServiceBus.Core/Recoverability/ImmediateRetries
+NServiceBus.Core/Recoverability/Settings
+NServiceBus.Core/Serializers/SystemJson
+NServiceBus.Core/Support
+NServiceBus.Core/Unicast/Config

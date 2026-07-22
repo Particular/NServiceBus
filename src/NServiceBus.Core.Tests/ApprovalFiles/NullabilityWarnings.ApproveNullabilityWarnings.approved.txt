@@ -1,0 +1,362 @@
+The following nullable warnings are present in NServiceBus.Core.
+Changes that make this list longer should not be approved.
+-----
+
+src/NServiceBus.Core.Analyzer/FeatureDefaultsEnableFeatureAnalyzer.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core.Analyzer/ForwardCancellationTokenAnalyzer.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+  CS8603: Possible null reference return.
+  CS8604: Possible null reference argument for parameter 'genericTaskType' in 'void ForwardCancellationTokenAnalyzer.Analyze(SyntaxNodeAnalysisContext context, INamedTypeSymbol cancellableContextInterface, INamedTypeSymbol cancellationTokenType, INamedTypeSymbol genericTaskType, INamedTypeSymbol genericValueTaskType)'.
+  CS8604: Possible null reference argument for parameter 'genericValueTaskType' in 'void ForwardCancellationTokenAnalyzer.Analyze(SyntaxNodeAnalysisContext context, INamedTypeSymbol cancellableContextInterface, INamedTypeSymbol cancellationTokenType, INamedTypeSymbol genericTaskType, INamedTypeSymbol genericValueTaskType)'.
+  CS8604: Possible null reference argument for parameter 'symbol' in 'SymbolExtensions.extension(ISymbol)'.
+  CS8620: Argument of type 'ImmutableDictionary<string, string>' cannot be used for parameter 'properties' of type 'ImmutableDictionary<string, string?>' in 'Diagnostic Diagnostic.Create(DiagnosticDescriptor descriptor, Location? location, ImmutableDictionary<string, string?>? properties, params object?[]? messageArgs)' due to differences in the nullability of reference types.
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core.Analyzer/MethodSymbolExtensions.cs
+  CS8602: Dereference of a possibly null reference.
+
+src/NServiceBus.Core.Analyzer/Sagas/AddSagaInterceptor.cs
+  CS8604: Possible null reference argument for parameter 'knownTypes' in 'InterceptableSagaSpec? Parser.Parse(InvocationExpressionSyntax invocation, SemanticModel semanticModel, HandlerKnownTypes knownTypes, CancellationToken cancellationToken = default(CancellationToken))'.
+
+src/NServiceBus.Core.Analyzer/Sagas/FindSagaByDataSymbolVisitor.cs
+  CS8618: Non-nullable property 'FoundSaga' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core.Analyzer/Sagas/SagaAnalyzer.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+  CS8601: Possible null reference assignment.
+  CS8602: Dereference of a possibly null reference.
+  CS8603: Possible null reference return.
+  CS8604: Possible null reference argument for parameter 'expression' in 'TypeInfo CSharpExtensions.GetTypeInfo(SemanticModel? semanticModel, ExpressionSyntax expression, CancellationToken cancellationToken = default(CancellationToken))'.
+  CS8604: Possible null reference argument for parameter 'interfaceType' in 'SagaHandlerDeclaration.SagaHandlerDeclaration(BaseTypeSyntax syntax, INamedTypeSymbol interfaceType)'.
+  CS8620: Argument of type 'ImmutableDictionary<string, string>' cannot be used for parameter 'properties' of type 'ImmutableDictionary<string, string?>' in 'Diagnostic Diagnostic.Create(DiagnosticDescriptor descriptor, Location? location, IEnumerable<Location>? additionalLocations, ImmutableDictionary<string, string?>? properties, params object?[]? messageArgs)' due to differences in the nullability of reference types.
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core.Analyzer/Sagas/SagaDetails.cs
+  CS8618: Non-nullable property 'MapperParameterSyntax' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core.Analyzer/Sagas/SagaHandlerDeclaration.cs
+  CS8601: Possible null reference assignment.
+  CS8618: Non-nullable property 'MessageType' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'MessageTypeSyntax' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core.Analyzer/Sagas/SagaMessageMapping.cs
+  CS8601: Possible null reference assignment.
+  CS8618: Non-nullable property 'CorrelationId' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'MessageMappingExpression' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'MessageType' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'MessageTypeSyntax' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'ToSagaSyntax' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core.Analyzer/SymbolExtensions.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core.Analyzer/TypeSymbolExtensions.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/EndpointConfiguration.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+  CS8604: Possible null reference argument for parameter 'obj' in 'void Action<TInitializationExtension>.Invoke(TInitializationExtension obj)'.
+
+src/NServiceBus.Core/EndpointCreator.cs
+  CS8618: Non-nullable field 'envelopeComponent' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'featureComponent' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'hostingComponent' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'pipelineComponent' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'receiveComponent' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'recoverabilityComponent' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'sendComponent' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'transportSeam' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable property 'MessageSession' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/Hosting/HostingComponent.Settings.cs
+  CS8604: Possible null reference argument for parameter 'value' in 'void SettingsHolder.Set(string key, object value)'.
+
+src/NServiceBus.Core/Licensing/LicenseReminder.cs
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Pipeline/Incoming/DeserializeMessageConnector.cs
+  CS8604: Possible null reference argument for parameter 'messageTypes' in 'object[] IMessageSerializer.Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)'.
+
+src/NServiceBus.Core/Pipeline/Incoming/LogicalMessageFactory.cs
+  CS8604: Possible null reference argument for parameter 'messageType' in 'MessageMetadata MessageMetadataRegistry.GetMessageMetadata(Type messageType)'.
+
+src/NServiceBus.Core/Pipeline/Incoming/TransportReceiveToPhysicalMessageConnector.cs
+  CS8604: Possible null reference argument for parameter 'messageType' in 'MulticastAddressTag.MulticastAddressTag(Type messageType)'.
+
+src/NServiceBus.Core/Pipeline/Outgoing/SerializeMessageConnector.cs
+  CS8604: Possible null reference argument for parameter 'messageType' in 'MessageMetadata MessageMetadataRegistry.GetMessageMetadata(Type messageType)'.
+
+src/NServiceBus.Core/Reliability/Outbox/NoOpOutboxStorage.cs
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Reliability/SynchronizedStorage/SynchronizedStorage.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Routing/AutomaticSubscriptions/AutoSubscribe.cs
+  CS8602: Dereference of a possibly null reference.
+
+src/NServiceBus.Core/Routing/EndpointInstance.cs
+  CS8625: Cannot convert null literal to non-nullable reference type.
+  CS8765: Nullability of type of parameter 'obj' doesn't match overridden member (possibly because of nullability attributes).
+
+src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/MessageDrivenSubscribeTerminator.cs
+  CS8597: Thrown value may be null.
+  CS8601: Possible null reference assignment.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageDrivenSubscribeTerminator.SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken)'.
+
+src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/MessageDrivenSubscriptionsConfigExtensions.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+  CS8604: Possible null reference argument for parameter 'messageNamespace' in 'NamespacePublisherSource.NamespacePublisherSource(Assembly messageAssembly, string messageNamespace, PublisherAddress address)'.
+
+src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/MessageDrivenUnsubscribeTerminator.cs
+  CS8601: Possible null reference assignment.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageDrivenUnsubscribeTerminator.SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken)'.
+
+src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/MessageType.cs
+  CS8601: Possible null reference assignment.
+  CS8618: Non-nullable property 'TypeName' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'Version' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8765: Nullability of type of parameter 'obj' doesn't match overridden member (possibly because of nullability attributes).
+
+src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/PublisherAddress.cs
+  CS8602: Dereference of a possibly null reference.
+  CS8618: Non-nullable field 'addresses' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'endpoint' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'instances' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8765: Nullability of type of parameter 'obj' doesn't match overridden member (possibly because of nullability attributes).
+
+src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/SubscriptionReceiverBehavior.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+  CS8603: Possible null reference return.
+  CS8604: Possible null reference argument for parameter 'endpoint' in 'Subscriber.Subscriber(string transportAddress, string endpoint)'.
+
+src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/SubscriptionRouter.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+
+src/NServiceBus.Core/Routing/RoutingComponent.cs
+  CS8604: Possible null reference argument for parameter 'instanceSpecificQueue' in 'UnicastSendRouter.UnicastSendRouter(bool isSendOnly, string receiveQueueName, QueueAddress instanceSpecificQueue, IDistributionPolicy defaultDistributionPolicy, UnicastRoutingTable unicastRoutingTable, EndpointInstances endpointInstances, ITransportAddressResolver transportAddressResolver)'.
+
+src/NServiceBus.Core/Routing/RoutingSettings.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+  CS8604: Possible null reference argument for parameter 'messageNamespace' in 'NamespaceRouteSource.NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, UnicastRoute route)'.
+
+src/NServiceBus.Core/Routing/SingleInstanceRoundRobinDistributionStrategy.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Routing/SubscriptionMigrationMode/MigrationSubscribeTerminator.cs
+  CS8597: Thrown value may be null.
+  CS8601: Possible null reference assignment.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MigrationSubscribeTerminator.SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken)'.
+
+src/NServiceBus.Core/Routing/SubscriptionMigrationMode/MigrationUnsubscribeTerminator.cs
+  CS8601: Possible null reference assignment.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MigrationUnsubscribeTerminator.SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount, CancellationToken cancellationToken)'.
+
+src/NServiceBus.Core/Routing/SubscriptionMigrationMode/SubscriptionMigrationModeSettings.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+  CS8604: Possible null reference argument for parameter 'messageNamespace' in 'NamespacePublisherSource.NamespacePublisherSource(Assembly messageAssembly, string messageNamespace, PublisherAddress address)'.
+
+src/NServiceBus.Core/Routing/UnicastPublishRouter.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+
+src/NServiceBus.Core/Routing/UnicastRoute.cs
+  CS8618: Non-nullable property 'Endpoint' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'Instance' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'PhysicalAddress' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Routing/UnicastRoutingTable.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Routing/UnicastSendRouter.cs
+  CS8618: Non-nullable field 'instanceSpecificQueue' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable property 'ExplicitDestination' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'SpecificInstance' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Sagas/ActiveSagaInstance.cs
+  CS8604: Possible null reference argument for parameter 'InitialValue' in 'CorrelationPropertyInfo.CorrelationPropertyInfo(string Name, Type Type, object InitialValue, bool HasInitialValue)'.
+  CS8604: Possible null reference argument for parameter 'currentCorrelationPropertyValue' in 'void ActiveSagaInstance.ValidateCorrelationPropertyHaveValue(object currentCorrelationPropertyValue)'.
+  CS8604: Possible null reference argument for parameter 'currentCorrelationPropertyValue' in 'void ActiveSagaInstance.ValidateCorrelationPropertyNotModified(object currentCorrelationPropertyValue)'.
+  CS8618: Non-nullable field 'correlationProperty' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable property 'SagaId' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/Sagas/CustomFinderAdapter.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Sagas/Saga.cs
+  CS8604: Possible null reference argument for parameter 'message' in 'Task IPipelineContext.Send(object message, SendOptions options)'.
+
+src/NServiceBus.Core/Sagas/SagaCorrelationProperty.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Sagas/SagaFinderDefinition.cs
+  CS8618: Non-nullable property 'MessageTypeName' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'Properties' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/Sagas/SagaLookupValues.cs
+  CS8601: Possible null reference assignment.
+
+src/NServiceBus.Core/Sagas/SagaPersistenceBehavior.cs
+  CS8603: Possible null reference return.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'bool SagaMetadata.TryGetFinder(string messageType, out SagaFinderDefinition? finderDefinition)'.
+  CS8604: Possible null reference argument for parameter 'value' in 'SagaCorrelationProperty.SagaCorrelationProperty(string name, object value)'.
+  CS8619: Nullability of reference types in value of type 'Task<IContainSagaData?>' doesn't match target type 'Task<IContainSagaData>'.
+
+src/NServiceBus.Core/Serialization/IMessageSerializer.cs
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Serializers/XML/XmlDeserialization.cs
+  CS8600: Converting null literal or possible null value to non-nullable type.
+  CS8603: Possible null reference return.
+  CS8604: Possible null reference argument for parameter 'fields' in 'FieldInfo XmlDeserialization.GetField(FieldInfo[] fields, string name)'.
+  CS8604: Possible null reference argument for parameter 'node' in 'object XmlDeserialization.Process(XmlNode node, object parent, Type nodeType = null)'.
+  CS8604: Possible null reference argument for parameter 'properties' in 'PropertyInfo XmlDeserialization.GetProperty(PropertyInfo[] properties, string name)'.
+  CS8618: Non-nullable field 'defaultNamespace' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Serializers/XML/XmlMessageSerializer.cs
+  CS8603: Possible null reference return.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'XmlSerialization.XmlSerialization(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = "http://tempuri.net")'.
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Serializers/XML/XmlSanitizingStream.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Serializers/XML/XmlSerialization.cs
+  CS8604: Possible null reference argument for parameter 'elem' in 'void XmlSerialization.WriteObject(XElement elem, string name, Type type, object value, bool useNS = false)'.
+  CS8604: Possible null reference argument for parameter 'item' in 'bool List<string>.Contains(string item)'.
+  CS8604: Possible null reference argument for parameter 'value' in 'void XmlSerialization.WriteObject(XElement elem, string name, Type type, object value, bool useNS = false)'.
+
+src/NServiceBus.Core/Serializers/XML/XmlSerializerCache.cs
+  CS8604: Possible null reference argument for parameter 'typeArguments' in 'Type Type.MakeGenericType(params Type[] typeArguments)'.
+
+src/NServiceBus.Core/ServicePlatform/Retries/RetryAcknowledgementBehavior.cs
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Settings/SettingsHolder.cs
+  CS8601: Possible null reference assignment.
+  CS8603: Possible null reference return.
+  CS8604: Possible null reference argument for parameter 'key' in 'T SettingsHolder.GetOrDefault<T>(string key)'.
+  CS8604: Possible null reference argument for parameter 'key' in 'bool SettingsHolder.HasExplicitValue(string key)'.
+  CS8604: Possible null reference argument for parameter 'key' in 'bool SettingsHolder.HasSetting(string key)'.
+  CS8604: Possible null reference argument for parameter 'key' in 'bool SettingsHolder.TryGet<T>(string key, out T val)'.
+  CS8604: Possible null reference argument for parameter 'key' in 'object SettingsHolder.Get(string key)'.
+  CS8604: Possible null reference argument for parameter 'key' in 'void SettingsHolder.Set(string key, object value)'.
+  CS8604: Possible null reference argument for parameter 'key' in 'void SettingsHolder.SetDefault(string key, object value)'.
+  CS8604: Possible null reference argument for parameter 'value' in 'void SettingsHolder.Set(string key, object value)'.
+  CS8604: Possible null reference argument for parameter 'value' in 'void SettingsHolder.SetDefault(string key, object value)'.
+
+src/NServiceBus.Core/StartableEndpoint.cs
+  CS8618: Non-nullable field 'stoppingTokenSource' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'transportInfrastructure' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+
+src/NServiceBus.Core/Transports/DispatchProperties.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Transports/IncomingMessageExtensions.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Transports/Learning/DelayedMessagePoller.cs
+  CS8618: Non-nullable field 'polling' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+
+src/NServiceBus.Core/Transports/Learning/DirectoryBasedTransaction.cs
+  CS8618: Non-nullable property 'FileToProcess' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/Transports/Learning/HeaderSerializer.cs
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/Transports/Learning/LearningTransport.cs
+  CS8618: Non-nullable property 'StorageDirectory' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/Transports/Learning/LearningTransportDispatcher.cs
+  CS8604: Possible null reference argument for parameter 'path3' in 'string Path.Combine(string path1, string path2, string path3)'.
+
+src/NServiceBus.Core/Transports/Learning/LearningTransportInfrastructure.cs
+  CS8604: Possible null reference argument for parameter 'subscriptionManager' in 'LearningTransportMessagePump.LearningTransportMessagePump(string id, string receiveAddress, string basePath, Action<string, Exception, CancellationToken> criticalErrorAction, ISubscriptionManager subscriptionManager, ReceiveSettings receiveSettings, TransportTransactionMode transactionMode)'.
+
+src/NServiceBus.Core/Transports/Learning/LearningTransportMessagePump.cs
+  CS8618: Non-nullable field 'bodyDir' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'committedTransactionDir' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'concurrencyLimiter' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'delayedDir' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'delayedMessagePoller' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'messageProcessingCancellationTokenSource' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'messagePumpBasePath' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'messagePumpCancellationTokenSource' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'messagePumpTask' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'onError' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'onMessage' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'pendingTransactionDir' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Transports/Learning/LearningTransportSubscriptionManager.cs
+  CS8604: Possible null reference argument for parameter 'path2' in 'string Path.Combine(string path1, string path2)'.
+
+src/NServiceBus.Core/Transports/Learning/NoTransaction.cs
+  CS8618: Non-nullable property 'FileToProcess' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/Transports/QueueAddress.cs
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Transports/TransportInfrastructure.cs
+  CS8618: Non-nullable property 'Dispatcher' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'Receivers' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/Transports/TransportOperation.cs
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Transports/TransportSeam.cs
+  CS8618: Non-nullable field 'receiverSettings' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'transportInfrastructure' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+
+src/NServiceBus.Core/Unicast/MessageOperations.cs
+  CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)'.
+  CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)'.
+  CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)'.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageOperations.Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)'.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageOperations.ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)'.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageOperations.SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)'.
+
+src/NServiceBus.Core/Unicast/Messages/MessageMetadata.cs
+  CS8604: Possible null reference argument for parameter 'item' in 'bool ICollection<string>.Contains(string item)'.
+  CS8625: Cannot convert null literal to non-nullable reference type.
+
+src/NServiceBus.Core/Unicast/Messages/MessageMetadataRegistry.cs
+  CS8601: Possible null reference assignment.
+  CS8603: Possible null reference return.
+  CS8604: Possible null reference argument for parameter 'key' in 'bool ConcurrentDictionary<string, Type>.TryAdd(string key, Type value)'.
+  CS8618: Non-nullable field 'isMessageType' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+
+src/NServiceBus.Core/Unicast/Queuing/QueueNotFoundException.cs
+  CS8618: Non-nullable property 'Queue' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/Utils/FileVersionRetriever.cs
+  CS8602: Dereference of a possibly null reference.
+
+src/NServiceBus.Core/Utils/Reflection/DelegateFactory.cs
+  CS8602: Dereference of a possibly null reference.
+  CS8604: Possible null reference argument for parameter 'meth' in 'void ILGenerator.Emit(OpCode opcode, MethodInfo meth)'.
+  CS8604: Possible null reference argument for parameter 'type' in 'UnaryExpression Expression.Convert(Expression expression, Type type)'.
+
+src/NServiceBus.Core/Utils/Reflection/TypeExtensionMethods.cs
+  CS8601: Possible null reference assignment.
+  CS8603: Possible null reference return.
+
+src/NServiceBus.Core/VersionInformation.cs
+  CS8601: Possible null reference assignment.
+  CS8618: Non-nullable property 'MajorMinorPatch' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+
+src/NServiceBus.Core/obsoletes-v10.cs
+  CS8618: Non-nullable field 'isMessageType' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable field 'sagaFinders' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
+  CS8618: Non-nullable property 'AssociatedMessages' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'EntityName' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'Loader' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'Name' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'NotFoundHandler' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'SagaDataFactory' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'SagaEntityType' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+  CS8618: Non-nullable property 'SagaType' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
