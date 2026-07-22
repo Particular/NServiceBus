@@ -47,7 +47,7 @@ public class RetryAcknowledgementBehaviorTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(addressTag is not null);
-            Assert.That(addressTag!.Destination, Is.EqualTo(acknowledgementQueue));
+            Assert.That(addressTag?.Destination, Is.EqualTo(acknowledgementQueue));
 
             Assert.That(context.Extensions.TryGet<MarkAsAcknowledgedBehavior.State>(out _), Is.True);
         }
