@@ -10,14 +10,14 @@ using NServiceBus.Outbox;
 
 class AcceptanceTestingOutboxStorage : IOutboxStorage
 {
-    public Task<OutboxMessage?> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default)
+    public Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default)
     {
         if (!storage.TryGetValue(messageId, out var storedMessage))
         {
-            return NoOutboxMessageTask;
+            return NoOutboxMessageTask!;
         }
 
-        return Task.FromResult<OutboxMessage?>(new OutboxMessage(messageId, storedMessage.TransportOperations));
+        return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
     }
 
     public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) => Task.FromResult<IOutboxTransaction>(new AcceptanceTestingOutboxTransaction());
