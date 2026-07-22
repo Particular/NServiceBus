@@ -10,7 +10,7 @@ using Outbox;
 
 class NoOpOutboxStorage : IOutboxStorage
 {
-    public Task<OutboxMessage?> Get(string messageId, ContextBag options, CancellationToken cancellationToken = default) => NoOutboxMessageTask;
+    public Task<OutboxMessage> Get(string messageId, ContextBag options, CancellationToken cancellationToken = default) => NoOutboxMessageTask;
 
     public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag options, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
