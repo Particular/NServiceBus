@@ -1805,11 +1805,11 @@ namespace NServiceBus.Outbox
     public class OutboxSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings { }
     public class TransportOperation
     {
-        public TransportOperation(string messageId, NServiceBus.Transport.DispatchProperties properties, System.ReadOnlyMemory<byte> body, System.Collections.Generic.Dictionary<string, string> headers) { }
-        public System.ReadOnlyMemory<byte> Body { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public TransportOperation(string messageId, NServiceBus.Transport.DispatchProperties? properties, System.ReadOnlyMemory<byte>? body, System.Collections.Generic.Dictionary<string, string>? headers) { }
+        public System.ReadOnlyMemory<byte>? Body { get; }
+        public System.Collections.Generic.Dictionary<string, string>? Headers { get; }
         public string MessageId { get; }
-        public NServiceBus.Transport.DispatchProperties Options { get; }
+        public NServiceBus.Transport.DispatchProperties? Options { get; }
     }
 }
 namespace NServiceBus.Performance.TimeToBeReceived
