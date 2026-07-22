@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -82,14 +84,13 @@ static class TypeExtensionMethods
                     return result;
                 }
 
-                return Type.GetTypeFromHandle(typeHandle)?.Name;
+                return Type.GetTypeFromHandle(typeHandle)?.Name ?? t.Name;
             }, t);
     }
 
     static bool IsClrType(ReadOnlySpan<byte> publicKeyToken) => publicKeyToken.SequenceEqual(MsPublicKeyToken);
 
-    static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
-
+    static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken() ?? [];
     static readonly ConcurrentDictionary<RuntimeTypeHandle, bool> IsSystemTypeCache = new();
     static readonly ConcurrentDictionary<RuntimeTypeHandle, string> TypeToNameLookup = new();
 }

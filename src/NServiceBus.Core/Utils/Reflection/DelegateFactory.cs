@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -12,6 +14,8 @@ static class DelegateFactory
     {
         if (!PropertyInfoToLateBoundProperty.TryGetValue(property, out var lateBoundPropertyGet))
         {
+            ArgumentNullException.ThrowIfNull(property.DeclaringType);
+
             var instanceParameter = Expression.Parameter(typeof(object), "target");
 
             var member = Expression.Property(Expression.Convert(instanceParameter, property.DeclaringType), property);
@@ -32,6 +36,8 @@ static class DelegateFactory
     {
         if (!FieldInfoToLateBoundField.TryGetValue(field, out var lateBoundFieldGet))
         {
+            ArgumentNullException.ThrowIfNull(field.DeclaringType);
+
             var instanceParameter = Expression.Parameter(typeof(object), "target");
 
             var member = Expression.Field(Expression.Convert(instanceParameter, field.DeclaringType), field);
@@ -52,6 +58,8 @@ static class DelegateFactory
     {
         if (!FieldInfoToLateBoundFieldSet.TryGetValue(field, out var callback))
         {
+            ArgumentNullException.ThrowIfNull(field.DeclaringType);
+
             var sourceType = field.DeclaringType;
             var method = new DynamicMethod("Set" + field.Name, null, new[]
             {
@@ -87,6 +95,8 @@ static class DelegateFactory
     {
         if (!PropertyInfoToLateBoundPropertySet.TryGetValue(property, out var result))
         {
+            ArgumentNullException.ThrowIfNull(property.DeclaringType);
+
             var method = new DynamicMethod("Set" + property.Name, null, new[]
             {
                 typeof(object),
@@ -96,6 +106,7 @@ static class DelegateFactory
 
             var sourceType = property.DeclaringType;
             var setter = property.GetSetMethod(true);
+            ArgumentNullException.ThrowIfNull(setter); // setter cannot be null in the gen.Emit calls
 
             gen.Emit(OpCodes.Ldarg_0); // Load input to stack
 
