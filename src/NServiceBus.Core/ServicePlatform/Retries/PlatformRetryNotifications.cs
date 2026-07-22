@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Features;
+﻿#nullable enable
+
+namespace NServiceBus.Features;
 
 /// <summary>
 /// Provides notifications to ServiceControl about successfully retried messages.

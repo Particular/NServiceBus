@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.ServicePlatform.Retries;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests.ServicePlatform.Retries;
 
 using System;
 using System.Collections.Generic;
@@ -36,12 +38,13 @@ public class RetryAcknowledgementBehaviorTests
 
             Assert.That(outgoingMessage.Message.Headers.ContainsKey("ServiceControl.Retry.Successful"), Is.True);
 
-            Assert.That(outgoingMessage.Message.Body.Length, Is.EqualTo(0));
+            Assert.That(outgoingMessage.Message.Body.Length, Is.Zero);
 
             Assert.That(outgoingMessage.Message.Headers[Headers.ControlMessageHeader], Is.EqualTo(bool.TrueString));
         }
 
         var addressTag = outgoingMessage.RoutingStrategies.Single().Apply([]) as UnicastAddressTag;
+        Assert.That(addressTag, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(addressTag.Destination, Is.EqualTo(acknowledgementQueue));
@@ -67,7 +70,7 @@ public class RetryAcknowledgementBehaviorTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(exception, Is.SameAs(thrownException));
-            Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
+            Assert.That(routingPipeline.ForkInvocations, Is.Empty);
         }
     }
 
@@ -85,7 +88,7 @@ public class RetryAcknowledgementBehaviorTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
+            Assert.That(routingPipeline.ForkInvocations, Is.Empty);
             Assert.That(context.Extensions.TryGet<MarkAsAcknowledgedBehavior.State>(out _), Is.False);
         }
     }
@@ -103,7 +106,7 @@ public class RetryAcknowledgementBehaviorTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(routingPipeline.ForkInvocations.Count, Is.EqualTo(0));
+            Assert.That(routingPipeline.ForkInvocations, Is.Empty);
             Assert.That(context.Extensions.TryGet<MarkAsAcknowledgedBehavior.State>(out _), Is.False);
         }
     }
