@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Persistence;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -21,6 +22,9 @@ public static class CompletableSynchronizedStorageSessionExtensions
     /// <param name="context">The context information.</param>
     public static ValueTask Open(this ICompletableSynchronizedStorageSession session, IIncomingLogicalMessageContext context)
     {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(context);
+
         var outboxTransaction = context.Extensions.Get<IOutboxTransaction>();
         var transportTransaction = context.Extensions.Get<TransportTransaction>();
         return session.Open(outboxTransaction, transportTransaction, context.Extensions, context.CancellationToken);
@@ -38,6 +42,8 @@ public static class CompletableSynchronizedStorageSessionExtensions
         IOutboxTransaction outboxTransaction, TransportTransaction transportTransaction,
         ContextBag contextBag, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(session);
+
         if (await session.TryOpen(outboxTransaction, contextBag, cancellationToken).ConfigureAwait(false))
         {
             return;
