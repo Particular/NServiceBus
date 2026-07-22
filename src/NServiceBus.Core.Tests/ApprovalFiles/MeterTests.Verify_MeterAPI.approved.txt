@@ -6,6 +6,7 @@
     "error.type",
     "execution.result",
     "nservicebus.discriminator",
+    "nservicebus.enclosed_message_types",
     "nservicebus.envelope.unwrapper_type",
     "nservicebus.message_handler_type",
     "nservicebus.message_handler_types",
@@ -14,6 +15,7 @@
   ],
   "Metrics": [
     "nservicebus.envelope.unwrapped => Counter",
+    "nservicebus.messaging.active_messages => UpDownCounter",
     "nservicebus.messaging.critical_time => Histogram, Unit: s",
     "nservicebus.messaging.deduplications => Counter",
     "nservicebus.messaging.failures => Counter",

@@ -22,6 +22,7 @@ class IncomingPipelineMetrics
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
     const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
+    const string ActiveMessages = "nservicebus.messaging.active_messages";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
@@ -48,6 +49,8 @@ class IncomingPipelineMetrics
             description: "Total number of messages sent to the error queue.");
         totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
             description: "Total number of unwrapping attempts by the endpoint.");
+        activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
+            description: "Number of messages currently being processed by the endpoint.");
 
         queueNameBase = queueName;
         endpointDiscriminator = discriminator;
@@ -56,7 +59,7 @@ class IncomingPipelineMetrics
     public void AddDefaultIncomingPipelineMetricTags(IncomingPipelineMetricTags incomingPipelineMetricsTags)
     {
         incomingPipelineMetricsTags.Add(MeterTags.QueueName, queueNameBase);
-        incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator ?? "");
+        incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator);
     }
 
     public void RecordProcessingTime(ITransportReceiveContext context, TimeSpan elapsed)
@@ -263,6 +266,24 @@ class IncomingPipelineMetrics
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
+    public ActiveMessageScope TrackMessageProcessing(IncomingPipelineMetricTags incomingPipelineMetricTags, IncomingMessage message)
+    {
+        if (!activeMessages.Enabled)
+        {
+            return default;
+        }
+
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [MeterTags.QueueName, MeterTags.EndpointDiscriminator]);
+        if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes))
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.EnclosedMessageTypes, enclosedMessageTypes));
+        }
+
+        activeMessages.Add(1, tags);
+        return new ActiveMessageScope(activeMessages, tags);
+    }
+
     public void EnvelopeUnwrappingSucceeded(MessageContext messageContext, IEnvelopeHandler type) => RecordEnvelopeUnwrapping(messageContext, type, true, null);
     public void EnvelopeUnwrappingFailed(MessageContext messageContext, IEnvelopeHandler type, Exception? exception) => RecordEnvelopeUnwrapping(messageContext, type, false, exception);
     void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
@@ -286,6 +307,11 @@ class IncomingPipelineMetrics
         totalEnvelopeUnwrapping.Add(succeeded ? 0 : 1, meterTags);
     }
 
+    public readonly struct ActiveMessageScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
+    {
+        public void Dispose() => counter?.Add(-1, tags);
+    }
+
     readonly Counter<long> totalProcessedSuccessfully;
     readonly Counter<long> totalFetched;
     readonly Counter<long> totalFailures;
@@ -297,6 +323,8 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalDelayedRetries;
     readonly Counter<long> totalSentToErrorQueue;
     readonly Counter<long> totalEnvelopeUnwrapping;
-    string queueNameBase;
-    string endpointDiscriminator;
+    readonly UpDownCounter<long> activeMessages;
+
+    readonly string queueNameBase;
+    readonly string endpointDiscriminator;
 }

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Reliability.Outbox;
+namespace NServiceBus.Core.Tests.Reliability.Outbox;
 
 using System;
 using System.Collections.Generic;
@@ -209,7 +209,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         fakeBatchPipeline = new FakeBatchPipeline();
         meterFactory = new TestMeterFactory();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(meterFactory, "queue", "disc"));
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), new InstrumentationOptions());
     }
 
     [TearDown]
