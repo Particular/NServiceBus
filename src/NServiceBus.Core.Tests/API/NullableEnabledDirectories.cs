@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.API;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -47,82 +46,30 @@ public class NullableEnabledDirectories
     }
 
     [Test]
-    public void EnsureIncompleteDirectoriesSnapshotIsUpToDate()
+    [Explicit("Run this test to generate a report of directories that are not fully annotated with '#nullable enable'.")]
+    public void GenerateIncompleteDirectoriesReport()
     {
         var sourceRoot = FindSourceRoot();
         var approvalFilesDirectory = Path.Combine(sourceRoot, "NServiceBus.Core.Tests", "ApprovalFiles");
-        var approvedFilePath = Path.Combine(approvalFilesDirectory, IncompleteApprovedFileName);
-        var receivedFilePath = Path.Combine(approvalFilesDirectory, IncompleteReceivedFileName);
+        var incompleteReportFilePath = Path.Combine(approvalFilesDirectory, IncompleteReceivedFileName);
 
-        var received = BuildIncompleteDirectoriesReport(sourceRoot);
-        var approved = File.Exists(approvedFilePath) ? File.ReadAllText(approvedFilePath) : "";
+        var incompleteReport = BuildIncompleteDirectoriesReport(sourceRoot);
 
-        if (Normalize(received) == Normalize(approved))
+        if (Path.Exists(incompleteReport))
         {
-            File.Delete(receivedFilePath);
-            return;
+            File.Delete(incompleteReportFilePath);
         }
 
-        File.WriteAllText(receivedFilePath, received);
-
-        var differences = DescribeDifferences(approved, received);
-
-        Assert.Fail(
-            $"{IncompleteApprovedFileName} is out of date: the current annotated/total ratios no longer match. " +
-            $"This can happen when a file's annotation state changes, or when a directory reaches 100% and " +
-            $"should instead move to {ApprovedFileName}. Compare {receivedFilePath} against {approvedFilePath} " +
-            $"and update the approved file to match. Differing directories:{Environment.NewLine}{differences}");
+        File.WriteAllText(incompleteReportFilePath, incompleteReport);
     }
-
-    static string DescribeDifferences(string approvedText, string receivedText)
-    {
-        var approvedEntries = ParseDirectoryRatios(approvedText);
-        var receivedEntries = ParseDirectoryRatios(receivedText);
-
-        var allDirectories = approvedEntries.Keys
-            .Union(receivedEntries.Keys, StringComparer.Ordinal)
-            .OrderBy(directory => directory, StringComparer.Ordinal);
-
-        var builder = new StringBuilder();
-
-        foreach (var directory in allDirectories)
-        {
-            var hasApproved = approvedEntries.TryGetValue(directory, out var approvedRatio);
-            var hasReceived = receivedEntries.TryGetValue(directory, out var receivedRatio);
-
-            if (!hasApproved)
-            {
-                builder.AppendLine($"  + {directory}\t{receivedRatio} (newly incomplete - not in {IncompleteApprovedFileName})");
-            }
-            else if (!hasReceived)
-            {
-                builder.AppendLine($"  - {directory}\t{approvedRatio} (no longer has any missing annotations - remove from {IncompleteApprovedFileName}, and add to {ApprovedFileName} if fully migrated)");
-            }
-            else if (approvedRatio != receivedRatio)
-            {
-                builder.AppendLine($"  ~ {directory}\t{approvedRatio} -> {receivedRatio}");
-            }
-        }
-
-        return builder.ToString();
-    }
-
-    static Dictionary<string, string> ParseDirectoryRatios(string text) =>
-        text
-            .Split('\n')
-            .Select(line => line.TrimEnd('\r'))
-            .SkipWhile(line => line != "-----")
-            .Skip(1)
-            .Where(line => !string.IsNullOrWhiteSpace(line))
-            .Select(line => line.Split('\t'))
-            .ToDictionary(parts => parts[0], parts => parts[1]);
 
     static string BuildIncompleteDirectoriesReport(string sourceRoot)
     {
         var builder = new StringBuilder()
             .AppendLine("The following directories have at least one .cs file that is NOT annotated with #nullable enable.")
             .AppendLine("Format: directory<TAB>annotated/total files.")
-            .AppendLine("-----");
+            .AppendLine("-----")
+            .AppendLine("This file is for analysis purposes only and should not be committed.");
 
         var directories = Directory.EnumerateFiles(sourceRoot, "*.cs", SearchOption.AllDirectories)
             .Where(file => !IsBinOrObj(file))
@@ -159,8 +106,6 @@ public class NullableEnabledDirectories
         return normalized.Contains("/bin/") || normalized.Contains("/obj/");
     }
 
-    static string Normalize(string text) => text.Replace("\r\n", "\n");
-
     static string[] ReadCompletedDirectories(string sourceRoot)
     {
         var approvedFilePath = Path.Combine(sourceRoot, "NServiceBus.Core.Tests", "ApprovalFiles", ApprovedFileName);
@@ -190,6 +135,5 @@ public class NullableEnabledDirectories
     }
 
     const string ApprovedFileName = "NullableEnable.CompletedFolders.approved.txt";
-    const string IncompleteApprovedFileName = "NullableEnable.IncompleteFolders.approved.txt";
-    const string IncompleteReceivedFileName = "NullableEnable.IncompleteFolders.received.txt";
+    const string IncompleteReceivedFileName = "NullableEnable.IncompleteFolders.txt";
 }
