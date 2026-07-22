@@ -33,7 +33,7 @@ public class OutboxStorageTests(TestVariant param)
         _ = await storage.Get(messageId, ctx);
 
         string transportOperationMessageId = Guid.NewGuid().ToString();
-        var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation(transportOperationMessageId, [], Array.Empty<byte>(), []) });
+        var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation(transportOperationMessageId, null, null, null) });
         await using (var transaction = await storage.BeginTransaction(ctx))
         {
             await storage.Store(messageToStore, transaction, ctx);
@@ -64,7 +64,7 @@ public class OutboxStorageTests(TestVariant param)
         var messageId = Guid.NewGuid().ToString();
         _ = await storage.Get(messageId, ctx);
 
-        var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", [], Array.Empty<byte>(), []) });
+        var messageToStore = new OutboxMessage(messageId, new[] { new TransportOperation("x", null, null, null) });
         await using (var transaction = await storage.BeginTransaction(ctx))
         {
             await storage.Store(messageToStore, transaction, ctx);
@@ -122,7 +122,7 @@ public class OutboxStorageTests(TestVariant param)
 
         await using (var transaction = await storage.BeginTransaction(ctx))
         {
-            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", [], Array.Empty<byte>(), [])]);
+            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", null, null, null)]);
             await storage.Store(messageToStore, transaction, ctx);
 
             // do not commit
@@ -145,7 +145,7 @@ public class OutboxStorageTests(TestVariant param)
 
         await using (var transaction = await storage.BeginTransaction(ctx))
         {
-            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", [], Array.Empty<byte>(), [])]);
+            var messageToStore = new OutboxMessage(messageId, [new TransportOperation("x", null, null, null)]);
             await storage.Store(messageToStore, transaction, ctx);
 
             await transaction.Commit();

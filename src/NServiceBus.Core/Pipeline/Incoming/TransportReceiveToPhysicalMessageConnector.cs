@@ -87,13 +87,13 @@ class TransportReceiveToPhysicalMessageConnector(
     {
         foreach (var operation in deduplicationEntry.TransportOperations)
         {
-            var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
+            var message = new OutgoingMessage(operation.MessageId, operation.Headers ?? [], operation.Body ?? ReadOnlyMemory<byte>.Empty);
 
             pendingTransportOperations.Add(
                 new Transport.TransportOperation(
                     message,
-                    DeserializeRoutingStrategy(operation.Options),
-                    operation.Options,
+                    DeserializeRoutingStrategy(operation.Options ?? []),
+                    operation.Options ?? [],
                     DispatchConsistency.Isolated
                     ));
         }
