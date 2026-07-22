@@ -20,4 +20,8 @@
     <ProjectCapability Include="DynamicFileNestingEnabled" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <EnableNUnitRunner>true</EnableNUnitRunner>
+  </PropertyGroup>
+
 </Project>
