@@ -10,7 +10,6 @@ using NUnit.Framework;
 class TestingMetricListener : IDisposable
 {
     readonly MeterListener meterListener;
-    readonly ConcurrentDictionary<string, byte> subscribedInstruments = new(StringComparer.Ordinal);
     public readonly List<Instrument> metrics = [];
     public string version = "";
     public string metricsSourceName = "";
@@ -22,12 +21,6 @@ class TestingMetricListener : IDisposable
             InstrumentPublished = (instrument, listener) =>
             {
                 if (instrument.Meter.Name != sourceName)
-                {
-                    return;
-                }
-
-                var instrumentKey = $"{instrument.Meter.Name}|{instrument.Name}|{instrument.GetType().FullName}";
-                if (!subscribedInstruments.TryAdd(instrumentKey, 0))
                 {
                     return;
                 }

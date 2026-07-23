@@ -22,6 +22,7 @@
     "nservicebus.messaging.handler_time => Histogram, Unit: s",
     "nservicebus.messaging.processing_time => Histogram, Unit: s",
     "nservicebus.messaging.successes => Counter",
+    "nservicebus.outbox.duplicates => Counter",
     "nservicebus.recoverability.delayed => Counter",
     "nservicebus.recoverability.error => Counter",
     "nservicebus.recoverability.immediate => Counter"

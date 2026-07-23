@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
@@ -22,6 +22,7 @@ class IncomingPipelineMetrics
     const string RecoverabilityError = "nservicebus.recoverability.error";
     const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
     const string ActiveMessages = "nservicebus.messaging.active_messages";
+    const string TotalDeduplicated = "nservicebus.outbox.duplicates";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
@@ -32,6 +33,8 @@ class IncomingPipelineMetrics
             description: "Total number of messages fetched from the queue by the endpoint.");
         totalFailures = meter.CreateCounter<long>(TotalFailures,
             description: "Total number of messages processed unsuccessfully by the endpoint.");
+        totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
+            description: "Total number of duplicate messages detected by the Outbox.");
         messageHandlerTime = meter.CreateHistogram<double>(MessageHandlerTime, "s",
             "The time in seconds for the execution of the business code.");
         criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
@@ -146,6 +149,23 @@ class IncomingPipelineMetrics
             MeterTags.MessageType]);
 
         totalFetched.Add(1, tags);
+    }
+
+    public void RecordDeduplicatedMessage(ITransportReceiveContext context)
+    {
+        if (!totalDeduplicated.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.EndpointDiscriminator,
+            MeterTags.QueueName,
+            MeterTags.MessageType]);
+
+        totalDeduplicated.Add(1, tags);
     }
 
     public void RecordSuccessfulMessageHandlerTime(IInvokeHandlerContext invokeHandlerContext, TimeSpan elapsed)
@@ -295,6 +315,7 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalProcessedSuccessfully;
     readonly Counter<long> totalFetched;
     readonly Counter<long> totalFailures;
+    readonly Counter<long> totalDeduplicated;
     readonly Histogram<double> messageHandlerTime;
     readonly Histogram<double> criticalTime;
     readonly Histogram<double> processingTime;
