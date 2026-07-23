@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Outbox;
+﻿#nullable enable
+
+namespace NServiceBus.Outbox;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ public interface IOutboxStorage
     /// If there is no <see cref="OutboxMessage" /> present for the given <paramref name="messageId" /> then null is
     /// returned.
     /// </returns>
+    /// TODO : change this to a TryGet pattern to avoid throwing exceptions for non-existing messages.
     Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default);
 
     /// <summary>

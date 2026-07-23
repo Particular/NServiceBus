@@ -34,7 +34,7 @@ class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStor
         return default;
     }
 
-    public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
+    public ValueTask<bool> TryOpen(IOutboxTransaction? transaction, ContextBag context,
         CancellationToken cancellationToken = default)
     {
         if (transaction is AcceptanceTestingOutboxTransaction inMemOutboxTransaction)
@@ -47,10 +47,10 @@ class AcceptanceTestingSynchronizedStorageSession : ICompletableSynchronizedStor
         return new ValueTask<bool>(false);
     }
 
-    public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
+    public ValueTask<bool> TryOpen(TransportTransaction? transportTransaction, ContextBag context,
         CancellationToken cancellationToken = default)
     {
-        if (!transportTransaction.TryGet<Transaction>(out var ambientTransaction))
+        if (transportTransaction == null || !transportTransaction.TryGet<Transaction>(out var ambientTransaction))
         {
             return new ValueTask<bool>(false);
         }

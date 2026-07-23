@@ -1,9 +1,12 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
 using Outbox;
+
 
 class NoOpOutboxStorage : IOutboxStorage
 {
@@ -15,6 +18,6 @@ class NoOpOutboxStorage : IOutboxStorage
 
     public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) => NoOutboxTransactionTask;
 
-    static readonly Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult<OutboxMessage>(null);
+    static readonly Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult<OutboxMessage>(null!);
     static readonly Task<IOutboxTransaction> NoOutboxTransactionTask = Task.FromResult<IOutboxTransaction>(new NoOpOutboxTransaction());
 }

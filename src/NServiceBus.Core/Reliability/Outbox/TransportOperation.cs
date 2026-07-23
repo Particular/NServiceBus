@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Outbox;
+﻿#nullable enable
+
+namespace NServiceBus.Outbox;
 
 using System;
 using System.Collections.Generic;
@@ -12,10 +14,9 @@ public class TransportOperation
     /// <summary>
     /// Creates a new instance of a <see cref="TransportOperation" />.
     /// </summary>
-    public TransportOperation(string messageId, DispatchProperties properties, ReadOnlyMemory<byte> body, Dictionary<string, string> headers)
+    public TransportOperation(string messageId, DispatchProperties? properties, ReadOnlyMemory<byte>? body, Dictionary<string, string>? headers)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(messageId);
-
         MessageId = messageId;
         Options = properties;
         Body = body;
@@ -30,15 +31,15 @@ public class TransportOperation
     /// <summary>
     /// Transport specific dispatch operation properties.
     /// </summary>
-    public DispatchProperties Options { get; }
+    public DispatchProperties? Options { get; }
 
     /// <summary>
     /// Gets a byte array to the body content of the outgoing message.
     /// </summary>
-    public ReadOnlyMemory<byte> Body { get; }
+    public ReadOnlyMemory<byte>? Body { get; }
 
     /// <summary>
     /// Gets outgoing message headers.
     /// </summary>
-    public Dictionary<string, string> Headers { get; }
+    public Dictionary<string, string>? Headers { get; }
 }
