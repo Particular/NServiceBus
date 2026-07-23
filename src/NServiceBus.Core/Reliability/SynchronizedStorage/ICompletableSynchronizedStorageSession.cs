@@ -21,7 +21,7 @@ public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSe
     /// <param name="context">Context.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns><c>true</c> when the session was opened; otherwise <c>false</c>.</returns>
-    ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context, CancellationToken cancellationToken = default);
+    ValueTask<bool> TryOpen(IOutboxTransaction? transaction, ContextBag context, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Tries to open the storage session with the provided transport transaction.
@@ -30,7 +30,7 @@ public interface ICompletableSynchronizedStorageSession : ISynchronizedStorageSe
     /// <param name="context">Context.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns><c>true</c> when the session was opened; otherwise <c>false</c>.</returns>
-    ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context, CancellationToken cancellationToken = default);
+    ValueTask<bool> TryOpen(TransportTransaction? transportTransaction, ContextBag context, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Opens the storage session.

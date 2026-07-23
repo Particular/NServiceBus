@@ -25,8 +25,8 @@ public static class CompletableSynchronizedStorageSessionExtensions
         ArgumentNullException.ThrowIfNull(session);
         ArgumentNullException.ThrowIfNull(context);
 
-        var outboxTransaction = context.Extensions.Get<IOutboxTransaction>();
-        var transportTransaction = context.Extensions.Get<TransportTransaction>();
+        context.Extensions.TryGet(out IOutboxTransaction? outboxTransaction);
+        context.Extensions.TryGet(out TransportTransaction? transportTransaction);
         return session.Open(outboxTransaction, transportTransaction, context.Extensions, context.CancellationToken);
     }
 
@@ -39,7 +39,7 @@ public static class CompletableSynchronizedStorageSessionExtensions
     /// <param name="contextBag">The context bag.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     public static async ValueTask Open(this ICompletableSynchronizedStorageSession session,
-        IOutboxTransaction outboxTransaction, TransportTransaction transportTransaction,
+        IOutboxTransaction? outboxTransaction, TransportTransaction? transportTransaction,
         ContextBag contextBag, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);
