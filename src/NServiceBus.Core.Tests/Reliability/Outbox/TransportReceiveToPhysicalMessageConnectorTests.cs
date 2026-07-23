@@ -142,7 +142,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        metricsListener.AssertMetric("nservicebus.messaging.deduplications", 1);
+        metricsListener.AssertMetric("nservicebus.outbox.duplicates", 1);
     }
 
     [Test]
