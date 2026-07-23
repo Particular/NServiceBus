@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Tests.Reliability.Outbox;
+﻿namespace NServiceBus.Core.Tests.Reliability.Outbox;
 
 using System;
 using System.Collections.Generic;
@@ -207,13 +207,13 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     {
         fakeOutbox = new FakeOutboxStorage();
         fakeBatchPipeline = new FakeBatchPipeline();
-        meterFactory = new TestMeterFactory();
+        fakeMeterFactory = new TestMeterFactory();
 
         behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), new InstrumentationOptions());
     }
 
     [TearDown]
-    public void TearDown() => meterFactory.Dispose();
+    public void TearDown() => fakeMeterFactory.Dispose();
 
     Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));
 
@@ -221,7 +221,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
     FakeBatchPipeline fakeBatchPipeline;
     FakeOutboxStorage fakeOutbox;
-    TestMeterFactory meterFactory;
+    TestMeterFactory fakeMeterFactory;
 
     class MyEvent;
 
