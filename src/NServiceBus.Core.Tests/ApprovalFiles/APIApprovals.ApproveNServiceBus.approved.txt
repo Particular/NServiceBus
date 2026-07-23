@@ -1825,14 +1825,14 @@ namespace NServiceBus.Persistence
     public static class CompletableSynchronizedStorageSessionExtensions
     {
         public static System.Threading.Tasks.ValueTask Open(this NServiceBus.Persistence.ICompletableSynchronizedStorageSession session, NServiceBus.Pipeline.IIncomingLogicalMessageContext context) { }
-        public static System.Threading.Tasks.ValueTask Open(this NServiceBus.Persistence.ICompletableSynchronizedStorageSession session, NServiceBus.Outbox.IOutboxTransaction outboxTransaction, NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default) { }
+        public static System.Threading.Tasks.ValueTask Open(this NServiceBus.Persistence.ICompletableSynchronizedStorageSession session, NServiceBus.Outbox.IOutboxTransaction? outboxTransaction, NServiceBus.Transport.TransportTransaction? transportTransaction, NServiceBus.Extensibility.ContextBag contextBag, System.Threading.CancellationToken cancellationToken = default) { }
     }
     public interface ICompletableSynchronizedStorageSession : NServiceBus.Persistence.ISynchronizedStorageSession, System.IAsyncDisposable, System.IDisposable
     {
         System.Threading.Tasks.Task CompleteAsync(System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Open(NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Outbox.IOutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Outbox.IOutboxTransaction? transaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.ValueTask<bool> TryOpen(NServiceBus.Transport.TransportTransaction? transportTransaction, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IPersistenceDefinitionFactory<out TDefinition>
         where out TDefinition : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<TDefinition>
