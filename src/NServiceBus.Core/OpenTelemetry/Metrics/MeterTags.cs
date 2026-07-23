@@ -7,6 +7,7 @@ static class MeterTags
     public const string EndpointDiscriminator = "nservicebus.discriminator";
     public const string QueueName = "nservicebus.queue";
     public const string MessageType = "nservicebus.message_type";
+    public const string EnclosedMessageTypes = "nservicebus.enclosed_message_types";
     public const string MessageHandlerTypes = "nservicebus.message_handler_types";
     public const string MessageHandlerType = "nservicebus.message_handler_type";
     public const string ExecutionResult = "execution.result";

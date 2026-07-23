@@ -8,6 +8,13 @@ using Transport;
 
 sealed class ActivityFactory : IActivityFactory
 {
+    public ActivityFactory(InstrumentationOptions options)
+    {
+        Options = options;
+    }
+
+    public InstrumentationOptions Options { get; }
+
     public Activity? StartIncomingPipelineActivity(MessageContext context)
     {
         // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
@@ -66,7 +73,9 @@ sealed class ActivityFactory : IActivityFactory
 
         ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
 
-        activity.DisplayName = ActivityDisplayNames.ProcessMessage;
+        activity.DisplayName = Options.UseMessageDestinationInSpanNames
+            ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
+            : ActivityDisplayNames.ProcessMessage;
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
 
@@ -102,7 +111,13 @@ sealed class ActivityFactory : IActivityFactory
             return null;
         }
 
-        var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
+        // Until v11 the dedicated handler source is opt-in; existing configurations only
+        // subscribe to the main source and must keep receiving handler spans from it.
+        var source = HandlerActivitySourceSwitch.UseHandlerActivitySource
+            ? ActivitySources.Handler
+            : ActivitySources.Main;
+
+        var activity = source.StartActivity(ActivityNames.InvokeHandlerActivityName);
 
         if (activity is null)
         {

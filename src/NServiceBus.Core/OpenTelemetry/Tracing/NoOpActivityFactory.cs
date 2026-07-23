@@ -8,6 +8,8 @@ using Transport;
 
 sealed class NoOpActivityFactory : IActivityFactory
 {
+    public InstrumentationOptions Options { get; } = new InstrumentationOptions();
+
     public Activity? StartIncomingPipelineActivity(MessageContext context) => null;
 
     public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext) => null;

@@ -4,11 +4,9 @@ using OpenTelemetry;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Text;
 using Extensibility;
 using NUnit.Framework;
 using Transport;
-
 
 public class EnvelopeUnwrapperTests
 {
