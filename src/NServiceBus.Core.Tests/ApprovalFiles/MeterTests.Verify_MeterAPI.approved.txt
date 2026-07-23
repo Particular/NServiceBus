@@ -17,12 +17,12 @@
     "nservicebus.envelope.unwrapped => Counter",
     "nservicebus.messaging.active_messages => UpDownCounter",
     "nservicebus.messaging.critical_time => Histogram, Unit: s",
-    "nservicebus.messaging.deduplications => Counter",
     "nservicebus.messaging.failures => Counter",
     "nservicebus.messaging.fetches => Counter",
     "nservicebus.messaging.handler_time => Histogram, Unit: s",
     "nservicebus.messaging.processing_time => Histogram, Unit: s",
     "nservicebus.messaging.successes => Counter",
+    "nservicebus.outbox.duplicates => Counter",
     "nservicebus.recoverability.delayed => Counter",
     "nservicebus.recoverability.error => Counter",
     "nservicebus.recoverability.immediate => Counter"

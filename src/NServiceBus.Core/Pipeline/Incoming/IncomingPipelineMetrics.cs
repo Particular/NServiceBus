@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
@@ -14,7 +14,6 @@ class IncomingPipelineMetrics
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
     const string TotalFailures = "nservicebus.messaging.failures";
-    const string TotalDeduplicated = "nservicebus.messaging.deduplications";
     const string MessageHandlerTime = "nservicebus.messaging.handler_time";
     const string CriticalTime = "nservicebus.messaging.critical_time";
     const string ProcessingTime = "nservicebus.messaging.processing_time";
@@ -23,6 +22,7 @@ class IncomingPipelineMetrics
     const string RecoverabilityError = "nservicebus.recoverability.error";
     const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
     const string ActiveMessages = "nservicebus.messaging.active_messages";
+    const string TotalDeduplicated = "nservicebus.outbox.duplicates";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
