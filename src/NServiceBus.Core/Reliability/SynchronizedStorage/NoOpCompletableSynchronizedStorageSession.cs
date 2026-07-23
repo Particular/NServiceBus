@@ -11,11 +11,11 @@ using Transport;
 
 sealed class NoOpCompletableSynchronizedStorageSession : ICompletableSynchronizedStorageSession
 {
-    public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
+    public ValueTask<bool> TryOpen(IOutboxTransaction? transaction, ContextBag context,
         CancellationToken cancellationToken = default) =>
         new(true);
 
-    public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
+    public ValueTask<bool> TryOpen(TransportTransaction? transportTransaction, ContextBag context,
         CancellationToken cancellationToken = default) =>
         new(false);
 

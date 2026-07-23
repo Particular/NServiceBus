@@ -43,11 +43,11 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
         sagaFiles.Clear();
     }
 
-    public ValueTask<bool> TryOpen(IOutboxTransaction transaction, ContextBag context,
+    public ValueTask<bool> TryOpen(IOutboxTransaction? transaction, ContextBag context,
         CancellationToken cancellationToken = default) =>
         new(false);
 
-    public ValueTask<bool> TryOpen(TransportTransaction transportTransaction, ContextBag context,
+    public ValueTask<bool> TryOpen(TransportTransaction? transportTransaction, ContextBag context,
         CancellationToken cancellationToken = default) =>
         new(false);
 
