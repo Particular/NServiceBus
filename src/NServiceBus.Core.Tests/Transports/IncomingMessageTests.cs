@@ -52,4 +52,29 @@ public class IncomingMessageTests
             Assert.That(message.MessageId, Is.EqualTo("nativeId"));
         }
     }
+
+    [Test]
+    public void RevertToOriginalHeadersIfNeeded_should_restore_original_headers()
+    {
+        var headers = new Dictionary<string, string>
+        {
+            { Headers.MessageId, "id" },
+            { Headers.ContentType, "text/plain" },
+            { "RemovedHeader", "original" }
+        };
+        var message = new IncomingMessage("id", headers, System.Array.Empty<byte>());
+
+        message.Headers[Headers.ContentType] = "application/json";
+        message.Headers["AddedHeader"] = "added";
+        message.Headers.Remove("RemovedHeader");
+
+        message.RevertToOriginalHeadersIfNeeded();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(message.Headers[Headers.ContentType], Is.EqualTo("text/plain"));
+            Assert.That(message.Headers.ContainsKey("AddedHeader"), Is.False);
+            Assert.That(message.Headers["RemovedHeader"], Is.EqualTo("original"));
+        }
+    }
 }
