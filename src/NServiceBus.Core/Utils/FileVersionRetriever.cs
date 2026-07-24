@@ -1,4 +1,6 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
@@ -19,11 +21,11 @@ static class FileVersionRetriever
 
         var fileVersionAttribute = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
 
-        if (Version.TryParse(fileVersionAttribute.Version, out var version))
+        if (Version.TryParse(fileVersionAttribute?.Version, out var version))
         {
             return version.ToString(3);
         }
 
-        return assembly.GetName().Version.ToString(3);
+        return assembly.GetName().Version?.ToString(3) ?? "0.0.0";
     }
 }
