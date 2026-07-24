@@ -5,7 +5,6 @@ namespace NServiceBus;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 static class TypeExtensionMethods
 {
@@ -48,16 +47,13 @@ static class TypeExtensionMethods
         }
 
         public bool IsFromParticularAssembly() => type.Assembly.IsParticularAssembly();
-    }
 
-    extension([NotNull] Type t)
-    {
         /// <summary>
         /// Takes the name of the given type and makes it friendly for serialization
         /// by removing problematic characters.
         /// </summary>
         public string SerializationFriendlyName() =>
-            TypeToNameLookup.GetOrAdd(t.TypeHandle, static (typeHandle, t) =>
+            TypeToNameLookup.GetOrAdd(type.TypeHandle, static (typeHandle, t) =>
             {
                 var index = t.Name.IndexOf('`');
                 if (index >= 0)
@@ -84,8 +80,8 @@ static class TypeExtensionMethods
                     return result;
                 }
 
-                return Type.GetTypeFromHandle(typeHandle)?.Name ?? t.Name;
-            }, t);
+                return t.Name;
+            }, type);
     }
 
     static bool IsClrType(ReadOnlySpan<byte> publicKeyToken) => publicKeyToken.SequenceEqual(MsPublicKeyToken);
