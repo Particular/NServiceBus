@@ -36,7 +36,7 @@ static class DelegateFactory
     {
         if (!FieldInfoToLateBoundField.TryGetValue(field, out var lateBoundFieldGet))
         {
-            ArgumentNullException.ThrowIfNull(field.DeclaringType);
+            ArgumentNullException.ThrowIfNull(field.DeclaringType, nameof(field));
 
             var instanceParameter = Expression.Parameter(typeof(object), "target");
 
@@ -58,7 +58,7 @@ static class DelegateFactory
     {
         if (!FieldInfoToLateBoundFieldSet.TryGetValue(field, out var callback))
         {
-            ArgumentNullException.ThrowIfNull(field.DeclaringType);
+            ArgumentNullException.ThrowIfNull(field.DeclaringType, nameof(field));
 
             var sourceType = field.DeclaringType;
             var method = new DynamicMethod("Set" + field.Name, null, new[]
@@ -95,7 +95,7 @@ static class DelegateFactory
     {
         if (!PropertyInfoToLateBoundPropertySet.TryGetValue(property, out var result))
         {
-            ArgumentNullException.ThrowIfNull(property.DeclaringType);
+            ArgumentNullException.ThrowIfNull(property.DeclaringType, nameof(property));
 
             var method = new DynamicMethod("Set" + property.Name, null, new[]
             {
