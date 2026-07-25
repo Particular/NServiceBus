@@ -14,7 +14,7 @@ static class DelegateFactory
     {
         if (!PropertyInfoToLateBoundProperty.TryGetValue(property, out var lateBoundPropertyGet))
         {
-            ArgumentNullException.ThrowIfNull(property.DeclaringType);
+            ArgumentNullException.ThrowIfNull(property.DeclaringType, nameof(property));
 
             var instanceParameter = Expression.Parameter(typeof(object), "target");
 
