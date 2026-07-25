@@ -6,13 +6,8 @@ using System;
 
 static class PathUtilities
 {
-    public static string SanitizedPath(string? commandLine)
+    public static string SanitizedPath(string commandLine)
     {
-        if (commandLine is null)
-        {
-            return string.Empty;
-        }
-
         if (commandLine.StartsWith('"'))
         {
             var nextIndex = commandLine.IndexOf('"', 1);
