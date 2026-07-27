@@ -29,7 +29,7 @@ sealed class SerializationFeature : Feature
         var additionalDeserializerDefinitions = context.Settings.GetAdditionalSerializers();
         var additionalDeserializers = new List<IMessageSerializer>();
 
-        var additionalDeserializerDiagnostics = new List<object>();
+        var additionalDeserializerDiagnostics = new List<AdditionalDeserializerDiagnostics>();
         foreach (var definitionAndSettings in additionalDeserializerDefinitions)
         {
             var deserializer = CreateMessageSerializer(definitionAndSettings, mapper, settings);
@@ -37,11 +37,11 @@ sealed class SerializationFeature : Feature
 
             var deserializerType = definitionAndSettings.Item1.GetType();
 
-            additionalDeserializerDiagnostics.Add(new
+            additionalDeserializerDiagnostics.Add(new AdditionalDeserializerDiagnostics
             {
-                Type = deserializerType.FullName,
+                Type = deserializerType.FullName!,
                 Version = FileVersionRetriever.GetFileVersion(deserializerType),
-                deserializer.ContentType
+                ContentType = deserializer.ContentType
             });
         }
 
@@ -58,17 +58,17 @@ sealed class SerializationFeature : Feature
 
         LogFoundMessages(messageMetadataRegistry.GetAllMessages());
 
-        context.Settings.AddStartupDiagnosticsSection("Serialization", new
+        context.Settings.AddStartupDiagnosticsSection("Serialization", new SerializationDiagnostics
         {
-            MainSerializer = new
+            MainSerializer = new MainSerializerDiagnostics
             {
-                Type = mainSerializerAndDefinition.Item1.GetType().FullName,
+                Type = mainSerializerAndDefinition.Item1.GetType().FullName!,
                 Version = FileVersionRetriever.GetFileVersion(mainSerializerAndDefinition.Item1.GetType()),
-                mainSerializer.ContentType
+                ContentType = mainSerializer.ContentType
             },
             AdditionalDeserializers = additionalDeserializerDiagnostics,
             AllowMessageTypeInference = allowMessageTypeInference
-        });
+        }, StartupDiagnosticsJsonContext.Default.SerializationDiagnostics);
     }
 
     static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, IReadOnlySettings mainSettings)

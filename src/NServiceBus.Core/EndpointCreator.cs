@@ -215,7 +215,7 @@ class EndpointCreator
         ArgumentNullException.ThrowIfNull(containerType);
         ArgumentNullException.ThrowIfNull(serviceProviderLease);
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = containerType });
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new ContainerDiagnostics { Type = containerType }, StartupDiagnosticsJsonContext.Default.ContainerDiagnostics);
 
         return new StartableEndpoint(settings,
             featureComponent,

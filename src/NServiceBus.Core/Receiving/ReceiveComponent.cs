@@ -113,21 +113,21 @@ partial class ReceiveComponent
 
         configuration.TransportSeam.Configure([.. receiveSettings]);
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
+        hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new ReceivingDiagnostics
         {
-            configuration.LocalQueueAddress,
-            configuration.InstanceSpecificQueueAddress,
-            configuration.PurgeOnStartup,
+            LocalQueueAddress = configuration.LocalQueueAddress.ToString(),
+            InstanceSpecificQueueAddress = configuration.InstanceSpecificQueueAddress?.ToString(),
+            PurgeOnStartup = configuration.PurgeOnStartup,
             TransactionMode = configuration.TransportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
-            configuration.PushRuntimeSettings.MaxConcurrency,
-            Satellites = configuration.SatelliteDefinitions.Select(s => new
+            MaxConcurrency = configuration.PushRuntimeSettings.MaxConcurrency,
+            Satellites = configuration.SatelliteDefinitions.Select(s => new SatelliteDiagnostics
             {
-                s.Name,
-                s.ReceiveAddress,
-                s.RuntimeSettings.MaxConcurrency
+                Name = s.Name,
+                ReceiveAddress = s.ReceiveAddress.ToString(),
+                MaxConcurrency = s.RuntimeSettings.MaxConcurrency
             }).ToArray(),
             MessageHandlers = handlerDiagnostics
-        });
+        }, StartupDiagnosticsJsonContext.Default.ReceivingDiagnostics);
 
         return receiveComponent;
     }

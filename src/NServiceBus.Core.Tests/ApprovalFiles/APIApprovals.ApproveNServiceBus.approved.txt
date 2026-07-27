@@ -242,6 +242,8 @@ namespace NServiceBus
     public static class DiagnosticSettingsExtensions
     {
         public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.IReadOnlySettings settings, string sectionName, object section) { }
+        public static void AddStartupDiagnosticsSection<T>(this NServiceBus.Settings.IReadOnlySettings settings, string sectionName, T section, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> typeInfo) { }
+        public static void AddStartupDiagnosticsSectionFactory<T>(this NServiceBus.Settings.IReadOnlySettings settings, string sectionName, System.Func<T> sectionFactory, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> typeInfo) { }
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.CancellationToken, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
         public static void WriteDiagnosticsToLog(this NServiceBus.EndpointConfiguration config) { }
@@ -1069,6 +1071,8 @@ namespace NServiceBus
     {
         public StartupDiagnosticEntries() { }
         public void Add(string sectionName, object section) { }
+        public void Add<T>(string sectionName, T section, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> typeInfo) { }
+        public void AddFactory<T>(string sectionName, System.Func<T> sectionFactory, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> typeInfo) { }
         public class StartupDiagnosticEntry
         {
             public StartupDiagnosticEntry() { }
