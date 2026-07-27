@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 using Features;
 using Hosting.Helpers;
 
+[JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(List<string>))]
 [JsonSerializable(typeof(HostingDiagnostics))]
 [JsonSerializable(typeof(EndpointDiagnostics))]
 [JsonSerializable(typeof(MessagesDiagnostics))]

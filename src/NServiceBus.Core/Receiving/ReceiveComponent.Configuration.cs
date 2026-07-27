@@ -24,7 +24,7 @@ partial class ReceiveComponent
             IsEvent = conventions.IsEventType(type),
         });
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Manifest-MessageTypes",
+        hostingConfiguration.AddStartupDiagnosticsSectionFactory("Manifest-MessageTypes",
             () => handledMessages.Select(handledMessage => new ReceiveComponentManifestMessageType
             {
                 Name = handledMessage.MessageType.Name,
@@ -37,7 +37,7 @@ partial class ReceiveComponent
                     Name = prop.Name,
                     Type = prop.PropertyType.Name,
                 }).ToArray()
-            }).ToArray());
+            }).ToArray(), StartupDiagnosticsJsonContext.Default.ReceiveComponentManifestMessageTypeArray);
     }
 }
 

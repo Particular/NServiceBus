@@ -38,7 +38,7 @@ public sealed class Audit : Feature
 
         context.Settings.Get<QueueBindings>().BindSending(auditConfig.Address);
 
-        context.Settings.AddStartupDiagnosticsSection("Manifest-AuditQueue", auditConfig.Address);
+        context.Settings.AddStartupDiagnosticsSection("Manifest-AuditQueue", auditConfig.Address, StartupDiagnosticsJsonContext.Default.String);
         context.Settings.AddStartupDiagnosticsSection("Audit", new AuditDiagnostics
         {
             AuditQueue = auditConfig.Address,
