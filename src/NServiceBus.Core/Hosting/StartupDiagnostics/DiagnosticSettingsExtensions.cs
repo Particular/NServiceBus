@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Configuration.AdvancedExtensibility;
@@ -23,6 +24,32 @@ public static class DiagnosticSettingsExtensions
         ArgumentNullException.ThrowIfNull(section);
 
         settings.Get<HostingComponent.Settings>().StartupDiagnostics.Add(sectionName, section);
+    }
+
+    /// <summary>
+    /// Adds a section to the startup diagnostics with a strongly-typed value and its JSON type info for AOT-safe serialization.
+    /// </summary>
+    public static void AddStartupDiagnosticsSection<T>(this IReadOnlySettings settings, string sectionName, T section, JsonTypeInfo<T> typeInfo)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sectionName);
+        ArgumentNullException.ThrowIfNull(section);
+        ArgumentNullException.ThrowIfNull(typeInfo);
+
+        settings.Get<HostingComponent.Settings>().StartupDiagnostics.Add(sectionName, section, typeInfo);
+    }
+
+    /// <summary>
+    /// Adds a section to the startup diagnostics with a factory that is evaluated lazily and its JSON type info for AOT-safe serialization.
+    /// </summary>
+    public static void AddStartupDiagnosticsSectionFactory<T>(this IReadOnlySettings settings, string sectionName, Func<T> sectionFactory, JsonTypeInfo<T> typeInfo)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sectionName);
+        ArgumentNullException.ThrowIfNull(sectionFactory);
+        ArgumentNullException.ThrowIfNull(typeInfo);
+
+        settings.Get<HostingComponent.Settings>().StartupDiagnostics.AddFactory(sectionName, sectionFactory, typeInfo);
     }
 
     /// <summary>
