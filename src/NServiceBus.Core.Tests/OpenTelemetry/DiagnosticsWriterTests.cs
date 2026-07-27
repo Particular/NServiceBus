@@ -266,6 +266,20 @@ public partial class DiagnosticsWriterTests
     }
 
     [Test]
+    public async Task ShouldWriteDuplicateEntriesWithSynthesizedNameCollision()
+    {
+        var (writer, output) = CreateCaptureWriter(false);
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("Section", new { Value = "First" });
+        diagnostics.Add("Section-2", new { Value = "AlreadySynthesized" });
+        diagnostics.Add("Section", new { Value = "Third" });
+
+        await writer.Write(diagnostics.entries);
+
+        Approver.Verify(output());
+    }
+
+    [Test]
     public async Task ShouldWriteTypedSectionWithSystemType()
     {
         var (writer, output) = CreateCaptureWriter(false);
