@@ -65,11 +65,9 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
             .Select(e =>
             {
                 object value;
-                if (e.IsFactory)
+                if (e.Factory is not null)
                 {
-                    var factoryDelegate = e.Data;
-                    var invokeMethod = factoryDelegate.GetType().GetMethod("Invoke");
-                    value = invokeMethod!.Invoke(factoryDelegate, null)!;
+                    value = e.Factory();
                 }
                 else if (e.Data is Func<object> func)
                 {
@@ -145,7 +143,7 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
                     Name = entryNewName,
                     Data = entry.Data,
                     JsonTypeInfo = entry.JsonTypeInfo,
-                    IsFactory = entry.IsFactory
+                    Factory = entry.Factory
                 };
             }
         }

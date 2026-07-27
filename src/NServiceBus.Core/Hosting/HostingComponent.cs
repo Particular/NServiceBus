@@ -41,25 +41,25 @@ partial class HostingComponent(HostingComponent.Configuration configuration, Ins
             registration(serviceCollection);
         }
 
-        configuration.AddStartupDiagnosticsSection("Hosting", new
+        configuration.AddStartupDiagnosticsSection("Hosting", new HostingDiagnostics
         {
-            configuration.HostInformation.HostId,
+            HostId = configuration.HostInformation.HostId.ToString(),
             HostDisplayName = configuration.HostInformation.DisplayName,
-            RuntimeEnvironment.MachineName,
-            OSPlatform = Environment.OSVersion.Platform,
+            MachineName = RuntimeEnvironment.MachineName,
+            OSPlatform = Environment.OSVersion.Platform.ToString(),
             OSVersion = Environment.OSVersion.VersionString,
-            GCSettings.IsServerGC,
-            GCLatencyMode = GCSettings.LatencyMode,
-            Environment.ProcessorCount,
-            Environment.Is64BitProcess,
-            CLRVersion = Environment.Version,
-            Environment.WorkingSet,
-            Environment.SystemPageSize,
+            IsServerGC = GCSettings.IsServerGC,
+            GCLatencyMode = GCSettings.LatencyMode.ToString(),
+            ProcessorCount = Environment.ProcessorCount,
+            Is64BitProcess = Environment.Is64BitProcess,
+            CLRVersion = Environment.Version.ToString(),
+            WorkingSet = Environment.WorkingSet,
+            SystemPageSize = Environment.SystemPageSize,
             HostName = Dns.GetHostName(),
-            Environment.UserName,
+            UserName = Environment.UserName,
             PathToExe = PathUtilities.SanitizedPath(Environment.CommandLine),
             InstallersEnabled = configuration.ShouldRunInstallers
-        });
+        }, StartupDiagnosticsJsonContext.Default.HostingDiagnostics);
 
         return new HostingComponent(configuration, configuration.InstallerComponent);
     }

@@ -46,9 +46,9 @@ public class StartupDiagnosticEntries
         entries.Add(new StartupDiagnosticEntry
         {
             Name = sectionName,
-            Data = sectionFactory,
+            Data = null!,
             JsonTypeInfo = typeInfo,
-            IsFactory = true
+            Factory = () => sectionFactory()!
         });
     }
 
@@ -71,6 +71,6 @@ public class StartupDiagnosticEntries
 
         internal JsonTypeInfo? JsonTypeInfo { get; set; }
 
-        internal bool IsFactory { get; set; }
+        internal Func<object>? Factory { get; set; }
     }
 }

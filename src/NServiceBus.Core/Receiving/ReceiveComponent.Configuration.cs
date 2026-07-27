@@ -39,23 +39,26 @@ partial class ReceiveComponent
                 }).ToArray()
             }).ToArray());
     }
+}
 
-    record ReceiveComponentManifestMessageType
+sealed record ReceiveComponentManifestMessageType
+{
+    public sealed record SchemaProperty
     {
-        public record SchemaProperty
-        {
-            public required string Name { get; init; }
-            public required string Type { get; init; }
-        }
-
         public required string Name { get; init; }
-        public required string FullName { get; init; }
-        public bool IsMessage { get; init; }
-        public bool IsEvent { get; init; }
-        public bool IsCommand { get; init; }
-        public required SchemaProperty[] Schema { get; init; }
+        public required string Type { get; init; }
     }
 
+    public required string Name { get; init; }
+    public required string FullName { get; init; }
+    public bool IsMessage { get; init; }
+    public bool IsEvent { get; init; }
+    public bool IsCommand { get; init; }
+    public required SchemaProperty[] Schema { get; init; }
+}
+
+partial class ReceiveComponent
+{
     public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
     {
         var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;
