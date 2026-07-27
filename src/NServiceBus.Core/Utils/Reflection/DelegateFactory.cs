@@ -106,7 +106,7 @@ static class DelegateFactory
 
             var sourceType = property.DeclaringType;
             var setter = property.GetSetMethod(true);
-            ArgumentNullException.ThrowIfNull(setter); // setter cannot be null in the gen.Emit calls
+            ArgumentNullException.ThrowIfNull(setter, nameof(property));
 
             gen.Emit(OpCodes.Ldarg_0); // Load input to stack
 
