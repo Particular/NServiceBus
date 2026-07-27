@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Serialization;
+﻿#nullable enable
+
+namespace NServiceBus.Serialization;
 
 using System;
 using MessageInterfaces;
