@@ -115,15 +115,17 @@ partial class ReceiveComponent
 
         hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new ReceivingDiagnostics
         {
-            LocalQueueAddress = configuration.LocalQueueAddress.ToString(),
-            InstanceSpecificQueueAddress = configuration.InstanceSpecificQueueAddress?.ToString(),
+            LocalQueueAddress = ToQueueAddressDiagnostics(configuration.LocalQueueAddress),
+            InstanceSpecificQueueAddress = configuration.InstanceSpecificQueueAddress != null
+                ? ToQueueAddressDiagnostics(configuration.InstanceSpecificQueueAddress)
+                : null,
             PurgeOnStartup = configuration.PurgeOnStartup,
             TransactionMode = configuration.TransportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
             MaxConcurrency = configuration.PushRuntimeSettings.MaxConcurrency,
             Satellites = configuration.SatelliteDefinitions.Select(s => new SatelliteDiagnostics
             {
                 Name = s.Name,
-                ReceiveAddress = s.ReceiveAddress.ToString(),
+                ReceiveAddress = ToQueueAddressDiagnostics(s.ReceiveAddress),
                 MaxConcurrency = s.RuntimeSettings.MaxConcurrency
             }).ToArray(),
             MessageHandlers = handlerDiagnostics
@@ -131,6 +133,15 @@ partial class ReceiveComponent
 
         return receiveComponent;
     }
+
+    static QueueAddressDiagnostics ToQueueAddressDiagnostics(QueueAddress address) =>
+        new QueueAddressDiagnostics
+        {
+            BaseAddress = address.BaseAddress,
+            Discriminator = address.Discriminator,
+            Properties = new Dictionary<string, string>(address.Properties),
+            Qualifier = address.Qualifier
+        };
 
     public async Task Initialize(
         IServiceProvider builder,

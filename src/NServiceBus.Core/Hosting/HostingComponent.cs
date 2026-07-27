@@ -43,16 +43,16 @@ partial class HostingComponent(HostingComponent.Configuration configuration, Ins
 
         configuration.AddStartupDiagnosticsSection("Hosting", new HostingDiagnostics
         {
-            HostId = configuration.HostInformation.HostId.ToString(),
+            HostId = configuration.HostInformation.HostId,
             HostDisplayName = configuration.HostInformation.DisplayName,
             MachineName = RuntimeEnvironment.MachineName,
-            OSPlatform = Environment.OSVersion.Platform.ToString(),
+            OSPlatform = Environment.OSVersion.Platform,
             OSVersion = Environment.OSVersion.VersionString,
             IsServerGC = GCSettings.IsServerGC,
-            GCLatencyMode = GCSettings.LatencyMode.ToString(),
+            GCLatencyMode = GCSettings.LatencyMode,
             ProcessorCount = Environment.ProcessorCount,
             Is64BitProcess = Environment.Is64BitProcess,
-            CLRVersion = Environment.Version.ToString(),
+            CLRVersion = Environment.Version,
             WorkingSet = Environment.WorkingSet,
             SystemPageSize = Environment.SystemPageSize,
             HostName = Dns.GetHostName(),

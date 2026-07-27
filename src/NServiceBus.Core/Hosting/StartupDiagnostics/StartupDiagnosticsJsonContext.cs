@@ -19,6 +19,7 @@ using Hosting.Helpers;
 [JsonSerializable(typeof(FeatureDiagnosticData[]))]
 [JsonSerializable(typeof(InstallationDiagnostics))]
 [JsonSerializable(typeof(ReceivingDiagnostics))]
+[JsonSerializable(typeof(QueueAddressDiagnostics))]
 [JsonSerializable(typeof(SatelliteDiagnostics))]
 [JsonSerializable(typeof(RecoverabilityDiagnostics))]
 [JsonSerializable(typeof(AuditDiagnostics))]

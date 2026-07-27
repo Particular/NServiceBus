@@ -6,8 +6,8 @@ using System.Collections.Generic;
 
 sealed class ReceivingDiagnostics
 {
-    public required string LocalQueueAddress { get; init; }
-    public string? InstanceSpecificQueueAddress { get; init; }
+    public required QueueAddressDiagnostics LocalQueueAddress { get; init; }
+    public QueueAddressDiagnostics? InstanceSpecificQueueAddress { get; init; }
     public required bool PurgeOnStartup { get; init; }
     public required string TransactionMode { get; init; }
     public required int MaxConcurrency { get; init; }
@@ -18,6 +18,6 @@ sealed class ReceivingDiagnostics
 sealed class SatelliteDiagnostics
 {
     public required string Name { get; init; }
-    public required string ReceiveAddress { get; init; }
+    public required QueueAddressDiagnostics ReceiveAddress { get; init; }
     public required int MaxConcurrency { get; init; }
 }

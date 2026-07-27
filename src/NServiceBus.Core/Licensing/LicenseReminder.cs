@@ -49,12 +49,12 @@ sealed class LicenseReminder : Feature
             LicenseType = result.License?.LicenseType,
             Edition = result.License?.Edition,
             Tier = result.License?.Edition,
-            LicenseStatus = result.License?.GetLicenseStatus().ToString(),
-            LicenseLocation = result.Location ?? "",
+            LicenseStatus = (int?)result.License?.GetLicenseStatus(),
+            LicenseLocation = result.Location,
             ValidApplications = string.Join(",", result.License?.ValidApplications ?? []),
             CommercialLicense = result.License?.IsCommercialLicense,
             IsExpired = result.HasLicenseExpired(),
-            ExpirationDate = result.License?.ExpirationDate?.ToString(),
+            ExpirationDate = result.License?.ExpirationDate,
         };
 
     public const string LicenseTextSettingsKey = "LicenseText";
