@@ -114,6 +114,13 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
             else
             {
                 // Legacy path: use reflection-based serialization with the custom options
+                if (!JsonSerializer.IsReflectionEnabledByDefault)
+                {
+                    throw new InvalidOperationException(
+                        $"Startup diagnostics section '{entry.Name}' was registered without JSON type metadata. " +
+                        "Use the overload accepting JsonTypeInfo<T> when reflection serialization is disabled.");
+                }
+
                 JsonSerializer.Serialize(writer, value, diagnosticsOptions);
             }
         }
