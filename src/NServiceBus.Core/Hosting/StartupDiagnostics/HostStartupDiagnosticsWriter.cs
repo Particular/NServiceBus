@@ -61,27 +61,29 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
     static List<ResolvedEntry> ResolveEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
     {
         var deduplicated = DeduplicateEntries(entries);
-        return deduplicated
-            .OrderBy(e => e.Name)
-            .Select(e =>
-            {
-                object value;
-                if (e.Factory is not null)
+        return
+        [
+            .. deduplicated
+                .OrderBy(e => e.Name)
+                .Select(e =>
                 {
-                    value = e.Factory();
-                }
-                else if (e.Data is Func<object> func)
-                {
-                    value = func();
-                }
-                else
-                {
-                    value = e.Data;
-                }
+                    object value;
+                    if (e.Factory is not null)
+                    {
+                        value = e.Factory();
+                    }
+                    else if (e.Data is Func<object> func)
+                    {
+                        value = func();
+                    }
+                    else
+                    {
+                        value = e.Data;
+                    }
 
-                return new ResolvedEntry(e.Name, value, e.JsonTypeInfo);
-            })
-            .ToList();
+                    return new ResolvedEntry(e.Name, value, e.JsonTypeInfo);
+                })
+        ];
     }
 
     static string SerializeToJson(List<ResolvedEntry> resolvedEntries, bool forLog)
@@ -163,7 +165,7 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
     };
 
     /// <summary>
-    /// By default System.Text.Json would throw with "Serialization and deserialization of 'System.Type' instances are not supported" which normally
+    /// By default, System.Text.Json would throw with "Serialization and deserialization of 'System.Type' instances are not supported" which normally
     /// would make sense because it can be considered unsafe to serialize and deserialize types. We add a custom converter here to make
     /// sure when diagnostics entries accidentally use types it will just print the full name as a string. We never intent to read these things
     /// back so this is a safe approach.
