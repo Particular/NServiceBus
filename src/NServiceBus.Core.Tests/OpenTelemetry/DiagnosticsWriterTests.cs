@@ -33,70 +33,47 @@ public partial class DiagnosticsWriterTests
     [Test]
     public async Task ShouldWriteWhenDuplicateEntriesPresent()
     {
-        var output = string.Empty;
-        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-        {
-            output = diagnosticOutput;
-            return Task.CompletedTask;
-        });
+        var (writer, output) = CreateCaptureWriter(false);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointOne" });
         diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointTwo" });
         diagnostics.Add("Version", new { Version = "1.0.0.0" });
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, false);
-
         await writer.Write(diagnostics.entries);
 
-        Approver.Verify(output);
+        Approver.Verify(output());
     }
 
     [Test]
     public async Task ShouldWriteEntriesWithTypesUsingTheFullName()
     {
-        var output = string.Empty;
-        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-        {
-            output = diagnosticOutput;
-            return Task.CompletedTask;
-        });
+        var (writer, output) = CreateCaptureWriter(false);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("TypeIndicator", new { SomeType = typeof(DiagnosticsWriterTests) });
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, false);
-
         await writer.Write(diagnostics.entries);
 
-        Approver.Verify(output);
+        Approver.Verify(output());
     }
 
     [Test]
     public async Task ShouldSupportWritingToLogAndWriter()
     {
-        var output = string.Empty;
-        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-        {
-            output = diagnosticOutput;
-            return Task.CompletedTask;
-        });
+        var (writer, output) = CreateCaptureWriter(true);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointOne" });
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, true);
-
         await writer.Write(diagnostics.entries);
 
-        Approver.Verify(output + Environment.NewLine + logStatements, s => TimestampScrubber().Replace(s, "<timestamp>"));
+        Approver.Verify(output() + Environment.NewLine + logStatements, s => TimestampScrubber().Replace(s, "<timestamp>"));
     }
 
     [Test]
     public async Task ShouldSupportWritingToLogEvenWhenWriterIsNoOp()
     {
-        var testWriter = new Func<string, CancellationToken, Task>((_, _) => Task.CompletedTask);
+        var writer = new HostStartupDiagnosticsWriter(NoOpWriter, true, true);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointOne" });
-
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, true);
 
         await writer.Write(diagnostics.entries);
 
@@ -106,11 +83,9 @@ public partial class DiagnosticsWriterTests
     [Test]
     public async Task ShouldSupportWritingToLogEvenWhenWriterFails()
     {
-        var testWriter = new Func<string, CancellationToken, Task>((_, _) => Task.FromException<InvalidOperationException>(new InvalidOperationException("Test")));
+        var writer = new HostStartupDiagnosticsWriter(FailingWriter, true, true);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("Endpoint", new { EndpointName = "MyEndpointOne" });
-
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, true);
 
         await writer.Write(diagnostics.entries);
 
@@ -120,33 +95,21 @@ public partial class DiagnosticsWriterTests
     [Test]
     public async Task ShouldWriteAlphabeticalSectionOrder()
     {
-        var output = string.Empty;
-        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-        {
-            output = diagnosticOutput;
-            return Task.CompletedTask;
-        });
+        var (writer, output) = CreateCaptureWriter(false);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("Zulu", new { Value = "z" });
         diagnostics.Add("Mike", new { Value = "m" });
         diagnostics.Add("Alpha", new { Value = "a" });
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, false);
-
         await writer.Write(diagnostics.entries);
 
-        Approver.Verify(output);
+        Approver.Verify(output());
     }
 
     [Test]
     public async Task ShouldWriteEscapedPropertyNames()
     {
-        var output = string.Empty;
-        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-        {
-            output = diagnosticOutput;
-            return Task.CompletedTask;
-        });
+        var (writer, output) = CreateCaptureWriter(false);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("Special", new Dictionary<string, object>
         {
@@ -154,51 +117,35 @@ public partial class DiagnosticsWriterTests
             { "Normal", 42 }
         });
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, false);
-
         await writer.Write(diagnostics.entries);
 
-        Approver.Verify(output);
+        Approver.Verify(output());
     }
 
     [Test]
     public async Task ShouldWriteNullAndNestedValues()
     {
-        var output = string.Empty;
-        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-        {
-            output = diagnosticOutput;
-            return Task.CompletedTask;
-        });
+        var (writer, output) = CreateCaptureWriter(false);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("NullValue", new { Value = default(object) });
         diagnostics.Add("Nested", new { Inner = new { Deep = "value" } });
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, false);
-
         await writer.Write(diagnostics.entries);
 
-        Approver.Verify(output);
+        Approver.Verify(output());
     }
 
     [Test]
     public async Task ShouldInvokeLazySectionOnce()
     {
         var invocationCount = 0;
-        var output = string.Empty;
-        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-        {
-            output = diagnosticOutput;
-            return Task.CompletedTask;
-        });
+        var (writer, _) = CreateCaptureWriter(true);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("Lazy", new Func<object>(() =>
         {
             invocationCount++;
             return new { Value = "lazy" };
         }));
-
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, true);
 
         await writer.Write(diagnostics.entries);
 
@@ -208,12 +155,7 @@ public partial class DiagnosticsWriterTests
     [Test]
     public async Task ShouldCompactAssemblyScanningOnlyInLog()
     {
-        var output = string.Empty;
-        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
-        {
-            output = diagnosticOutput;
-            return Task.CompletedTask;
-        });
+        var (writer, output) = CreateCaptureWriter(true);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("AssemblyScanning", new AssemblyScanningDiagnostics(
             [new AssemblyDetails("MyAssembly", "1.0.0.0")],
@@ -221,32 +163,41 @@ public partial class DiagnosticsWriterTests
             false,
             new AssemblyScannerConfiguration()));
 
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, true);
-
         await writer.Write(diagnostics.entries);
 
-        // Log output should have compacted (empty assemblies)
         var logOutput = logStatements.ToString();
         Assert.That(logOutput, Does.Contain("\"Assemblies\":[]"), "Log output should have compacted assemblies");
-
-        // Custom writer output should have full assemblies
-        Assert.That(output, Does.Contain("MyAssembly"), "Custom writer output should have full assemblies");
+        Assert.That(output(), Does.Contain("MyAssembly"), "Custom writer output should have full assemblies");
     }
 
     [Test]
     public async Task ShouldTruncateLogAtThreshold()
     {
-        var testWriter = new Func<string, CancellationToken, Task>((_, _) => Task.CompletedTask);
+        var writer = new HostStartupDiagnosticsWriter(NoOpWriter, true, true);
         var diagnostics = new StartupDiagnosticEntries();
         diagnostics.Add("Large", new { Data = new string('X', 40000) });
-
-        var writer = new HostStartupDiagnosticsWriter(testWriter, true, true);
 
         await writer.Write(diagnostics.entries);
 
         var logOutput = logStatements.ToString();
         Assert.That(logOutput, Does.Contain("... (truncated)"));
     }
+
+    static (HostStartupDiagnosticsWriter Writer, Func<string> GetOutput) CreateCaptureWriter(bool writeToLog)
+    {
+        var output = string.Empty;
+        var testWriter = new Func<string, CancellationToken, Task>((diagnosticOutput, _) =>
+        {
+            output = diagnosticOutput;
+            return Task.CompletedTask;
+        });
+        return (new HostStartupDiagnosticsWriter(testWriter, true, writeToLog), () => output);
+    }
+
+    static Task NoOpWriter(string _, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    static Task FailingWriter(string _, CancellationToken cancellationToken) =>
+        Task.FromException(new InvalidOperationException("Test"));
 
     [GeneratedRegex(@"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}", RegexOptions.Compiled)]
     private static partial Regex TimestampScrubber();
