@@ -99,7 +99,7 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
             var jsonTypeInfo = entry.JsonTypeInfo;
 
             // Compact AssemblyScanning section only for log output
-            if (forLog && jsonTypeInfo == null && value is AssemblyScanningDiagnostics assemblyScanning)
+            if (forLog && value is AssemblyScanningDiagnostics assemblyScanning)
             {
                 value = assemblyScanning.CreateCompactedVersion();
             }

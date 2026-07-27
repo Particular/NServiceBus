@@ -161,7 +161,8 @@ public partial class DiagnosticsWriterTests
             [new AssemblyDetails("MyAssembly", "1.0.0.0")],
             [],
             false,
-            new AssemblyScannerConfiguration()));
+            new AssemblyScannerConfiguration()),
+            StartupDiagnosticsJsonContext.Default.AssemblyScanningDiagnostics);
 
         await writer.Write(diagnostics.entries);
 
