@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -19,6 +21,9 @@ public static class StaticHeadersConfigExtensions
     public static void AddHeaderToAllOutgoingMessages(this EndpointConfiguration config, string key, string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
+        // TODO Uncomment this in the next major version so that we actually enforce non-null values here
+        //ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
         if (!config.Settings.TryGet(out CurrentStaticHeaders headers))
         {

@@ -63,7 +63,6 @@ NServiceBus.SerializationContextExtensions
 NServiceBus.SerializationExtensionsExtensions
 NServiceBus.Settings.IReadOnlySettings
 NServiceBus.Settings.SettingsHolder
-NServiceBus.StaticHeadersConfigExtensions
 NServiceBus.SubscriptionMigrationModeSettings
 NServiceBus.Transport.DispatchProperties
 NServiceBus.Transport.ErrorContext
