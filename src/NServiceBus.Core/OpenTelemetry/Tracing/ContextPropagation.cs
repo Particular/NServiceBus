@@ -4,17 +4,16 @@ namespace NServiceBus;
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using Extensibility;
 
 static class ContextPropagation
 {
-    public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers, ContextBag contextBag)
+    public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers)
     {
         // TODO: investigate if we need to improve the switch check for better performance
         // Removed in v11, see obsolete_v11.cs
         if (!LegacyContextPropagation.UseDistributedContextPropagator)
         {
-            LegacyContextPropagation.PropagateContextToHeaders(activity, headers, contextBag);
+            LegacyContextPropagation.PropagateContextToHeaders(activity, headers);
             return;
         }
 
@@ -26,14 +25,6 @@ static class ContextPropagation
         }
 
         DistributedContextPropagator.Current.Inject(activity, headers, Setter);
-
-        var traceParentExists = headers.ContainsKey(Headers.DiagnosticsTraceParent);
-        var startNewTraceOnReceive = contextBag.TryGet<string>(Headers.StartNewTrace, out var startNewTrace);
-
-        if (traceParentExists && startNewTraceOnReceive)
-        {
-            headers[Headers.StartNewTrace] = startNewTrace!;
-        }
     }
 
     public static void PropagateContextFromHeaders(Activity? activity, IDictionary<string, string> headers)

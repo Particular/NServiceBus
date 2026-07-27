@@ -16,6 +16,19 @@ public class InstrumentationOptions
     public bool UseMessageDestinationInSpanNames { get; set; }
 
     /// <summary>
+    /// Controls instrumentation of the recoverability pipeline (retries and error handling).
+    /// </summary>
+    public RecoverabilityInstrumentationOptions Recoverability { get; } = new();
+
+    /// <summary>
+    /// Controls instrumentation of explicitly delayed messages (<c>SendOptions.DelayDeliveryWith</c>
+    /// / <c>DoNotDeliverBefore</c>, including saga timeouts, which use the same API). Unrelated to
+    /// recoverability-driven delayed retries, which are controlled separately via
+    /// <see cref="RecoverabilityInstrumentationOptions.DelayedRetryTraceMode"/>.
+    /// </summary>
+    public DelayedDeliveryInstrumentationOptions DelayedDelivery { get; } = new();
+
+    /// <summary>
     /// Controls whether the "Start dispatching" and "Finished dispatching" activity events
     /// are added to the incoming message span when outgoing messages are dispatched.
     /// Enabled by default for backward compatibility. Disable to avoid the ingestion cost
@@ -38,4 +51,58 @@ public class InstrumentationOptions
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
     public TraceMode PublishTraceMode { get; set; } = TraceMode.StartNew;
+}
+
+/// <summary>
+/// Controls how a recoverability action is represented as a trace, relative to the failed
+/// attempt that triggered it.
+/// </summary>
+public enum RecoverabilityTraceMode
+{
+    /// <summary>
+    /// Starts a new trace, linked back to the failed attempt's trace.
+    /// </summary>
+    StartNew,
+
+    /// <summary>
+    /// Attaches as a child span within the failed attempt's own trace.
+    /// </summary>
+    Child
+}
+
+/// <summary>
+/// Controls instrumentation of the recoverability pipeline (retries and error handling).
+/// </summary>
+public class RecoverabilityInstrumentationOptions
+{
+    /// <summary>
+    /// Controls how the recoverability span for a delayed retry relates to the failed
+    /// attempt's trace.
+    /// </summary>
+    public RecoverabilityTraceMode DelayedRetryTraceMode { get; set; } = RecoverabilityTraceMode.StartNew;
+
+    /// <summary>
+    /// Controls how the recoverability span for a message moved to the error queue relates to
+    /// the failed attempt's trace.
+    /// </summary>
+    public RecoverabilityTraceMode MoveToErrorTraceMode { get; set; } = RecoverabilityTraceMode.StartNew;
+}
+
+/// <summary>
+/// Controls instrumentation of explicitly delayed messages.
+/// </summary>
+public class DelayedDeliveryInstrumentationOptions
+{
+    /// <summary>
+    /// Controls how a delayed <c>Send</c> relates to the sender's trace, when requested directly
+    /// by application code via <c>SendOptions.DelayDeliveryWith</c>/<c>DoNotDeliverBefore</c>.
+    /// Does not apply to saga timeouts - see <see cref="SagaTimeoutTraceMode"/>.
+    /// </summary>
+    public RecoverabilityTraceMode SendOperationTraceMode { get; set; } = RecoverabilityTraceMode.StartNew;
+
+    /// <summary>
+    /// Controls how a saga timeout (<c>Saga.RequestTimeout</c>) relates to the trace of the
+    /// message that requested it.
+    /// </summary>
+    public RecoverabilityTraceMode SagaTimeoutTraceMode { get; set; } = RecoverabilityTraceMode.StartNew;
 }

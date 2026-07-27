@@ -22,8 +22,6 @@ class RecoverabilityPipelineExecutor<TState>(
 {
     public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
     {
-        using var activity = activityFactory.StartRecoverabilityActivity(errorContext);
-
         var childScope = serviceProvider.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
@@ -42,9 +40,12 @@ class RecoverabilityPipelineExecutor<TState>(
                 errorContext.Extensions,
                 cancellationToken);
 
+            using var activity = activityFactory.StartRecoverabilityActivity(recoverabilityContext);
+
             await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
 
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
+
         }
     }
 }

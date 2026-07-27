@@ -12,7 +12,7 @@ public class PopulateRecoverabilityTraceMetadataBehaviorTests
     [Test]
     public async Task Should_not_write_metadata_when_trace_not_present()
     {
-        var behavior = new PopulateRecoverabilityTraceMetadataBehavior();
+        var behavior = new PopulateRecoverabilityTraceMetadataBehavior(new InstrumentationOptions());
 
         var context = new TestableRecoverabilityContext();
         await behavior.Invoke(context, _ => Task.CompletedTask);
@@ -28,7 +28,7 @@ public class PopulateRecoverabilityTraceMetadataBehaviorTests
     [TestCaseSource(nameof(Actions))]
     public async Task Should_write_metadata_when_trace_present(RecoverabilityAction recoverabilityAction)
     {
-        var behavior = new PopulateRecoverabilityTraceMetadataBehavior();
+        var behavior = new PopulateRecoverabilityTraceMetadataBehavior(new InstrumentationOptions());
 
         var context = new TestableRecoverabilityContext
         {

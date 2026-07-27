@@ -21,7 +21,7 @@ sealed class OpenTelemetryFeature : Feature
         );
 
         context.Pipeline.Register(
-            new PopulateRecoverabilityTraceMetadataBehavior(),
+            new PopulateRecoverabilityTraceMetadataBehavior(instrumentationOptions),
             "Populates the recoverability metadata"
         );
     }

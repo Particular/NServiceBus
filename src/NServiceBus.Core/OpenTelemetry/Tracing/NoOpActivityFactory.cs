@@ -17,5 +17,5 @@ sealed class NoOpActivityFactory : IActivityFactory
     public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext) => null;
 
     public Activity? StartHandlerActivity(MessageHandler messageHandler) => null;
-    public Activity? StartRecoverabilityActivity(ErrorContext context) => null;
+    public Activity? StartRecoverabilityActivity(IRecoverabilityContext context) => null;
 }

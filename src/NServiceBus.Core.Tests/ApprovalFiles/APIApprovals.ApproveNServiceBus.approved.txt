@@ -214,6 +214,12 @@ namespace NServiceBus
         public int MaxNumberOfRetries { get; }
         public System.TimeSpan TimeIncrease { get; }
     }
+    public class DelayedDeliveryInstrumentationOptions
+    {
+        public DelayedDeliveryInstrumentationOptions() { }
+        public NServiceBus.RecoverabilityTraceMode SagaTimeoutTraceMode { get; set; }
+        public NServiceBus.RecoverabilityTraceMode SendOperationTraceMode { get; set; }
+    }
     public static class DelayedDeliveryOptionExtensions
     {
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
@@ -638,6 +644,8 @@ namespace NServiceBus
         public bool EmitMessageDispatchingEvents { get; set; }
         public NServiceBus.TraceMode PublishTraceMode { get; set; }
         public NServiceBus.TraceMode SendTraceMode { get; set; }
+        public NServiceBus.DelayedDeliveryInstrumentationOptions DelayedDelivery { get; }
+        public NServiceBus.RecoverabilityInstrumentationOptions Recoverability { get; }
         public bool UseMessageDestinationInSpanNames { get; set; }
     }
     public sealed class KeyedServiceKey
@@ -900,6 +908,12 @@ namespace NServiceBus
     {
         public static NServiceBus.RecoverabilitySettings Recoverability(this NServiceBus.EndpointConfiguration configuration) { }
     }
+    public class RecoverabilityInstrumentationOptions
+    {
+        public RecoverabilityInstrumentationOptions() { }
+        public NServiceBus.RecoverabilityTraceMode DelayedRetryTraceMode { get; set; }
+        public NServiceBus.RecoverabilityTraceMode MoveToErrorTraceMode { get; set; }
+    }
     public class RecoverabilitySettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.RecoverabilitySettings AddUnrecoverableException(System.Type exceptionType) { }
@@ -914,6 +928,11 @@ namespace NServiceBus
     public static class RecoverabilitySettingsExtensions
     {
         public static void AddUnrecoverableException(this NServiceBus.Settings.SettingsHolder settings, System.Type exceptionType) { }
+    }
+    public enum RecoverabilityTraceMode
+    {
+        StartNew = 0,
+        Child = 1,
     }
     public static class RegistrationExtensions
     {
