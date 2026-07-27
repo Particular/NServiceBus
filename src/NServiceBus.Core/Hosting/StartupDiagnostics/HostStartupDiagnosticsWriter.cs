@@ -146,6 +146,13 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
                 countMap[entry.Name] += 1;
                 var entryNewName = $"{entry.Name}-{countMap[entry.Name]}";
 
+                // Ensure the synthesized name does not collide with an existing entry
+                while (!countMap.TryAdd(entryNewName, 1))
+                {
+                    countMap[entry.Name] += 1;
+                    entryNewName = $"{entry.Name}-{countMap[entry.Name]}";
+                }
+
                 Logger.Warn($"A duplicate diagnostic entry was renamed from {entry.Name} to {entryNewName}.");
 
                 yield return new StartupDiagnosticEntries.StartupDiagnosticEntry
