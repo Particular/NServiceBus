@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -12,6 +14,8 @@ static class DelegateFactory
     {
         if (!PropertyInfoToLateBoundProperty.TryGetValue(property, out var lateBoundPropertyGet))
         {
+            ArgumentNullException.ThrowIfNull(property.DeclaringType, nameof(property));
+
             var instanceParameter = Expression.Parameter(typeof(object), "target");
 
             var member = Expression.Property(Expression.Convert(instanceParameter, property.DeclaringType), property);
@@ -32,6 +36,8 @@ static class DelegateFactory
     {
         if (!FieldInfoToLateBoundField.TryGetValue(field, out var lateBoundFieldGet))
         {
+            ArgumentNullException.ThrowIfNull(field.DeclaringType, nameof(field));
+
             var instanceParameter = Expression.Parameter(typeof(object), "target");
 
             var member = Expression.Field(Expression.Convert(instanceParameter, field.DeclaringType), field);
@@ -52,12 +58,14 @@ static class DelegateFactory
     {
         if (!FieldInfoToLateBoundFieldSet.TryGetValue(field, out var callback))
         {
+            ArgumentNullException.ThrowIfNull(field.DeclaringType, nameof(field));
+
             var sourceType = field.DeclaringType;
-            var method = new DynamicMethod("Set" + field.Name, null, new[]
-            {
+            var method = new DynamicMethod("Set" + field.Name, null,
+            [
                 typeof(object),
                 typeof(object)
-            }, true);
+            ], true);
             var gen = method.GetILGenerator();
 
             gen.Emit(OpCodes.Ldarg_0); // Load input to stack
@@ -87,15 +95,18 @@ static class DelegateFactory
     {
         if (!PropertyInfoToLateBoundPropertySet.TryGetValue(property, out var result))
         {
-            var method = new DynamicMethod("Set" + property.Name, null, new[]
-            {
+            ArgumentNullException.ThrowIfNull(property.DeclaringType, nameof(property));
+
+            var method = new DynamicMethod("Set" + property.Name, null,
+            [
                 typeof(object),
                 typeof(object)
-            }, true);
+            ], true);
             var gen = method.GetILGenerator();
 
             var sourceType = property.DeclaringType;
             var setter = property.GetSetMethod(true);
+            ArgumentNullException.ThrowIfNull(setter, nameof(property));
 
             gen.Emit(OpCodes.Ldarg_0); // Load input to stack
 
@@ -129,8 +140,8 @@ static class DelegateFactory
         return result;
     }
 
-    static readonly ConcurrentDictionary<PropertyInfo, Func<object, object>> PropertyInfoToLateBoundProperty = new ConcurrentDictionary<PropertyInfo, Func<object, object>>();
-    static readonly ConcurrentDictionary<FieldInfo, Func<object, object>> FieldInfoToLateBoundField = new ConcurrentDictionary<FieldInfo, Func<object, object>>();
-    static readonly ConcurrentDictionary<PropertyInfo, Action<object, object>> PropertyInfoToLateBoundPropertySet = new ConcurrentDictionary<PropertyInfo, Action<object, object>>();
-    static readonly ConcurrentDictionary<FieldInfo, Action<object, object>> FieldInfoToLateBoundFieldSet = new ConcurrentDictionary<FieldInfo, Action<object, object>>();
+    static readonly ConcurrentDictionary<PropertyInfo, Func<object, object>> PropertyInfoToLateBoundProperty = new();
+    static readonly ConcurrentDictionary<FieldInfo, Func<object, object>> FieldInfoToLateBoundField = new();
+    static readonly ConcurrentDictionary<PropertyInfo, Action<object, object>> PropertyInfoToLateBoundPropertySet = new();
+    static readonly ConcurrentDictionary<FieldInfo, Action<object, object>> FieldInfoToLateBoundFieldSet = new();
 }
