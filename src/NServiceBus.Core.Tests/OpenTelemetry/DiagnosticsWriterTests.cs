@@ -184,6 +184,146 @@ public partial class DiagnosticsWriterTests
         Assert.That(logOutput, Does.Contain("... (truncated)"));
     }
 
+    [Test]
+    public async Task ShouldWriteTypedSection()
+    {
+        var (writer, output) = CreateCaptureWriter(false);
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("Typed", new EndpointDiagnostics
+        {
+            Name = "MyEndpoint",
+            SendOnly = false,
+            NServiceBusVersion = "1.0.0"
+        }, StartupDiagnosticsJsonContext.Default.EndpointDiagnostics);
+
+        await writer.Write(diagnostics.entries);
+
+        Approver.Verify(output());
+    }
+
+    [Test]
+    public async Task ShouldInvokeTypedFactoryOnce()
+    {
+        var invocationCount = 0;
+        var (writer, output) = CreateCaptureWriter(true);
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.AddFactory("Factory", () =>
+        {
+            invocationCount++;
+            return new EndpointDiagnostics
+            {
+                Name = "FromFactory",
+                SendOnly = false,
+                NServiceBusVersion = "1.0.0"
+            };
+        }, StartupDiagnosticsJsonContext.Default.EndpointDiagnostics);
+
+        await writer.Write(diagnostics.entries);
+
+        Assert.That(invocationCount, Is.EqualTo(1));
+        Assert.That(output(), Does.Contain("FromFactory"));
+    }
+
+    [Test]
+    public async Task ShouldWriteMixedTypedAndLegacySections()
+    {
+        var (writer, output) = CreateCaptureWriter(false);
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("Legacy", new { Value = "old" });
+        diagnostics.Add("Typed", new EndpointDiagnostics
+        {
+            Name = "MyEndpoint",
+            SendOnly = false,
+            NServiceBusVersion = "1.0.0"
+        }, StartupDiagnosticsJsonContext.Default.EndpointDiagnostics);
+
+        await writer.Write(diagnostics.entries);
+
+        Approver.Verify(output());
+    }
+
+    [Test]
+    public async Task ShouldWriteTypedDuplicateEntries()
+    {
+        var (writer, output) = CreateCaptureWriter(false);
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("Section", new EndpointDiagnostics
+        {
+            Name = "First",
+            SendOnly = false,
+            NServiceBusVersion = "1.0.0"
+        }, StartupDiagnosticsJsonContext.Default.EndpointDiagnostics);
+        diagnostics.Add("Section", new EndpointDiagnostics
+        {
+            Name = "Second",
+            SendOnly = false,
+            NServiceBusVersion = "2.0.0"
+        }, StartupDiagnosticsJsonContext.Default.EndpointDiagnostics);
+
+        await writer.Write(diagnostics.entries);
+
+        Approver.Verify(output());
+    }
+
+    [Test]
+    public async Task ShouldWriteTypedSectionWithSystemType()
+    {
+        var (writer, output) = CreateCaptureWriter(false);
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("WithType", new ContainerDiagnostics
+        {
+            Type = typeof(DiagnosticsWriterTests).FullName!
+        }, StartupDiagnosticsJsonContext.Default.ContainerDiagnostics);
+
+        await writer.Write(diagnostics.entries);
+
+        Approver.Verify(output());
+    }
+
+    [Test]
+    public async Task ShouldWriteTypedSectionWithNestedCollections()
+    {
+        var (writer, output) = CreateCaptureWriter(false);
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("NestedCollections", new ReceivingDiagnostics
+        {
+            LocalQueueAddress = new QueueAddressDiagnostics
+            {
+                BaseAddress = "myqueue",
+                Discriminator = null,
+                Properties = [],
+                Qualifier = null
+            },
+            InstanceSpecificQueueAddress = null,
+            PurgeOnStartup = false,
+            TransactionMode = "TransactionScope",
+            MaxConcurrency = 10,
+            Satellites =
+            [
+                new SatelliteDiagnostics
+                {
+                    Name = "Sat1",
+                    ReceiveAddress = new QueueAddressDiagnostics
+                    {
+                        BaseAddress = "satqueue",
+                        Discriminator = null,
+                        Properties = [],
+                        Qualifier = null
+                    },
+                    MaxConcurrency = 5
+                }
+            ],
+            MessageHandlers = new Dictionary<string, List<string>>
+            {
+                { "MsgType1", ["Handler1", "Handler2"] }
+            }
+        }, StartupDiagnosticsJsonContext.Default.ReceivingDiagnostics);
+
+        await writer.Write(diagnostics.entries);
+
+        Approver.Verify(output());
+    }
+
     static (HostStartupDiagnosticsWriter Writer, Func<string> GetOutput) CreateCaptureWriter(bool writeToLog)
     {
         var output = string.Empty;
