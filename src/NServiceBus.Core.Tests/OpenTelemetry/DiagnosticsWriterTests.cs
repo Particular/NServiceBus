@@ -280,7 +280,7 @@ public partial class DiagnosticsWriterTests
     }
 
     [Test]
-    public async Task ShouldWriteTypedSectionWithSystemType()
+    public async Task ShouldWriteTypedSectionWithProjectedTypeName()
     {
         var (writer, output) = CreateCaptureWriter(false);
         var diagnostics = new StartupDiagnosticEntries();
@@ -288,6 +288,21 @@ public partial class DiagnosticsWriterTests
         {
             Type = typeof(DiagnosticsWriterTests).FullName!
         }, StartupDiagnosticsJsonContext.Default.ContainerDiagnostics);
+
+        await writer.Write(diagnostics.entries);
+
+        Approver.Verify(output());
+    }
+
+    [Test]
+    public async Task ShouldWriteTypedSectionWithSystemType()
+    {
+        var (writer, output) = CreateCaptureWriter(false);
+        var diagnostics = new StartupDiagnosticEntries();
+        diagnostics.Add("WithType", new TestTypeDiagnosticsDto
+        {
+            TypeValue = typeof(DiagnosticsWriterTests)
+        }, TestDiagnosticsJsonContext.Default.TestTypeDiagnosticsDto);
 
         await writer.Write(diagnostics.entries);
 

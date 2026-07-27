@@ -1,1 +1,1 @@
-{"WithType":{"Type":"NServiceBus.Core.Tests.OpenTelemetry.DiagnosticsWriterTests"}}
+{"WithType":{"TypeValue":"NServiceBus.Core.Tests.OpenTelemetry.DiagnosticsWriterTests"}}
