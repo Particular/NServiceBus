@@ -6,6 +6,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -118,7 +119,7 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
         writer.WriteEndObject();
         writer.Flush();
 
-        return System.Text.Encoding.UTF8.GetString(buffer.WrittenSpan);
+        return Encoding.UTF8.GetString(buffer.WrittenSpan);
     }
 
     static IEnumerable<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
