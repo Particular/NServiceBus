@@ -134,6 +134,6 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
             }
         }
     }
-    
+
     public class FailingMessage : IMessage;
 }
