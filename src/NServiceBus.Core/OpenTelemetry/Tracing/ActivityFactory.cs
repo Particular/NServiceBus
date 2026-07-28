@@ -6,9 +6,14 @@ using System.Diagnostics;
 using Pipeline;
 using Transport;
 
-sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
+sealed class ActivityFactory : IActivityFactory
 {
-    public InstrumentationOptions Options { get; } = options;
+    public ActivityFactory(InstrumentationOptions options)
+    {
+        Options = options;
+    }
+
+    public InstrumentationOptions Options { get; }
 
     public Activity? StartIncomingPipelineActivity(MessageContext context)
     {
@@ -121,61 +126,6 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
         activity.DisplayName = messageHandler.HandlerType.Name;
         activity.AddTag(ActivityTags.HandlerType, messageHandler.HandlerType.FullName);
-        return activity;
-    }
-
-    public Activity? StartRecoverabilityActivity(IRecoverabilityContext context)
-    {
-        // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
-        // here nonetheless to avoid having to parse headers, access the extension bag, etc.
-        if (!ActivitySources.Main.HasListeners())
-        {
-            return null;
-        }
-
-        Activity? activity;
-        var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
-        var activityContextCreatedFromIncomingTraceParent = incomingTraceParentExists && ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
-
-        if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
-        {
-            var isStartNewTraceHeaderAvailable = context.Headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
-            if (isStartNewTraceHeaderAvailable && shouldStartNewTrace?.Equals(bool.TrueString) is true)
-            {
-                // create a new trace or root activity
-                ActivityLink[] links = [new(sendSpanContext)];
-                //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
-                Activity.Current = null;
-                activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
-            }
-            else
-            {
-                // no new trace was requested, so start a child trace
-                ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, remoteParentActivityContext);
-            }
-        }
-        else // otherwise start new trace
-        {
-            // This will set Activity.Current as parent if available
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
-        }
-
-        if (activity is null)
-        {
-            return activity;
-        }
-
-        ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
-
-        activity.DisplayName = $"{ActivityDisplayNames.Recoverability} {context.ReceiveAddress}";
-        activity.SetIdFormat(ActivityIdFormat.W3C);
-        activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
-
-        ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
-
-        activity.Start();
-
         return activity;
     }
 }

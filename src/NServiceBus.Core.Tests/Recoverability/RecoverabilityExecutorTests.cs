@@ -67,13 +67,10 @@ public class RecoverabilityExecutorTests
             new ServiceCollection().BuildServiceProvider(), // TODO: Does not get disposed
             new ThrowingPipelineCache(),
             new TestableMessageOperations(),
-            null,
-            (_, _) => RecoverabilityAction.Discard("test"),
+            null, (_, _) => RecoverabilityAction.Discard("test"),
             recoverabilityPipeline,
             new FaultMetadataExtractor([], _ => { }),
-            null,
-            NoOpActivityFactory.Instance
-            );
+            null);
         return executor;
     }
 

@@ -8,14 +8,11 @@ using Transport;
 
 sealed class NoOpActivityFactory : IActivityFactory
 {
-    NoOpActivityFactory() { }
-    public static readonly NoOpActivityFactory Instance = new();
-    public InstrumentationOptions Options { get; } = new();
+    public InstrumentationOptions Options { get; } = new InstrumentationOptions();
 
     public Activity? StartIncomingPipelineActivity(MessageContext context) => null;
 
     public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext) => null;
 
     public Activity? StartHandlerActivity(MessageHandler messageHandler) => null;
-    public Activity? StartRecoverabilityActivity(IRecoverabilityContext context) => null;
 }

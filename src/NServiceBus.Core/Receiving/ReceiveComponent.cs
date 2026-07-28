@@ -180,9 +180,7 @@ partial class ReceiveComponent
             builder,
             pipelineCache,
             pipelineComponent,
-            messageOperations,
-            activityFactory
-            );
+            messageOperations);
 
         await mainPump.Initialize(
             configuration.PushRuntimeSettings,
