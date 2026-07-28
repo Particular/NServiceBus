@@ -3,7 +3,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
@@ -41,15 +40,8 @@ static class ActivityExtensions
         activity.SetStatus(ActivityStatusCode.Error, ex.Message);
         activity.SetTag("otel.status_code", "ERROR");
         activity.SetTag("otel.status_description", ex.Message);
-
-
-        activity.AddEvent(new ActivityEvent("exception", DateTimeOffset.UtcNow,
-            [
-                new KeyValuePair<string, object?>("exception.escaped", true),
-                new KeyValuePair<string, object?>("exception.type", ex.GetType()),
-                new KeyValuePair<string, object?>("exception.message", ex.Message),
-                new KeyValuePair<string, object?>("exception.stacktrace", ex.ToString())
-            ]));
+        activity.SetTag(ActivityTags.ErrorType, ex.GetType().FullName);
+        activity.AddException(ex, new TagList { { "exception.escaped", true } });
 
         if (ex is TaskCanceledException)
         {
