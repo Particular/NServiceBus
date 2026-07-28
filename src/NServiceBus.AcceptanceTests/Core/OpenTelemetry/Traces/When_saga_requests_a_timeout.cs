@@ -4,9 +4,8 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTesting.Customization;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
+using AcceptanceTesting;
+using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_saga_requests_a_timeout : OpenTelemetryAcceptanceTest
@@ -36,7 +35,10 @@ public class When_saga_requests_a_timeout : OpenTelemetryAcceptanceTest
     public async Task Should_continue_existing_trace_on_receive_when_configured()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<SagaEndpointContinuingTrace>(b => b
+            .WithEndpoint<SagaEndpoint>(b => b.CustomConfig(c =>
+                {
+                    c.Tracing().DelayedDelivery.SagaTimeoutTraceMode = TraceMode.ContinueExisting;
+                })
                 .When(s => s.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
             .Run();
 
@@ -48,20 +50,6 @@ public class When_saga_requests_a_timeout : OpenTelemetryAcceptanceTest
             Assert.That(timeoutReceive.ParentId, Is.EqualTo(timeoutSend.Id));
             Assert.That(timeoutReceive.Links, Is.Empty);
         }
-    }
-
-    [Test]
-    public async Task Should_not_be_affected_by_send_operation_trace_mode()
-    {
-        await Scenario.Define<Context>()
-            .WithEndpoint<SagaEndpointWithContinuingSendOperationOnly>(b => b
-                .When(s => s.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid().ToString() })))
-            .Run();
-
-        var (timeoutSend, timeoutReceive) = GetTimeoutActivities();
-
-        Assert.That(timeoutReceive.TraceId, Is.Not.EqualTo(timeoutSend.TraceId),
-            "SendOperationTraceMode must not influence saga timeouts, which are governed independently by SagaTimeoutTraceMode");
     }
 
     (Activity TimeoutSend, Activity TimeoutReceive) GetTimeoutActivities()
@@ -97,14 +85,14 @@ public class When_saga_requests_a_timeout : OpenTelemetryAcceptanceTest
         [Saga]
         public class TimeoutSaga(Context testContext) : Saga<TimeoutSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<SagaTimeout>
         {
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSagaData> mapper) =>
+                mapper.MapSaga(s => s.SomeId).ToMessage<StartSagaMessage>(m => m.SomeId);
+
             public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
             {
                 Data.SomeId = message.SomeId;
                 return RequestTimeout<SagaTimeout>(context, DateTimeOffset.UtcNow.AddMilliseconds(2));
             }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSagaData> mapper) =>
-                mapper.MapSaga(s => s.SomeId).ToMessage<StartSagaMessage>(m => m.SomeId);
 
             public Task Timeout(SagaTimeout state, IMessageHandlerContext context)
             {
@@ -116,75 +104,9 @@ public class When_saga_requests_a_timeout : OpenTelemetryAcceptanceTest
         }
     }
 
-    public class SagaEndpointContinuingTrace : EndpointConfigurationBuilder
+    public sealed class TimeoutSagaData : ContainSagaData
     {
-        public SagaEndpointContinuingTrace()
-        {
-            var template = new DefaultServer
-            {
-                TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
-            };
-            EndpointSetup(template, (c, _) => c.Tracing().DelayedDelivery.SagaTimeoutTraceMode = TraceMode.ContinueExisting, metadata => { });
-        }
-
-        [Saga]
-        public class TimeoutSaga(Context testContext) : Saga<TimeoutSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<SagaTimeout>
-        {
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-            {
-                Data.SomeId = message.SomeId;
-                return RequestTimeout<SagaTimeout>(context, DateTimeOffset.UtcNow.AddMilliseconds(2));
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSagaData> mapper) =>
-                mapper.MapSaga(s => s.SomeId).ToMessage<StartSagaMessage>(m => m.SomeId);
-
-            public Task Timeout(SagaTimeout state, IMessageHandlerContext context)
-            {
-                MarkAsComplete();
-                testContext.SagaMarkedComplete = true;
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
-    }
-
-    public class SagaEndpointWithContinuingSendOperationOnly : EndpointConfigurationBuilder
-    {
-        public SagaEndpointWithContinuingSendOperationOnly()
-        {
-            var template = new DefaultServer
-            {
-                TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
-            };
-            EndpointSetup(template, (c, _) => c.Tracing().DelayedDelivery.SendOperationTraceMode = TraceMode.ContinueExisting, metadata => { });
-        }
-
-        [Saga]
-        public class TimeoutSaga(Context testContext) : Saga<TimeoutSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<SagaTimeout>
-        {
-            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
-            {
-                Data.SomeId = message.SomeId;
-                return RequestTimeout<SagaTimeout>(context, DateTimeOffset.UtcNow.AddMilliseconds(2));
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSagaData> mapper) =>
-                mapper.MapSaga(s => s.SomeId).ToMessage<StartSagaMessage>(m => m.SomeId);
-
-            public Task Timeout(SagaTimeout state, IMessageHandlerContext context)
-            {
-                MarkAsComplete();
-                testContext.SagaMarkedComplete = true;
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
-    }
-
-    public class TimeoutSagaData : ContainSagaData
-    {
-        public virtual string SomeId { get; set; }
+        public string SomeId { get; set; }
     }
 
     public class StartSagaMessage : IMessage

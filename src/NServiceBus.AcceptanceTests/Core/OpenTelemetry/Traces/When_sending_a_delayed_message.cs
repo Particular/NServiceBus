@@ -3,9 +3,8 @@ namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTesting.Customization;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
+using AcceptanceTesting;
+using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_sending_a_delayed_message : OpenTelemetryAcceptanceTest

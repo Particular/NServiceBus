@@ -6,8 +6,6 @@ using Pipeline;
 
 class PopulateRecoverabilityTraceMetadataBehavior(InstrumentationOptions instrumentationOptions) : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
 {
-    readonly InstrumentationOptions instrumentationOptions = instrumentationOptions;
-
     public Task Invoke(IRecoverabilityContext context, Func<IRecoverabilityContext, Task> next)
     {
         if (!context.Headers.ContainsKey(Headers.DiagnosticsTraceParent))
