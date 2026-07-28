@@ -7,6 +7,7 @@ using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Configuration.AdvancedExtensibility;
+using Particular.Obsoletes;
 using Settings;
 
 /// <summary>
@@ -17,6 +18,9 @@ public static class DiagnosticSettingsExtensions
     /// <summary>
     /// Adds a section to the startup diagnostics.
     /// </summary>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7883",
+        ReplacementTypeOrMember = "AddStartupDiagnosticsSection<T>(IReadOnlySettings, string, T, JsonTypeInfo<T>)",
+        Note = "The non-generic overload uses reflection-based serialization which is not AOT/trimming safe. Use the generic overload with a JsonTypeInfo<T> instead.")]
     public static void AddStartupDiagnosticsSection(this IReadOnlySettings settings, string sectionName, object section)
     {
         ArgumentNullException.ThrowIfNull(settings);

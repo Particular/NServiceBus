@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization.Metadata;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Holds diagnostics entries to be written at startup.
@@ -14,6 +15,9 @@ public class StartupDiagnosticEntries
     /// <summary>
     /// Adds a new section to the diagnostics.
     /// </summary>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7883",
+        ReplacementTypeOrMember = "Add<T>(string, T, JsonTypeInfo<T>)",
+        Note = "The non-generic overload uses reflection-based serialization which is not AOT/trimming safe. Use the generic overload with a JsonTypeInfo<T> instead.")]
     public void Add(string sectionName, object section) =>
         entries.Add(new StartupDiagnosticEntry
         {
