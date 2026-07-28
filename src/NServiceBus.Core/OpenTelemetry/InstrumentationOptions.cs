@@ -54,23 +54,6 @@ public class InstrumentationOptions
 }
 
 /// <summary>
-/// Controls how a recoverability action is represented as a trace, relative to the failed
-/// attempt that triggered it.
-/// </summary>
-public enum RecoverabilityTraceMode
-{
-    /// <summary>
-    /// Starts a new trace, linked back to the failed attempt's trace.
-    /// </summary>
-    StartNew,
-
-    /// <summary>
-    /// Attaches as a child span within the failed attempt's own trace.
-    /// </summary>
-    Child
-}
-
-/// <summary>
 /// Controls instrumentation of the recoverability pipeline (retries and error handling).
 /// </summary>
 public class RecoverabilityInstrumentationOptions
@@ -79,13 +62,13 @@ public class RecoverabilityInstrumentationOptions
     /// Controls how the recoverability span for a delayed retry relates to the failed
     /// attempt's trace.
     /// </summary>
-    public RecoverabilityTraceMode DelayedRetryTraceMode { get; set; } = RecoverabilityTraceMode.StartNew;
+    public TraceMode DelayedRetryTraceMode { get; set; } = TraceMode.StartNew;
 
     /// <summary>
     /// Controls how the recoverability span for a message moved to the error queue relates to
     /// the failed attempt's trace.
     /// </summary>
-    public RecoverabilityTraceMode MoveToErrorTraceMode { get; set; } = RecoverabilityTraceMode.StartNew;
+    public TraceMode MoveToErrorTraceMode { get; set; } = TraceMode.StartNew;
 }
 
 /// <summary>
@@ -98,11 +81,11 @@ public class DelayedDeliveryInstrumentationOptions
     /// by application code via <c>SendOptions.DelayDeliveryWith</c>/<c>DoNotDeliverBefore</c>.
     /// Does not apply to saga timeouts - see <see cref="SagaTimeoutTraceMode"/>.
     /// </summary>
-    public RecoverabilityTraceMode SendOperationTraceMode { get; set; } = RecoverabilityTraceMode.StartNew;
+    public TraceMode SendOperationTraceMode { get; set; } = TraceMode.StartNew;
 
     /// <summary>
     /// Controls how a saga timeout (<c>Saga.RequestTimeout</c>) relates to the trace of the
     /// message that requested it.
     /// </summary>
-    public RecoverabilityTraceMode SagaTimeoutTraceMode { get; set; } = RecoverabilityTraceMode.StartNew;
+    public TraceMode SagaTimeoutTraceMode { get; set; } = TraceMode.StartNew;
 }

@@ -12,19 +12,18 @@ class OpenTelemetrySendBehavior(InstrumentationOptions instrumentationOptions) :
     public Task Invoke(IOutgoingSendContext context, Func<IOutgoingSendContext, Task> next)
     {
         // the per-message override wins over the endpoint-level default
-        var connector = context.Extensions.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode requestedConnector)
+        var operationTraceMode = context.Extensions.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode requestedConnector)
             ? requestedConnector
             : instrumentationOptions.SendTraceMode;
 
-        context.Headers[Headers.StartNewTrace] = connector == TraceMode.StartNew ? bool.TrueString : bool.FalseString;
-        // if the user explicitly requests to start a new trace, this always wins
-        bool startNewTraceOnReceiveWasSet = context.Extensions.TryGet<bool>(StartNewTraceOnReceive, out var startNewTraceOnReceiveWasRequested);
-        if (startNewTraceOnReceiveWasSet && startNewTraceOnReceiveWasRequested)
+        if (operationTraceMode == TraceMode.StartNew)
         {
             context.Headers[Headers.StartNewTrace] = bool.TrueString;
         }
         else
         {
+            // This is needed to ensure the trace continuation behavior is backwards compatible.
+            // If the message is delayed, we always start a new trace unless different behavior is explicitly configured. 
             var isDelayed = context.Extensions.TryGet<DispatchProperties>(out var dispatchProperties) &&
                             (dispatchProperties.DelayDeliveryWith != null || dispatchProperties.DoNotDeliverBefore != null);
 
@@ -35,7 +34,7 @@ class OpenTelemetrySendBehavior(InstrumentationOptions instrumentationOptions) :
                 var mode = isSagaTimeout
                     ? instrumentationOptions.DelayedDelivery.SagaTimeoutTraceMode
                     : instrumentationOptions.DelayedDelivery.SendOperationTraceMode;
-                startNewTrace = mode == RecoverabilityTraceMode.StartNew;
+                startNewTrace = mode == TraceMode.StartNew;
             }
             else
             {

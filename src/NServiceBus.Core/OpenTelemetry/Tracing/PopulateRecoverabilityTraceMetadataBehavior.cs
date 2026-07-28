@@ -15,11 +15,14 @@ class PopulateRecoverabilityTraceMetadataBehavior(InstrumentationOptions instrum
             return next(context);
         }
 
-        // Setting it to the metadata makes sure it is propagated to the headers
-        // even in more advanced scenarios like native dead-lettering
-        context.Metadata[Headers.StartNewTrace] = instrumentationOptions.Recoverability.DelayedRetryTraceMode == RecoverabilityTraceMode.StartNew
-            ? bool.TrueString
-            : bool.FalseString;
+        if (context.RecoverabilityAction is DelayedRetry)
+        {
+            // Setting it to the metadata makes sure it is propagated to the headers
+            // even in more advanced scenarios like native dead-lettering
+            context.Metadata[Headers.StartNewTrace] = instrumentationOptions.Recoverability.DelayedRetryTraceMode == TraceMode.StartNew
+                ? bool.TrueString
+                : bool.FalseString;
+        }
 
         return next(context);
     }
