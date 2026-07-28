@@ -22,8 +22,8 @@ public class InstrumentationOptions
 
     /// <summary>
     /// Controls instrumentation of explicitly delayed messages (<c>SendOptions.DelayDeliveryWith</c>
-    /// / <c>DoNotDeliverBefore</c>, including saga timeouts, which use the same API). Unrelated to
-    /// recoverability-driven delayed retries, which are controlled separately via
+    /// / <c>DoNotDeliverBefore</c> and saga timeouts. 
+    /// Recoverability-driven delayed retries are controlled separately via
     /// <see cref="RecoverabilityInstrumentationOptions.DelayedRetryTraceMode"/>.
     /// </summary>
     public DelayedDeliveryInstrumentationOptions DelayedDelivery { get; } = new();
