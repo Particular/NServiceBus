@@ -1,12 +1,16 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Logging;
@@ -17,26 +21,13 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
     {
         const int LogSafeThreshold = 30000; // Derived from application insights limits
 
-        var deduplicatedEntries = DeduplicateEntries(entries);
-        var dictionary = deduplicatedEntries
-            .OrderBy(e => e.Name)
-            //Note: this will allow for filtering out 'slow' operations to create a cut-down diagnostics should the need arise in future
-            .Select(e => new { e.Name, Data = e.Data is Func<object> func ? func() : e.Data })
-            .ToDictionary(e => e.Name, e => e.Data, StringComparer.OrdinalIgnoreCase);
+        var resolvedEntries = ResolveEntries(entries);
 
         if (writeDiagnosticsToLog)
         {
-            var logDictionary = new Dictionary<string, object>(dictionary, StringComparer.OrdinalIgnoreCase);
-            // Always compact AssemblyScanning section when writing to log
-            if (logDictionary.TryGetValue(AssemblyScanningDiagnostics.SectionName, out var assemblyScanningSection) &&
-                assemblyScanningSection is AssemblyScanningDiagnostics assemblyScanningDiagnostics)
-            {
-                logDictionary[AssemblyScanningDiagnostics.SectionName] = assemblyScanningDiagnostics.CreateCompactedVersion();
-            }
-
             try
             {
-                var data = JsonSerializer.Serialize(logDictionary, diagnosticsOptions);
+                var data = SerializeToJson(resolvedEntries, forLog: true);
                 // Safety net: truncate if still exceeds threshold (e.g., due to other large sections)
                 if (data.Length > LogSafeThreshold)
                 {
@@ -54,7 +45,7 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
 
         try
         {
-            var data = JsonSerializer.Serialize(dictionary, diagnosticsOptions);
+            var data = SerializeToJson(resolvedEntries, forLog: false);
             await diagnosticsWriter(data, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
@@ -66,6 +57,80 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
             }
             Logger.Error("Failed to write startup diagnostics", ex);
         }
+    }
+
+    static List<ResolvedEntry> ResolveEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
+    {
+        var deduplicated = DeduplicateEntries(entries);
+        return
+        [
+            .. deduplicated
+                .OrderBy(e => e.Name)
+                .Select(e =>
+                {
+                    object value;
+                    if (e.Factory is not null)
+                    {
+                        value = e.Factory();
+                    }
+                    else if (e.Data is Func<object> func)
+                    {
+                        value = func();
+                    }
+                    else
+                    {
+                        value = e.Data;
+                    }
+
+                    return new ResolvedEntry(e.Name, value, e.JsonTypeInfo);
+                })
+        ];
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The legacy reflection-based path is guarded by JsonSerializer.IsReflectionEnabledByDefault check; throws before reaching this call when reflection is disabled.")]
+    static string SerializeToJson(List<ResolvedEntry> resolvedEntries, bool forLog)
+    {
+        var buffer = new ArrayBufferWriter<byte>();
+        using var writer = new Utf8JsonWriter(buffer);
+
+        writer.WriteStartObject();
+
+        foreach (var entry in resolvedEntries)
+        {
+            var value = entry.Value;
+            var jsonTypeInfo = entry.JsonTypeInfo;
+
+            // Compact AssemblyScanning section only for log output
+            if (forLog && value is AssemblyScanningDiagnostics assemblyScanning)
+            {
+                value = assemblyScanning.CreateCompactedVersion();
+            }
+
+            writer.WritePropertyName(entry.Name);
+
+            if (jsonTypeInfo != null)
+            {
+                // AOT-safe path: use the provided JsonTypeInfo
+                JsonSerializer.Serialize(writer, value, jsonTypeInfo);
+            }
+            else
+            {
+                // Legacy path: use reflection-based serialization with the custom options
+                if (!JsonSerializer.IsReflectionEnabledByDefault)
+                {
+                    throw new InvalidOperationException(
+                        $"Startup diagnostics section '{entry.Name}' was registered without JSON type metadata. " +
+                        "Use the overload accepting JsonTypeInfo<T> when reflection serialization is disabled.");
+                }
+
+                JsonSerializer.Serialize(writer, value, diagnosticsOptions);
+            }
+        }
+
+        writer.WriteEndObject();
+        writer.Flush();
+
+        return Encoding.UTF8.GetString(buffer.WrittenSpan);
     }
 
     static IEnumerable<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
@@ -83,15 +148,31 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
                 countMap[entry.Name] += 1;
                 var entryNewName = $"{entry.Name}-{countMap[entry.Name]}";
 
+                // Ensure the synthesized name does not collide with an existing entry
+                while (!countMap.TryAdd(entryNewName, 1))
+                {
+                    countMap[entry.Name] += 1;
+                    entryNewName = $"{entry.Name}-{countMap[entry.Name]}";
+                }
+
                 Logger.Warn($"A duplicate diagnostic entry was renamed from {entry.Name} to {entryNewName}.");
 
                 yield return new StartupDiagnosticEntries.StartupDiagnosticEntry
                 {
                     Name = entryNewName,
-                    Data = entry.Data
+                    Data = entry.Data,
+                    JsonTypeInfo = entry.JsonTypeInfo,
+                    Factory = entry.Factory
                 };
             }
         }
+    }
+
+    readonly struct ResolvedEntry(string name, object value, JsonTypeInfo? jsonTypeInfo)
+    {
+        public string Name { get; } = name;
+        public object Value { get; } = value;
+        public JsonTypeInfo? JsonTypeInfo { get; } = jsonTypeInfo;
     }
 
     static readonly JsonSerializerOptions diagnosticsOptions = new()
@@ -100,9 +181,9 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
     };
 
     /// <summary>
-    /// By default System.Text.Json would throw with "Serialization and deserialization of 'System.Type' instances are not supported" which normally
+    /// By default, System.Text.Json would throw with "Serialization and deserialization of 'System.Type' instances are not supported" which normally
     /// would make sense because it can be considered unsafe to serialize and deserialize types. We add a custom converter here to make
-    /// sure when diagnostics entries accidentally use types it will just print the full name as a string. We never intent to read these things
+    /// sure when diagnostics entries accidentally use types it will just print the full name as a string. We never intend to read these things
     /// back so this is a safe approach.
     /// </summary>
     sealed class TypeConverter : JsonConverter<Type>

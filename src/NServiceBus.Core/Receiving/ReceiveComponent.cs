@@ -113,24 +113,35 @@ partial class ReceiveComponent
 
         configuration.TransportSeam.Configure([.. receiveSettings]);
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
+        hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new ReceivingDiagnostics
         {
-            configuration.LocalQueueAddress,
-            configuration.InstanceSpecificQueueAddress,
-            configuration.PurgeOnStartup,
+            LocalQueueAddress = ToQueueAddressDiagnostics(configuration.LocalQueueAddress),
+            InstanceSpecificQueueAddress = configuration.InstanceSpecificQueueAddress != null
+                ? ToQueueAddressDiagnostics(configuration.InstanceSpecificQueueAddress)
+                : null,
+            PurgeOnStartup = configuration.PurgeOnStartup,
             TransactionMode = configuration.TransportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
-            configuration.PushRuntimeSettings.MaxConcurrency,
-            Satellites = configuration.SatelliteDefinitions.Select(s => new
+            MaxConcurrency = configuration.PushRuntimeSettings.MaxConcurrency,
+            Satellites = configuration.SatelliteDefinitions.Select(s => new SatelliteDiagnostics
             {
-                s.Name,
-                s.ReceiveAddress,
-                s.RuntimeSettings.MaxConcurrency
+                Name = s.Name,
+                ReceiveAddress = ToQueueAddressDiagnostics(s.ReceiveAddress),
+                MaxConcurrency = s.RuntimeSettings.MaxConcurrency
             }).ToArray(),
             MessageHandlers = handlerDiagnostics
-        });
+        }, StartupDiagnosticsJsonContext.Default.ReceivingDiagnostics);
 
         return receiveComponent;
     }
+
+    static QueueAddressDiagnostics ToQueueAddressDiagnostics(QueueAddress address) =>
+        new QueueAddressDiagnostics
+        {
+            BaseAddress = address.BaseAddress,
+            Discriminator = address.Discriminator,
+            Properties = new Dictionary<string, string>(address.Properties),
+            Qualifier = address.Qualifier
+        };
 
     public async Task Initialize(
         IServiceProvider builder,

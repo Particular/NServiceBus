@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Threading;
@@ -51,8 +52,8 @@ class StartableEndpoint(
 
     void AddSendingQueueManifest()
     {
-        hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-SendingQueues", transportSeam.QueueBindings.SendingAddresses);
-        hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-ErrorQueue", settings.ErrorQueueAddress());
+        hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-SendingQueues", transportSeam.QueueBindings.SendingAddresses.ToList(), StartupDiagnosticsJsonContext.Default.ListString);
+        hostingComponent.Config.AddStartupDiagnosticsSection("Manifest-ErrorQueue", settings.ErrorQueueAddress(), StartupDiagnosticsJsonContext.Default.String);
     }
 
     public async Task<RunningEndpointInstance> Start(CancellationToken cancellationToken = default)

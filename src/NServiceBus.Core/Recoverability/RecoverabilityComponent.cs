@@ -60,14 +60,14 @@ class RecoverabilityComponent
 
         pipelineSettings.Register(sp => new RecoverabilityRoutingConnector(sp.GetRequiredService<IncomingPipelineMetrics>(), messageRetryNotification, messageFaultedNotification), "Executes the configured retry policy");
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
+        hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new RecoverabilityDiagnostics
         {
             ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
             DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,
             DelayedRetriesTimeIncrease = recoverabilityConfig.Delayed.TimeIncrease.ToString("g"),
-            recoverabilityConfig.Failed.ErrorQueue,
-            UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
-        });
+            ErrorQueue = recoverabilityConfig.Failed.ErrorQueue,
+            UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName!).ToArray()
+        }, StartupDiagnosticsJsonContext.Default.RecoverabilityDiagnostics);
     }
 
     public IRecoverabilityPipelineExecutor CreateRecoverabilityPipelineExecutor(

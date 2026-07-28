@@ -163,12 +163,13 @@ class EndpointCreator
         pipelineSettings.PreventChanges();
 
         settings.AddStartupDiagnosticsSection("Endpoint",
-            new
+            new EndpointDiagnostics
             {
                 Name = settings.EndpointName(),
                 SendOnly = settings.Get<bool>("Endpoint.SendOnly"),
                 NServiceBusVersion = VersionInformation.MajorMinorPatch
-            }
+            },
+            StartupDiagnosticsJsonContext.Default.EndpointDiagnostics
         );
 
         // Make Metrics a first class citizen in Core by enabling once and for all them when creating the endpoint
@@ -198,14 +199,14 @@ class EndpointCreator
 
         var foundMessages = messageMetadataRegistry.GetAllMessages();
 
-        settings.AddStartupDiagnosticsSection("Messages", new
+        settings.AddStartupDiagnosticsSection("Messages", new MessagesDiagnostics
         {
             CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
             MessageConventions = conventions.RegisteredConventions,
             NumberOfMessagesFoundAtStartup = foundMessages.Length,
-            Messages = foundMessages.Select(m => m.MessageType.FullName),
+            Messages = foundMessages.Select(m => m.MessageType.FullName).ToArray(),
             AllowDynamicTypeLoading = allowDynamicTypeLoading
-        });
+        }, StartupDiagnosticsJsonContext.Default.MessagesDiagnostics);
     }
 
     internal StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, string containerType, IAsyncDisposable serviceProviderLease)
@@ -214,7 +215,7 @@ class EndpointCreator
         ArgumentNullException.ThrowIfNull(containerType);
         ArgumentNullException.ThrowIfNull(serviceProviderLease);
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = containerType });
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new ContainerDiagnostics { Type = containerType }, StartupDiagnosticsJsonContext.Default.ContainerDiagnostics);
 
         return new StartableEndpoint(settings,
             featureComponent,

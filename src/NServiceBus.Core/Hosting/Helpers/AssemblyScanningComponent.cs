@@ -46,7 +46,7 @@ class AssemblyScanningComponent
             assemblyScannerSettings
         );
 
-        settings.AddStartupDiagnosticsSection(AssemblyScanningDiagnostics.SectionName, assemblyScanningDiagnostics);
+        settings.AddStartupDiagnosticsSection(AssemblyScanningDiagnostics.SectionName, assemblyScanningDiagnostics, StartupDiagnosticsJsonContext.Default.AssemblyScanningDiagnostics);
 
         return new AssemblyScanningComponent(availableTypes);
     }

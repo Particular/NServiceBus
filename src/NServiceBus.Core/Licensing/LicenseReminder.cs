@@ -21,7 +21,7 @@ sealed class LicenseReminder : Feature
         {
             var result = LicenseManager.InitializeLicense(context.Settings.Get<string?>(LicenseTextSettingsKey), context.Settings.Get<string?>(LicenseFilePathSettingsKey));
 
-            context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(result));
+            context.Settings.AddStartupDiagnosticsSection("Licensing", GenerateLicenseDiagnostics(result), StartupDiagnosticsJsonContext.Default.LicensingDiagnostics);
 
             if (!result.HasLicenseExpired())
             {
@@ -42,19 +42,19 @@ sealed class LicenseReminder : Feature
         }
     }
 
-    static object GenerateLicenseDiagnostics(ActiveLicenseFindResult result) =>
-        new
+    static LicensingDiagnostics GenerateLicenseDiagnostics(ActiveLicenseFindResult result) =>
+        new LicensingDiagnostics
         {
-            result.License?.RegisteredTo,
-            result.License?.LicenseType,
-            result.License?.Edition,
+            RegisteredTo = result.License?.RegisteredTo,
+            LicenseType = result.License?.LicenseType,
+            Edition = result.License?.Edition,
             Tier = result.License?.Edition,
-            LicenseStatus = result.License?.GetLicenseStatus(),
+            LicenseStatus = (int?)result.License?.GetLicenseStatus(),
             LicenseLocation = result.Location,
             ValidApplications = string.Join(",", result.License?.ValidApplications ?? []),
             CommercialLicense = result.License?.IsCommercialLicense,
             IsExpired = result.HasLicenseExpired(),
-            result.License?.ExpirationDate,
+            ExpirationDate = result.License?.ExpirationDate,
         };
 
     public const string LicenseTextSettingsKey = "LicenseText";
