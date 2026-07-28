@@ -183,7 +183,7 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
     /// <summary>
     /// By default, System.Text.Json would throw with "Serialization and deserialization of 'System.Type' instances are not supported" which normally
     /// would make sense because it can be considered unsafe to serialize and deserialize types. We add a custom converter here to make
-    /// sure when diagnostics entries accidentally use types it will just print the full name as a string. We never intent to read these things
+    /// sure when diagnostics entries accidentally use types it will just print the full name as a string. We never intend to read these things
     /// back so this is a safe approach.
     /// </summary>
     sealed class TypeConverter : JsonConverter<Type>
