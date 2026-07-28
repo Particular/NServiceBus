@@ -91,8 +91,6 @@ partial class HostingComponent
 
         public string? DiagnosticsPath { get; }
 
-        public void AddStartupDiagnosticsSection(string sectionName, object section) => StartupDiagnostics.Add(sectionName, section);
-
         public void AddStartupDiagnosticsSection<T>(string sectionName, T section, JsonTypeInfo<T> typeInfo) => StartupDiagnostics.Add(sectionName, section, typeInfo);
 
         public void AddStartupDiagnosticsSectionFactory<T>(string sectionName, Func<T> sectionFactory, JsonTypeInfo<T> typeInfo) => StartupDiagnostics.AddFactory(sectionName, sectionFactory, typeInfo);
