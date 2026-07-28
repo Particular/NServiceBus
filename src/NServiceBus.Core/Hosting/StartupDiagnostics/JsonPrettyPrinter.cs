@@ -2,6 +2,8 @@
 
 namespace NServiceBus;
 
+using System.Buffers;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -10,14 +12,18 @@ static class JsonPrettyPrinter
     internal static string Print(string input)
     {
         using var doc = JsonDocument.Parse(input);
-        var root = doc.RootElement;
+        var buffer = new ArrayBufferWriter<byte>();
+        using var writer = new Utf8JsonWriter(buffer, jsonWriterOptions);
 
-        return JsonSerializer.Serialize(root, jsonSerializerOptions);
+        doc.RootElement.WriteTo(writer);
+
+        writer.Flush();
+        return Encoding.UTF8.GetString(buffer.WrittenSpan);
     }
 
-    static readonly JsonSerializerOptions jsonSerializerOptions = new()
+    static readonly JsonWriterOptions jsonWriterOptions = new()
     {
-        WriteIndented = true,
+        Indented = true,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
 }
