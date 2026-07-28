@@ -912,7 +912,6 @@ namespace NServiceBus
     {
         public RecoverabilityInstrumentationOptions() { }
         public NServiceBus.TraceMode DelayedRetryTraceMode { get; set; }
-        public NServiceBus.TraceMode MoveToErrorTraceMode { get; set; }
     }
     public class RecoverabilitySettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {

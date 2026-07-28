@@ -63,12 +63,6 @@ public class RecoverabilityInstrumentationOptions
     /// attempt's trace.
     /// </summary>
     public TraceMode DelayedRetryTraceMode { get; set; } = TraceMode.StartNew;
-
-    /// <summary>
-    /// Controls how the recoverability span for a message moved to the error queue relates to
-    /// the failed attempt's trace.
-    /// </summary>
-    public TraceMode MoveToErrorTraceMode { get; set; } = TraceMode.StartNew;
 }
 
 /// <summary>
