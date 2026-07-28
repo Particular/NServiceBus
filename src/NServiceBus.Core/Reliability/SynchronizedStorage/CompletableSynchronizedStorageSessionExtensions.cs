@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Persistence;
 
 using System.Threading;
