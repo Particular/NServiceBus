@@ -59,21 +59,20 @@ public class InstrumentationOptions
 public class RecoverabilityInstrumentationOptions
 {
     /// <summary>
-    /// Controls how the recoverability span for a delayed retry relates to the failed
+    /// Controls how the span for a delayed retry relates to the failed
     /// attempt's trace.
     /// </summary>
     public TraceMode DelayedRetryTraceMode { get; set; } = TraceMode.StartNew;
 }
 
 /// <summary>
-/// Controls instrumentation of explicitly delayed messages.
+/// Controls instrumentation of delayed messages.
 /// </summary>
 public class DelayedDeliveryInstrumentationOptions
 {
     /// <summary>
     /// Controls how a delayed <c>Send</c> relates to the sender's trace, when requested directly
     /// by application code via <c>SendOptions.DelayDeliveryWith</c>/<c>DoNotDeliverBefore</c>.
-    /// Does not apply to saga timeouts - see <see cref="SagaTimeoutTraceMode"/>.
     /// </summary>
     public TraceMode SendOperationTraceMode { get; set; } = TraceMode.StartNew;
 
