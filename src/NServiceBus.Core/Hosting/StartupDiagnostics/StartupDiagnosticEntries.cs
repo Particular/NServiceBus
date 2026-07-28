@@ -24,6 +24,10 @@ public class StartupDiagnosticEntries
     /// <summary>
     /// Adds a new section to the diagnostics with a strongly-typed value and its JSON type info for AOT-safe serialization.
     /// </summary>
+    /// <remarks>
+    /// Use this overload when the diagnostics value is cheap to compute.
+    /// For expensive operations that should only run when diagnostics are actually written, use <see cref="AddFactory{T}"/> instead.
+    /// </remarks>
     public void Add<T>(string sectionName, T section, JsonTypeInfo<T> typeInfo)
     {
         ArgumentNullException.ThrowIfNull(typeInfo);
@@ -39,6 +43,10 @@ public class StartupDiagnosticEntries
     /// <summary>
     /// Adds a new section to the diagnostics with a factory that is evaluated lazily and its JSON type info for AOT-safe serialization.
     /// </summary>
+    /// <remarks>
+    /// Use this overload when the diagnostics value is expensive to compute and should only be evaluated
+    /// when diagnostics are actually written. For cheap values, prefer <see cref="Add{T}"/> instead.
+    /// </remarks>
     public void AddFactory<T>(string sectionName, Func<T> sectionFactory, JsonTypeInfo<T> typeInfo)
     {
         ArgumentNullException.ThrowIfNull(sectionFactory);

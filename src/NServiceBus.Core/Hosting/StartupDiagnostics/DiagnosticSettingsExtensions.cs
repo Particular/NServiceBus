@@ -29,6 +29,11 @@ public static class DiagnosticSettingsExtensions
     /// <summary>
     /// Adds a section to the startup diagnostics with a strongly-typed value and its JSON type info for AOT-safe serialization.
     /// </summary>
+    /// <remarks>
+    /// Use this overload when the diagnostics value is cheap to compute.
+    /// For expensive operations that should only run when diagnostics are actually written, use
+    /// <see cref="AddStartupDiagnosticsSectionFactory{T}(IReadOnlySettings, string, Func{T}, JsonTypeInfo{T})"/> instead.
+    /// </remarks>
     public static void AddStartupDiagnosticsSection<T>(this IReadOnlySettings settings, string sectionName, T section, JsonTypeInfo<T> typeInfo)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -42,6 +47,11 @@ public static class DiagnosticSettingsExtensions
     /// <summary>
     /// Adds a section to the startup diagnostics with a factory that is evaluated lazily and its JSON type info for AOT-safe serialization.
     /// </summary>
+    /// <remarks>
+    /// Use this overload when the diagnostics value is expensive to compute and should only be evaluated
+    /// when diagnostics are actually written. For cheap values, prefer
+    /// <see cref="AddStartupDiagnosticsSection{T}(IReadOnlySettings, string, T, JsonTypeInfo{T})"/> instead.
+    /// </remarks>
     public static void AddStartupDiagnosticsSectionFactory<T>(this IReadOnlySettings settings, string sectionName, Func<T> sectionFactory, JsonTypeInfo<T> typeInfo)
     {
         ArgumentNullException.ThrowIfNull(settings);
