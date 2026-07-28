@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -86,6 +87,7 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
         ];
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The legacy reflection-based path is guarded by JsonSerializer.IsReflectionEnabledByDefault check; throws before reaching this call when reflection is disabled.")]
     static string SerializeToJson(List<ResolvedEntry> resolvedEntries, bool forLog)
     {
         var buffer = new ArrayBufferWriter<byte>();
