@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using EndpointTemplates;
-using NServiceBus.AcceptanceTesting;
+using AcceptanceTesting;
 using NUnit.Framework;
 
 public class When_retrying_messages : OpenTelemetryAcceptanceTest
@@ -38,7 +38,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_start_new_trace_on_receive_for_delayed_retry_by_default()
+    public async Task Should_start_new_trace_on_receive_by_default()
     {
         await Scenario.Define<Context>()
             .WithEndpoint<RetryingEndpoint>(e => e
@@ -64,7 +64,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_continue_existing_trace_on_receive_for_delayed_retry_when_configured()
+    public async Task Should_continue_existing_trace_on_receive_when_configured()
     {
         await Scenario.Define<Context>()
             .WithEndpoint<RetryingEndpoint>(e => e
