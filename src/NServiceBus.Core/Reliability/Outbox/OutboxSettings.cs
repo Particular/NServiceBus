@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Outbox;
+﻿#nullable enable
+
+namespace NServiceBus.Outbox;
 
 using Configuration.AdvancedExtensibility;
 using Settings;

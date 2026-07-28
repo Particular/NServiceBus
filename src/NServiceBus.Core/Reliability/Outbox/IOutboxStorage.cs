@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Outbox;
+﻿#nullable enable
+
+namespace NServiceBus.Outbox;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +18,7 @@ public interface IOutboxStorage
     /// If there is no <see cref="OutboxMessage" /> present for the given <paramref name="messageId" /> then null is
     /// returned.
     /// </returns>
-    Task<OutboxMessage> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default);
+    Task<OutboxMessage?> Get(string messageId, ContextBag context, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Stores the outbox message to enable deduplication an re-dispatching of related transport operations.

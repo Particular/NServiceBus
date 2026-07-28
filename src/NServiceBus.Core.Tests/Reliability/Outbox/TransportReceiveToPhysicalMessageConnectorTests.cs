@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Reliability.Outbox;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests.Reliability.Outbox;
 
 using System;
 using System.Collections.Generic;
@@ -41,7 +43,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        var operationProperties = new DispatchProperties(fakeBatchPipeline.TransportOperations.First().Properties);
+        var operationProperties = new DispatchProperties(fakeBatchPipeline.TransportOperations?.First().Properties);
         var delayDeliveryWith = operationProperties.DelayDeliveryWith;
         Assert.That(delayDeliveryWith, Is.Not.Null);
         Assert.That(delayDeliveryWith.Delay, Is.EqualTo(TimeSpan.FromSeconds(10)));
@@ -76,7 +78,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as UnicastAddressTag;
+        var routing = fakeBatchPipeline.TransportOperations?.First().AddressTag as UnicastAddressTag;
         Assert.That(routing, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -105,7 +107,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        var routing = fakeBatchPipeline.TransportOperations.First().AddressTag as MulticastAddressTag;
+        var routing = fakeBatchPipeline.TransportOperations?.First().AddressTag as MulticastAddressTag;
         Assert.That(routing, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -195,7 +197,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
     }
 
-    Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));
+    Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task>? next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));
 
     TransportReceiveToPhysicalMessageConnector behavior;
 
@@ -213,7 +215,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
     class FakeBatchPipeline : IPipeline<IBatchDispatchContext>
     {
-        public IEnumerable<TransportOperation> TransportOperations { get; set; }
+        public IEnumerable<TransportOperation>? TransportOperations { get; set; }
 
         public Task Invoke(IBatchDispatchContext context)
         {
