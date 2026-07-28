@@ -34,7 +34,10 @@ public class When_sending_a_delayed_message : OpenTelemetryAcceptanceTest
     public async Task Should_continue_existing_trace_on_receive_when_configured()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<TestEndpointContinuingTrace>(b => b
+            .WithEndpoint<TestEndpoint>(b => b.CustomConfig(c =>
+                {
+                    c.Tracing().DelayedDelivery.SendOperationTraceMode = TraceMode.ContinueExisting;
+                })
                 .When(s => s.Send(new DelayedMessage(), DelayedSend())))
             .Run();
 
@@ -52,7 +55,10 @@ public class When_sending_a_delayed_message : OpenTelemetryAcceptanceTest
     public async Task Should_start_new_trace_when_message_override_requests_it_even_when_endpoint_configured_to_continue()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<TestEndpointContinuingTrace>(b => b
+            .WithEndpoint<TestEndpoint>(b => b.CustomConfig(c =>
+                {
+                    c.Tracing().DelayedDelivery.SagaTimeoutTraceMode = TraceMode.ContinueExisting;
+                })
                 .When(s =>
                 {
                     var sendOptions = DelayedSend();
@@ -122,29 +128,6 @@ public class When_sending_a_delayed_message : OpenTelemetryAcceptanceTest
                 TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
             };
             EndpointSetup(template, (c, _) => { }, metadata => { });
-        }
-
-        [Handler]
-        public class DelayedMessageHandler(Context testContext) : IHandleMessages<DelayedMessage>
-        {
-            public Task Handle(DelayedMessage message, IMessageHandlerContext context)
-            {
-                testContext.DelayedMessageReceived = true;
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
-    }
-
-    public class TestEndpointContinuingTrace : EndpointConfigurationBuilder
-    {
-        public TestEndpointContinuingTrace()
-        {
-            var template = new DefaultServer
-            {
-                TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
-            };
-            EndpointSetup(template, (c, _) => c.Tracing().DelayedDelivery.SendOperationTraceMode = TraceMode.ContinueExisting, metadata => { });
         }
 
         [Handler]

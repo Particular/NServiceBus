@@ -108,14 +108,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
 
     public class RetryingEndpoint : EndpointConfigurationBuilder
     {
-        public RetryingEndpoint()
-        {
-            var template = new DefaultServer
-            {
-                TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
-            };
-            EndpointSetup(template, (c, _) => { }, metadata => { });
-        }
+        public RetryingEndpoint() => EndpointSetup<DefaultServer>();
 
         [Handler]
         public class Handler(Context testContext) : IHandleMessages<FailingMessage>
