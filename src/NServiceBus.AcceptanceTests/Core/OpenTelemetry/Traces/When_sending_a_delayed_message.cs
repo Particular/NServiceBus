@@ -52,29 +52,7 @@ public class When_sending_a_delayed_message : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_start_new_trace_when_message_override_requests_it_even_when_endpoint_configured_to_continue()
-    {
-        await Scenario.Define<Context>()
-            .WithEndpoint<TestEndpoint>(b => b.CustomConfig(c =>
-                {
-                    c.Tracing().DelayedDelivery.SagaTimeoutTraceMode = TraceMode.ContinueExisting;
-                })
-                .When(s =>
-                {
-                    var sendOptions = DelayedSend();
-                    sendOptions.StartNewTraceOnReceive();
-                    return s.Send(new DelayedMessage(), sendOptions);
-                }))
-            .Run();
-
-        var (send, receive) = GetActivities();
-
-        Assert.That(receive.TraceId, Is.Not.EqualTo(send.TraceId),
-            "a per-message request to start a new trace must win over the endpoint's ContinueExisting default");
-    }
-
-    [Test]
-    public async Task Should_still_start_new_trace_when_message_override_requests_continue_but_endpoint_default_is_start_new()
+    public async Task Should_start_new_trace_by_default_no_matter_per_message_option()
     {
         await Scenario.Define<Context>()
             .WithEndpoint<TestEndpoint>(b => b
