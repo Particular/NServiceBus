@@ -73,14 +73,11 @@ public class When_saga_requests_a_timeout : OpenTelemetryAcceptanceTest
 
     public class SagaEndpoint : EndpointConfigurationBuilder
     {
-        public SagaEndpoint()
-        {
-            var template = new DefaultServer
+        public SagaEndpoint() =>
+            EndpointSetup(new DefaultServer
             {
                 TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
-            };
-            EndpointSetup(template, (c, _) => { }, metadata => { });
-        }
+            }, (c, _) => { }, _ => { });
 
         [Saga]
         public class TimeoutSaga(Context testContext) : Saga<TimeoutSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<SagaTimeout>
@@ -104,9 +101,9 @@ public class When_saga_requests_a_timeout : OpenTelemetryAcceptanceTest
         }
     }
 
-    public sealed class TimeoutSagaData : ContainSagaData
+    public class TimeoutSagaData : ContainSagaData
     {
-        public string SomeId { get; set; }
+        public virtual string SomeId { get; set; }
     }
 
     public class StartSagaMessage : IMessage
