@@ -23,6 +23,11 @@ class PopulateRecoverabilityTraceMetadataBehavior(InstrumentationOptions instrum
                 ? bool.TrueString
                 : bool.FalseString;
         }
+        else if (context.RecoverabilityAction is MoveToError)
+        {
+            // Not currently configurable; preserves the pre-existing behavior of always starting a new trace.
+            context.Metadata[Headers.StartNewTrace] = bool.TrueString;
+        }
 
         return next(context);
     }
