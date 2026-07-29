@@ -38,6 +38,7 @@
     "HandlerType => nservicebus.handler.handler_type",
     "HandlerSagaId => nservicebus.handler.saga_id",
     "EventTypes => nservicebus.event_types",
-    "CancelledTask => nservicebus.cancelled"
+    "CancelledTask => nservicebus.cancelled",
+    "ErrorType => error.type"
   ]
 }
