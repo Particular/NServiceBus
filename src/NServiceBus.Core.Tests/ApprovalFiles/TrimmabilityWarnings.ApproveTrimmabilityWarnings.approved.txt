@@ -12,11 +12,6 @@ src/NServiceBus.Core/Pipeline/RegisterStepExtensions.cs
 src/NServiceBus.Core/Transports/Learning/LearningTransportDispatcher.cs
   IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'messageType' of method 'NServiceBus.LearningTransportDispatcher.GetPotentialEventTypes(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
 
-src/NServiceBus.Core/Unicast/MessageHandlerRegistry.cs
-  IL2026: Using member 'NServiceBus.Unicast.MessageHandlerRegistry.AddHandler<THandler>()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Registering handlers using assembly scanning is not supported in trimming scenarios.
-  IL2026: Using member 'NServiceBus.Unicast.MessageHandlerRegistry.AddScannedHandlers(IEnumerable<Type>)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Registering handlers using assembly scanning is not supported in trimming scenarios.
-  IL2026: Using member 'NServiceBus.Unicast.MessageHandlerRegistry.RegisterHandler(Type)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Registering handlers using assembly scanning is not supported in trimming scenarios.
-
 src/NServiceBus.Core/Unicast/Messages/MessageMetadataRegistry.cs
   IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'type' of method 'NServiceBus.Unicast.Messages.MessageMetadataRegistry.GetParentTypes(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
   IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'type' of method 'NServiceBus.Unicast.Messages.MessageMetadataRegistry.PlaceInMessageHierarchy(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
