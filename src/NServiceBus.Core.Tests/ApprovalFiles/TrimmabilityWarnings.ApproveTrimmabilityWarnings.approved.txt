@@ -2,9 +2,6 @@ The following trimming warnings are present in NServiceBus.Core.
 Changes that make this list longer should not be approved.
 -----
 
-src/NServiceBus.Core/Hosting/KeyedServices/KeyedServiceCollectionAdapter.cs
-  IL2067: 'instanceType' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicConstructors' in call to 'Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateFactory(Type, Type[])'. The parameter 'type' of method 'lambda expression' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
-
 src/NServiceBus.Core/Hosting/StartupDiagnostics/Host.cs
   IL2026: Using member 'System.Reflection.Assembly.GetType(String)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Types might be removed by trimming. If the type name is a string literal, consider using Type.GetType instead.
   IL2075: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicMethods' in call to 'System.Type.GetMethod(String, BindingFlags)'. The return value of method 'System.Reflection.Assembly.GetType(String)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.

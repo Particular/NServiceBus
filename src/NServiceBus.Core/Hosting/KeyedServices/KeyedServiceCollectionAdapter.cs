@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -157,7 +158,7 @@ class KeyedServiceCollectionAdapter : IServiceCollection
                         var resultingKey = key is null ? ServiceKey : key as KeyedServiceKey ?? new KeyedServiceKey(key);
                         var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKey, this);
                         return descriptor.Lifetime == ServiceLifetime.Singleton ? ActivatorUtilities.CreateInstance(keyedProvider, descriptor.KeyedImplementationType) :
-                            factories.GetOrAdd(descriptor.KeyedImplementationType, type => ActivatorUtilities.CreateFactory(type, Type.EmptyTypes))(keyedProvider, []);
+                            factories.GetOrAdd(new TypeKey { Type = descriptor.KeyedImplementationType }, static typeKey => ActivatorUtilities.CreateFactory(typeKey.Type, Type.EmptyTypes))(keyedProvider, []);
                     }, descriptor.Lifetime);
                 UnsafeAccessor.GetImplementationType(keyedDescriptor) = descriptor.KeyedImplementationType;
             }
@@ -189,7 +190,7 @@ class KeyedServiceCollectionAdapter : IServiceCollection
                         var resultingKey = key is null ? ServiceKey : key as KeyedServiceKey ?? new KeyedServiceKey(key);
                         var keyedProvider = new KeyedServiceProviderAdapter(serviceProvider, resultingKey, this);
                         return descriptor.Lifetime == ServiceLifetime.Singleton ? ActivatorUtilities.CreateInstance(keyedProvider, descriptor.ImplementationType) :
-                            factories.GetOrAdd(descriptor.ImplementationType, type => ActivatorUtilities.CreateFactory(type, Type.EmptyTypes))(keyedProvider, []);
+                            factories.GetOrAdd(new TypeKey { Type = descriptor.ImplementationType }, static typeKey => ActivatorUtilities.CreateFactory(typeKey.Type, Type.EmptyTypes))(keyedProvider, []);
                     }, descriptor.Lifetime);
                 UnsafeAccessor.GetImplementationType(keyedDescriptor) = descriptor.ImplementationType;
             }
@@ -208,7 +209,13 @@ class KeyedServiceCollectionAdapter : IServiceCollection
         public static extern ref Type GetImplementationType(ServiceDescriptor descriptor);
     }
 
+    readonly record struct TypeKey
+    {
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+        public Type Type { get; init; }
+    }
+
     readonly List<ServiceDescriptor> originalDescriptors = [];
     readonly List<ServiceDescriptor> keyedDescriptors = [];
-    readonly ConcurrentDictionary<Type, ObjectFactory> factories = new();
+    readonly ConcurrentDictionary<TypeKey, ObjectFactory> factories = new();
 }
