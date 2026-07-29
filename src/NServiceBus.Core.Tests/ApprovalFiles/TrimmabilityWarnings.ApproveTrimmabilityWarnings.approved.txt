@@ -17,18 +17,6 @@ src/NServiceBus.Core/Pipeline/RegisterStepExtensions.cs
 src/NServiceBus.Core/Receiving/ReceiveComponent.Configuration.cs
   IL2075: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicProperties' in call to 'System.Type.GetProperties()'. The return value of method '<anonymous type: System.Type MessageType, System.Boolean IsMessage, System.Boolean IsCommand, System.Boolean IsEvent>.MessageType.get' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
 
-src/NServiceBus.Core/Routing/AssemblyRouteSource.cs
-  IL2026: Using member 'System.Reflection.Assembly.GetTypes()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Types might be removed.
-
-src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/AssemblyPublisherSource.cs
-  IL2026: Using member 'System.Reflection.Assembly.GetTypes()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Types might be removed.
-
-src/NServiceBus.Core/Routing/MessageDrivenSubscriptions/NamespacePublisherSource.cs
-  IL2026: Using member 'System.Reflection.Assembly.GetTypes()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Types might be removed.
-
-src/NServiceBus.Core/Routing/NamespaceRouteSource.cs
-  IL2026: Using member 'System.Reflection.Assembly.GetTypes()' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Types might be removed.
-
 src/NServiceBus.Core/Transports/Learning/LearningTransportDispatcher.cs
   IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'messageType' of method 'NServiceBus.LearningTransportDispatcher.GetPotentialEventTypes(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
 

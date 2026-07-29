@@ -689,10 +689,16 @@ namespace NServiceBus
     {
         public static void DisablePublishing<T>(this NServiceBus.RoutingSettings<T> routingSettings)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering publishers by assembly or namespace requires assembly scanning and is" +
+            " not supported in trimming scenarios. Register publishers by message type instea" +
+            "d.")]
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Type eventType, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering publishers by assembly or namespace requires assembly scanning and is" +
+            " not supported in trimming scenarios. Register publishers by message type instea" +
+            "d.")]
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
@@ -963,8 +969,12 @@ namespace NServiceBus
     {
         public RoutingSettings(NServiceBus.Settings.SettingsHolder settings) { }
         public void DoNotEnforceBestPractices() { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing messages by assembly or namespace requires assembly scanning and is not s" +
+            "upported in trimming scenarios. Register routes by message type instead.")]
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string destination) { }
         public void RouteToEndpoint(System.Type messageType, string destination) { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing messages by assembly or namespace requires assembly scanning and is not s" +
+            "upported in trimming scenarios. Register routes by message type instead.")]
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string @namespace, string destination) { }
     }
     public class RoutingSettings<T> : NServiceBus.RoutingSettings
@@ -1120,8 +1130,14 @@ namespace NServiceBus
     public class SubscriptionMigrationModeSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public SubscriptionMigrationModeSettings(NServiceBus.Settings.SettingsHolder settings) { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering publishers by assembly or namespace requires assembly scanning and is" +
+            " not supported in trimming scenarios. Register publishers by message type instea" +
+            "d.")]
         public void RegisterPublisher(System.Reflection.Assembly assembly, string publisherEndpoint) { }
         public void RegisterPublisher(System.Type eventType, string publisherEndpoint) { }
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering publishers by assembly or namespace requires assembly scanning and is" +
+            " not supported in trimming scenarios. Register publishers by message type instea" +
+            "d.")]
         public void RegisterPublisher(System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint) { }
         public void SubscriptionAuthorizer(System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
     }

@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Routing;
@@ -17,6 +18,7 @@ class AssemblyRouteSource : IRouteSource
         this.route = route;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public assembly routing API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
     public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
     {
         var routes = messageAssembly.GetTypes()
@@ -33,4 +35,6 @@ class AssemblyRouteSource : IRouteSource
     }
 
     public RouteSourcePriority Priority => RouteSourcePriority.Assembly;
+
+    internal const string TrimmingMessage = "Routing messages by assembly or namespace requires assembly scanning and is not supported in trimming scenarios. Register routes by message type instead.";
 }

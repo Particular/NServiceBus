@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Configuration.AdvancedExtensibility;
 using Pipeline;
@@ -49,6 +50,7 @@ public class SubscriptionMigrationModeSettings : ExposeSettings
     /// </summary>
     /// <param name="assembly">The assembly containing the event types.</param>
     /// <param name="publisherEndpoint">The publisher endpoint.</param>
+    [RequiresUnreferencedCode(AssemblyPublisherSource.TrimmingMessage)]
     public void RegisterPublisher(Assembly assembly, string publisherEndpoint)
     {
         ArgumentNullException.ThrowIfNull(assembly);
@@ -65,6 +67,7 @@ public class SubscriptionMigrationModeSettings : ExposeSettings
     /// <param name="assembly">The assembly containing the event types.</param>
     /// <param name="namespace"> The namespace containing the event types. The given value must exactly match the target namespace.</param>
     /// <param name="publisherEndpoint">The publisher endpoint.</param>
+    [RequiresUnreferencedCode(AssemblyPublisherSource.TrimmingMessage)]
     public void RegisterPublisher(Assembly assembly, string @namespace, string publisherEndpoint)
     {
         ArgumentNullException.ThrowIfNull(assembly);

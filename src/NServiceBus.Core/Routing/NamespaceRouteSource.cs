@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Routing;
@@ -19,6 +20,7 @@ class NamespaceRouteSource : IRouteSource
         this.messageNamespace = messageNamespace;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public namespace routing API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
     public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
     {
         var routes = messageAssembly.GetTypes()
