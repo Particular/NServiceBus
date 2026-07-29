@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -19,7 +21,7 @@ class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSe
     {
         if (OperatingSystem.IsWindows() && TransportDefinition.TransportTransactionMode == TransportTransactionMode.TransactionScope)
         {
-            TransactionManager.ImplicitDistributedTransactions = true;
+            EnableImplicitDistributedTransactions();
         }
 
         hostSettings.ServiceProvider = serviceProvider;
@@ -28,6 +30,10 @@ class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSe
 
         return transportInfrastructure;
     }
+
+    [SupportedOSPlatform("windows")]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The trimming limitation is conditional on TransactionScope mode and cannot be expressed at the shared transport configuration boundary; the setter is called only for that mode on Windows.")]
+    static void EnableImplicitDistributedTransactions() => TransactionManager.ImplicitDistributedTransactions = true;
 
     public static TransportSeam Create(Settings transportSeamSettings, HostingComponent.Configuration hostingConfiguration)
     {

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Logging;
 using NServiceBus;
@@ -209,6 +210,7 @@ public partial class MessageMetadataRegistry
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Dynamic type loading is best-effort; when trimming removes a type, resolution falls back to known registered message metadata.")]
     Type GetType(string messageTypeIdentifier)
     {
         if (allowDynamicTypeLoading)

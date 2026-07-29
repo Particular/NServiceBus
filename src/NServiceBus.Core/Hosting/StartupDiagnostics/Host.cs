@@ -3,11 +3,14 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using IODirectory = System.IO.Directory;
 
 static class Host
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Legacy ASP.NET hosting detection reflects over System.Web only when that assembly is already loaded.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Legacy ASP.NET hosting detection reflects over known public System.Web members only when that assembly is already loaded.")]
     public static string GetOutputDirectory()
     {
         Assembly? systemWebAssembly = null;
@@ -44,6 +47,8 @@ static class Host
 
     static readonly object[] parameters = ["~/App_Data/"];
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Legacy ASP.NET hosting detection reflects over System.Web only when that assembly is already loaded.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Legacy ASP.NET hosting detection reflects over known public System.Web members only when that assembly is already loaded.")]
     static string? TryMapPath(Assembly systemWebAssembly)
     {
         try
