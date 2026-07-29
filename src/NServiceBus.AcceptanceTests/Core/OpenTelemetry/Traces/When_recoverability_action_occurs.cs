@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.AcceptanceTesting;
@@ -14,15 +15,12 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
     public async Task Should_create_span_for_immediate_retry()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<ImmediateRetryEndpoint>(b => b
+            .WithEndpoint<RecoverabilityEndpoint>(b => b
                 .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)))
                 .When(s => s.SendLocal(new FailingMessage())))
             .Run();
 
-        var recoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities();
-        Assert.That(recoverabilityActivities, Has.Count.EqualTo(1), "only the first (failing) attempt triggers a recoverability decision");
-
-        var activity = recoverabilityActivities.Single();
+        var activity = GetSingleRecoverabilityActivity();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.DisplayName, Is.EqualTo("immediate retry"));
@@ -34,15 +32,14 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
     public async Task Should_create_span_for_delayed_retry()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<DelayedRetryEndpoint>(b => b
-                .CustomConfig(c => c.Recoverability().Delayed(i => i.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1))))
+            .WithEndpoint<RecoverabilityEndpoint>(b => b
+                .CustomConfig(c => c.Recoverability()
+                    .Immediate(i => i.NumberOfRetries(0))
+                    .Delayed(i => i.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1))))
                 .When(s => s.SendLocal(new FailingMessage())))
             .Run();
 
-        var recoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities();
-        Assert.That(recoverabilityActivities, Has.Count.EqualTo(1), "only the first (failing) attempt triggers a recoverability decision");
-
-        var activity = recoverabilityActivities.Single();
+        var activity = GetSingleRecoverabilityActivity();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.DisplayName, Is.EqualTo("delayed retry"));
@@ -54,17 +51,14 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
     public async Task Should_create_span_for_move_to_error()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<AlwaysFailingEndpoint>(b => b
+            .WithEndpoint<RecoverabilityEndpoint>(b => b
                 .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(0)).Delayed(i => i.NumberOfRetries(0)))
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
-            .WithEndpoint<ErrorSpy>()
+            .Done(_ => NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Count == 1)
             .Run();
 
-        var recoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities();
-        Assert.That(recoverabilityActivities, Has.Count.EqualTo(1));
-
-        var activity = recoverabilityActivities.Single();
+        var activity = GetSingleRecoverabilityActivity();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.DisplayName, Does.StartWith("move to "));
@@ -76,14 +70,14 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
     public async Task Should_create_span_for_discard()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<DiscardingEndpoint>(b => b
+            .WithEndpoint<RecoverabilityEndpoint>(b => b
+                .CustomConfig(c => c.Recoverability().CustomPolicy((_, _) => RecoverabilityAction.Discard("test discard reason")))
+                .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
+            .Done(_ => NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Count == 1)
             .Run();
 
-        var recoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities();
-        Assert.That(recoverabilityActivities, Has.Count.EqualTo(1));
-
-        var activity = recoverabilityActivities.Single();
+        var activity = GetSingleRecoverabilityActivity();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.DisplayName, Is.EqualTo("discard"));
@@ -95,17 +89,22 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
     public async Task Should_include_destination_in_display_name_when_opted_in()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<ImmediateRetryEndpointWithDestinationNaming>(b => b
-                .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)))
+            .WithEndpoint<RecoverabilityEndpoint>(b => b
+                .CustomConfig(c =>
+                {
+                    c.Recoverability().Immediate(i => i.NumberOfRetries(1));
+                    c.Tracing().UseMessageDestinationInSpanNames = true;
+                })
                 .When(s => s.SendLocal(new FailingMessage())))
             .Run();
 
-        var recoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities();
-        var activity = recoverabilityActivities.Single();
-
-        var expectedEndpointName = Conventions.EndpointNamingConvention(typeof(ImmediateRetryEndpointWithDestinationNaming));
+        var activity = GetSingleRecoverabilityActivity();
+        var expectedEndpointName = Conventions.EndpointNamingConvention(typeof(RecoverabilityEndpoint));
         Assert.That(activity.DisplayName, Is.EqualTo($"immediate retry {expectedEndpointName}"));
     }
+
+    Activity GetSingleRecoverabilityActivity() =>
+        NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Single();
 
     const string ActivityTagName = "nservicebus.recoverability_action";
 
@@ -114,54 +113,9 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
         public int InvocationCounter { get; set; }
     }
 
-    public class ImmediateRetryEndpoint : EndpointConfigurationBuilder
+    public class RecoverabilityEndpoint : EndpointConfigurationBuilder
     {
-        public ImmediateRetryEndpoint() => EndpointSetup<DefaultServer>();
-
-        [Handler]
-        public class Handler(Context testContext) : IHandleMessages<FailingMessage>
-        {
-            public Task Handle(FailingMessage message, IMessageHandlerContext context)
-            {
-                testContext.InvocationCounter++;
-
-                if (testContext.InvocationCounter == 1)
-                {
-                    throw new SimulatedException("first attempt fails");
-                }
-
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
-    }
-
-    public class ImmediateRetryEndpointWithDestinationNaming : EndpointConfigurationBuilder
-    {
-        public ImmediateRetryEndpointWithDestinationNaming() =>
-            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageDestinationInSpanNames = true);
-
-        [Handler]
-        public class Handler(Context testContext) : IHandleMessages<FailingMessage>
-        {
-            public Task Handle(FailingMessage message, IMessageHandlerContext context)
-            {
-                testContext.InvocationCounter++;
-
-                if (testContext.InvocationCounter == 1)
-                {
-                    throw new SimulatedException("first attempt fails");
-                }
-
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
-    }
-
-    public class DelayedRetryEndpoint : EndpointConfigurationBuilder
-    {
-        public DelayedRetryEndpoint()
+        public RecoverabilityEndpoint()
         {
             var template = new DefaultServer
             {
@@ -185,55 +139,6 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
                 testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
-        }
-    }
-
-    public class AlwaysFailingEndpoint : EndpointConfigurationBuilder
-    {
-        static readonly string ErrorQueueAddress = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
-
-        public AlwaysFailingEndpoint() => EndpointSetup<DefaultServer>(c => c.SendFailedMessagesTo(ErrorQueueAddress));
-
-        [Handler]
-        public class Handler : IHandleMessages<FailingMessage>
-        {
-            public Task Handle(FailingMessage message, IMessageHandlerContext context) => throw new SimulatedException("always fails");
-        }
-    }
-
-    public class ErrorSpy : EndpointConfigurationBuilder
-    {
-        public ErrorSpy() => EndpointSetup<DefaultServer>();
-
-        [Handler]
-        public class Handler(Context testContext) : IHandleMessages<FailingMessage>
-        {
-            public Task Handle(FailingMessage message, IMessageHandlerContext context)
-            {
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
-    }
-
-    public class DiscardingEndpoint : EndpointConfigurationBuilder
-    {
-        public DiscardingEndpoint() =>
-            EndpointSetup<DefaultServer>((config, context) =>
-            {
-                var testContext = (Context)context.ScenarioContext;
-                config.Recoverability().CustomPolicy((_, _) =>
-                {
-                    var action = RecoverabilityAction.Discard("test discard reason");
-                    testContext.MarkAsCompleted();
-                    return action;
-                });
-            });
-
-        [Handler]
-        public class Handler : IHandleMessages<FailingMessage>
-        {
-            public Task Handle(FailingMessage message, IMessageHandlerContext context) => throw new SimulatedException("always fails");
         }
     }
 
