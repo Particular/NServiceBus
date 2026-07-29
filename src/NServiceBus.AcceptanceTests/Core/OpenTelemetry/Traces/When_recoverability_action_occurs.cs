@@ -41,10 +41,10 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(immediateRetry, Is.Not.Null, "expected at least one immediate retry span");
-            Assert.That(immediateRetry?.DisplayName, Is.EqualTo("immediate retry"));
+            Assert.That(immediateRetry.DisplayName, Is.EqualTo("immediate retry"));
 
             Assert.That(delayedRetry, Is.Not.Null, "expected at least one delayed retry span");
-            Assert.That(delayedRetry?.DisplayName, Is.EqualTo("delayed retry"));
+            Assert.That(delayedRetry.DisplayName, Is.EqualTo("delayed retry"));
 
             Assert.That(moveToError.DisplayName, Does.StartWith("move to "));
             Assert.That(discard.DisplayName, Is.EqualTo("discard"));
@@ -69,8 +69,8 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
         var immediateRetry = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities()
             .First(a => (string)a.GetTagItem(ActivityTagName) == "immediate_retry");
 
-        var expectedEndpointName = Conventions.EndpointNamingConvention(typeof(RecoverabilityEndpoint));
-        Assert.That(immediateRetry.DisplayName, Is.EqualTo($"immediate retry {expectedEndpointName}"));
+        var endpointName = Conventions.EndpointNamingConvention(typeof(RecoverabilityEndpoint));
+        Assert.That(immediateRetry.DisplayName, Is.EqualTo($"immediate retry {endpointName}"));
     }
 
     string[] ActionTags() =>

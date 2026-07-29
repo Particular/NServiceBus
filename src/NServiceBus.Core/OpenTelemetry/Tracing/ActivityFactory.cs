@@ -16,7 +16,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
     {
         // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
         // here nonetheless to avoid having to parse headers, access the extension bag, etc.
-        if (!ActivitySources.Main.HasListeners())
+        if (!activitySource.HasListeners())
         {
             return null;
         }
