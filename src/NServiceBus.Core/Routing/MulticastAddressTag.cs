@@ -1,6 +1,7 @@
 namespace NServiceBus.Routing;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
 /// Represents a route that should deliver the message to all interested subscribers.
@@ -11,7 +12,7 @@ public class MulticastAddressTag : AddressTag
     /// Initializes a new instance of <see cref="MulticastAddressTag" />.
     /// </summary>
     /// <param name="messageType">The event being published.</param>
-    public MulticastAddressTag(Type messageType)
+    public MulticastAddressTag([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
         MessageType = messageType;
     }
@@ -19,5 +20,6 @@ public class MulticastAddressTag : AddressTag
     /// <summary>
     /// The event being published.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)]
     public Type MessageType { get; }
 }

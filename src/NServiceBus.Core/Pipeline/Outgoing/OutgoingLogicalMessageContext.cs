@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Pipeline;
 using Routing;
 
@@ -21,6 +22,7 @@ class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageCo
 
     public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Replacing a message instance is a type-erased pipeline extension point whose runtime type cannot carry static trimming annotations.")]
     public void UpdateMessage(object newInstance)
     {
         ArgumentNullException.ThrowIfNull(newInstance);

@@ -42,6 +42,7 @@ class MessageOperations
         return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = TypeErasedMessageSuppressionJustification)]
     public Task Publish(IBehaviorContext context, object message, PublishOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
@@ -49,7 +50,7 @@ class MessageOperations
         return Publish(context, messageType, message, options);
     }
 
-    async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+    async Task Publish(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, PublishOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -109,6 +110,7 @@ class MessageOperations
         return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = TypeErasedMessageSuppressionJustification)]
     public Task Send(IBehaviorContext context, object message, SendOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
@@ -116,7 +118,7 @@ class MessageOperations
         return SendMessage(context, messageType, message, options);
     }
 
-    async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
+    async Task SendMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, SendOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -138,6 +140,7 @@ class MessageOperations
         await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = TypeErasedMessageSuppressionJustification)]
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
@@ -150,7 +153,7 @@ class MessageOperations
         return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
-    async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
+    async Task ReplyMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, ReplyOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -171,6 +174,8 @@ class MessageOperations
 
         await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
     }
+
+    const string TypeErasedMessageSuppressionJustification = "The object-based API is a compatibility path whose runtime message type cannot carry static trimming annotations. Strongly typed APIs preserve the required message members.";
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
     {

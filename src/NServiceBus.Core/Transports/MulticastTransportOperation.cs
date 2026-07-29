@@ -1,6 +1,7 @@
 namespace NServiceBus.Transport;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
 /// Represents a transport operation which should be delivered to multiple receivers.
@@ -10,7 +11,7 @@ public class MulticastTransportOperation : IOutgoingTransportOperation
     /// <summary>
     /// Creates a new <see cref="MulticastTransportOperation" /> instance.
     /// </summary>
-    public MulticastTransportOperation(OutgoingMessage message, Type messageType, DispatchProperties properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
+    public MulticastTransportOperation(OutgoingMessage message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, DispatchProperties properties, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default)
     {
         Message = message;
         MessageType = messageType;
@@ -21,6 +22,7 @@ public class MulticastTransportOperation : IOutgoingTransportOperation
     /// <summary>
     /// Defines the message type which needs to be multicasted.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)]
     public Type MessageType { get; }
 
     /// <summary>
