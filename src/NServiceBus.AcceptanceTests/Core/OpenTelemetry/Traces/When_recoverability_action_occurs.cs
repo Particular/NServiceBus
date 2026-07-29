@@ -1,87 +1,53 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using NServiceBus.AcceptanceTesting;
-using NServiceBus.AcceptanceTesting.Customization;
-using NServiceBus.AcceptanceTests.EndpointTemplates;
+using AcceptanceTesting;
+using AcceptanceTesting.Customization;
+using EndpointTemplates;
 using NUnit.Framework;
 
 public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public async Task Should_create_span_for_immediate_retry()
-    {
-        await Scenario.Define<Context>()
-            .WithEndpoint<RecoverabilityEndpoint>(b => b
-                .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)))
-                .When(s => s.SendLocal(new FailingMessage())))
-            .Run();
-
-        var activity = GetSingleRecoverabilityActivity();
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(activity.DisplayName, Is.EqualTo("immediate retry"));
-            Assert.That(activity.GetTagItem(ActivityTagName), Is.EqualTo("immediate_retry"));
-        }
-    }
-
-    [Test]
-    public async Task Should_create_span_for_delayed_retry()
+    public async Task Should_create_spans_for_all_recoverability_actions()
     {
         await Scenario.Define<Context>()
             .WithEndpoint<RecoverabilityEndpoint>(b => b
                 .CustomConfig(c => c.Recoverability()
-                    .Immediate(i => i.NumberOfRetries(0))
-                    .Delayed(i => i.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1))))
-                .When(s => s.SendLocal(new FailingMessage())))
-            .Run();
-
-        var activity = GetSingleRecoverabilityActivity();
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(activity.DisplayName, Is.EqualTo("delayed retry"));
-            Assert.That(activity.GetTagItem(ActivityTagName), Is.EqualTo("delayed_retry"));
-        }
-    }
-
-    [Test]
-    public async Task Should_create_span_for_move_to_error()
-    {
-        await Scenario.Define<Context>()
-            .WithEndpoint<RecoverabilityEndpoint>(b => b
-                .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(0)).Delayed(i => i.NumberOfRetries(0)))
+                    .Immediate(i => i.NumberOfRetries(1))
+                    .Delayed(i => i.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1)))
+                    .CustomPolicy((cfg, errorContext) =>
+                        errorContext.Headers[Headers.EnclosedMessageTypes].Contains(nameof(DiscardMessage))
+                            ? RecoverabilityAction.Discard("test discard reason")
+                            : DefaultRecoverabilityPolicy.Invoke(cfg, errorContext)))
                 .DoNotFailOnErrorMessages()
-                .When(s => s.SendLocal(new FailingMessage())))
-            .Done(_ => NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Count == 1)
+                .When(async s =>
+                {
+                    await s.SendLocal(new FailingMessage());
+                    await s.SendLocal(new DiscardMessage());
+                }))
+            .Done(_ => ActionTags().Contains("move_to_error") && ActionTags().Contains("discard"))
             .Run();
 
-        var activity = GetSingleRecoverabilityActivity();
+        var activities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities();
+
+        var immediateRetry = activities.FirstOrDefault(a => (string)a.GetTagItem(ActivityTagName) == "immediate_retry");
+        var delayedRetry = activities.FirstOrDefault(a => (string)a.GetTagItem(ActivityTagName) == "delayed_retry");
+        var moveToError = activities.Single(a => (string)a.GetTagItem(ActivityTagName) == "move_to_error");
+        var discard = activities.Single(a => (string)a.GetTagItem(ActivityTagName) == "discard");
+
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(activity.DisplayName, Does.StartWith("move to "));
-            Assert.That(activity.GetTagItem(ActivityTagName), Is.EqualTo("move_to_error"));
-        }
-    }
+            Assert.That(immediateRetry, Is.Not.Null, "expected at least one immediate retry span");
+            Assert.That(immediateRetry?.DisplayName, Is.EqualTo("immediate retry"));
 
-    [Test]
-    public async Task Should_create_span_for_discard()
-    {
-        await Scenario.Define<Context>()
-            .WithEndpoint<RecoverabilityEndpoint>(b => b
-                .CustomConfig(c => c.Recoverability().CustomPolicy((_, _) => RecoverabilityAction.Discard("test discard reason")))
-                .DoNotFailOnErrorMessages()
-                .When(s => s.SendLocal(new FailingMessage())))
-            .Done(_ => NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Count == 1)
-            .Run();
+            Assert.That(delayedRetry, Is.Not.Null, "expected at least one delayed retry span");
+            Assert.That(delayedRetry?.DisplayName, Is.EqualTo("delayed retry"));
 
-        var activity = GetSingleRecoverabilityActivity();
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(activity.DisplayName, Is.EqualTo("discard"));
-            Assert.That(activity.GetTagItem(ActivityTagName), Is.EqualTo("discard"));
+            Assert.That(moveToError.DisplayName, Does.StartWith("move to "));
+            Assert.That(discard.DisplayName, Is.EqualTo("discard"));
         }
     }
 
@@ -92,26 +58,29 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
             .WithEndpoint<RecoverabilityEndpoint>(b => b
                 .CustomConfig(c =>
                 {
-                    c.Recoverability().Immediate(i => i.NumberOfRetries(1));
+                    c.Recoverability().Immediate(i => i.NumberOfRetries(1)).Delayed(i => i.NumberOfRetries(0));
                     c.Tracing().UseMessageDestinationInSpanNames = true;
                 })
+                .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
+            .Done(_ => ActionTags().Contains("move_to_error"))
             .Run();
 
-        var activity = GetSingleRecoverabilityActivity();
+        var immediateRetry = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities()
+            .First(a => (string)a.GetTagItem(ActivityTagName) == "immediate_retry");
+
         var expectedEndpointName = Conventions.EndpointNamingConvention(typeof(RecoverabilityEndpoint));
-        Assert.That(activity.DisplayName, Is.EqualTo($"immediate retry {expectedEndpointName}"));
+        Assert.That(immediateRetry.DisplayName, Is.EqualTo($"immediate retry {expectedEndpointName}"));
     }
 
-    Activity GetSingleRecoverabilityActivity() =>
-        NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Single();
+    string[] ActionTags() =>
+        NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities()
+            .Select(a => (string)a.GetTagItem(ActivityTagName))
+            .ToArray();
 
     const string ActivityTagName = "nservicebus.recoverability_action";
 
-    public class Context : ScenarioContext
-    {
-        public int InvocationCounter { get; set; }
-    }
+    public class Context : ScenarioContext;
 
     public class RecoverabilityEndpoint : EndpointConfigurationBuilder
     {
@@ -125,22 +94,19 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
         }
 
         [Handler]
-        public class Handler(Context testContext) : IHandleMessages<FailingMessage>
+        public class FailingMessageHandler : IHandleMessages<FailingMessage>
         {
-            public Task Handle(FailingMessage message, IMessageHandlerContext context)
-            {
-                testContext.InvocationCounter++;
+            public Task Handle(FailingMessage message, IMessageHandlerContext context) => throw new SimulatedException("always fails");
+        }
 
-                if (testContext.InvocationCounter == 1)
-                {
-                    throw new SimulatedException("first attempt fails");
-                }
-
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
+        [Handler]
+        public class DiscardMessageHandler : IHandleMessages<DiscardMessage>
+        {
+            public Task Handle(DiscardMessage message, IMessageHandlerContext context) => throw new SimulatedException("always fails");
         }
     }
 
     public class FailingMessage : IMessage;
+
+    public class DiscardMessage : IMessage;
 }
