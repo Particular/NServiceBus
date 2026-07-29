@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Transport;
+using static NServiceBusMarkerInterfaceConvention;
 
 class LearningTransportDispatcher : IMessageDispatcher
 {
@@ -176,7 +177,7 @@ class LearningTransportDispatcher : IMessageDispatcher
         foreach (var typeName in messageHierarchy.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var messageTypeName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(typeName).ToString();
-            if (!NServiceBusMarkerInterfaceConvention.IsMarkerType(messageTypeName))
+            if (!IsMarkerType(messageTypeName))
             {
                 eventTypeNames.Add(messageTypeName);
             }
@@ -195,7 +196,7 @@ class LearningTransportDispatcher : IMessageDispatcher
         while (currentType != null)
         {
             //do not include the marker interfaces
-            if (NServiceBusMarkerInterfaceConvention.IsMarkerType(currentType))
+            if (IsMarkerType(currentType))
             {
                 break;
             }
@@ -207,7 +208,7 @@ class LearningTransportDispatcher : IMessageDispatcher
 
         foreach (var type in messageType.GetInterfaces())
         {
-            if (!NServiceBusMarkerInterfaceConvention.IsMarkerType(type))
+            if (!IsMarkerType(type))
             {
                 allEventTypeNames.Add(type.FullName!);
             }
