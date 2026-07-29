@@ -256,10 +256,7 @@ public partial class MessageMetadataRegistry
 
         LogGenericMessageTypeWarning(messageType);
 
-        //get the parent types
-        var parentMessages = GetParentTypes(messageType)
-            .Where(isMessageType)
-            .OrderByDescending(PlaceInMessageHierarchy);
+        var parentMessages = GetRuntimeMessageHierarchy(messageType);
 
         metadata = new MessageMetadata(messageType, [messageType, .. parentMessages]);
 
@@ -286,40 +283,37 @@ public partial class MessageMetadataRegistry
         }
     }
 
-    static int PlaceInMessageHierarchy(Type type)
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Runtime hierarchy inference is used for message types not pre-registered with source-generated hierarchy metadata, including scanned, dynamically loaded, published-only, and legacy message types.")]
+    Type[] GetRuntimeMessageHierarchy(Type messageType)
     {
-        if (type.IsInterface)
-        {
-            return type.GetInterfaces().Length;
-        }
+        var parentTypes = new List<Type>(messageType.GetInterfaces());
 
-        var result = 0;
-
-        while (type.BaseType != null)
-        {
-            result++;
-
-            type = type.BaseType;
-        }
-
-        return result;
-    }
-
-    static IEnumerable<Type> GetParentTypes(Type type)
-    {
-        foreach (var i in type.GetInterfaces())
-        {
-            yield return i;
-        }
-
-        // return all inherited types
-        var currentBaseType = type.BaseType;
+        var currentBaseType = messageType.BaseType;
         var objectType = typeof(object);
         while (currentBaseType != null && currentBaseType != objectType)
         {
-            yield return currentBaseType;
+            parentTypes.Add(currentBaseType);
             currentBaseType = currentBaseType.BaseType;
         }
+
+        return [.. parentTypes
+            .Where(isMessageType)
+            .OrderByDescending(static type =>
+            {
+                if (type.IsInterface)
+                {
+                    return type.GetInterfaces().Length;
+                }
+
+                var result = 0;
+                while (type.BaseType != null)
+                {
+                    result++;
+                    type = type.BaseType;
+                }
+
+                return result;
+            })];
     }
 
     bool initialized;
