@@ -8,7 +8,7 @@ using Host = NServiceBus.Host;
 public class HostTests
 {
     [Test]
-    public void When_not_running_ASP_NET_should_choose_BaseDirectory_as_output_directory()
+    public void Should_choose_BaseDirectory_as_output_directory()
     {
         var directory = Host.GetOutputDirectory();
 
