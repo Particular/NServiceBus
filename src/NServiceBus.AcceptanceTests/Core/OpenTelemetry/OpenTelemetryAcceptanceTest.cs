@@ -9,7 +9,7 @@ public abstract class OpenTelemetryAcceptanceTest : NServiceBusAcceptanceTest
     protected TestingActivityListener NServiceBusActivityListener { get; private set; }
 
     [SetUp]
-    public void Setup() => NServiceBusActivityListener = TestingActivityListener.SetupDiagnosticListener("NServiceBus.Core");
+    public void Setup() => NServiceBusActivityListener = TestingActivityListener.SetupDiagnosticListener("NServiceBus.Core", "NServiceBus.Core.Recoverability");
 
     [TearDown]
     public void Cleanup()
