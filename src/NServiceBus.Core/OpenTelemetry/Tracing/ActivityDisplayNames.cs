@@ -17,7 +17,7 @@ static class ActivityDisplayNames
     internal const string PublishOperation = "publish";
     internal const string SendOperation = "send";
     internal const string ImmediateRetryOperation = "immediate retry";
-    internal const string DelayedRetryOperation = "dealyed retry";
+    internal const string DelayedRetryOperation = "delayed retry";
     internal const string MoveToErrorOperation = "move to";
     internal const string DiscardOperation = "discard";
 }
