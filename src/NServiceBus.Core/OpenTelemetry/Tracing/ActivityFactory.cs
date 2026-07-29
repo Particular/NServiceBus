@@ -2,7 +2,9 @@
 
 namespace NServiceBus;
 
+using System.Collections.Generic;
 using System.Diagnostics;
+using Extensibility;
 using Pipeline;
 using Transport;
 
@@ -10,7 +12,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 {
     public InstrumentationOptions Options { get; } = options;
 
-    public Activity? StartIncomingPipelineActivity(MessageContext context)
+    static Activity? CreateActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, ContextBag extensions)
     {
         // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
         // here nonetheless to avoid having to parse headers, access the extension bag, etc.
@@ -20,10 +22,10 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         }
 
         Activity? activity;
-        var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
+        var incomingTraceParentExists = headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
         var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
 
-        if (context.Extensions.TryGet<Activity>(out var transportActivity)) // attach to transport span but link receive pipeline span to send pipeline span
+        if (extensions.TryGet<Activity>(out var transportActivity)) // attach to transport span but link receive pipeline span to send pipeline span
         {
             ActivityLink[]? links = null;
             if (incomingTraceParentExists && sendSpanId != transportActivity.Id)
@@ -34,31 +36,31 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
                 }
             }
 
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
+            activity = activitySource.CreateActivity(name: activityName,
                 ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
         }
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
-            var isStartNewTraceHeaderAvailable = context.Headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
+            var isStartNewTraceHeaderAvailable = headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
             if (isStartNewTraceHeaderAvailable && shouldStartNewTrace?.Equals(bool.TrueString) is true)
             {
                 // create a new trace or root activity
-                ActivityLink[] links = [new ActivityLink(sendSpanContext)];
+                ActivityLink[] links = [new(sendSpanContext)];
                 //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
                 Activity.Current = null;
-                activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
+                activity = activitySource.StartActivity(name: activityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
             }
             else
             {
                 // no new trace was requested, so start a child trace
                 ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, remoteParentActivityContext);
+                activity = activitySource.CreateActivity(name: activityName, ActivityKind.Consumer, remoteParentActivityContext);
             }
         }
-        else // otherwise start new trace
+        else // otherwise start a new trace
         {
             // This will set Activity.Current as parent if available
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
+            activity = activitySource.CreateActivity(name: activityName, ActivityKind.Consumer);
         }
 
         if (activity is null)
@@ -66,7 +68,18 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             return activity;
         }
 
-        ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
+        ContextPropagation.PropagateContextFromHeaders(activity, headers);
+
+        return activity;
+    }
+
+    public Activity? StartIncomingPipelineActivity(MessageContext context)
+    {
+        var activity = CreateActivityFromIncomingMessage(ActivitySources.Main, ActivityNames.IncomingMessageActivityName, context.Headers, context.Extensions);
+        if (activity is null)
+        {
+            return activity;
+        }
 
         activity.DisplayName = Options.UseMessageDestinationInSpanNames
             ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
@@ -126,70 +139,13 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
     public Activity? StartRecoverabilityActivity(ErrorContext context)
     {
-        // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
-        // here nonetheless to avoid having to parse headers, access the extension bag, etc.
-        if (!ActivitySources.Main.HasListeners())
-        {
-            return null;
-        }
-
-        Activity? activity;
-        var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
-        var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
-
-        ActivityKind activityKind = ActivityKind.Consumer;
-
-        if (context.Extensions.TryGet<Activity>(out var transportActivity)) // attach to transport span but link receive pipeline span to send pipeline span
-        {
-            ActivityLink[]? links = null;
-            if (incomingTraceParentExists && sendSpanId != transportActivity.Id)
-            {
-                if (activityContextCreatedFromIncomingTraceParent)
-                {
-                    links = [new ActivityLink(sendSpanContext)];
-                }
-            }
-
-            activity = ActivitySources.Main.CreateActivity(
-                name: ActivityNames.RecoverabilityActivityName,
-                activityKind,
-                transportActivity.Context,
-                links: links,
-                idFormat: ActivityIdFormat.W3C
-                );
-        }
-        else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
-        {
-            var isStartNewTraceHeaderAvailable = context.Headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
-            if (isStartNewTraceHeaderAvailable && shouldStartNewTrace?.Equals(bool.TrueString) is true)
-            {
-                // create a new trace or root activity
-                ActivityLink[] links = [new ActivityLink(sendSpanContext)];
-                //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
-                Activity.Current = null;
-                activity = ActivitySources.Main.StartActivity(name: ActivityNames.RecoverabilityActivityName, activityKind, parentContext: default, tags: null, links: links);
-            }
-            else
-            {
-                // no new trace was requested, so start a child trace
-                ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.RecoverabilityActivityName, activityKind, remoteParentActivityContext);
-            }
-        }
-        else // otherwise start new trace
-        {
-            // This will set Activity.Current as parent if available
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.RecoverabilityActivityName, activityKind);
-        }
-
+        var activity = CreateActivityFromIncomingMessage(ActivitySources.Recoverability, ActivityNames.RecoverabilityActivityName, context.Headers, context.Extensions);
         if (activity is null)
         {
             return activity;
         }
 
-        ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
-
-        activity.DisplayName = $"{ActivityDisplayNames.Recoverability} {context.ReceiveAddress}";
+        activity.DisplayName = ActivityDisplayNames.Recoverability;
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
 
@@ -198,5 +154,42 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         activity.Start();
 
         return activity;
+    }
+
+    public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    {
+        if (recoverabilityAction is ImmediateRetry)
+        {
+            activity.AddTag(ActivityTags.RecoverabilityAction, "immediate_retry");
+            activity.DisplayName = ActivityDisplayNames.ImmediateRetryOperation;
+
+            if (Options.UseMessageDestinationInSpanNames)
+            {
+                activity.DisplayName += $" {receiveAddress}";
+            }
+        }
+        else if (recoverabilityAction is DelayedRetry)
+        {
+            activity.AddTag(ActivityTags.RecoverabilityAction, "delayed_retry");
+            activity.DisplayName = ActivityDisplayNames.DelayedRetryOperation;
+
+            if (Options.UseMessageDestinationInSpanNames)
+            {
+                activity.DisplayName += $" {receiveAddress}";
+            }
+        }
+        else if (recoverabilityAction is MoveToError moveToError)
+        {
+            activity.AddTag(ActivityTags.RecoverabilityAction, "move_to_error");
+
+            activity.DisplayName = Options.UseMessageDestinationInSpanNames
+                ? $"{ActivityDisplayNames.MoveToErrorOperation} {moveToError.ErrorQueue}"
+                : $"{ActivityDisplayNames.MoveToErrorOperation} error";
+        }
+        else if (recoverabilityAction is Discard)
+        {
+            activity.AddTag(ActivityTags.RecoverabilityAction, "discard");
+            activity.DisplayName = ActivityDisplayNames.DiscardOperation;
+        }
     }
 }
