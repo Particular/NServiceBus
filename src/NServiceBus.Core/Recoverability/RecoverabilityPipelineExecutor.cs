@@ -22,25 +22,49 @@ class RecoverabilityPipelineExecutor<TState>(
 {
     public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
     {
-        using var activity = activityFactory.StartRecoverabilityActivity(errorContext);
-
         var childScope = serviceProvider.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
-            var recoverabilityAction = recoverabilityPolicy(errorContext, state);
+            RecoverabilityAction? recoverabilityAction;
+
+            using (var activity = activityFactory.StartRecoverabilityActivity(errorContext))
+            {
+                recoverabilityAction = recoverabilityPolicy(errorContext, state);
+
+                if (recoverabilityAction is ImmediateRetry)
+                {
+                    activity?.AddTag(ActivityTags.RecoverabilityAction, "immediate_retry");
+                    activity?.DisplayName += " immediate retry";
+                }
+                else if (recoverabilityAction is DelayedRetry)
+                {
+                    activity?.AddTag(ActivityTags.RecoverabilityAction, "delayed_retry");
+                    activity?.DisplayName += " delayed retry";
+                }
+                else if (recoverabilityAction is MoveToError)
+                {
+                    activity?.AddTag(ActivityTags.RecoverabilityAction, "move_to_error");
+                    activity?.DisplayName += " move to error queue";
+                }
+                else if (recoverabilityAction is Discard)
+                {
+                    activity?.AddTag(ActivityTags.RecoverabilityAction, "discard");
+                    activity?.DisplayName += " discard";
+                }
+            }
 
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
             var recoverabilityContext = new RecoverabilityContext(
-                childScope.ServiceProvider,
-                messageOperations,
-                pipelineCache,
-                errorContext,
-                recoverabilityConfig,
-                metadata,
-                recoverabilityAction,
-                errorContext.Extensions,
-                cancellationToken);
+                    childScope.ServiceProvider,
+                    messageOperations,
+                    pipelineCache,
+                    errorContext,
+                    recoverabilityConfig,
+                    metadata,
+                    recoverabilityAction,
+                    errorContext.Extensions,
+                    cancellationToken);
 
             await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
 
