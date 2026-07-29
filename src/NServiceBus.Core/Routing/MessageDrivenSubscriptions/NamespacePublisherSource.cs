@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Routing.MessageDrivenSubscriptions;
@@ -19,6 +20,7 @@ class NamespacePublisherSource : IPublisherSource
         this.messageNamespace = messageNamespace;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public namespace publisher API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
     public IEnumerable<PublisherTableEntry> GenerateWithBestPracticeEnforcement(Conventions conventions)
     {
         var entries = messageAssembly.GetTypes()
@@ -34,6 +36,7 @@ class NamespacePublisherSource : IPublisherSource
         return entries;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public namespace publisher API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
     public IEnumerable<PublisherTableEntry> GenerateWithoutBestPracticeEnforcement(Conventions conventions)
     {
         var entries = messageAssembly.GetTypes()
