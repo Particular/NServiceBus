@@ -3,7 +3,6 @@ namespace NServiceBus.Core.Tests.OpenTelemetry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Extensibility;
 using NUnit.Framework;
 
 [TestFixture]
@@ -27,7 +26,7 @@ public class ContextPropagationDefaultBehaviorTests
         activity.AddBaggage("serverNode", "DF 28");
 
         var headers = new Dictionary<string, string>();
-        ContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag());
+        ContextPropagation.PropagateContextToHeaders(activity, headers);
 
         Assert.That(headers[Headers.DiagnosticsBaggage], Is.EqualTo("serverNode=DF%2028"));
     }
@@ -45,7 +44,7 @@ public class ContextPropagationDefaultBehaviorTests
 
         var headers = new Dictionary<string, string>();
 
-        Assert.DoesNotThrow(() => LegacyContextPropagation.PropagateContextToHeaders(activity, headers, new ContextBag()));
+        Assert.DoesNotThrow(() => LegacyContextPropagation.PropagateContextToHeaders(activity, headers));
         Assert.That(headers[Headers.DiagnosticsBaggage], Is.EqualTo("test="));
     }
 
@@ -58,7 +57,7 @@ public class ContextPropagationDefaultBehaviorTests
         outgoing.AddBaggage("key1", " leading-and-trailing ");
 
         var headers = new Dictionary<string, string>();
-        ContextPropagation.PropagateContextToHeaders(outgoing, headers, new ContextBag());
+        ContextPropagation.PropagateContextToHeaders(outgoing, headers);
 
         using var incoming = new Activity(ActivityNames.IncomingMessageActivityName);
         incoming.SetIdFormat(ActivityIdFormat.W3C);

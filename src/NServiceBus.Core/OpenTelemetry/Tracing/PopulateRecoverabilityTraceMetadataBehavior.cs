@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Pipeline;
 
-class PopulateRecoverabilityTraceMetadataBehavior : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
+class PopulateRecoverabilityTraceMetadataBehavior(InstrumentationOptions instrumentationOptions) : IBehavior<IRecoverabilityContext, IRecoverabilityContext>
 {
     public Task Invoke(IRecoverabilityContext context, Func<IRecoverabilityContext, Task> next)
     {
@@ -13,9 +13,19 @@ class PopulateRecoverabilityTraceMetadataBehavior : IBehavior<IRecoverabilityCon
             return next(context);
         }
 
-        // Setting it to the metadata makes sure it is propagated to the headers
-        // even in more advanced scenarios like native dead-lettering
-        context.Metadata[Headers.StartNewTrace] = bool.TrueString;
+        if (context.RecoverabilityAction is DelayedRetry)
+        {
+            // Setting it to the metadata makes sure it is propagated to the headers
+            // even in more advanced scenarios like native dead-lettering
+            context.Metadata[Headers.StartNewTrace] = instrumentationOptions.Recoverability.DelayedRetryTraceMode == TraceMode.StartNew
+                ? bool.TrueString
+                : bool.FalseString;
+        }
+        else if (context.RecoverabilityAction is MoveToError)
+        {
+            // Not currently configurable; preserves the pre-existing behavior of always starting a new trace.
+            context.Metadata[Headers.StartNewTrace] = bool.TrueString;
+        }
 
         return next(context);
     }

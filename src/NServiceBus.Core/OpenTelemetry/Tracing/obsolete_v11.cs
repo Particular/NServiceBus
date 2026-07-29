@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Extensibility;
 using Particular.Obsoletes;
 
 // =============================================================================
@@ -62,7 +61,7 @@ static class LegacyContextPropagation
 
     internal static void ResetUseDistributedContextPropagator() => cachedUseDistributedContextPropagator = SwitchState.Unchecked;
 
-    public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers, ContextBag contextBag)
+    public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers)
     {
         if (activity is null)
         {
@@ -77,12 +76,6 @@ static class LegacyContextPropagation
         if (activity.TraceStateString is not null)
         {
             headers[Headers.DiagnosticsTraceState] = activity.TraceStateString;
-        }
-
-        // Check whether the startnewtrace setting was set in the context, if so, add it to the headers now the trace parent was added
-        if (contextBag.TryGet<string>(Headers.StartNewTrace, out var headerContent))
-        {
-            headers[Headers.StartNewTrace] = headerContent;
         }
 
         var baggage = string.Join(",", activity.Baggage.Select(item => $"{item.Key}={Uri.EscapeDataString(item.Value ?? string.Empty)}"));

@@ -16,6 +16,19 @@ public class InstrumentationOptions
     public bool UseMessageDestinationInSpanNames { get; set; }
 
     /// <summary>
+    /// Controls instrumentation of the recoverability pipeline (retries and error handling).
+    /// </summary>
+    public RecoverabilityInstrumentationOptions Recoverability { get; } = new();
+
+    /// <summary>
+    /// Controls instrumentation of explicitly delayed messages (<c>SendOptions.DelayDeliveryWith</c>
+    /// / <c>DoNotDeliverBefore</c> and saga timeouts. 
+    /// Recoverability-driven delayed retries are controlled separately via
+    /// <see cref="RecoverabilityInstrumentationOptions.DelayedRetryTraceMode"/>.
+    /// </summary>
+    public DelayedDeliveryInstrumentationOptions DelayedDelivery { get; } = new();
+
+    /// <summary>
     /// Controls whether the "Start dispatching" and "Finished dispatching" activity events
     /// are added to the incoming message span when outgoing messages are dispatched.
     /// Enabled by default for backward compatibility. Disable to avoid the ingestion cost
@@ -38,4 +51,34 @@ public class InstrumentationOptions
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
     public TraceMode PublishTraceMode { get; set; } = TraceMode.StartNew;
+}
+
+/// <summary>
+/// Controls instrumentation of the recoverability pipeline (retries and error handling).
+/// </summary>
+public class RecoverabilityInstrumentationOptions
+{
+    /// <summary>
+    /// Controls how the span for a delayed retry relates to the failed
+    /// attempt's trace.
+    /// </summary>
+    public TraceMode DelayedRetryTraceMode { get; set; } = TraceMode.StartNew;
+}
+
+/// <summary>
+/// Controls instrumentation of delayed messages.
+/// </summary>
+public class DelayedDeliveryInstrumentationOptions
+{
+    /// <summary>
+    /// Controls how a delayed <c>Send</c> relates to the sender's trace, when requested directly
+    /// by application code via <c>SendOptions.DelayDeliveryWith</c>/<c>DoNotDeliverBefore</c>.
+    /// </summary>
+    public TraceMode SendOperationTraceMode { get; set; } = TraceMode.StartNew;
+
+    /// <summary>
+    /// Controls how a saga timeout (<c>Saga.RequestTimeout</c>) relates to the trace of the
+    /// message that requested it.
+    /// </summary>
+    public TraceMode SagaTimeoutTraceMode { get; set; } = TraceMode.StartNew;
 }

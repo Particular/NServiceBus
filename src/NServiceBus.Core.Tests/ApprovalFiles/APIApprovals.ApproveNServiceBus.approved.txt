@@ -214,6 +214,12 @@ namespace NServiceBus
         public int MaxNumberOfRetries { get; }
         public System.TimeSpan TimeIncrease { get; }
     }
+    public class DelayedDeliveryInstrumentationOptions
+    {
+        public DelayedDeliveryInstrumentationOptions() { }
+        public NServiceBus.TraceMode SagaTimeoutTraceMode { get; set; }
+        public NServiceBus.TraceMode SendOperationTraceMode { get; set; }
+    }
     public static class DelayedDeliveryOptionExtensions
     {
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
@@ -635,8 +641,10 @@ namespace NServiceBus
     public class InstrumentationOptions
     {
         public InstrumentationOptions() { }
+        public NServiceBus.DelayedDeliveryInstrumentationOptions DelayedDelivery { get; }
         public bool EmitMessageDispatchingEvents { get; set; }
         public NServiceBus.TraceMode PublishTraceMode { get; set; }
+        public NServiceBus.RecoverabilityInstrumentationOptions Recoverability { get; }
         public NServiceBus.TraceMode SendTraceMode { get; set; }
         public bool UseMessageDestinationInSpanNames { get; set; }
     }
@@ -899,6 +907,11 @@ namespace NServiceBus
     public static class RecoverabilityEndpointConfigurationExtensions
     {
         public static NServiceBus.RecoverabilitySettings Recoverability(this NServiceBus.EndpointConfiguration configuration) { }
+    }
+    public class RecoverabilityInstrumentationOptions
+    {
+        public RecoverabilityInstrumentationOptions() { }
+        public NServiceBus.TraceMode DelayedRetryTraceMode { get; set; }
     }
     public class RecoverabilitySettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {

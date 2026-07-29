@@ -3,7 +3,6 @@ namespace NServiceBus.Core.Tests.OpenTelemetry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Extensibility;
 using NUnit.Framework;
 
 [TestFixture]
@@ -23,7 +22,7 @@ public class ContextPropagationCompatibilityTests
         LegacyContextPropagation.ResetUseDistributedContextPropagator();
     }
 
-    delegate void Writer(Activity activity, Dictionary<string, string> headers, ContextBag context);
+    delegate void Writer(Activity activity, Dictionary<string, string> headers);
     delegate void Reader(Activity activity, IDictionary<string, string> headers);
 
     static readonly Writer LegacyWrite = LegacyContextPropagation.PropagateContextToHeaders;
@@ -48,7 +47,7 @@ public class ContextPropagationCompatibilityTests
         sender.AddBaggage("key", value);
 
         var headers = new Dictionary<string, string>();
-        write(sender, headers, new ContextBag());
+        write(sender, headers);
         sender.Stop();
         return headers;
     }

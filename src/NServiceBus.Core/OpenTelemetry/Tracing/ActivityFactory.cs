@@ -6,14 +6,9 @@ using System.Diagnostics;
 using Pipeline;
 using Transport;
 
-sealed class ActivityFactory : IActivityFactory
+sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 {
-    public ActivityFactory(InstrumentationOptions options)
-    {
-        Options = options;
-    }
-
-    public InstrumentationOptions Options { get; }
+    public InstrumentationOptions Options { get; } = options;
 
     public Activity? StartIncomingPipelineActivity(MessageContext context)
     {
