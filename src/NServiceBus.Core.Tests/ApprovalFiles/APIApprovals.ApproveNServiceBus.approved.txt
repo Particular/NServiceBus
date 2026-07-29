@@ -313,7 +313,7 @@ namespace NServiceBus
     {
         extension(NServiceBus.Features.FeatureConfigurationContext context)
         {
-            public void AddEnvelopeHandler<THandler>()
+            public void AddEnvelopeHandler<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]  THandler>()
                 where THandler :  class, NServiceBus.IEnvelopeHandler { }
         }
     }

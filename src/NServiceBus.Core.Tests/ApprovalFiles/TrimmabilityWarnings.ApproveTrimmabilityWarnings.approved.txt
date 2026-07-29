@@ -2,9 +2,6 @@ The following trimming warnings are present in NServiceBus.Core.
 Changes that make this list longer should not be approved.
 -----
 
-src/NServiceBus.Core/Envelopes/EnvelopeComponent.cs
-  IL2091: 'T' generic argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicConstructors' in 'Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance<T>(IServiceProvider, params Object[])'. The generic parameter 'THandler' of 'NServiceBus.EnvelopeComponent.Settings.AddEnvelopeHandler<THandler>()' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
-
 src/NServiceBus.Core/Hosting/KeyedServices/KeyedServiceCollectionAdapter.cs
   IL2067: 'instanceType' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicConstructors' in call to 'Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateFactory(Type, Type[])'. The parameter 'type' of method 'lambda expression' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
 
