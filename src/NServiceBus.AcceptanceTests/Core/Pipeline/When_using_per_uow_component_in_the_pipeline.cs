@@ -38,7 +38,9 @@ public class When_using_per_uow_component_in_the_pipeline : NServiceBusAcceptanc
         options.SetHeader("Value", uniqueValue);
         var message = new Message { Value = uniqueValue };
 
+#pragma warning disable NSB0040 // Intentional runtime-type routing
         return s.Send(message, options);
+#pragma warning restore NSB0040
     }
 
     public class Context : ScenarioContext
