@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -61,6 +62,20 @@ public partial class TestablePipelineContext : IPipelineContext
     }
 
     /// <summary>
+    /// Sends the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="message">The message to send.</param>
+    /// <param name="options">The options for the send.</param>
+    [OverloadResolutionPriority(-1)]
+    public virtual Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions options)
+    {
+#pragma warning disable IDE0004 // Cast is redundant
+        return Send((object)message!, options);
+#pragma warning restore IDE0004
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and sends it.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
@@ -80,6 +95,20 @@ public partial class TestablePipelineContext : IPipelineContext
     {
         publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Publishes the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="message">The message to publish.</param>
+    /// <param name="options">The options for the publish.</param>
+    [OverloadResolutionPriority(-1)]
+    public virtual Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions options)
+    {
+#pragma warning disable IDE0004 // Cast is redundant
+        return Publish((object)message!, options);
+#pragma warning restore IDE0004
     }
 
     /// <summary>

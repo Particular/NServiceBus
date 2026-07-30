@@ -37,9 +37,14 @@ class MessageOperations
         this.activityFactory = activityFactory;
     }
 
+    public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, PublishOptions options)
+    {
+        return PublishMessage(context, typeof(T), message!, options);
+    }
+
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
     {
-        return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+        return PublishMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = TypeErasedMessageSuppressionJustification)]
@@ -47,10 +52,10 @@ class MessageOperations
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
 
-        return Publish(context, messageType, message, options);
+        return PublishMessage(context, messageType, message, options);
     }
 
-    async Task Publish(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, PublishOptions options)
+    async Task PublishMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, PublishOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -105,6 +110,11 @@ class MessageOperations
         await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
     }
 
+    public Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, SendOptions options)
+    {
+        return SendMessage(context, typeof(T), message!, options);
+    }
+
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
     {
         return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
@@ -138,6 +148,11 @@ class MessageOperations
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
 
         await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+    }
+
+    public Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, ReplyOptions options)
+    {
+        return ReplyMessage(context, typeof(T), message!, options);
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = TypeErasedMessageSuppressionJustification)]
