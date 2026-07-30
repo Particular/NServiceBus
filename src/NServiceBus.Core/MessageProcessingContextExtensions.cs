@@ -40,6 +40,21 @@ public static class MessageProcessingContextExtensions
     }
 
     /// <summary>
+    /// Sends the message with the specified message type to the endpoint which sent the message currently being handled on this thread.
+    /// </summary>
+    /// <param name="context">Object being extended.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="messageType">The declared message type.</param>
+    public static Task Reply(this IMessageProcessingContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+
+        return context.Reply(message, messageType, new ReplyOptions());
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and performs a regular Reply.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>

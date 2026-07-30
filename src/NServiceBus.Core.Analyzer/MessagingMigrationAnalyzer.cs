@@ -220,7 +220,14 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     }
 
     static bool IsObjectOverload(IMethodSymbol method, IParameterSymbol messageParameter) =>
-        !method.IsGenericMethod && messageParameter.Type.SpecialType == SpecialType.System_Object;
+        !method.IsGenericMethod && messageParameter.Type.SpecialType == SpecialType.System_Object && !HasExplicitMessageTypeParameter(method);
+
+    static bool HasExplicitMessageTypeParameter(IMethodSymbol method) =>
+        method.Parameters.Any(candidate => candidate is { Name: "messageType" } &&
+            candidate.Type is INamedTypeSymbol typeSymbol &&
+            typeSymbol.SpecialType == SpecialType.None &&
+            typeSymbol.Name == "Type" &&
+            typeSymbol.ContainingNamespace?.Name == "System");
 
     static bool IsGenericMessageInstanceOverload(IMethodSymbol method, IParameterSymbol messageParameter) =>
         method.IsGenericMethod &&

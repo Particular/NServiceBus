@@ -42,6 +42,21 @@ public static class PipelineContextExtensions
     }
 
     /// <summary>
+    /// Sends the provided message with the specified message type.
+    /// </summary>
+    /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="messageType">The declared message type.</param>
+    public static Task Send(this IPipelineContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+
+        return context.Send(message, messageType, new SendOptions());
+    }
+
+    /// <summary>
     /// Instantiates a message of <typeparamref name="T" /> and sends it.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
@@ -97,6 +112,27 @@ public static class PipelineContextExtensions
         options.SetDestination(destination);
 
         return context.Send<T>(message, options);
+    }
+
+    /// <summary>
+    /// Sends the message with the specified message type to the given destination.
+    /// </summary>
+    /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
+    /// <param name="destination">The destination to which the message will be sent.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="messageType">The declared message type.</param>
+    public static Task Send(this IPipelineContext context, string destination, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentException.ThrowIfNullOrWhiteSpace(destination);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+
+        var options = new SendOptions();
+
+        options.SetDestination(destination);
+
+        return context.Send(message, messageType, options);
     }
 
     /// <summary>
@@ -157,6 +193,25 @@ public static class PipelineContextExtensions
     }
 
     /// <summary>
+    /// Sends the message with the specified message type back to the current endpoint.
+    /// </summary>
+    /// <param name="context">Object being extended.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="messageType">The declared message type.</param>
+    public static Task SendLocal(this IPipelineContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+
+        var options = new SendOptions();
+
+        options.RouteToThisEndpoint();
+
+        return context.Send(message, messageType, options);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and sends it back to the current endpoint.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
@@ -201,6 +256,21 @@ public static class PipelineContextExtensions
         ArgumentNullException.ThrowIfNull(message);
 
         return context.Publish<T>(message, new PublishOptions());
+    }
+
+    /// <summary>
+    /// Publishes the provided message with the specified message type.
+    /// </summary>
+    /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
+    /// <param name="message">The message to publish.</param>
+    /// <param name="messageType">The declared message type.</param>
+    public static Task Publish(this IPipelineContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+
+        return context.Publish(message, messageType, new PublishOptions());
     }
 
     /// <summary>

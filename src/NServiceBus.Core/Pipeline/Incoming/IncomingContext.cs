@@ -39,6 +39,11 @@ abstract class IncomingContext : BehaviorContext, IIncomingContext
         return MessageOperations.Send(this, message, options);
     }
 
+    public Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
+    {
+        return MessageOperations.Send(this, message, messageType, options);
+    }
+
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions options)
     {
         return MessageOperations.Send(this, messageConstructor, options);
@@ -56,6 +61,11 @@ abstract class IncomingContext : BehaviorContext, IIncomingContext
         return MessageOperations.Publish(this, message, options);
     }
 
+    public Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
+    {
+        return MessageOperations.Publish(this, message, messageType, options);
+    }
+
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions)
     {
         return MessageOperations.Publish(this, messageConstructor, publishOptions);
@@ -71,6 +81,11 @@ abstract class IncomingContext : BehaviorContext, IIncomingContext
     public Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, ReplyOptions options)
     {
         return MessageOperations.Reply(this, message, options);
+    }
+
+    public Task Reply(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, ReplyOptions options)
+    {
+        return MessageOperations.Reply(this, message, messageType, options);
     }
 
     public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, ReplyOptions options)

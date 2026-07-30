@@ -30,10 +30,23 @@ public interface IMessageSession
     /// <param name="sendOptions">The options for the send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     [OverloadResolutionPriority(-1)]
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
-        return Send(message!, sendOptions, cancellationToken);
+        return Send(message!, typeof(T), sendOptions, cancellationToken);
+    }
+
+    /// <summary>
+    /// Sends the provided message with the specified message type.
+    /// </summary>
+    /// <param name="message">The message to send.</param>
+    /// <param name="messageType">The declared message type.</param>
+    /// <param name="sendOptions">The options for the send.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
+    Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Send(message, sendOptions, cancellationToken);
     }
 
     /// <summary>
@@ -62,10 +75,23 @@ public interface IMessageSession
     /// <param name="publishOptions">The options for the publish.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     [OverloadResolutionPriority(-1)]
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
-        return Publish(message!, publishOptions, cancellationToken);
+        return Publish(message!, typeof(T), publishOptions, cancellationToken);
+    }
+
+    /// <summary>
+    /// Publishes the provided message with the specified message type.
+    /// </summary>
+    /// <param name="message">The message to publish.</param>
+    /// <param name="messageType">The declared message type.</param>
+    /// <param name="publishOptions">The options for the publish.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
+    Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Publish(message, publishOptions, cancellationToken);
     }
 
     /// <summary>

@@ -41,14 +41,26 @@ public interface IMessageProcessingContext : IPipelineContext
     /// <param name="message">The message to send.</param>
     /// <param name="options">Options for this reply.</param>
     [OverloadResolutionPriority(-1)]
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, ReplyOptions options)
     {
-        return Reply(message!, options);
+        return Reply(message!, typeof(T), options);
     }
 
     /// <summary>
-    /// Instantiates a message of type T and performs a regular <see cref="Reply" />.
+    /// Sends the message to the endpoint which sent the message currently being handled with the specified message type.
+    /// </summary>
+    /// <param name="message">The message to send.</param>
+    /// <param name="messageType">The declared message type.</param>
+    /// <param name="options">Options for this reply.</param>
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
+    Task Reply(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, ReplyOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Reply(message, options);
+    }
+
+    /// <summary>
+    /// Instantiates a message of type T and performs a regular Reply.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>

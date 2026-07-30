@@ -36,6 +36,11 @@ abstract class OutgoingContext : BehaviorContext, IOutgoingContext
         return MessageOperations.Send(this, message, options);
     }
 
+    public Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
+    {
+        return MessageOperations.Send(this, message, messageType, options);
+    }
+
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions options)
     {
         return MessageOperations.Send(this, messageConstructor, options);
@@ -51,6 +56,11 @@ abstract class OutgoingContext : BehaviorContext, IOutgoingContext
     public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions options)
     {
         return MessageOperations.Publish(this, message, options);
+    }
+
+    public Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
+    {
+        return MessageOperations.Publish(this, message, messageType, options);
     }
 
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions)
