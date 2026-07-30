@@ -25,6 +25,7 @@ public class ActivityTagsTests
                 new { Name = nameof(ActivitySources.Main), ActivitySources.Main.Version },
                 new { Name = nameof(ActivitySources.Handler), ActivitySources.Handler.Version },
                 new { Name = nameof(ActivitySources.Recoverability), ActivitySources.Recoverability.Version }
-            }});
+            }
+        });
     }
 }
