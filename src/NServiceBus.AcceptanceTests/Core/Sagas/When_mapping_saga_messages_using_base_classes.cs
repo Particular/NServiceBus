@@ -21,7 +21,9 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
                 {
                     SomeId = correlationId
                 };
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                 return session.SendLocal(startSagaMessage);
+#pragma warning restore NSB0040
             }))
             .Run(cancellationToken);
 
@@ -55,7 +57,9 @@ public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptan
                 {
                     SomeId = message.SomeId
                 };
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                 return context.SendLocal(sagaMessage);
+#pragma warning restore NSB0040
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<BaseClassIsMappedSagaData> mapper) =>

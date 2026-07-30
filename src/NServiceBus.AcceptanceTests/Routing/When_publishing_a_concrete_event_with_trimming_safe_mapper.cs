@@ -25,7 +25,9 @@ public class When_publishing_a_concrete_event_with_trimming_safe_mapper : NServi
                     {
                         ContextId = ctx.Id
                     };
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                     return session.Publish(message);
+#pragma warning restore NSB0040
                 }))
             .WithEndpoint<Subscriber>(b => b.When(async (session, ctx) =>
             {

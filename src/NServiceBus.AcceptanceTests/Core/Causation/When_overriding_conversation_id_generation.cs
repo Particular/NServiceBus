@@ -28,7 +28,9 @@ public class When_overriding_conversation_id_generation : NServiceBusAcceptanceT
                 options.RouteToThisEndpoint();
                 options.SetHeader(TennantIdHeaderKey, tennantId);
 
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                 await session.Send(myBusinessMessage, options);
+#pragma warning restore NSB0040
                 await session.SendLocal(new MessageSentOutsideOfHandlerNotMatchingTheConvention());
             }))
             .Run();
