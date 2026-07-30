@@ -62,6 +62,15 @@ public partial class TestableMessageProcessingContext : TestablePipelineContext,
     }
 
     /// <summary>
+    /// Sends the message with the specified message type to the endpoint which sent the message currently being handled.
+    /// </summary>
+    public virtual Task Reply(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, ReplyOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Reply(message, options);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and performs a regular
     /// <see cref="M:NServiceBus.IMessageProcessingContext.Reply(System.Object,NServiceBus.ReplyOptions)" />.
     /// </summary>

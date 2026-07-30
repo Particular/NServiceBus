@@ -104,6 +104,18 @@ class MessageSession : IMessageSession
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
     }
 
+    public async Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
+        await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
+        await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, messageType, sendOptions).ConfigureAwait(false);
+    }
+
     public async Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(messageConstructor);
@@ -137,6 +149,18 @@ class MessageSession : IMessageSession
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
+    }
+
+    public async Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
+        await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
+        await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, messageType, publishOptions).ConfigureAwait(false);
     }
 
     public async Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)

@@ -902,6 +902,174 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             """;
         return Assert(source);
     }
+
+    [Test]
+    public Task NoDiagnostic_ExplicitType_SessionSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+            using System;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    object message = new MyMessage();
+                    await session.Send(message, typeof(IMyInterface), new SendOptions());
+                }
+            }
+
+            interface IMyInterface : IMessage { }
+            class MyMessage : IMyInterface { }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_ExplicitType_SessionPublish()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+            using System;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    object message = new MyEvent();
+                    await session.Publish(message, typeof(IMyInterface), new PublishOptions());
+                }
+            }
+
+            interface IMyInterface : IEvent { }
+            class MyEvent : IMyInterface { }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_ExplicitType_SessionSendLocal()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+            using System;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    object message = new MyMessage();
+                    await session.SendLocal(message, typeof(IMyInterface));
+                }
+            }
+
+            interface IMyInterface : IMessage { }
+            class MyMessage : IMyInterface { }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_ExplicitType_SessionSendDestination()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+            using System;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    object message = new MyMessage();
+                    await session.Send("destination", message, typeof(IMyInterface));
+                }
+            }
+
+            interface IMyInterface : IMessage { }
+            class MyMessage : IMyInterface { }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_ExplicitType_PipelineContextSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+            using System;
+
+            class Foo
+            {
+                async Task Bar(IPipelineContext context)
+                {
+                    object message = new MyMessage();
+                    await context.Send(message, typeof(IMyInterface), new SendOptions());
+                }
+            }
+
+            interface IMyInterface : IMessage { }
+            class MyMessage : IMyInterface { }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_ExplicitType_PipelineContextPublish()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+            using System;
+
+            class Foo
+            {
+                async Task Bar(IPipelineContext context)
+                {
+                    object message = new MyEvent();
+                    await context.Publish(message, typeof(IMyInterface), new PublishOptions());
+                }
+            }
+
+            interface IMyInterface : IEvent { }
+            class MyEvent : IMyInterface { }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_ExplicitType_MessageProcessingContextReply()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+            using System;
+
+            class Foo
+            {
+                async Task Bar(IMessageProcessingContext context)
+                {
+                    object message = new MyReply();
+                    await context.Reply(message, typeof(IMyInterface), new ReplyOptions());
+                }
+            }
+
+            interface IMyInterface : IMessage { }
+            class MyReply : IMyInterface { }
+            """;
+        return Assert(source);
+    }
 }
 
 #pragma warning restore NUnit1034

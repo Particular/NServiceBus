@@ -145,6 +145,16 @@ class RunningEndpointInstance(SettingsHolder settings,
         return messageSession.Send<T>(message, sendOptions, cancellationToken);
     }
 
+    public Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Send(message, messageType, sendOptions, cancellationToken);
+    }
+
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(messageConstructor);
@@ -172,6 +182,16 @@ class RunningEndpointInstance(SettingsHolder settings,
 
         GuardAgainstUseWhenNotStarted();
         return messageSession.Publish<T>(message, publishOptions, cancellationToken);
+    }
+
+    public Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Publish(message, messageType, publishOptions, cancellationToken);
     }
 
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)

@@ -42,6 +42,12 @@ class MessageOperations
         return PublishMessage(context, typeof(T), message!, options);
     }
 
+    public Task Publish(IBehaviorContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return PublishMessage(context, messageType, message, options);
+    }
+
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
     {
         return PublishMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
@@ -115,6 +121,12 @@ class MessageOperations
         return SendMessage(context, typeof(T), message!, options);
     }
 
+    public Task Send(IBehaviorContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return SendMessage(context, messageType, message, options);
+    }
+
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
     {
         return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
@@ -155,6 +167,12 @@ class MessageOperations
         return ReplyMessage(context, typeof(T), message!, options);
     }
 
+    public Task Reply(IBehaviorContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, ReplyOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return ReplyMessage(context, messageType, message, options);
+    }
+
     [RequiresUnreferencedCode(RuntimeTypeRoutingTrimmingMessage)]
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
     {
@@ -191,7 +209,8 @@ class MessageOperations
     }
 
     internal const string RuntimeTypeRoutingTrimmingMessage = "Routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload and specify the message type.";
-    internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the generic message type.";
+    internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
+
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
     {

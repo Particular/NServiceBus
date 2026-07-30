@@ -323,6 +323,282 @@ public class TypedMessageInstanceOverloadsTests
         Assert.That(legacy.ReplyObjectCount, Is.EqualTo(1));
     }
 
+    [Test]
+    public async Task Send_explicit_type_via_IMessageSession_uses_explicit_type_overload()
+    {
+        var session = new TrackingMessageSession();
+        object message = new MyMessage();
+        await session.Send(message, typeof(IMyMessage));
+        Assert.That(session.SendExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(session.SendObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Send_explicit_type_with_options_via_IMessageSession_uses_explicit_type_overload()
+    {
+        var session = new TrackingMessageSession();
+        object message = new MyMessage();
+        await session.Send(message, typeof(IMyMessage), new SendOptions());
+        Assert.That(session.SendExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(session.SendObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Send_with_destination_explicit_type_via_IMessageSession_uses_explicit_type_overload()
+    {
+        var session = new TrackingMessageSession();
+        object message = new MyMessage();
+        await session.Send("destination", message, typeof(IMyMessage));
+        Assert.That(session.SendExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(session.SendObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task SendLocal_explicit_type_via_IMessageSession_uses_explicit_type_overload()
+    {
+        var session = new TrackingMessageSession();
+        object message = new MyMessage();
+        await session.SendLocal(message, typeof(IMyMessage));
+        Assert.That(session.SendExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(session.SendObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Publish_explicit_type_via_IMessageSession_uses_explicit_type_overload()
+    {
+        var session = new TrackingMessageSession();
+        object message = new MyMessage();
+        await session.Publish(message, typeof(IMyMessage));
+        Assert.That(session.PublishExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(session.PublishObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Publish_explicit_type_with_options_via_IMessageSession_uses_explicit_type_overload()
+    {
+        var session = new TrackingMessageSession();
+        object message = new MyMessage();
+        await session.Publish(message, typeof(IMyMessage), new PublishOptions());
+        Assert.That(session.PublishExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(session.PublishObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Reply_explicit_type_via_IMessageProcessingContext_uses_explicit_type_overload()
+    {
+        var context = new TrackingMessageProcessingContext();
+        object message = new MyMessage();
+        await context.Reply(message, typeof(IMyMessage));
+        Assert.That(context.ReplyExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(context.ReplyObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Reply_explicit_type_with_options_via_IMessageProcessingContext_uses_explicit_type_overload()
+    {
+        var context = new TrackingMessageProcessingContext();
+        object message = new MyMessage();
+        await context.Reply(message, typeof(IMyMessage), new ReplyOptions());
+        Assert.That(context.ReplyExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(context.ReplyObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task PipelineContext_Send_explicit_type_via_IPipelineContext_uses_explicit_type_overload()
+    {
+        var context = new TrackingPipelineContext();
+        object message = new MyMessage();
+        await context.Send(message, typeof(IMyMessage));
+        Assert.That(context.SendExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(context.SendObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task PipelineContext_Send_explicit_type_with_options_via_IPipelineContext_uses_explicit_type_overload()
+    {
+        var context = new TrackingPipelineContext();
+        object message = new MyMessage();
+        await context.Send(message, typeof(IMyMessage), new SendOptions());
+        Assert.That(context.SendExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(context.SendObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task PipelineContext_Send_with_destination_explicit_type_via_IPipelineContext_uses_explicit_type_overload()
+    {
+        var context = new TrackingPipelineContext();
+        object message = new MyMessage();
+        await context.Send("destination", message, typeof(IMyMessage));
+        Assert.That(context.SendExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(context.SendObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task PipelineContext_SendLocal_explicit_type_via_IPipelineContext_uses_explicit_type_overload()
+    {
+        var context = new TrackingPipelineContext();
+        object message = new MyMessage();
+        await context.SendLocal(message, typeof(IMyMessage));
+        Assert.That(context.SendExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(context.SendObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task PipelineContext_Publish_explicit_type_via_IPipelineContext_uses_explicit_type_overload()
+    {
+        var context = new TrackingPipelineContext();
+        object message = new MyMessage();
+        await context.Publish(message, typeof(IMyMessage));
+        Assert.That(context.PublishExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(context.PublishObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task PipelineContext_Publish_explicit_type_with_options_via_IPipelineContext_uses_explicit_type_overload()
+    {
+        var context = new TrackingPipelineContext();
+        object message = new MyMessage();
+        await context.Publish(message, typeof(IMyMessage), new PublishOptions());
+        Assert.That(context.PublishExplicitTypeCount, Is.EqualTo(1));
+        Assert.That(context.PublishObjectCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task Default_interface_fallback_Send_explicit_type_uses_object_overload()
+    {
+        var legacy = new LegacyMessageSession();
+        IMessageSession session = legacy;
+        object message = new MyMessage();
+        await session.Send(message, typeof(IMyMessage), new SendOptions());
+        Assert.That(legacy.SendObjectCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Default_interface_fallback_Publish_explicit_type_uses_object_overload()
+    {
+        var legacy = new LegacyMessageSession();
+        IMessageSession session = legacy;
+        object message = new MyMessage();
+        await session.Publish(message, typeof(IMyMessage), new PublishOptions());
+        Assert.That(legacy.PublishObjectCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Default_interface_fallback_Reply_explicit_type_uses_object_overload()
+    {
+        var legacy = new LegacyMessageProcessingContext();
+        IMessageProcessingContext context = legacy;
+        object message = new MyMessage();
+        await context.Reply(message, typeof(IMyMessage), new ReplyOptions());
+        Assert.That(legacy.ReplyObjectCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Send_explicit_type_with_unrelated_type_throws()
+    {
+        var session = new TestableMessageSession();
+        object message = new MyMessage();
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await session.Send(message, typeof(MyOtherMessage), new SendOptions()));
+        Assert.That(ex!.ParamName, Is.EqualTo("message"));
+    }
+
+    [Test]
+    public void Send_explicit_type_with_null_type_throws()
+    {
+        var session = new TestableMessageSession();
+        object message = new MyMessage();
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await session.Send(message, null!, new SendOptions()));
+    }
+
+    [Test]
+    public void Send_explicit_type_with_null_message_throws()
+    {
+        var session = new TestableMessageSession();
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await session.Send(null!, typeof(IMyMessage), new SendOptions()));
+    }
+
+    [Test]
+    public void Default_interface_fallback_Send_explicit_type_with_null_message_throws()
+    {
+        var legacy = new LegacyMessageSession();
+        IMessageSession session = legacy;
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await session.Send(null!, typeof(IMyMessage), new SendOptions()));
+    }
+
+    [Test]
+    public void Publish_explicit_type_with_unrelated_type_throws()
+    {
+        var session = new TestableMessageSession();
+        object message = new MyMessage();
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await session.Publish(message, typeof(MyOtherMessage), new PublishOptions()));
+        Assert.That(ex!.ParamName, Is.EqualTo("message"));
+    }
+
+    [Test]
+    public void Reply_explicit_type_with_unrelated_type_throws()
+    {
+        var context = new TestableMessageProcessingContext();
+        object message = new MyMessage();
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await context.Reply(message, typeof(MyOtherMessage), new ReplyOptions()));
+        Assert.That(ex!.ParamName, Is.EqualTo("message"));
+    }
+
+    [Test]
+    public void PipelineContext_Send_explicit_type_with_unrelated_type_throws()
+    {
+        var context = new TestablePipelineContext();
+        object message = new MyMessage();
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await context.Send(message, typeof(MyOtherMessage), new SendOptions()));
+        Assert.That(ex!.ParamName, Is.EqualTo("message"));
+    }
+
+    [Test]
+    public void PipelineContext_Publish_explicit_type_with_unrelated_type_throws()
+    {
+        var context = new TestablePipelineContext();
+        object message = new MyMessage();
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await context.Publish(message, typeof(MyOtherMessage), new PublishOptions()));
+        Assert.That(ex!.ParamName, Is.EqualTo("message"));
+    }
+
+    [Test]
+    public void Default_interface_fallback_Send_explicit_type_with_unrelated_type_throws()
+    {
+        var legacy = new LegacyMessageSession();
+        IMessageSession session = legacy;
+        object message = new MyMessage();
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await session.Send(message, typeof(MyOtherMessage), new SendOptions()));
+    }
+
+    [Test]
+    public void Default_interface_fallback_Publish_explicit_type_with_unrelated_type_throws()
+    {
+        var legacy = new LegacyMessageSession();
+        IMessageSession session = legacy;
+        object message = new MyMessage();
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await session.Publish(message, typeof(MyOtherMessage), new PublishOptions()));
+    }
+
+    [Test]
+    public void Default_interface_fallback_Reply_explicit_type_with_unrelated_type_throws()
+    {
+        var legacy = new LegacyMessageProcessingContext();
+        IMessageProcessingContext context = legacy;
+        object message = new MyMessage();
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await context.Reply(message, typeof(MyOtherMessage), new ReplyOptions()));
+    }
+
     public interface IMyMessage
     {
     }
@@ -331,16 +607,22 @@ public class TypedMessageInstanceOverloadsTests
     {
     }
 
+    public class MyOtherMessage
+    {
+    }
+
     class TrackingMessageSession : TestableMessageSession
     {
         public int SendObjectCount;
         public int SendGenericCount;
+        public int SendExplicitTypeCount;
         public int PublishObjectCount;
         public int PublishGenericCount;
+        public int PublishExplicitTypeCount;
 
         public override Task Send(object message, SendOptions options, CancellationToken cancellationToken = default)
         {
-            if (!trackingGenericSend)
+            if (!trackingGenericSend && !trackingExplicitTypeSend)
             {
                 SendObjectCount++;
             }
@@ -362,9 +644,23 @@ public class TypedMessageInstanceOverloadsTests
             }
         }
 
+        public override Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options, CancellationToken cancellationToken = default)
+        {
+            SendExplicitTypeCount++;
+            trackingExplicitTypeSend = true;
+            try
+            {
+                return base.Send(message, messageType, options, cancellationToken);
+            }
+            finally
+            {
+                trackingExplicitTypeSend = false;
+            }
+        }
+
         public override Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default)
         {
-            if (!trackingGenericPublish)
+            if (!trackingGenericPublish && !trackingExplicitTypePublish)
             {
                 PublishObjectCount++;
             }
@@ -386,20 +682,38 @@ public class TypedMessageInstanceOverloadsTests
             }
         }
 
+        public override Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options, CancellationToken cancellationToken = default)
+        {
+            PublishExplicitTypeCount++;
+            trackingExplicitTypePublish = true;
+            try
+            {
+                return base.Publish(message, messageType, options, cancellationToken);
+            }
+            finally
+            {
+                trackingExplicitTypePublish = false;
+            }
+        }
+
         bool trackingGenericSend;
         bool trackingGenericPublish;
+        bool trackingExplicitTypeSend;
+        bool trackingExplicitTypePublish;
     }
 
     class TrackingPipelineContext : TestablePipelineContext
     {
         public int SendObjectCount;
         public int SendGenericCount;
+        public int SendExplicitTypeCount;
         public int PublishObjectCount;
         public int PublishGenericCount;
+        public int PublishExplicitTypeCount;
 
         public override Task Send(object message, SendOptions options)
         {
-            if (!trackingGenericSend)
+            if (!trackingGenericSend && !trackingExplicitTypeSend)
             {
                 SendObjectCount++;
             }
@@ -421,9 +735,23 @@ public class TypedMessageInstanceOverloadsTests
             }
         }
 
+        public override Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
+        {
+            SendExplicitTypeCount++;
+            trackingExplicitTypeSend = true;
+            try
+            {
+                return base.Send(message, messageType, options);
+            }
+            finally
+            {
+                trackingExplicitTypeSend = false;
+            }
+        }
+
         public override Task Publish(object message, PublishOptions options)
         {
-            if (!trackingGenericPublish)
+            if (!trackingGenericPublish && !trackingExplicitTypePublish)
             {
                 PublishObjectCount++;
             }
@@ -445,18 +773,35 @@ public class TypedMessageInstanceOverloadsTests
             }
         }
 
+        public override Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
+        {
+            PublishExplicitTypeCount++;
+            trackingExplicitTypePublish = true;
+            try
+            {
+                return base.Publish(message, messageType, options);
+            }
+            finally
+            {
+                trackingExplicitTypePublish = false;
+            }
+        }
+
         bool trackingGenericSend;
         bool trackingGenericPublish;
+        bool trackingExplicitTypeSend;
+        bool trackingExplicitTypePublish;
     }
 
     class TrackingMessageProcessingContext : TestableMessageProcessingContext
     {
         public int ReplyObjectCount;
         public int ReplyGenericCount;
+        public int ReplyExplicitTypeCount;
 
         public override Task Reply(object message, ReplyOptions options)
         {
-            if (!trackingGenericReply)
+            if (!trackingGenericReply && !trackingExplicitTypeReply)
             {
                 ReplyObjectCount++;
             }
@@ -478,7 +823,22 @@ public class TypedMessageInstanceOverloadsTests
             }
         }
 
+        public override Task Reply(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, ReplyOptions options)
+        {
+            ReplyExplicitTypeCount++;
+            trackingExplicitTypeReply = true;
+            try
+            {
+                return base.Reply(message, messageType, options);
+            }
+            finally
+            {
+                trackingExplicitTypeReply = false;
+            }
+        }
+
         bool trackingGenericReply;
+        bool trackingExplicitTypeReply;
     }
 
     class LegacyMessageSession : IMessageSession

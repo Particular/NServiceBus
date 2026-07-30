@@ -77,6 +77,15 @@ public partial class TestablePipelineContext : IPipelineContext
     }
 
     /// <summary>
+    /// Sends the provided message with the specified message type.
+    /// </summary>
+    public virtual Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Send(message, options);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and sends it.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
@@ -111,6 +120,15 @@ public partial class TestablePipelineContext : IPipelineContext
 #pragma warning disable IDE0004 // Cast is redundant
         return Publish((object)message!, options);
 #pragma warning restore IDE0004
+    }
+
+    /// <summary>
+    /// Publishes the provided message with the specified message type.
+    /// </summary>
+    public virtual Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Publish(message, options);
     }
 
     /// <summary>
