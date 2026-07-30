@@ -11,6 +11,3 @@ src/NServiceBus.Core/Pipeline/RegisterStep.cs
 src/NServiceBus.Core/Pipeline/RegisterStepExtensions.cs
   IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'behaviorType' of method 'NServiceBus.RegisterStepExtensions.GetBehaviorInterface(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
   IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'behaviorType' of method 'NServiceBus.RegisterStepExtensions.IsBehavior(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
-
-src/NServiceBus.Core/Sagas/Saga.cs
-  IL2026: Using member 'NServiceBus.IPipelineContext.Send(Object, SendOptions)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. Routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload and specify the message type.
