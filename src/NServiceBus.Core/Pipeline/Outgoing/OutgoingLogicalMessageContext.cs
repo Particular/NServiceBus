@@ -23,7 +23,7 @@ class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageCo
 
     public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Replacing a message instance is a type-erased pipeline extension point whose runtime type cannot carry static trimming annotations.")]
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public void UpdateMessage(object newInstance)
     {
         ArgumentNullException.ThrowIfNull(newInstance);

@@ -98,6 +98,7 @@ public abstract class Saga
     /// <summary>
     /// Sends the <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
     /// </summary>
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     protected Task ReplyToOriginator(IMessageHandlerContext context, object message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
     {
         var options = BuildReplyToOriginatorOptions(outgoingHeaders);

@@ -31,6 +31,7 @@ public interface IMessageProcessingContext : IPipelineContext
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">Options for this reply.</param>
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     Task Reply(object message, ReplyOptions options);
 
     /// <summary>
@@ -40,6 +41,7 @@ public interface IMessageProcessingContext : IPipelineContext
     /// <param name="message">The message to send.</param>
     /// <param name="options">Options for this reply.</param>
     [OverloadResolutionPriority(-1)]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, ReplyOptions options)
     {
         return Reply(message!, options);

@@ -48,6 +48,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">The options for the send.</param>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual Task Send(object message, SendOptions options)
     {
         var headers = options.GetHeaders();
@@ -91,6 +92,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// </summary>
     /// <param name="message">The message to publish.</param>
     /// <param name="options">The options for the publish.</param>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual Task Publish(object message, PublishOptions options)
     {
         publishedMessages.Enqueue(new PublishedMessage<object>(message, options));

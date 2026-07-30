@@ -14,6 +14,7 @@ public partial class TestableOutgoingLogicalMessageContext : TestableOutgoingCon
     /// <summary>
     /// Updates the message instance.
     /// </summary>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual void UpdateMessage(object newInstance)
     {
         Message = new OutgoingLogicalMessage(newInstance.GetType(), newInstance);

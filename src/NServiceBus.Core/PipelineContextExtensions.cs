@@ -17,6 +17,7 @@ public static class PipelineContextExtensions
     /// </summary>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="message">The message to send.</param>
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task Send(this IPipelineContext context, object message)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -63,6 +64,7 @@ public static class PipelineContextExtensions
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="destination">The address of the destination to which the message will be sent.</param>
     /// <param name="message">The message to send.</param>
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task Send(this IPipelineContext context, string destination, object message)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -122,6 +124,7 @@ public static class PipelineContextExtensions
     /// </summary>
     /// <param name="context">Object being extended.</param>
     /// <param name="message">The message to send.</param>
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task SendLocal(this IPipelineContext context, object message)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -176,6 +179,7 @@ public static class PipelineContextExtensions
     /// </summary>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="message">The message to publish.</param>
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task Publish(this IPipelineContext context, object message)
     {
         ArgumentNullException.ThrowIfNull(context);

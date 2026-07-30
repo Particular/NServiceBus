@@ -25,6 +25,7 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     /// <summary>
     /// Updates the message instance.
     /// </summary>
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     void UpdateMessage(object newInstance);
 
     /// <summary>
@@ -33,6 +34,7 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     /// <typeparam name="T">The message type.</typeparam>
     /// <param name="newInstance">The replacement message instance.</param>
     [OverloadResolutionPriority(-1)]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance)
     {
         UpdateMessage(newInstance!);

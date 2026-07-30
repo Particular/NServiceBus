@@ -40,6 +40,7 @@ public partial class TestableMessageProcessingContext : TestablePipelineContext,
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">Options for this reply.</param>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual Task Reply(object message, ReplyOptions options)
     {
         repliedMessages.Enqueue(new RepliedMessage<object>(message, options));
