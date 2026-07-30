@@ -12,7 +12,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 {
     public InstrumentationOptions Options { get; } = options;
 
-    static Activity? CreateActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, ContextBag extensions)
+    static Activity? CreateActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, string nativeMessageId, ContextBag extensions)
     {
         // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
         // here nonetheless to avoid having to parse headers, access the extension bag, etc.
@@ -70,12 +70,23 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
         ContextPropagation.PropagateContextFromHeaders(activity, headers);
 
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
+
+        ActivityDecorator.PromoteHeadersToTags(activity, headers);
+
         return activity;
     }
 
     public Activity? StartIncomingPipelineActivity(MessageContext context)
     {
-        var activity = CreateActivityFromIncomingMessage(ActivitySources.Main, ActivityNames.IncomingMessageActivityName, context.Headers, context.Extensions);
+        var activity = CreateActivityFromIncomingMessage(
+            ActivitySources.Main,
+            ActivityNames.IncomingMessageActivityName,
+            context.Headers,
+            context.NativeMessageId,
+            context.Extensions);
+
         if (activity is null)
         {
             return activity;
@@ -84,10 +95,6 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         activity.DisplayName = Options.UseMessageDestinationInSpanNames
             ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
             : ActivityDisplayNames.ProcessMessage;
-        activity.SetIdFormat(ActivityIdFormat.W3C);
-        activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
-
-        ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
 
         activity.Start();
 
@@ -139,17 +146,19 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
     public Activity? StartRecoverabilityActivity(ErrorContext context)
     {
-        var activity = CreateActivityFromIncomingMessage(ActivitySources.Recoverability, ActivityNames.RecoverabilityActivityName, context.Headers, context.Extensions);
+        var activity = CreateActivityFromIncomingMessage(
+            ActivitySources.Recoverability,
+            ActivityNames.RecoverabilityActivityName,
+            context.Headers,
+            context.NativeMessageId,
+            context.Extensions);
+
         if (activity is null)
         {
             return activity;
         }
 
         activity.DisplayName = ActivityDisplayNames.Recoverability;
-        activity.SetIdFormat(ActivityIdFormat.W3C);
-        activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
-
-        ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
 
         activity.Start();
 
