@@ -15,6 +15,7 @@ public static class MessageProcessingContextExtensions
     /// </summary>
     /// <param name="context">Object being extended.</param>
     /// <param name="message">The message to send.</param>
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task Reply(this IMessageProcessingContext context, object message)
     {
         ArgumentNullException.ThrowIfNull(context);

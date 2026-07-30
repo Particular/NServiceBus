@@ -24,6 +24,7 @@ abstract class OutgoingContext : BehaviorContext, IOutgoingContext
 
     public Dictionary<string, string> Headers { get; }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Send(object message, SendOptions options)
     {
         return MessageOperations.Send(this, message, options);
@@ -40,6 +41,7 @@ abstract class OutgoingContext : BehaviorContext, IOutgoingContext
         return MessageOperations.Send(this, messageConstructor, options);
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Publish(object message, PublishOptions options)
     {
         return MessageOperations.Publish(this, message, options);

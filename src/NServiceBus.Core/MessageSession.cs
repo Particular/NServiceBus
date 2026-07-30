@@ -80,6 +80,7 @@ class MessageSession : IMessageSession
         }
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public async Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
@@ -114,6 +115,7 @@ class MessageSession : IMessageSession
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public async Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);

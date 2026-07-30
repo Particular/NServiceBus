@@ -47,7 +47,7 @@ class MessageOperations
         return PublishMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = TypeErasedMessageSuppressionJustification)]
+    [RequiresUnreferencedCode(RuntimeTypeRoutingTrimmingMessage)]
     public Task Publish(IBehaviorContext context, object message, PublishOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
@@ -120,7 +120,7 @@ class MessageOperations
         return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = TypeErasedMessageSuppressionJustification)]
+    [RequiresUnreferencedCode(RuntimeTypeRoutingTrimmingMessage)]
     public Task Send(IBehaviorContext context, object message, SendOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
@@ -155,7 +155,7 @@ class MessageOperations
         return ReplyMessage(context, typeof(T), message!, options);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = TypeErasedMessageSuppressionJustification)]
+    [RequiresUnreferencedCode(RuntimeTypeRoutingTrimmingMessage)]
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
@@ -190,7 +190,8 @@ class MessageOperations
         await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
     }
 
-    const string TypeErasedMessageSuppressionJustification = "The object-based API is a compatibility path whose runtime message type cannot carry static trimming annotations. Strongly typed APIs preserve the required message members.";
+    internal const string RuntimeTypeRoutingTrimmingMessage = "Routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload and specify the message type.";
+    internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the generic message type.";
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
     {

@@ -27,6 +27,7 @@ abstract class IncomingContext : BehaviorContext, IIncomingContext
 
     public IReadOnlyDictionary<string, string> MessageHeaders { get; }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Send(object message, SendOptions options)
     {
         return MessageOperations.Send(this, message, options);
@@ -43,6 +44,7 @@ abstract class IncomingContext : BehaviorContext, IIncomingContext
         return MessageOperations.Send(this, messageConstructor, options);
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Publish(object message, PublishOptions options)
     {
         return MessageOperations.Publish(this, message, options);
@@ -59,6 +61,7 @@ abstract class IncomingContext : BehaviorContext, IIncomingContext
         return MessageOperations.Publish(this, messageConstructor, publishOptions);
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Reply(object message, ReplyOptions options)
     {
         return MessageOperations.Reply(this, message, options);

@@ -47,6 +47,7 @@ public partial class TestableMessageSession : IMessageSession
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">The options for the send.</param>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual Task Send(object message, SendOptions options, CancellationToken cancellationToken = default)
     {
         var headers = options.GetHeaders();
@@ -90,6 +91,7 @@ public partial class TestableMessageSession : IMessageSession
     /// </summary>
     /// <param name="message">The message to publish.</param>
     /// <param name="options">The options for the publish.</param>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default)
     {
         publishedMessages.Enqueue(new PublishedMessage<object>(message, options));

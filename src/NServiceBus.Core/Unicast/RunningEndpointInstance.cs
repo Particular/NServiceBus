@@ -125,6 +125,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
@@ -153,6 +154,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         return messageSession.Send(messageConstructor, sendOptions, cancellationToken);
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
