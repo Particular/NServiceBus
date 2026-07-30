@@ -3,6 +3,8 @@
 namespace NServiceBus.Pipeline;
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Routing;
 
 /// <summary>
@@ -24,4 +26,15 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     /// Updates the message instance.
     /// </summary>
     void UpdateMessage(object newInstance);
+
+    /// <summary>
+    /// Updates the message instance while preserving the specified message type.
+    /// </summary>
+    /// <typeparam name="T">The message type.</typeparam>
+    /// <param name="newInstance">The replacement message instance.</param>
+    [OverloadResolutionPriority(-1)]
+    void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance)
+    {
+        UpdateMessage(newInstance!);
+    }
 }

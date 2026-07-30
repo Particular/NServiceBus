@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Pipeline;
 using Routing;
 
@@ -30,6 +31,17 @@ class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageCo
         if (Message.Instance != newInstance)
         {
             Message = new OutgoingLogicalMessage(newInstance.GetType(), newInstance);
+        }
+    }
+
+    [OverloadResolutionPriority(-1)]
+    public void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance)
+    {
+        ArgumentNullException.ThrowIfNull(newInstance);
+
+        if (Message.Instance != (object)newInstance || Message.MessageType != typeof(T))
+        {
+            Message = new OutgoingLogicalMessage(typeof(T), newInstance);
         }
     }
 }

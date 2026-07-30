@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Extensibility;
 
@@ -18,6 +19,18 @@ public interface IPipelineContext : ICancellableContext, IExtendable
     Task Send(object message, SendOptions options);
 
     /// <summary>
+    /// Sends the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="message">The message to send.</param>
+    /// <param name="options">The options for the send.</param>
+    [OverloadResolutionPriority(-1)]
+    Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions options)
+    {
+        return Send(message!, options);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and sends it.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
@@ -31,6 +44,18 @@ public interface IPipelineContext : ICancellableContext, IExtendable
     /// <param name="message">The message to publish.</param>
     /// <param name="options">The options for the publish.</param>
     Task Publish(object message, PublishOptions options);
+
+    /// <summary>
+    /// Publishes the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="message">The message to publish.</param>
+    /// <param name="options">The options for the publish.</param>
+    [OverloadResolutionPriority(-1)]
+    Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions options)
+    {
+        return Publish(message!, options);
+    }
 
     /// <summary>
     /// Instantiates a message of type T and publishes it.

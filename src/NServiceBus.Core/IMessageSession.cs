@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +22,19 @@ public interface IMessageSession
     Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Sends the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="message">The message to send.</param>
+    /// <param name="sendOptions">The options for the send.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [OverloadResolutionPriority(-1)]
+    Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        return Send(message!, sendOptions, cancellationToken);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and sends it.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
@@ -36,6 +50,19 @@ public interface IMessageSession
     /// <param name="publishOptions">The options for the publish.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Publishes the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="message">The message to publish.</param>
+    /// <param name="publishOptions">The options for the publish.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [OverloadResolutionPriority(-1)]
+    Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        return Publish(message!, publishOptions, cancellationToken);
+    }
 
     /// <summary>
     /// Instantiates a message of type T and publishes it.

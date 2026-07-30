@@ -4,6 +4,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -42,6 +44,20 @@ public partial class TestableMessageProcessingContext : TestablePipelineContext,
     {
         repliedMessages.Enqueue(new RepliedMessage<object>(message, options));
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Sends the typed message to the endpoint which sent the message currently being handled.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="message">The message to send.</param>
+    /// <param name="options">Options for this reply.</param>
+    [OverloadResolutionPriority(-1)]
+    public virtual Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, ReplyOptions options)
+    {
+#pragma warning disable IDE0004 // Cast is redundant
+        return Reply((object)message!, options);
+#pragma warning restore IDE0004
     }
 
     /// <summary>

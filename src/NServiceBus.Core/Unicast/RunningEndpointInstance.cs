@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
@@ -133,6 +134,16 @@ class RunningEndpointInstance(SettingsHolder settings,
         return messageSession.Send(message, sendOptions, cancellationToken);
     }
 
+    [OverloadResolutionPriority(-1)]
+    public Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Send<T>(message, sendOptions, cancellationToken);
+    }
+
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(messageConstructor);
@@ -149,6 +160,16 @@ class RunningEndpointInstance(SettingsHolder settings,
 
         GuardAgainstUseWhenNotStarted();
         return messageSession.Publish(message, publishOptions, cancellationToken);
+    }
+
+    [OverloadResolutionPriority(-1)]
+    public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Publish<T>(message, publishOptions, cancellationToken);
     }
 
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)

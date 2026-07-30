@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -20,6 +21,21 @@ public static class MessageProcessingContextExtensions
         ArgumentNullException.ThrowIfNull(message);
 
         return context.Reply(message, new ReplyOptions());
+    }
+
+    /// <summary>
+    /// Sends the typed message to the endpoint which sent the message currently being handled on this thread.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="context">Object being extended.</param>
+    /// <param name="message">The message to send.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IMessageProcessingContext context, T message)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+
+        return context.Reply<T>(message, new ReplyOptions());
     }
 
     /// <summary>

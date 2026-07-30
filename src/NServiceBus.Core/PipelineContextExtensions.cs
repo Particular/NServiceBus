@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -22,6 +23,21 @@ public static class PipelineContextExtensions
         ArgumentNullException.ThrowIfNull(message);
 
         return context.Send(message, new SendOptions());
+    }
+
+    /// <summary>
+    /// Sends the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
+    /// <param name="message">The message to send.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IPipelineContext context, T message)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+
+        return context.Send<T>(message, new SendOptions());
     }
 
     /// <summary>
@@ -58,6 +74,27 @@ public static class PipelineContextExtensions
         options.SetDestination(destination);
 
         return context.Send(message, options);
+    }
+
+    /// <summary>
+    /// Sends the typed message to the given destination.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
+    /// <param name="destination">The destination to which the message will be sent.</param>
+    /// <param name="message">The message to send.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IPipelineContext context, string destination, T message)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentException.ThrowIfNullOrWhiteSpace(destination);
+        ArgumentNullException.ThrowIfNull(message);
+
+        var options = new SendOptions();
+
+        options.SetDestination(destination);
+
+        return context.Send<T>(message, options);
     }
 
     /// <summary>
@@ -98,6 +135,25 @@ public static class PipelineContextExtensions
     }
 
     /// <summary>
+    /// Sends the typed message back to the current endpoint.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="context">Object being extended.</param>
+    /// <param name="message">The message to send.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task SendLocal<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IPipelineContext context, T message)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+
+        var options = new SendOptions();
+
+        options.RouteToThisEndpoint();
+
+        return context.Send<T>(message, options);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and sends it back to the current endpoint.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
@@ -126,6 +182,21 @@ public static class PipelineContextExtensions
         ArgumentNullException.ThrowIfNull(message);
 
         return context.Publish(message, new PublishOptions());
+    }
+
+    /// <summary>
+    /// Publishes the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
+    /// <param name="message">The message to publish.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IPipelineContext context, T message)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(message);
+
+        return context.Publish<T>(message, new PublishOptions());
     }
 
     /// <summary>

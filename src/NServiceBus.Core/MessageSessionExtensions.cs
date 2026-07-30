@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +23,22 @@ public static class MessageSessionExtensions
         ArgumentNullException.ThrowIfNull(message);
 
         return session.Send(message, new SendOptions(), cancellationToken);
+    }
+
+    /// <summary>
+    /// Sends the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IMessageSession session, T message, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(message);
+
+        return session.Send<T>(message, new SendOptions(), cancellationToken);
     }
 
     /// <summary>
@@ -60,6 +77,28 @@ public static class MessageSessionExtensions
         options.SetDestination(destination);
 
         return session.Send(message, options, cancellationToken);
+    }
+
+    /// <summary>
+    /// Sends the typed message to the given destination.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
+    /// <param name="destination">The destination to which the message will be sent.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IMessageSession session, string destination, T message, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentException.ThrowIfNullOrWhiteSpace(destination);
+        ArgumentNullException.ThrowIfNull(message);
+
+        var options = new SendOptions();
+
+        options.SetDestination(destination);
+
+        return session.Send<T>(message, options, cancellationToken);
     }
 
     /// <summary>
@@ -102,6 +141,26 @@ public static class MessageSessionExtensions
     }
 
     /// <summary>
+    /// Sends the typed message back to the current endpoint. Shortcut for <see cref="RoutingOptionExtensions.RouteToThisEndpoint(SendOptions)">sendOptions.RouteToThisEndpoint()</see>.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="session">Object being extended.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task SendLocal<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IMessageSession session, T message, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(message);
+
+        var options = new SendOptions();
+
+        options.RouteToThisEndpoint();
+
+        return session.Send<T>(message, options, cancellationToken);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and sends it back to the current endpoint. Shortcut for <see cref="RoutingOptionExtensions.RouteToThisEndpoint(SendOptions)">sendOptions.RouteToThisEndpoint()</see>.
     /// </summary>
     /// <typeparam name="T">The type of message, usually an interface.</typeparam>
@@ -132,6 +191,22 @@ public static class MessageSessionExtensions
         ArgumentNullException.ThrowIfNull(message);
 
         return session.Publish(message, new PublishOptions(), cancellationToken);
+    }
+
+    /// <summary>
+    /// Publishes the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
+    /// <param name="message">The message to publish.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [OverloadResolutionPriority(-1)]
+    public static Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(this IMessageSession session, T message, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+        ArgumentNullException.ThrowIfNull(message);
+
+        return session.Publish<T>(message, new PublishOptions(), cancellationToken);
     }
 
     /// <summary>

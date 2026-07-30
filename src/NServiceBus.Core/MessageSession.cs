@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Logging;
@@ -90,6 +91,18 @@ class MessageSession : IMessageSession
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
     }
 
+    [OverloadResolutionPriority(-1)]
+    public async Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
+        await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
+        await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
+    }
+
     public async Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(messageConstructor);
@@ -102,6 +115,18 @@ class MessageSession : IMessageSession
     }
 
     public async Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
+        await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
+        await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
+    }
+
+    [OverloadResolutionPriority(-1)]
+    public async Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(publishOptions);

@@ -4,7 +4,9 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Extensibility;
 
@@ -98,6 +100,22 @@ public abstract class Saga
     /// </summary>
     protected Task ReplyToOriginator(IMessageHandlerContext context, object message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
     {
+        var options = BuildReplyToOriginatorOptions(outgoingHeaders);
+        return context.Reply(message, options);
+    }
+
+    /// <summary>
+    /// Sends the typed <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
+    /// </summary>
+    [OverloadResolutionPriority(-1)]
+    protected Task ReplyToOriginator<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IMessageHandlerContext context, T message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
+    {
+        var options = BuildReplyToOriginatorOptions(outgoingHeaders);
+        return context.Reply<T>(message, options);
+    }
+
+    ReplyOptions BuildReplyToOriginatorOptions(IReadOnlyDictionary<string, string>? outgoingHeaders)
+    {
         if (string.IsNullOrEmpty(Entity.Originator))
         {
             throw new Exception("Entity.Originator cannot be null. Perhaps the sender is a SendOnly endpoint.");
@@ -122,7 +140,7 @@ public abstract class Saga
             SagaIdToUse = null
         });
 
-        return context.Reply(message, options);
+        return options;
     }
 
     /// <summary>
