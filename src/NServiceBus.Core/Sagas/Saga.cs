@@ -40,7 +40,7 @@ public abstract class Saga
     /// </summary>
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="at"><see cref="DateTimeOffset" /> to send timeout <typeparamref name="TTimeoutMessageType" />.</param>
-    protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at) where TTimeoutMessageType : new()
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at) where TTimeoutMessageType : new()
     {
         return RequestTimeout(context, at, new TTimeoutMessageType());
     }
@@ -51,7 +51,7 @@ public abstract class Saga
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="at"><see cref="DateTimeOffset" /> to send timeout <paramref name="timeoutMessage" />.</param>
     /// <param name="timeoutMessage">The message to send after <paramref name="at" /> is reached.</param>
-    protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at, TTimeoutMessageType timeoutMessage)
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at, TTimeoutMessageType timeoutMessage)
     {
         VerifySagaCanHandleTimeout(timeoutMessage);
 
@@ -62,7 +62,7 @@ public abstract class Saga
 
         SetTimeoutHeaders(options);
 
-        return context.Send(timeoutMessage, options);
+        return context.Send<TTimeoutMessageType>(timeoutMessage, options);
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public abstract class Saga
     /// </summary>
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="within">Given <see cref="TimeSpan" /> to delay timeout message by.</param>
-    protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within) where TTimeoutMessageType : new()
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within) where TTimeoutMessageType : new()
     {
         return RequestTimeout(context, within, new TTimeoutMessageType());
     }
@@ -81,7 +81,7 @@ public abstract class Saga
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="within">Given <see cref="TimeSpan" /> to delay timeout message by.</param>
     /// <param name="timeoutMessage">The message to send after <paramref name="within" /> expires.</param>
-    protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within, TTimeoutMessageType timeoutMessage)
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within, TTimeoutMessageType timeoutMessage)
     {
         VerifySagaCanHandleTimeout(timeoutMessage);
 
@@ -92,7 +92,7 @@ public abstract class Saga
 
         SetTimeoutHeaders(sendOptions);
 
-        return context.Send(timeoutMessage, sendOptions);
+        return context.Send<TTimeoutMessageType>(timeoutMessage, sendOptions);
     }
 
     /// <summary>
