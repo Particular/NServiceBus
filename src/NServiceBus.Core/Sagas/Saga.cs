@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Extensibility;
+using Particular.Obsoletes;
 
 /// <summary>
 /// This class is used to define sagas containing data and handling a message.
@@ -98,6 +99,10 @@ public abstract class Saga
     /// <summary>
     /// Sends the <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
     /// </summary>
+    [ObsoleteMetadata(ReplacementTypeOrMember = "ReplyToOriginator<T>",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("Use 'ReplyToOriginator<T>' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     protected Task ReplyToOriginator(IMessageHandlerContext context, object message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
     {

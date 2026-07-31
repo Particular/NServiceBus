@@ -1076,6 +1076,8 @@ namespace NServiceBus
         protected void MarkAsComplete() { }
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
             "mmer. Use the generic overload and specify the message type.")]
+        [System.Obsolete("Use \'ReplyToOriginator<T>\' instead. Will be treated as an error from version 11.0" +
+            ".0. Will be removed in version 12.0.0.", false)]
         protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message, System.Collections.Generic.IReadOnlyDictionary<string, string>? outgoingHeaders = null) { }
         [System.Runtime.CompilerServices.OverloadResolutionPriority(-1)]
         protected System.Threading.Tasks.Task ReplyToOriginator<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(NServiceBus.IMessageHandlerContext context, T message, System.Collections.Generic.IReadOnlyDictionary<string, string>? outgoingHeaders = null) { }

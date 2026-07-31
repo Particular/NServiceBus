@@ -71,7 +71,7 @@ public class When_replying_to_originator : NServiceBusAcceptanceTest
 
             public Task Handle(SendReplyFromNonInitiatingHandler message, IMessageHandlerContext context) =>
                 //reply to originator must be used here since the sender of the incoming message is this saga and not the requesting saga
-                ReplyToOriginator(context, new ResponseFromOtherSaga
+                ReplyToOriginator<ResponseFromOtherSaga>(context, new ResponseFromOtherSaga
                 {
                     SomeCorrelationId = Data.CorrIdForRequest
                 });
