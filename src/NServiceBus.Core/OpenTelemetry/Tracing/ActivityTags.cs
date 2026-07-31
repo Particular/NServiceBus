@@ -42,4 +42,5 @@ static class ActivityTags
     public const string EventTypes = "nservicebus.event_types";
     public const string CancelledTask = "nservicebus.cancelled";
     public const string ErrorType = "error.type";
+    public const string RecoverabilityAction = "nservicebus.recoverability_action";
 }

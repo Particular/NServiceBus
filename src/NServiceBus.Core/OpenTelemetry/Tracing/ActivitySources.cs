@@ -13,4 +13,8 @@ static class ActivitySources
     public static readonly ActivitySource Handler =
         new("NServiceBus.Core.Handler",
             "0.1.0");
+
+    public static readonly ActivitySource Recoverability =
+        new("NServiceBus.Core.Recoverability",
+            "0.1.0");
 }
