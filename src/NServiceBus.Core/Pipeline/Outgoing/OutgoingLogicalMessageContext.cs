@@ -48,4 +48,16 @@ class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageCo
             Message = new OutgoingLogicalMessage(typeof(T), newInstance);
         }
     }
+
+    public void UpdateMessage(object newInstance, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        ArgumentNullException.ThrowIfNull(newInstance);
+        ArgumentNullException.ThrowIfNull(messageType);
+        MessageTypeValidator.Validate(newInstance, messageType);
+
+        if (Message.Instance != newInstance || Message.MessageType != messageType)
+        {
+            Message = new OutgoingLogicalMessage(messageType, newInstance);
+        }
+    }
 }
