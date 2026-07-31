@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Testing;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -26,7 +27,15 @@ public partial class TestableOutgoingLogicalMessageContext : TestableOutgoingCon
     [OverloadResolutionPriority(-1)]
     public virtual void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance)
     {
-        Message = new OutgoingLogicalMessage(typeof(T), newInstance!);
+        UpdateMessage(newInstance!, typeof(T));
+    }
+
+    /// <summary>
+    /// Updates the message instance with the specified message type.
+    /// </summary>
+    public virtual void UpdateMessage(object newInstance, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        Message = new OutgoingLogicalMessage(messageType, newInstance);
     }
 
     /// <summary>

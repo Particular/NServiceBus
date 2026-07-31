@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Pipeline;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -38,9 +39,20 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     /// <typeparam name="T">The message type.</typeparam>
     /// <param name="newInstance">The replacement message instance.</param>
     [OverloadResolutionPriority(-1)]
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance)
     {
-        UpdateMessage(newInstance!);
+        UpdateMessage(newInstance!, typeof(T));
+    }
+
+    /// <summary>
+    /// Updates the message instance with the specified message type.
+    /// </summary>
+    /// <param name="newInstance">The replacement message instance.</param>
+    /// <param name="messageType">The declared message type.</param>
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
+    void UpdateMessage(object newInstance, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        MessageTypeValidator.Validate(newInstance, messageType);
+        UpdateMessage(newInstance);
     }
 }
