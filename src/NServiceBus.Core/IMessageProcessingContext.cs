@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Particular.Obsoletes;
 
 /// <summary>
 /// The context of the currently processed message within the processing pipeline.
@@ -31,6 +32,9 @@ public interface IMessageProcessingContext : IPipelineContext
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">Options for this reply.</param>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Reply<T>(T, ReplyOptions) or Reply(object, Type, ReplyOptions)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     Task Reply(object message, ReplyOptions options);
 

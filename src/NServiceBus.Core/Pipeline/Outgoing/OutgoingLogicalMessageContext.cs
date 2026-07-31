@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Particular.Obsoletes;
 using Pipeline;
 using Routing;
 
@@ -23,6 +24,9 @@ class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageCo
 
     public IReadOnlyCollection<RoutingStrategy> RoutingStrategies { get; }
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "UpdateMessage<T>(T)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public void UpdateMessage(object newInstance)
     {

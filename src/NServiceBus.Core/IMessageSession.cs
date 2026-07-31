@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Particular.Obsoletes;
 
 /// <summary>
 /// A session which provides basic message operations.
@@ -19,6 +20,9 @@ public interface IMessageSession
     /// <param name="message">The message to send.</param>
     /// <param name="sendOptions">The options for the send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Send<T>(T, SendOptions, CancellationToken) or Send(object, Type, SendOptions, CancellationToken)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default);
 
@@ -64,6 +68,9 @@ public interface IMessageSession
     /// <param name="message">The message to publish.</param>
     /// <param name="publishOptions">The options for the publish.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Publish<T>(T, PublishOptions, CancellationToken) or Publish(object, Type, PublishOptions, CancellationToken)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default);
 

@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Features;
 using Logging;
+using Particular.Obsoletes;
 using Settings;
 using Transport;
 
@@ -125,6 +126,9 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
     }
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Send<T>(T, SendOptions, CancellationToken) or Send(object, Type, SendOptions, CancellationToken)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
@@ -164,6 +168,9 @@ class RunningEndpointInstance(SettingsHolder settings,
         return messageSession.Send(messageConstructor, sendOptions, cancellationToken);
     }
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Publish<T>(T, PublishOptions, CancellationToken) or Publish(object, Type, PublishOptions, CancellationToken)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {

@@ -5,6 +5,7 @@ namespace NServiceBus.Pipeline;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Particular.Obsoletes;
 using Routing;
 
 /// <summary>
@@ -25,6 +26,9 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     /// <summary>
     /// Updates the message instance.
     /// </summary>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "UpdateMessage<T>(T)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     void UpdateMessage(object newInstance);
 
