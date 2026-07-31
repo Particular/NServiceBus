@@ -130,7 +130,7 @@ public class MainPipelineExecutorTests
             new TestableMessageOperations(),
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
-            new ActivityFactory(),
+            new ActivityFactory(new InstrumentationOptions()),
             incomingPipelineMetrics,
             new EnvelopeUnwrapper([], incomingPipelineMetrics));
 

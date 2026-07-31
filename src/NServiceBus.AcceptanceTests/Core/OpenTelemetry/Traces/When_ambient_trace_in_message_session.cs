@@ -15,7 +15,7 @@ public class When_ambient_trace_in_message_session : OpenTelemetryAcceptanceTest
         using var externalActivitySource = new ActivitySource("external trace source");
         using var _ = TestingActivityListener.SetupDiagnosticListener(externalActivitySource.Name); // need to have a registered listener for activities to be created
 
-        const string wrapperActivityTraceState = "test trace state";
+        const string wrapperActivityTraceState = "tracekey=traceValue";
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAmbientActivity>(b => b

@@ -14,6 +14,13 @@ using Transport;
 
 class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
 {
+    readonly IActivityFactory activityFactory;
+
+    public RoutingToDispatchConnector(IActivityFactory activityFactory)
+    {
+        this.activityFactory = activityFactory;
+    }
+
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
         var dispatchConsistency = DispatchConsistency.Default;
@@ -26,7 +33,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
 
         // HINT: Context is propagated to the message headers from the current activity, if present.
         // This may not be the outgoing message activity created by NServiceBus.
-        ContextPropagation.PropagateContextToHeaders(Activity.Current, outgoingMessage.Headers, context.Extensions);
+        ContextPropagation.PropagateContextToHeaders(Activity.Current, outgoingMessage.Headers);
 
         // We only propagate receive properties when the message id matches the incoming message id.
         var receiveProperties =
@@ -60,6 +67,17 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
         {
             ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
+
+            // Append destination to span name per OTel messaging spec: {operation} {destination}
+            // Only for send/reply (unicast); publish destination is already set at span creation.
+            if (activityFactory.Options.UseMessageDestinationInSpanNames
+                && operations.Length > 0
+                && operations[0].AddressTag is UnicastAddressTag unicastTag
+                && outgoingMessage.Headers.TryGetValue(Headers.MessageIntent, out var intentStr)
+                && intentStr is "Send" or "Reply")
+            {
+                activity.DisplayName = $"{activity.DisplayName} {unicastTag.Destination}";
+            }
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))

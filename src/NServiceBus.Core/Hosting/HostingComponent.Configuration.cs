@@ -28,7 +28,7 @@ partial class HostingComponent
             serviceCollection,
             settings.ShouldRunInstallers,
             settings.UserRegistrations,
-            new ActivityFactory(),
+            new ActivityFactory(settings.InstrumentationOptions),
             persistenceConfiguration,
             installerComponent);
 

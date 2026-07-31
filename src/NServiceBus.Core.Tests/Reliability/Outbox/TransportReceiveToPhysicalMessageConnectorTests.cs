@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using AcceptanceTests.Core.OpenTelemetry.Metrics;
 using NServiceBus.Outbox;
 using NServiceBus.Pipeline;
 using NServiceBus.Routing;
@@ -131,6 +132,20 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     }
 
     [Test]
+    public async Task Should_report_deduplicated_message_metric_when_deduplicating()
+    {
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
+        string messageId = Guid.NewGuid().ToString();
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, Array.Empty<NServiceBus.Outbox.TransportOperation>());
+        var context = CreateContext(fakeBatchPipeline, messageId);
+
+        await Invoke(context);
+
+        metricsListener.AssertMetric("nservicebus.outbox.duplicates", 1);
+    }
+
+    [Test]
     public async Task Should_add_batch_dispatch_events_when_sending_batched_messages()
     {
         var context = CreateContext(fakeBatchPipeline, Guid.NewGuid().ToString());
@@ -182,6 +197,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         };
 
         context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
+        context.Extensions.Set(new IncomingPipelineMetricTags());
 
         return context;
     }
@@ -191,9 +207,13 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     {
         fakeOutbox = new FakeOutboxStorage();
         fakeBatchPipeline = new FakeBatchPipeline();
+        fakeMeterFactory = new TestMeterFactory();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), new InstrumentationOptions());
     }
+
+    [TearDown]
+    public void TearDown() => fakeMeterFactory.Dispose();
 
     Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));
 
@@ -201,6 +221,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
     FakeBatchPipeline fakeBatchPipeline;
     FakeOutboxStorage fakeOutbox;
+    TestMeterFactory fakeMeterFactory;
 
     class MyEvent;
 

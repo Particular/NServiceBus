@@ -8,7 +8,10 @@ using Transport;
 
 interface IActivityFactory
 {
+    InstrumentationOptions Options { get; }
     Activity? StartIncomingPipelineActivity(MessageContext context);
     Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext);
     Activity? StartHandlerActivity(MessageHandler messageHandler);
+    Activity? StartRecoverabilityActivity(ErrorContext context);
+    void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress);
 }

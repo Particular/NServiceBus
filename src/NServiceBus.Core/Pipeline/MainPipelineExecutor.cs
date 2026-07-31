@@ -35,6 +35,9 @@ class MainPipelineExecutor(
             using var incomingMessageHandle = envelopeUnwrapper.UnwrapEnvelope(messageContext);
             IncomingMessage message = incomingMessageHandle;
 
+            //This needs to happen after envelope unwrapping to ensure the proper value of the EnclosedMessageTypes header
+            using var activeMessageScope = incomingPipelineMetrics.TrackMessageProcessing(incomingPipelineMetricsTags, message);
+
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
                 messageOperations,

@@ -213,6 +213,12 @@ namespace NServiceBus
         public int MaxNumberOfRetries { get; }
         public System.TimeSpan TimeIncrease { get; }
     }
+    public class DelayedDeliveryInstrumentationOptions
+    {
+        public DelayedDeliveryInstrumentationOptions() { }
+        public NServiceBus.TraceMode SagaTimeoutTraceMode { get; set; }
+        public NServiceBus.TraceMode SendOperationTraceMode { get; set; }
+    }
     public static class DelayedDeliveryOptionExtensions
     {
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
@@ -633,6 +639,16 @@ namespace NServiceBus
         StopApplication = 0,
         Continue = 1,
     }
+    public class InstrumentationOptions
+    {
+        public InstrumentationOptions() { }
+        public NServiceBus.DelayedDeliveryInstrumentationOptions DelayedDelivery { get; }
+        public bool EmitMessageDispatchingEvents { get; set; }
+        public NServiceBus.TraceMode PublishTraceMode { get; set; }
+        public NServiceBus.RecoverabilityInstrumentationOptions Recoverability { get; }
+        public NServiceBus.TraceMode SendTraceMode { get; set; }
+        public bool UseMessageDestinationInSpanNames { get; set; }
+    }
     public sealed class KeyedServiceKey
     {
         public const string Any = "_______<ANY>_______";
@@ -773,7 +789,10 @@ namespace NServiceBus
     public static class OpenTelemetryExtensions
     {
         public static void ContinueExistingTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
+        public static void ContinueExistingTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
+        public static void StartNewTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
         public static void StartNewTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
+        public static NServiceBus.InstrumentationOptions Tracing(this NServiceBus.EndpointConfiguration config) { }
     }
     public static class OutboxConfigExtensions
     {
@@ -890,6 +909,11 @@ namespace NServiceBus
     public static class RecoverabilityEndpointConfigurationExtensions
     {
         public static NServiceBus.RecoverabilitySettings Recoverability(this NServiceBus.EndpointConfiguration configuration) { }
+    }
+    public class RecoverabilityInstrumentationOptions
+    {
+        public RecoverabilityInstrumentationOptions() { }
+        public NServiceBus.TraceMode DelayedRetryTraceMode { get; set; }
     }
     public class RecoverabilitySettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
@@ -1170,6 +1194,11 @@ namespace NServiceBus
     {
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaEntityProperty) { }
+    }
+    public enum TraceMode
+    {
+        ContinueExisting = 0,
+        StartNew = 1,
     }
     public static class TransportConfig
     {
