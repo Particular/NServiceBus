@@ -1,7 +1,7 @@
 {
   "Note": "Changes to metrics API should result in an update to NServiceBusMeter version.",
   "MetricsSourceName": "NServiceBus.Core.Pipeline.Incoming",
-  "MetricsSourceVersion": "0.3.0",
+  "MetricsSourceVersion": "0.4.0",
   "Tags": [
     "error.type",
     "execution.result",
@@ -11,20 +11,27 @@
     "nservicebus.message_handler_type",
     "nservicebus.message_handler_types",
     "nservicebus.message_type",
-    "nservicebus.queue"
+    "nservicebus.queue",
+    "nservicebus.saga_type"
   ],
   "Metrics": [
     "nservicebus.envelope.unwrapped => Counter",
     "nservicebus.messaging.active_messages => UpDownCounter",
     "nservicebus.messaging.critical_time => Histogram, Unit: s",
+    "nservicebus.messaging.deserialize_time => Histogram, Unit: s",
     "nservicebus.messaging.failures => Counter",
     "nservicebus.messaging.fetches => Counter",
     "nservicebus.messaging.handler_time => Histogram, Unit: s",
     "nservicebus.messaging.processing_time => Histogram, Unit: s",
+    "nservicebus.messaging.serialize_time => Histogram, Unit: s",
     "nservicebus.messaging.successes => Counter",
     "nservicebus.outbox.duplicates => Counter",
+    "nservicebus.outbox.fetch_time => Histogram, Unit: s",
+    "nservicebus.outbox.store_time => Histogram, Unit: s",
+    "nservicebus.persistence.time => Histogram, Unit: s",
     "nservicebus.recoverability.delayed => Counter",
     "nservicebus.recoverability.error => Counter",
-    "nservicebus.recoverability.immediate => Counter"
+    "nservicebus.recoverability.immediate => Counter",
+    "nservicebus.sagas.fetch_time => Histogram, Unit: s"
   ]
 }

@@ -9,7 +9,7 @@ using Logging;
 using Pipeline;
 using Sagas;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider, IncomingPipelineMetrics incomingPipelineMetrics)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
@@ -67,7 +67,20 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         //so that other behaviors can access the saga
         context.Extensions.Set(sagaInstanceState);
 
-        var loadedEntity = await TryLoadSagaEntity(currentSagaMetadata, context).ConfigureAwait(false);
+        var sagaFetchStart = Stopwatch.GetTimestamp();
+        IContainSagaData? loadedEntity;
+        try
+        {
+            loadedEntity = await TryLoadSagaEntity(currentSagaMetadata, context).ConfigureAwait(false);
+            incomingPipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!, success: true);
+        }
+#pragma warning disable PS0019
+        catch (Exception ex)
+#pragma warning restore PS0019
+        {
+            incomingPipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!, success: false, error: ex);
+            throw;
+        }
 
         if (loadedEntity == null)
         {

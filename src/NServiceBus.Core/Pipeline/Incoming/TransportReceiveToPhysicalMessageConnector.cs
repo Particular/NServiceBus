@@ -25,7 +25,9 @@ class TransportReceiveToPhysicalMessageConnector(
         var messageId = context.Message.MessageId;
         var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 
+        var outboxFetchStart = Stopwatch.GetTimestamp();
         var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+        incomingPipelineMetrics.RecordOutboxFetchTime(context, Stopwatch.GetElapsedTime(outboxFetchStart));
         var pendingTransportOperations = new PendingTransportOperations();
         if (deduplicationEntry == null)
         {
@@ -40,7 +42,9 @@ class TransportReceiveToPhysicalMessageConnector(
                 await next(physicalMessageContext).ConfigureAwait(false);
 
                 var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
+                var outboxStoreStart = Stopwatch.GetTimestamp();
                 await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+                incomingPipelineMetrics.RecordOutboxStoreTime(context, Stopwatch.GetElapsedTime(outboxStoreStart));
 
                 context.Extensions.Remove<IOutboxTransaction>();
                 await outboxTransaction.Commit(context.CancellationToken).ConfigureAwait(false);

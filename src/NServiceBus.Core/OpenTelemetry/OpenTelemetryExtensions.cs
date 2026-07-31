@@ -21,6 +21,17 @@ public static class OpenTelemetryExtensions
     }
 
     /// <summary>
+    /// Provides access to opt-in performance metrics options.
+    /// </summary>
+    /// <param name="config">The endpoint configuration.</param>
+    /// <returns>The <see cref="PerformanceMetricsOptions"/> instance for this endpoint.</returns>
+    public static PerformanceMetricsOptions PerformanceMetrics(this EndpointConfiguration config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        return config.Settings.GetOrCreate<PerformanceMetricsOptions>();
+    }
+
+    /// <summary>
     /// Start a new OpenTelemetry trace on receive of this message, linked back to the send span.
     /// Overrides <see cref="InstrumentationOptions.SendTraceMode"/> for this message.
     /// </summary>

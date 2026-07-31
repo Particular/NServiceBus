@@ -70,7 +70,7 @@ partial class ReceiveComponent
             return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMetrics>(), hostingConfiguration.ActivityFactory.Options);
         }, "Allows to abort processing the message");
 
-        pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+        pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory, b.GetRequiredService<IncomingPipelineMetrics>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
         pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(sp.GetRequiredService<IncomingPipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
 
