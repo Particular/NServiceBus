@@ -46,6 +46,36 @@ public class NullableEnabledDirectories
     }
 
     [Test]
+    public void EnsureFullyAnnotatedDirectoriesAreListedAsCompleted()
+    {
+        var sourceRoot = FindSourceRoot();
+        var completedDirectories = ReadCompletedDirectories(sourceRoot).ToHashSet(StringComparer.Ordinal);
+
+        var missingDirectories = Directory.EnumerateFiles(sourceRoot, "*.cs", SearchOption.AllDirectories)
+            .Where(file => !IsBinOrObj(file))
+            .GroupBy(file => Path.GetDirectoryName(file)!)
+            .Select(group => new
+            {
+                Directory = Path.GetRelativePath(sourceRoot, group.Key).Replace('\\', '/'),
+                Total = group.Count(),
+                Annotated = group.Count(IsAnnotated)
+            })
+            .Where(entry => entry.Annotated == entry.Total)
+            .Where(entry => !completedDirectories.Contains(entry.Directory))
+            .OrderBy(entry => entry.Directory, StringComparer.Ordinal)
+            .Select(entry => entry.Directory)
+            .ToArray();
+
+        if (missingDirectories.Length > 0)
+        {
+            Assert.Fail(
+                $"The following directories have every '.cs' file annotated with '#nullable enable' but are not " +
+                $"listed in {ApprovedFileName}. Add them to the approval file to lock in the migration:" +
+                $"{Environment.NewLine}{string.Join(Environment.NewLine, missingDirectories)}");
+        }
+    }
+
+    [Test]
     [Explicit("Run this test to generate a report of directories that are not fully annotated with '#nullable enable'.")]
     public void GenerateIncompleteDirectoriesReport()
     {
