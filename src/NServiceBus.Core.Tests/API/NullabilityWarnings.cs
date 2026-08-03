@@ -71,7 +71,6 @@ public partial class NullabilityWarnings
         startInfo.ArgumentList.Add(projectPath);
         startInfo.ArgumentList.Add("-p:Nullable=enable");
         startInfo.ArgumentList.Add("-p:TreatWarningsAsErrors=false");
-        startInfo.ArgumentList.Add("-p:IsPackable=false");
         startInfo.ArgumentList.Add($"-bl:{binlogPath}");
 
         using var process = Process.Start(startInfo)!;

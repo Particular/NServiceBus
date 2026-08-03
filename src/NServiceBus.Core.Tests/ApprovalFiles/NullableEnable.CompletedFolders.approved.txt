@@ -52,3 +52,17 @@ NServiceBus.Core/Recoverability/Settings
 NServiceBus.Core/Serializers/SystemJson
 NServiceBus.Core/Support
 NServiceBus.Core/Unicast/Config
+NServiceBus.AcceptanceTests/Core/UnitOfWork/TransactionScope
+NServiceBus.Core.Tests/Reliability/Outbox
+NServiceBus.Core.Tests/ServicePlatform/Retries
+NServiceBus.Core.Tests/Utils/Reflection
+NServiceBus.Core/Recoverability/Faults
+NServiceBus.Core/Reliability/Outbox
+NServiceBus.Core/Reliability/SynchronizedStorage
+NServiceBus.Core/Serialization
+NServiceBus.Core/ServicePlatform/Retries
+NServiceBus.Core/StaticHeaders
+NServiceBus.Core/UnitOfWork
+NServiceBus.Core/UnitOfWork/TransactionScopes
+NServiceBus.Core/Utils
+NServiceBus.Core/Utils/Reflection
