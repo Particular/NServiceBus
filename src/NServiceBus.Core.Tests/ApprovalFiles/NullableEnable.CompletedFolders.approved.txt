@@ -66,3 +66,4 @@ NServiceBus.Core/UnitOfWork
 NServiceBus.Core/UnitOfWork/TransactionScopes
 NServiceBus.Core/Utils
 NServiceBus.Core/Utils/Reflection
+NServiceBus.Core/Utils/Reflection
