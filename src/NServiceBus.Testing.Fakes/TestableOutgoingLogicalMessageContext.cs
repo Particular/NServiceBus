@@ -35,6 +35,7 @@ public partial class TestableOutgoingLogicalMessageContext : TestableOutgoingCon
     /// </summary>
     public virtual void UpdateMessage(object newInstance, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
+        MessageTypeValidator.Validate(newInstance, messageType);
         Message = new OutgoingLogicalMessage(messageType, newInstance);
     }
 
