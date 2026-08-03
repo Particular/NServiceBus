@@ -733,6 +733,63 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
     // ===== Negative tests =====
 
     [Test]
+    public Task NoDiagnostic_ObjectCreation_NewObject()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await session.Send(new object(), new SendOptions());
+                }
+            }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_ObjectCreation_TargetTypedNewObject()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await session.Send(new(), new SendOptions());
+                }
+            }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_ObjectVariable()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session, object message)
+                {
+                    await session.Send(message);
+                }
+            }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
     public Task NoDiagnostic_AnonymousType()
     {
         var source =
