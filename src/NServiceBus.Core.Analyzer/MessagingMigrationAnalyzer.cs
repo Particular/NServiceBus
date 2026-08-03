@@ -108,6 +108,13 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
+        // An object-typed creation would be fixed to the generic overload with T = System.Object, which
+        // immediately violates NSB0041. Never offer a fixable NSB0039 for the object type.
+        if (messageType.SpecialType == SpecialType.System_Object)
+        {
+            return;
+        }
+
         var typeDisplay = messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         var isUpdateMessage = declaration.Name == "UpdateMessage";
         if (IsRoutingEquivalent(messageValue, messageType, knownTypes.IMessageCreator, isUpdateMessage))

@@ -429,6 +429,46 @@ public class MessagingMigrationFixerTests : CodeFixTestFixture<MessagingMigratio
     }
 
     [Test]
+    public Task NoFixForNewObject()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await session.Send(new object(), new SendOptions());
+                }
+            }
+            """;
+
+        return Assert(original, original);
+    }
+
+    [Test]
+    public Task NoFixForTargetTypedNewObject()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await session.Send(new(), new SendOptions());
+                }
+            }
+            """;
+
+        return Assert(original, original);
+    }
+
+    [Test]
     public Task SagaReplyToOriginator()
     {
         var original =
