@@ -33,7 +33,7 @@ public static class MessageSessionExtensions
     /// <summary>
     /// Sends the provided typed message.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="message">The message to send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
@@ -65,7 +65,7 @@ public static class MessageSessionExtensions
     /// <summary>
     /// Instantiates a message of <typeparamref name="T" /> and sends it.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
@@ -107,7 +107,7 @@ public static class MessageSessionExtensions
     /// <summary>
     /// Sends the typed message to the given destination.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="destination">The destination to which the message will be sent.</param>
     /// <param name="message">The message to send.</param>
@@ -151,7 +151,7 @@ public static class MessageSessionExtensions
     /// <summary>
     /// Instantiates a message of type T and sends it to the given destination.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="destination">The destination to which the message will be sent.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
@@ -194,7 +194,7 @@ public static class MessageSessionExtensions
     /// <summary>
     /// Sends the typed message back to the current endpoint. Shortcut for <see cref="RoutingOptionExtensions.RouteToThisEndpoint(SendOptions)">sendOptions.RouteToThisEndpoint()</see>.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message locally. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="session">Object being extended.</param>
     /// <param name="message">The message to send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
@@ -234,7 +234,7 @@ public static class MessageSessionExtensions
     /// <summary>
     /// Instantiates a message of type T and sends it back to the current endpoint. Shortcut for <see cref="RoutingOptionExtensions.RouteToThisEndpoint(SendOptions)">sendOptions.RouteToThisEndpoint()</see>.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message locally. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="session">Object being extended.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
@@ -271,7 +271,7 @@ public static class MessageSessionExtensions
     /// <summary>
     /// Publishes the provided typed message.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to publish the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="message">The message to publish.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
@@ -316,7 +316,7 @@ public static class MessageSessionExtensions
     /// <summary>
     /// Instantiates a message of type T and publishes it.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to publish the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>

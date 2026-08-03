@@ -38,6 +38,11 @@ class OutgoingLogicalMessageContext : OutgoingContext, IOutgoingLogicalMessageCo
         }
     }
 
+    /// <summary>
+    /// Replaces the current message with the provided typed message instance.
+    /// </summary>
+    /// <typeparam name="T">The type used to update the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
+    /// <param name="newInstance">The new message instance.</param>
     [OverloadResolutionPriority(-1)]
     public void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance)
     {
