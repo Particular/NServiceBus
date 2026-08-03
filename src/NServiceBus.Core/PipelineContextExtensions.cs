@@ -46,11 +46,13 @@ public static class PipelineContextExtensions
     }
 
     /// <summary>
-    /// Sends the provided message with the specified message type.
+    /// Sends the provided message with the specified message type. The declared type controls how the message is routed and the message type header recorded on the message.
     /// </summary>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
-    /// <param name="message">The message to send.</param>
-    /// <param name="messageType">The declared message type.</param>
+    /// <param name="message">The message to send. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="message" /> as long as the instance is assignable to it.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="message" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="message" /> is not assignable to <paramref name="messageType" />.</exception>
     public static Task Send(this IPipelineContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -122,12 +124,14 @@ public static class PipelineContextExtensions
     }
 
     /// <summary>
-    /// Sends the message with the specified message type to the given destination.
+    /// Sends the message with the specified message type to the given destination. The declared type controls how the message is routed and the message type header recorded on the message.
     /// </summary>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="destination">The destination to which the message will be sent.</param>
-    /// <param name="message">The message to send.</param>
-    /// <param name="messageType">The declared message type.</param>
+    /// <param name="message">The message to send. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="message" /> as long as the instance is assignable to it.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="message" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="message" /> is not assignable to <paramref name="messageType" />.</exception>
     public static Task Send(this IPipelineContext context, string destination, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -203,11 +207,13 @@ public static class PipelineContextExtensions
     }
 
     /// <summary>
-    /// Sends the message with the specified message type back to the current endpoint.
+    /// Sends the message with the specified message type back to the current endpoint. The declared type controls how the message is routed and the message type header recorded on the message.
     /// </summary>
     /// <param name="context">Object being extended.</param>
-    /// <param name="message">The message to send.</param>
-    /// <param name="messageType">The declared message type.</param>
+    /// <param name="message">The message to send. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="message" /> as long as the instance is assignable to it.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="message" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="message" /> is not assignable to <paramref name="messageType" />.</exception>
     public static Task SendLocal(this IPipelineContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -272,11 +278,13 @@ public static class PipelineContextExtensions
     }
 
     /// <summary>
-    /// Publishes the provided message with the specified message type.
+    /// Publishes the provided message with the specified message type. The declared type controls how the message is routed and the message type header recorded on the message.
     /// </summary>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
-    /// <param name="message">The message to publish.</param>
-    /// <param name="messageType">The declared message type.</param>
+    /// <param name="message">The message to publish. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="message" /> as long as the instance is assignable to it.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="message" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="message" /> is not assignable to <paramref name="messageType" />.</exception>
     public static Task Publish(this IPipelineContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
         ArgumentNullException.ThrowIfNull(context);

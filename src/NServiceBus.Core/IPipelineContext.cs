@@ -36,11 +36,16 @@ public interface IPipelineContext : ICancellableContext, IExtendable
     }
 
     /// <summary>
-    /// Sends the provided message with the specified message type.
+    /// Sends the provided message with the specified message type. The declared type controls how the message is routed and the message type header recorded on the message.
     /// </summary>
-    /// <param name="message">The message to send.</param>
-    /// <param name="messageType">The declared message type.</param>
+    /// <param name="message">The message to send. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="message" /> as long as the instance is assignable to it.</param>
     /// <param name="options">The options for the send.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="message" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="message" /> is not assignable to <paramref name="messageType" />.</exception>
+    /// <remarks>
+    /// Third-party implementations that inherit this default implementation fall back to the object overload and route by the runtime type of <paramref name="message" />. Override this method to preserve a declared <paramref name="messageType" /> that differs from the runtime type.
+    /// </remarks>
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
     {
@@ -80,11 +85,16 @@ public interface IPipelineContext : ICancellableContext, IExtendable
     }
 
     /// <summary>
-    /// Publishes the provided message with the specified message type.
+    /// Publishes the provided message with the specified message type. The declared type controls how the message is routed and the message type header recorded on the message.
     /// </summary>
-    /// <param name="message">The message to publish.</param>
-    /// <param name="messageType">The declared message type.</param>
+    /// <param name="message">The message to publish. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="message" /> as long as the instance is assignable to it.</param>
     /// <param name="options">The options for the publish.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="message" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="message" /> is not assignable to <paramref name="messageType" />.</exception>
+    /// <remarks>
+    /// Third-party implementations that inherit this default implementation fall back to the object overload and route by the runtime type of <paramref name="message" />. Override this method to preserve a declared <paramref name="messageType" /> that differs from the runtime type.
+    /// </remarks>
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
     {
