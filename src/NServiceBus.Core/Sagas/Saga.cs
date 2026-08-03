@@ -113,6 +113,10 @@ public abstract class Saga
     /// <summary>
     /// Sends the typed <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
     /// </summary>
+    /// <typeparam name="T">The type used to reply. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
+    /// <param name="context">The context of the currently handled message.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="outgoingHeaders">The headers to attach to the outgoing message.</param>
     [OverloadResolutionPriority(-1)]
     protected Task ReplyToOriginator<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IMessageHandlerContext context, T message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
     {

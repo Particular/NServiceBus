@@ -44,11 +44,13 @@ public static class MessageProcessingContextExtensions
     }
 
     /// <summary>
-    /// Sends the message with the specified message type to the endpoint which sent the message currently being handled on this thread.
+    /// Sends the message with the specified message type to the endpoint which sent the message currently being handled on this thread. The declared type controls how the message is routed and the message type header recorded on the message.
     /// </summary>
     /// <param name="context">Object being extended.</param>
-    /// <param name="message">The message to send.</param>
-    /// <param name="messageType">The declared message type.</param>
+    /// <param name="message">The message to send. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="message" /> as long as the instance is assignable to it.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="message" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="message" /> is not assignable to <paramref name="messageType" />.</exception>
     public static Task Reply(this IMessageProcessingContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
         ArgumentNullException.ThrowIfNull(context);

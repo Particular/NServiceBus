@@ -24,7 +24,7 @@ public class OutgoingLogicalMessage
     }
 
     /// <summary>
-    /// The <see cref="Type" /> of the message instance.
+    /// The declared logical message type used for routing and the enclosed-message-types header. It may differ from the runtime type of <see cref="Instance" />.
     /// </summary>
     [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)]
     public Type MessageType { get; }

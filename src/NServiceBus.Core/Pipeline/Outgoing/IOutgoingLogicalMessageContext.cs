@@ -36,7 +36,7 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     /// <summary>
     /// Updates the message instance while preserving the specified message type.
     /// </summary>
-    /// <typeparam name="T">The message type.</typeparam>
+    /// <typeparam name="T">The type used to update the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="newInstance">The replacement message instance.</param>
     [OverloadResolutionPriority(-1)]
     void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance)
@@ -45,10 +45,15 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     }
 
     /// <summary>
-    /// Updates the message instance with the specified message type.
+    /// Updates the message instance with the specified message type. The declared type controls how the message is routed and the message type header recorded on the message.
     /// </summary>
-    /// <param name="newInstance">The replacement message instance.</param>
-    /// <param name="messageType">The declared message type.</param>
+    /// <param name="newInstance">The replacement message instance. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="newInstance" /> as long as the instance is assignable to it.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="newInstance" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newInstance" /> is not assignable to <paramref name="messageType" />.</exception>
+    /// <remarks>
+    /// Third-party implementations that inherit this default implementation fall back to the object overload and route by the runtime type of <paramref name="newInstance" />. Override this method to preserve a declared <paramref name="messageType" /> that differs from the runtime type.
+    /// </remarks>
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = MessageOperations.DefaultInterfaceTrimmingSuppressionJustification)]
     void UpdateMessage(object newInstance, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
