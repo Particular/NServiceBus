@@ -294,6 +294,45 @@ public class TypedMessageInstanceOverloadsTests
     }
 
     [Test]
+    public void Testable_outgoing_context_explicit_type_validates_declared_type()
+    {
+        var context = new TestableOutgoingLogicalMessageContext();
+        object message = new MyMessage();
+
+        var ex = Assert.Throws<ArgumentException>(() => context.UpdateMessage(message, typeof(string)));
+        Assert.That(ex!.ParamName, Is.EqualTo("message"));
+    }
+
+    [Test]
+    public void Testable_outgoing_context_explicit_type_rejects_null_instance()
+    {
+        var context = new TestableOutgoingLogicalMessageContext();
+
+        Assert.Throws<ArgumentNullException>(() => context.UpdateMessage(null!, typeof(IMyMessage)));
+    }
+
+    [Test]
+    public void Testable_outgoing_context_explicit_type_rejects_null_message_type()
+    {
+        var context = new TestableOutgoingLogicalMessageContext();
+        var message = new MyMessage();
+
+        Assert.Throws<ArgumentNullException>(() => context.UpdateMessage(message, null!));
+    }
+
+    [Test]
+    public void Testable_outgoing_context_explicit_type_preserves_declared_type_and_instance()
+    {
+        var context = new TestableOutgoingLogicalMessageContext();
+        object message = new MyMessage();
+
+        context.UpdateMessage(message, typeof(IMyMessage));
+
+        Assert.That(context.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+        Assert.That(context.Message.Instance, Is.SameAs(message));
+    }
+
+    [Test]
     public async Task Default_interface_fallback_Send_uses_object_overload()
     {
         var legacy = new LegacyMessageSession();
