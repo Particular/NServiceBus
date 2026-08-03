@@ -211,7 +211,6 @@ class MessageOperations
     internal const string RuntimeTypeRoutingTrimmingMessage = "Routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload and specify the message type.";
     internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
 
-
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
     {
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
