@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Syntactic sugar for <see cref="IPipelineContext" />.
@@ -17,6 +18,9 @@ public static class PipelineContextExtensions
     /// </summary>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="message">The message to send.</param>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Send<T>(this IPipelineContext, T)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead, or the overload accepting an explicit messageType when the static type is unavailable.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task Send(this IPipelineContext context, object message)
     {
@@ -79,6 +83,9 @@ public static class PipelineContextExtensions
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="destination">The address of the destination to which the message will be sent.</param>
     /// <param name="message">The message to send.</param>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Send<T>(this IPipelineContext, string, T)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead, or the overload accepting an explicit messageType when the static type is unavailable.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task Send(this IPipelineContext context, string destination, object message)
     {
@@ -160,6 +167,9 @@ public static class PipelineContextExtensions
     /// </summary>
     /// <param name="context">Object being extended.</param>
     /// <param name="message">The message to send.</param>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "SendLocal<T>(this IPipelineContext, T)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead, or the overload accepting an explicit messageType when the static type is unavailable.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task SendLocal(this IPipelineContext context, object message)
     {
@@ -234,6 +244,9 @@ public static class PipelineContextExtensions
     /// </summary>
     /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
     /// <param name="message">The message to publish.</param>
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Publish<T>(this IPipelineContext, T)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead, or the overload accepting an explicit messageType when the static type is unavailable.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public static Task Publish(this IPipelineContext context, object message)
     {
