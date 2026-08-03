@@ -65,7 +65,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// <summary>
     /// Sends the provided typed message.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="message">The message to send.</param>
     /// <param name="options">The options for the send.</param>
     [OverloadResolutionPriority(-1)]
@@ -88,7 +88,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// <summary>
     /// Instantiates a message of type T and sends it.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="options">The options for the send.</param>
     public virtual Task Send<T>(Action<T> messageConstructor, SendOptions options)
@@ -111,7 +111,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// <summary>
     /// Publishes the provided typed message.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to publish the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="message">The message to publish.</param>
     /// <param name="options">The options for the publish.</param>
     [OverloadResolutionPriority(-1)]
@@ -134,7 +134,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// <summary>
     /// Instantiates a message of type T and publishes it.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to publish the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="publishOptions">Specific options for this event.</param>
     public virtual Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)

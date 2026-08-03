@@ -27,7 +27,7 @@ public static class MessageProcessingContextExtensions
     /// <summary>
     /// Sends the typed message to the endpoint which sent the message currently being handled on this thread.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to reply with the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="context">Object being extended.</param>
     /// <param name="message">The message to send.</param>
     [OverloadResolutionPriority(-1)]
@@ -57,7 +57,7 @@ public static class MessageProcessingContextExtensions
     /// <summary>
     /// Instantiates a message of type T and performs a regular Reply.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to reply with the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="context">Object being extended.</param>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     public static Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(this IMessageProcessingContext context, Action<T> messageConstructor)
