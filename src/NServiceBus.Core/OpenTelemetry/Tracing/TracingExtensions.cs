@@ -9,11 +9,11 @@ using Pipeline;
 
 static class TracingExtensions
 {
-    public static Task Invoke<TContext>(this IPipeline<TContext> pipeline, TContext context, Activity? activity) where TContext : IBehaviorContext
+    public static Task Invoke<TContext>(this IPipeline<TContext> pipeline, TContext context, Activity? activity, IActivityFactory activityFactory) where TContext : IBehaviorContext
     {
-        return activity is null ? pipeline.Invoke(context) : TracePipelineStatus(pipeline, context, activity);
+        return activity is null ? pipeline.Invoke(context) : TracePipelineStatus(pipeline, context, activity, activityFactory);
 
-        static async Task TracePipelineStatus(IPipeline<TContext> pipeline, TContext context, Activity activity)
+        static async Task TracePipelineStatus(IPipeline<TContext> pipeline, TContext context, Activity activity, IActivityFactory activityFactory)
         {
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
             try
@@ -23,7 +23,7 @@ static class TracingExtensions
             }
             catch (Exception ex)
             {
-                activity.SetErrorStatus(ex);
+                activityFactory.RecordError(activity, ex);
                 throw;
             }
 #pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for

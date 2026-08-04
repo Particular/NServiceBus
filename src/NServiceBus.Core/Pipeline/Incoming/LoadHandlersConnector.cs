@@ -64,7 +64,10 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
                     catch (Exception ex)
 #pragma warning restore PS0019
                     {
-                        activity?.SetErrorStatus(ex);
+                        if (activity is not null)
+                        {
+                            activityFactory.RecordError(activity, ex);
+                        }
                         throw;
                     }
                 }

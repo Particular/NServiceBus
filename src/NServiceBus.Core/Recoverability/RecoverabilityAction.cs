@@ -74,5 +74,11 @@ public abstract class RecoverabilityAction
     /// </summary>
     public abstract ErrorHandleResult ErrorHandleResult { get; }
 
-    static readonly ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
+    /// <summary>
+    /// Create a message summarizing the recoverability action.
+    /// </summary>
+    /// <param name="messageId">The ID of the message that failed to process.</param>
+    public virtual string LogMessage(string messageId) => $"Recoverability action '{GetType().Name}' invoked for message '{messageId}'.";
+
+    static readonly ImmediateRetry CachedImmediateRetry = new();
 }

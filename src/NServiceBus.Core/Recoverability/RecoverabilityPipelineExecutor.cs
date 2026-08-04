@@ -5,8 +5,9 @@ namespace NServiceBus;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Logging;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Pipeline;
+using Pipeline;
 using Transport;
 
 class RecoverabilityPipelineExecutor<TState>(
@@ -35,6 +36,17 @@ class RecoverabilityPipelineExecutor<TState>(
                 {
                     activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
                 }
+
+                var logMessage = recoverabilityAction.LogMessage(errorContext.MessageId);
+
+                if (activityFactory.Options.ExceptionRecordingMode == ExceptionRecordingMode.Dup)
+                {
+                    Logger.Info(logMessage, errorContext.Exception);
+                }
+                else
+                {
+                   Logger.Info(logMessage);
+                }
             }
 
             var metadata = faultMetadataExtractor.Extract(errorContext);
@@ -55,4 +67,6 @@ class RecoverabilityPipelineExecutor<TState>(
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
         }
     }
+
+    static readonly ILog Logger = LogManager.GetLogger<IRecoverabilityPipelineExecutor>();
 }

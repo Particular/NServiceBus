@@ -2,6 +2,7 @@
 
 namespace NServiceBus;
 
+using System;
 using System.Diagnostics;
 using Pipeline;
 using Transport;
@@ -19,6 +20,10 @@ sealed class NoOpActivityFactory : IActivityFactory
     public Activity? StartHandlerActivity(MessageHandler messageHandler) => null;
     public Activity? StartRecoverabilityActivity(ErrorContext context) => null;
     public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    {
+    }
+
+    public void RecordError(Activity activity, Exception ex)
     {
     }
 }

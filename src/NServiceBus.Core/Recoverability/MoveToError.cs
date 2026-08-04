@@ -3,7 +3,6 @@
 namespace NServiceBus;
 
 using System.Collections.Generic;
-using Logging;
 using Pipeline;
 using Recoverability;
 using Routing;
@@ -30,12 +29,13 @@ public class MoveToError : RecoverabilityAction
     public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
     /// <inheritdoc />
+    public override string LogMessage(string messageId) => $"Moving message '{messageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:";
+
+    /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
         var metadata = context.Metadata;
         var exception = context.Exception;
-
-        Logger.Error($"Moving message '{context.MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:", exception);
 
         if (context is IRecoverabilityActionContextNotifications notifications)
         {
@@ -56,6 +56,4 @@ public class MoveToError : RecoverabilityAction
             context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(ErrorQueue))
         ];
     }
-
-    static readonly ILog Logger = LogManager.GetLogger<MoveToError>();
 }

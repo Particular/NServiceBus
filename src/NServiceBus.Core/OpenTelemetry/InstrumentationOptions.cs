@@ -51,6 +51,12 @@ public class InstrumentationOptions
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
     public TraceMode PublishTraceMode { get; set; } = TraceMode.StartNew;
+
+    /// <summary>
+    /// Controls how exception details are recorded when an operation fails.
+    /// Defaults to <see cref="ExceptionRecordingMode.Dup"/>: exceptions are recorded as an event on the activity.
+    /// </summary>
+    public ExceptionRecordingMode ExceptionRecordingMode { get; set; } = ExceptionRecordingMode.Dup;
 }
 
 /// <summary>
