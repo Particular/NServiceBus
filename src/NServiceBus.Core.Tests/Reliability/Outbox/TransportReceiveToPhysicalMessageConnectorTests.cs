@@ -43,7 +43,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        var operationProperties = new DispatchProperties(fakeBatchPipeline.TransportOperations?.First().Properties);
+        var operationProperties = new DispatchProperties(fakeBatchPipeline.TransportOperations?.First().Properties ?? []);
         var delayDeliveryWith = operationProperties.DelayDeliveryWith;
         Assert.That(delayDeliveryWith, Is.Not.Null);
         Assert.That(delayDeliveryWith.Delay, Is.EqualTo(TimeSpan.FromSeconds(10)));
@@ -94,14 +94,12 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         var messageId = "id";
         var properties = new DispatchProperties
         {
-            ["EventType"] = typeof(MyEvent).AssemblyQualifiedName
+            ["EventType"] = typeof(MyEvent).AssemblyQualifiedName!
         };
 
-
-        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
-        {
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, [
             new NServiceBus.Outbox.TransportOperation("x", properties, Array.Empty<byte>(), [])
-        });
+        ]);
 
         var context = CreateContext(fakeBatchPipeline, messageId);
 

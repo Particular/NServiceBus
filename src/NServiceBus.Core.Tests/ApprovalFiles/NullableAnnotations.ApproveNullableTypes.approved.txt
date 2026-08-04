@@ -52,7 +52,6 @@ NServiceBus.SagasConfigExtensions
 NServiceBus.Settings.IReadOnlySettings
 NServiceBus.Settings.SettingsHolder
 NServiceBus.SubscriptionMigrationModeSettings
-NServiceBus.Transport.DispatchProperties
 NServiceBus.Transport.ErrorContext
 NServiceBus.Transport.IMessageDispatcher
 NServiceBus.Transport.IMessageReceiver
