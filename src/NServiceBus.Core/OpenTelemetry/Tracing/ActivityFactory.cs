@@ -210,9 +210,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
-        // Legacy OTel tags
-        activity.SetTag("otel.status_code", "ERROR");
-        activity.SetTag("otel.status_description", exception.Message);
+        LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
 
         var recordedExceptions = context.GetOrCreate<RecordedExceptions>();
         if (!recordedExceptions.HasBeenRecorded(exception))
@@ -223,7 +221,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             }
             else
             {
-                activity.AddException(exception, new TagList { { "exception.escaped", true } });
+                activity.AddException(exception, LegacyExceptionTags.EscapedTagList);
             }
 
             recordedExceptions.MarkAsRecorded(exception);
