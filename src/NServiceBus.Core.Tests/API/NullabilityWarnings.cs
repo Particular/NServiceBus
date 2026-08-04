@@ -69,6 +69,9 @@ public partial class NullabilityWarnings
 
         startInfo.ArgumentList.Add("build");
         startInfo.ArgumentList.Add(projectPath);
+        // Limit the build scope to NServiceBus.Core so warnings from referenced analyzer projects are excluded.
+        startInfo.ArgumentList.Add("--no-dependencies");
+        startInfo.ArgumentList.Add("--no-incremental");
         startInfo.ArgumentList.Add("-p:Nullable=enable");
         startInfo.ArgumentList.Add("-p:TreatWarningsAsErrors=false");
         startInfo.ArgumentList.Add("-p:IsPackable=false");

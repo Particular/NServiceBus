@@ -2,59 +2,6 @@ The following nullable warnings are present in NServiceBus.Core.
 Changes that make this list longer should not be approved.
 -----
 
-src/NServiceBus.Core.Analyzer/FeatureDefaultsEnableFeatureAnalyzer.cs
-  CS8603: Possible null reference return.
-
-src/NServiceBus.Core.Analyzer/ForwardCancellationTokenAnalyzer.cs
-  CS8600: Converting null literal or possible null value to non-nullable type.
-  CS8603: Possible null reference return.
-  CS8604: Possible null reference argument for parameter 'genericTaskType' in 'void ForwardCancellationTokenAnalyzer.Analyze(SyntaxNodeAnalysisContext context, INamedTypeSymbol cancellableContextInterface, INamedTypeSymbol cancellationTokenType, INamedTypeSymbol genericTaskType, INamedTypeSymbol genericValueTaskType)'.
-  CS8604: Possible null reference argument for parameter 'genericValueTaskType' in 'void ForwardCancellationTokenAnalyzer.Analyze(SyntaxNodeAnalysisContext context, INamedTypeSymbol cancellableContextInterface, INamedTypeSymbol cancellationTokenType, INamedTypeSymbol genericTaskType, INamedTypeSymbol genericValueTaskType)'.
-  CS8604: Possible null reference argument for parameter 'symbol' in 'SymbolExtensions.extension(ISymbol)'.
-  CS8620: Argument of type 'ImmutableDictionary<string, string>' cannot be used for parameter 'properties' of type 'ImmutableDictionary<string, string?>' in 'Diagnostic Diagnostic.Create(DiagnosticDescriptor descriptor, Location? location, ImmutableDictionary<string, string?>? properties, params object?[]? messageArgs)' due to differences in the nullability of reference types.
-  CS8625: Cannot convert null literal to non-nullable reference type.
-
-src/NServiceBus.Core.Analyzer/MethodSymbolExtensions.cs
-  CS8602: Dereference of a possibly null reference.
-
-src/NServiceBus.Core.Analyzer/Sagas/AddSagaInterceptor.cs
-  CS8604: Possible null reference argument for parameter 'knownTypes' in 'InterceptableSagaSpec? Parser.Parse(InvocationExpressionSyntax invocation, SemanticModel semanticModel, HandlerKnownTypes knownTypes, CancellationToken cancellationToken = default(CancellationToken))'.
-
-src/NServiceBus.Core.Analyzer/Sagas/FindSagaByDataSymbolVisitor.cs
-  CS8618: Non-nullable property 'FoundSaga' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-
-src/NServiceBus.Core.Analyzer/Sagas/SagaAnalyzer.cs
-  CS8600: Converting null literal or possible null value to non-nullable type.
-  CS8601: Possible null reference assignment.
-  CS8602: Dereference of a possibly null reference.
-  CS8603: Possible null reference return.
-  CS8604: Possible null reference argument for parameter 'expression' in 'TypeInfo CSharpExtensions.GetTypeInfo(SemanticModel? semanticModel, ExpressionSyntax expression, CancellationToken cancellationToken = default(CancellationToken))'.
-  CS8604: Possible null reference argument for parameter 'interfaceType' in 'SagaHandlerDeclaration.SagaHandlerDeclaration(BaseTypeSyntax syntax, INamedTypeSymbol interfaceType)'.
-  CS8620: Argument of type 'ImmutableDictionary<string, string>' cannot be used for parameter 'properties' of type 'ImmutableDictionary<string, string?>' in 'Diagnostic Diagnostic.Create(DiagnosticDescriptor descriptor, Location? location, IEnumerable<Location>? additionalLocations, ImmutableDictionary<string, string?>? properties, params object?[]? messageArgs)' due to differences in the nullability of reference types.
-  CS8625: Cannot convert null literal to non-nullable reference type.
-
-src/NServiceBus.Core.Analyzer/Sagas/SagaDetails.cs
-  CS8618: Non-nullable property 'MapperParameterSyntax' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-
-src/NServiceBus.Core.Analyzer/Sagas/SagaHandlerDeclaration.cs
-  CS8601: Possible null reference assignment.
-  CS8618: Non-nullable property 'MessageType' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-  CS8618: Non-nullable property 'MessageTypeSyntax' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-
-src/NServiceBus.Core.Analyzer/Sagas/SagaMessageMapping.cs
-  CS8601: Possible null reference assignment.
-  CS8618: Non-nullable property 'CorrelationId' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-  CS8618: Non-nullable property 'MessageMappingExpression' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-  CS8618: Non-nullable property 'MessageType' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-  CS8618: Non-nullable property 'MessageTypeSyntax' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-  CS8618: Non-nullable property 'ToSagaSyntax' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-
-src/NServiceBus.Core.Analyzer/SymbolExtensions.cs
-  CS8603: Possible null reference return.
-
-src/NServiceBus.Core.Analyzer/TypeSymbolExtensions.cs
-  CS8603: Possible null reference return.
-
 src/NServiceBus.Core/EndpointConfiguration.cs
   CS8600: Converting null literal or possible null value to non-nullable type.
   CS8604: Possible null reference argument for parameter 'obj' in 'void Action<TInitializationExtension>.Invoke(TInitializationExtension obj)'.
