@@ -45,7 +45,7 @@ class RecoverabilityPipelineExecutor<TState>(
                 }
                 else
                 {
-                   Logger.Info(logMessage);
+                    Logger.Info(logMessage);
                 }
             }
 

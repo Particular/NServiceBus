@@ -205,7 +205,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         }
     }
 
-    public void RecordError(Activity activity, Exception exception)
+    public void RecordError(Activity activity, Exception exception, ContextBag context)
     {
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
@@ -214,13 +214,19 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         activity.SetTag("otel.status_code", "ERROR");
         activity.SetTag("otel.status_description", exception.Message);
 
-        if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
+        var recordedExceptions = context.GetOrCreate<RecordedExceptions>();
+        if (!recordedExceptions.HasBeenRecorded(exception))
         {
-            Logger.Error($"An exception occurred while executing '{activity.DisplayName}'.", exception);
-        }
-        else
-        {
-            activity.AddException(exception, new TagList { { "exception.escaped", true } });
+            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
+            {
+                Logger.Error($"An exception occurred while executing '{activity.DisplayName}'.", exception);
+            }
+            else
+            {
+                activity.AddException(exception, new TagList { { "exception.escaped", true } });
+            }
+
+            recordedExceptions.MarkAsRecorded(exception);
         }
 
         if (exception is TaskCanceledException)

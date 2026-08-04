@@ -66,7 +66,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
                     {
                         if (activity is not null)
                         {
-                            activityFactory.RecordError(activity, ex);
+                            activityFactory.RecordError(activity, ex, context.Extensions);
                         }
                         throw;
                     }

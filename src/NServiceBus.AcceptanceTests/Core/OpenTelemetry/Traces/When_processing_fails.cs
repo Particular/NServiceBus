@@ -44,6 +44,13 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
         handlerActivityTags.VerifyTag("otel.status_code", "ERROR");
         handlerActivityTags.VerifyTag("otel.status_description", ErrorMessage);
 
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(failedHandlerActivity.Events, Has.Exactly(1).Items,
+                "the innermost span (the handler invocation) should record the exception details");
+            Assert.That(failedPipelineActivity.Events, Is.Empty,
+                "the outer span should not duplicate the exception details already recorded on the inner span");
+        }
     }
 
     public class Context : ScenarioContext;

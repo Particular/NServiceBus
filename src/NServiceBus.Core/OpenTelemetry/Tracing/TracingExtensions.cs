@@ -23,7 +23,7 @@ static class TracingExtensions
             }
             catch (Exception ex)
             {
-                activityFactory.RecordError(activity, ex);
+                activityFactory.RecordError(activity, ex, context.Extensions);
                 throw;
             }
 #pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
