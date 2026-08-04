@@ -16,5 +16,5 @@ public enum ExceptionRecordingMode
     /// <summary>
     /// Records the exception details via NServiceBus's logging infrastructure and as an event the activity.
     /// </summary>
-    Dup
+    SpanAndLogs
 }

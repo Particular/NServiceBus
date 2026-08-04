@@ -39,7 +39,7 @@ class RecoverabilityPipelineExecutor<TState>(
 
                 var logMessage = recoverabilityAction.LogMessage(errorContext.MessageId);
 
-                if (activityFactory.Options.ExceptionRecordingMode == ExceptionRecordingMode.Dup)
+                if (activityFactory.Options.ExceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs)
                 {
                     Logger.Info(logMessage, errorContext.Exception);
                 }

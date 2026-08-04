@@ -336,7 +336,7 @@ namespace NServiceBus
     public enum ExceptionRecordingMode
     {
         Logs = 0,
-        Dup = 1,
+        SpanAndLogs = 1,
     }
     public class FailedConfig
     {
