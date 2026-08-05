@@ -103,16 +103,27 @@ public class OpenTelemetryExtensionsTests
     }
 
     [Test]
-    public void Explicit_configuration_takes_precedence_over_environment_variable()
+    public void Environment_variable_takes_precedence_over_explicit_configuration()
     {
         var settingsHolder = new SettingsHolder();
         settingsHolder.Set<SystemEnvironment>(new FakeEnvironment
         {
-            // the environment variable alone would resolve to SpanAndLogs
-            ValueToReturn = new Dictionary<string, string> { { InstrumentationOptions.ExceptionSignalOptInEnvironmentVariableKey, "logs/dup" } }
+            ValueToReturn = new Dictionary<string, string> { { InstrumentationOptions.ExceptionSignalOptInEnvironmentVariableKey, "logs" } }
         });
 
-        // explicitly configured to something the environment variable would not have produced
+        // explicitly configured to something other than what the environment variable resolves to
+        settingsHolder.Set(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.SpanAndLogs });
+        InstrumentationOptions.SetExceptionRecordingModeDefault(settingsHolder);
+
+        Assert.That(settingsHolder.Get<InstrumentationOptions>().ExceptionRecordingMode, Is.EqualTo(ExceptionRecordingMode.Logs));
+    }
+
+    [Test]
+    public void Explicit_configuration_is_preserved_when_environment_variable_is_not_set()
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set<SystemEnvironment>(new FakeEnvironment { ValueToReturn = [] });
+
         settingsHolder.Set(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.Logs });
         InstrumentationOptions.SetExceptionRecordingModeDefault(settingsHolder);
 
