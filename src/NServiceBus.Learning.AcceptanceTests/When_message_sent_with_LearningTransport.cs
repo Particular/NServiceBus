@@ -124,7 +124,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class Context : ScenarioContext
+    public class Context : ScenarioContext
     {
         public bool MessageReceived { get; set; }
         public bool MessageAudited { get; set; }
@@ -136,7 +136,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         public string SendFileCreatedAt { get; set; }
     }
 
-    class EndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
+    public class EndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
     {
         public EndPointThatReceivesFromAnotherAndAuditsEndpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
@@ -144,7 +144,8 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             endpointConfiguration.Pipeline.Register(behavior: new AuditHeaderOverrideBehavior(), description: "Override headers on audit messages");
         });
 
-        class OutgoingTestMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
+        [Handler]
+        public class OutgoingTestMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
         {
             public Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
             {
@@ -174,11 +175,12 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
+    public class AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
     {
         public AuditSpyForEndPointThatReceivesFromAnotherAndAuditsEndpoint() =>
             EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class AuditMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
         {
             public Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
@@ -204,11 +206,12 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class SendingEndpoint : EndpointConfigurationBuilder
+    public class SendingEndpoint : EndpointConfigurationBuilder
     {
         public SendingEndpoint() => EndpointSetup<DefaultServer>();
 
-        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        [Handler]
+        public class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public async Task Handle(TestMessage message, IMessageHandlerContext context)
             {
@@ -227,7 +230,8 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
 
         //handler for the outgoing message to verify that receive properties are not propagated to outgoing messages
-        class OutgoingTestMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
+        [Handler]
+        public class OutgoingTestMessageHandler(Context testContext) : IHandleMessages<OutgoingTestMessage>
         {
             public Task Handle(OutgoingTestMessage message, IMessageHandlerContext context)
             {
@@ -251,14 +255,15 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class Endpoint : EndpointConfigurationBuilder
+    public class Endpoint : EndpointConfigurationBuilder
     {
         public Endpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
             endpointConfiguration.AuditProcessedMessagesTo(Conventions.EndpointNamingConvention(typeof(AuditSpy)));
         });
 
-        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        [Handler]
+        public class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public Task Handle(TestMessage message, IMessageHandlerContext context)
             {
@@ -280,7 +285,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class FailingEndpoint : EndpointConfigurationBuilder
+    public class FailingEndpoint : EndpointConfigurationBuilder
     {
         public FailingEndpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
@@ -288,7 +293,8 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(0));
         });
 
-        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        [Handler]
+        public class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public Task Handle(TestMessage message, IMessageHandlerContext context)
             {
@@ -314,14 +320,15 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class EndpointWithAuditOn : EndpointConfigurationBuilder
+    public class EndpointWithAuditOn : EndpointConfigurationBuilder
     {
         public EndpointWithAuditOn() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
             endpointConfiguration.AuditProcessedMessagesTo(Conventions.EndpointNamingConvention(typeof(AuditSpy)));
         });
 
-        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        [Handler]
+        public class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public Task Handle(TestMessage message, IMessageHandlerContext context)
             {
@@ -337,11 +344,12 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class AuditSpy : EndpointConfigurationBuilder
+    public class AuditSpy : EndpointConfigurationBuilder
     {
         public AuditSpy() =>
             EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class AuditMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public Task Handle(TestMessage message, IMessageHandlerContext context)
@@ -367,7 +375,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class EndpointWithFailingHandler : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandler : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandler() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
@@ -375,7 +383,8 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             endpointConfiguration.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
         });
 
-        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        [Handler]
+        public class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public Task Handle(TestMessage message, IMessageHandlerContext context)
             {
@@ -391,7 +400,7 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class EndpointWithFailingHandlerAndDispatchOverride : EndpointConfigurationBuilder
+    public class EndpointWithFailingHandlerAndDispatchOverride : EndpointConfigurationBuilder
     {
         public EndpointWithFailingHandlerAndDispatchOverride() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
@@ -400,7 +409,8 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
             endpointConfiguration.Pipeline.Register(behavior: new ErrorQueueDispatchPropertyOverrideBehavior(), description: "Override FileCreatedAt dispatch property on error queue messages");
         });
 
-        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        [Handler]
+        public class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public Task Handle(TestMessage message, IMessageHandlerContext context)
             {
@@ -444,10 +454,11 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class ErrorSpy : EndpointConfigurationBuilder
+    public class ErrorSpy : EndpointConfigurationBuilder
     {
         public ErrorSpy() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class ErrorMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public Task Handle(TestMessage message, IMessageHandlerContext context)
@@ -469,10 +480,11 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         }
     }
 
-    class ErrorSpyWithDispatchPropertyVerification : EndpointConfigurationBuilder
+    public class ErrorSpyWithDispatchPropertyVerification : EndpointConfigurationBuilder
     {
         public ErrorSpyWithDispatchPropertyVerification() => EndpointSetup<DefaultServer>();
 
+        [Handler]
         public class ErrorMessageHandler(Context testContext) : IHandleMessages<TestMessage>
         {
             public Task Handle(TestMessage message, IMessageHandlerContext context)
