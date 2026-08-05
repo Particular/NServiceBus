@@ -1,0 +1,54 @@
+The following types hold an NServiceBus.Logging.ILog logger field obtained via LogManager.GetLogger.
+For new code where DI is available, use the high performance source generated loggers from
+Microsoft.Extensions.Logging instead (see https://learn.microsoft.com/dotnet/core/extensions/logger-message-generator).
+Changes that make this list longer should only be approved when the type affects user-facing
+code or when DI is not available. The list should otherwise shrink over time.
+-----
+NServiceBus.AsyncFile
+NServiceBus.AuditConfigReader
+NServiceBus.AuditInvalidLicenseBehavior
+NServiceBus.ConsecutiveFailuresCircuitBreaker
+NServiceBus.Conventions
+NServiceBus.DelayedMessagePoller
+NServiceBus.DelayedRetry
+NServiceBus.DeserializeMessageConnector
+NServiceBus.DirectoryBasedTransaction
+NServiceBus.Discard
+NServiceBus.EnvelopeUnwrapper
+NServiceBus.ErrorQueueSettings
+NServiceBus.Features.Audit
+NServiceBus.Features.AutoSubscribe+ApplySubscriptions
+NServiceBus.Features.FeatureStartupTaskController`1
+NServiceBus.Features.LicenseReminder
+NServiceBus.HostStartupDiagnosticsWriter
+NServiceBus.HostStartupDiagnosticsWriterFactory
+NServiceBus.HostingComponent
+NServiceBus.ImmediateRetry
+NServiceBus.LearningTransportMessagePump
+NServiceBus.LicenseManager
+NServiceBus.LoadHandlersConnector
+NServiceBus.LogErrorOnInvalidLicenseBehavior
+NServiceBus.MessageDrivenSubscribeTerminator
+NServiceBus.MessageDrivenUnsubscribeTerminator
+NServiceBus.MigrationSubscribeTerminator
+NServiceBus.MigrationUnsubscribeTerminator
+NServiceBus.MoveToError
+NServiceBus.PersistenceComponent
+NServiceBus.PipelineModelBuilder
+NServiceBus.Pipeline`1
+NServiceBus.ReceiveComponent
+NServiceBus.RecoverabilityComponent
+NServiceBus.RoutingToDispatchConnector
+NServiceBus.RunningEndpointInstance
+NServiceBus.SagaPersistenceBehavior
+NServiceBus.SerializationFeature
+NServiceBus.SerializationSettingsExtensions
+NServiceBus.SerializeMessageConnector
+NServiceBus.SubscriptionReceiverBehavior
+NServiceBus.TransportReceiveToPhysicalMessageConnector
+NServiceBus.Unicast.Messages.MessageMetadataRegistry
+NServiceBus.UnicastPublishRouter
+NServiceBus.Validations
+NServiceBus.WrappedMessageReceiver
+NServiceBus.XmlDeserialization
+NServiceBus.XmlSerializerCache
