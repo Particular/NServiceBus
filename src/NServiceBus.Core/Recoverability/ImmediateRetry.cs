@@ -25,9 +25,6 @@ public class ImmediateRetry : RecoverabilityAction
     public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.RetryRequired;
 
     /// <inheritdoc />
-    public override string LogMessage(string messageId) => $"Immediate Retry is going to retry message '{messageId}' because of an exception:";
-
-    /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
         var exception = context.Exception;

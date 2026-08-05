@@ -29,9 +29,6 @@ public class MoveToError : RecoverabilityAction
     public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
     /// <inheritdoc />
-    public override string LogMessage(string messageId) => $"Moving message '{messageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:";
-
-    /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
         var metadata = context.Metadata;

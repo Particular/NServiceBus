@@ -31,9 +31,6 @@ public class DelayedRetry : RecoverabilityAction
     public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
     /// <inheritdoc />
-    public override string LogMessage(string messageId) => $"Delayed Retry will reschedule message '{messageId}' after a delay of {Delay} because of an exception:";
-
-    /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
         var exception = context.Exception;

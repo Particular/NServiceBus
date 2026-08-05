@@ -239,7 +239,6 @@ namespace NServiceBus
         public System.TimeSpan Delay { get; }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
-        public override string LogMessage(string messageId) { }
     }
     public enum DependencyLifecycle
     {
@@ -260,7 +259,6 @@ namespace NServiceBus
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string Reason { get; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
-        public override string LogMessage(string messageId) { }
     }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
@@ -619,7 +617,6 @@ namespace NServiceBus
         protected ImmediateRetry() { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
-        public override string LogMessage(string messageId) { }
     }
     public sealed class IncomingPipelineMetricTags
     {
@@ -777,7 +774,6 @@ namespace NServiceBus
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public string ErrorQueue { get; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
-        public override string LogMessage(string messageId) { }
     }
     public class NServiceBusMarkerInterfaceConvention : NServiceBus.IMessageConvention
     {
@@ -902,7 +898,6 @@ namespace NServiceBus
         protected RecoverabilityAction() { }
         public abstract NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public abstract System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context);
-        public virtual string LogMessage(string messageId) { }
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }

@@ -27,8 +27,5 @@ public class Discard : RecoverabilityAction
     public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
     /// <inheritdoc />
-    public override string LogMessage(string messageId) => $"Discarding message with id '{messageId}'. Reason: {Reason}";
-
-    /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context) => [];
 }

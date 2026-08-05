@@ -37,7 +37,14 @@ class RecoverabilityPipelineExecutor<TState>(
                     activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
                 }
 
-                var logMessage = recoverabilityAction.LogMessage(errorContext.MessageId);
+                var logMessage = recoverabilityAction switch
+                {
+                    ImmediateRetry => $"Immediate Retry is going to retry message '{errorContext.MessageId}' because of an exception:",
+                    DelayedRetry delayedRetry => $"Delayed Retry will reschedule message '{errorContext.MessageId}' after a delay of {delayedRetry.Delay} because of an exception:",
+                    MoveToError moveToError => $"Moving message '{errorContext.MessageId}' to the error queue '{moveToError.ErrorQueue}' because processing failed due to an exception:",
+                    Discard discard => $"Discarding message with id '{errorContext.MessageId}'. Reason: {discard.Reason}",
+                    _ => $"Recoverability action '{recoverabilityAction.GetType().Name}' invoked for message '{errorContext.MessageId}'."
+                };
 
                 if (activityFactory.Options.ExceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs)
                 {
