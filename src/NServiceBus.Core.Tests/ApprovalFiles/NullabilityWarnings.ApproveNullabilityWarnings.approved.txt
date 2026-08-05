@@ -204,9 +204,6 @@ src/NServiceBus.Core/StartableEndpoint.cs
   CS8618: Non-nullable field 'stoppingTokenSource' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
   CS8618: Non-nullable field 'transportInfrastructure' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
 
-src/NServiceBus.Core/Transports/DispatchProperties.cs
-  CS8603: Possible null reference return.
-
 src/NServiceBus.Core/Transports/IncomingMessageExtensions.cs
   CS8603: Possible null reference return.
 

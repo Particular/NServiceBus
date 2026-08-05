@@ -92,7 +92,6 @@ public class NullableEnabledDirectories
 
         File.WriteAllText(incompleteReportFilePath, incompleteReport);
     }
-    }
 
     static string BuildIncompleteDirectoriesReport(string sourceRoot)
     {
