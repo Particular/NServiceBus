@@ -1,11 +1,10 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Transport;
@@ -37,23 +36,7 @@ class RecoverabilityPipelineExecutor<TState>(
                     activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
                 }
 
-                var logMessage = recoverabilityAction switch
-                {
-                    ImmediateRetry => $"Immediate Retry is going to retry message '{errorContext.MessageId}' because of an exception:",
-                    DelayedRetry delayedRetry => $"Delayed Retry will reschedule message '{errorContext.MessageId}' after a delay of {delayedRetry.Delay} because of an exception:",
-                    MoveToError moveToError => $"Moving message '{errorContext.MessageId}' to the error queue '{moveToError.ErrorQueue}' because processing failed due to an exception:",
-                    Discard discard => $"Discarding message with id '{errorContext.MessageId}'. Reason: {discard.Reason}",
-                    _ => $"Recoverability action '{recoverabilityAction.GetType().Name}' invoked for message '{errorContext.MessageId}'."
-                };
-
-                if (activityFactory.Options.ExceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs)
-                {
-                    Logger.Info(logMessage, errorContext.Exception);
-                }
-                else
-                {
-                    Logger.Info(logMessage);
-                }
+                recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext, activityFactory.Options.ExceptionRecordingMode);
             }
 
             var metadata = faultMetadataExtractor.Extract(errorContext);
@@ -75,5 +58,5 @@ class RecoverabilityPipelineExecutor<TState>(
         }
     }
 
-    static readonly ILog Logger = LogManager.GetLogger<IRecoverabilityPipelineExecutor>();
+    readonly RecoverabilityActionLogger recoverabilityActionLogger = new(serviceProvider);
 }
