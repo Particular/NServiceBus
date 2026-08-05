@@ -39,7 +39,7 @@ public partial class TrimmabilityWarnings
             "NServiceBus.Core",
             "NServiceBus.Core.csproj"));
 
-        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "out.binlog");
+        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "nullable.binlog");
 
         try
         {
@@ -69,6 +69,7 @@ public partial class TrimmabilityWarnings
 
         startInfo.ArgumentList.Add("build");
         startInfo.ArgumentList.Add(projectPath);
+        startInfo.ArgumentList.Add("-c:Release");
         startInfo.ArgumentList.Add("-p:EnableTrimAnalyzer=true");
         startInfo.ArgumentList.Add("-p:TreatWarningsAsErrors=false");
         startInfo.ArgumentList.Add("-p:IsPackable=false");
