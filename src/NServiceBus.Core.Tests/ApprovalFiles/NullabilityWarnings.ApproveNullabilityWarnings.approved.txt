@@ -24,9 +24,6 @@ src/NServiceBus.Core/Hosting/HostingComponent.Settings.cs
 src/NServiceBus.Core/Licensing/LicenseReminder.cs
   CS8625: Cannot convert null literal to non-nullable reference type.
 
-src/NServiceBus.Core/Pipeline/Incoming/DeserializeMessageConnector.cs
-  CS8604: Possible null reference argument for parameter 'messageTypes' in 'object[] IMessageSerializer.Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null)'.
-
 src/NServiceBus.Core/Pipeline/Incoming/LogicalMessageFactory.cs
   CS8604: Possible null reference argument for parameter 'messageType' in 'MessageMetadata MessageMetadataRegistry.GetMessageMetadata(Type messageType)'.
 
@@ -37,12 +34,6 @@ src/NServiceBus.Core/Pipeline/Incoming/TransportReceiveToPhysicalMessageConnecto
 
 src/NServiceBus.Core/Pipeline/Outgoing/SerializeMessageConnector.cs
   CS8604: Possible null reference argument for parameter 'messageType' in 'MessageMetadata MessageMetadataRegistry.GetMessageMetadata(Type messageType)'.
-
-src/NServiceBus.Core/Reliability/Outbox/NoOpOutboxStorage.cs
-  CS8625: Cannot convert null literal to non-nullable reference type.
-
-src/NServiceBus.Core/Reliability/SynchronizedStorage/SynchronizedStorage.cs
-  CS8603: Possible null reference return.
 
 src/NServiceBus.Core/Routing/AutomaticSubscriptions/AutoSubscribe.cs
   CS8602: Dereference of a possibly null reference.
@@ -155,9 +146,6 @@ src/NServiceBus.Core/Sagas/SagaPersistenceBehavior.cs
   CS8604: Possible null reference argument for parameter 'value' in 'SagaCorrelationProperty.SagaCorrelationProperty(string name, object value)'.
   CS8619: Nullability of reference types in value of type 'Task<IContainSagaData?>' doesn't match target type 'Task<IContainSagaData>'.
 
-src/NServiceBus.Core/Serialization/IMessageSerializer.cs
-  CS8625: Cannot convert null literal to non-nullable reference type.
-
 src/NServiceBus.Core/Serializers/XML/XmlDeserialization.cs
   CS8600: Converting null literal or possible null value to non-nullable type.
   CS8603: Possible null reference return.
@@ -183,9 +171,6 @@ src/NServiceBus.Core/Serializers/XML/XmlSerialization.cs
 
 src/NServiceBus.Core/Serializers/XML/XmlSerializerCache.cs
   CS8604: Possible null reference argument for parameter 'typeArguments' in 'Type Type.MakeGenericType(params Type[] typeArguments)'.
-
-src/NServiceBus.Core/ServicePlatform/Retries/RetryAcknowledgementBehavior.cs
-  CS8625: Cannot convert null literal to non-nullable reference type.
 
 src/NServiceBus.Core/Settings/SettingsHolder.cs
   CS8601: Possible null reference assignment.
@@ -280,18 +265,6 @@ src/NServiceBus.Core/Unicast/Messages/MessageMetadataRegistry.cs
 
 src/NServiceBus.Core/Unicast/Queuing/QueueNotFoundException.cs
   CS8618: Non-nullable property 'Queue' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
-
-src/NServiceBus.Core/Utils/FileVersionRetriever.cs
-  CS8602: Dereference of a possibly null reference.
-
-src/NServiceBus.Core/Utils/Reflection/DelegateFactory.cs
-  CS8602: Dereference of a possibly null reference.
-  CS8604: Possible null reference argument for parameter 'meth' in 'void ILGenerator.Emit(OpCode opcode, MethodInfo meth)'.
-  CS8604: Possible null reference argument for parameter 'type' in 'UnaryExpression Expression.Convert(Expression expression, Type type)'.
-
-src/NServiceBus.Core/Utils/Reflection/TypeExtensionMethods.cs
-  CS8601: Possible null reference assignment.
-  CS8603: Possible null reference return.
 
 src/NServiceBus.Core/VersionInformation.cs
   CS8601: Possible null reference assignment.
