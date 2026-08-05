@@ -39,6 +39,18 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
     }
 
     [Test]
+    public async Task Should_preserve_file_created_time_property_on_delayed_retry()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<FailingEndpoint>(b => b
+                .When(session => session.SendLocal(new TestMessage()))
+                .DoNotFailOnErrorMessages())
+            .Run();
+
+        Assert.That(context.NumberOfRetries, Is.EqualTo(2), "Message was not retried");
+    }
+
+    [Test]
     public async Task Should_not_preserve_receive_properties_on_outgoing_messages()
     {
         var context = await Scenario.Define<Context>()
@@ -104,6 +116,8 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
         public bool MessageAudited { get; set; }
         public bool MessageMovedToErrorQueue { get; set; }
         public bool ErrorQueueFileCreatedAtDiffersFromOriginal { get; set; }
+        public int NumberOfRetries { get; set; }
+        public string RetryFileCreatedAt { get; set; }
     }
 
     class EndPointThatReceivesFromAnotherAndAuditsEndpoint : EndpointConfigurationBuilder
@@ -245,6 +259,40 @@ public class When_message_sent_with_LearningTransport : NServiceBusAcceptanceTes
                 testContext.MarkAsCompleted(testContext.MessageReceived, testContext.FileCreatedAt != null);
 
                 return Task.CompletedTask;
+            }
+        }
+    }
+
+    class FailingEndpoint : EndpointConfigurationBuilder
+    {
+        public FailingEndpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
+        {
+            endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(1));
+            endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(0));
+        });
+
+        class TestMessageHandler(Context testContext) : IHandleMessages<TestMessage>
+        {
+            public Task Handle(TestMessage message, IMessageHandlerContext context)
+            {
+                if (testContext.NumberOfRetries == 0)
+                {
+                    if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                    {
+                        testContext.FileCreatedAt = fileCreatedAt;
+                    }
+                }
+                else
+                {
+                    if (context.Extensions.TryGet<IncomingMessage>(out var incomingMessage) && incomingMessage.ReceiveProperties.TryGetValue("LearningTransport.FileCreatedAt", out var fileCreatedAt))
+                    {
+                        testContext.RetryFileCreatedAt = fileCreatedAt;
+                        testContext.MarkAsCompleted(testContext.FileCreatedAt == testContext.RetryFileCreatedAt);
+                    }
+                }
+                testContext.NumberOfRetries++;
+
+                throw new SimulatedException("Simulating an exception to see if it preserves receive properties on retries");
             }
         }
     }

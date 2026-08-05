@@ -42,6 +42,7 @@ sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext
         RecoverabilityAction = recoverabilityAction;
 
         Extensions.Set(errorContext.TransportTransaction);
+        Extensions.Set(new IncomingMessage(NativeMessageId, Headers, Body, ReceiveProperties));
     }
 
     [ObsoleteMetadata(Message = "For access to the message body, headers, native message ID, or the receive properties use the corresponding properties directly exposed on the context", TreatAsErrorFromVersion = "11", RemoveInVersion = "12")]
