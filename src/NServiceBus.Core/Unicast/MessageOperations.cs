@@ -71,7 +71,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, publishDisplayName, publishContext);
 
-        await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
+        await publishPipeline.Invoke(publishContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -90,7 +90,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context);
 
-        await subscribePipeline.Invoke(subscribeContext, activity).ConfigureAwait(false);
+        await subscribePipeline.Invoke(subscribeContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     public async Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -104,7 +104,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context);
 
-        await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
+        await unsubscribePipeline.Invoke(unsubscribeContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -138,7 +138,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
 
-        await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+        await sendPipeline.Invoke(outgoingContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -172,7 +172,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
 
-        await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+        await replyPipeline.Invoke(outgoingContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)

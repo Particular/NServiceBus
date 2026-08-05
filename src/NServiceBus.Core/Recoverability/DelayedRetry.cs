@@ -5,7 +5,6 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using DelayedDelivery;
-using Logging;
 using Pipeline;
 using Recoverability;
 using Routing;
@@ -35,8 +34,6 @@ public class DelayedRetry : RecoverabilityAction
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
         var exception = context.Exception;
-
-        Logger.Warn($"Delayed Retry will reschedule message '{context.MessageId}' after a delay of {Delay} because of an exception:", exception);
 
         var outgoingMessage = new OutgoingMessage(context.MessageId, new Dictionary<string, string>(context.Headers), context.Body);
 
@@ -73,6 +70,4 @@ public class DelayedRetry : RecoverabilityAction
         });
         return [routingContext];
     }
-
-    static readonly ILog Logger = LogManager.GetLogger<DelayedRetry>();
 }

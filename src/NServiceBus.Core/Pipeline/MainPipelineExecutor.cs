@@ -54,7 +54,7 @@ class MainPipelineExecutor(
 
             try
             {
-                await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
+                await receivePipeline.Invoke(transportReceiveContext, activity, activityFactory).ConfigureAwait(false);
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
             catch (Exception ex)

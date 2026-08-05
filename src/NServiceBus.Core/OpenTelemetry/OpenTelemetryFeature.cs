@@ -6,6 +6,8 @@ using Features;
 
 sealed class OpenTelemetryFeature : Feature
 {
+    public OpenTelemetryFeature() => Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault);
+
     protected override void Setup(FeatureConfigurationContext context)
     {
         var instrumentationOptions = context.Settings.GetOrDefault<InstrumentationOptions>() ?? new InstrumentationOptions();
