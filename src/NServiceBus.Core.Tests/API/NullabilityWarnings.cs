@@ -11,27 +11,27 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Particular.Approvals;
 
-// As part of the assembly scanning efforts, many code paths that require dynamically
-// referenced code have been annotated or restructured to satisfy the trimming analyzer.
-// This test captures the current set of trimming warnings so that any new regressions
-// are immediately visible. When the test fails because new warnings appeared, revisit
-// the changes and consider whether the dynamic access can be avoided. It is acceptable
-// to approve new warnings in minor releases when truly necessary, but the goal is to
-// keep the list shrinking over time and never grow without deliberate justification.
-// Once all warnings are resolved and the approved file is empty, this test can be
-// deleted and trimming warnings can be enabled directly in NServiceBus.Core.csproj.
-// 
-// To enable the analyzer to see the warnings in your IDE, add this to the <PropertyGroup> at the
-// top of NServiceBus.Core.csproj:
-// <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+// As part of the nullable reference type migration effort, individual folders are annotated with
+// #nullable enable one at a time (tracked in NullableEnable.CompletedFolders.approved.txt and
+// NullableEnable.IncompleteFolders.approved.txt). This test previews what would happen if nullable
+// reference types were force-enabled for the whole project: files that already opt in via
+// #nullable enable are unaffected, but any file without an explicit directive picks up the
+// project-wide default instead of staying oblivious. This test captures the current set of
+// resulting warnings so that any new regressions are immediately visible. The goal is to keep the
+// list shrinking over time. Once all warnings are resolved
+// and the approved file empty, this test can be deleted and <Nullable>enable</Nullable> can be set
+// directly in the NServiceBus.Core.csproj.
 //
-// See https://learn.microsoft.com/en-us/dotnet/core/deploying/trimming/prepare-libraries-for-trimming for more details.
+// Only warnings matching the hardcoded set of nullable reference type diagnostic IDs below are captured
+// (https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/nullable-warnings),
+//
+// See https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references for more details.
 [TestFixture]
-public partial class TrimmabilityWarnings
+public partial class NullabilityWarnings
 {
     [Test]
     [CancelAfter(30_000)]
-    public async Task ApproveTrimmabilityWarnings(CancellationToken cancellationToken = default)
+    public async Task ApproveNullabilityWarnings(CancellationToken cancellationToken = default)
     {
         var projectPath = Path.GetFullPath(Path.Combine(
             TestContext.CurrentContext.TestDirectory,
@@ -39,11 +39,11 @@ public partial class TrimmabilityWarnings
             "NServiceBus.Core",
             "NServiceBus.Core.csproj"));
 
-        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "nullable.binlog");
+        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "trimming.binlog");
 
         try
         {
-            var warnings = await BuildWithTrimmingAnalyzerEnabled(projectPath, binlogPath, cancellationToken);
+            var warnings = await BuildWithNullableEnabled(projectPath, binlogPath, cancellationToken);
 
             Approver.Verify(warnings);
         }
@@ -56,7 +56,7 @@ public partial class TrimmabilityWarnings
         }
     }
 
-    static async Task<string> BuildWithTrimmingAnalyzerEnabled(string projectPath, string binlogPath, CancellationToken cancellationToken = default)
+    static async Task<string> BuildWithNullableEnabled(string projectPath, string binlogPath, CancellationToken cancellationToken = default)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -70,7 +70,10 @@ public partial class TrimmabilityWarnings
         startInfo.ArgumentList.Add("build");
         startInfo.ArgumentList.Add(projectPath);
         startInfo.ArgumentList.Add("-c:Release");
-        startInfo.ArgumentList.Add("-p:EnableTrimAnalyzer=true");
+        // Limit the build scope to NServiceBus.Core so warnings from referenced analyzer projects are excluded.
+        startInfo.ArgumentList.Add("--no-dependencies");
+        startInfo.ArgumentList.Add("--no-incremental");
+        startInfo.ArgumentList.Add("-p:Nullable=enable");
         startInfo.ArgumentList.Add("-p:TreatWarningsAsErrors=false");
         startInfo.ArgumentList.Add("-p:IsPackable=false");
         startInfo.ArgumentList.Add($"-bl:{binlogPath}");
@@ -87,7 +90,7 @@ public partial class TrimmabilityWarnings
 
         Assert.That(process.ExitCode, Is.Zero, $"Build failed:{Environment.NewLine}{error}{Environment.NewLine}{output}");
 
-        var warnings = ILWarningRegex().Matches(output)
+        var warnings = NullableWarningRegex().Matches(output)
             .Select(m => ScrubLine(m.Value.Trim()))
             .Distinct()
             .OrderBy(w => w, StringComparer.Ordinal)
@@ -98,7 +101,7 @@ public partial class TrimmabilityWarnings
             .OrderBy(g => g.Key, StringComparer.Ordinal);
 
         var result = new StringBuilder()
-            .AppendLine("The following trimming warnings are present in NServiceBus.Core.")
+            .AppendLine("The following nullable warnings are present in NServiceBus.Core.")
             .AppendLine("Changes that make this list longer should not be approved.")
             .AppendLine("-----");
 
@@ -132,12 +135,19 @@ public partial class TrimmabilityWarnings
     [GeneratedRegex(@"\s*\[[^\]]+[/\\][^\]]+\]$")]
     private static partial Regex ProjectPathSuffixRegex();
 
-    [GeneratedRegex(@".+: warning IL[23]\d{3}.+")]
-    private static partial Regex ILWarningRegex();
+    [GeneratedRegex($@".+: warning CS({NullableWarningCodes}):.+")]
+    private static partial Regex NullableWarningRegex();
 
     [GeneratedRegex(@"^(?<file>src/[^\s:]+)")]
     private static partial Regex FileRegex();
 
-    [GeneratedRegex(@": warning (?<msg>IL[23]\d{3}:.+)$")]
+    [GeneratedRegex($@": warning (?<msg>CS({NullableWarningCodes}):.+)$")]
     private static partial Regex MessageRegex();
+
+    // Sourced from https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/nullable-warnings
+    const string NullableWarningCodes =
+        "8597|8598|8600|8601|8602|8603|8604|8605|8607|8608|8609|8610|8611|8612|8613|8614|" +
+        "8615|8616|8617|8618|8619|8620|8621|8622|8623|8624|8625|8628|8629|8631|8632|8633|" +
+        "8634|8636|8637|8639|8643|8644|8645|8650|8651|8655|8667|8668|8669|8670|8714|8762|" +
+        "8763|8764|8765|8766|8767|8768|8769|8770|8774|8775|8776|8777|8819|8824|8825|8847";
 }
