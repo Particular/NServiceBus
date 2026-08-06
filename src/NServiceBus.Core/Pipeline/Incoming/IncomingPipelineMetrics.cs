@@ -28,7 +28,7 @@ class IncomingPipelineMetrics
     const string MessageSerializeTime = "nservicebus.messaging.serialize_time";
     const string OutboxFetchTime = "nservicebus.outbox.fetch_time";
     const string OutboxStoreTime = "nservicebus.outbox.store_time";
-    const string PersistenceTime = "nservicebus.persistence.time";
+    const string CommitTime = "nservicebus.persistence.commit_time";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
@@ -67,7 +67,7 @@ class IncomingPipelineMetrics
             "The time in seconds for querying the outbox storage for deduplication.");
         outboxStoreTime = meter.CreateHistogram<double>(OutboxStoreTime, "s",
             "The time in seconds for storing a message in the outbox storage.");
-        persistenceTime = meter.CreateHistogram<double>(PersistenceTime, "s",
+        persistenceTime = meter.CreateHistogram<double>(CommitTime, "s",
             "The time in seconds for completing the synchronized storage session.");
 
         queueNameBase = queueName;

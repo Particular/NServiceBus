@@ -28,7 +28,7 @@
     "nservicebus.outbox.duplicates => Counter",
     "nservicebus.outbox.fetch_time => Histogram, Unit: s",
     "nservicebus.outbox.store_time => Histogram, Unit: s",
-    "nservicebus.persistence.time => Histogram, Unit: s",
+    "nservicebus.persistence.commit_time => Histogram, Unit: s",
     "nservicebus.recoverability.delayed => Counter",
     "nservicebus.recoverability.error => Counter",
     "nservicebus.recoverability.immediate => Counter",

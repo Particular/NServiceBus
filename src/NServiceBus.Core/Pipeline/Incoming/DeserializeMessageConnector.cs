@@ -40,11 +40,7 @@ class DeserializeMessageConnector(
             throw;
         }
 
-        // Only record timing for real messages — control messages and empty-body messages return an empty array
-        if (messages.Length > 0)
-        {
-            incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), success: true);
-        }
+        incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), success: true);
 
         bool first = true;
         foreach (var message in messages)
