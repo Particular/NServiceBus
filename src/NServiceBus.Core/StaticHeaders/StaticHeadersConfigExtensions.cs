@@ -22,7 +22,7 @@ public static class StaticHeadersConfigExtensions
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        // TODO Uncomment this in the next major version so that we actually enforce non-null values here
+        // TODO(nullable-major-release): Uncomment this in the next major version so that we actually enforce non-null values here
         //ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
         if (!config.Settings.TryGet(out CurrentStaticHeaders headers))
