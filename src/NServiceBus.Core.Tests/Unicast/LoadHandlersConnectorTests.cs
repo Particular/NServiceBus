@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using System.Transactions;
 using Core.Tests.Fakes;
+using Core.Tests.OpenTelemetry;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Transport;
 using NUnit.Framework;
@@ -16,7 +17,7 @@ public class LoadHandlersConnectorTests
     [Test]
     public void Should_throw_when_there_are_no_registered_message_handlers()
     {
-        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), NoOpActivityFactory.Instance);
+        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), NoOpActivityFactory.Instance, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
         var context = new TestableIncomingLogicalMessageContext();
 
@@ -29,7 +30,7 @@ public class LoadHandlersConnectorTests
     [Test]
     public void Should_throw_if_ambient_transaction_is_different_from_scope_used_by_transport()
     {
-        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), NoOpActivityFactory.Instance);
+        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), NoOpActivityFactory.Instance, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
         var context = new TestableIncomingLogicalMessageContext();
 
@@ -49,7 +50,7 @@ public class LoadHandlersConnectorTests
     [Test]
     public void Should_throw_if_ambient_transaction_suppressed_when_transport_uses_a_scope()
     {
-        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), NoOpActivityFactory.Instance);
+        var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), NoOpActivityFactory.Instance, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
         var context = new TestableIncomingLogicalMessageContext();
 
@@ -77,7 +78,7 @@ public class LoadHandlersConnectorTests
         context.Services.AddSingleton<FakeHandler>();
         context.Extensions.Set<IOutboxTransaction>(new NoOpOutboxTransaction());
 
-        var behavior = new LoadHandlersConnector(messageHandlerRegistry, NoOpActivityFactory.Instance);
+        var behavior = new LoadHandlersConnector(messageHandlerRegistry, NoOpActivityFactory.Instance, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
         using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
