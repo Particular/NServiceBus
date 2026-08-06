@@ -72,13 +72,13 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         try
         {
             loadedEntity = await TryLoadSagaEntity(currentSagaMetadata, context).ConfigureAwait(false);
-            incomingPipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!, success: true);
+            incomingPipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!);
         }
 #pragma warning disable PS0019
         catch (Exception ex)
 #pragma warning restore PS0019
         {
-            incomingPipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!, success: false, error: ex);
+            incomingPipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!, error: ex);
             throw;
         }
 

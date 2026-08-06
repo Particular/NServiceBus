@@ -90,7 +90,6 @@ class IncomingPipelineMetrics
         var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
 
         TagList tags;
-        tags.Add(new(MeterTags.ExecutionResult, "success"));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
@@ -110,7 +109,6 @@ class IncomingPipelineMetrics
         var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
 
         TagList tags;
-        tags.Add(new(MeterTags.ExecutionResult, "success"));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
@@ -142,7 +140,6 @@ class IncomingPipelineMetrics
 
         TagList tags;
         tags.Add(new(MeterTags.ErrorType, error.GetType().FullName));
-        tags.Add(new(MeterTags.ExecutionResult, "failure"));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
@@ -202,7 +199,6 @@ class IncomingPipelineMetrics
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
         meterTags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, invokeHandlerContext.MessageHandler.HandlerType.FullName));
-        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "success"));
         messageHandlerTime.Record(elapsed.TotalSeconds, meterTags);
     }
 
@@ -222,7 +218,6 @@ class IncomingPipelineMetrics
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
         meterTags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, invokeHandlerContext.MessageHandler.HandlerType.FullName));
-        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "failure"));
         meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
         messageHandlerTime.Record(elapsed.TotalSeconds, meterTags);
     }
@@ -302,7 +297,7 @@ class IncomingPipelineMetrics
         return new ActiveMessageScope(activeMessages, tags);
     }
 
-    public void RecordSagaFetchTime(IInvokeHandlerContext context, TimeSpan elapsed, string sagaType, bool success, Exception? error = null)
+    public void RecordSagaFetchTime(IInvokeHandlerContext context, TimeSpan elapsed, string sagaType, Exception? error = null)
     {
         if (!sagaFetchTime.Enabled)
         {
@@ -316,7 +311,6 @@ class IncomingPipelineMetrics
             MeterTags.EndpointDiscriminator,
             MeterTags.MessageType]);
         tags.Add(new KeyValuePair<string, object?>(MeterTags.SagaType, sagaType));
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, success ? "success" : "failure"));
         if (error != null)
         {
             tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
@@ -324,7 +318,7 @@ class IncomingPipelineMetrics
         sagaFetchTime.Record(elapsed.TotalSeconds, tags);
     }
 
-    public void RecordDeserializeTime(IIncomingPhysicalMessageContext context, TimeSpan elapsed, bool success, Exception? error = null)
+    public void RecordDeserializeTime(IIncomingPhysicalMessageContext context, TimeSpan elapsed, Exception? error = null)
     {
         if (!messageDeserializeTime.Enabled)
         {
@@ -336,7 +330,6 @@ class IncomingPipelineMetrics
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator]);
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, success ? "success" : "failure"));
         if (error != null)
         {
             tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
@@ -344,7 +337,7 @@ class IncomingPipelineMetrics
         messageDeserializeTime.Record(elapsed.TotalSeconds, tags);
     }
 
-    public void RecordSerializeTime(TimeSpan elapsed, string? messageType, bool success, Exception? error = null)
+    public void RecordSerializeTime(TimeSpan elapsed, string? messageType, Exception? error = null)
     {
         if (!messageSerializeTime.Enabled)
         {
@@ -352,7 +345,6 @@ class IncomingPipelineMetrics
         }
 
         TagList tags;
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, success ? "success" : "failure"));
         if (messageType != null)
         {
             tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, messageType));

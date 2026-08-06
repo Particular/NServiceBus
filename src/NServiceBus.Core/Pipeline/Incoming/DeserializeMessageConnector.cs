@@ -36,11 +36,11 @@ class DeserializeMessageConnector(
         catch (Exception ex)
 #pragma warning restore PS0019
         {
-            incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), success: false, error: ex);
+            incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), error: ex);
             throw;
         }
 
-        incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), success: true);
+        incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart));
 
         bool first = true;
         foreach (var message in messages)

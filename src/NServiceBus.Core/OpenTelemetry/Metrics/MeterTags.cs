@@ -10,7 +10,6 @@ static class MeterTags
     public const string EnclosedMessageTypes = "nservicebus.enclosed_message_types";
     public const string MessageHandlerTypes = "nservicebus.message_handler_types";
     public const string MessageHandlerType = "nservicebus.message_handler_type";
-    public const string ExecutionResult = "execution.result";
     public const string ErrorType = "error.type";
     public const string EnvelopeUnwrapperType = "nservicebus.envelope.unwrapper_type";
     public const string SagaType = "nservicebus.saga_type";
