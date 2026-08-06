@@ -1,4 +1,5 @@
 ﻿namespace NServiceBus;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
