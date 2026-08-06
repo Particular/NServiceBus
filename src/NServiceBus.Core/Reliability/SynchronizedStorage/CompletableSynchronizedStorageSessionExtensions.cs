@@ -9,7 +9,7 @@ using Outbox;
 using Pipeline;
 using Transport;
 
-// TODO Investigate if these should even be public. If they should, then they need to have argument validtion added.
+// TODO(nullable-major-release): Investigate if these should even be public. If they should, then they need to have argument validtion added.
 
 /// <summary>
 /// Extension methods for <see cref="ICompletableSynchronizedStorageSession"/>.
