@@ -39,24 +39,12 @@ public partial class TrimmabilityWarnings
             "NServiceBus.Core",
             "NServiceBus.Core.csproj"));
 
-        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "trimming.binlog");
+        var warnings = await BuildWithTrimmingAnalyzerEnabled(projectPath, cancellationToken);
 
-        try
-        {
-            var warnings = await BuildWithTrimmingAnalyzerEnabled(projectPath, binlogPath, cancellationToken);
-
-            Approver.Verify(warnings);
-        }
-        finally
-        {
-            if (File.Exists(binlogPath))
-            {
-                File.Delete(binlogPath);
-            }
-        }
+        Approver.Verify(warnings);
     }
 
-    static async Task<string> BuildWithTrimmingAnalyzerEnabled(string projectPath, string binlogPath, CancellationToken cancellationToken = default)
+    static async Task<string> BuildWithTrimmingAnalyzerEnabled(string projectPath, CancellationToken cancellationToken = default)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -73,7 +61,6 @@ public partial class TrimmabilityWarnings
         startInfo.ArgumentList.Add("-p:EnableTrimAnalyzer=true");
         startInfo.ArgumentList.Add("-p:TreatWarningsAsErrors=false");
         startInfo.ArgumentList.Add("-p:IsPackable=false");
-        startInfo.ArgumentList.Add($"-bl:{binlogPath}");
 
         using var process = Process.Start(startInfo)!;
 

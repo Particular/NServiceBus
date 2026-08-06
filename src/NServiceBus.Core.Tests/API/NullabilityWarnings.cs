@@ -39,24 +39,12 @@ public partial class NullabilityWarnings
             "NServiceBus.Core",
             "NServiceBus.Core.csproj"));
 
-        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "nullable.binlog");
+        var warnings = await BuildWithNullableEnabled(projectPath, cancellationToken);
 
-        try
-        {
-            var warnings = await BuildWithNullableEnabled(projectPath, binlogPath, cancellationToken);
-
-            Approver.Verify(warnings);
-        }
-        finally
-        {
-            if (File.Exists(binlogPath))
-            {
-                File.Delete(binlogPath);
-            }
-        }
+        Approver.Verify(warnings);
     }
 
-    static async Task<string> BuildWithNullableEnabled(string projectPath, string binlogPath, CancellationToken cancellationToken = default)
+    static async Task<string> BuildWithNullableEnabled(string projectPath, CancellationToken cancellationToken = default)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -76,7 +64,6 @@ public partial class NullabilityWarnings
         startInfo.ArgumentList.Add("-p:Nullable=enable");
         startInfo.ArgumentList.Add("-p:TreatWarningsAsErrors=false");
         startInfo.ArgumentList.Add("-p:IsPackable=false");
-        startInfo.ArgumentList.Add($"-bl:{binlogPath}");
 
         using var process = Process.Start(startInfo)!;
 
