@@ -30,9 +30,8 @@ class IncomingPipelineMetrics
     const string OutboxStoreTime = "nservicebus.outbox.store_time";
     const string PersistenceTime = "nservicebus.persistence.time";
 
-    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator, PerformanceMetricsOptions options)
+    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
-        this.options = options;
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
@@ -305,7 +304,7 @@ class IncomingPipelineMetrics
 
     public void RecordSagaFetchTime(IInvokeHandlerContext context, TimeSpan elapsed, string sagaType, bool success, Exception? error = null)
     {
-        if (!options.EnableSagaFetchTime || !sagaFetchTime.Enabled)
+        if (!sagaFetchTime.Enabled)
         {
             return;
         }
@@ -327,7 +326,7 @@ class IncomingPipelineMetrics
 
     public void RecordDeserializeTime(IIncomingPhysicalMessageContext context, TimeSpan elapsed, bool success, Exception? error = null)
     {
-        if (!options.EnableDeserializeTime || !messageDeserializeTime.Enabled)
+        if (!messageDeserializeTime.Enabled)
         {
             return;
         }
@@ -347,7 +346,7 @@ class IncomingPipelineMetrics
 
     public void RecordSerializeTime(TimeSpan elapsed, string? messageType, bool success, Exception? error = null)
     {
-        if (!options.EnableSerializeTime || !messageSerializeTime.Enabled)
+        if (!messageSerializeTime.Enabled)
         {
             return;
         }
@@ -367,7 +366,7 @@ class IncomingPipelineMetrics
 
     public void RecordOutboxFetchTime(ITransportReceiveContext context, TimeSpan elapsed)
     {
-        if (!options.EnableOutboxFetchTime || !outboxFetchTime.Enabled)
+        if (!outboxFetchTime.Enabled)
         {
             return;
         }
@@ -382,7 +381,7 @@ class IncomingPipelineMetrics
 
     public void RecordOutboxStoreTime(ITransportReceiveContext context, TimeSpan elapsed)
     {
-        if (!options.EnableOutboxStoreTime || !outboxStoreTime.Enabled)
+        if (!outboxStoreTime.Enabled)
         {
             return;
         }
@@ -397,7 +396,7 @@ class IncomingPipelineMetrics
 
     public void RecordPersistenceTime(IIncomingLogicalMessageContext context, TimeSpan elapsed)
     {
-        if (!options.EnablePersistenceTime || !persistenceTime.Enabled)
+        if (!persistenceTime.Enabled)
         {
             return;
         }
@@ -459,7 +458,6 @@ class IncomingPipelineMetrics
     readonly Histogram<double> outboxStoreTime;
     readonly Histogram<double> persistenceTime;
 
-    readonly PerformanceMetricsOptions options;
     readonly string queueNameBase;
     readonly string endpointDiscriminator;
 }
