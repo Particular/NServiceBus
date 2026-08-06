@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup Label="Public dependencies">
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" AutomaticVersionRange="false" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" AutomaticVersionRange="false" />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
-    <PackageReference Include="System.IO.Hashing" Version="10.0.9" AutomaticVersionRange="false" />
+    <PackageReference Include="System.IO.Hashing" Version="10.0.10" AutomaticVersionRange="false" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
