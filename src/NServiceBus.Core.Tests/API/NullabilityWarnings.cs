@@ -39,7 +39,7 @@ public partial class NullabilityWarnings
             "NServiceBus.Core",
             "NServiceBus.Core.csproj"));
 
-        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "trimming.binlog");
+        var binlogPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "nullable.binlog");
 
         try
         {
