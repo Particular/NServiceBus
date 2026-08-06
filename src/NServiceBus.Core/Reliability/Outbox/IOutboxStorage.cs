@@ -11,7 +11,7 @@ using Extensibility;
 /// </summary>
 public interface IOutboxStorage
 {
-    //TODO: Consider renaming this to TryGet in the next major to better reflect that it might not get a message
+    //TODO(nullable-major-release): Consider renaming this to TryGet in the next major to better reflect that it might not get a message
     // and instead returns null.
 
     /// <summary>
