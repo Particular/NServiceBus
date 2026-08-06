@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace NServiceBus;
+﻿namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -68,7 +67,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         context.Extensions.Set(sagaInstanceState);
 
         var sagaFetchStart = Stopwatch.GetTimestamp();
-        IContainSagaData? loadedEntity;
+        IContainSagaData loadedEntity;
         try
         {
             loadedEntity = await TryLoadSagaEntity(currentSagaMetadata, context).ConfigureAwait(false);
