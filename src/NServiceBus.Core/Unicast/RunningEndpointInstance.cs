@@ -4,10 +4,12 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
 using Logging;
+using Particular.Obsoletes;
 using Settings;
 using Transport;
 
@@ -124,6 +126,10 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
     }
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Send<T>(T, SendOptions, CancellationToken) or Send(object, Type, SendOptions, CancellationToken)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
@@ -131,6 +137,26 @@ class RunningEndpointInstance(SettingsHolder settings,
 
         GuardAgainstUseWhenNotStarted();
         return messageSession.Send(message, sendOptions, cancellationToken);
+    }
+
+    [OverloadResolutionPriority(-1)]
+    public Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Send<T>(message, sendOptions, cancellationToken);
+    }
+
+    public Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Send(message, messageType, sendOptions, cancellationToken);
     }
 
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
@@ -142,6 +168,10 @@ class RunningEndpointInstance(SettingsHolder settings,
         return messageSession.Send(messageConstructor, sendOptions, cancellationToken);
     }
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Publish<T>(T, PublishOptions, CancellationToken) or Publish(object, Type, PublishOptions, CancellationToken)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
@@ -149,6 +179,26 @@ class RunningEndpointInstance(SettingsHolder settings,
 
         GuardAgainstUseWhenNotStarted();
         return messageSession.Publish(message, publishOptions, cancellationToken);
+    }
+
+    [OverloadResolutionPriority(-1)]
+    public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Publish<T>(message, publishOptions, cancellationToken);
+    }
+
+    public Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        GuardAgainstUseWhenNotStarted();
+        return messageSession.Publish(message, messageType, publishOptions, cancellationToken);
     }
 
     public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)

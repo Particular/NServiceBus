@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
@@ -47,6 +48,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">The options for the send.</param>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual Task Send(object message, SendOptions options)
     {
         var headers = options.GetHeaders();
@@ -61,9 +63,32 @@ public partial class TestablePipelineContext : IPipelineContext
     }
 
     /// <summary>
+    /// Sends the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type used to send the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
+    /// <param name="message">The message to send.</param>
+    /// <param name="options">The options for the send.</param>
+    [OverloadResolutionPriority(-1)]
+    public virtual Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions options)
+    {
+#pragma warning disable IDE0004 // Cast is redundant
+        return Send((object)message!, options);
+#pragma warning restore IDE0004
+    }
+
+    /// <summary>
+    /// Sends the provided message with the specified message type.
+    /// </summary>
+    public virtual Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Send(message, options);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and sends it.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to send the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="options">The options for the send.</param>
     public virtual Task Send<T>(Action<T> messageConstructor, SendOptions options)
@@ -76,6 +101,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// </summary>
     /// <param name="message">The message to publish.</param>
     /// <param name="options">The options for the publish.</param>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual Task Publish(object message, PublishOptions options)
     {
         publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
@@ -83,9 +109,32 @@ public partial class TestablePipelineContext : IPipelineContext
     }
 
     /// <summary>
+    /// Publishes the provided typed message.
+    /// </summary>
+    /// <typeparam name="T">The type used to publish the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
+    /// <param name="message">The message to publish.</param>
+    /// <param name="options">The options for the publish.</param>
+    [OverloadResolutionPriority(-1)]
+    public virtual Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions options)
+    {
+#pragma warning disable IDE0004 // Cast is redundant
+        return Publish((object)message!, options);
+#pragma warning restore IDE0004
+    }
+
+    /// <summary>
+    /// Publishes the provided message with the specified message type.
+    /// </summary>
+    public virtual Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Publish(message, options);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and publishes it.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to publish the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="publishOptions">Specific options for this event.</param>
     public virtual Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)

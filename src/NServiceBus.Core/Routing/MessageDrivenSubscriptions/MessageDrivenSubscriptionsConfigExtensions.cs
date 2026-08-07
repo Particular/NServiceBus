@@ -1,6 +1,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Features;
 using Pipeline;
@@ -62,6 +63,7 @@ public static partial class MessageDrivenSubscriptionsConfigExtensions
     /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
     /// <param name="assembly">The assembly containing the event types.</param>
     /// <param name="publisherEndpoint">The publisher endpoint.</param>
+    [RequiresUnreferencedCode(AssemblyPublisherSource.TrimmingMessage)]
     public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly assembly, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
     {
         ArgumentNullException.ThrowIfNull(assembly);
@@ -79,6 +81,7 @@ public static partial class MessageDrivenSubscriptionsConfigExtensions
     /// <param name="assembly">The assembly containing the event types.</param>
     /// <param name="namespace"> The namespace containing the event types. The given value must exactly match the target namespace.</param>
     /// <param name="publisherEndpoint">The publisher endpoint.</param>
+    [RequiresUnreferencedCode(AssemblyPublisherSource.TrimmingMessage)]
     public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly assembly, string @namespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
     {
         ArgumentNullException.ThrowIfNull(assembly);

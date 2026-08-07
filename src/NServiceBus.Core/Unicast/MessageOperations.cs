@@ -37,19 +37,31 @@ class MessageOperations
         this.activityFactory = activityFactory;
     }
 
-    public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
+    public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, PublishOptions options)
     {
-        return Publish(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+        return PublishMessage(context, typeof(T), message!, options);
     }
 
+    public Task Publish(IBehaviorContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return PublishMessage(context, messageType, message, options);
+    }
+
+    public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
+    {
+        return PublishMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
+    }
+
+    [RequiresUnreferencedCode(RuntimeTypeRoutingTrimmingMessage)]
     public Task Publish(IBehaviorContext context, object message, PublishOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
 
-        return Publish(context, messageType, message, options);
+        return PublishMessage(context, messageType, message, options);
     }
 
-    async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+    async Task PublishMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, PublishOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -104,11 +116,23 @@ class MessageOperations
         await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
     }
 
+    public Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, SendOptions options)
+    {
+        return SendMessage(context, typeof(T), message!, options);
+    }
+
+    public Task Send(IBehaviorContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return SendMessage(context, messageType, message, options);
+    }
+
     public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
     {
         return SendMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
+    [RequiresUnreferencedCode(RuntimeTypeRoutingTrimmingMessage)]
     public Task Send(IBehaviorContext context, object message, SendOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
@@ -116,7 +140,7 @@ class MessageOperations
         return SendMessage(context, messageType, message, options);
     }
 
-    async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
+    async Task SendMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, SendOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -138,6 +162,18 @@ class MessageOperations
         await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
     }
 
+    public Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, ReplyOptions options)
+    {
+        return ReplyMessage(context, typeof(T), message!, options);
+    }
+
+    public Task Reply(IBehaviorContext context, object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, ReplyOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return ReplyMessage(context, messageType, message, options);
+    }
+
+    [RequiresUnreferencedCode(RuntimeTypeRoutingTrimmingMessage)]
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
     {
         var messageType = messageMapper.GetMappedTypeFor(message.GetType());
@@ -150,7 +186,7 @@ class MessageOperations
         return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
-    async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
+    async Task ReplyMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, ReplyOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -171,6 +207,9 @@ class MessageOperations
 
         await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
     }
+
+    internal const string RuntimeTypeRoutingTrimmingMessage = "Routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload and specify the message type.";
+    internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
     {

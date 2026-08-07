@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NServiceBus.Settings;
 using Transport;
@@ -11,6 +12,7 @@ using Unicast;
 
 partial class ReceiveComponent
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The startup diagnostics message schema is best-effort and reflects over application message properties that may be removed when trimming.")]
     public void AddManifest(HostingComponent.Configuration hostingConfiguration, SettingsHolder settings)
     {
         var messageTypes = configuration.MessageHandlerRegistry.GetMessageTypes();

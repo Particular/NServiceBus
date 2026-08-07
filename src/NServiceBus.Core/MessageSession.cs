@@ -4,9 +4,11 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Logging;
+using Particular.Obsoletes;
 
 class MessageSession : IMessageSession
 {
@@ -79,6 +81,10 @@ class MessageSession : IMessageSession
         }
     }
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Send<T>(T, SendOptions, CancellationToken) or Send(object, Type, SendOptions, CancellationToken)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public async Task Send(object message, SendOptions sendOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
@@ -88,6 +94,30 @@ class MessageSession : IMessageSession
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
+    }
+
+    [OverloadResolutionPriority(-1)]
+    public async Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
+        await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
+        await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
+    }
+
+    public async Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions sendOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(sendOptions);
+
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
+        await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
+        await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, messageType, sendOptions).ConfigureAwait(false);
     }
 
     public async Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
@@ -101,6 +131,10 @@ class MessageSession : IMessageSession
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
     }
 
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+        ReplacementTypeOrMember = "Publish<T>(T, PublishOptions, CancellationToken) or Publish(object, Type, PublishOptions, CancellationToken)",
+        Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public async Task Publish(object message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
@@ -110,6 +144,30 @@ class MessageSession : IMessageSession
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
         await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
+    }
+
+    [OverloadResolutionPriority(-1)]
+    public async Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
+        await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
+        await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
+    }
+
+    public async Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions publishOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(messageType);
+        ArgumentNullException.ThrowIfNull(publishOptions);
+
+        using var _ = LogManager.BeginSlotScope(loggingSlot);
+        await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
+        using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
+        await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, messageType, publishOptions).ConfigureAwait(false);
     }
 
     public async Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)

@@ -82,7 +82,9 @@ public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
                 {
                     sendOptions.SetHeader(header.Key, header.Value);
                 }
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                 return context.Send(sendOrderAcknowledgement, sendOptions);
+#pragma warning restore NSB0040
             }
         }
 

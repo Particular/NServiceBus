@@ -10,7 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 /// </summary>
 public interface IMessageCreator
 {
-    internal const DynamicallyAccessedMemberTypes CreatorMembersRequired = DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors;
+    internal const DynamicallyAccessedMemberTypes CreatorMembersRequired = DynamicMemberTypeAccess.Message;
 
     /// <summary>
     /// Creates an instance of the message type T.

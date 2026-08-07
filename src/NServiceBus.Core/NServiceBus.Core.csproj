@@ -12,6 +12,10 @@
     <ProjectReference Include="..\NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Shared\MessageTypeValidator.cs" Link="MessageTypeValidator.cs" />
+  </ItemGroup>
+
   <ItemGroup Label="Public dependencies">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" AutomaticVersionRange="false" />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
