@@ -35,6 +35,7 @@ public class IncomingMessage
         NativeMessageId = nativeMessageId;
         MessageId = GetOrSetMessageIdFromHeaders(headers, nativeMessageId);
         Headers = headers;
+        originalHeaders = new Dictionary<string, string>(headers);
         Body = body;
         ReceiveProperties = receiveProperties;
     }
@@ -108,5 +109,18 @@ public class IncomingMessage
         }
     }
 
+    /// <summary>
+    /// Makes sure that the headers are reset to the exact state as they were when the message was created.
+    /// </summary>
+    internal void RevertToOriginalHeadersIfNeeded()
+    {
+        Headers.Clear();
+        foreach (var header in originalHeaders)
+        {
+            Headers.Add(header.Key, header.Value);
+        }
+    }
+
     ReadOnlyMemory<byte>? originalBody;
+    readonly Dictionary<string, string> originalHeaders;
 }

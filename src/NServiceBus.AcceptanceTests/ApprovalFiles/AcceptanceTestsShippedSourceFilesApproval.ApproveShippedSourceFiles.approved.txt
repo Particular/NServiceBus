@@ -4,6 +4,7 @@ Audit/When_audit_is_overridden_in_code.cs
 Audit/When_audit_is_overridden_in_environment.cs
 Audit/When_auditing.cs
 Audit/When_auditing_message_with_TimeToBeReceived.cs
+Audit/When_headers_are_mutated.cs
 BehaviorBuilderRegistrationExtensions.cs
 ConfigureEndpointAcceptanceTestingPersistence.cs
 ConfigureEndpointAcceptanceTestingTransport.cs
