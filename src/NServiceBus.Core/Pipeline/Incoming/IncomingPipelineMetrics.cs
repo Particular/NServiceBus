@@ -329,11 +329,17 @@ class IncomingPipelineMetrics
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
-            MeterTags.EndpointDiscriminator]);
+            MeterTags.EndpointDiscriminator
+        ]);
         if (error != null)
         {
             tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
         }
+        if (context.Message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes))
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.EnclosedMessageTypes, messageTypes));
+        }
+
         messageDeserializeTime.Record(elapsed.TotalSeconds, tags);
     }
 
