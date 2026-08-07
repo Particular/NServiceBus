@@ -16,7 +16,7 @@ using Persistence;
 using Pipeline;
 using Unicast;
 
-class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
+class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory, IncomingPipelineMetrics incomingPipelineMetrics) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
 {
     public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
     {
@@ -80,7 +80,9 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
             }
 
             context.MessageHandled = true;
+            var persistenceStart = Stopwatch.GetTimestamp();
             await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
+            incomingPipelineMetrics.RecordPersistenceTime(context, Stopwatch.GetElapsedTime(persistenceStart));
         }
     }
 

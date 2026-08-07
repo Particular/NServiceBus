@@ -23,10 +23,16 @@ class IncomingPipelineMetrics
     const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
     const string ActiveMessages = "nservicebus.messaging.active_messages";
     const string TotalDeduplicated = "nservicebus.outbox.duplicates";
+    const string SagaFetchTime = "nservicebus.sagas.fetch_time";
+    const string MessageDeserializeTime = "nservicebus.messaging.deserialize_time";
+    const string MessageSerializeTime = "nservicebus.messaging.serialize_time";
+    const string OutboxFetchTime = "nservicebus.outbox.fetch_time";
+    const string OutboxStoreTime = "nservicebus.outbox.store_time";
+    const string CommitTime = "nservicebus.persistence.commit_time";
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
-        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.3.0");
+        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
         totalFetched = meter.CreateCounter<long>(TotalFetched,
@@ -51,6 +57,18 @@ class IncomingPipelineMetrics
             description: "Total number of unwrapping attempts by the endpoint.");
         activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
             description: "Number of messages currently being processed by the endpoint.");
+        sagaFetchTime = meter.CreateHistogram<double>(SagaFetchTime, "s",
+            "The time in seconds for loading saga data from the persister.");
+        messageDeserializeTime = meter.CreateHistogram<double>(MessageDeserializeTime, "s",
+            "The time in seconds for deserializing an incoming message.");
+        messageSerializeTime = meter.CreateHistogram<double>(MessageSerializeTime, "s",
+            "The time in seconds for serializing an outgoing message.");
+        outboxFetchTime = meter.CreateHistogram<double>(OutboxFetchTime, "s",
+            "The time in seconds for querying the outbox storage for deduplication.");
+        outboxStoreTime = meter.CreateHistogram<double>(OutboxStoreTime, "s",
+            "The time in seconds for storing a message in the outbox storage.");
+        persistenceTime = meter.CreateHistogram<double>(CommitTime, "s",
+            "The time in seconds for completing the synchronized storage session.");
 
         queueNameBase = queueName;
         endpointDiscriminator = discriminator;
@@ -72,7 +90,6 @@ class IncomingPipelineMetrics
         var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
 
         TagList tags;
-        tags.Add(new(MeterTags.ExecutionResult, "success"));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
@@ -92,7 +109,6 @@ class IncomingPipelineMetrics
         var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
 
         TagList tags;
-        tags.Add(new(MeterTags.ExecutionResult, "success"));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
@@ -124,7 +140,6 @@ class IncomingPipelineMetrics
 
         TagList tags;
         tags.Add(new(MeterTags.ErrorType, error.GetType().FullName));
-        tags.Add(new(MeterTags.ExecutionResult, "failure"));
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
@@ -184,7 +199,6 @@ class IncomingPipelineMetrics
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
         meterTags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, invokeHandlerContext.MessageHandler.HandlerType.FullName));
-        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "success"));
         messageHandlerTime.Record(elapsed.TotalSeconds, meterTags);
     }
 
@@ -204,7 +218,6 @@ class IncomingPipelineMetrics
             MeterTags.MessageHandlerType]);
         // This is what Add(string, object) does so skipping an unnecessary stack frame
         meterTags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, invokeHandlerContext.MessageHandler.HandlerType.FullName));
-        meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "failure"));
         meterTags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
         messageHandlerTime.Record(elapsed.TotalSeconds, meterTags);
     }
@@ -284,6 +297,118 @@ class IncomingPipelineMetrics
         return new ActiveMessageScope(activeMessages, tags);
     }
 
+    public void RecordSagaFetchTime(IInvokeHandlerContext context, TimeSpan elapsed, string sagaType, Exception? error = null)
+    {
+        if (!sagaFetchTime.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType]);
+        tags.Add(new KeyValuePair<string, object?>(MeterTags.SagaType, sagaType));
+        if (error != null)
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
+        }
+        sagaFetchTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordDeserializeTime(IIncomingPhysicalMessageContext context, TimeSpan elapsed, Exception? error = null)
+    {
+        if (!messageDeserializeTime.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator
+        ]);
+        if (error != null)
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
+        }
+        if (context.Message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes))
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.EnclosedMessageTypes, messageTypes));
+        }
+
+        messageDeserializeTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordSerializeTime(TimeSpan elapsed, string? messageType, Exception? error = null)
+    {
+        if (!messageSerializeTime.Enabled)
+        {
+            return;
+        }
+
+        TagList tags;
+        if (messageType != null)
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, messageType));
+        }
+        if (error != null)
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
+        }
+        messageSerializeTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordOutboxFetchTime(ITransportReceiveContext context, TimeSpan elapsed)
+    {
+        if (!outboxFetchTime.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator]);
+        outboxFetchTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordOutboxStoreTime(ITransportReceiveContext context, TimeSpan elapsed)
+    {
+        if (!outboxStoreTime.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator]);
+        outboxStoreTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordPersistenceTime(IIncomingLogicalMessageContext context, TimeSpan elapsed)
+    {
+        if (!persistenceTime.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerTypes]);
+        persistenceTime.Record(elapsed.TotalSeconds, tags);
+    }
+
     public void EnvelopeUnwrappingSucceeded(MessageContext messageContext, IEnvelopeHandler type) => RecordEnvelopeUnwrapping(messageContext, type, true, null);
     public void EnvelopeUnwrappingFailed(MessageContext messageContext, IEnvelopeHandler type, Exception? exception) => RecordEnvelopeUnwrapping(messageContext, type, false, exception);
     void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
@@ -324,6 +449,12 @@ class IncomingPipelineMetrics
     readonly Counter<long> totalSentToErrorQueue;
     readonly Counter<long> totalEnvelopeUnwrapping;
     readonly UpDownCounter<long> activeMessages;
+    readonly Histogram<double> sagaFetchTime;
+    readonly Histogram<double> messageDeserializeTime;
+    readonly Histogram<double> messageSerializeTime;
+    readonly Histogram<double> outboxFetchTime;
+    readonly Histogram<double> outboxStoreTime;
+    readonly Histogram<double> persistenceTime;
 
     readonly string queueNameBase;
     readonly string endpointDiscriminator;

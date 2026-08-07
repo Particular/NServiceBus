@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using NServiceBus.Core.Tests.OpenTelemetry;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 using Serialization;
@@ -29,7 +30,7 @@ public class SerializeMessageConnectorTests
             Message = new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage())
         };
 
-        var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
+        var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
         await behavior.Invoke(context, c => Task.CompletedTask);
 

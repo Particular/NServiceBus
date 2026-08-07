@@ -73,7 +73,6 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
                 ["nservicebus.discriminator"] = "disc",
                 ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName,
                 ["nservicebus.message_handler_type"] = typeof(EndpointWithMetrics.MessageHandler).FullName,
-                ["execution.result"] = "success"
             });
     }
 
