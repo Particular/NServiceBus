@@ -12,13 +12,14 @@ class AssemblyPublisherSource : IPublisherSource
     readonly Assembly messageAssembly;
     readonly PublisherAddress address;
 
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public AssemblyPublisherSource(Assembly messageAssembly, PublisherAddress address)
     {
         this.messageAssembly = messageAssembly;
         this.address = address;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public assembly publisher API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public IEnumerable<PublisherTableEntry> GenerateWithBestPracticeEnforcement(Conventions conventions)
     {
         var entries = messageAssembly.GetTypes()
@@ -34,7 +35,7 @@ class AssemblyPublisherSource : IPublisherSource
         return entries;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public assembly publisher API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public IEnumerable<PublisherTableEntry> GenerateWithoutBestPracticeEnforcement(Conventions conventions)
     {
         var entries = messageAssembly.GetTypes()

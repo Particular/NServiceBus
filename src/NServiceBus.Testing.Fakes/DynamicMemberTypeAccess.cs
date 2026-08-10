@@ -9,6 +9,6 @@ static class DynamicMemberTypeAccess
                                                           | DynamicallyAccessedMemberTypes.PublicProperties
                                                           | DynamicallyAccessedMemberTypes.Interfaces;
 
-    public const string RuntimeTypeRoutingTrimmingMessage = "Routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload and specify the message type.";
+    public const string RuntimeTypeRoutingTrimmingMessage = "When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.";
 
 }

@@ -13,6 +13,7 @@ class NamespaceRouteSource : IRouteSource
     readonly string messageNamespace;
     readonly UnicastRoute route;
 
+    [RequiresUnreferencedCode(AssemblyRouteSource.TrimmingMessage)]
     public NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, UnicastRoute route)
     {
         this.messageAssembly = messageAssembly;
@@ -20,7 +21,7 @@ class NamespaceRouteSource : IRouteSource
         this.messageNamespace = messageNamespace;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public namespace routing API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
+    [RequiresUnreferencedCode(AssemblyRouteSource.TrimmingMessage)]
     public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
     {
         var routes = messageAssembly.GetTypes()

@@ -12,13 +12,14 @@ class AssemblyRouteSource : IRouteSource
     readonly Assembly messageAssembly;
     readonly UnicastRoute route;
 
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public AssemblyRouteSource(Assembly messageAssembly, UnicastRoute route)
     {
         this.messageAssembly = messageAssembly;
         this.route = route;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public assembly routing API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
     {
         var routes = messageAssembly.GetTypes()

@@ -208,7 +208,7 @@ class MessageOperations
         await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
     }
 
-    internal const string RuntimeTypeRoutingTrimmingMessage = "Routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload and specify the message type.";
+    internal const string RuntimeTypeRoutingTrimmingMessage = "When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.";
     internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
