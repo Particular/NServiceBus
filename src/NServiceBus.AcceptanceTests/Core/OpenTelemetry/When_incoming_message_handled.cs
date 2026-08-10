@@ -31,7 +31,7 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
         AssertMandatoryTags(metricsListener, HandlerTimeMetricName, typeof(MyMessage));
         var handlerType = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "nservicebus.message_handler_type");
         Assert.That(handlerType, Is.EqualTo(typeof(EndpointWithMetrics.MyMessageHandler).FullName));
-         var result = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "execution.result");
+        var result = metricsListener.AssertTagKeyExists(HandlerTimeMetricName, "execution.result");
         Assert.That(result, Is.EqualTo("success"));
     }
 
