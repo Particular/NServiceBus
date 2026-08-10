@@ -2,7 +2,13 @@
 
 namespace NServiceBus.Core.Analyzer.Tests;
 
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Framework;
 using Particular.AnalyzerTesting;
 
@@ -12,12 +18,57 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
     protected override void ConfigureFixtureTests(AnalyzerTest test)
     {
         base.ConfigureFixtureTests(test);
-        test.WithProperty("build_property.NServiceBusMigrationAudit", "true");
+        test.WithProperty("build_property.PublishTrimmed", "true");
     }
 
     static AnalyzerTest MigrationTest(string source) =>
         AnalyzerTest.ForAnalyzer<MessagingMigrationAnalyzer>()
             .WithSource(source);
+
+    static async Task AssertEditorConfigOption(string source, params string[] expectedDiagnosticIds)
+    {
+        var syntaxTree = CSharpSyntaxTree.ParseText(source, path: "Test.cs");
+        var compilation = CSharpCompilation.Create(
+            "AnalyzerConfigOptionsTest",
+            [syntaxTree],
+            SetUpFixture.ProjectReferences,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        var analyzerOptions = new AnalyzerOptions(
+            ImmutableArray<AdditionalText>.Empty,
+            new TestAnalyzerConfigOptionsProvider(syntaxTree));
+        var analyzerDiagnostics = await compilation.WithAnalyzers(
+            [new MessagingMigrationAnalyzer()],
+            new CompilationWithAnalyzersOptions(
+                analyzerOptions,
+                onAnalyzerException: null,
+                concurrentAnalysis: true,
+                logAnalyzerExecutionTime: false)).GetAnalyzerDiagnosticsAsync();
+
+        NUnit.Framework.Assert.That(analyzerDiagnostics.Select(diagnostic => diagnostic.Id), Is.EquivalentTo(expectedDiagnosticIds));
+    }
+
+    sealed class TestAnalyzerConfigOptionsProvider(SyntaxTree configuredTree) : AnalyzerConfigOptionsProvider
+    {
+        static readonly AnalyzerConfigOptions EmptyOptions = new TestAnalyzerConfigOptions(ImmutableDictionary<string, string>.Empty);
+        static readonly AnalyzerConfigOptions MigrationOptions = new TestAnalyzerConfigOptions(
+            ImmutableDictionary<string, string>.Empty.Add(
+                "nservicebus_enable_message_overload_migration_diagnostics",
+                "true"));
+
+        public override AnalyzerConfigOptions GlobalOptions => EmptyOptions;
+
+        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) =>
+            tree == configuredTree ? MigrationOptions : EmptyOptions;
+
+        public override AnalyzerConfigOptions GetOptions(AdditionalText text) => EmptyOptions;
+    }
+
+    sealed class TestAnalyzerConfigOptions(ImmutableDictionary<string, string> values) : AnalyzerConfigOptions
+    {
+        public override bool TryGetValue(string key, out string value) => values.TryGetValue(key, out value!);
+
+        public override IEnumerable<string> Keys => values.Keys;
+    }
 
     // ===== NSB0039: Safe object creation =====
 
@@ -782,8 +833,7 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
             class MyMessage : IMessage { }
             """;
-        return MigrationTest(source).WithProperty("build_property.NServiceBusMigrationAudit", "false")
-            .AssertDiagnostics();
+        return MigrationTest(source).AssertDiagnostics();
     }
 
     [Test]
@@ -853,7 +903,7 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
     }
 
     [Test]
-    public Task MigrationDiagnostics_AreEnabledForExplicitAudit()
+    public Task MigrationDiagnostics_AreEnabledForEditorConfigOption()
     {
         var source =
             """
@@ -862,16 +912,19 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
             class Foo
             {
-                async Task Bar(IMessageSession session)
+                async Task Bar(IMessageSession session, int? message)
                 {
-                    await [|session.Send(new MyMessage())|];
+                    await session.Send(new MyMessage());
+                    await session.Send(message);
                 }
             }
 
             class MyMessage : IMessage { }
             """;
-        return MigrationTest(source).WithProperty("build_property.NServiceBusMigrationAudit", "true")
-            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+        return AssertEditorConfigOption(
+            source,
+            DiagnosticIds.UseGenericMessageType,
+            DiagnosticIds.RuntimeTypeMayDiffer);
     }
 
     // ===== Negative tests =====

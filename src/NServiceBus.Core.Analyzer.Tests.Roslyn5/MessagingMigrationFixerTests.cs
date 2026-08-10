@@ -10,6 +10,12 @@ using Particular.AnalyzerTesting;
 [TestFixture]
 public class MessagingMigrationFixerTests : CodeFixTestFixture<MessagingMigrationAnalyzer, MessagingMigrationFixer>
 {
+    protected override void ConfigureFixtureTests(CodeFixTest test)
+    {
+        base.ConfigureFixtureTests(test);
+        test.WithProperty("build_property.PublishTrimmed", "true");
+    }
+
     [Test]
     public Task SessionPublish()
     {

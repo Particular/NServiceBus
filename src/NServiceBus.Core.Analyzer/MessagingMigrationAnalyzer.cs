@@ -16,7 +16,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     const string PublishTrimmedProperty = "build_property.PublishTrimmed";
     const string PublishAotProperty = "build_property.PublishAot";
     const string IsAotCompatibleProperty = "build_property.IsAotCompatible";
-    const string MigrationAuditProperty = "build_property.NServiceBusMigrationAudit";
+    const string MigrationDiagnosticsOption = "nservicebus_enable_message_overload_migration_diagnostics";
 
     static readonly DiagnosticDescriptor UseGenericTypeRule = new(
         DiagnosticIds.UseGenericMessageType,
@@ -59,7 +59,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
-            var migrationDiagnosticsEnabled = IsMigrationDiagnosticsEnabled(
+            var migrationDiagnosticsEnabled = AreMigrationDiagnosticsAutomaticallyEnabled(
                 startContext.Options.AnalyzerConfigOptionsProvider.GlobalOptions);
             startContext.RegisterOperationAction(
                 operationContext => AnalyzeInvocation(operationContext, knownTypes, migrationDiagnosticsEnabled),
@@ -92,7 +92,9 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (!migrationDiagnosticsEnabled || !IsObjectOverload(declaration, messageParameter))
+        if ((!migrationDiagnosticsEnabled &&
+            !IsTrue(context.Options.AnalyzerConfigOptionsProvider.GetOptions(invocation.Syntax.SyntaxTree), MigrationDiagnosticsOption)) ||
+            !IsObjectOverload(declaration, messageParameter))
         {
             return;
         }
@@ -146,11 +148,10 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    static bool IsMigrationDiagnosticsEnabled(AnalyzerConfigOptions globalOptions) =>
+    static bool AreMigrationDiagnosticsAutomaticallyEnabled(AnalyzerConfigOptions globalOptions) =>
         IsTrue(globalOptions, PublishTrimmedProperty) ||
         IsTrue(globalOptions, PublishAotProperty) ||
-        IsTrue(globalOptions, IsAotCompatibleProperty) ||
-        IsTrue(globalOptions, MigrationAuditProperty);
+        IsTrue(globalOptions, IsAotCompatibleProperty);
 
     static bool IsTrue(AnalyzerConfigOptions options, string propertyName) =>
         options.TryGetValue(propertyName, out var value) &&

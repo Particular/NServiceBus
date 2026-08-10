@@ -13,7 +13,6 @@
     <CompilerVisibleProperty Include="PublishTrimmed" />
     <CompilerVisibleProperty Include="PublishAot" />
     <CompilerVisibleProperty Include="IsAotCompatible" />
-    <CompilerVisibleProperty Include="NServiceBusMigrationAudit" />
   </ItemGroup>
 
 </Project>
