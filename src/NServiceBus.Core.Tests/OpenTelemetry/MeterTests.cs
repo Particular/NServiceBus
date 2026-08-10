@@ -22,7 +22,7 @@ public class MeterTests
         using var meterFactory = new TestMeterFactory();
         //The IncomingPipelineMeter constructor creates the meters, therefore a new instance before collecting the metrics.
 #pragma warning disable CA1806
-        new IncomingPipelineMeter(meterFactory, "queue", "disc", new MetersOptions());
+        new IncomingPipelineMetrics(meterFactory, "queue", "disc", new MetersOptions());
 #pragma warning restore CA1806
 
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();

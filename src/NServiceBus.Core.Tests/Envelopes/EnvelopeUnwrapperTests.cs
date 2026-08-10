@@ -15,7 +15,7 @@ public class EnvelopeUnwrapperTests
     ReadOnlyMemory<byte> originalBody;
     MessageContext messageContext;
     TestMeterFactory meterFactory;
-    IncomingPipelineMeter incomingPipelineMetrics;
+    IncomingPipelineMetrics incomingPipelineMetrics;
     List<IEnvelopeHandler> envelopeHandlers;
 
     [SetUp]
@@ -29,7 +29,7 @@ public class EnvelopeUnwrapperTests
         originalBody = "payload"u8.ToArray().AsMemory();
         messageContext = new MessageContext(nativeId, originalHeaders, originalBody, new TransportTransaction(), "receiveAddress", new ContextBag());
         meterFactory = new TestMeterFactory();
-        incomingPipelineMetrics = new IncomingPipelineMeter(meterFactory, "queue", "disc", new MetersOptions());
+        incomingPipelineMetrics = new IncomingPipelineMetrics(meterFactory, "queue", "disc", new MetersOptions());
     }
 
     [TearDown]

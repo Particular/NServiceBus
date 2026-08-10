@@ -9,7 +9,7 @@ using System.Diagnostics;
 /// <summary>
 /// Captures possible metric tags that can be applied to a metric throughout the incoming processing pipeline.
 /// </summary>
-public sealed class IncomingPipelineMeterTags
+public sealed class IncomingPipelineMetricsTags
 {
     Dictionary<string, KeyValuePair<string, object?>>? tags;
 

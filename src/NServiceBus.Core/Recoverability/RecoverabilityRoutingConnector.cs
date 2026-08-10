@@ -8,10 +8,10 @@ using Pipeline;
 
 class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IRoutingContext>
 {
-    readonly IncomingPipelineMeter incomingPipelineMetrics;
+    readonly IncomingPipelineMetrics incomingPipelineMetrics;
 
     public RecoverabilityRoutingConnector(
-        IncomingPipelineMeter incomingPipelineMetrics,
+        IncomingPipelineMetrics incomingPipelineMetrics,
         INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
         INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
     {

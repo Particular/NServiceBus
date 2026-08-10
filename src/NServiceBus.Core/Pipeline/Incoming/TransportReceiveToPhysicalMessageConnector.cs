@@ -15,7 +15,7 @@ using TransportOperation = Outbox.TransportOperation;
 
 class TransportReceiveToPhysicalMessageConnector(
     IOutboxStorage outboxStorage,
-    IncomingPipelineMeter incomingPipelineMetrics,
+    IncomingPipelineMetrics incomingPipelineMetrics,
     InstrumentationOptions instrumentationOptions)
     : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {

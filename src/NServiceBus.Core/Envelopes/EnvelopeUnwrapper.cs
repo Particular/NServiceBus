@@ -6,7 +6,7 @@ using System;
 using Logging;
 using Transport;
 
-class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMeter metrics)
+class EnvelopeUnwrapper(IEnvelopeHandler[] envelopeHandlers, IncomingPipelineMetrics metrics)
 {
     static IncomingMessage GetDefaultIncomingMessage(MessageContext messageContext) =>
         new(messageContext.NativeMessageId, messageContext.Headers, messageContext.Body, messageContext.ReceiveProperties);

@@ -67,12 +67,12 @@ partial class ReceiveComponent
         pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
         {
             var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
-            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMeter>(), hostingConfiguration.ActivityFactory.Options);
+            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMetrics>(), hostingConfiguration.ActivityFactory.Options);
         }, "Allows to abort processing the message");
 
-        pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory, b.GetRequiredService<IncomingPipelineMeter>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+        pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory, b.GetRequiredService<IncomingPipelineMetrics>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-        pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(sp.GetRequiredService<IncomingPipelineMeter>()), "Calls the IHandleMessages<T>.Handle(T)");
+        pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(sp.GetRequiredService<IncomingPipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
 
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
@@ -172,7 +172,7 @@ partial class ReceiveComponent
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-        var pipelineMetrics = builder.GetRequiredService<IncomingPipelineMeter>();
+        var pipelineMetrics = builder.GetRequiredService<IncomingPipelineMetrics>();
         var envelopeUnwrapper = envelopeComponent.CreateUnwrapper(builder);
         var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
 

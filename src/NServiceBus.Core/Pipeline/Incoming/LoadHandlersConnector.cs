@@ -16,7 +16,7 @@ using Persistence;
 using Pipeline;
 using Unicast;
 
-class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory, IncomingPipelineMeter incomingPipelineMetrics) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
+class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory, IncomingPipelineMetrics incomingPipelineMetrics) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
 {
     public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
     {
@@ -43,7 +43,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
             }
 
             // capture the message handler types to add them as tags to applicable metrics
-            var availableMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+            var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
             availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
 
             foreach (var messageHandler in handlersToInvoke)

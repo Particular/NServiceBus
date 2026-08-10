@@ -58,7 +58,7 @@ class RecoverabilityComponent
 
         faultMetadataExtractor = CreateFaultMetadataExtractor(hostInformation, settings);
 
-        pipelineSettings.Register(sp => new RecoverabilityRoutingConnector(sp.GetRequiredService<IncomingPipelineMeter>(), messageRetryNotification, messageFaultedNotification), "Executes the configured retry policy");
+        pipelineSettings.Register(sp => new RecoverabilityRoutingConnector(sp.GetRequiredService<IncomingPipelineMetrics>(), messageRetryNotification, messageFaultedNotification), "Executes the configured retry policy");
 
         hostingConfiguration.AddStartupDiagnosticsSection("Recoverability", new
         {

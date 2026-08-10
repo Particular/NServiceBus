@@ -197,7 +197,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         };
 
         context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
-        context.Extensions.Set(new IncomingPipelineMeterTags());
+        context.Extensions.Set(new IncomingPipelineMetricsTags());
 
         return context;
     }
@@ -209,7 +209,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         fakeBatchPipeline = new FakeBatchPipeline();
         fakeMeterFactory = new TestMeterFactory();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMeter(new TestMeterFactory(), "queue", "disc", new MetersOptions()), new InstrumentationOptions());
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc", new MetersOptions()), new InstrumentationOptions());
     }
 
     [TearDown]

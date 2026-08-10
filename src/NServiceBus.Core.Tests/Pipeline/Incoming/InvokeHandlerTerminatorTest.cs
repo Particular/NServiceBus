@@ -11,7 +11,7 @@ using Testing;
 [TestFixture]
 public class InvokeHandlerTerminatorTest
 {
-    readonly InvokeHandlerTerminator terminator = new(new IncomingPipelineMeter(new TestMeterFactory(), "queue", "disc", new MetersOptions()));
+    readonly InvokeHandlerTerminator terminator = new(new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc", new MetersOptions()));
 
     [Test]
     public async Task When_saga_found_and_handler_is_saga_should_invoke_handler()

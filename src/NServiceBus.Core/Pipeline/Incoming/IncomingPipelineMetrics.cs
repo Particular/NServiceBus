@@ -9,7 +9,7 @@ using System.Diagnostics.Metrics;
 using Transport;
 using Pipeline;
 
-class IncomingPipelineMeter
+class IncomingPipelineMetrics
 {
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
@@ -30,7 +30,7 @@ class IncomingPipelineMeter
     const string OutboxStoreTime = "nservicebus.outbox.store_time";
     const string CommitTime = "nservicebus.persistence.commit_time";
 
-    public IncomingPipelineMeter(IMeterFactory meterFactory, string queueName, string discriminator, MetersOptions metersOptions)
+    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator, MetersOptions metersOptions)
     {
         emitExecutionResultTags = metersOptions.EmitExecutionResultTags;
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
@@ -75,7 +75,7 @@ class IncomingPipelineMeter
         endpointDiscriminator = discriminator;
     }
 
-    public void AddDefaultIncomingPipelineMetricTags(IncomingPipelineMeterTags incomingPipelineMetricsTags)
+    public void AddDefaultIncomingPipelineMetricTags(IncomingPipelineMetricsTags incomingPipelineMetricsTags)
     {
         incomingPipelineMetricsTags.Add(MeterTags.QueueName, queueNameBase);
         incomingPipelineMetricsTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator);
@@ -88,7 +88,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
 
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
@@ -111,7 +111,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
 
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
@@ -141,7 +141,7 @@ class IncomingPipelineMeter
         }
     }
 
-    public void RecordMessageProcessingFailure(IncomingPipelineMeterTags incomingPipelineMetricTags, Exception error)
+    public void RecordMessageProcessingFailure(IncomingPipelineMetricsTags incomingPipelineMetricTags, Exception error)
     {
         if (!totalFailures.Enabled)
         {
@@ -164,7 +164,7 @@ class IncomingPipelineMeter
         // the processing and critical time are intentionally not recorded in case of failure
     }
 
-    public void RecordFetchedMessage(IncomingPipelineMeterTags incomingPipelineMetricTags)
+    public void RecordFetchedMessage(IncomingPipelineMetricsTags incomingPipelineMetricTags)
     {
         if (!totalFetched.Enabled)
         {
@@ -187,7 +187,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.EndpointDiscriminator,
@@ -204,7 +204,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = invokeHandlerContext.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = invokeHandlerContext.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList meterTags;
         incomingPipelineMetricTags.ApplyTags(ref meterTags, [
             MeterTags.QueueName,
@@ -227,7 +227,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = invokeHandlerContext.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = invokeHandlerContext.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList meterTags;
         incomingPipelineMetricTags.ApplyTags(ref meterTags, [
             MeterTags.QueueName,
@@ -251,7 +251,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = recoverabilityContext.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = recoverabilityContext.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList meterTags;
         incomingPipelineMetricTags.ApplyTags(ref meterTags, [
             MeterTags.QueueName,
@@ -270,7 +270,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = recoverabilityContext.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = recoverabilityContext.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList meterTags;
         incomingPipelineMetricTags.ApplyTags(ref meterTags, [
             MeterTags.QueueName,
@@ -289,7 +289,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = recoverabilityContext.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = recoverabilityContext.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList meterTags;
         incomingPipelineMetricTags.ApplyTags(ref meterTags, [
             MeterTags.QueueName,
@@ -301,7 +301,7 @@ class IncomingPipelineMeter
         totalSentToErrorQueue.Add(1, meterTags);
     }
 
-    public ActiveMessageScope TrackMessageProcessing(IncomingPipelineMeterTags incomingPipelineMetricTags, IncomingMessage message)
+    public ActiveMessageScope TrackMessageProcessing(IncomingPipelineMetricsTags incomingPipelineMetricTags, IncomingMessage message)
     {
         if (!activeMessages.Enabled)
         {
@@ -326,7 +326,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -351,7 +351,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -403,7 +403,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -418,7 +418,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -433,7 +433,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -452,7 +452,7 @@ class IncomingPipelineMeter
             return;
         }
 
-        var incomingPipelineMetricTags = messageContext.Extensions.Get<IncomingPipelineMeterTags>();
+        var incomingPipelineMetricTags = messageContext.Extensions.Get<IncomingPipelineMetricsTags>();
         TagList meterTags;
         incomingPipelineMetricTags.ApplyTags(ref meterTags, [
             MeterTags.QueueName,
