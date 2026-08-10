@@ -1,10 +1,11 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Logging;
 using MessageInterfaces;
@@ -17,14 +18,29 @@ class DeserializeMessageConnector(
     LogicalMessageFactory logicalMessageFactory,
     MessageMetadataRegistry messageMetadataRegistry,
     IMessageMapper mapper,
-    bool allowContentTypeInference)
+    bool allowContentTypeInference,
+    IncomingPipelineMetrics incomingPipelineMetrics)
     : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
 {
     public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
     {
         var incomingMessage = context.Message;
 
-        var messages = ExtractWithExceptionHandling(incomingMessage);
+        LogicalMessage[] messages;
+        var deserializeStart = Stopwatch.GetTimestamp();
+        try
+        {
+            messages = ExtractWithExceptionHandling(incomingMessage);
+        }
+#pragma warning disable PS0019
+        catch (Exception ex)
+#pragma warning restore PS0019
+        {
+            incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), error: ex);
+            throw;
+        }
+
+        incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart));
 
         bool first = true;
         foreach (var message in messages)

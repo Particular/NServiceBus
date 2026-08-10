@@ -12,14 +12,15 @@ sealed class PipelineComponent
     PipelineComponent(PipelineModifications modifications) => this.modifications = modifications;
 
     public static PipelineComponent Initialize(PipelineSettings settings,
-        HostingComponent.Configuration hostingConfiguration, ReceiveComponent.Configuration receiveConfiguration)
+        HostingComponent.Configuration hostingConfiguration, ReceiveComponent.Configuration receiveConfiguration,
+        MetersOptions metersOptions)
     {
         // make the PipelineMetrics available to the Pipeline
         hostingConfiguration.Services.AddSingleton(sp =>
         {
             var meterFactory = sp.GetRequiredService<IMeterFactory>();
             string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
-            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator);
+            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator, metersOptions);
         });
 
         return new PipelineComponent(settings.modifications);

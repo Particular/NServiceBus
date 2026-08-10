@@ -48,8 +48,8 @@ sealed class SerializationFeature : Feature
         var allowMessageTypeInference = settings.IsMessageTypeInferenceEnabled();
         var resolver = new MessageDeserializerResolver(mainSerializer, additionalDeserializers);
         var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
-        context.Pipeline.Register("DeserializeLogicalMessagesConnector", new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference), "Deserializes the physical message body into logical messages");
-        context.Pipeline.Register("SerializeMessageConnector", new SerializeMessageConnector(mainSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
+        context.Pipeline.Register("DeserializeLogicalMessagesConnector", b => new DeserializeMessageConnector(resolver, logicalMessageFactory, messageMetadataRegistry, mapper, allowMessageTypeInference, b.GetRequiredService<IncomingPipelineMetrics>()), "Deserializes the physical message body into logical messages");
+        context.Pipeline.Register("SerializeMessageConnector", b => new SerializeMessageConnector(mainSerializer, messageMetadataRegistry, b.GetRequiredService<IncomingPipelineMetrics>()), "Converts a logical message into a physical message");
 
         context.Services.AddSingleton(mapper);
         context.Services.AddSingleton<IMessageCreator>(mapper);

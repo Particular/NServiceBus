@@ -649,6 +649,7 @@ namespace NServiceBus
         public NServiceBus.DelayedDeliveryInstrumentationOptions DelayedDelivery { get; }
         public bool EmitMessageDispatchingEvents { get; set; }
         public NServiceBus.ExceptionRecordingMode ExceptionRecordingMode { get; set; }
+        public NServiceBus.MetersOptions Meters { get; }
         public NServiceBus.TraceMode PublishTraceMode { get; set; }
         public NServiceBus.RecoverabilityInstrumentationOptions Recoverability { get; }
         public NServiceBus.TraceMode SendTraceMode { get; set; }
@@ -767,6 +768,11 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
+    }
+    public class MetersOptions
+    {
+        public MetersOptions() { }
+        public bool EmitExecutionResultTags { get; set; }
     }
     public class MoveToError : NServiceBus.RecoverabilityAction
     {

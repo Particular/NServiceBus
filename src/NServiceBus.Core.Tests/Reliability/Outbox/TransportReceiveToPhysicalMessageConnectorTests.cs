@@ -209,7 +209,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         fakeBatchPipeline = new FakeBatchPipeline();
         fakeMeterFactory = new TestMeterFactory();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), new InstrumentationOptions());
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc", new MetersOptions()), new InstrumentationOptions());
     }
 
     [TearDown]

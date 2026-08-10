@@ -21,6 +21,11 @@ public partial class InstrumentationOptions
     public RecoverabilityInstrumentationOptions Recoverability { get; } = new();
 
     /// <summary>
+    /// Controls meter instruments behaviors.
+    /// </summary>
+    public MetersOptions Meters { get; } = new();
+
+    /// <summary>
     /// Controls instrumentation of explicitly delayed messages (<c>SendOptions.DelayDeliveryWith</c>
     /// / <c>DoNotDeliverBefore</c> and saga timeouts. 
     /// Recoverability-driven delayed retries are controlled separately via
