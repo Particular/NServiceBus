@@ -21,7 +21,7 @@ public class InstrumentationOptions
     public RecoverabilityInstrumentationOptions Recoverability { get; } = new();
 
     /// <summary>
-    /// Controls metrics instrumentation behaviors.
+    /// Controls meter instruments behaviors.
     /// </summary>
     public MetersOptions Meters { get; } = new();
 

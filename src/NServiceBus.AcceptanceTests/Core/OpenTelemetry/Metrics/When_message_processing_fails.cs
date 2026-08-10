@@ -50,6 +50,8 @@ public class When_message_processing_fails : OpenTelemetryAcceptanceTest
                 ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(FailingEndpoint)),
                 ["nservicebus.discriminator"] = "disc",
                 ["nservicebus.message_type"] = typeof(FailingMessage).FullName,
+                ,
+                ["execution.result"] = "failure"
                 ["error.type"] = typeof(SimulatedException).FullName,
             });
     }
