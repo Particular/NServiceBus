@@ -9,6 +9,16 @@ using Particular.AnalyzerTesting;
 [TestFixture]
 public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigrationAnalyzer>
 {
+    protected override void ConfigureFixtureTests(AnalyzerTest test)
+    {
+        base.ConfigureFixtureTests(test);
+        test.WithProperty("build_property.NServiceBusMigrationAudit", "true");
+    }
+
+    static AnalyzerTest MigrationTest(string source) =>
+        AnalyzerTest.ForAnalyzer<MessagingMigrationAnalyzer>()
+            .WithSource(source);
+
     // ===== NSB0039: Safe object creation =====
 
     [Test]
@@ -728,6 +738,140 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             }
             """;
         return Assert(source, DiagnosticIds.GenericMessageTypeIsObject);
+    }
+
+    // ===== Activation =====
+
+    [Test]
+    public Task NSB0041_IsReportedWithoutMigrationAudit()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    object message = new MyMessage();
+                    await [|session.Send<object>(message)|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source).AssertDiagnostics(DiagnosticIds.GenericMessageTypeIsObject);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AreInactiveByDefault()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await session.Send(new MyMessage());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source).WithProperty("build_property.NServiceBusMigrationAudit", "false")
+            .AssertDiagnostics();
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AreEnabledForPublishTrimmed()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source).WithProperty("build_property.PublishTrimmed", "true")
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AreEnabledForPublishAot()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source).WithProperty("build_property.PublishAot", "true")
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AreEnabledForIsAotCompatible()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source).WithProperty("build_property.IsAotCompatible", "true")
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AreEnabledForExplicitAudit()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source).WithProperty("build_property.NServiceBusMigrationAudit", "true")
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
     }
 
     // ===== Negative tests =====

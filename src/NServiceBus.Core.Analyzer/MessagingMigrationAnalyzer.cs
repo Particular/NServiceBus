@@ -13,6 +13,10 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
 {
     const string HelpLink = "https://docs.particular.net/nservicebus/messaging/messages-events-commands";
     const string MessageTypeProperty = "MessageType";
+    const string PublishTrimmedProperty = "build_property.PublishTrimmed";
+    const string PublishAotProperty = "build_property.PublishAot";
+    const string IsAotCompatibleProperty = "build_property.IsAotCompatible";
+    const string MigrationAuditProperty = "build_property.NServiceBusMigrationAudit";
 
     static readonly DiagnosticDescriptor UseGenericTypeRule = new(
         DiagnosticIds.UseGenericMessageType,
@@ -55,13 +59,18 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
+            var migrationDiagnosticsEnabled = IsMigrationDiagnosticsEnabled(
+                startContext.Options.AnalyzerConfigOptionsProvider.GlobalOptions);
             startContext.RegisterOperationAction(
-                operationContext => AnalyzeInvocation(operationContext, knownTypes),
+                operationContext => AnalyzeInvocation(operationContext, knownTypes, migrationDiagnosticsEnabled),
                 OperationKind.Invocation);
         });
     }
 
-    static void AnalyzeInvocation(OperationAnalysisContext context, KnownTypes knownTypes)
+    static void AnalyzeInvocation(
+        OperationAnalysisContext context,
+        KnownTypes knownTypes,
+        bool migrationDiagnosticsEnabled)
     {
         var invocation = (IInvocationOperation)context.Operation;
         var invokedMethod = invocation.TargetMethod;
@@ -83,7 +92,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if (!IsObjectOverload(declaration, messageParameter))
+        if (!migrationDiagnosticsEnabled || !IsObjectOverload(declaration, messageParameter))
         {
             return;
         }
@@ -136,6 +145,17 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
                 typeDisplay));
         }
     }
+
+    static bool IsMigrationDiagnosticsEnabled(AnalyzerConfigOptions globalOptions) =>
+        IsTrue(globalOptions, PublishTrimmedProperty) ||
+        IsTrue(globalOptions, PublishAotProperty) ||
+        IsTrue(globalOptions, IsAotCompatibleProperty) ||
+        IsTrue(globalOptions, MigrationAuditProperty);
+
+    static bool IsTrue(AnalyzerConfigOptions options, string propertyName) =>
+        options.TryGetValue(propertyName, out var value) &&
+        bool.TryParse(value, out var enabled) &&
+        enabled;
 
     static IOperation UnwrapImplicitConversions(IOperation operation)
     {

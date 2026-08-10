@@ -8,4 +8,12 @@
     <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
   </PropertyGroup>
 
+  <!-- Make build properties available to NServiceBus analyzers in consuming projects. -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="PublishTrimmed" />
+    <CompilerVisibleProperty Include="PublishAot" />
+    <CompilerVisibleProperty Include="IsAotCompatible" />
+    <CompilerVisibleProperty Include="NServiceBusMigrationAudit" />
+  </ItemGroup>
+
 </Project>

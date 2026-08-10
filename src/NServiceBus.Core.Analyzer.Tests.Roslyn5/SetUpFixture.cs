@@ -33,6 +33,8 @@ public class SetUpFixture
     public void OneTimeSetUp()
     {
         AnalyzerTest.ConfigureAllAnalyzerTests(test => test.AddReferences(ProjectReferences));
+        CodeFixTest.ConfigureAllCodeFixTests(test =>
+            test.WithProperty("build_property.NServiceBusMigrationAudit", "true"));
         SourceGeneratorTest.ConfigureAllSourceGeneratorTests(test => test.WithInterceptorNamespace("NServiceBus"));
     }
 }
