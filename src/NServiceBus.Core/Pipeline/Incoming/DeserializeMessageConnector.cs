@@ -19,7 +19,7 @@ class DeserializeMessageConnector(
     MessageMetadataRegistry messageMetadataRegistry,
     IMessageMapper mapper,
     bool allowContentTypeInference,
-    IncomingPipelineMetrics incomingPipelineMetrics)
+    IncomingPipelineMeter incomingPipelineMetrics)
     : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
 {
     public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
@@ -47,7 +47,7 @@ class DeserializeMessageConnector(
         {
             if (first) // ignore the legacy case in which a single message payload contained multiple messages
             {
-                var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+                var availableMetricTags = context.Extensions.Get<IncomingPipelineMeterTags>();
                 availableMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName!);
                 first = false;
             }

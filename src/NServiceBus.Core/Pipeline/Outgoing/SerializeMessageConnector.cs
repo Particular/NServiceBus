@@ -13,7 +13,7 @@ using Unicast.Messages;
 
 class SerializeMessageConnector : StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext>
 {
-    public SerializeMessageConnector(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry, IncomingPipelineMetrics incomingPipelineMetrics)
+    public SerializeMessageConnector(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry, IncomingPipelineMeter incomingPipelineMetrics)
     {
         this.messageSerializer = messageSerializer;
         this.messageMetadataRegistry = messageMetadataRegistry;
@@ -63,7 +63,7 @@ class SerializeMessageConnector : StageConnector<IOutgoingLogicalMessageContext,
 
     readonly MessageMetadataRegistry messageMetadataRegistry;
     readonly IMessageSerializer messageSerializer;
-    readonly IncomingPipelineMetrics incomingPipelineMetrics;
+    readonly IncomingPipelineMeter incomingPipelineMetrics;
 
     static readonly ILog log = LogManager.GetLogger<SerializeMessageConnector>();
 }

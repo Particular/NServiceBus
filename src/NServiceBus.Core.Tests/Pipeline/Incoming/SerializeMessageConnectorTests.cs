@@ -30,7 +30,7 @@ public class SerializeMessageConnectorTests
             Message = new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage())
         };
 
-        var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+        var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry, new IncomingPipelineMeter(new TestMeterFactory(), "queue", "disc", new MetersOptions()));
 
         await behavior.Invoke(context, c => Task.CompletedTask);
 

@@ -9,7 +9,7 @@ using Logging;
 using Pipeline;
 using Sagas;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider, IncomingPipelineMetrics incomingPipelineMetrics)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider, IncomingPipelineMeter incomingPipelineMetrics)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)

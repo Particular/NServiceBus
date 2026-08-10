@@ -36,11 +36,11 @@ public class IncomingPipelineMetricTagsTests
         };
 
         var messageMapper = new MessageMapper();
-        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false, new IncomingPipelineMeter(new TestMeterFactory(), "queue", "disc", new MetersOptions()));
 
         Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
         {
-            c.Extensions.Get<IncomingPipelineMetricTags>().Add("Same", "Same");
+            c.Extensions.Get<IncomingPipelineMeterTags>().Add("Same", "Same");
             return Task.CompletedTask;
         }));
     }

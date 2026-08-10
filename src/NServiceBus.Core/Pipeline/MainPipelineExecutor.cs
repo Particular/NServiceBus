@@ -16,7 +16,7 @@ class MainPipelineExecutor(
     INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
-    IncomingPipelineMetrics incomingPipelineMetrics,
+    IncomingPipelineMeter incomingPipelineMetrics,
     EnvelopeUnwrapper envelopeUnwrapper)
     : IPipelineExecutor
 {
@@ -25,7 +25,7 @@ class MainPipelineExecutor(
         var pipelineStartedAt = DateTimeOffset.UtcNow;
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-        var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();
+        var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMeterTags>();
 
         incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
 
