@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Pipeline;
 using Sagas;
 
-class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMetricses) : PipelineTerminator<IInvokeHandlerContext>
+class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMeters) : PipelineTerminator<IInvokeHandlerContext>
 {
     protected override async Task Terminate(IInvokeHandlerContext context)
     {
@@ -33,7 +33,7 @@ class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMetricses)
                 .ThrowIfNull()
                 .ConfigureAwait(false);
 
-            messagingMetricsMetricses.RecordSuccessfulMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime);
+            messagingMetricsMeters.RecordSuccessfulMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime);
         }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
         catch (Exception ex)
@@ -45,7 +45,7 @@ class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMetricses)
             ex.Data["Handler failure time"] = DateTimeOffsetHelper.ToWireFormattedString(DateTimeOffset.UtcNow);
             ex.Data["Handler canceled"] = context.CancellationToken.IsCancellationRequested;
 
-            messagingMetricsMetricses.RecordFailedMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime, ex);
+            messagingMetricsMeters.RecordFailedMessageHandlerTime(context, DateTimeOffset.UtcNow - startTime, ex);
             throw;
         }
     }
