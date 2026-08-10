@@ -50,7 +50,7 @@ public class MessageContext : IExtendable
         ReceiveAddress = receiveAddress;
         TransportTransaction = transportTransaction;
 
-        context.GetOrCreate<IncomingPipelineMetricsTags>();
+        context.GetOrCreate<IncomingPipelineMetricTags>();
         context.GetOrCreate<RecordedExceptions>();
     }
 

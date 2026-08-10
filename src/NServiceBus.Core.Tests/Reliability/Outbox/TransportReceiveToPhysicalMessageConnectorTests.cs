@@ -197,7 +197,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         };
 
         context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
-        context.Extensions.Set(new IncomingPipelineMetricsTags());
+        context.Extensions.Set(new IncomingPipelineMetricTags());
 
         return context;
     }
