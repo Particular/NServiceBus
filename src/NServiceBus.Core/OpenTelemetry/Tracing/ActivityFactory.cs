@@ -2,9 +2,12 @@
 
 namespace NServiceBus;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Extensibility;
+using Logging;
 using Pipeline;
 using Transport;
 
@@ -201,4 +204,34 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             activity.DisplayName = ActivityDisplayNames.DiscardOperation;
         }
     }
+
+    public void RecordError(Activity activity, Exception exception, ContextBag context)
+    {
+        activity.SetStatus(ActivityStatusCode.Error, exception.Message);
+        activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
+
+        LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
+
+        var recordedExceptions = context.GetOrCreate<RecordedExceptions>();
+        if (!recordedExceptions.HasBeenRecorded(exception))
+        {
+            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
+            {
+                Logger.Error($"An exception occurred while executing '{activity.DisplayName}'.", exception);
+            }
+            else
+            {
+                activity.AddException(exception, LegacyExceptionTags.EscapedTagList);
+            }
+
+            recordedExceptions.MarkAsRecorded(exception);
+        }
+
+        if (exception is TaskCanceledException)
+        {
+            activity.SetTag(ActivityTags.CancelledTask, true);
+        }
+    }
+
+    static readonly ILog Logger = LogManager.GetLogger<ActivityFactory>();
 }

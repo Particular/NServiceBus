@@ -331,6 +331,11 @@ namespace NServiceBus
             public bool TryGetExplicitlyConfiguredErrorQueueAddress([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? errorQueue) { }
         }
     }
+    public enum ExceptionRecordingMode
+    {
+        Logs = 0,
+        SpanAndLogs = 1,
+    }
     public class FailedConfig
     {
         public FailedConfig(string errorQueue, System.Collections.Generic.HashSet<System.Type> unrecoverableExceptionTypes) { }
@@ -643,6 +648,7 @@ namespace NServiceBus
         public InstrumentationOptions() { }
         public NServiceBus.DelayedDeliveryInstrumentationOptions DelayedDelivery { get; }
         public bool EmitMessageDispatchingEvents { get; set; }
+        public NServiceBus.ExceptionRecordingMode ExceptionRecordingMode { get; set; }
         public NServiceBus.TraceMode PublishTraceMode { get; set; }
         public NServiceBus.RecoverabilityInstrumentationOptions Recoverability { get; }
         public NServiceBus.TraceMode SendTraceMode { get; set; }

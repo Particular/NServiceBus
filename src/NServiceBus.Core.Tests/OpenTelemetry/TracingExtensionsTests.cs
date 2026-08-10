@@ -21,7 +21,7 @@ public class TracingExtensionsTests
             return Task.CompletedTask;
         });
 
-        await pipeline.Invoke(new FakeRootContext(), null);
+        await pipeline.Invoke(new FakeRootContext(), null, new ActivityFactory(new InstrumentationOptions()));
 
         Assert.That(invokedPipeline, Is.True);
     }
@@ -33,7 +33,7 @@ public class TracingExtensionsTests
         using var activity = new Activity("test activity");
         activity.Start();
 
-        await pipeline.Invoke(new FakeRootContext(), activity);
+        await pipeline.Invoke(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions()));
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
     }
@@ -46,7 +46,7 @@ public class TracingExtensionsTests
         using var activity = new Activity("test activity");
         activity.Start();
 
-        Assert.ThrowsAsync<Exception>(() => pipeline.Invoke(new FakeRootContext(), activity));
+        Assert.ThrowsAsync<Exception>(() => pipeline.Invoke(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions())));
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
 
@@ -59,6 +59,23 @@ public class TracingExtensionsTests
 
         var errorEvent = activity.Events.Single();
         Assert.That(errorEvent.Name, Is.EqualTo("exception"));
+    }
+
+    [Test]
+    public void Invoke_should_set_error_status_without_exception_event_when_log_mode()
+    {
+        var exception = new Exception("test exception");
+        var pipeline = new FakePipeline(() => throw exception);
+        using var activity = new Activity("test activity");
+        activity.Start();
+
+        Assert.ThrowsAsync<Exception>(() => pipeline.Invoke(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.Logs })));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
+            Assert.That(activity.Events, Is.Empty, "no exception event should be added when recording via the log instead");
+        }
     }
 
     class FakePipeline : IPipeline<IBehaviorContext>

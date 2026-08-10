@@ -2,10 +2,8 @@
 
 namespace NServiceBus;
 
-using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using Extensibility;
 
 static class ActivityExtensions
@@ -34,18 +32,4 @@ static class ActivityExtensions
 
     public static void SetOutgoingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(OutgoingActivityKey, activity);
     public static void SetIncomingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(IncomingActivityKey, activity);
-
-    public static void SetErrorStatus(this Activity activity, Exception ex)
-    {
-        activity.SetStatus(ActivityStatusCode.Error, ex.Message);
-        activity.SetTag("otel.status_code", "ERROR");
-        activity.SetTag("otel.status_description", ex.Message);
-        activity.SetTag(ActivityTags.ErrorType, ex.GetType().FullName);
-        activity.AddException(ex, new TagList { { "exception.escaped", true } });
-
-        if (ex is TaskCanceledException)
-        {
-            activity.SetTag(ActivityTags.CancelledTask, true);
-        }
-    }
 }

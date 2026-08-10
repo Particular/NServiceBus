@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
@@ -6,7 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Pipeline;
+using Pipeline;
 using Transport;
 
 class RecoverabilityPipelineExecutor<TState>(
@@ -35,6 +35,8 @@ class RecoverabilityPipelineExecutor<TState>(
                 {
                     activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
                 }
+
+                recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext, activityFactory.Options.ExceptionRecordingMode);
             }
 
             var metadata = faultMetadataExtractor.Extract(errorContext);
@@ -55,4 +57,6 @@ class RecoverabilityPipelineExecutor<TState>(
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
         }
     }
+
+    readonly RecoverabilityActionLogger recoverabilityActionLogger = new(serviceProvider);
 }

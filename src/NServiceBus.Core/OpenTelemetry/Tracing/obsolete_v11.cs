@@ -180,3 +180,32 @@ static class HandlerActivitySourceSwitch
 
     internal static void ResetUseHandlerActivitySource() => cachedUseHandlerActivitySource = SwitchState.Unchecked;
 }
+
+
+// This class bridges two independent legacy exception-tagging behaviors, both
+// scheduled for removal in v11:
+//
+// - SetLegacyStatusTags sets the "otel.status_code"/"otel.status_description"
+//   tags, which predate native support for Activity.SetStatus/Activity.Status
+//   and are now redundant with it. Kept only for consumers still reading the
+//   tags directly instead of Activity.Status.
+// - EscapedTagList carries "exception.escaped", an attribute the OTel semantic
+//   conventions have marked Deprecated:
+//   https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
+//   It's added to the exception event for backward compatibility with
+//   existing consumers of that attribute.
+//
+// In v11, delete this entire class, remove the
+// `LegacyExceptionTags.SetLegacyStatusTags(activity, exception);` call in
+// ActivityFactory.RecordError, and stop passing EscapedTagList to
+// activity.AddException in the same method.
+static class LegacyExceptionTags
+{
+    public static void SetLegacyStatusTags(Activity activity, Exception exception)
+    {
+        activity.SetTag("otel.status_code", "ERROR");
+        activity.SetTag("otel.status_description", exception.Message);
+    }
+
+    public static TagList EscapedTagList { get; } = new() { { "exception.escaped", true } };
+}

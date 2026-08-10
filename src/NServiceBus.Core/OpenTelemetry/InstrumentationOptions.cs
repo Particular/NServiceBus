@@ -6,7 +6,7 @@ namespace NServiceBus;
 /// Controls opt-in OpenTelemetry instrumentation behaviors.
 /// Accessed via <c>endpointConfiguration.Tracing()</c>.
 /// </summary>
-public class InstrumentationOptions
+public partial class InstrumentationOptions
 {
     /// <summary>
     /// Appends the destination to span names following the OTel messaging convention
@@ -56,6 +56,12 @@ public class InstrumentationOptions
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
     public TraceMode PublishTraceMode { get; set; } = TraceMode.StartNew;
+
+    /// <summary>
+    /// Controls how exception details are recorded when an operation fails.
+    /// Defaults to <see cref="NServiceBus.ExceptionRecordingMode.SpanAndLogs"/>: exceptions are recorded as an event on the activity.
+    /// </summary>
+    public ExceptionRecordingMode ExceptionRecordingMode { get; set; } = ExceptionRecordingMode.SpanAndLogs;
 }
 
 /// <summary>
