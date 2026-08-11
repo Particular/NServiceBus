@@ -48,17 +48,81 @@ sealed class RecoverabilityActionLogger(IServiceProvider serviceProvider)
 
 static partial class RecoverabilityActionLoggerMessages
 {
+    // Exception is only attached when it hasn't already been logged separately by
+    // ActivityFactory.RecordError (see RecoverabilityActionLogger.LogRecoverabilityAction).
+    // The trailing punctuation differs in both scenarios, and we need to keep the colon when
+    // an exception is logged to ensure backwards compatibility 
+    public static void ImmediateRetryLogged(this ILogger logger, Exception? exception, string messageId)
+    {
+        if (exception is not null)
+        {
+            ImmediateRetryLoggedWithException(logger, exception, messageId);
+        }
+        else
+        {
+            ImmediateRetryLoggedWithoutException(logger, messageId);
+        }
+    }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Immediate Retry is going to retry message '{MessageId}' because of an exception:")]
+    static partial void ImmediateRetryLoggedWithException(ILogger logger, Exception exception, string messageId);
+
     [LoggerMessage(Level = LogLevel.Information, Message = "Immediate Retry is going to retry message '{MessageId}' because of an exception.")]
-    public static partial void ImmediateRetryLogged(this ILogger logger, Exception? exception, string messageId);
+    static partial void ImmediateRetryLoggedWithoutException(ILogger logger, string messageId);
+
+    public static void DelayedRetryLogged(this ILogger logger, Exception? exception, string messageId, TimeSpan delay)
+    {
+        if (exception is not null)
+        {
+            DelayedRetryLoggedWithException(logger, exception, messageId, delay);
+        }
+        else
+        {
+            DelayedRetryLoggedWithoutException(logger, messageId, delay);
+        }
+    }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Delayed Retry will reschedule message '{MessageId}' after a delay of {Delay} because of an exception:")]
+    static partial void DelayedRetryLoggedWithException(ILogger logger, Exception exception, string messageId, TimeSpan delay);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Delayed Retry will reschedule message '{MessageId}' after a delay of {Delay} because of an exception.")]
-    public static partial void DelayedRetryLogged(this ILogger logger, Exception? exception, string messageId, TimeSpan delay);
+    static partial void DelayedRetryLoggedWithoutException(ILogger logger, string messageId, TimeSpan delay);
+
+    public static void MoveToErrorLogged(this ILogger logger, Exception? exception, string messageId, string errorQueue)
+    {
+        if (exception is not null)
+        {
+            MoveToErrorLoggedWithException(logger, exception, messageId, errorQueue);
+        }
+        else
+        {
+            MoveToErrorLoggedWithoutException(logger, messageId, errorQueue);
+        }
+    }
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Moving message '{MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:")]
+    static partial void MoveToErrorLoggedWithException(ILogger logger, Exception exception, string messageId, string errorQueue);
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Moving message '{MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception.")]
-    public static partial void MoveToErrorLogged(this ILogger logger, Exception? exception, string messageId, string errorQueue);
+    static partial void MoveToErrorLoggedWithoutException(ILogger logger, string messageId, string errorQueue);
+
+    public static void DiscardLogged(this ILogger logger, Exception? exception, string messageId, string reason)
+    {
+        if (exception is not null)
+        {
+            DiscardLoggedWithException(logger, exception, messageId, reason);
+        }
+        else
+        {
+            DiscardLoggedWithoutException(logger, messageId, reason);
+        }
+    }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Discarding message with id '{MessageId}'. Reason: {Reason}")]
+    static partial void DiscardLoggedWithException(ILogger logger, Exception exception, string messageId, string reason);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Discarding message with id '{MessageId}'. Reason: {Reason}.")]
-    public static partial void DiscardLogged(this ILogger logger, Exception? exception, string messageId, string reason);
+    static partial void DiscardLoggedWithoutException(ILogger logger, string messageId, string reason);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Recoverability action '{ActionType}' invoked for message '{MessageId}'.")]
     public static partial void UnknownRecoverabilityActionLogged(this ILogger logger, Exception? exception, string actionType, string messageId);
