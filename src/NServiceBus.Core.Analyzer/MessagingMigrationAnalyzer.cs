@@ -16,6 +16,8 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     const string PublishTrimmedProperty = "build_property.PublishTrimmed";
     const string PublishAotProperty = "build_property.PublishAot";
     const string IsAotCompatibleProperty = "build_property.IsAotCompatible";
+    const string IsTrimmableProperty = "build_property.IsTrimmable";
+    const string EnableTrimAnalyzerProperty = "build_property.EnableTrimAnalyzer";
     const string MigrationDiagnosticsOption = "nservicebus_enable_message_overload_migration_diagnostics";
 
     static readonly DiagnosticDescriptor UseGenericTypeRule = new(
@@ -151,7 +153,9 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     static bool AreMigrationDiagnosticsAutomaticallyEnabled(AnalyzerConfigOptions globalOptions) =>
         IsTrue(globalOptions, PublishTrimmedProperty) ||
         IsTrue(globalOptions, PublishAotProperty) ||
-        IsTrue(globalOptions, IsAotCompatibleProperty);
+        IsTrue(globalOptions, IsAotCompatibleProperty) ||
+        IsTrue(globalOptions, IsTrimmableProperty) ||
+        IsTrue(globalOptions, EnableTrimAnalyzerProperty);
 
     static bool IsTrue(AnalyzerConfigOptions options, string propertyName) =>
         options.TryGetValue(propertyName, out var value) &&

@@ -13,6 +13,8 @@
     <CompilerVisibleProperty Include="PublishTrimmed" />
     <CompilerVisibleProperty Include="PublishAot" />
     <CompilerVisibleProperty Include="IsAotCompatible" />
+    <CompilerVisibleProperty Include="IsTrimmable" />
+    <CompilerVisibleProperty Include="EnableTrimAnalyzer" />
   </ItemGroup>
 
 </Project>

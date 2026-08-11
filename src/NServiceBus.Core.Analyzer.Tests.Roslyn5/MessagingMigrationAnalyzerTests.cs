@@ -903,6 +903,50 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
     }
 
     [Test]
+    public Task MigrationDiagnostics_AreEnabledForIsTrimmable()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source).WithProperty("build_property.IsTrimmable", "true")
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AreEnabledForEnableTrimAnalyzer()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source).WithProperty("build_property.EnableTrimAnalyzer", "true")
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
     public Task MigrationDiagnostics_AreEnabledForEditorConfigOption()
     {
         var source =
