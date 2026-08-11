@@ -532,8 +532,9 @@ namespace NServiceBus
         string MessageId { get; }
         string ReplyToAddress { get; }
         System.Threading.Tasks.Task ForwardCurrentMessageTo(string destination);
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         System.Threading.Tasks.Task Reply(object message, NServiceBus.ReplyOptions options);
         [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026", Justification="The default interface implementation preserves compatibility with third-party imp" +
             "lementations. Built-in implementations override this method and preserve the dec" +
@@ -545,8 +546,9 @@ namespace NServiceBus
     }
     public interface IMessageSession
     {
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
         [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026", Justification="The default interface implementation preserves compatibility with third-party imp" +
             "lementations. Built-in implementations override this method and preserve the dec" +
@@ -555,8 +557,9 @@ namespace NServiceBus
         System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
         [System.Runtime.CompilerServices.OverloadResolutionPriority(-1)]
         System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(T message, NServiceBus.PublishOptions publishOptions, System.Threading.CancellationToken cancellationToken = default);
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions sendOptions, System.Threading.CancellationToken cancellationToken = default);
         [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026", Justification="The default interface implementation preserves compatibility with third-party imp" +
             "lementations. Built-in implementations override this method and preserve the dec" +
@@ -574,8 +577,9 @@ namespace NServiceBus
     }
     public interface IPipelineContext : NServiceBus.Extensibility.IExtendable, NServiceBus.ICancellableContext
     {
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
         [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026", Justification="The default interface implementation preserves compatibility with third-party imp" +
             "lementations. Built-in implementations override this method and preserve the dec" +
@@ -584,8 +588,9 @@ namespace NServiceBus
         System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         [System.Runtime.CompilerServices.OverloadResolutionPriority(-1)]
         System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(T message, NServiceBus.PublishOptions options);
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
         [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026", Justification="The default interface implementation preserves compatibility with third-party imp" +
             "lementations. Built-in implementations override this method and preserve the dec" +
@@ -768,8 +773,9 @@ namespace NServiceBus
     }
     public static class MessageProcessingContextExtensions
     {
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType) { }
         public static System.Threading.Tasks.Task Reply<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
@@ -785,20 +791,23 @@ namespace NServiceBus
     }
     public static class MessageSessionExtensions
     {
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
         [System.Runtime.CompilerServices.OverloadResolutionPriority(-1)]
         public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IMessageSession session, T message, System.Threading.CancellationToken cancellationToken = default) { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
@@ -807,8 +816,9 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
         [System.Runtime.CompilerServices.OverloadResolutionPriority(-1)]
         public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IMessageSession session, string destination, T message, System.Threading.CancellationToken cancellationToken = default) { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task SendLocal<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor, System.Threading.CancellationToken cancellationToken = default) { }
@@ -889,20 +899,23 @@ namespace NServiceBus
     }
     public static class PipelineContextExtensions
     {
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message) { }
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType) { }
         public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IPipelineContext context) { }
         public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
         [System.Runtime.CompilerServices.OverloadResolutionPriority(-1)]
         public static System.Threading.Tasks.Task Publish<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IPipelineContext context, T message) { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType) { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType) { }
         public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
@@ -911,8 +924,9 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
         [System.Runtime.CompilerServices.OverloadResolutionPriority(-1)]
         public static System.Threading.Tasks.Task Send<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IPipelineContext context, string destination, T message) { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType) { }
         public static System.Threading.Tasks.Task SendLocal<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
@@ -1074,8 +1088,9 @@ namespace NServiceBus
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected void MarkAsComplete() { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         [System.Obsolete("Use \'ReplyToOriginator<T>\' instead. Will be treated as an error from version 11.0" +
             ".0. Will be removed in version 12.0.0.", false)]
         protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message, System.Collections.Generic.IReadOnlyDictionary<string, string>? outgoingHeaders = null) { }
@@ -2049,8 +2064,9 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Routing a message using its runtime type cannot be statically analyzed by the tri" +
-            "mmer. Use the generic overload and specify the message type.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         void UpdateMessage(object newInstance);
         [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026", Justification="The default interface implementation preserves compatibility with third-party imp" +
             "lementations. Built-in implementations override this method and preserve the dec" +
