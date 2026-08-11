@@ -93,6 +93,46 @@ public class MessagingMigrationFixerTests : CodeFixTestFixture<MessagingMigratio
     }
 
     [Test]
+    public Task UnsealedVarObjectCreation()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+                    await session.Send(message);
+                }
+            }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+                    await session.Send<MyMessage>(message);
+                }
+            }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
     public Task PipelineContextSend()
     {
         var original =

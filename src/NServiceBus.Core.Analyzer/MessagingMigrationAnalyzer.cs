@@ -5,6 +5,7 @@ namespace NServiceBus.Core.Analyzer;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -18,7 +19,6 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     const string IsAotCompatibleProperty = "build_property.IsAotCompatible";
     const string IsTrimmableProperty = "build_property.IsTrimmable";
     const string EnableTrimAnalyzerProperty = "build_property.EnableTrimAnalyzer";
-    const string MigrationDiagnosticsOption = "nservicebus_enable_message_overload_migration_diagnostics";
 
     static readonly DiagnosticDescriptor UseGenericTypeRule = new(
         DiagnosticIds.UseGenericMessageType,
@@ -63,8 +63,13 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
 
             var migrationDiagnosticsEnabled = AreMigrationDiagnosticsAutomaticallyEnabled(
                 startContext.Options.AnalyzerConfigOptionsProvider.GlobalOptions);
+            var syntaxTreeOptionsProvider = startContext.Compilation.Options.SyntaxTreeOptionsProvider;
             startContext.RegisterOperationAction(
-                operationContext => AnalyzeInvocation(operationContext, knownTypes, migrationDiagnosticsEnabled),
+                operationContext => AnalyzeInvocation(
+                    operationContext,
+                    knownTypes,
+                    migrationDiagnosticsEnabled,
+                    syntaxTreeOptionsProvider),
                 OperationKind.Invocation);
         });
     }
@@ -72,7 +77,8 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     static void AnalyzeInvocation(
         OperationAnalysisContext context,
         KnownTypes knownTypes,
-        bool migrationDiagnosticsEnabled)
+        bool migrationDiagnosticsEnabled,
+        SyntaxTreeOptionsProvider? syntaxTreeOptionsProvider)
     {
         var invocation = (IInvocationOperation)context.Operation;
         var invokedMethod = invocation.TargetMethod;
@@ -94,9 +100,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        if ((!migrationDiagnosticsEnabled &&
-            !IsTrue(context.Options.AnalyzerConfigOptionsProvider.GetOptions(invocation.Syntax.SyntaxTree), MigrationDiagnosticsOption)) ||
-            !IsObjectOverload(declaration, messageParameter))
+        if (!IsObjectOverload(declaration, messageParameter))
         {
             return;
         }
@@ -130,8 +134,21 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
 
         var typeDisplay = messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         var isUpdateMessage = declaration.Name == "UpdateMessage";
-        if (IsRoutingEquivalent(messageValue, messageType, knownTypes.IMessageCreator, isUpdateMessage))
+        var isStableVarObjectCreation = !isUpdateMessage &&
+            IsStableVarObjectCreation(messageValue, messageArgument, invocation, invocation.SemanticModel!);
+        if (IsRoutingEquivalent(messageValue, messageType, knownTypes.IMessageCreator, isUpdateMessage) ||
+            isStableVarObjectCreation)
         {
+            if (!IsMigrationDiagnosticEnabled(
+                migrationDiagnosticsEnabled,
+                syntaxTreeOptionsProvider,
+                invocation.Syntax.SyntaxTree,
+                DiagnosticIds.UseGenericMessageType,
+                context.CancellationToken))
+            {
+                return;
+            }
+
             var properties = ImmutableDictionary<string, string?>.Empty.Add(
                 MessageTypeProperty,
                 messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
@@ -143,6 +160,16 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         }
         else
         {
+            if (!IsMigrationDiagnosticEnabled(
+                migrationDiagnosticsEnabled,
+                syntaxTreeOptionsProvider,
+                invocation.Syntax.SyntaxTree,
+                DiagnosticIds.RuntimeTypeMayDiffer,
+                context.CancellationToken))
+            {
+                return;
+            }
+
             context.ReportDiagnostic(Diagnostic.Create(
                 RuntimeTypeMayDifferRule,
                 invocation.Syntax.GetLocation(),
@@ -157,6 +184,27 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         IsTrue(globalOptions, IsTrimmableProperty) ||
         IsTrue(globalOptions, EnableTrimAnalyzerProperty);
 
+    static bool IsMigrationDiagnosticEnabled(
+        bool automaticallyEnabled,
+        SyntaxTreeOptionsProvider? syntaxTreeOptionsProvider,
+        SyntaxTree syntaxTree,
+        string diagnosticId,
+        System.Threading.CancellationToken cancellationToken)
+    {
+        if (syntaxTreeOptionsProvider is not null &&
+            syntaxTreeOptionsProvider.TryGetDiagnosticValue(
+                syntaxTree,
+                diagnosticId,
+                cancellationToken,
+                out var severity) &&
+            severity != ReportDiagnostic.Default)
+        {
+            return severity != ReportDiagnostic.Suppress;
+        }
+
+        return automaticallyEnabled;
+    }
+
     static bool IsTrue(AnalyzerConfigOptions options, string propertyName) =>
         options.TryGetValue(propertyName, out var value) &&
         bool.TryParse(value, out var enabled) &&
@@ -170,6 +218,79 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         }
 
         return operation;
+    }
+
+    static bool IsStableVarObjectCreation(
+        IOperation operation,
+        IArgumentOperation messageArgument,
+        IInvocationOperation invocation,
+        SemanticModel semanticModel)
+    {
+        if (!IsCompleteStatementExpression(invocation) ||
+            operation is not ILocalReferenceOperation localReference ||
+            localReference.Local.DeclaringSyntaxReferences is not [{ } declarationReference] ||
+            declarationReference.GetSyntax() is not VariableDeclaratorSyntax
+            {
+                Initializer: { Value: ObjectCreationExpressionSyntax },
+                Parent: VariableDeclarationSyntax
+            } variableDeclarator ||
+            variableDeclarator.Parent?.Parent is not LocalDeclarationStatementSyntax declarationStatement ||
+            declarationStatement.Declaration.Type is not IdentifierNameSyntax { Identifier.ValueText: "var" } ||
+            semanticModel.GetOperation(variableDeclarator) is not IVariableDeclaratorOperation
+            {
+                Initializer: { Value: IObjectCreationOperation }
+            })
+        {
+            return false;
+        }
+
+        // This is intentionally a structural proof rather than a control-flow proof. The local
+        // declaration must be immediately followed by the invocation in the same block, with no
+        // executable statement between them.
+        if (declarationStatement.Parent is not BlockSyntax block ||
+            invocation.Syntax.FirstAncestorOrSelf<ExpressionStatementSyntax>() is not { Parent: BlockSyntax invocationBlock } invocationStatement ||
+            block.Span != invocationBlock.Span)
+        {
+            return false;
+        }
+
+        var declarationIndex = block.Statements.IndexOf(declarationStatement);
+        if (declarationIndex < 0 || declarationIndex + 1 >= block.Statements.Count ||
+            block.Statements[declarationIndex + 1].Span != invocationStatement.Span)
+        {
+            return false;
+        }
+
+        // Only a direct local/parameter identifier receiver is accepted. In particular, this
+        // rejects a local function, delegate, property, member access, or any other computed
+        // receiver that can run code before the message argument is read. Reduced extension
+        // invocations expose the receiver as an implicit argument rather than Instance.
+        var receiver = invocation.Instance ??
+            invocation.Arguments.FirstOrDefault(argument => argument.IsImplicit)?.Value;
+        if (receiver is not (ILocalReferenceOperation or IParameterReferenceOperation) ||
+            receiver.Syntax is not IdentifierNameSyntax)
+        {
+            return false;
+        }
+
+        // The message must be the first explicit argument. This excludes destinations, options, and
+        // any other preceding argument whose evaluation could mutate the captured local.
+        var firstExplicitArgument = invocation.Arguments.FirstOrDefault(argument => !argument.IsImplicit);
+        return firstExplicitArgument is not null &&
+            firstExplicitArgument.Syntax.Span == messageArgument.Syntax.Span;
+    }
+
+    static bool IsCompleteStatementExpression(IInvocationOperation invocation)
+    {
+        if (invocation.Syntax.Parent is ExpressionStatementSyntax { Expression: var expression } &&
+            ReferenceEquals(expression, invocation.Syntax))
+        {
+            return true;
+        }
+
+        return invocation.Syntax.Parent is AwaitExpressionSyntax awaitExpression &&
+            awaitExpression.Parent is ExpressionStatementSyntax { Expression: var awaitStatementExpression } &&
+            ReferenceEquals(awaitStatementExpression, awaitExpression);
     }
 
     static bool IsRoutingEquivalent(

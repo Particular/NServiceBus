@@ -5,6 +5,7 @@ namespace NServiceBus.Core.Analyzer.Tests;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -25,40 +26,95 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
         AnalyzerTest.ForAnalyzer<MessagingMigrationAnalyzer>()
             .WithSource(source);
 
-    static async Task AssertEditorConfigOption(string source, params string[] expectedDiagnosticIds)
+    static async Task AssertEditorConfigSeverity(
+        string source,
+        string diagnosticId,
+        ReportDiagnostic severity,
+        bool automaticActivation,
+        params string[] expectedDiagnosticIds)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(source, path: "Test.cs");
-        var compilation = CSharpCompilation.Create(
-            "AnalyzerConfigOptionsTest",
+        var analyzerDiagnostics = await GetEditorConfigDiagnostics(
             [syntaxTree],
-            SetUpFixture.ProjectReferences,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-        var analyzerOptions = new AnalyzerOptions(
-            ImmutableArray<AdditionalText>.Empty,
-            new TestAnalyzerConfigOptionsProvider(syntaxTree));
-        var analyzerDiagnostics = await compilation.WithAnalyzers(
-            [new MessagingMigrationAnalyzer()],
-            new CompilationWithAnalyzersOptions(
-                analyzerOptions,
-                onAnalyzerException: null,
-                concurrentAnalysis: true,
-                logAnalyzerExecutionTime: false)).GetAnalyzerDiagnosticsAsync();
+            syntaxTree,
+            diagnosticId,
+            severity,
+            automaticActivation);
 
         NUnit.Framework.Assert.That(analyzerDiagnostics.Select(diagnostic => diagnostic.Id), Is.EquivalentTo(expectedDiagnosticIds));
     }
 
-    sealed class TestAnalyzerConfigOptionsProvider(SyntaxTree configuredTree) : AnalyzerConfigOptionsProvider
+    static async Task<ImmutableArray<Diagnostic>> GetEditorConfigDiagnostics(
+        ImmutableArray<SyntaxTree> syntaxTrees,
+        SyntaxTree configuredTree,
+        string diagnosticId,
+        ReportDiagnostic severity,
+        bool automaticActivation)
+    {
+        var compilation = CSharpCompilation.Create(
+            "AnalyzerConfigOptionsTest",
+            syntaxTrees,
+            SetUpFixture.ProjectReferences,
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                .WithSyntaxTreeOptionsProvider(new TestSyntaxTreeOptionsProvider(configuredTree, diagnosticId, severity)));
+        return await compilation.WithAnalyzers(
+            [new MessagingMigrationAnalyzer()],
+            new CompilationWithAnalyzersOptions(
+                new AnalyzerOptions(
+                    ImmutableArray<AdditionalText>.Empty,
+                    new TestAnalyzerConfigOptionsProvider(automaticActivation)),
+                onAnalyzerException: null,
+                concurrentAnalysis: true,
+                logAnalyzerExecutionTime: false,
+                reportSuppressedDiagnostics: true)).GetAnalyzerDiagnosticsAsync();
+    }
+
+    // dotnet_diagnostic severity is a compiler tree option, not an AnalyzerConfigOptions value.
+    // SyntaxTreeOptionsProvider is the Roslyn API that retains the .editorconfig file scope.
+    sealed class TestSyntaxTreeOptionsProvider(
+        SyntaxTree configuredTree,
+        string configuredDiagnosticId,
+        ReportDiagnostic configuredSeverity) : SyntaxTreeOptionsProvider
+    {
+        public override GeneratedKind IsGenerated(SyntaxTree tree, CancellationToken cancellationToken = default) => GeneratedKind.NotGenerated;
+
+#pragma warning disable PS0003 // A parameter of type CancellationToken on a non-private delegate or method should be optional
+        public override bool TryGetDiagnosticValue(
+            SyntaxTree tree,
+            string diagnosticId,
+            CancellationToken cancellationToken,
+            out ReportDiagnostic severity)
+        {
+            if (tree == configuredTree && diagnosticId == configuredDiagnosticId)
+            {
+                severity = configuredSeverity;
+                return true;
+            }
+
+            severity = ReportDiagnostic.Default;
+            return false;
+        }
+
+        public override bool TryGetGlobalDiagnosticValue(
+            string diagnosticId,
+            CancellationToken cancellationToken,
+            out ReportDiagnostic severity)
+        {
+            severity = ReportDiagnostic.Default;
+            return false;
+        }
+#pragma warning restore PS0003 // A parameter of type CancellationToken on a non-private delegate or method should be optional
+    }
+
+    sealed class TestAnalyzerConfigOptionsProvider(bool automaticActivation) : AnalyzerConfigOptionsProvider
     {
         static readonly AnalyzerConfigOptions EmptyOptions = new TestAnalyzerConfigOptions(ImmutableDictionary<string, string>.Empty);
-        static readonly AnalyzerConfigOptions MigrationOptions = new TestAnalyzerConfigOptions(
-            ImmutableDictionary<string, string>.Empty.Add(
-                "nservicebus_enable_message_overload_migration_diagnostics",
-                "true"));
+        static readonly AnalyzerConfigOptions AutomaticActivationOptions = new TestAnalyzerConfigOptions(
+            ImmutableDictionary<string, string>.Empty.Add("build_property.PublishTrimmed", "true"));
 
-        public override AnalyzerConfigOptions GlobalOptions => EmptyOptions;
+        public override AnalyzerConfigOptions GlobalOptions => automaticActivation ? AutomaticActivationOptions : EmptyOptions;
 
-        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) =>
-            tree == configuredTree ? MigrationOptions : EmptyOptions;
+        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => EmptyOptions;
 
         public override AnalyzerConfigOptions GetOptions(AdditionalText text) => EmptyOptions;
     }
@@ -413,6 +469,28 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
     }
 
     [Test]
+    public Task NSB0039_UnsealedVarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+                    await [|session.Send(message)|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
     public Task NSB0039_ValueType()
     {
         var source =
@@ -520,6 +598,28 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
     // ===== NSB0040: Potentially polymorphic =====
 
     [Test]
+    public Task NSB0040_UpdateMessageVarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                void Bar(IOutgoingLogicalMessageContext context)
+                {
+                    var message = new MyMessage();
+                    [|context.UpdateMessage(message)|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
     public Task NSB0040_UpdateMessageCreatedByMessageCreator()
     {
         var source =
@@ -618,6 +718,213 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
                 {
                     await [|session.Send(msg)|];
                 }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_ReassignedVarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+                    message = new MyMessage();
+                    await [|session.Send(message)|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_RefUseOfVarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+                    Replace(ref message);
+                    await [|session.Send(message)|];
+                }
+
+                static void Replace(ref MyMessage message) => message = new MyMessage();
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_NestedInvocationWithEarlierRefMutation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+            class DerivedMessage : MyMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+                    await Task.WhenAll(Mutate(ref message), [|session.Send(message)|]);
+                }
+
+                static Task Mutate(ref MyMessage message)
+                {
+                    message = new DerivedMessage();
+                    return Task.CompletedTask;
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_ReceiverRefUseOfVarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+            class DerivedMessage : MyMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+                    await [|Replace(ref message, session).Send(message)|];
+                }
+
+                static IMessageSession Replace(ref MyMessage message, IMessageSession session)
+                {
+                    message = new DerivedMessage();
+                    return session;
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_LocalFunctionReceiverMutatesCapturedVarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+            class DerivedMessage : MyMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+
+                    IMessageSession GetSession()
+                    {
+                        message = new DerivedMessage();
+                        return session;
+                    }
+
+                    await [|GetSession().Send(message)|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_EarlierArgumentRefUseOfVarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage
+            {
+                public string Destination { get; } = "destination";
+            }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = new MyMessage();
+                    await [|session.Send(message.Destination, message)|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_ConditionalVarInitializer()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session, bool condition)
+                {
+                    var message = condition ? new MyMessage() : new MyMessage();
+                    await [|session.Send(message)|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_InvocationVarInitializer()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    var message = CreateMessage();
+                    await [|session.Send(message)|];
+                }
+
+                MyMessage CreateMessage() => new MyMessage();
             }
             """;
         return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
@@ -825,9 +1132,10 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
             class Foo
             {
-                async Task Bar(IMessageSession session)
+                async Task Bar(IMessageSession session, int? message)
                 {
                     await session.Send(new MyMessage());
+                    await session.Send(message);
                 }
             }
 
@@ -856,6 +1164,26 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             """;
         return MigrationTest(source).WithProperty("build_property.PublishTrimmed", "true")
             .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AreEnabledForPublishTrimmed_EnablesNSB0040()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session, int? message)
+                {
+                    await [|session.Send(message)|];
+                }
+            }
+            """;
+        return MigrationTest(source).WithProperty("build_property.PublishTrimmed", "true")
+            .AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
     }
 
     [Test]
@@ -947,7 +1275,7 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
     }
 
     [Test]
-    public Task MigrationDiagnostics_AreEnabledForEditorConfigOption()
+    public Task MigrationDiagnostics_AreEnabledForNSB0039EditorConfigSeverityOnly()
     {
         var source =
             """
@@ -965,10 +1293,168 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
             class MyMessage : IMessage { }
             """;
-        return AssertEditorConfigOption(
+        return AssertEditorConfigSeverity(
             source,
             DiagnosticIds.UseGenericMessageType,
+            ReportDiagnostic.Info,
+            automaticActivation: false,
+            DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AreEnabledForNSB0040EditorConfigSeverityOnly()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session, int? message)
+                {
+                    await session.Send(new MyMessage());
+                    await session.Send(message);
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return AssertEditorConfigSeverity(
+            source,
+            DiagnosticIds.RuntimeTypeMayDiffer,
+            ReportDiagnostic.Warn,
+            automaticActivation: false,
             DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AutomaticActivation_RespectsNSB0039NoneSeverity()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session, int? message)
+                {
+                    await session.Send(new MyMessage());
+                    await session.Send(message);
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return AssertEditorConfigSeverity(
+            source,
+            DiagnosticIds.UseGenericMessageType,
+            ReportDiagnostic.Suppress,
+            automaticActivation: true,
+            DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AutomaticActivation_RespectsNSB0040NoneSeverity()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session, int? message)
+                {
+                    await session.Send(new MyMessage());
+                    await session.Send(message);
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return AssertEditorConfigSeverity(
+            source,
+            DiagnosticIds.RuntimeTypeMayDiffer,
+            ReportDiagnostic.Suppress,
+            automaticActivation: true,
+            DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AutomaticActivation_DefaultSeverityFallsBackToAutomatic()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session, int? message)
+                {
+                    await session.Send(new MyMessage());
+                    await session.Send(message);
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return AssertEditorConfigSeverity(
+            source,
+            DiagnosticIds.UseGenericMessageType,
+            ReportDiagnostic.Default,
+            automaticActivation: true,
+            DiagnosticIds.UseGenericMessageType,
+            DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public async Task MigrationDiagnostics_SeverityIsScopedToConfiguredSyntaxTree()
+    {
+        const string configuredSource =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class ConfiguredFoo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await session.Send(new ConfiguredMessage());
+                }
+            }
+
+            class ConfiguredMessage : IMessage { }
+            """;
+        const string unconfiguredSource =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class UnconfiguredFoo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await session.Send(new UnconfiguredMessage());
+                }
+            }
+
+            class UnconfiguredMessage : IMessage { }
+            """;
+        var configuredTree = CSharpSyntaxTree.ParseText(configuredSource, path: "Configured.cs");
+        var unconfiguredTree = CSharpSyntaxTree.ParseText(unconfiguredSource, path: "Unconfigured.cs");
+
+        var diagnostics = await GetEditorConfigDiagnostics(
+            [configuredTree, unconfiguredTree],
+            configuredTree,
+            DiagnosticIds.UseGenericMessageType,
+            ReportDiagnostic.Suppress,
+            automaticActivation: true);
+
+        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.EquivalentTo([DiagnosticIds.UseGenericMessageType]));
+        NUnit.Framework.Assert.That(diagnostics[0].Location.SourceTree?.FilePath, Is.EqualTo("Unconfigured.cs"));
     }
 
     // ===== Negative tests =====
