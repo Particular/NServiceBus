@@ -28,7 +28,7 @@ public class When_message_fails_retries : NServiceBusAcceptanceTest
         }
 
         Assert.That(testContext.Logs.Count(l => l.Message
-            .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception.")), Is.EqualTo(1));
+            .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception:")), Is.EqualTo(1));
     }
 
     public class RetryEndpoint : EndpointConfigurationBuilder
