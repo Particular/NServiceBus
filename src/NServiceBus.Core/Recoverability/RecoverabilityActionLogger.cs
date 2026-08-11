@@ -51,10 +51,10 @@ static partial class RecoverabilityActionLoggerMessages
     [LoggerMessage(Level = LogLevel.Information, Message = "Immediate Retry is going to retry message '{MessageId}' because of an exception.")]
     public static partial void ImmediateRetryLogged(this ILogger logger, Exception? exception, string messageId);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Delayed Retry will reschedule message '{MessageId}' after a delay of {Delay} because of an exception.")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Delayed Retry will reschedule message '{MessageId}' after a delay of {Delay} because of an exception.")]
     public static partial void DelayedRetryLogged(this ILogger logger, Exception? exception, string messageId, TimeSpan delay);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Moving message '{MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception.")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "Moving message '{MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception.")]
     public static partial void MoveToErrorLogged(this ILogger logger, Exception? exception, string messageId, string errorQueue);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Discarding message with id '{MessageId}'. Reason: {Reason}.")]
