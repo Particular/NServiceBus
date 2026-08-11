@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Core.Analyzer;
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -63,13 +64,8 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
 
             var migrationDiagnosticsEnabled = AreMigrationDiagnosticsAutomaticallyEnabled(
                 startContext.Options.AnalyzerConfigOptionsProvider.GlobalOptions);
-            var syntaxTreeOptionsProvider = startContext.Compilation.Options.SyntaxTreeOptionsProvider;
             startContext.RegisterOperationAction(
-                operationContext => AnalyzeInvocation(
-                    operationContext,
-                    knownTypes,
-                    migrationDiagnosticsEnabled,
-                    syntaxTreeOptionsProvider),
+                operationContext => AnalyzeInvocation(operationContext, knownTypes, migrationDiagnosticsEnabled),
                 OperationKind.Invocation);
         });
     }
@@ -77,8 +73,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     static void AnalyzeInvocation(
         OperationAnalysisContext context,
         KnownTypes knownTypes,
-        bool migrationDiagnosticsEnabled,
-        SyntaxTreeOptionsProvider? syntaxTreeOptionsProvider)
+        bool migrationDiagnosticsEnabled)
     {
         var invocation = (IInvocationOperation)context.Operation;
         var invokedMethod = invocation.TargetMethod;
@@ -141,10 +136,9 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         {
             if (!IsMigrationDiagnosticEnabled(
                 migrationDiagnosticsEnabled,
-                syntaxTreeOptionsProvider,
+                context,
                 invocation.Syntax.SyntaxTree,
-                DiagnosticIds.UseGenericMessageType,
-                context.CancellationToken))
+                UseGenericTypeRule))
             {
                 return;
             }
@@ -162,10 +156,9 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         {
             if (!IsMigrationDiagnosticEnabled(
                 migrationDiagnosticsEnabled,
-                syntaxTreeOptionsProvider,
+                context,
                 invocation.Syntax.SyntaxTree,
-                DiagnosticIds.RuntimeTypeMayDiffer,
-                context.CancellationToken))
+                RuntimeTypeMayDifferRule))
             {
                 return;
             }
@@ -186,23 +179,121 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
 
     static bool IsMigrationDiagnosticEnabled(
         bool automaticallyEnabled,
-        SyntaxTreeOptionsProvider? syntaxTreeOptionsProvider,
+        OperationAnalysisContext context,
         SyntaxTree syntaxTree,
-        string diagnosticId,
-        System.Threading.CancellationToken cancellationToken)
+        DiagnosticDescriptor descriptor)
     {
-        if (syntaxTreeOptionsProvider is not null &&
-            syntaxTreeOptionsProvider.TryGetDiagnosticValue(
-                syntaxTree,
-                diagnosticId,
-                cancellationToken,
-                out var severity) &&
-            severity != ReportDiagnostic.Default)
+        // Mirror Roslyn's effective severity resolution (CSharpDiagnosticFilter.GetDiagnosticReport
+        // plus bulk configuration): command line, tree-level editorconfig, global, bulk, then the
+        // descriptor default. The migration diagnostics are opt-in, so the descriptor default only
+        // applies through automatic activation (trimming/AOT build properties).
+        var configuredSeverity = ResolveConfiguredSeverity(context, syntaxTree, descriptor);
+
+        if (configuredSeverity != ReportDiagnostic.Default)
         {
-            return severity != ReportDiagnostic.Suppress;
+            return configuredSeverity != ReportDiagnostic.Suppress;
         }
 
         return automaticallyEnabled;
+    }
+
+    static ReportDiagnostic ResolveConfiguredSeverity(
+        OperationAnalysisContext context,
+        SyntaxTree syntaxTree,
+        DiagnosticDescriptor descriptor)
+    {
+        var compilation = context.Compilation;
+        var cancellationToken = context.CancellationToken;
+
+        // Command line, tree-level and global configuration block the bulk fallback even when their
+        // value is Default, mirroring Roslyn (AnalyzerDriver.GetEffectiveSeverities and
+        // AnalyzerOptionsExtensions.TryGetSeverityFromBulkConfiguration).
+        if (compilation.Options.SpecificDiagnosticOptions.TryGetValue(descriptor.Id, out var severity))
+        {
+            return severity;
+        }
+
+        var optionsProvider = compilation.Options.SyntaxTreeOptionsProvider;
+        if (optionsProvider is not null &&
+            (optionsProvider.TryGetDiagnosticValue(syntaxTree, descriptor.Id, cancellationToken, out severity) ||
+             optionsProvider.TryGetGlobalDiagnosticValue(descriptor.Id, cancellationToken, out severity)))
+        {
+            return severity;
+        }
+
+        // Roslyn's bulk-configuration helper is internal, so mirror it: category-level first, then
+        // all-analyzer level, skipped for diagnostics disabled by default.
+        if (descriptor.IsEnabledByDefault)
+        {
+            var treeOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(syntaxTree);
+
+            if (TryGetBulkSeverity(treeOptions, $"dotnet_analyzer_diagnostic.category-{descriptor.Category}.severity", out severity))
+            {
+                return severity;
+            }
+
+            if (TryGetBulkSeverity(treeOptions, "dotnet_analyzer_diagnostic.severity", out severity))
+            {
+                return severity;
+            }
+        }
+
+        return ReportDiagnostic.Default;
+    }
+
+    static bool TryGetBulkSeverity(AnalyzerConfigOptions options, string key, out ReportDiagnostic severity)
+    {
+        if (options.TryGetValue(key, out var value) && TryParseSeverity(value, out severity))
+        {
+            return true;
+        }
+
+        severity = ReportDiagnostic.Default;
+        return false;
+    }
+
+    // Mirrors AnalyzerConfigSet.TryParseSeverity.
+    static bool TryParseSeverity(string value, out ReportDiagnostic severity)
+    {
+        if (string.Equals(value, "default", StringComparison.OrdinalIgnoreCase))
+        {
+            severity = ReportDiagnostic.Default;
+            return true;
+        }
+
+        if (string.Equals(value, "error", StringComparison.OrdinalIgnoreCase))
+        {
+            severity = ReportDiagnostic.Error;
+            return true;
+        }
+
+        if (string.Equals(value, "warning", StringComparison.OrdinalIgnoreCase))
+        {
+            severity = ReportDiagnostic.Warn;
+            return true;
+        }
+
+        if (string.Equals(value, "suggestion", StringComparison.OrdinalIgnoreCase))
+        {
+            severity = ReportDiagnostic.Info;
+            return true;
+        }
+
+        if (string.Equals(value, "silent", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(value, "refactoring", StringComparison.OrdinalIgnoreCase))
+        {
+            severity = ReportDiagnostic.Hidden;
+            return true;
+        }
+
+        if (string.Equals(value, "none", StringComparison.OrdinalIgnoreCase))
+        {
+            severity = ReportDiagnostic.Suppress;
+            return true;
+        }
+
+        severity = ReportDiagnostic.Default;
+        return false;
     }
 
     static bool IsTrue(AnalyzerConfigOptions options, string propertyName) =>
