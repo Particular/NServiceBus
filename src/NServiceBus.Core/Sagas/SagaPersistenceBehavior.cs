@@ -3,15 +3,20 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
 using Logging;
 using Pipeline;
 using Sagas;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider, IncomingPipelineMetrics incomingPipelineMetrics)
-    : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider, Meter meter) : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
+    const string SagaFetchTime = "nservicebus.sagas.fetch_time";
+
+    readonly Histogram<double> sagaFetchTime = meter.CreateHistogram<double>(SagaFetchTime, "s",
+            "The time in seconds for loading saga data from the persister.");
+
     public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
     {
         var isTimeoutMessage = IsTimeoutMessage(context.Headers);
@@ -72,13 +77,13 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         try
         {
             loadedEntity = await TryLoadSagaEntity(currentSagaMetadata, context).ConfigureAwait(false);
-            incomingPipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!);
+            SagaFetched(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!);
         }
 #pragma warning disable PS0019
         catch (Exception ex)
 #pragma warning restore PS0019
         {
-            incomingPipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!, error: ex);
+            SagaFetched(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!, error: ex);
             throw;
         }
 
@@ -157,6 +162,33 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
 
             sagaInstanceState.Updated();
         }
+    }
+
+    void SagaFetched(IInvokeHandlerContext context, TimeSpan elapsed, string sagaType, Exception error = null)
+    {
+        if (!sagaFetchTime.Enabled)
+        {
+            return;
+        }
+
+        var incomingPipelineMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+        TagList tags;
+        incomingPipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType]);
+        tags.Add(new KeyValuePair<string, object>(MeterTags.SagaType, sagaType));
+        if (error != null)
+        {
+            tags.Add(new KeyValuePair<string, object>(MeterTags.ErrorType, error.GetType().FullName));
+        }
+        /*
+        if (emitExecutionResultTags)
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, error != null ? "failure" : "success"));
+        }
+        */
+        sagaFetchTime.Record(elapsed.TotalSeconds, tags);
     }
 
     static void RemoveSagaHeadersIfProcessingAEvent(IInvokeHandlerContext context)

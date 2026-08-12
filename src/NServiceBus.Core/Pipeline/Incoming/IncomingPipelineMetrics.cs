@@ -23,17 +23,16 @@ class IncomingPipelineMetrics
     const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
     const string ActiveMessages = "nservicebus.messaging.active_messages";
     const string TotalDeduplicated = "nservicebus.outbox.duplicates";
-    const string SagaFetchTime = "nservicebus.sagas.fetch_time";
     const string MessageDeserializeTime = "nservicebus.messaging.deserialize_time";
     const string MessageSerializeTime = "nservicebus.messaging.serialize_time";
     const string OutboxFetchTime = "nservicebus.outbox.fetch_time";
     const string OutboxStoreTime = "nservicebus.outbox.store_time";
     const string CommitTime = "nservicebus.persistence.commit_time";
 
-    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator, MetersOptions metersOptions)
+    public IncomingPipelineMetrics(Meter meter, string queueName, string discriminator, MetersOptions metersOptions)
     {
         emitExecutionResultTags = metersOptions.EmitExecutionResultTags;
-        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
+
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
         totalFetched = meter.CreateCounter<long>(TotalFetched,
@@ -58,8 +57,7 @@ class IncomingPipelineMetrics
             description: "Total number of unwrapping attempts by the endpoint.");
         activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
             description: "Number of messages currently being processed by the endpoint.");
-        sagaFetchTime = meter.CreateHistogram<double>(SagaFetchTime, "s",
-            "The time in seconds for loading saga data from the persister.");
+
         messageDeserializeTime = meter.CreateHistogram<double>(MessageDeserializeTime, "s",
             "The time in seconds for deserializing an incoming message.");
         messageSerializeTime = meter.CreateHistogram<double>(MessageSerializeTime, "s",
