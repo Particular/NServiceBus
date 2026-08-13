@@ -51,7 +51,6 @@ public class MessageContext : IExtendable
         TransportTransaction = transportTransaction;
 
         context.GetOrCreate<IncomingPipelineMetricTags>();
-        context.GetOrCreate<RecordedExceptions>();
     }
 
     /// <summary>

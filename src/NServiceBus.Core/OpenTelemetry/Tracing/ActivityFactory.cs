@@ -212,8 +212,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
         LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
 
-        var recordedExceptions = context.GetOrCreate<RecordedExceptions>();
-        if (!recordedExceptions.HasBeenRecorded(exception))
+        if (!exception.Data.Contains(ExceptionRecordedFlag))
         {
             if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
             {
@@ -224,7 +223,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
                 activity.AddException(exception, LegacyExceptionTags.EscapedTagList);
             }
 
-            recordedExceptions.MarkAsRecorded(exception);
+            exception.Data[ExceptionRecordedFlag] = true;
         }
 
         if (exception is TaskCanceledException)
@@ -232,6 +231,8 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
     }
+
+    const string ExceptionRecordedFlag = "otel.exception.recorded";
 
     static readonly ILog Logger = LogManager.GetLogger<ActivityFactory>();
 }
