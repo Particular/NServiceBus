@@ -223,7 +223,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
                 activity.AddException(exception, LegacyExceptionTags.EscapedTagList);
             }
 
-            exception.Data.Add(ExceptionRecordedFlag, true);
+            exception.Data[ExceptionRecordedFlag] = true;
         }
 
         if (exception is TaskCanceledException)
