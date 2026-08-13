@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -62,13 +63,15 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
-            var migrationDiagnosticsEnabled = AreMigrationDiagnosticsAutomaticallyEnabled(
-                startContext.Options.AnalyzerConfigOptionsProvider.GlobalOptions);
+            var severityConfiguration = new MigrationDiagnosticConfiguration(
+                AreMigrationDiagnosticsAutomaticallyEnabled(
+                    startContext.Options.AnalyzerConfigOptionsProvider.GlobalOptions),
+                startContext.Compilation);
             startContext.RegisterOperationAction(
-                operationContext => AnalyzeInvocation(operationContext, knownTypes, migrationDiagnosticsEnabled),
+                operationContext => AnalyzeInvocation(operationContext, knownTypes, severityConfiguration),
                 OperationKind.Invocation);
             startContext.RegisterOperationAction(
-                operationContext => AnalyzeDelegateCreation(operationContext, knownTypes, migrationDiagnosticsEnabled),
+                operationContext => AnalyzeDelegateCreation(operationContext, knownTypes, severityConfiguration),
                 OperationKind.DelegateCreation);
         });
     }
@@ -76,7 +79,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     static void AnalyzeDelegateCreation(
         OperationAnalysisContext context,
         KnownTypes knownTypes,
-        bool migrationDiagnosticsEnabled)
+        MigrationDiagnosticConfiguration severityConfiguration)
     {
         var delegateCreation = (IDelegateCreationOperation)context.Operation;
         if (delegateCreation.Target is not IMethodReferenceOperation methodReference)
@@ -125,8 +128,6 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        var typeDisplay = messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-
         // UpdateMessage reference types remain ambiguous because same-instance replacement can
         // preserve the previous logical type. Value-type method groups cannot bind here (CS0123).
         var isRoutingEquivalent = declaration.Name == "UpdateMessage"
@@ -134,31 +135,22 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             : IsRoutingEquivalentMessageType(messageType);
         if (isRoutingEquivalent)
         {
-            if (!IsMigrationDiagnosticEnabled(
-                migrationDiagnosticsEnabled,
-                context,
-                methodReference.Syntax.SyntaxTree,
-                UseGenericTypeRule))
+            if (!severityConfiguration.IsEnabled(context, methodReference.Syntax.SyntaxTree, UseGenericTypeRule))
             {
                 return;
             }
 
-            var properties = ImmutableDictionary<string, string?>.Empty.Add(
-                MessageTypeProperty,
-                messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
             context.ReportDiagnostic(Diagnostic.Create(
                 UseGenericTypeRule,
                 methodReference.Syntax.GetLocation(),
-                properties,
-                typeDisplay));
+                ImmutableDictionary<string, string?>.Empty.Add(
+                    MessageTypeProperty,
+                    messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
+                messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
         }
         else
         {
-            if (!IsMigrationDiagnosticEnabled(
-                migrationDiagnosticsEnabled,
-                context,
-                methodReference.Syntax.SyntaxTree,
-                RuntimeTypeMayDifferRule))
+            if (!severityConfiguration.IsEnabled(context, methodReference.Syntax.SyntaxTree, RuntimeTypeMayDifferRule))
             {
                 return;
             }
@@ -166,14 +158,14 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             context.ReportDiagnostic(Diagnostic.Create(
                 RuntimeTypeMayDifferRule,
                 methodReference.Syntax.GetLocation(),
-                typeDisplay));
+                messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
         }
     }
 
     static void AnalyzeInvocation(
         OperationAnalysisContext context,
         KnownTypes knownTypes,
-        bool migrationDiagnosticsEnabled)
+        MigrationDiagnosticConfiguration severityConfiguration)
     {
         var invocation = (IInvocationOperation)context.Operation;
         var invokedMethod = invocation.TargetMethod;
@@ -232,38 +224,28 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        var typeDisplay = messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         var isUpdateMessage = declaration.Name == "UpdateMessage";
         var isStableVarObjectCreation = !isUpdateMessage &&
             IsStableVarObjectCreation(messageValue, messageArgument, invocation, invocation.SemanticModel!);
         if (IsRoutingEquivalent(messageValue, messageType, knownTypes.IMessageCreator, isUpdateMessage) ||
             isStableVarObjectCreation)
         {
-            if (!IsMigrationDiagnosticEnabled(
-                migrationDiagnosticsEnabled,
-                context,
-                invocation.Syntax.SyntaxTree,
-                UseGenericTypeRule))
+            if (!severityConfiguration.IsEnabled(context, invocation.Syntax.SyntaxTree, UseGenericTypeRule))
             {
                 return;
             }
 
-            var properties = ImmutableDictionary<string, string?>.Empty.Add(
-                MessageTypeProperty,
-                messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
             context.ReportDiagnostic(Diagnostic.Create(
                 UseGenericTypeRule,
                 invocation.Syntax.GetLocation(),
-                properties,
-                typeDisplay));
+                ImmutableDictionary<string, string?>.Empty.Add(
+                    MessageTypeProperty,
+                    messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
+                messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
         }
         else
         {
-            if (!IsMigrationDiagnosticEnabled(
-                migrationDiagnosticsEnabled,
-                context,
-                invocation.Syntax.SyntaxTree,
-                RuntimeTypeMayDifferRule))
+            if (!severityConfiguration.IsEnabled(context, invocation.Syntax.SyntaxTree, RuntimeTypeMayDifferRule))
             {
                 return;
             }
@@ -271,7 +253,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             context.ReportDiagnostic(Diagnostic.Create(
                 RuntimeTypeMayDifferRule,
                 invocation.Syntax.GetLocation(),
-                typeDisplay));
+                messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
         }
     }
 
@@ -282,79 +264,107 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         IsTrue(globalOptions, IsTrimmableProperty) ||
         IsTrue(globalOptions, EnableTrimAnalyzerProperty);
 
-    static bool IsMigrationDiagnosticEnabled(
-        bool automaticallyEnabled,
-        OperationAnalysisContext context,
-        SyntaxTree syntaxTree,
-        DiagnosticDescriptor descriptor)
+    // Mirrors Roslyn's effective severity resolution (CSharpDiagnosticFilter.GetDiagnosticReport plus
+    // bulk configuration): command line, tree-level editorconfig, global, bulk, then the descriptor
+    // default. The migration diagnostics are opt-in, so the descriptor default only applies through
+    // automatic activation (trimming/AOT build properties). Command line, tree-level and global
+    // configuration block the bulk fallback even when their value is Default, mirroring Roslyn
+    // (AnalyzerDriver.GetEffectiveSeverities and
+    // AnalyzerOptionsExtensions.TryGetSeverityFromBulkConfiguration).
+    sealed class MigrationDiagnosticConfiguration(bool automaticallyEnabled, Compilation compilation)
     {
-        // Mirror Roslyn's effective severity resolution (CSharpDiagnosticFilter.GetDiagnosticReport
-        // plus bulk configuration): command line, tree-level editorconfig, global, bulk, then the
-        // descriptor default. The migration diagnostics are opt-in, so the descriptor default only
-        // applies through automatic activation (trimming/AOT build properties).
-        var configuredSeverity = ResolveConfiguredSeverity(context, syntaxTree, descriptor);
+        readonly CompilationOptions compilationOptions = compilation.Options;
+        readonly SyntaxTreeOptionsProvider? syntaxTreeOptionsProvider = compilation.Options.SyntaxTreeOptionsProvider;
+#pragma warning disable PS0025 // Dictionary keys should implement IEquatable<T> - trees are per-compilation and use reference equality
+        readonly ConcurrentDictionary<SyntaxTree, TreeSeverityCache> treeCaches = new();
+#pragma warning restore PS0025
 
-        if (configuredSeverity != ReportDiagnostic.Default)
+        public bool IsEnabled(OperationAnalysisContext context, SyntaxTree syntaxTree, DiagnosticDescriptor descriptor)
         {
-            return configuredSeverity != ReportDiagnostic.Suppress;
+            var configuredSeverity = ResolveConfiguredSeverity(context, syntaxTree, descriptor);
+
+            if (configuredSeverity != ReportDiagnostic.Default)
+            {
+                return configuredSeverity != ReportDiagnostic.Suppress;
+            }
+
+            return automaticallyEnabled;
         }
 
-        return automaticallyEnabled;
-    }
-
-    static ReportDiagnostic ResolveConfiguredSeverity(
-        OperationAnalysisContext context,
-        SyntaxTree syntaxTree,
-        DiagnosticDescriptor descriptor)
-    {
-        var compilation = context.Compilation;
-        var cancellationToken = context.CancellationToken;
-
-        // Command line, tree-level and global configuration block the bulk fallback even when their
-        // value is Default, mirroring Roslyn (AnalyzerDriver.GetEffectiveSeverities and
-        // AnalyzerOptionsExtensions.TryGetSeverityFromBulkConfiguration).
-        if (compilation.Options.SpecificDiagnosticOptions.TryGetValue(descriptor.Id, out var severity))
+        ReportDiagnostic ResolveConfiguredSeverity(
+            OperationAnalysisContext context,
+            SyntaxTree syntaxTree,
+            DiagnosticDescriptor descriptor)
         {
-            return severity;
-        }
+            var cancellationToken = context.CancellationToken;
 
-        var optionsProvider = compilation.Options.SyntaxTreeOptionsProvider;
-        if (optionsProvider is not null &&
-            (optionsProvider.TryGetDiagnosticValue(syntaxTree, descriptor.Id, cancellationToken, out severity) ||
-             optionsProvider.TryGetGlobalDiagnosticValue(descriptor.Id, cancellationToken, out severity)))
-        {
-            return severity;
-        }
-
-        // Roslyn's bulk-configuration helper is internal, so mirror it: category-level first, then
-        // all-analyzer level, skipped for diagnostics disabled by default.
-        if (descriptor.IsEnabledByDefault)
-        {
-            var treeOptions = context.Options.AnalyzerConfigOptionsProvider.GetOptions(syntaxTree);
-
-            if (TryGetBulkSeverity(treeOptions, $"dotnet_analyzer_diagnostic.category-{descriptor.Category}.severity", out severity))
+            if (compilationOptions.SpecificDiagnosticOptions.TryGetValue(descriptor.Id, out var severity) || (syntaxTreeOptionsProvider is not null &&
+                (syntaxTreeOptionsProvider.TryGetDiagnosticValue(syntaxTree, descriptor.Id, cancellationToken, out severity) ||
+                 syntaxTreeOptionsProvider.TryGetGlobalDiagnosticValue(descriptor.Id, cancellationToken, out severity))))
             {
                 return severity;
             }
 
-            if (TryGetBulkSeverity(treeOptions, "dotnet_analyzer_diagnostic.severity", out severity))
+            // Bulk-configuration helper is internal to Roslyn, so mirror it: category-level first, then
+            // all-analyzer level. Memoized per tree since the keys don't depend on the descriptor id.
+            if (descriptor.IsEnabledByDefault)
             {
-                return severity;
+                var treeCache = treeCaches.GetOrAdd(syntaxTree, static tree => new TreeSeverityCache(tree));
+                return treeCache.ResolveBulkSeverity(context.Options.AnalyzerConfigOptionsProvider, descriptor);
+            }
+
+            return ReportDiagnostic.Default;
+        }
+
+        sealed class TreeSeverityCache(SyntaxTree tree)
+        {
+            readonly ConcurrentDictionary<string, (bool Found, ReportDiagnostic Severity)> categorySeverities = new();
+            volatile bool allResolved;
+            bool hasAllSeverity;
+            ReportDiagnostic allSeverity;
+
+            // Category-level bulk config varies by descriptor category; all-level is category-independent.
+            public ReportDiagnostic ResolveBulkSeverity(
+                AnalyzerConfigOptionsProvider optionsProvider,
+                DiagnosticDescriptor descriptor)
+            {
+                if (!categorySeverities.TryGetValue(descriptor.Category, out var categorySeverity))
+                {
+                    var treeOptions = optionsProvider.GetOptions(tree);
+                    var found = TryGetBulkSeverity(
+                        treeOptions,
+                        $"dotnet_analyzer_diagnostic.category-{descriptor.Category}.severity",
+                        out var severity);
+                    categorySeverity = (found, severity);
+                    categorySeverities[descriptor.Category] = categorySeverity;
+                }
+
+                if (!allResolved)
+                {
+                    var treeOptions = optionsProvider.GetOptions(tree);
+                    hasAllSeverity = TryGetBulkSeverity(treeOptions, "dotnet_analyzer_diagnostic.severity", out allSeverity);
+                    allResolved = true;
+                }
+
+                if (categorySeverity.Found)
+                {
+                    return categorySeverity.Severity;
+                }
+
+                return hasAllSeverity ? allSeverity : ReportDiagnostic.Default;
+            }
+
+            static bool TryGetBulkSeverity(AnalyzerConfigOptions options, string key, out ReportDiagnostic severity)
+            {
+                if (options.TryGetValue(key, out var value) && TryParseSeverity(value, out severity))
+                {
+                    return true;
+                }
+
+                severity = ReportDiagnostic.Default;
+                return false;
             }
         }
-
-        return ReportDiagnostic.Default;
-    }
-
-    static bool TryGetBulkSeverity(AnalyzerConfigOptions options, string key, out ReportDiagnostic severity)
-    {
-        if (options.TryGetValue(key, out var value) && TryParseSeverity(value, out severity))
-        {
-            return true;
-        }
-
-        severity = ReportDiagnostic.Default;
-        return false;
     }
 
     // Mirrors AnalyzerConfigSet.TryParseSeverity.
@@ -434,7 +444,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             declarationStatement.Declaration.Type is not IdentifierNameSyntax { Identifier.ValueText: "var" } ||
             semanticModel.GetOperation(variableDeclarator) is not IVariableDeclaratorOperation
             {
-                Initializer: { Value: IObjectCreationOperation }
+                Initializer.Value: IObjectCreationOperation
             })
         {
             return false;
@@ -484,9 +494,8 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return true;
         }
 
-        return invocation.Syntax.Parent is AwaitExpressionSyntax awaitExpression &&
-            awaitExpression.Parent is ExpressionStatementSyntax { Expression: var awaitStatementExpression } &&
-            ReferenceEquals(awaitStatementExpression, awaitExpression);
+        return invocation.Syntax.Parent is AwaitExpressionSyntax { Parent: ExpressionStatementSyntax { Expression: var awaitStatementExpression } } awaitExpression &&
+               ReferenceEquals(awaitStatementExpression, awaitExpression);
     }
 
     static bool IsRoutingEquivalent(
@@ -510,8 +519,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return messageType.IsValueType;
         }
 
-        if (operation is IInvocationOperation creatorInvocation &&
-            creatorInvocation.TargetMethod is { Name: "CreateInstance", IsGenericMethod: true } creatorMethod &&
+        if (operation is IInvocationOperation { TargetMethod: { Name: "CreateInstance", IsGenericMethod: true } creatorMethod } &&
             IsOrImplements(creatorMethod.ContainingType, messageCreator))
         {
             return true;
@@ -562,12 +570,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
     {
         contractMember = null;
         var containingType = method.ContainingType;
-        if (SymbolEqualityComparer.Default.Equals(containingType, knownTypes.IMessageSession))
-        {
-            return method.Name is "Send" or "Publish";
-        }
-
-        if (SymbolEqualityComparer.Default.Equals(containingType, knownTypes.IPipelineContext))
+        if (SymbolEqualityComparer.Default.Equals(containingType, knownTypes.IMessageSession) || SymbolEqualityComparer.Default.Equals(containingType, knownTypes.IPipelineContext))
         {
             return method.Name is "Send" or "Publish";
         }
@@ -610,39 +613,8 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return false;
         }
 
-        if (method.ExplicitInterfaceImplementations.FirstOrDefault(implementedMember =>
-                knownTypes.ContractInterfaces.Any(contract =>
-                    SymbolEqualityComparer.Default.Equals(implementedMember.ContainingType, contract))) is { } explicitImplementation)
-        {
-            contractMember = explicitImplementation;
-            return true;
-        }
-
-        var containingType = method.ContainingType;
-
-        // Avoid building interface maps for unrelated types.
-        var allInterfaces = containingType.AllInterfaces;
-        if (!knownTypes.ContractInterfaces.Any(contract => allInterfaces.Any(implemented =>
-                SymbolEqualityComparer.Default.Equals(implemented, contract))))
-        {
-            return false;
-        }
-
-        foreach (var contract in knownTypes.ContractInterfaces)
-        {
-            foreach (var candidateMember in contract.GetMembers(method.Name).OfType<IMethodSymbol>())
-            {
-                var implementation = containingType.FindImplementationForInterfaceMember(candidateMember);
-                if (implementation is not null &&
-                    SymbolEqualityComparer.Default.Equals(implementation.OriginalDefinition, method.OriginalDefinition))
-                {
-                    contractMember = candidateMember;
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        // Avoid building interface maps for unrelated types; memoized per type.
+        return knownTypes.ImplementsAnyContractInterface(method.ContainingType) && knownTypes.TryResolveContractMember(method, out contractMember);
     }
 
     static bool TryGetMessageParameter(IMethodSymbol method, IMethodSymbol? contractMember, out IParameterSymbol parameter)
@@ -671,15 +643,10 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         !method.IsGenericMethod && messageParameter.Type.SpecialType == SpecialType.System_Object && !HasExplicitMessageTypeParameter(method);
 
     static bool HasExplicitMessageTypeParameter(IMethodSymbol method) =>
-        method.Parameters.Any(candidate => candidate is { Name: "messageType" } &&
-            candidate.Type is INamedTypeSymbol typeSymbol &&
-            typeSymbol.SpecialType == SpecialType.None &&
-            typeSymbol.Name == "Type" &&
-            typeSymbol.ContainingNamespace?.Name == "System");
+        method.Parameters.Any(candidate => candidate is { Name: "messageType", Type: INamedTypeSymbol { SpecialType: SpecialType.None, Name: "Type", ContainingNamespace.Name: "System" } });
 
     static bool IsGenericMessageInstanceOverload(IMethodSymbol method, IParameterSymbol messageParameter) =>
-        method.IsGenericMethod &&
-        method.TypeParameters is [var messageTypeParameter, ..] &&
+        method is { IsGenericMethod: true, TypeParameters: [var messageTypeParameter, ..] } &&
         SymbolEqualityComparer.Default.Equals(messageParameter.Type, messageTypeParameter);
 
     sealed class KnownTypes
@@ -704,11 +671,13 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             Saga = saga;
             IOutgoingLogicalMessageContext = outgoingLogicalMessageContext;
             IMessageCreator = messageCreator;
-            ContractInterfaces = ImmutableArray.Create(
+            ContractInterfaces =
+            [
                 messageSession,
                 pipelineContext,
                 messageProcessingContext,
-                outgoingLogicalMessageContext);
+                outgoingLogicalMessageContext
+            ];
         }
 
         public INamedTypeSymbol IMessageSession { get; }
@@ -721,6 +690,62 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         public INamedTypeSymbol IOutgoingLogicalMessageContext { get; }
         public INamedTypeSymbol IMessageCreator { get; }
         public ImmutableArray<INamedTypeSymbol> ContractInterfaces { get; }
+
+        readonly ConcurrentDictionary<INamedTypeSymbol, bool> implementsContractCache = new(SymbolEqualityComparer.Default);
+        readonly ConcurrentDictionary<IMethodSymbol, IMethodSymbol?> contractMemberCache = new(SymbolEqualityComparer.Default);
+
+        // Memoized per type so unrelated Send/Publish/Reply methods never build interface maps.
+        public bool ImplementsAnyContractInterface(INamedTypeSymbol type)
+        {
+            if (implementsContractCache.TryGetValue(type, out var result))
+            {
+                return result;
+            }
+
+            result = ContractInterfaces.Any(contract =>
+                type.AllInterfaces.Any(implemented =>
+                    SymbolEqualityComparer.Default.Equals(implemented, contract)));
+            implementsContractCache[type] = result;
+            return result;
+        }
+
+        // Memoized per method so interface-walking runs once per declaration across call sites.
+        public bool TryResolveContractMember(IMethodSymbol method, out IMethodSymbol? contractMember)
+        {
+            if (contractMemberCache.TryGetValue(method, out contractMember))
+            {
+                return contractMember is not null;
+            }
+
+            contractMember = method.ExplicitInterfaceImplementations.FirstOrDefault(implementedMember =>
+                ContractInterfaces.Any(contract =>
+                    SymbolEqualityComparer.Default.Equals(implementedMember.ContainingType, contract)));
+
+            if (contractMember is null)
+            {
+                foreach (var contract in ContractInterfaces)
+                {
+                    foreach (var candidateMember in contract.GetMembers(method.Name).OfType<IMethodSymbol>())
+                    {
+                        var implementation = method.ContainingType.FindImplementationForInterfaceMember(candidateMember);
+                        if (implementation is not null &&
+                            SymbolEqualityComparer.Default.Equals(implementation.OriginalDefinition, method.OriginalDefinition))
+                        {
+                            contractMember = candidateMember;
+                            break;
+                        }
+                    }
+
+                    if (contractMember is not null)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            contractMemberCache[method] = contractMember;
+            return contractMember is not null;
+        }
 
         public static bool TryCreate(Compilation compilation, out KnownTypes knownTypes)
         {
