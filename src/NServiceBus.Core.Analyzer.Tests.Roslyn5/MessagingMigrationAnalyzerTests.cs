@@ -28,6 +28,15 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
         AnalyzerTest.ForAnalyzer<MessagingMigrationAnalyzer>()
             .WithSource(source);
 
+    static readonly MetadataReference TestingFakesReference =
+        MetadataReference.CreateFromFile(typeof(NServiceBus.Testing.TestableMessageSession).Assembly.Location);
+
+    static AnalyzerTest MigrationAuditTest(string source) =>
+        MigrationTest(source).WithProperty("build_property.PublishTrimmed", "true");
+
+    static AnalyzerTest FakeMigrationTest(string source) =>
+        MigrationAuditTest(source).AddReferences(TestingFakesReference);
+
     static async Task AssertEditorConfigSeverity(
         string source,
         string diagnosticId,
@@ -1145,6 +1154,989 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
         return Assert(source, DiagnosticIds.GenericMessageTypeIsObject);
     }
 
+    // ===== Method groups and delegates =====
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_SessionSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_SessionPublish()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, PublishOptions, CancellationToken, Task> publish = [|session.Publish|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_SessionExtensionSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_SessionSendLocal()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, CancellationToken, Task> sendLocal = [|session.SendLocal|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_PipelineContextSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IPipelineContext context)
+                {
+                    Func<MyMessage, SendOptions, Task> send = [|context.Send|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_PipelineContextPublish()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IPipelineContext context)
+                {
+                    Func<MyMessage, PublishOptions, Task> publish = [|context.Publish|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_MessageProcessingContextReply()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageProcessingContext context)
+                {
+                    Func<MyMessage, ReplyOptions, Task> reply = [|context.Reply|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_SagaReplyToOriginator()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Collections.Generic;
+            using System.Threading.Tasks;
+
+            class MySaga : Saga<MySagaData>
+            {
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper) { }
+
+                void Bar(IMessageHandlerContext context)
+                {
+                    Func<IMessageHandlerContext, MyMessage, IReadOnlyDictionary<string, string>, Task> reply = [|ReplyToOriginator|];
+                }
+            }
+
+            class MySagaData : ContainSagaData { }
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_CustomDelegate_PositionalMessageParameter()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            delegate Task MySendDelegate(MyMessage msg, SendOptions options, CancellationToken cancellationToken);
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    MySendDelegate send = [|session.Send|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MethodGroup_SealedMessage_AsArgument()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    RegisterHandler([|session.Send|]);
+                }
+
+                void RegisterHandler(Func<MyMessage, SendOptions, CancellationToken, Task> handler) { }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0040_MethodGroup_InterfaceMessage_SessionSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<ICommand, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_MethodGroup_UnsealedMessage_SessionSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<UnsealedMessage, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+
+            class UnsealedMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_MethodGroup_ObjectMessage_SessionSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<object, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_MethodGroup_ObjectMessage_SessionSendLocal()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<object, CancellationToken, Task> sendLocal = [|session.SendLocal|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0041_MethodGroup_ExplicitGenericObject_SessionSend()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<object, SendOptions, CancellationToken, Task> send = [|session.Send<object>|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.GenericMessageTypeIsObject);
+    }
+
+    [Test]
+    public Task NSB0041_MethodGroup_IsReportedWithoutMigrationAudit()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<object, SendOptions, CancellationToken, Task> send = [|session.Send<object>|];
+                }
+            }
+            """;
+        return MigrationTest(source).AssertDiagnostics(DiagnosticIds.GenericMessageTypeIsObject);
+    }
+
+    [Test]
+    public Task NoDiagnostic_MethodGroup_ExplicitGenericNonObject()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = session.Send<MyMessage>;
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_MethodGroup_UnrelatedMethod()
+    {
+        var source =
+            """
+            using System;
+            using System.Threading.Tasks;
+
+            class Helper
+            {
+                public Task DoSomething(object message) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                void Bar(Helper helper)
+                {
+                    Func<object, Task> action = helper.DoSomething;
+                }
+            }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_MethodGroup_NonMessagingMember()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<Type, SubscribeOptions, CancellationToken, Task> subscribe = session.Subscribe;
+                }
+            }
+            """;
+        return Assert(source);
+    }
+
+    // ===== Concrete implementations and testing fakes =====
+
+    [Test]
+    public Task NSB0039_TestableMessageSession_DirectObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(TestableMessageSession session)
+                {
+                    await [|session.Send(new MyMessage(), new SendOptions())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0040_TestableMessageSession_InterfaceMessage()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(TestableMessageSession session, IMessage message)
+                {
+                    await [|session.Send(message, new SendOptions())|];
+                }
+            }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0041_TestableMessageSession_ExplicitGenericObject()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(TestableMessageSession session, object message)
+                {
+                    await [|session.Send<object>(message, new SendOptions())|];
+                }
+            }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.GenericMessageTypeIsObject);
+    }
+
+    [Test]
+    public Task NSB0039_TestableMessageSession_MethodGroup()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(TestableMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_TestablePipelineContext_Send()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(TestablePipelineContext context)
+                {
+                    await [|context.Send(new MyMessage(), new SendOptions())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_TestablePipelineContext_Publish()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(TestablePipelineContext context)
+                {
+                    await [|context.Publish(new MyEvent(), new PublishOptions())|];
+                }
+            }
+
+            class MyEvent : IEvent { }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_TestableMessageProcessingContext_Reply()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(TestableMessageProcessingContext context)
+                {
+                    await [|context.Reply(new MyMessage(), new ReplyOptions())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_TestableOutgoingLogicalMessageContext_UpdateMessage()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+
+            class Foo
+            {
+                void Bar(TestableOutgoingLogicalMessageContext context)
+                {
+                    [|context.UpdateMessage(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_CustomMessageSession_DirectObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session)
+                {
+                    await [|session.Send(new MyMessage(), new SendOptions())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0040_CustomMessageSession_InterfaceMessage()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session, IMessage message)
+                {
+                    await [|session.Send(message, new SendOptions())|];
+                }
+            }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0039_CustomMessageSession_MethodGroup()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                void Bar(CustomMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_CustomMessageSession_ImplementationOnBaseClass()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class DerivedMessageSession : CustomMessageSession { }
+
+            class Foo
+            {
+                async Task Bar(DerivedMessageSession session)
+                {
+                    await [|session.Send(new MyMessage(), new SendOptions())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_ExplicitMessageSession_InvokedThroughInterface()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class ExplicitMessageSession : IMessageSession
+            {
+                Task IMessageSession.Send(object message, SendOptions options, CancellationToken cancellationToken) => Task.CompletedTask;
+                Task IMessageSession.Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken) => Task.CompletedTask;
+                Task IMessageSession.Publish(object message, PublishOptions options, CancellationToken cancellationToken) => Task.CompletedTask;
+                Task IMessageSession.Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken) => Task.CompletedTask;
+                Task IMessageSession.Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken) => Task.CompletedTask;
+                Task IMessageSession.Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage(), new SendOptions())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NoDiagnostic_NonContractSession()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class NotAMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(NotAMessageSession session)
+                {
+                    await session.Send(new MyMessage(), new SendOptions());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics();
+    }
+
+    [Test]
+    public Task NoDiagnostic_ImplementingSession_UnrelatedOverload()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send(object message) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session)
+                {
+                    await session.Send(new MyMessage());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics();
+    }
+
+    // ===== Generic forwarding =====
+
+    [Test]
+    public Task NSB0040_GenericForwarding_Unconstrained()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Forward<T>(T message, IMessageSession session)
+                {
+                    await [|session.Send(message, new SendOptions())|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_GenericForwarding_ClassConstraint()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Forward<T>(T message, IMessageSession session) where T : class
+                {
+                    await [|session.Send(message, new SendOptions())|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_GenericForwarding_InterfaceConstraint()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Forward<T>(T message, IMessageSession session) where T : IMyMessage
+                {
+                    await [|session.Send(message, new SendOptions())|];
+                }
+            }
+
+            interface IMyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_GenericForwarding_MethodGroup()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Forward<T>(T message, IMessageSession session) where T : class
+                {
+                    Func<T, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    // ===== Inferred versus explicit object =====
+
+    [Test]
+    public Task NoDiagnostic_InferredObjectArgument_10xObjectOnlyOverload()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session, object message)
+                {
+                    await session.Send(message, new SendOptions());
+                }
+            }
+            """;
+        return Assert(source);
+    }
+
+    // ===== Expression trees =====
+
+    [Test]
+    public Task NSB0039_ExpressionTree_SealedMessage()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Linq.Expressions;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Expression<Func<MyMessage, Task>> expression = message => [|session.Send(message)|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0040_ExpressionTree_UnsealedMessage()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Linq.Expressions;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Expression<Func<MyMessage, Task>> expression = message => [|session.Send(message)|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
     // ===== Activation =====
 
     [Test]
@@ -2098,6 +3090,272 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             class MyReply : IMyInterface { }
             """;
         return Assert(source);
+    }
+
+    // ===== UpdateMessage method groups =====
+
+    [Test]
+    public Task NSB0040_UpdateMessageMethodGroup_SealedMessage()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+            using System;
+
+            class Foo
+            {
+                void Bar(IOutgoingLogicalMessageContext context)
+                {
+                    Action<SealedMessage> update = [|context.UpdateMessage|];
+                }
+            }
+
+            sealed class SealedMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_UpdateMessageMethodGroup_ObjectMessage()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+            using System;
+
+            class Foo
+            {
+                void Bar(IOutgoingLogicalMessageContext context)
+                {
+                    Action<object> update = [|context.UpdateMessage|];
+                }
+            }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_UpdateMessageMethodGroup_TestableFake()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+            using NServiceBus.Testing;
+            using System;
+
+            class Foo
+            {
+                void Bar(TestableOutgoingLogicalMessageContext context)
+                {
+                    Action<SealedMessage> update = [|context.UpdateMessage|];
+                }
+            }
+
+            sealed class SealedMessage : IMessage { }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    // ===== Renamed implementation parameters =====
+
+    [Test]
+    public Task NSB0039_CustomMessageSession_RenamedParameter_DirectObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object payload, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object payload, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session)
+                {
+                    await [|session.Send(new MyMessage(), new SendOptions())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0040_CustomMessageSession_RenamedParameter_InterfaceArgument()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object payload, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object payload, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session, IMessage message)
+                {
+                    await [|session.Send(message, new SendOptions())|];
+                }
+            }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0039_CustomMessageSession_RenamedParameter_MethodGroup()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object payload, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object payload, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                void Bar(CustomMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0040_CustomMessageSession_RenamedParameter_MethodGroupInterface()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object payload, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object payload, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                void Bar(CustomMessageSession session)
+                {
+                    Func<ICommand, SendOptions, CancellationToken, Task> send = [|session.Send|];
+                }
+            }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0041_CustomMessageSession_RenamedParameter_ExplicitGenericObject()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object payload, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(T payload, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object payload, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(T payload, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session, object message)
+                {
+                    await [|session.Send<object>(message, new SendOptions())|];
+                }
+            }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics(DiagnosticIds.GenericMessageTypeIsObject);
+    }
+
+    // ===== Interface-map gate =====
+
+    [Test]
+    public Task NoDiagnostic_InterfaceRichType_UnrelatedSendMethod()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            interface IMarkerA { void A(); }
+            interface IMarkerB { void B(); }
+            interface IMarkerC : IMarkerA, IMarkerB { void C(); }
+
+            class InterfaceRichType : IMarkerC
+            {
+                public void A() { }
+                public void B() { }
+                public void C() { }
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(InterfaceRichType session)
+                {
+                    await session.Send(new MyMessage(), new SendOptions());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationAuditTest(source).AssertDiagnostics();
     }
 }
 

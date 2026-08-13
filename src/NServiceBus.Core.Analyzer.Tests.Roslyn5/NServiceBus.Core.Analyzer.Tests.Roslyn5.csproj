@@ -8,6 +8,7 @@
     <ProjectReference Include="..\NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj" />
     <ProjectReference Include="..\NServiceBus.Core.Analyzer.Fixes\NServiceBus.Core.Analyzer.Fixes.csproj" />
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+    <ProjectReference Include="..\NServiceBus.Testing.Fakes\NServiceBus.Testing.Fakes.csproj" />
   </ItemGroup>
 
   <ItemGroup>

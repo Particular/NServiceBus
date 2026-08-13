@@ -67,7 +67,107 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             startContext.RegisterOperationAction(
                 operationContext => AnalyzeInvocation(operationContext, knownTypes, migrationDiagnosticsEnabled),
                 OperationKind.Invocation);
+            startContext.RegisterOperationAction(
+                operationContext => AnalyzeDelegateCreation(operationContext, knownTypes, migrationDiagnosticsEnabled),
+                OperationKind.DelegateCreation);
         });
+    }
+
+    static void AnalyzeDelegateCreation(
+        OperationAnalysisContext context,
+        KnownTypes knownTypes,
+        bool migrationDiagnosticsEnabled)
+    {
+        var delegateCreation = (IDelegateCreationOperation)context.Operation;
+        if (delegateCreation.Target is not IMethodReferenceOperation methodReference)
+        {
+            return;
+        }
+
+        var invokedMethod = methodReference.Method;
+        var declaration = (invokedMethod.ReducedFrom ?? invokedMethod).OriginalDefinition;
+
+        if (!IsTargetMethod(declaration, knownTypes, out var contractMember) ||
+            !TryGetMessageParameter(declaration, contractMember, out var messageParameter))
+        {
+            return;
+        }
+
+        // Method groups bind to object-only overloads unless explicitly generic.
+        if (invokedMethod.IsGenericMethod)
+        {
+            if (invokedMethod.TypeArguments.Length > 0 &&
+                invokedMethod.TypeArguments[0].SpecialType == SpecialType.System_Object)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    GenericTypeIsObjectRule,
+                    methodReference.Syntax.GetLocation()));
+            }
+
+            return;
+        }
+
+        // Classify by the delegate parameter type; bound extension method references are unreduced.
+        if (delegateCreation.Type is not INamedTypeSymbol { DelegateInvokeMethod: { } invokeMethod } ||
+            !TryMapMessageParameter(invokeMethod, declaration, messageParameter, methodReference, out var delegateMessageParameter))
+        {
+            return;
+        }
+
+        var messageType = delegateMessageParameter.Type;
+        if (messageType is null || messageType.TypeKind == TypeKind.Dynamic)
+        {
+            return;
+        }
+
+        if (!messageType.CanBeReferencedByName)
+        {
+            return;
+        }
+
+        var typeDisplay = messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+
+        // UpdateMessage reference types remain ambiguous because same-instance replacement can
+        // preserve the previous logical type. Value-type method groups cannot bind here (CS0123).
+        var isRoutingEquivalent = declaration.Name == "UpdateMessage"
+            ? messageType.IsValueType
+            : IsRoutingEquivalentMessageType(messageType);
+        if (isRoutingEquivalent)
+        {
+            if (!IsMigrationDiagnosticEnabled(
+                migrationDiagnosticsEnabled,
+                context,
+                methodReference.Syntax.SyntaxTree,
+                UseGenericTypeRule))
+            {
+                return;
+            }
+
+            var properties = ImmutableDictionary<string, string?>.Empty.Add(
+                MessageTypeProperty,
+                messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+            context.ReportDiagnostic(Diagnostic.Create(
+                UseGenericTypeRule,
+                methodReference.Syntax.GetLocation(),
+                properties,
+                typeDisplay));
+        }
+        else
+        {
+            if (!IsMigrationDiagnosticEnabled(
+                migrationDiagnosticsEnabled,
+                context,
+                methodReference.Syntax.SyntaxTree,
+                RuntimeTypeMayDifferRule))
+            {
+                return;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                RuntimeTypeMayDifferRule,
+                methodReference.Syntax.GetLocation(),
+                typeDisplay));
+        }
     }
 
     static void AnalyzeInvocation(
@@ -79,13 +179,15 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         var invokedMethod = invocation.TargetMethod;
         var declaration = (invokedMethod.ReducedFrom ?? invokedMethod).OriginalDefinition;
 
-        if (!IsTargetMethod(declaration, knownTypes) || !TryGetMessageParameter(declaration, out var messageParameter))
+        if (!IsTargetMethod(declaration, knownTypes, out var contractMember) ||
+            !TryGetMessageParameter(declaration, contractMember, out var messageParameter))
         {
             return;
         }
 
         if (IsGenericMessageInstanceOverload(declaration, messageParameter))
         {
+            // In 10.x, T=object is only reachable through an explicit generic call.
             if (invokedMethod.TypeArguments.Length > 0 &&
                 invokedMethod.TypeArguments[0].SpecialType == SpecialType.System_Object)
             {
@@ -100,8 +202,11 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return;
         }
 
+        // Interface implementations may rename parameters. Reduced extensions require the name fallback.
         var messageArgument = invocation.Arguments.FirstOrDefault(argument =>
-            argument.Parameter?.Name == messageParameter.Name);
+            argument.Parameter is not null &&
+            (SymbolEqualityComparer.Default.Equals(argument.Parameter.OriginalDefinition, messageParameter) ||
+             argument.Parameter.Name == messageParameter.Name));
         if (messageArgument is null)
         {
             return;
@@ -415,12 +520,47 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         return messageType.IsSealed || messageType.IsValueType;
     }
 
+    static bool IsRoutingEquivalentMessageType(ITypeSymbol messageType) =>
+        messageType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T &&
+        (messageType.IsSealed || messageType.IsValueType);
+
+    static bool TryMapMessageParameter(
+        IMethodSymbol invokeMethod,
+        IMethodSymbol declaredMethod,
+        IParameterSymbol messageParameter,
+        IMethodReferenceOperation methodReference,
+        out IParameterSymbol delegateParameter)
+    {
+        var messageIndex = declaredMethod.Parameters.IndexOf(messageParameter);
+        if (messageIndex < 0)
+        {
+            delegateParameter = null!;
+            return false;
+        }
+
+        // Bound extension method references are unreduced, so exclude the receiver.
+        if (methodReference.Instance is not null && declaredMethod.IsExtensionMethod)
+        {
+            messageIndex--;
+        }
+
+        if (messageIndex < 0 || messageIndex >= invokeMethod.Parameters.Length)
+        {
+            delegateParameter = null!;
+            return false;
+        }
+
+        delegateParameter = invokeMethod.Parameters[messageIndex];
+        return true;
+    }
+
     static bool IsOrImplements(INamedTypeSymbol type, INamedTypeSymbol contract) =>
         SymbolEqualityComparer.Default.Equals(type, contract) ||
         type.AllInterfaces.Any(candidate => SymbolEqualityComparer.Default.Equals(candidate, contract));
 
-    static bool IsTargetMethod(IMethodSymbol method, KnownTypes knownTypes)
+    static bool IsTargetMethod(IMethodSymbol method, KnownTypes knownTypes, out IMethodSymbol? contractMember)
     {
+        contractMember = null;
         var containingType = method.ContainingType;
         if (SymbolEqualityComparer.Default.Equals(containingType, knownTypes.IMessageSession))
         {
@@ -453,12 +593,76 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             return method.Name == "ReplyToOriginator";
         }
 
-        return SymbolEqualityComparer.Default.Equals(containingType, knownTypes.IOutgoingLogicalMessageContext) &&
-               method.Name == "UpdateMessage";
+        if (SymbolEqualityComparer.Default.Equals(containingType, knownTypes.IOutgoingLogicalMessageContext))
+        {
+            return method.Name == "UpdateMessage";
+        }
+
+        return ImplementsKnownContractMember(method, knownTypes, out contractMember);
     }
 
-    static bool TryGetMessageParameter(IMethodSymbol method, out IParameterSymbol parameter)
+    // Return the contract member so renamed implementation parameters can be mapped by ordinal.
+    static bool ImplementsKnownContractMember(IMethodSymbol method, KnownTypes knownTypes, out IMethodSymbol? contractMember)
     {
+        contractMember = null;
+        if (method.Name is not ("Send" or "Publish" or "Reply" or "UpdateMessage"))
+        {
+            return false;
+        }
+
+        if (method.ExplicitInterfaceImplementations.FirstOrDefault(implementedMember =>
+                knownTypes.ContractInterfaces.Any(contract =>
+                    SymbolEqualityComparer.Default.Equals(implementedMember.ContainingType, contract))) is { } explicitImplementation)
+        {
+            contractMember = explicitImplementation;
+            return true;
+        }
+
+        var containingType = method.ContainingType;
+
+        // Avoid building interface maps for unrelated types.
+        var allInterfaces = containingType.AllInterfaces;
+        if (!knownTypes.ContractInterfaces.Any(contract => allInterfaces.Any(implemented =>
+                SymbolEqualityComparer.Default.Equals(implemented, contract))))
+        {
+            return false;
+        }
+
+        foreach (var contract in knownTypes.ContractInterfaces)
+        {
+            foreach (var candidateMember in contract.GetMembers(method.Name).OfType<IMethodSymbol>())
+            {
+                var implementation = containingType.FindImplementationForInterfaceMember(candidateMember);
+                if (implementation is not null &&
+                    SymbolEqualityComparer.Default.Equals(implementation.OriginalDefinition, method.OriginalDefinition))
+                {
+                    contractMember = candidateMember;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    static bool TryGetMessageParameter(IMethodSymbol method, IMethodSymbol? contractMember, out IParameterSymbol parameter)
+    {
+        // Implementations may rename interface parameters.
+        if (contractMember is not null)
+        {
+            var contractParameter = contractMember.Parameters.FirstOrDefault(candidate =>
+                candidate.Name is "message" or "newInstance");
+            if (contractParameter is not null)
+            {
+                var contractOrdinal = contractMember.Parameters.IndexOf(contractParameter);
+                if (contractOrdinal >= 0 && contractOrdinal < method.Parameters.Length)
+                {
+                    parameter = method.Parameters[contractOrdinal];
+                    return true;
+                }
+            }
+        }
+
         parameter = method.Parameters.FirstOrDefault(candidate => candidate.Name is "message" or "newInstance")!;
         return parameter is not null;
     }
@@ -500,6 +704,11 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             Saga = saga;
             IOutgoingLogicalMessageContext = outgoingLogicalMessageContext;
             IMessageCreator = messageCreator;
+            ContractInterfaces = ImmutableArray.Create(
+                messageSession,
+                pipelineContext,
+                messageProcessingContext,
+                outgoingLogicalMessageContext);
         }
 
         public INamedTypeSymbol IMessageSession { get; }
@@ -511,6 +720,7 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         public INamedTypeSymbol Saga { get; }
         public INamedTypeSymbol IOutgoingLogicalMessageContext { get; }
         public INamedTypeSymbol IMessageCreator { get; }
+        public ImmutableArray<INamedTypeSymbol> ContractInterfaces { get; }
 
         public static bool TryCreate(Compilation compilation, out KnownTypes knownTypes)
         {
