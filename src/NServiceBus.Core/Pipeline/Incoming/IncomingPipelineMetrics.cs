@@ -327,14 +327,19 @@ class IncomingPipelineMetrics
 
     public ActiveMessageScope TrackMessageProcessing(IncomingPipelineMetricTags incomingPipelineMetricTags, IncomingMessage message)
     {
+        // This runs before the pipeline (and so before any consumer behavior) even starts, which makes it the
+        // earliest point EnclosedMessageTypes is known. Seeding it here as a general tag - unconditionally, not
+        // gated behind activeMessages.Enabled - means every later instrument that wants a default for it can rely
+        // on that value being present, while a consumer behavior can still override it per instrument (since a
+        // per-instrument Add always overwrites, but nothing in NServiceBus itself writes to that slot afterwards).
+        if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes))
+        {
+            incomingPipelineMetricTags.Add(MeterTags.EnclosedMessageTypes, enclosedMessageTypes);
+        }
+
         if (!activeMessages.Enabled)
         {
             return default;
-        }
-
-        if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes))
-        {
-            incomingPipelineMetricTags.Add(MeterTags.EnclosedMessageTypes, enclosedMessageTypes, activeMessages.Name);
         }
 
         TagList tags;
@@ -390,15 +395,14 @@ class IncomingPipelineMetrics
         {
             incomingPipelineMetricTags.Add(MeterTags.ErrorType, error.GetType().FullName!, messageDeserializeTime.Name);
         }
-        if (context.Message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes))
-        {
-            incomingPipelineMetricTags.Add(MeterTags.EnclosedMessageTypes, messageTypes, messageDeserializeTime.Name);
-        }
         if (emitExecutionResultTags)
         {
             incomingPipelineMetricTags.Add(MeterTags.ExecutionResult, error != null ? "failure" : "success", messageDeserializeTime.Name);
         }
 
+        // EnclosedMessageTypes isn't set here: TrackMessageProcessing already seeded it generally as soon as the
+        // header was available, before the pipeline (and so before any consumer behavior) started. Not writing a
+        // default for it here means a per-instrument override a consumer set earlier is never clobbered.
         TagList tags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,

@@ -42,7 +42,7 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
             .AddReader(new BaseExportingMetricReader(new CapturingExporter(exportedMetrics)))
             .Build();
 
-        await Scenario.Define<ScenarioContext>()
+        await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithCustomTags>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("disc"))
                 .When(async session =>
                 {
@@ -80,6 +80,8 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
         Assert.That(overriddenValue, Is.EqualTo(FriendlyMessageTypeName));
     }
 
+    public class Context : ScenarioContext;
+
     public class EndpointWithCustomTags : EndpointConfigurationBuilder
     {
         public EndpointWithCustomTags() =>
@@ -87,9 +89,13 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
                 new CustomizeMetricTagsBehavior(), "Adds a tenant tag from a header and overrides the enclosed message type tag"));
 
         [Handler]
-        public class MyHandler : IHandleMessages<MyMessage>
+        public class MyHandler(Context testContext) : IHandleMessages<MyMessage>
         {
-            public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
         }
     }
 

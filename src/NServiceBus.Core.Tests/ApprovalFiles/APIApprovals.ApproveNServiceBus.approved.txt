@@ -622,8 +622,9 @@ namespace NServiceBus
     {
         public IncomingPipelineMetricTags() { }
         public void Add(string tagKey, object value) { }
-        public void ApplyTag(ref System.Diagnostics.TagList tagList, string tagKey) { }
-        public void ApplyTags(ref System.Diagnostics.TagList tagList, System.ReadOnlySpan<string> tagKeys) { }
+        public void Add(string tagKey, object value, string instrumentName) { }
+        public void ApplyTag(ref System.Diagnostics.TagList tagList, string tagKey, string? instrumentName = null) { }
+        public void ApplyTags(ref System.Diagnostics.TagList tagList, System.ReadOnlySpan<string> tagKeys, string? instrumentName = null) { }
     }
     public static class InstallConfigExtensions
     {
