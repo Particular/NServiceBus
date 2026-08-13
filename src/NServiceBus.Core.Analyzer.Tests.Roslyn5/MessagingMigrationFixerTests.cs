@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer.Tests;
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using NServiceBus.Core.Analyzer.Fixes;
 using NUnit.Framework;
 using Particular.AnalyzerTesting;
@@ -10,10 +11,14 @@ using Particular.AnalyzerTesting;
 [TestFixture]
 public class MessagingMigrationFixerTests : CodeFixTestFixture<MessagingMigrationAnalyzer, MessagingMigrationFixer>
 {
+    static readonly MetadataReference TestingFakesReference =
+        MetadataReference.CreateFromFile(typeof(NServiceBus.Testing.TestableMessageSession).Assembly.Location);
+
     protected override void ConfigureFixtureTests(CodeFixTest test)
     {
         base.ConfigureFixtureTests(test);
         test.WithProperty("build_property.PublishTrimmed", "true");
+        test.AddReferences(TestingFakesReference);
     }
 
     [Test]
@@ -625,6 +630,340 @@ public class MessagingMigrationFixerTests : CodeFixTestFixture<MessagingMigratio
                 void Bar(IOutgoingLogicalMessageContext context)
                 {
                     context.UpdateMessage<MyMessage>(new MyMessage());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MethodGroup_SessionSend()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = session.Send;
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = session.Send<MyMessage>;
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MethodGroup_SessionSendLocal()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, CancellationToken, Task> sendLocal = session.SendLocal;
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, CancellationToken, Task> sendLocal = session.SendLocal<MyMessage>;
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MethodGroup_AsArgument()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    RegisterHandler(session.Send);
+                }
+
+                void RegisterHandler(Func<MyMessage, SendOptions, CancellationToken, Task> handler) { }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    RegisterHandler(session.Send<MyMessage>);
+                }
+
+                void RegisterHandler(Func<MyMessage, SendOptions, CancellationToken, Task> handler) { }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task NoFixForExplicitGenericMethodGroup()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = session.Send<MyMessage>;
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, original);
+    }
+
+    [Test]
+    public Task NoFixForDIMReliantConcreteImplementation()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session)
+                {
+                    await session.Send(new MyMessage(), new SendOptions());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, original);
+    }
+
+    [Test]
+    public Task NoFixForDIMReliantConcreteImplementation_MethodGroup()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                void Bar(CustomMessageSession session)
+                {
+                    Func<MyMessage, SendOptions, CancellationToken, Task> send = session.Send;
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, original);
+    }
+
+    [Test]
+    public Task ConcreteImplementationWithGenericOverload()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using System;
+            using System.Runtime.CompilerServices;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                [OverloadResolutionPriority(-1)]
+                public Task Send<T>(T message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                [OverloadResolutionPriority(-1)]
+                public Task Publish<T>(T message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session)
+                {
+                    await session.Send(new MyMessage(), new SendOptions());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using System;
+            using System.Runtime.CompilerServices;
+            using System.Threading;
+            using System.Threading.Tasks;
+
+            class CustomMessageSession : IMessageSession
+            {
+                public Task Send(object message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                [OverloadResolutionPriority(-1)]
+                public Task Send<T>(T message, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Send<T>(Action<T> messageConstructor, SendOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish(object message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                [OverloadResolutionPriority(-1)]
+                public Task Publish<T>(T message, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Publish<T>(Action<T> messageConstructor, PublishOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Subscribe(Type eventType, SubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                public Task Unsubscribe(Type eventType, UnsubscribeOptions options, CancellationToken cancellationToken = default) => Task.CompletedTask;
+            }
+
+            class Foo
+            {
+                async Task Bar(CustomMessageSession session)
+                {
+                    await session.Send<MyMessage>(new MyMessage(), new SendOptions());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task TestableMessageSession()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(TestableMessageSession session)
+                {
+                    await session.Send(new MyMessage(), new SendOptions());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(TestableMessageSession session)
+                {
+                    await session.Send<MyMessage>(new MyMessage(), new SendOptions());
                 }
             }
 
