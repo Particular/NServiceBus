@@ -46,34 +46,30 @@ public sealed class IncomingPipelineMetricTags
     /// <param name="tagKey">The tag to add.</param>
     /// <param name="value">The value assigned to the tag.</param>
     public void Add(string tagKey, object value)
-    {
-        // We are using tryAdd to mitigate multiple logical messages transmitted in a single physical message
-        tags.TryAdd(tagKey, new(tagKey, value));
-    }
+        => tags.TryAdd(tagKey, new KeyValuePair<string, object?>(tagKey, value));
 
     /// <summary>
-    /// Applies the specified tag to the <paramref name="tagList"/>. When <paramref name="instrumentName"/> is
-    /// provided and a tag was added for that instrument via <see cref="Add(string,object,string)"/>, that value is
-    /// used instead of the general one added via <see cref="Add(string,object)"/>.
+    /// Applies the specified tag to the <paramref name="tagList"/>, replacing any tag already in
+    /// <paramref name="tagList"/> with the same key. When <paramref name="instrumentName"/> is provided and a tag
+    /// was added for that instrument via <see cref="Add(string,object,string)"/>, that value is used instead of the
+    /// general one added via <see cref="Add(string,object)"/>.
     /// </summary>
     /// <param name="tagList">The tagList to apply the specified tag to.</param>
     /// <param name="tagKey">The tag to add to the <paramref name="tagList"/>.</param>
     /// <param name="instrumentName">The instrument to prefer instrument-specific tags for, if any.</param>
     public void ApplyTag(ref TagList tagList, string tagKey, string? instrumentName = null)
-    {
-        if (TryGetTag(tagKey, instrumentName, out var keyValuePair))
-        {
-            tagList.Add(keyValuePair);
-        }
-    }
+        => ApplyTags(ref tagList, [tagKey], instrumentName: instrumentName);
 
     /// <summary>
-    /// Applies the specified tags to the <paramref name="tagList"/>. When <paramref name="instrumentName"/> is
-    /// provided and a tag was added for that instrument via <see cref="Add(string,object,string)"/>, that value is
-    /// used instead of the general one added via <see cref="Add(string,object)"/>. Any tag added for that
-    /// instrument whose key isn't in <paramref name="tagKeys"/> is applied as well: naming an instrument when
-    /// adding a tag is already an explicit statement of intent for that one instrument, so callers don't also need
-    /// to know about it to pull it in.
+    /// Applies the specified tags to the <paramref name="tagList"/>, replacing any tag already in
+    /// <paramref name="tagList"/> with a matching key - so a caller can populate <paramref name="tagList"/> with its
+    /// own computed defaults before calling this, and have any matching tag from this collection take precedence.
+    /// General tags (from <see cref="Add(string,object)"/>) are only applied when their key is in
+    /// <paramref name="tagKeys"/>. When <paramref name="instrumentName"/> is provided, every tag added for that
+    /// instrument via <see cref="Add(string,object,string)"/> is applied unconditionally - regardless of whether its
+    /// key is in <paramref name="tagKeys"/> - and takes precedence over a general tag with the same key: naming an
+    /// instrument when adding a tag is already an explicit statement of intent for that one instrument, so callers
+    /// don't also need to know about it to pull it in.
     /// </summary>
     /// <param name="tagList">The tagList to add the tags to.</param>
     /// <param name="tagKeys">The collection of tag keys to apply to the <paramref name="tagList"/>.</param>
@@ -82,34 +78,35 @@ public sealed class IncomingPipelineMetricTags
     {
         foreach (var tagKey in tagKeys)
         {
-            if (TryGetTag(tagKey, instrumentName, out var keyValuePair))
+            if (tags.TryGetValue(tagKey, out var keyValuePair))
             {
-                tagList.Add(keyValuePair);
+                SetOrAdd(ref tagList, keyValuePair);
             }
         }
 
         if (instrumentName != null && instrumentTags.TryGetValue(instrumentName, out var perInstrumentTags))
         {
-            foreach (var (tagKey, keyValuePair) in perInstrumentTags)
+            foreach (var (_, keyValuePair) in perInstrumentTags)
             {
-                // already resolved above, since instrument-specific tags take priority over general ones
-                if (!tagKeys.Contains(tagKey))
-                {
-                    tagList.Add(keyValuePair);
-                }
+                SetOrAdd(ref tagList, keyValuePair);
             }
         }
     }
 
-    bool TryGetTag(string tagKey, string? instrumentName, out KeyValuePair<string, object?> keyValuePair)
+    // A caller may have already added a computed default for this key directly to tagList before calling
+    // ApplyTag/ApplyTags. Replacing it in place - rather than appending a duplicate - is what lets a tag from this
+    // collection act as an override regardless of how a consumer of the recorded measurement handles duplicate keys.
+    static void SetOrAdd(ref TagList tagList, KeyValuePair<string, object?> tag)
     {
-        if (instrumentName != null &&
-            instrumentTags.TryGetValue(instrumentName, out var perInstrumentTags) &&
-            perInstrumentTags.TryGetValue(tagKey, out keyValuePair))
+        for (var i = 0; i < tagList.Count; i++)
         {
-            return true;
+            if (tagList[i].Key == tag.Key)
+            {
+                tagList[i] = tag;
+                return;
+            }
         }
 
-        return tags.TryGetValue(tagKey, out keyValuePair);
+        tagList.Add(tag);
     }
 }

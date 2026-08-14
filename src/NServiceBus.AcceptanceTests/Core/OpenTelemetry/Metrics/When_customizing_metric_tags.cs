@@ -12,10 +12,6 @@ using NUnit.Framework;
 using global::OpenTelemetry;
 using global::OpenTelemetry.Metrics;
 
-// Demonstrates that a consumer can, without changing NServiceBus itself:
-//  1. add a brand new tag to a built-in instrument, sourced from a message header;
-//  2. remove one of NServiceBus's own tags from what's actually exported, via an OpenTelemetry SDK view;
-//  3. override one of NServiceBus's own tags with a friendlier value, scoped to a single instrument.
 public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
 {
     const string TotalFetched = "nservicebus.messaging.fetches";
@@ -26,15 +22,13 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
     const string FriendlyMessageTypeName = "Order placed (friendly name)";
 
     [Test]
-    public async Task Should_allow_adding_removing_and_overriding_tags()
+    public async Task Should_allow_adding_removing_and_overriding_tags_per_instrument()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
         List<Metric> exportedMetrics = [];
         using var meterProvider = Sdk.CreateMeterProviderBuilder()
             .AddMeter("NServiceBus.Core.Pipeline.Incoming")
-            // Removal: nservicebus.discriminator is deliberately left out of TagKeys, so it won't be in what's
-            // actually exported, even though the raw instrument (checked below via metricsListener) still has it.
             .AddView(TotalFetched, new MetricStreamConfiguration
             {
                 TagKeys = ["nservicebus.queue", "nservicebus.message_type", TenantTag]

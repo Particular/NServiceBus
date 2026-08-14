@@ -45,13 +45,13 @@ class SerializeMessageConnector : StageConnector<IOutgoingLogicalMessageContext,
             try
             {
                 messageSerializer.Serialize(context.Message.Instance, ms);
-                incomingPipelineMetrics.RecordSerializeTime(Stopwatch.GetElapsedTime(serializeStart), context.Message.MessageType?.FullName);
+                incomingPipelineMetrics.RecordSerializeTime(context, Stopwatch.GetElapsedTime(serializeStart), context.Message.MessageType?.FullName);
             }
 #pragma warning disable PS0019
             catch (Exception ex)
 #pragma warning restore PS0019
             {
-                incomingPipelineMetrics.RecordSerializeTime(Stopwatch.GetElapsedTime(serializeStart), context.Message.MessageType?.FullName, error: ex);
+                incomingPipelineMetrics.RecordSerializeTime(context, Stopwatch.GetElapsedTime(serializeStart), context.Message.MessageType?.FullName, error: ex);
                 throw;
             }
 
