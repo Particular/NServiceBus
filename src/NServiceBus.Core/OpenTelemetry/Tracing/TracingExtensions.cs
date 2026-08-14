@@ -18,6 +18,9 @@ static class TracingExtensions
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
             try
             {
+                // Make sure the tags collection exists also for the outgoing messages
+                context.Extensions.Get<IncomingPipelineMetricTags>();
+
                 await pipeline.Invoke(context).ConfigureAwait(false);
                 activity.SetStatus(ActivityStatusCode.Ok);
             }
