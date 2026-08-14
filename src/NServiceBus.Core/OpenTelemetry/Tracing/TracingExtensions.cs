@@ -19,7 +19,7 @@ static class TracingExtensions
             try
             {
                 // Make sure the tags collection exists also for the outgoing messages
-                context.Extensions.Get<IncomingPipelineMetricTags>();
+                context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
 
                 await pipeline.Invoke(context).ConfigureAwait(false);
                 activity.SetStatus(ActivityStatusCode.Ok);

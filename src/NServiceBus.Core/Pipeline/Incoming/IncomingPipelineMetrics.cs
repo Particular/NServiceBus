@@ -409,7 +409,7 @@ class IncomingPipelineMetrics
         messageDeserializeTime.Record(elapsed.TotalSeconds, tags);
     }
 
-    public void RecordSerializeTime(TimeSpan elapsed, string? messageType, Exception? error = null)
+    public void RecordSerializeTime(IOutgoingLogicalMessageContext context, TimeSpan elapsed, string? messageType, Exception? error = null)
     {
         // No incoming pipeline context is available here (this fires from the outgoing send pipeline, which may
         // run with no incoming message at all), so there's no IncomingPipelineMetricTags to route these through.
@@ -431,6 +431,13 @@ class IncomingPipelineMetrics
         {
             tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, error != null ? "failure" : "success")); // tag-bag-bypass: see comment above
         }
+
+        context.Extensions.Get<IncomingPipelineMetricTags>().ApplyTags(ref tags, [
+                MeterTags.QueueName,
+                MeterTags.EndpointDiscriminator,
+                MeterTags.MessageType,
+                MeterTags.ErrorType],
+            messageDeserializeTime.Name);
 
         messageSerializeTime.Record(elapsed.TotalSeconds, tags);
     }
