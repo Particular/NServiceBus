@@ -433,8 +433,6 @@ class IncomingPipelineMetrics
         }
 
         context.Extensions.Get<IncomingPipelineMetricTags>().ApplyTags(ref tags, [
-                MeterTags.QueueName,
-                MeterTags.EndpointDiscriminator,
                 MeterTags.MessageType,
                 MeterTags.ErrorType],
             messageDeserializeTime.Name);
