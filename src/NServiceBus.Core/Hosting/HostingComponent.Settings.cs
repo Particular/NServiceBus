@@ -95,7 +95,7 @@ partial class HostingComponent
             get; set;
         }
 
-        public InstrumentationOptions InstrumentationOptions => settings.GetOrDefault<InstrumentationOptions>() ?? new InstrumentationOptions();
+        public InstrumentationOptions InstrumentationOptions => settings.GetOrCreate<InstrumentationOptions>();
 
         internal void ConfigureHostLogging(object? endpointIdentifier)
         {
