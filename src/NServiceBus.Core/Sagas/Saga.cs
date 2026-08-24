@@ -4,9 +4,12 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Extensibility;
+using Particular.Obsoletes;
 
 /// <summary>
 /// This class is used to define sagas containing data and handling a message.
@@ -38,7 +41,7 @@ public abstract class Saga
     /// </summary>
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="at"><see cref="DateTimeOffset" /> to send timeout <typeparamref name="TTimeoutMessageType" />.</param>
-    protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at) where TTimeoutMessageType : new()
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at) where TTimeoutMessageType : new()
     {
         return RequestTimeout(context, at, new TTimeoutMessageType());
     }
@@ -49,7 +52,7 @@ public abstract class Saga
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="at"><see cref="DateTimeOffset" /> to send timeout <paramref name="timeoutMessage" />.</param>
     /// <param name="timeoutMessage">The message to send after <paramref name="at" /> is reached.</param>
-    protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at, TTimeoutMessageType timeoutMessage)
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, DateTimeOffset at, TTimeoutMessageType timeoutMessage)
     {
         VerifySagaCanHandleTimeout(timeoutMessage);
 
@@ -60,7 +63,7 @@ public abstract class Saga
 
         SetTimeoutHeaders(options);
 
-        return context.Send(timeoutMessage, options);
+        return context.Send<TTimeoutMessageType>(timeoutMessage, options);
     }
 
     /// <summary>
@@ -68,7 +71,7 @@ public abstract class Saga
     /// </summary>
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="within">Given <see cref="TimeSpan" /> to delay timeout message by.</param>
-    protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within) where TTimeoutMessageType : new()
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within) where TTimeoutMessageType : new()
     {
         return RequestTimeout(context, within, new TTimeoutMessageType());
     }
@@ -79,7 +82,7 @@ public abstract class Saga
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="within">Given <see cref="TimeSpan" /> to delay timeout message by.</param>
     /// <param name="timeoutMessage">The message to send after <paramref name="within" /> expires.</param>
-    protected Task RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within, TTimeoutMessageType timeoutMessage)
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within, TTimeoutMessageType timeoutMessage)
     {
         VerifySagaCanHandleTimeout(timeoutMessage);
 
@@ -90,13 +93,38 @@ public abstract class Saga
 
         SetTimeoutHeaders(sendOptions);
 
-        return context.Send(timeoutMessage, sendOptions);
+        return context.Send<TTimeoutMessageType>(timeoutMessage, sendOptions);
     }
 
     /// <summary>
     /// Sends the <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
     /// </summary>
+    [ObsoleteMetadata(ReplacementTypeOrMember = "ReplyToOriginator<T>",
+        TreatAsErrorFromVersion = "11",
+        RemoveInVersion = "12")]
+    [Obsolete("Use 'ReplyToOriginator<T>' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     protected Task ReplyToOriginator(IMessageHandlerContext context, object message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
+    {
+        var options = BuildReplyToOriginatorOptions(outgoingHeaders);
+        return context.Reply(message, options);
+    }
+
+    /// <summary>
+    /// Sends the typed <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
+    /// </summary>
+    /// <typeparam name="T">The type used to reply. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
+    /// <param name="context">The context of the currently handled message.</param>
+    /// <param name="message">The message to send.</param>
+    /// <param name="outgoingHeaders">The headers to attach to the outgoing message.</param>
+    [OverloadResolutionPriority(-1)]
+    protected Task ReplyToOriginator<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IMessageHandlerContext context, T message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
+    {
+        var options = BuildReplyToOriginatorOptions(outgoingHeaders);
+        return context.Reply<T>(message, options);
+    }
+
+    ReplyOptions BuildReplyToOriginatorOptions(IReadOnlyDictionary<string, string>? outgoingHeaders)
     {
         if (string.IsNullOrEmpty(Entity.Originator))
         {
@@ -122,7 +150,7 @@ public abstract class Saga
             SagaIdToUse = null
         });
 
-        return context.Reply(message, options);
+        return options;
     }
 
     /// <summary>

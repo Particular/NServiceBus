@@ -57,7 +57,9 @@ public class When_receiveonly_message_is_moved_to_error_queue : NServiceBusAccep
                     {
                         Id = initiatingMessage.Id
                     };
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                     return context.Send(ErrorSpyAddress, message);
+#pragma warning restore NSB0040
                 }
 
                 return Task.CompletedTask;

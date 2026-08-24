@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Routing;
@@ -12,6 +13,7 @@ class NamespaceRouteSource : IRouteSource
     readonly string messageNamespace;
     readonly UnicastRoute route;
 
+    [RequiresUnreferencedCode(AssemblyRouteSource.TrimmingMessage)]
     public NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, UnicastRoute route)
     {
         this.messageAssembly = messageAssembly;
@@ -19,6 +21,7 @@ class NamespaceRouteSource : IRouteSource
         this.messageNamespace = messageNamespace;
     }
 
+    [RequiresUnreferencedCode(AssemblyRouteSource.TrimmingMessage)]
     public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
     {
         var routes = messageAssembly.GetTypes()

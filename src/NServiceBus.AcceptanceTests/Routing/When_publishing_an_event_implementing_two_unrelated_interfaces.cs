@@ -22,7 +22,9 @@ public class When_publishing_an_event_implementing_two_unrelated_interfaces : NS
                     {
                         ContextId = ctx.Id
                     };
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                     return session.Publish(message);
+#pragma warning restore NSB0040
                 }))
             .WithEndpoint<Subscriber>(b => b.When(async (session, ctx) =>
             {

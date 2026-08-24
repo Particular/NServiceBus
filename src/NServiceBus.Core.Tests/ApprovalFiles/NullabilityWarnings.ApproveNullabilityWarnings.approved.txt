@@ -127,9 +127,6 @@ src/NServiceBus.Core/Sagas/ActiveSagaInstance.cs
 src/NServiceBus.Core/Sagas/CustomFinderAdapter.cs
   CS8603: Possible null reference return.
 
-src/NServiceBus.Core/Sagas/Saga.cs
-  CS8604: Possible null reference argument for parameter 'message' in 'Task IPipelineContext.Send(object message, SendOptions options)'.
-
 src/NServiceBus.Core/Sagas/SagaCorrelationProperty.cs
   CS8603: Possible null reference return.
 
@@ -204,9 +201,6 @@ src/NServiceBus.Core/Transports/Learning/HeaderSerializer.cs
 src/NServiceBus.Core/Transports/Learning/LearningTransport.cs
   CS8618: Non-nullable property 'StorageDirectory' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
 
-src/NServiceBus.Core/Transports/Learning/LearningTransportDispatcher.cs
-  CS8604: Possible null reference argument for parameter 'path3' in 'string Path.Combine(string path1, string path2, string path3)'.
-
 src/NServiceBus.Core/Transports/Learning/LearningTransportInfrastructure.cs
   CS8604: Possible null reference argument for parameter 'subscriptionManager' in 'LearningTransportMessagePump.LearningTransportMessagePump(string id, string receiveAddress, string basePath, Action<string, Exception, CancellationToken> criticalErrorAction, ISubscriptionManager subscriptionManager, ReceiveSettings receiveSettings, TransportTransactionMode transactionMode)'.
 
@@ -246,10 +240,10 @@ src/NServiceBus.Core/Transports/TransportSeam.cs
   CS8618: Non-nullable field 'transportInfrastructure' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
 
 src/NServiceBus.Core/Unicast/MessageOperations.cs
-  CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)'.
+  CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.PublishMessage(IBehaviorContext context, Type messageType, object message, PublishOptions options)'.
   CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)'.
   CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)'.
-  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageOperations.Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)'.
+  CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageOperations.PublishMessage(IBehaviorContext context, Type messageType, object message, PublishOptions options)'.
   CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageOperations.ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)'.
   CS8604: Possible null reference argument for parameter 'messageType' in 'Task MessageOperations.SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)'.
 

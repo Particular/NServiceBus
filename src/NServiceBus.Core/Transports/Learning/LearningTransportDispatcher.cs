@@ -2,12 +2,14 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Transport;
+using static NServiceBusMarkerInterfaceConvention;
 
 class LearningTransportDispatcher : IMessageDispatcher
 {
@@ -35,7 +37,7 @@ class LearningTransportDispatcher : IMessageDispatcher
 
         foreach (var transportOperation in transportOperations)
         {
-            var subscribers = await GetSubscribersFor(transportOperation.MessageType, cancellationToken)
+            var subscribers = await GetSubscribersFor(transportOperation, cancellationToken)
                 .ConfigureAwait(false);
 
             foreach (var subscriber in subscribers)
@@ -139,15 +141,13 @@ class LearningTransportDispatcher : IMessageDispatcher
         }
     }
 
-    async Task<IEnumerable<string>> GetSubscribersFor(Type messageType, CancellationToken cancellationToken)
+    async Task<IEnumerable<string>> GetSubscribersFor(MulticastTransportOperation transportOperation, CancellationToken cancellationToken)
     {
         var subscribers = new HashSet<string>();
 
-        var allEventTypes = GetPotentialEventTypes(messageType);
-
-        foreach (var eventType in allEventTypes)
+        foreach (var eventTypeName in GetPotentialEventTypeNames(transportOperation))
         {
-            var eventDir = Path.Combine(basePath, ".events", eventType.FullName);
+            var eventDir = Path.Combine(basePath, ".events", eventTypeName);
 
             if (!Directory.Exists(eventDir))
             {
@@ -166,34 +166,56 @@ class LearningTransportDispatcher : IMessageDispatcher
         return subscribers;
     }
 
-    static HashSet<Type> GetPotentialEventTypes(Type messageType)
+    static HashSet<string> GetPotentialEventTypeNames(MulticastTransportOperation transportOperation)
     {
-        var allEventTypes = new HashSet<Type>();
+        if (!transportOperation.Message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageHierarchy) || string.IsNullOrWhiteSpace(messageHierarchy))
+        {
+            return InferEventTypeNames(transportOperation.MessageType);
+        }
+
+        var eventTypeNames = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var typeName in messageHierarchy.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var messageTypeName = AssemblyQualifiedNameParser.GetMessageTypeNameWithoutAssembly(typeName).ToString();
+            if (!IsMarkerType(messageTypeName))
+            {
+                eventTypeNames.Add(messageTypeName);
+            }
+        }
+
+        return eventTypeNames;
+    }
+
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Used only for legacy or custom multicast operations without the enclosed message hierarchy header. Normal pipeline and outbox operations carry message metadata.")]
+    static HashSet<string> InferEventTypeNames(Type messageType)
+    {
+        var allEventTypeNames = new HashSet<string>(StringComparer.Ordinal);
 
         var currentType = messageType;
 
         while (currentType != null)
         {
             //do not include the marker interfaces
-            if (IsCoreMarkerInterface(currentType))
+            if (IsMarkerType(currentType))
             {
                 break;
             }
 
-            allEventTypes.Add(currentType);
+            allEventTypeNames.Add(currentType.FullName!);
 
             currentType = currentType.BaseType;
         }
 
-        foreach (var type in messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)))
+        foreach (var type in messageType.GetInterfaces())
         {
-            allEventTypes.Add(type);
+            if (!IsMarkerType(type))
+            {
+                allEventTypeNames.Add(type.FullName!);
+            }
         }
 
-        return allEventTypes;
+        return allEventTypeNames;
     }
-
-    static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
     readonly int maxMessageSizeKB;
     readonly string basePath;
