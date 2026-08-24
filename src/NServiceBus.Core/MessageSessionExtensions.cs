@@ -18,7 +18,7 @@ public static class MessageSessionExtensions
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="message">The message to send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Send<T>(this IMessageSession, T, CancellationToken)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
@@ -89,7 +89,7 @@ public static class MessageSessionExtensions
     /// <param name="destination">The address of the destination to which the message will be sent.</param>
     /// <param name="message">The message to send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Send<T>(this IMessageSession, string, T, CancellationToken)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
@@ -179,7 +179,7 @@ public static class MessageSessionExtensions
     /// <param name="session">Object being extended.</param>
     /// <param name="message">The message to send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "SendLocal<T>(this IMessageSession, T, CancellationToken)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
@@ -262,7 +262,7 @@ public static class MessageSessionExtensions
     /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
     /// <param name="message">The message to publish.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Publish<T>(this IMessageSession, T, CancellationToken)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]

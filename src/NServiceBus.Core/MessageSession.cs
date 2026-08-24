@@ -81,7 +81,7 @@ class MessageSession : IMessageSession
         }
     }
 
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Send<T>(T, SendOptions, CancellationToken) or Send(object, Type, SendOptions, CancellationToken)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
@@ -131,7 +131,7 @@ class MessageSession : IMessageSession
         await messageOperations.Send(CreateContext(linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
     }
 
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Publish<T>(T, PublishOptions, CancellationToken) or Publish(object, Type, PublishOptions, CancellationToken)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]

@@ -32,7 +32,7 @@ public interface IMessageProcessingContext : IPipelineContext
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">Options for this reply.</param>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Reply<T>(T, ReplyOptions) or Reply(object, Type, ReplyOptions)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]

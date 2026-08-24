@@ -16,7 +16,7 @@ public static class MessageProcessingContextExtensions
     /// </summary>
     /// <param name="context">Object being extended.</param>
     /// <param name="message">The message to send.</param>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Reply<T>(this IMessageProcessingContext, T)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead, or the overload accepting an explicit messageType when the static type is unavailable.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]

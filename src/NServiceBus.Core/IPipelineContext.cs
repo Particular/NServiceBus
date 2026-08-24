@@ -17,7 +17,7 @@ public interface IPipelineContext : ICancellableContext, IExtendable
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">The options for the send.</param>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Send<T>(T, SendOptions) or Send(object, Type, SendOptions)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
@@ -66,7 +66,7 @@ public interface IPipelineContext : ICancellableContext, IExtendable
     /// </summary>
     /// <param name="message">The message to publish.</param>
     /// <param name="options">The options for the publish.</param>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "Publish<T>(T, PublishOptions) or Publish(object, Type, PublishOptions)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic or explicit Type overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]

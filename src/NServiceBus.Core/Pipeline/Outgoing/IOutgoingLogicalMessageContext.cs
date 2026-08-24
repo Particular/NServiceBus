@@ -27,7 +27,7 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     /// <summary>
     /// Updates the message instance.
     /// </summary>
-    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7892",
+    [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
         ReplacementTypeOrMember = "UpdateMessage<T>(T)",
         Note = "The object-only overload uses message.GetType() at runtime which is not trimming safe. Use the generic overload instead.")]
     [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
