@@ -40,7 +40,7 @@ public class IncomingPipelineMetricTagsTests
 
         Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
         {
-            c.Extensions.MetricTags.Add("Same", "Same");
+            c.Extensions.IncomingMetricTags.Add("Same", "Same");
             return Task.CompletedTask;
         }));
     }

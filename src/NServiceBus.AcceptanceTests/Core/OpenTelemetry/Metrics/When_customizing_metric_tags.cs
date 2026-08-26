@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EndpointTemplates;
 using NServiceBus;
-using NServiceBus.AcceptanceTesting;
+using AcceptanceTesting;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 using global::OpenTelemetry;
@@ -101,10 +101,10 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
 
             if (context.Message.Headers.TryGetValue("TenantId", out var tenantId))
             {
-                tags.Add(TenantTag, tenantId, TotalFetched);
+                tags.AddOrOverride(TenantTag, tenantId, TotalFetched);
             }
 
-            tags.Add(EnclosedMessageTypesTag, FriendlyMessageTypeName, MessageDeserializeTime);
+            tags.AddOrOverride(EnclosedMessageTypesTag, FriendlyMessageTypeName, MessageDeserializeTime);
 
             return next();
         }

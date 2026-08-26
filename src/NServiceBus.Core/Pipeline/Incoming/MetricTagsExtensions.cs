@@ -13,9 +13,11 @@ public static class MetricTagsExtensions
     extension(ContextBag context)
     {
         /// <summary>
-        /// The <see cref="IncomingPipelineMetricTags" /> collected for the message currently being processed. Add to
-        /// this collection to have the tags applied to the metrics emitted for that message.
+        /// The <see cref="IMetricsTags" /> collected for the message currently being processed. Add to this
+        /// collection to have the tags applied to the metrics emitted for that message.
         /// </summary>
-        public IncomingPipelineMetricTags MetricTags => context.GetOrCreate<IncomingPipelineMetricTags>();
+        public IMetricsTags MetricTags => context.GetOrCreate<IncomingPipelineMetricTags>();
+
+        internal IncomingPipelineMetricTags IncomingMetricTags => context.GetOrCreate<IncomingPipelineMetricTags>();
     }
 }

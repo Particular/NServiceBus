@@ -25,7 +25,7 @@ class MainPipelineExecutor(
         var pipelineStartedAt = DateTimeOffset.UtcNow;
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-        var incomingPipelineMetricsTags = messageContext.Extensions.MetricTags;
+        var incomingPipelineMetricsTags = messageContext.Extensions.IncomingMetricTags;
 
         incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
 
