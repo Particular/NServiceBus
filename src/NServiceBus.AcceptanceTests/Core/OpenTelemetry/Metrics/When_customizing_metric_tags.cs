@@ -97,7 +97,7 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
     {
         public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
         {
-            var tags = context.Extensions.Get<IncomingPipelineMetricTags>();
+            var tags = context.Extensions.MetricTags;
 
             if (context.Message.Headers.TryGetValue("TenantId", out var tenantId))
             {

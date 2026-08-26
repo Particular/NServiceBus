@@ -4,7 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBusTests.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>13.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

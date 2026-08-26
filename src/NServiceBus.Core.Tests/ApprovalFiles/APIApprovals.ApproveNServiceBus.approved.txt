@@ -775,6 +775,13 @@ namespace NServiceBus
         public MetersOptions() { }
         public bool EmitExecutionResultTags { get; set; }
     }
+    public static class MetricTagsExtensions
+    {
+        extension(NServiceBus.Extensibility.ContextBag context)
+        {
+            public NServiceBus.IncomingPipelineMetricTags MetricTags { get; }
+        }
+    }
     public class MoveToError : NServiceBus.RecoverabilityAction
     {
         protected MoveToError(string errorQueue) { }
