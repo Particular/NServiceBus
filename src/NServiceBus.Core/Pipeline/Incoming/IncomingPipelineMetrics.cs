@@ -111,7 +111,6 @@ class IncomingPipelineMetrics
         {
             return;
         }
-
         TagList tags;
         if (emitExecutionResultTags)
         {
@@ -428,7 +427,7 @@ class IncomingPipelineMetrics
         context.Extensions.IncomingMetricTags.ApplyTags(ref tags, [
                 MeterTags.MessageType,
                 MeterTags.ErrorType],
-            messageDeserializeTime.Name);
+            messageSerializeTime.Name);
 
         messageSerializeTime.Record(elapsed.TotalSeconds, tags);
     }
