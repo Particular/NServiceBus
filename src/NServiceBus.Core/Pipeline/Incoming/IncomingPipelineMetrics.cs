@@ -132,13 +132,14 @@ class IncomingPipelineMetrics
         {
             totalProcessedSuccessfully.Add(1, tags);
         }
-        var completedAt = DateTimeOffset.UtcNow;
         if (criticalTime.Enabled)
         {
             if (context.Message.Headers.TryGetDeliverAt(out var startTime)
                 || context.Message.Headers.TryGetTimeSent(out startTime))
             {
+                var completedAt = DateTimeOffset.UtcNow;
                 var criticalTimeElapsed = completedAt - startTime;
+
                 criticalTime.Record(criticalTimeElapsed.TotalSeconds, tags);
             }
         }
