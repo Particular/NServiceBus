@@ -556,7 +556,7 @@ namespace NServiceBus
     }
     public interface IMetricsTags
     {
-        void Add(string tagKey, object value, string instrumentName);
+        void AddOrOverride(string tagKey, object value, string instrumentName);
     }
     public interface INeedInitialization
     {
