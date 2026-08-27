@@ -773,9 +773,12 @@ namespace NServiceBus
     }
     public static class MetricTagsExtensions
     {
-        extension(NServiceBus.Extensibility.ContextBag context)
+        extension(NServiceBus.Pipeline.IBehaviorContext context)
         {
             public NServiceBus.IMetricsTags MetricTags { get; }
+        }
+        extension(NServiceBus.Transport.MessageContext context)
+        {
         }
     }
     public class MoveToError : NServiceBus.RecoverabilityAction
