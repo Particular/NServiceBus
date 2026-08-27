@@ -72,7 +72,14 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         // so an ambient hierarchical activity does not leak its format into the trace headers.
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
-        ActivityDecorator.PromoteHeadersToTags(activity, headers);
+
+        // IsAllDataRequested is false when a listener sampled this as PropagationData-only: it wants the
+        // activity to exist for context propagation but won't read anything beyond that, so skip the tag work.
+        // The trace state and baggage propagation after Start() is correctness, not enrichment, and runs regardless.
+        if (activity.IsAllDataRequested)
+        {
+            ActivityDecorator.PromoteHeadersToTags(activity, headers);
+        }
 
         // Start before reading the headers: Activity.Parent is only assigned by Start(), and the
         // baggage propagation below skips keys the parent chain already carries.
@@ -207,6 +214,13 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
     public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
     {
+        // Nothing below is read unless a listener asked for full data (IsAllDataRequested), so bail out early
+        // rather than building tags and DisplayName strings for an activity nobody will inspect.
+        if (!activity.IsAllDataRequested)
+        {
+            return;
+        }
+
         if (recoverabilityAction is ImmediateRetry)
         {
             activity.AddTag(ActivityTags.RecoverabilityAction, "immediate_retry");
@@ -252,12 +266,6 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
-        // Removed in v11, see obsoletes-v10.cs
-        if (!V11BehaviorSwitch.UseV11Behavior)
-        {
-            LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
-        }
-
         if (!exception.Data.Contains(ExceptionRecordedFlag))
         {
             if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
@@ -266,8 +274,16 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
                 logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
                 LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
             }
-            else
+            else if (activity.IsAllDataRequested)
             {
+                // Recording the exception on the activity (stack trace event + legacy tags) only matters
+                // if a listener asked for full data; skip it otherwise. The Logs branch above is a separate
+                // capture path and stays unconditional regardless of IsAllDataRequested.
+                if (!V11BehaviorSwitch.UseV11Behavior) // Removed in v11, see obsoletes-v10.cs
+                {
+                    LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
+                }
+
                 activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
             }
 
