@@ -248,6 +248,7 @@ public class MessageHandlerRegistry
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 
         static readonly ObjectFactory<IHandleTimeouts<TMessage>> handlerFactory =
+            // SAFETY: Registration validated THandler implements IHandleTimeouts<TMessage>; retype skips the interface cast.
             static (sp, args) => Unsafe.As<IHandleTimeouts<TMessage>>(factory(sp, args));
     }
 
@@ -274,6 +275,7 @@ public class MessageHandlerRegistry
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 
         static readonly ObjectFactory<IHandleMessages<TMessage>> handlerFactory =
+            // SAFETY: Registration validated THandler implements IHandleMessages<TMessage>; retype skips the interface cast.
             static (sp, args) => Unsafe.As<IHandleMessages<TMessage>>(factory(sp, args));
     }
 }

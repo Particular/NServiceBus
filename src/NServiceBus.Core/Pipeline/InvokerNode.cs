@@ -30,6 +30,7 @@ sealed class InvokerNode<TInContext, TOutContext>(IBehavior<TInContext, TOutCont
     public override Task Invoke(IBehaviorContext context)
     {
         object obj = context;
+        // SAFETY: Pipeline routing guarantees context is a TInContext (reference type); retype skips a redundant castclass.
         return behavior.Invoke(Unsafe.As<object, TInContext>(ref obj), next);
     }
 }

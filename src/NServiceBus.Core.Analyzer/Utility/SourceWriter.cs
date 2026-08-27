@@ -110,12 +110,16 @@ public sealed class SourceWriter
         return next;
     }
 
-    static unsafe void AppendSpan(StringBuilder builder, ReadOnlySpan<char> span)
+    static void AppendSpan(StringBuilder builder, ReadOnlySpan<char> span)
     {
         // There is no StringBuilder.Append(ReadOnlySpan<char>) overload in the NS2.0
-        fixed (char* ptr = span)
+        // SAFETY: fixed pins the span for the synchronous Append call; length is explicit, no null terminator assumed.
+        unsafe
         {
-            builder.Append(ptr, span.Length);
+            fixed (char* ptr = span)
+            {
+                builder.Append(ptr, span.Length);
+            }
         }
     }
 }
