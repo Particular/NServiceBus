@@ -5,7 +5,6 @@ namespace NServiceBus;
 using System;
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 sealed class LazyArrayPoolBufferWriter<T>(int? capacity = null) : IBufferWriter<T>, IMemoryOwner<T>
 {
@@ -56,7 +55,7 @@ sealed class LazyArrayPoolBufferWriter<T>(int? capacity = null) : IBufferWriter<
     public void Clear() => innerWriter?.Clear();
     public void Dispose() => innerWriter?.Dispose();
 
-    Memory<T> IMemoryOwner<T>.Memory => MemoryMarshal.AsMemory(WrittenMemory);
+    Memory<T> IMemoryOwner<T>.Memory => innerWriter is null ? Memory<T>.Empty : ((IMemoryOwner<T>)innerWriter).Memory;
 
     [MemberNotNull(nameof(innerWriter))]
     void EnsureInnerWriter() => innerWriter ??= capacity is null ? new ArrayPoolBufferWriter<T>() : new ArrayPoolBufferWriter<T>(capacity.Value);

@@ -5,7 +5,6 @@ namespace NServiceBus;
 using System;
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 
 sealed class ArrayPoolBufferWriter<T>(
     ArrayPool<T> pool,
@@ -126,7 +125,20 @@ sealed class ArrayPoolBufferWriter<T>(
     }
 
 
-    Memory<T> IMemoryOwner<T>.Memory => MemoryMarshal.AsMemory(WrittenMemory);
+    Memory<T> IMemoryOwner<T>.Memory
+    {
+        get
+        {
+            T[]? array = buffer;
+
+            if (array is null)
+            {
+                ThrowObjectDisposedException();
+            }
+
+            return array.AsMemory(0, WrittenCount);
+        }
+    }
 
     public void Dispose()
     {
