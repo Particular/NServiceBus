@@ -21,7 +21,7 @@ static class ActivityExtensions
     {
         if (Activity.Current is not null // Cheaper to check than searching the pipeline context to start with. If there is no ambient activity, there can't be an activity in the context.
             && pipelineContext.TryGet(activityKey, out activity)  // Search activity in context bag
-            && activity is { IsAllDataRequested: true }) // do not apply "expensive" work on non-recording activities
+            && activity is { IsAllDataRequested: true }) // skip expensive work when no listener asked for full data (IsAllDataRequested, not Recorded/sampled)
         {
             return true;
         }
