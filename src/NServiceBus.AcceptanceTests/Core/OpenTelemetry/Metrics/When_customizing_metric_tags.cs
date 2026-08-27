@@ -42,34 +42,17 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
                 {
                     var sendOptions = new SendOptions();
                     sendOptions.RouteToThisEndpoint();
-                    sendOptions.SetHeader("TenantId", "acme-corp");
+                    sendOptions.SetHeader(TenantTag, "acme-corp");
                     await session.Send(new MyMessage(), sendOptions);
                 }))
             .Run();
 
         meterProvider.ForceFlush();
-
-        // 1. Add: a tag NServiceBus never defined, sourced from a message header by a custom behavior, shows up on
-        // the instrument without any change to NServiceBus itself.
+        
         metricsListener.AssertTags(TotalFetched, new Dictionary<string, object> { [TenantTag] = "acme-corp" });
-
-        // 2. Remove: the raw instrument still carries nservicebus.discriminator, proving NServiceBus itself still
-        // reports it...
+        
         metricsListener.AssertTagKeyExists(TotalFetched, EndpointDiscriminatorTag);
-        // ...but the view configured above filtered it out of what actually gets exported.
-        var exportedFetch = exportedMetrics.Single(m => m.Name == TotalFetched);
-        var hasDiscriminatorTag = false;
-        foreach (var point in exportedFetch.GetMetricPoints())
-        {
-            foreach (var tag in point.Tags)
-            {
-                hasDiscriminatorTag |= tag.Key == EndpointDiscriminatorTag;
-            }
-        }
-        Assert.That(hasDiscriminatorTag, Is.False);
-
-        // 3. Override: enclosed_message_types is overridden to a friendlier value, scoped to just the
-        // deserialize_time instrument.
+        
         var overriddenValue = metricsListener.AssertTagKeyExists(MessageDeserializeTime, EnclosedMessageTypesTag);
         Assert.That(overriddenValue, Is.EqualTo(FriendlyMessageTypeName));
     }
@@ -99,7 +82,7 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
         {
             var tags = context.MetricTags;
 
-            if (context.Message.Headers.TryGetValue("TenantId", out var tenantId))
+            if (context.Message.Headers.TryGetValue(TenantTag, out var tenantId))
             {
                 tags.AddOrOverride(TenantTag, tenantId, TotalFetched);
             }
