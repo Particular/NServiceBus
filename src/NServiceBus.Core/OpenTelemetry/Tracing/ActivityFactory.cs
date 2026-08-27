@@ -71,12 +71,18 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             return activity;
         }
 
+        // Baggage/tracestate propagation is correctness, not enrichment, so it must run regardless of sampling.
         ContextPropagation.PropagateContextFromHeaders(activity, headers);
 
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
 
-        ActivityDecorator.PromoteHeadersToTags(activity, headers);
+        // IsAllDataRequested is false when a listener sampled this as PropagationData-only: it wants the
+        // activity to exist for context propagation but won't read anything beyond that, so skip the tag work.
+        if (activity.IsAllDataRequested)
+        {
+            ActivityDecorator.PromoteHeadersToTags(activity, headers);
+        }
 
         return activity;
     }
@@ -170,6 +176,13 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
     public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
     {
+        // Nothing below is read unless a listener asked for full data (IsAllDataRequested), so bail out early
+        // rather than building tags and DisplayName strings for an activity nobody will inspect.
+        if (!activity.IsAllDataRequested)
+        {
+            return;
+        }
+
         if (recoverabilityAction is ImmediateRetry)
         {
             activity.AddTag(ActivityTags.RecoverabilityAction, "immediate_retry");
@@ -210,16 +223,18 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
-        LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
-
         if (!exception.Data.Contains(ExceptionRecordedFlag))
         {
             if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
             {
                 Logger.Error($"An exception occurred while executing '{activity.DisplayName}'.", exception);
             }
-            else
+            else if (activity.IsAllDataRequested)
             {
+                // Recording the exception on the activity (stack trace event + legacy tags) only matters
+                // if a listener asked for full data; skip it otherwise. The Logs branch above is a separate
+                // capture path and stays unconditional regardless of IsAllDataRequested.
+                LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
                 activity.AddException(exception, LegacyExceptionTags.EscapedTagList);
             }
 

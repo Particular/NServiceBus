@@ -258,6 +258,80 @@ public class ActivityFactoryTests
         }
     }
 
+    class PropagationDataSampling
+    {
+        readonly ActivityFactory activityFactory = new(new InstrumentationOptions());
+
+        TestingActivityListener nsbActivityListener;
+
+        [OneTimeSetUp]
+        public void Setup() => nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener(ActivitySamplingResult.PropagationData);
+
+        [OneTimeTearDown]
+        public void TearDown() => nsbActivityListener.Dispose();
+
+        [Test]
+        public void Should_create_activity_but_skip_header_tag_promotion()
+        {
+            var messageHeaders = new Dictionary<string, string> { { Headers.SagaId, Guid.NewGuid().ToString() } };
+            var messageContext = CreateMessageContext(messageHeaders);
+
+            var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
+
+            Assert.That(activity, Is.Not.Null, "PropagationData should still create an activity");
+            var tags = activity.Tags.ToImmutableDictionary();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.IsAllDataRequested, Is.False);
+                Assert.That(tags.ContainsKey(ActivityTags.SagaId), Is.False, "should not promote headers to tags when not all data requested");
+                Assert.That(tags[ActivityTags.NativeMessageId], Is.EqualTo(messageContext.NativeMessageId), "native message id tag should always be set");
+            }
+        }
+
+        [Test]
+        public void Should_not_add_exception_event_or_legacy_tags_on_error()
+        {
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
+            Assert.That(activity, Is.Not.Null);
+
+            activityFactory.RecordError(activity, new Exception("boom"), new ContextBag());
+
+            var tags = activity.Tags.ToImmutableDictionary();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error), "status should always be set");
+                Assert.That(tags.ContainsKey(ActivityTags.ErrorType), Is.True, "error type tag should always be set");
+                Assert.That(tags.ContainsKey("otel.status_code"), Is.False, "legacy tags should be skipped when not all data requested");
+                Assert.That(activity.Events, Is.Empty, "no exception event should be recorded when not all data requested");
+            }
+        }
+
+        [Test]
+        public void Should_not_update_activity_from_recoverability_action()
+        {
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
+            Assert.That(activity, Is.Not.Null);
+            var originalDisplayName = activity.DisplayName;
+
+            activityFactory.UpdateActivityFromRecoverabilityAction(activity, new ImmediateRetry(), "receiveAddress");
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.DisplayName, Is.EqualTo(originalDisplayName), "display name should not change when not all data requested");
+                Assert.That(activity.Tags.ToImmutableDictionary().ContainsKey(ActivityTags.RecoverabilityAction), Is.False);
+            }
+        }
+
+        static MessageContext CreateMessageContext(Dictionary<string, string>? messageHeaders = null) =>
+            new(
+                Guid.NewGuid().ToString(),
+                messageHeaders ?? [],
+                Array.Empty<byte>(),
+                new TransportTransaction(),
+                "receiver",
+                new ContextBag());
+    }
+
     class StartHandlerActivity : ActivityFactoryTests
     {
         [Test]
