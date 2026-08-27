@@ -47,7 +47,7 @@ class DeserializeMessageConnector(
         {
             if (first) // ignore the legacy case in which a single message payload contained multiple messages
             {
-                var availableMetricTags = context.Extensions.IncomingMetricTags;
+                var availableMetricTags = context.IncomingMetricTags;
                 availableMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName!);
                 first = false;
             }
