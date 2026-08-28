@@ -3,7 +3,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>TrimmedEndpoint</AssemblyName>
@@ -32,6 +31,10 @@
     <!-- NServiceBus.props normally declares these when the package is referenced. -->
     <CompilerVisibleProperty Include="PublishTrimmed" />
     <CompilerVisibleProperty Include="PublishAot" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="NServiceBus.Core.Hosting.UseV2DeterministicGuid" Value="true" />
   </ItemGroup>
 
 </Project>
