@@ -829,6 +829,13 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType, System.Threading.CancellationToken cancellationToken = default) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session, System.Threading.CancellationToken cancellationToken = default) { }
     }
+    public static class MessageTypeRegistrationExtensions
+    {
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering message types using runtime hierarchy inference is not supported in t" +
+            "rimming scenarios. The AddMessageType method is intercepted by a source generato" +
+            "r when trimming is enabled.")]
+        public static void AddMessageType<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TMessage>(this NServiceBus.EndpointConfiguration config) { }
+    }
     public class MoveToError : NServiceBus.RecoverabilityAction
     {
         protected MoveToError(string errorQueue) { }

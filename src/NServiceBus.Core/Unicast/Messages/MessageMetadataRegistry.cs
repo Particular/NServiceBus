@@ -15,6 +15,8 @@ using NServiceBus;
 /// </remarks>
 public partial class MessageMetadataRegistry
 {
+    internal const string TrimmingMessage = "Registering message types using runtime hierarchy inference is not supported in trimming scenarios. The AddMessageType method is intercepted by a source generator when trimming is enabled.";
+
     /// <summary>
     /// Creates a new instance of <see cref="MessageMetadataRegistry"/>.
     /// </summary>
