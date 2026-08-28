@@ -11,8 +11,13 @@
     <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
     <!-- Test fixture: self-hosted endpoint, top-level awaits, and static completion flag are intentional. -->
     <NoWarn>$(NoWarn);CS0618;CA2007;CA1050;CA2211</NoWarn>
-    <!-- Project-local so the property does not flow to referenced projects (the netstandard2.0 analyzer cannot be trimmed). -->
+    <!-- Project-local so the property does not flow to referenced projects (the netstandard2.0 analyzer cannot be trimmed or AOT-compiled). -->
     <PublishTrimmed>true</PublishTrimmed>
+    <!-- Set by the AOT validation test via -p:RunAotValidation=true; stays project-local so it does not flow to the analyzer project. -->
+    <PublishAot Condition="'$(RunAotValidation)' == 'true'">true</PublishAot>
+    <!-- The saga scenario crashes the .NET 10 ILLink trimmer (Mono.Linker MessageOrigin.ToString on generated-method warnings);
+         it is compiled only into the NativeAOT build where the ILC pipeline is unaffected. -->
+    <DefineConstants Condition="'$(RunAotValidation)' == 'true'">$(DefineConstants);INCLUDE_SAGA</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Label="Core Analyzers">
@@ -21,6 +26,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- NServiceBus.props normally declares these when the package is referenced. -->
+    <CompilerVisibleProperty Include="PublishTrimmed" />
+    <CompilerVisibleProperty Include="PublishAot" />
   </ItemGroup>
 
 </Project>

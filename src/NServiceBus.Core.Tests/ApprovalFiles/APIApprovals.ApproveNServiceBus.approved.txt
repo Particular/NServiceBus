@@ -1095,9 +1095,8 @@ namespace NServiceBus
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected void MarkAsComplete() { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
-            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
-            "pe is not known at compile time, the overload accepting an explicit Type.")]
+        [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026", Justification="Runtime-type reply used by the obsolete overload that is removed in version 12; n" +
+            "ew code must use the generic ReplyToOriginator<T>.")]
         [System.Obsolete("Use \'ReplyToOriginator<T>\' instead. Will be treated as an error from version 11.0" +
             ".0. Will be removed in version 12.0.0.", false)]
         protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message, System.Collections.Generic.IReadOnlyDictionary<string, string>? outgoingHeaders = null) { }
