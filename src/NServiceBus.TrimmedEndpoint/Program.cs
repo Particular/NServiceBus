@@ -52,6 +52,19 @@ await WaitFor(() => OrderSaga.Handled);
 // Outgoing-only AddMessageType path: routing to a non-existent queue exercises metadata + serialization only.
 await session.Send<OutgoingCommand>("NonExistentQueue", new OutgoingCommand { SomeValue = "outgoing" });
 
+// The endpoint runs with assembly scanning disabled in a trimmed/AOT application, so strict registered-only
+// message metadata mode must be active: sending an unregistered message type has to fail with an actionable
+// error instead of being registered on demand.
+var strictModeVerified = false;
+try
+{
+    await session.SendLocal<UnregisteredMessage>(new UnregisteredMessage());
+}
+catch (Exception ex)
+{
+    strictModeVerified = ContainsStrictModeMessage(ex);
+}
+
 await endpoint.Stop();
 
 if (!MyHandler.Invoked)
@@ -68,6 +81,12 @@ if (!OrderSaga.Started || !OrderSaga.TimedOut || !OrderSaga.Handled)
 }
 #endif
 
+if (!strictModeVerified)
+{
+    Console.Error.WriteLine("Strict registered-only message metadata mode was not active.");
+    return 3;
+}
+
 Console.WriteLine("TRIM-VALIDATION-SUCCESS");
 return 0;
 
@@ -77,6 +96,19 @@ static async Task WaitFor(Func<bool> condition, int iterations = 150)
     {
         await Task.Delay(100);
     }
+}
+
+static bool ContainsStrictModeMessage(Exception exception)
+{
+    for (var current = exception; current is not null; current = current.InnerException)
+    {
+        if (current.Message.Contains("strict registered-only message metadata mode"))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 [Handler]
@@ -156,8 +188,14 @@ public class OutgoingCommand : ICommand
     public string SomeValue { get; set; } = string.Empty;
 }
 
+public class UnregisteredMessage : ICommand
+{
+    public string SomeValue { get; set; } = string.Empty;
+}
+
 [JsonSerializable(typeof(MyCommand))]
 [JsonSerializable(typeof(OutgoingCommand))]
+[JsonSerializable(typeof(UnregisteredMessage))]
 #if INCLUDE_SAGA
 [JsonSerializable(typeof(StartOrderCommand))]
 [JsonSerializable(typeof(HandleOrderCommand))]
