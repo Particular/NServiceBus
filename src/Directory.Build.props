@@ -35,11 +35,4 @@
    <ProjectCapability Include="DynamicFileNestingEnabled" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'MemorySafetyEvaluation'">
-    <LangVersion>preview</LangVersion>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-    <EnableNETAnalyzers>false</EnableNETAnalyzers>
-  </PropertyGroup>
-
 </Project>
