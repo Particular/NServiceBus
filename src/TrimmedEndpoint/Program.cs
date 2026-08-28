@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using NServiceBus;
+
 #if INCLUDE_SAGA
 using NServiceBus.Configuration.AdvancedExtensibility;
 #endif
