@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using NUnit.Framework;
 
 [TestFixture]
@@ -18,6 +19,7 @@ public class TrimFeatureSwitchPackageTests
     string feed = null!;
     string packageVersion = null!;
     string packagesDir = null!;
+    string repositoryRoot = null!;
 
     [OneTimeSetUp]
     public async Task PackPackage()
@@ -27,11 +29,10 @@ public class TrimFeatureSwitchPackageTests
         packagesDir = Path.Combine(root, "packages");
         Directory.CreateDirectory(feed);
 
-        var coreProject = Path.GetFullPath(Path.Combine(
+        repositoryRoot = Path.GetFullPath(Path.Combine(
             TestContext.CurrentContext.TestDirectory,
-            "..", "..", "..", "..",
-            "NServiceBus.Core",
-            "NServiceBus.Core.csproj"));
+            "..", "..", "..", "..", ".."));
+        var coreProject = Path.Combine(repositoryRoot, "src", "NServiceBus.Core", "NServiceBus.Core.csproj");
 
         var packResult = await RunProcess("dotnet", $"pack \"{coreProject}\" -c Release -o \"{feed}\" --nologo", CancellationToken.None);
         Assert.That(packResult.ExitCode, Is.Zero, $"Pack failed:{Environment.NewLine}{packResult.Output}");
@@ -136,25 +137,7 @@ public class TrimFeatureSwitchPackageTests
         try
         {
             Directory.CreateDirectory(root);
-            await File.WriteAllTextAsync(Path.Combine(root, "global.json"), """
-                {
-                  "sdk": {
-                    "version": "10.0.100",
-                    "allowPrerelease": false,
-                    "rollForward": "latestFeature"
-                  }
-                }
-                """, cancellationToken);
-            await File.WriteAllTextAsync(Path.Combine(root, "nuget.config"), $$"""
-                <?xml version="1.0" encoding="utf-8"?>
-                <configuration>
-                  <packageSources>
-                    <clear />
-                    <add key="local" value="{{feed}}" />
-                    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-                  </packageSources>
-                </configuration>
-                """, cancellationToken);
+            CopyRepositoryConfiguration(root);
             await File.WriteAllTextAsync(Path.Combine(root, "Consumer.csproj"), $$"""
                 <Project Sdk="Microsoft.NET.Sdk">
                   <PropertyGroup>
@@ -201,6 +184,31 @@ public class TrimFeatureSwitchPackageTests
                 TestContext.Progress.WriteLine($"Failed to clean up test directory {root}: {ex.Message}");
             }
         }
+    }
+
+    void CopyRepositoryConfiguration(string destination)
+    {
+        File.Copy(Path.Combine(repositoryRoot, "global.json"), Path.Combine(destination, "global.json"));
+
+        var nugetConfigPath = Path.Combine(destination, "nuget.config");
+        File.Copy(Path.Combine(repositoryRoot, "nuget.config"), nugetConfigPath);
+
+        var nugetConfig = XDocument.Load(nugetConfigPath);
+        var packageSources = nugetConfig.Root!.Element("packageSources")!;
+        var localSource = packageSources.Elements("add")
+            .SingleOrDefault(element => (string?)element.Attribute("key") == "local packages");
+        if (localSource is null)
+        {
+            packageSources.Add(new XElement("add",
+                new XAttribute("key", "local packages"),
+                new XAttribute("value", feed)));
+        }
+        else
+        {
+            localSource.SetAttributeValue("value", feed);
+        }
+
+        nugetConfig.Save(nugetConfigPath);
     }
 
     static async Task<ProcessResult> RunProcess(string fileName, string arguments, CancellationToken cancellationToken)
