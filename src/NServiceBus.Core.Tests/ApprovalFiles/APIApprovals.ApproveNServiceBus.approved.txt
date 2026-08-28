@@ -2158,6 +2158,7 @@ namespace NServiceBus.Pipeline
     {
         public LogicalMessageFactory(NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.MessageInterfaces.IMessageMapper messageMapper) { }
         public NServiceBus.Pipeline.LogicalMessage Create(object message) { }
+        public NServiceBus.Pipeline.LogicalMessage Create(NServiceBus.Unicast.Messages.MessageMetadata metadata, object message) { }
         public NServiceBus.Pipeline.LogicalMessage Create(System.Type messageType, object message) { }
     }
     public class MessageHandler

@@ -251,6 +251,9 @@ src/NServiceBus.Core/Unicast/Messages/MessageMetadata.cs
   CS8604: Possible null reference argument for parameter 'item' in 'bool ICollection<string>.Contains(string item)'.
   CS8625: Cannot convert null literal to non-nullable reference type.
 
+src/NServiceBus.Core/Unicast/Messages/MessageMetadataRegistry.Legacy.cs
+  CS8603: Possible null reference return.
+
 src/NServiceBus.Core/Unicast/Messages/MessageMetadataRegistry.cs
   CS8601: Possible null reference assignment.
   CS8603: Possible null reference return.

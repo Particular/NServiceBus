@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Logging;
 using NServiceBus;
@@ -210,26 +209,41 @@ public partial class MessageMetadataRegistry
         }
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Dynamic type loading is best-effort; when trimming removes a type, resolution falls back to known registered message metadata.")]
-    Type GetType(string messageTypeIdentifier)
+    /// <summary>
+    /// Attempts to retrieve the <see cref="MessageMetadata" /> for the specified type from the already registered metadata cache without
+    /// performing any runtime resolution or registration.
+    /// </summary>
+    /// <param name="messageType">The message type to retrieve metadata for.</param>
+    /// <param name="metadata">The <see cref="MessageMetadata" /> when the type is registered; otherwise <c>null</c>.</param>
+    /// <returns><c>true</c> when the type is already registered, otherwise <c>false</c>.</returns>
+    internal bool TryGetMessageMetadata(Type messageType, out MessageMetadata metadata)
     {
-        if (allowDynamicTypeLoading)
+        ArgumentNullException.ThrowIfNull(messageType);
+        AssertIsInitialized();
+
+        return messages.TryGetValue(messageType.TypeHandle, out metadata);
+    }
+
+    /// <summary>
+    /// Attempts to retrieve the <see cref="MessageMetadata" /> for the message identifier from the already registered metadata cache without
+    /// performing any runtime type resolution, registration, or logging.
+    /// </summary>
+    /// <param name="messageTypeIdentifier">The message identifier to retrieve metadata for.</param>
+    /// <param name="metadata">The <see cref="MessageMetadata" /> when the identifier is registered; otherwise <c>null</c>.</param>
+    /// <returns><c>true</c> when the identifier is already registered, otherwise <c>false</c>.</returns>
+    internal bool TryGetMessageMetadata(string messageTypeIdentifier, out MessageMetadata metadata)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeIdentifier);
+        AssertIsInitialized();
+
+        if (cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType) &&
+            messages.TryGetValue(messageType.TypeHandle, out metadata))
         {
-            try
-            {
-                return Type.GetType(messageTypeIdentifier);
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn($"Message type identifier '{messageTypeIdentifier}' could not be loaded", ex);
-            }
-        }
-        else
-        {
-            Logger.Warn($"Unknown message type identifier '{messageTypeIdentifier}'. Dynamic type loading is disabled. Make sure the type is loaded before starting the endpoint or enable dynamic type loading.");
+            return true;
         }
 
-        return null;
+        metadata = null!;
+        return false;
     }
 
     void RegisterMessageTypeWithHierarchyCore(Type messageType, IEnumerable<Type> parentMessages)
@@ -281,39 +295,6 @@ public partial class MessageMetadataRegistry
         {
             throw new InvalidOperationException("The message metadata registry is not initialized, which indicates the registry was accessed before endpoint creation. In this state, message conventions and settings are not yet available, so the registry cannot give accurate information about message metadata.");
         }
-    }
-
-    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Runtime hierarchy inference is used for message types not pre-registered with source-generated hierarchy metadata, including scanned, dynamically loaded, published-only, and legacy message types.")]
-    Type[] GetRuntimeMessageHierarchy(Type messageType)
-    {
-        var parentTypes = new List<Type>(messageType.GetInterfaces());
-
-        var currentBaseType = messageType.BaseType;
-        var objectType = typeof(object);
-        while (currentBaseType != null && currentBaseType != objectType)
-        {
-            parentTypes.Add(currentBaseType);
-            currentBaseType = currentBaseType.BaseType;
-        }
-
-        return [.. parentTypes
-            .Where(isMessageType)
-            .OrderByDescending(static type =>
-            {
-                if (type.IsInterface)
-                {
-                    return type.GetInterfaces().Length;
-                }
-
-                var result = 0;
-                while (type.BaseType != null)
-                {
-                    result++;
-                    type = type.BaseType;
-                }
-
-                return result;
-            })];
     }
 
     bool initialized;

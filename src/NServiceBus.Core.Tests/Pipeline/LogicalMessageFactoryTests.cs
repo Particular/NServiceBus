@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Pipeline;
 
 using System;
+using System.Collections.Generic;
 using MessageInterfaces;
 using MessageInterfaces.MessageMapper.Reflection;
 using NServiceBus.Pipeline;
@@ -78,6 +79,30 @@ public class LogicalMessageFactoryTests
     }
 
     [Test]
+    public void Create_with_metadata_overload_uses_given_metadata_without_invoking_mapper()
+    {
+        var throwingMapper = new ThrowingMessageMapper();
+        var throwingFactory = new LogicalMessageFactory(registry, throwingMapper);
+        var metadata = registry.GetMessageMetadata(typeof(ConcreteMessage));
+        var message = new ConcreteMessage();
+
+        var logicalMessage = throwingFactory.Create(metadata, message);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(logicalMessage.MessageType, Is.EqualTo(typeof(ConcreteMessage)));
+            Assert.That(logicalMessage.Metadata, Is.SameAs(metadata));
+            Assert.That(logicalMessage.Instance, Is.SameAs(message));
+        }
+    }
+
+    [Test]
+    public void Create_with_metadata_overload_throws_when_metadata_is_null()
+    {
+        Assert.Throws<ArgumentNullException>(() => factory.Create((MessageMetadata)null, new ConcreteMessage()));
+    }
+
+    [Test]
     public void Create_throws_when_type_has_no_metadata_and_is_not_a_message_type()
     {
         Assert.Throws<Exception>(() => factory.Create(typeof(string), "not a message"));
@@ -91,5 +116,20 @@ public class LogicalMessageFactoryTests
     public class ConcreteMessage : IMessage
     {
         public string SomeProperty { get; set; }
+    }
+
+    class ThrowingMessageMapper : IMessageMapper
+    {
+        public void Initialize(IEnumerable<Type> types) => throw new InvalidOperationException("Should not be called");
+
+        public Type GetMappedTypeFor(Type t) => throw new InvalidOperationException("Should not be called");
+
+        public Type GetMappedTypeFor(string typeName) => throw new InvalidOperationException("Should not be called");
+
+        public T CreateInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>() => throw new InvalidOperationException("Should not be called");
+
+        public T CreateInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> action) => throw new InvalidOperationException("Should not be called");
+
+        public object CreateInstance([System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] Type t) => throw new InvalidOperationException("Should not be called");
     }
 }
