@@ -48,11 +48,11 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
             .Run();
 
         meterProvider.ForceFlush();
-        
+
         metricsListener.AssertTags(TotalFetched, new Dictionary<string, object> { [TenantTag] = "acme-corp" });
-        
+
         metricsListener.AssertTagKeyExists(TotalFetched, EndpointDiscriminatorTag);
-        
+
         var overriddenValue = metricsListener.AssertTagKeyExists(MessageDeserializeTime, EnclosedMessageTypesTag);
         Assert.That(overriddenValue, Is.EqualTo(FriendlyMessageTypeName));
     }
