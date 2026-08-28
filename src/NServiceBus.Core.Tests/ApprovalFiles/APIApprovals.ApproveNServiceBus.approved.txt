@@ -1322,11 +1322,6 @@ namespace NServiceBus
         SendsAtomicWithReceive = 2,
         TransactionScope = 3,
     }
-    [System.AttributeUsage(System.AttributeTargets.Assembly)]
-    public sealed class TrimmingEnabledAttribute : System.Attribute
-    {
-        public TrimmingEnabledAttribute() { }
-    }
     public class UnitOfWorkSettings
     {
         public NServiceBus.UnitOfWorkSettings WrapHandlersInATransactionScope(System.TimeSpan? timeout = default, System.Transactions.IsolationLevel? isolationLevel = default) { }

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using Hosting.Helpers;
 using Settings;
 
@@ -92,22 +91,20 @@ class AssemblyScanningComponent
         // Testability hook until a dedicated AOT test project exists.
         public bool DynamicCodeSupported { get; set; } = System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported;
 
-        // Mirrors the build-transitive PublishTrimmed signal emitted by the source generators. Testability only;
-        // production code never assigns to it.
-        public bool TrimmingEnabled { get; set; } = IsTrimmingEnabled();
+        // Mirrors the NServiceBus.EnableStrictRegisteredOnlyMessageMetadata runtime switch emitted by the
+        // build-transitive NServiceBus.targets for trimmed/AOT executables. Testability only; production code
+        // never assigns to it.
+        public bool StrictRegisteredOnlyMessageMetadataEnabled { get; set; } = AppContextSwitches.IsStrictRegisteredOnlyMessageMetadataEnabled;
 
         // The computed default only matters when scanning is disabled; EndpointCreator overwrites it with the
         // component's decision after Initialize has run.
         public bool StrictRegisteredOnlyMode
         {
-            get => strictRegisteredOnlyMode ?? (TrimmingEnabled || !DynamicCodeSupported);
+            get => strictRegisteredOnlyMode ?? (StrictRegisteredOnlyMessageMetadataEnabled || !DynamicCodeSupported);
             set => strictRegisteredOnlyMode = value;
         }
 
         bool? strictRegisteredOnlyMode;
-
-        static bool IsTrimmingEnabled() =>
-            Assembly.GetEntryAssembly()?.GetCustomAttribute<TrimmingEnabledAttribute>() != null;
 
         public List<Type>? UserProvidedTypes { get; set; }
 

@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.AssemblyScanner;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests.AssemblyScanner;
 
 using System;
 using System.IO;
@@ -75,20 +77,36 @@ class AssemblyScanningComponentTests
     }
 
     [Test]
-    public void Should_enable_strict_registered_only_mode_when_scanning_disabled_and_trimming_enabled()
+    public void Should_enable_strict_registered_only_mode_when_scanning_disabled_and_feature_switch_enabled()
     {
         var settingsHolder = new SettingsHolder();
         settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
 
         var configuration = new AssemblyScanningComponent.Configuration(settingsHolder)
         {
-            TrimmingEnabled = true,
+            StrictRegisteredOnlyMessageMetadataEnabled = true,
             AssemblyScannerConfiguration = { Disable = true }
         };
 
         var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
 
         Assert.That(component.IsStrictRegisteredOnlyMode, Is.True);
+    }
+
+    [Test]
+    public void Should_enable_strict_registered_only_mode_when_scanning_disabled_and_runtime_switch_enabled()
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
+
+        using (AppContextSwitchHelper.Enable(AppContextSwitches.StrictRegisteredOnlyMessageMetadataSwitchName))
+        {
+            var configuration = new AssemblyScanningComponent.Configuration(settingsHolder) { AssemblyScannerConfiguration = { Disable = true } };
+
+            var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
+
+            Assert.That(component.IsStrictRegisteredOnlyMode, Is.True);
+        }
     }
 
     [Test]
@@ -105,21 +123,21 @@ class AssemblyScanningComponentTests
     }
 
     [Test]
-    public void Should_not_enable_strict_registered_only_mode_when_scanning_enabled_and_trimming_signal_present()
+    public void Should_not_enable_strict_registered_only_mode_when_scanning_enabled_and_feature_switch_enabled()
     {
         var settingsHolder = new SettingsHolder();
         settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
 
         var configuration = new AssemblyScanningComponent.Configuration(settingsHolder)
         {
-            TrimmingEnabled = true,
+            StrictRegisteredOnlyMessageMetadataEnabled = true,
             DynamicCodeSupported = true
         };
 
         var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
 
         // Strict mode is only ever enabled when assembly scanning is disabled. With scanning enabled the
-        // component must not enable it even when a trimming signal is present.
+        // component must not enable it even when the feature switch is enabled.
         Assert.That(component.IsStrictRegisteredOnlyMode, Is.False);
     }
 
@@ -134,5 +152,25 @@ class AssemblyScanningComponentTests
         var exception = Assert.Throws<Exception>(() => AssemblyScanningComponent.Initialize(configuration, settingsHolder));
 
         Assert.That(exception?.Message, Does.Contain("Assembly scanning requires to access unreferenced and dynamic code"));
+    }
+
+    sealed class AppContextSwitchHelper : IDisposable
+    {
+        readonly string switchName;
+
+        public static AppContextSwitchHelper Enable(string switchName) => new(switchName, true);
+
+        AppContextSwitchHelper(string switchName, bool value)
+        {
+            this.switchName = switchName;
+            AppContext.SetSwitch(switchName, value);
+            AppContextSwitches.ResetStrictRegisteredOnlyMessageMetadata();
+        }
+
+        public void Dispose()
+        {
+            AppContext.SetSwitch(switchName, false);
+            AppContextSwitches.ResetStrictRegisteredOnlyMessageMetadata();
+        }
     }
 }

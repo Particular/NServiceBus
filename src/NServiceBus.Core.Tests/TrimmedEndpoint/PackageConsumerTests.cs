@@ -13,12 +13,15 @@ public class PackageConsumerTests
 {
     [Test]
     [CancelAfter(1_800_000)]
-    public async Task Packaged_consumer_gets_interceptors_and_runtime_trim_signal_without_explicit_props(CancellationToken cancellationToken = default)
+    public async Task Packaged_consumer_gets_interceptors_and_runtime_feature_switch_without_explicit_props(CancellationToken cancellationToken = default)
     {
         var root = Path.Combine(Path.GetTempPath(), "nservicebus-package-tests", Guid.NewGuid().ToString("N"));
         var feed = Path.Combine(root, "feed");
         var consumer = Path.Combine(root, "consumer");
         var publishOutput = Path.Combine(root, "publish");
+        // A dedicated packages folder keeps the restore isolated from any stale global-cache extraction of the
+        // same package version, so the freshly packed NServiceBus.targets is always the one that is imported.
+        var packagesDir = Path.Combine(root, "packages");
         try
         {
             // 1. Pack NServiceBus.Core into a local feed.
@@ -128,7 +131,7 @@ public class PackageConsumerTests
             //    packed NServiceBus.props, not from explicit project settings.
             var consumerProject = Path.Combine(consumer, "PackageConsumer.csproj");
             var publishResult = await RunProcess("dotnet",
-                $"publish \"{consumerProject}\" -c Release -p:TreatWarningsAsErrors=false -o \"{publishOutput}\" --nologo",
+                $"publish \"{consumerProject}\" -c Release -p:TreatWarningsAsErrors=false -p:RestorePackagesPath=\"{packagesDir}\" -o \"{publishOutput}\" --nologo",
                 cancellationToken);
 
             Assert.That(publishResult.ExitCode, Is.Zero, $"Consumer publish failed:{Environment.NewLine}{publishResult.Output}");
@@ -139,6 +142,15 @@ public class PackageConsumerTests
                 .Where(line => line.Contains("Program.cs") && line.Contains("IL2026"))
                 .ToArray();
             Assert.That(consumerTrimWarnings, Is.Empty, "Packaged interceptor support did not suppress IL2026 for the consumer source.");
+
+            // The build-transitive NServiceBus.targets must have emitted the strict registered-only message
+            // metadata switch into the runtime configuration of this trimmed executable.
+            var runtimeConfigPath = Path.Combine(publishOutput, "PackageConsumer.runtimeconfig.json");
+            Assert.That(File.Exists(runtimeConfigPath), Is.True, "Published consumer has no runtimeconfig.json.");
+            var runtimeConfig = System.Text.Json.JsonDocument.Parse(await File.ReadAllTextAsync(runtimeConfigPath, cancellationToken));
+            var configProperties = runtimeConfig.RootElement.GetProperty("runtimeOptions").GetProperty("configProperties");
+            Assert.That(configProperties.TryGetProperty(AppContextSwitches.StrictRegisteredOnlyMessageMetadataSwitchName, out var switchValue), Is.True, "Strict registered-only message metadata switch missing from runtimeconfig.json.");
+            Assert.That(switchValue.GetBoolean(), Is.True, "Strict registered-only message metadata switch must be true for a trimmed executable.");
 
             // 4. Run the packaged consumer executable.
             var executable = Path.Combine(publishOutput, OperatingSystem.IsWindows() ? "PackageConsumer.exe" : "PackageConsumer");

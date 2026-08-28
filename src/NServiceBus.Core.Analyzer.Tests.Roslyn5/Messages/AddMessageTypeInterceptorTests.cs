@@ -131,4 +131,35 @@ public class AddMessageTypeInterceptorTests
             .Approve()
             .AssertRunsAreEqual();
     }
+
+    [Test]
+    public void Interceptors_are_generated_in_warning_only_trim_analyzer_builds()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddMessageType<MyMessage>();
+                         }
+                     }
+
+                     public class MyMessage : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+                     """;
+
+        // Interceptor support must be generated in warning-only (EnableTrimAnalyzer) builds so the reflection
+        // fallback warning can be suppressed there.
+        var output = SourceGeneratorTest.ForIncrementalGenerator<AddMessageTypeInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithProperty("build_property.EnableTrimAnalyzer", "true")
+            .Run()
+            .GetCompilationOutput();
+
+        Assert.That(output, Does.Contain("InterceptionsOfAddMessageTypeMethod.g.cs"));
+    }
 }
