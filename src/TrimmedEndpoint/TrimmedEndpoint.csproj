@@ -1,12 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>TrimmedEndpoint</AssemblyName>
-    <RootNamespace>TrimmedEndpoint</RootNamespace>
     <InterceptorsNamespaces>$(InterceptorsNamespaces);NServiceBus</InterceptorsNamespaces>
     <!-- Test fixture: self-hosted endpoint, top-level awaits, and static completion flag are intentional. -->
     <NoWarn>$(NoWarn);CS0618;CA2007;CA1050;CA2211</NoWarn>

@@ -21,8 +21,8 @@ public class TrimmedEndpointTests
         var sampleProject = Path.GetFullPath(Path.Combine(
             TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "..",
-            "NServiceBus.TrimmedEndpoint",
-            "NServiceBus.TrimmedEndpoint.csproj"));
+            "TrimmedEndpoint",
+            "TrimmedEndpoint.csproj"));
 
         var publishOutput = Path.Combine(Path.GetTempPath(), "nservicebus-trimmed-tests", Guid.NewGuid().ToString("N"));
         try
@@ -79,8 +79,8 @@ public class TrimmedEndpointTests
         var sampleProject = Path.GetFullPath(Path.Combine(
             TestContext.CurrentContext.TestDirectory,
             "..", "..", "..", "..",
-            "NServiceBus.TrimmedEndpoint",
-            "NServiceBus.TrimmedEndpoint.csproj"));
+            "TrimmedEndpoint",
+            "TrimmedEndpoint.csproj"));
 
         var publishOutput = Path.Combine(Path.GetTempPath(), "nservicebus-aot-tests", Guid.NewGuid().ToString("N"));
         try
