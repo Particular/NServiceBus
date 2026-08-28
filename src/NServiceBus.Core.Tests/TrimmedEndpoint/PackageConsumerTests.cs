@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.TrimmedEndpoint;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +37,14 @@ public class PackageConsumerTests
 
             var nupkg = Directory.GetFiles(feed, "NServiceBus.*.nupkg").SingleOrDefault();
             Assert.That(nupkg, Is.Not.Null, "No NServiceBus package was produced by the pack.");
+
+            using (var archive = ZipFile.OpenRead(nupkg!))
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(archive.GetEntry("build/net10.0/NServiceBus.targets"), Is.Not.Null);
+                Assert.That(archive.GetEntry("buildTransitive/net10.0/NServiceBus.targets"), Is.Not.Null);
+            }
+
             var packageVersion = Path.GetFileNameWithoutExtension(nupkg)["NServiceBus.".Length..];
 
             // 2. Create a consumer that references the PACKAGE (no project reference, no explicit
@@ -168,9 +177,9 @@ public class PackageConsumerTests
             {
                 Directory.Delete(root, recursive: true);
             }
-            catch
+            catch (Exception ex)
             {
-                // best-effort cleanup
+                TestContext.Progress.WriteLine($"Failed to clean up test directory {root}: {ex.Message}");
             }
         }
     }
