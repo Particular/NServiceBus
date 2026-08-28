@@ -107,7 +107,7 @@ class AssemblyScanningComponent
         bool? strictRegisteredOnlyMode;
 
         static bool IsTrimmingEnabled() =>
-            System.Reflection.Assembly.GetEntryAssembly()?.GetCustomAttribute<TrimmingEnabledAttribute>() != null;
+            Assembly.GetEntryAssembly()?.GetCustomAttribute<TrimmingEnabledAttribute>() != null;
 
         public List<Type>? UserProvidedTypes { get; set; }
 

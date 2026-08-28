@@ -129,8 +129,9 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     static MetadataReference[] ReferenceAssemblyPaths() =>
-        AppDomain.CurrentDomain.GetAssemblies()
+    [
+        .. AppDomain.CurrentDomain.GetAssemblies()
             .Where(a => !string.IsNullOrWhiteSpace(a.Location))
-            .Select(a => (MetadataReference)MetadataReference.CreateFromFile(a.Location))
-            .ToArray();
+            .Select(MetadataReference (a) => MetadataReference.CreateFromFile(a.Location))
+    ];
 }
