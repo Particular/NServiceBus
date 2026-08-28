@@ -81,6 +81,7 @@ public class SagaMetadataCreationTests
     [Test]
     public void When_generated_correlation_accessor_is_supplied_it_is_used()
     {
+        var sagaData = new MySagaWithMappedProperty.SagaData();
         var accessor = new TestCorrelationPropertyAccessor();
         var metadata = SagaMetadata.Create<MySagaWithMappedProperty, MySagaWithMappedProperty.SagaData>(
             [new SagaMessage(typeof(SomeMessage), true, false)],
@@ -89,11 +90,17 @@ public class SagaMetadataCreationTests
 
         Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
         Assert.That(correlatedProperty.Accessor, Is.SameAs(accessor));
+
+        // The supplied accessor must actually be used to write and read the correlation value on the saga data.
+        correlatedProperty.Accessor.WriteTo(sagaData, 42);
+        Assert.That(sagaData.UniqueProperty, Is.EqualTo(42));
+        Assert.That(correlatedProperty.Accessor.AccessFrom(sagaData), Is.EqualTo(42));
     }
 
     [Test]
     public void When_no_correlation_accessor_is_supplied_an_expression_based_accessor_is_created()
     {
+        var sagaData = new MySagaWithMappedProperty.SagaData();
         var metadata = SagaMetadata.Create<MySagaWithMappedProperty, MySagaWithMappedProperty.SagaData>(
             [new SagaMessage(typeof(SomeMessage), true, false)],
             null,
@@ -101,15 +108,20 @@ public class SagaMetadataCreationTests
 
         Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
         Assert.That(correlatedProperty.Accessor, Is.TypeOf<ExpressionBasedCorrelationPropertyAccessor<MySagaWithMappedProperty.SagaData>>());
+
+        // The fallback accessor must round-trip the correlation value on the saga data.
+        correlatedProperty.Accessor.WriteTo(sagaData, 42);
+        Assert.That(sagaData.UniqueProperty, Is.EqualTo(42));
+        Assert.That(correlatedProperty.Accessor.AccessFrom(sagaData), Is.EqualTo(42));
     }
 
     class TestCorrelationPropertyAccessor : CorrelationPropertyAccessor
     {
-        public override void WriteTo(IContainSagaData sagaData, object value)
-        {
-        }
+        public override void WriteTo(IContainSagaData sagaData, object value) =>
+            ((MySagaWithMappedProperty.SagaData)sagaData).UniqueProperty = (int)value;
 
-        public override object AccessFrom(IContainSagaData sagaData) => null;
+        public override object AccessFrom(IContainSagaData sagaData) =>
+            ((MySagaWithMappedProperty.SagaData)sagaData).UniqueProperty;
     }
 
     [Test]
