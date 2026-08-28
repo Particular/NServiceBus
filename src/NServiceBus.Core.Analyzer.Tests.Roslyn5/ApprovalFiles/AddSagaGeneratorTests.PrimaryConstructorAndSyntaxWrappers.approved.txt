@@ -36,7 +36,7 @@ namespace NServiceBus
                         NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                             StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6.Instance,
                         ];
-                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.PartitionedEndpointSaga, global::Orders.Shipping.PartitionedEndpointSagaData>(associatedMessages, CorrelationIdAsStringAccessor_566e8fad769818c2.Instance, propertyAccessors);
+                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.PartitionedEndpointSaga, global::Orders.Shipping.PartitionedEndpointSagaData>(associatedMessages, CorrelationIdAsStringAccessor_90ab90feac5d44a9.Instance, propertyAccessors);
                         sagaMetadataCollection.Add(metadata);
 
                         var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
@@ -66,21 +66,21 @@ namespace NServiceBus
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class CorrelationIdAsStringAccessor_566e8fad769818c2 : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class CorrelationIdAsStringAccessor_90ab90feac5d44a9 : NServiceBus.Sagas.CorrelationPropertyAccessor
     {
-        CorrelationIdAsStringAccessor_566e8fad769818c2() { }
+        CorrelationIdAsStringAccessor_90ab90feac5d44a9() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(sagaData);
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData);
 
         [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_CorrelationId")]
-        static extern string AccessFrom_Property(NServiceBus.IContainSagaData sagaData);
+        static extern string AccessFrom_Property(global::Orders.Shipping.PartitionedEndpointSagaData sagaData);
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(sagaData, ((string)value));
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData, ((string)value));
 
         [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_CorrelationId")]
-        static extern string WriteTo_Property(NServiceBus.IContainSagaData sagaData, string value);
+        static extern void WriteTo_Property(global::Orders.Shipping.PartitionedEndpointSagaData sagaData, string value);
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new CorrelationIdAsStringAccessor_566e8fad769818c2();
+        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new CorrelationIdAsStringAccessor_90ab90feac5d44a9();
     }
 }
 
