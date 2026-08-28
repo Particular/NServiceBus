@@ -5,13 +5,6 @@ Changes that make this list longer should not be approved.
 src/NServiceBus.Core/MessageMutators/MutateInstanceMessage/MutateOutgoingMessageBehavior.cs
   IL2026: Using member 'NServiceBus.Pipeline.IOutgoingLogicalMessageContext.UpdateMessage(Object)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.
 
-src/NServiceBus.Core/Pipeline/RegisterStep.cs
-  IL2072: 'instanceType' argument does not satisfy 'DynamicallyAccessedMemberTypes.PublicConstructors' in call to 'Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider, Type, params Object[])'. The return value of method 'NServiceBus.Pipeline.RegisterStep.BehaviorType.get' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
-
-src/NServiceBus.Core/Pipeline/RegisterStepExtensions.cs
-  IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'behaviorType' of method 'NServiceBus.RegisterStepExtensions.GetBehaviorInterface(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
-  IL2070: 'this' argument does not satisfy 'DynamicallyAccessedMemberTypes.Interfaces' in call to 'System.Type.GetInterfaces()'. The parameter 'behaviorType' of method 'NServiceBus.RegisterStepExtensions.IsBehavior(Type)' does not have matching annotations. The source value must declare at least the same requirements as those declared on the target location it is assigned to.
-
 src/NServiceBus.Core/Routing/AssemblyRouteSource.cs
   IL2046: Member 'NServiceBus.AssemblyRouteSource.GenerateRoutes(Conventions)' with 'RequiresUnreferencedCodeAttribute' implements interface member 'NServiceBus.IRouteSource.GenerateRoutes(Conventions)' without 'RequiresUnreferencedCodeAttribute'. 'RequiresUnreferencedCodeAttribute' annotations must match across all interface implementations or overrides.
 
