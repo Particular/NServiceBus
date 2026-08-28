@@ -15,9 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NServiceBusEnableStrictRegisteredOnlyMessageMetadata)' != ''">
-    <RuntimeHostConfigurationOption Include="NServiceBus.EnableStrictRegisteredOnlyMessageMetadata"
-                                    Value="$(NServiceBusEnableStrictRegisteredOnlyMessageMetadata)"
-                                    Trim="true" />
+    <RuntimeHostConfigurationOption Include="NServiceBus.EnableStrictRegisteredOnlyMessageMetadata" Value="$(NServiceBusEnableStrictRegisteredOnlyMessageMetadata)" Trim="true" />
   </ItemGroup>
 
 </Project>
