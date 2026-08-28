@@ -90,6 +90,23 @@ public class MessageMetadataRegistryCacheOnlyLookupTests
         Assert.That(found, Is.False);
     }
 
+    [Test]
+    public void Should_return_false_without_throwing_after_a_negative_identifier_was_cached_by_legacy_lookup()
+    {
+        var registry = new MessageMetadataRegistry();
+        registry.Initialize(new Conventions().IsMessageType, false);
+        registry.RegisterMessageTypes([typeof(MyMessage)]);
+
+        // The legacy string lookup caches unresolved identifiers as a null entry.
+        var legacyResult = registry.GetMessageMetadata("Some.Namespace.SomeType, SomeAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
+        Assert.That(legacyResult, Is.Null);
+
+        // The cache-only lookup must treat the negative cache entry as a miss instead of dereferencing it.
+        var found = registry.TryGetMessageMetadata("Some.Namespace.SomeType, SomeAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null", out _);
+
+        Assert.That(found, Is.False);
+    }
+
     public class MyMessage : IMessage;
     public class OtherMessage : IMessage;
 }

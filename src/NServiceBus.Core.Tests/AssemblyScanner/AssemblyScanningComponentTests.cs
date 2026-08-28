@@ -58,6 +58,72 @@ class AssemblyScanningComponentTests
     }
 
     [Test]
+    public void Should_enable_strict_registered_only_mode_when_scanning_disabled_and_dynamic_code_not_supported()
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
+
+        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder)
+        {
+            DynamicCodeSupported = false,
+            AssemblyScannerConfiguration = { Disable = true }
+        };
+
+        var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
+
+        Assert.That(component.IsStrictRegisteredOnlyMode, Is.True);
+    }
+
+    [Test]
+    public void Should_enable_strict_registered_only_mode_when_scanning_disabled_and_trimming_enabled()
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
+
+        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder)
+        {
+            TrimmingEnabled = true,
+            AssemblyScannerConfiguration = { Disable = true }
+        };
+
+        var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
+
+        Assert.That(component.IsStrictRegisteredOnlyMode, Is.True);
+    }
+
+    [Test]
+    public void Should_not_enable_strict_registered_only_mode_when_scanning_disabled_in_normal_jit()
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
+
+        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder) { AssemblyScannerConfiguration = { Disable = true } };
+
+        var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
+
+        Assert.That(component.IsStrictRegisteredOnlyMode, Is.False);
+    }
+
+    [Test]
+    public void Should_not_enable_strict_registered_only_mode_when_scanning_enabled_and_trimming_signal_present()
+    {
+        var settingsHolder = new SettingsHolder();
+        settingsHolder.Set(new HostingComponent.Settings(settingsHolder));
+
+        var configuration = new AssemblyScanningComponent.Configuration(settingsHolder)
+        {
+            TrimmingEnabled = true,
+            DynamicCodeSupported = true
+        };
+
+        var component = AssemblyScanningComponent.Initialize(configuration, settingsHolder);
+
+        // Strict mode is only ever enabled when assembly scanning is disabled. With scanning enabled the
+        // component must not enable it even when a trimming signal is present.
+        Assert.That(component.IsStrictRegisteredOnlyMode, Is.False);
+    }
+
+    [Test]
     public void Should_throw_enabled_and_dynamic_code_not_supported()
     {
         var settingsHolder = new SettingsHolder();

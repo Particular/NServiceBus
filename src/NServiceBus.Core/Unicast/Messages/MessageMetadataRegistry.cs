@@ -97,7 +97,10 @@ public partial class MessageMetadataRegistry
 
         if (!cacheHit)
         {
-            messageType = GetType(messageTypeIdentifier);
+            if (!StrictRegisteredOnlyMode)
+            {
+                messageType = GetType(messageTypeIdentifier);
+            }
 
             if (messageType == null)
             {
@@ -138,6 +141,12 @@ public partial class MessageMetadataRegistry
 
         if (isMessageType(messageType))
         {
+            if (StrictRegisteredOnlyMode)
+            {
+                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry. Register the message type explicitly using 'AddMessageType<TMessage>()' when running with assembly scanning disabled in a trimmed application. ", messageTypeIdentifier, messageType.FullName);
+                return null;
+            }
+
             return RegisterMessageTypeCore(messageType);
         }
 
@@ -238,7 +247,10 @@ public partial class MessageMetadataRegistry
         ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeIdentifier);
         AssertIsInitialized();
 
+        // cachedTypes can hold a null entry for identifiers that failed to resolve (see GetMessageMetadata(string));
+        // treat those negative entries as a cache miss instead of dereferencing them.
         if (cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType) &&
+            messageType is not null &&
             messages.TryGetValue(messageType.TypeHandle, out metadata))
         {
             return true;
@@ -270,6 +282,13 @@ public partial class MessageMetadataRegistry
             return metadata;
         }
 
+        // Strict mode forbids runtime hierarchy inference and registration on cache misses. The guard lives here so
+        // pre-initialization bare registrations are also rejected during Initialize.
+        if (StrictRegisteredOnlyMode)
+        {
+            throw CreateStrictMissingMetadataException(messageType);
+        }
+
         LogGenericMessageTypeWarning(messageType);
 
         var parentMessages = GetRuntimeMessageHierarchy(messageType);
@@ -281,6 +300,9 @@ public partial class MessageMetadataRegistry
 
         return metadata;
     }
+
+    static Exception CreateStrictMissingMetadataException(Type messageType) =>
+        new($"Could not find metadata for '{messageType.FullName}' because the endpoint runs in strict registered-only message metadata mode.{Environment.NewLine}Ensure the following:{Environment.NewLine}1. The message type is registered before the endpoint starts using 'AddMessageType<TMessage>()' or 'RegisterMessageTypeWithHierarchy'.{Environment.NewLine}2. If '{messageType.FullName}' is handled by a handler or saga, register the handler or saga with 'AddHandler<T>()' or 'AddSaga<T>()' and the message type with 'AddMessageType<TMessage>()'.{Environment.NewLine}3. '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.");
 
     static void LogGenericMessageTypeWarning(Type messageType)
     {
@@ -300,6 +322,14 @@ public partial class MessageMetadataRegistry
     }
 
     bool initialized;
+
+    /// <summary>
+    /// When enabled, message metadata is only resolved for types registered up front (e.g. via the source-generated
+    /// <c>AddMessageType&lt;T&gt;</c> registration) and no runtime registration, hierarchy inference, or dynamic type
+    /// loading is performed. Must be set before <see cref="Initialize"/> so pre-initialization registrations are
+    /// enforced against the strict policy.
+    /// </summary>
+    internal bool StrictRegisteredOnlyMode { get; set; }
     readonly List<(Type MessageType, IEnumerable<Type> Hierarchy)> preRegisteredMessagesWithHierarchy = [];
     readonly List<Type> preRegisteredMessageTypes = [];
     readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new();

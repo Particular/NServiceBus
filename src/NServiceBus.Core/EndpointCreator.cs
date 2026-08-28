@@ -33,6 +33,9 @@ class EndpointCreator
         var assemblyScanningComponent = AssemblyScanningComponent.Initialize(assemblyScanningConfiguration, settings);
 
         assemblyScanningConfiguration.SetDefaultAvailableTypes(assemblyScanningComponent.AvailableTypes);
+        // The component is the authority on strict registered-only mode: it is only enabled when scanning is disabled
+        // AND the application is trimmed or dynamic code is unavailable.
+        assemblyScanningConfiguration.StrictRegisteredOnlyMode = assemblyScanningComponent.IsStrictRegisteredOnlyMode;
 
         endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 
@@ -191,8 +194,12 @@ class EndpointCreator
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
     {
         var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
+        var strictMode = settings.Get<AssemblyScanningComponent.Configuration>().StrictRegisteredOnlyMode;
         var messageMetadataRegistry = settings.GetOrCreate<MessageMetadataRegistry>();
-        messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
+        // Strict mode is the stronger non-overridable policy: it must be in effect before Initialize so
+        // pre-initialization registrations are enforced against it, and it disables dynamic type loading.
+        messageMetadataRegistry.StrictRegisteredOnlyMode = strictMode;
+        messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading && !strictMode);
 
         messageMetadataRegistry.RegisterMessageTypes(hostingConfiguration.AvailableTypes);
         messageMetadataRegistry.RegisterMessageTypesBypassingChecks(messageTypesHandled);

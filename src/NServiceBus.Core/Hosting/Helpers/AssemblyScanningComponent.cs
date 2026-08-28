@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using Hosting.Helpers;
 using Settings;
 
@@ -15,7 +16,7 @@ class AssemblyScanningComponent
     {
         if (configuration.AssemblyScannerConfiguration.Disable)
         {
-            return new AssemblyScanningComponent([]);
+            return new AssemblyScanningComponent([], configuration.StrictRegisteredOnlyMode);
         }
 
         if (!configuration.DynamicCodeSupported)
@@ -70,14 +71,43 @@ class AssemblyScanningComponent
         return assemblyScanner.GetScannableAssemblies();
     }
 
-    AssemblyScanningComponent(IList<Type> availableTypes) => AvailableTypes = availableTypes;
+    AssemblyScanningComponent(IList<Type> availableTypes, bool isStrictRegisteredOnlyMode = false)
+    {
+        AvailableTypes = availableTypes;
+        IsStrictRegisteredOnlyMode = isStrictRegisteredOnlyMode;
+    }
 
     public IList<Type> AvailableTypes { get; }
 
+    /// <summary>
+    /// When assembly scanning is disabled and the application is trimmed or dynamic code is unavailable, the endpoint
+    /// operates in strict registered-only message metadata mode: metadata is only resolved for types registered up
+    /// front (e.g. via the source-generated <c>AddMessageType&lt;T&gt;</c> registration) and no runtime registration or
+    /// dynamic type loading is performed.
+    /// </summary>
+    public bool IsStrictRegisteredOnlyMode { get; }
+
     public class Configuration(SettingsHolder settings)
     {
-        // This is only used for testability until we have a dedicated AOT test project. Not called on the hot path so has no performance implications.
+        // Testability hook until a dedicated AOT test project exists.
         public bool DynamicCodeSupported { get; set; } = System.Runtime.CompilerServices.RuntimeFeature.IsDynamicCodeSupported;
+
+        // Mirrors the build-transitive PublishTrimmed signal emitted by the source generators. Testability only;
+        // production code never assigns to it.
+        public bool TrimmingEnabled { get; set; } = IsTrimmingEnabled();
+
+        // The computed default only matters when scanning is disabled; EndpointCreator overwrites it with the
+        // component's decision after Initialize has run.
+        public bool StrictRegisteredOnlyMode
+        {
+            get => strictRegisteredOnlyMode ?? (TrimmingEnabled || !DynamicCodeSupported);
+            set => strictRegisteredOnlyMode = value;
+        }
+
+        bool? strictRegisteredOnlyMode;
+
+        static bool IsTrimmingEnabled() =>
+            System.Reflection.Assembly.GetEntryAssembly()?.GetCustomAttribute<TrimmingEnabledAttribute>() != null;
 
         public List<Type>? UserProvidedTypes { get; set; }
 
