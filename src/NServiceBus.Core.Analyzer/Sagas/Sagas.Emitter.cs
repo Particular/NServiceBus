@@ -48,11 +48,14 @@ public static partial class Sagas
                 sourceWriter.WriteLine($"{propertyAccessorClassName}.Instance,");
             }
 
-            var correlationPropertyAccessorClassName = CorrelationPropertyAccessorName(details.CorrelationPropertyMapping);
-            var correlationPropertyAccessor = $"{correlationPropertyAccessorClassName}.Instance";
-
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("];");
+
+            // Finder-only sagas have no correlation property and therefore no generated correlation accessor.
+            var correlationPropertyAccessor = details.CorrelationPropertyMapping is { } correlationProperty
+                ? $"{CorrelationPropertyAccessorName(correlationProperty)}.Instance"
+                : "null";
+
             sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.FullyQualifiedName}, {details.SagaDataFullyQualifiedName}>(associatedMessages, {correlationPropertyAccessor}, propertyAccessors);");
             sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
         }
@@ -134,7 +137,11 @@ public static partial class Sagas
             var uniqueMappings = new Dictionary<(string PropertyType, string PropertyName), CorrelationPropertyMappingSpec>();
             foreach (var saga in sagas)
             {
-                var mapping = saga.CorrelationPropertyMapping;
+                if (saga.CorrelationPropertyMapping is not { } mapping)
+                {
+                    continue;
+                }
+
                 var key = (mapping.PropertyType, mapping.PropertyName);
                 if (!uniqueMappings.ContainsKey(key))
                 {

@@ -40,6 +40,46 @@ public class AddMessageTypeInterceptorSuppressorTests
     }
 
     [Test]
+    public void DoesNotSuppressIL2026ForAddMessageTypeWithGenericTypeParameter()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             Register<MyMessage>(cfg);
+                         }
+
+                         // The type argument is a generic type parameter, so no interceptor can be generated
+                         // and the RequiresUnreferencedCode fallback warning must not be suppressed.
+                         public void Register<TMessage>(EndpointConfiguration cfg) where TMessage : IMessage
+                         {
+                             cfg.AddMessageType<TMessage>();
+                         }
+                     }
+
+                     public class MyMessage : IEvent
+                     {
+                         public string OrderId { get; set; }
+                     }
+                     """;
+
+        var result = SourceGeneratorTest.ForIncrementalGenerator<AddMessageTypeInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithAnalyzer<MockTrimmingAnalyzer>()
+            .WithSuppressor<AddMessageTypeInterceptorSuppressor>()
+            .SuppressDiagnosticErrors()
+            .SuppressCompilationErrors()
+            .Run();
+
+        var diagnostics = result.GetCompilationOutput();
+
+        Assert.That(diagnostics, Does.Contain("IL2026"));
+    }
+
+    [Test]
     public void DoesNotSuppressIL2026ForNonAddMessageTypeCalls()
     {
         var source = """

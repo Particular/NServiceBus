@@ -44,11 +44,16 @@ public sealed class AddMessageTypeInterceptorSuppressor : DiagnosticSuppressor
             }
 
             var semanticModel = context.GetSemanticModel(sourceTree);
-            var operation = semanticModel.GetOperation(node, context.CancellationToken);
-            if (operation is IInvocationOperation { TargetMethod: { } methodSymbol } && AddMessageTypeInterceptor.Parser.IsAddMessageTypeMethod(methodSymbol))
+
+            // Only suppress when an interceptor can actually be emitted for this call site. Calls with a generic
+            // type parameter cannot be intercepted because the hierarchy cannot be computed statically, so they keep
+            // the RequiresUnreferencedCode fallback warning.
+            if (AddMessageTypeInterceptor.Parser.Parse(node, semanticModel, context.CancellationToken) is null)
             {
-                context.ReportSuppression(Suppression.Create(SuppressRUCDiagnostic, diagnostic));
+                continue;
             }
+
+            context.ReportSuppression(Suppression.Create(SuppressRUCDiagnostic, diagnostic));
         }
     }
 

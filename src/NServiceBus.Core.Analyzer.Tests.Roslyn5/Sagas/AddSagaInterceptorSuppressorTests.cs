@@ -58,6 +58,60 @@ public class AddSagaInterceptorSuppressorTests
     }
 
     [Test]
+    public void SuppressesIL2026ForFinderOnlySaga()
+    {
+        var source = """
+                     using System.Threading;
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using NServiceBus.Persistence;
+                     using NServiceBus.Extensibility;
+                     using NServiceBus.Sagas;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddSaga<FinderOnlySaga>();
+                         }
+                     }
+
+                     public class FinderOnlySaga : Saga<FinderOnlySagaData>,
+                         IAmStartedByMessages<StartSagaMessage>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<FinderOnlySagaData> mapper)
+                         {
+                             mapper.ConfigureFinderMapping<StartSagaMessage, FinderOnlyFinder>();
+                         }
+
+                         public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class FinderOnlySagaData : ContainSagaData
+                     {
+                         public string Property { get; set; }
+                     }
+
+                     public class FinderOnlyFinder : ISagaFinder<FinderOnlySagaData, StartSagaMessage>
+                     {
+                         public Task<FinderOnlySagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(default(FinderOnlySagaData));
+                     }
+
+                     public class StartSagaMessage : IMessage;
+                     """;
+
+        var result = SourceGeneratorTest.ForIncrementalGenerator<AddSagaInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithAnalyzer<MockTrimmingAnalyzer>()
+            .WithSuppressor<AddSagaInterceptorSuppressor>()
+            .Run();
+
+        var diagnostics = result.GetCompilationOutput();
+
+        Assert.That(diagnostics, Does.Not.Contain("IL2026"));
+    }
+
+    [Test]
     public void DoesNotSuppressIL2026ForNonAddSagaCalls()
     {
         var source = """
