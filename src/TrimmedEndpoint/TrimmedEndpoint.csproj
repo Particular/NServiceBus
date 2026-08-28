@@ -25,18 +25,11 @@
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- NServiceBus.props normally declares these when the package is referenced. -->
-    <CompilerVisibleProperty Include="PublishTrimmed" />
-    <CompilerVisibleProperty Include="PublishAot" />
-  </ItemGroup>
+  <Import Project="..\NServiceBus.Core\NServiceBus.props" />
+  <Import Project="..\NServiceBus.Core\NServiceBus.targets" />
 
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="NServiceBus.Core.Hosting.UseV2DeterministicGuid" Value="true" />
-    <!-- Mirrors the build-transitive NServiceBus.targets: this project references Core directly, so the packed
-         targets do not flow. The endpoint always publishes trimmed (or AOT via RunAotValidation), so the strict
-         registered-only message metadata switch is emitted unconditionally. -->
-    <RuntimeHostConfigurationOption Include="NServiceBus.EnableStrictRegisteredOnlyMessageMetadata" Value="true" Trim="true" />
   </ItemGroup>
 
 </Project>
