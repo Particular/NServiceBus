@@ -3,10 +3,10 @@
 namespace NServiceBus.Core.Analyzer.Messages;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,32 +18,19 @@ public sealed partial class AddMessageTypeInterceptor
 {
     internal readonly record struct MessageTypeSpec(string Name, string FullyQualifiedName, ImmutableEquatableArray<string> HierarchyTypeNames)
     {
-        public static MessageTypeSpec From(INamedTypeSymbol messageType) =>
+        public static MessageTypeSpec From(INamedTypeSymbol messageType, Compilation compilation) =>
             new(
                 string.Join("__", messageType.ToDisplayParts(SymbolDisplayFormat.FullyQualifiedFormat).Where(x => x.Kind == SymbolDisplayPartKind.ClassName)),
                 messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                GetHierarchyTypeNames(messageType));
+                GetHierarchyTypeNames(messageType, compilation));
 
-        static ImmutableEquatableArray<string> GetHierarchyTypeNames(INamedTypeSymbol messageType)
+        static ImmutableEquatableArray<string> GetHierarchyTypeNames(INamedTypeSymbol messageType, Compilation compilation)
         {
-            // Mirrors the runtime hierarchy inference used by MessageMetadataRegistry.GetRuntimeMessageHierarchy:
-            // interfaces ordered by their own interface count descending, followed by base classes ordered from
-            // deepest to shallowest. Non-message parents are filtered by the convention when the registry is
-            // initialized, so including all interfaces and base types is safe.
-            var interfaces = messageType.AllInterfaces
-                .OrderByDescending(i => i.AllInterfaces.Length)
-                .ThenBy(i => i.ToDisplayString(), StringComparer.Ordinal)
-                .Select(i => i.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-
-            var baseTypes = new List<string>();
-            var currentBaseType = messageType.BaseType;
-            while (currentBaseType is not null && currentBaseType.SpecialType != SpecialType.System_Object)
-            {
-                baseTypes.Add(currentBaseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
-                currentBaseType = currentBaseType.BaseType;
-            }
-
-            return interfaces.Concat(baseTypes).ToImmutableEquatableArray();
+            // Shared with handler/saga generation so the emitted hierarchy has the same ordering regardless of which
+            // registration path wins (duplicate registration is first-wins in the message metadata registry).
+            return MessageHierarchyBuilder.GetTypeHierarchy(messageType, new MarkerTypes(compilation))
+                .Select(t => t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
+                .ToImmutableEquatableArray();
         }
     }
 
@@ -105,7 +92,7 @@ public sealed partial class AddMessageTypeInterceptor
                 return null;
             }
 
-            return new InterceptableMessageTypeSpec(InterceptLocationSpec.From(location), MessageTypeSpec.From(messageType));
+            return new InterceptableMessageTypeSpec(InterceptLocationSpec.From(location), MessageTypeSpec.From(messageType, semanticModel.Compilation));
         }
 
         const string AddMessageTypeMethodName = "AddMessageType";

@@ -46,6 +46,50 @@ public class AddMessageTypeInterceptorTests
     }
 
     [Test]
+    public void MessageTypesWithEqualRankInterfaces()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.AddMessageType<Messages.OrderAccepted>();
+                         }
+                     }
+
+                     namespace Messages
+                     {
+                         // Declared in reverse-alphabetical order: equal-rank interfaces must keep declaration order
+                         // (matching runtime reflection and handler generation) rather than being alphabetically reordered.
+                         public class OrderAccepted : OrderEventBase, ISecond, IFirst
+                         {
+                         }
+
+                         public class OrderEventBase : IEvent
+                         {
+                             public string OrderId { get; set; }
+                         }
+
+                         public interface IFirst : IEvent
+                         {
+                         }
+
+                         public interface ISecond : IEvent
+                         {
+                         }
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddMessageTypeInterceptor>()
+            .WithSource(source, "test.cs")
+            .Run()
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void MessageTypesWithHierarchy()
     {
         var source = """

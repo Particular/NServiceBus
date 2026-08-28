@@ -37,8 +37,6 @@ namespace NServiceBus
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Messages.OrderAccepted),
                 [
                     typeof(global::Messages.IOrderEvent),
-                    typeof(global::NServiceBus.IEvent),
-                    typeof(global::NServiceBus.IMessage),
                     typeof(global::Messages.OrderEventBase),
                 ]);
             }
@@ -51,8 +49,6 @@ namespace NServiceBus
                 var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Messages.OrderRejected),
                 [
-                    typeof(global::NServiceBus.IEvent),
-                    typeof(global::NServiceBus.IMessage),
                     typeof(global::Messages.OrderEventBase),
                 ]);
             }

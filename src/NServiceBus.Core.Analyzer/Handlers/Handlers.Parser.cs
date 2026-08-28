@@ -444,55 +444,6 @@ public static partial class Handlers
         static bool IsHandlerInterface(INamedTypeSymbol type) => HandlerConventions.IsHandlerInterface(type);
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
-            // This matches the behavior of the reflection-based code, but it's unclear why this ordering is needed.
-            // It would be more efficient to yield the base types (except where type.SpecialType is not SpecialType.System_Object)
-            // and then to yield the interfaces from type.AllInterfaces except those in the MarkerTypes.
-            // We're hesitant to change the implementation, however, due to wire compatibility concerns of outputting
-            // an EnclosedMessageTypes header with a different ordering.
-            GetParentTypes(type)
-                .Where(t => !markers.IsMarkerInterface(t))
-                .Select(t => new { Type = t, Rank = PlaceInMessageHierarchy(t) })
-                .OrderByDescending(item => item.Rank)
-                .Select(item => item.Type);
-
-        static IEnumerable<INamedTypeSymbol> GetParentTypes(INamedTypeSymbol type)
-        {
-            // All interfaces implemented by the type (includes inherited interfaces)
-            foreach (var iface in type.AllInterfaces)
-            {
-                yield return iface;
-            }
-
-            // All base types up to but excluding System.Object
-            var currentBase = type.BaseType;
-            while (currentBase is { SpecialType: not SpecialType.System_Object })
-            {
-                if (currentBase is { } named)
-                {
-                    yield return named;
-                }
-
-                currentBase = currentBase.BaseType;
-            }
-        }
-
-        static int PlaceInMessageHierarchy(INamedTypeSymbol type)
-        {
-            if (type.TypeKind == TypeKind.Interface)
-            {
-                // Approximate: number of interfaces implemented by this interface
-                return type.AllInterfaces.Length;
-            }
-
-            var result = 0;
-            var current = type.BaseType;
-            while (current is not null)
-            {
-                result++;
-                current = current.BaseType;
-            }
-
-            return result;
-        }
+            MessageHierarchyBuilder.GetTypeHierarchy(type, markers);
     }
 }
