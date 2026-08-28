@@ -48,6 +48,15 @@ public class AddMessageTypeInterceptorTrimSignalTests
             .GetCompilationOutput();
         Assert.That(withPublishTrimmed, Does.Contain("TrimmingEnabled.g.cs"));
 
+        // An AOT-only signal (no PublishTrimmed) must also emit the runtime strict-mode signal, so a NativeAOT
+        // publish is independently recognized even when the project does not set PublishTrimmed.
+        var withPublishAot = SourceGeneratorTest.ForIncrementalGenerator<AddMessageTypeInterceptor>()
+            .WithSource(source, "test.cs")
+            .WithProperty("build_property.PublishAot", "true")
+            .Run()
+            .GetCompilationOutput();
+        Assert.That(withPublishAot, Does.Contain("TrimmingEnabled.g.cs"));
+
         var withoutAnyTrimProperty = SourceGeneratorTest.ForIncrementalGenerator<AddMessageTypeInterceptor>()
             .WithSource(source, "test.cs")
             .Run()
