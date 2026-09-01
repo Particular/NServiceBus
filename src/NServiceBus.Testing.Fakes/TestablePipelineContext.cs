@@ -16,11 +16,7 @@ public partial class TestablePipelineContext : IPipelineContext
     /// <summary>
     /// Creates a new <see cref="TestableMessageHandlerContext" /> instance.
     /// </summary>
-    public TestablePipelineContext(IMessageCreator messageCreator = null)
-    {
-        this.messageCreator = messageCreator ?? new MessageMapper();
-        Extensions.GetOrCreate<IncomingPipelineMetricTags>();
-    }
+    public TestablePipelineContext(IMessageCreator messageCreator = null) => this.messageCreator = messageCreator ?? new MessageMapper();
 
     /// <summary>
     /// A list of all messages sent with a saga timeout header.

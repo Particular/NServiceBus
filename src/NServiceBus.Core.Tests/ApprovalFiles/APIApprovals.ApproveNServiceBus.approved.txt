@@ -554,6 +554,10 @@ namespace NServiceBus
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions subscribeOptions, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions unsubscribeOptions, System.Threading.CancellationToken cancellationToken = default);
     }
+    public interface IMetricsTags
+    {
+        void AddOrOverride(string tagKey, object value, string instrumentName);
+    }
     public interface INeedInitialization
     {
         void Customize(NServiceBus.EndpointConfiguration configuration);
@@ -617,13 +621,6 @@ namespace NServiceBus
         protected ImmediateRetry() { }
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
-    }
-    public sealed class IncomingPipelineMetricTags
-    {
-        public IncomingPipelineMetricTags() { }
-        public void Add(string tagKey, object value) { }
-        public void ApplyTag(ref System.Diagnostics.TagList tagList, string tagKey) { }
-        public void ApplyTags(ref System.Diagnostics.TagList tagList, System.ReadOnlySpan<string> tagKeys) { }
     }
     public static class InstallConfigExtensions
     {
@@ -773,6 +770,16 @@ namespace NServiceBus
     {
         public MetersOptions() { }
         public bool EmitExecutionResultTags { get; set; }
+    }
+    public static class MetricTagsExtensions
+    {
+        extension(NServiceBus.Pipeline.IBehaviorContext context)
+        {
+            public NServiceBus.IMetricsTags MetricTags { get; }
+        }
+        extension(NServiceBus.Transport.MessageContext context)
+        {
+        }
     }
     public class MoveToError : NServiceBus.RecoverabilityAction
     {

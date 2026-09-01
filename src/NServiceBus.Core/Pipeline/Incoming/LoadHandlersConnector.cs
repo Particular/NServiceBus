@@ -43,7 +43,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
             }
 
             // capture the message handler types to add them as tags to applicable metrics
-            var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
+            var availableMetricTags = context.IncomingMetricTags;
             availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
 
             foreach (var messageHandler in handlersToInvoke)
