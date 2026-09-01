@@ -15,6 +15,11 @@ public static class MessageTypeRegistrationExtensions
     /// Registers the message type including its hierarchy.
     /// </summary>
     /// <remarks>
+    /// The type is checked against the endpoint's message conventions when the message metadata registry is initialized.
+    /// This method registers metadata for a type that the conventions already identify as a message; it does not itself
+    /// classify an arbitrary type as a message. Types that do not implement <see cref="IMessage"/>, <see cref="IEvent"/>,
+    /// or <see cref="ICommand"/> (unobtrusive mode) need matching conventions defined with
+    /// <see cref="EndpointConfiguration.Conventions()"/>.
     /// The hierarchy is inferred at runtime using reflection. Under trimming or NativeAOT the call is replaced by a
     /// source-generated, reflection-free registration that registers the statically known hierarchy instead.
     /// </remarks>
