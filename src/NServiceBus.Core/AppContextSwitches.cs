@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Particular.Obsoletes;
 
 static class AppContextSwitches
@@ -15,6 +16,7 @@ static class AppContextSwitches
     }
 
     static SwitchState cachedUseV2DeterministicGuid;
+    static SwitchState cachedStrictRegisteredOnlyMessageMetadata;
 
     [PreObsolete("https://github.com/Particular/NServiceBus/issues/7734",
         Note = "In v11, DeterministicGuid (XxHash128) becomes the default and this switch will be inverted so that setting it to false opts into the legacy MD5 algorithm. Both the switch and LegacyDeterministicGuid will be removed in v12.",
@@ -46,4 +48,31 @@ static class AppContextSwitches
     }
 
     internal static void ResetUseV2DeterministicGuid() => cachedUseV2DeterministicGuid = SwitchState.Unchecked;
+
+    // Emitted by the build-transitive NServiceBus.targets into the runtime configuration of executable applications
+    // that are published with trimming or AOT enabled. Users can force the value via the
+    // NServiceBusEnableStrictRegisteredOnlyMessageMetadata MSBuild property or by setting the switch in code.
+    public const string StrictRegisteredOnlyMessageMetadataSwitchName = "NServiceBus.EnableStrictRegisteredOnlyMessageMetadata";
+
+    [FeatureSwitchDefinition(StrictRegisteredOnlyMessageMetadataSwitchName)]
+    public static bool IsStrictRegisteredOnlyMessageMetadataEnabled
+    {
+        get
+        {
+            var state = cachedStrictRegisteredOnlyMessageMetadata;
+            if (state != SwitchState.Unchecked)
+            {
+                return state == SwitchState.Enabled;
+            }
+
+            state = AppContext.TryGetSwitch(StrictRegisteredOnlyMessageMetadataSwitchName, out var isEnabled) && isEnabled
+                ? SwitchState.Enabled
+                : SwitchState.Disabled;
+            cachedStrictRegisteredOnlyMessageMetadata = state;
+
+            return state == SwitchState.Enabled;
+        }
+    }
+
+    internal static void ResetStrictRegisteredOnlyMessageMetadata() => cachedStrictRegisteredOnlyMessageMetadata = SwitchState.Unchecked;
 }

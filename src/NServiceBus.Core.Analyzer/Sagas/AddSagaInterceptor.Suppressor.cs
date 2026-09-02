@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System.Collections.Immutable;
+using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -45,10 +46,22 @@ public sealed class AddSagaInterceptorSuppressor : DiagnosticSuppressor
 
             var semanticModel = context.GetSemanticModel(sourceTree);
             var operation = semanticModel.GetOperation(node, context.CancellationToken);
-            if (operation is IInvocationOperation { TargetMethod: { } methodSymbol } && AddSagaInterceptor.Parser.IsAddSagaMethod(methodSymbol))
+            if (operation is not IInvocationOperation { TargetMethod: { } methodSymbol } || !AddSagaInterceptor.Parser.IsAddSagaMethod(methodSymbol))
             {
-                context.ReportSuppression(Suppression.Create(SuppressRUCDiagnostic, diagnostic));
+                continue;
             }
+
+            // Only suppress when an interceptor can actually be emitted for this call site. A saga that cannot be
+            // parsed (no Saga<TSagaData> base, abstract, or otherwise unsupported) keeps the RequiresUnreferencedCode
+            // fallback warning.
+            if (methodSymbol.TypeArguments[0] is not INamedTypeSymbol sagaType ||
+                !HandlerKnownTypes.TryGet(context.Compilation, out var knownTypes) ||
+                Sagas.Parser.Parse(semanticModel, sagaType, knownTypes, context.CancellationToken) is null)
+            {
+                continue;
+            }
+
+            context.ReportSuppression(Suppression.Create(SuppressRUCDiagnostic, diagnostic));
         }
     }
 

@@ -17,6 +17,7 @@
     <Project Path="NServiceBus.Learning.AcceptanceTests/NServiceBus.Learning.AcceptanceTests.csproj" />
     <Project Path="NServiceBus.PersistenceTests/NServiceBus.PersistenceTests.csproj" />
     <Project Path="NServiceBus.TransportTests/NServiceBus.TransportTests.csproj" />
+    <Project Path="TrimmedEndpoint/TrimmedEndpoint.csproj" />
   </Folder>
   <Project Path="NServiceBus.Core/NServiceBus.Core.csproj" />
 </Solution>

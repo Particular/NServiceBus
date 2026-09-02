@@ -32,7 +32,7 @@
   <PropertyGroup>
     <PackageId>NServiceBus</PackageId>
     <Description>Build, version, and monitor better microservices with the most powerful service platform for .NET</Description>
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPropsFileToPackage</TargetsForTfmSpecificContentInPackage>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPropsAndTargetsFilesToPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
   <ItemGroup Label="Remove this ItemGroup when FastExpressionCompiler stops included test code in the package">
@@ -44,9 +44,10 @@
     <None Include="..\NServiceBus.Core.Analyzer.Fixes\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.Fixes.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn$(RoslynPackagePathVersion)/cs/NServiceBus.Core.Analyzer.Fixes.dll" Visible="false" />
   </ItemGroup>
 
-  <Target Name="AddPropsFileToPackage">
+  <Target Name="AddPropsAndTargetsFilesToPackage">
     <ItemGroup>
       <TfmSpecificPackageFile Include="NServiceBus.props" PackagePath="build/$(TargetFramework);buildTransitive/$(TargetFramework)" />
+      <TfmSpecificPackageFile Include="NServiceBus.targets" PackagePath="build/$(TargetFramework);buildTransitive/$(TargetFramework)" />
     </ItemGroup>
   </Target>
 

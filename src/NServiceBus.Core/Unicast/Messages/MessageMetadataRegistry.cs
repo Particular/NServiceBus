@@ -96,7 +96,10 @@ public partial class MessageMetadataRegistry
 
         if (!cacheHit)
         {
-            messageType = GetType(messageTypeIdentifier);
+            if (!StrictRegisteredOnlyMode)
+            {
+                messageType = GetType(messageTypeIdentifier);
+            }
 
             if (messageType == null)
             {
@@ -137,6 +140,12 @@ public partial class MessageMetadataRegistry
 
         if (isMessageType(messageType))
         {
+            if (StrictRegisteredOnlyMode)
+            {
+                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry. Register the message type explicitly using 'AddMessageType<TMessage>()' when running with assembly scanning disabled in a trimmed application. ", messageTypeIdentifier, messageType.FullName);
+                return null;
+            }
+
             return RegisterMessageTypeCore(messageType);
         }
 
@@ -210,26 +219,44 @@ public partial class MessageMetadataRegistry
         }
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Dynamic type loading is best-effort; when trimming removes a type, resolution falls back to known registered message metadata.")]
-    Type GetType(string messageTypeIdentifier)
+    /// <summary>
+    /// Attempts to retrieve the <see cref="MessageMetadata" /> for the specified type from the already registered metadata cache without
+    /// performing any runtime resolution or registration.
+    /// </summary>
+    /// <param name="messageType">The message type to retrieve metadata for.</param>
+    /// <param name="metadata">The <see cref="MessageMetadata" /> when the type is registered; otherwise <c>null</c>.</param>
+    /// <returns><c>true</c> when the type is already registered, otherwise <c>false</c>.</returns>
+    internal bool TryGetMessageMetadata(Type messageType, out MessageMetadata metadata)
     {
-        if (allowDynamicTypeLoading)
+        ArgumentNullException.ThrowIfNull(messageType);
+        AssertIsInitialized();
+
+        return messages.TryGetValue(messageType.TypeHandle, out metadata);
+    }
+
+    /// <summary>
+    /// Attempts to retrieve the <see cref="MessageMetadata" /> for the message identifier from the already registered metadata cache without
+    /// performing any runtime type resolution, registration, or logging.
+    /// </summary>
+    /// <param name="messageTypeIdentifier">The message identifier to retrieve metadata for.</param>
+    /// <param name="metadata">The <see cref="MessageMetadata" /> when the identifier is registered; otherwise <c>null</c>.</param>
+    /// <returns><c>true</c> when the identifier is already registered, otherwise <c>false</c>.</returns>
+    internal bool TryGetMessageMetadata(string messageTypeIdentifier, out MessageMetadata metadata)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(messageTypeIdentifier);
+        AssertIsInitialized();
+
+        // cachedTypes can hold a null entry for identifiers that failed to resolve (see GetMessageMetadata(string));
+        // treat those negative entries as a cache miss instead of dereferencing them.
+        if (cachedTypes.TryGetValue(messageTypeIdentifier, out var messageType) &&
+            messageType is not null &&
+            messages.TryGetValue(messageType.TypeHandle, out metadata))
         {
-            try
-            {
-                return Type.GetType(messageTypeIdentifier);
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn($"Message type identifier '{messageTypeIdentifier}' could not be loaded", ex);
-            }
-        }
-        else
-        {
-            Logger.Warn($"Unknown message type identifier '{messageTypeIdentifier}'. Dynamic type loading is disabled. Make sure the type is loaded before starting the endpoint or enable dynamic type loading.");
+            return true;
         }
 
-        return null;
+        metadata = null!;
+        return false;
     }
 
     void RegisterMessageTypeWithHierarchyCore(Type messageType, IEnumerable<Type> parentMessages)
@@ -254,6 +281,13 @@ public partial class MessageMetadataRegistry
             return metadata;
         }
 
+        // Strict mode forbids runtime hierarchy inference and registration on cache misses. The guard lives here so
+        // pre-initialization bare registrations are also rejected during Initialize.
+        if (StrictRegisteredOnlyMode)
+        {
+            ThrowStrictMissingMetadataException(messageType);
+        }
+
         LogGenericMessageTypeWarning(messageType);
 
         var parentMessages = GetRuntimeMessageHierarchy(messageType);
@@ -265,6 +299,10 @@ public partial class MessageMetadataRegistry
 
         return metadata;
     }
+
+    [DoesNotReturn]
+    static void ThrowStrictMissingMetadataException(Type messageType) =>
+        throw new Exception($"Could not find metadata for '{messageType.FullName}' because the endpoint runs in strict registered-only message metadata mode.{Environment.NewLine}Ensure one of the following registration paths is used:{Environment.NewLine}1. Register the message type before the endpoint starts using 'AddMessageType<TMessage>()' or 'RegisterMessageTypeWithHierarchy'.{Environment.NewLine}2. If '{messageType.FullName}' is handled by a handler or saga, register the handler or saga with 'AddHandler<T>()' or 'AddSaga<T>()' and the message type with 'AddMessageType<TMessage>()'.{Environment.NewLine}In either case, ensure '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.");
 
     static void LogGenericMessageTypeWarning(Type messageType)
     {
@@ -283,40 +321,15 @@ public partial class MessageMetadataRegistry
         }
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Runtime hierarchy inference is used for message types not pre-registered with source-generated hierarchy metadata, including scanned, dynamically loaded, published-only, and legacy message types.")]
-    Type[] GetRuntimeMessageHierarchy(Type messageType)
-    {
-        var parentTypes = new List<Type>(messageType.GetInterfaces());
-
-        var currentBaseType = messageType.BaseType;
-        var objectType = typeof(object);
-        while (currentBaseType != null && currentBaseType != objectType)
-        {
-            parentTypes.Add(currentBaseType);
-            currentBaseType = currentBaseType.BaseType;
-        }
-
-        return [.. parentTypes
-            .Where(isMessageType)
-            .OrderByDescending(static type =>
-            {
-                if (type.IsInterface)
-                {
-                    return type.GetInterfaces().Length;
-                }
-
-                var result = 0;
-                while (type.BaseType != null)
-                {
-                    result++;
-                    type = type.BaseType;
-                }
-
-                return result;
-            })];
-    }
-
     bool initialized;
+
+    /// <summary>
+    /// When enabled, message metadata is only resolved for types registered up front (e.g. via the source-generated
+    /// <c>AddMessageType&lt;T&gt;</c> registration) and no runtime registration, hierarchy inference, or dynamic type
+    /// loading is performed. Must be set before <see cref="Initialize"/> so pre-initialization registrations are
+    /// enforced against the strict policy.
+    /// </summary>
+    internal bool StrictRegisteredOnlyMode { get; set; }
     readonly List<(Type MessageType, IEnumerable<Type> Hierarchy)> preRegisteredMessagesWithHierarchy = [];
     readonly List<Type> preRegisteredMessageTypes = [];
     readonly ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new();

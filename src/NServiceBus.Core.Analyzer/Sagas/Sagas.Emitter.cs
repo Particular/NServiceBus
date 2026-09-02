@@ -48,11 +48,14 @@ public static partial class Sagas
                 sourceWriter.WriteLine($"{propertyAccessorClassName}.Instance,");
             }
 
-            var correlationPropertyAccessorClassName = CorrelationPropertyAccessorName(details.CorrelationPropertyMapping);
-            var correlationPropertyAccessor = $"{correlationPropertyAccessorClassName}.Instance";
-
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("];");
+
+            // Finder-only sagas have no correlation property and therefore no generated correlation accessor.
+            var correlationPropertyAccessor = details.CorrelationPropertyMapping is { } correlationProperty
+                ? $"{CorrelationPropertyAccessorName(details.SagaDataFullyQualifiedName, correlationProperty)}.Instance"
+                : "null";
+
             sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.FullyQualifiedName}, {details.SagaDataFullyQualifiedName}>(associatedMessages, {correlationPropertyAccessor}, propertyAccessors);");
             sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
         }
@@ -131,14 +134,21 @@ public static partial class Sagas
 
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
-            var uniqueMappings = new Dictionary<(string PropertyType, string PropertyName), CorrelationPropertyMappingSpec>();
+            // Accessors are keyed by the concrete saga-data type plus property identity: two saga-data classes with
+            // the same correlation property name and type must not share an accessor, because the UnsafeAccessor
+            // receiver is the concrete saga-data type.
+            var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
             foreach (var saga in sagas)
             {
-                var mapping = saga.CorrelationPropertyMapping;
-                var key = (mapping.PropertyType, mapping.PropertyName);
+                if (saga.CorrelationPropertyMapping is not { } mapping)
+                {
+                    continue;
+                }
+
+                var key = (saga.SagaDataFullyQualifiedName, mapping.PropertyType, mapping.PropertyName);
                 if (!uniqueMappings.ContainsKey(key))
                 {
-                    uniqueMappings.Add(key, mapping);
+                    uniqueMappings.Add(key, (mapping, saga.SagaDataFullyQualifiedName));
                 }
             }
 
@@ -147,19 +157,25 @@ public static partial class Sagas
                 return;
             }
 
-            var allPropertyMappings = new List<CorrelationPropertyMappingSpec>(uniqueMappings.Values);
+            var allPropertyMappings = new List<(CorrelationPropertyMappingSpec Mapping, string SagaDataType)>(uniqueMappings.Values);
             allPropertyMappings.Sort(static (a, b) =>
             {
-                var typeComparison = string.CompareOrdinal(a.PropertyType, b.PropertyType);
-                return typeComparison != 0 ? typeComparison : string.CompareOrdinal(a.PropertyName, b.PropertyName);
+                var sagaTypeComparison = string.CompareOrdinal(a.SagaDataType, b.SagaDataType);
+                if (sagaTypeComparison != 0)
+                {
+                    return sagaTypeComparison;
+                }
+
+                var typeComparison = string.CompareOrdinal(a.Mapping.PropertyType, b.Mapping.PropertyType);
+                return typeComparison != 0 ? typeComparison : string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
             });
 
             sourceWriter.WriteLine();
 
             for (var index = 0; index < allPropertyMappings.Count; index++)
             {
-                var mapping = allPropertyMappings[index];
-                var accessorClassName = CorrelationPropertyAccessorName(mapping);
+                var (mapping, sagaDataType) = allPropertyMappings[index];
+                var accessorClassName = CorrelationPropertyAccessorName(sagaDataType, mapping);
                 _ = sourceWriter.WithCompilerGeneratedAttribute()
                     .WithGeneratedCodeAttribute();
                 sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.CorrelationPropertyAccessor");
@@ -169,15 +185,15 @@ public static partial class Sagas
 
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine("public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(sagaData);");
+                sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(({sagaDataType})sagaData);");
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.PropertyName}\")]");
-                sourceWriter.WriteLine($"static extern {mapping.PropertyType} AccessFrom_Property(NServiceBus.IContainSagaData sagaData);");
+                sourceWriter.WriteLine($"static extern {mapping.PropertyType} AccessFrom_Property({sagaDataType} sagaData);");
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(sagaData, (({mapping.PropertyType})value));");
+                sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(({sagaDataType})sagaData, (({mapping.PropertyType})value));");
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"set_{mapping.PropertyName}\")]");
-                sourceWriter.WriteLine($"static extern {mapping.PropertyType} WriteTo_Property(NServiceBus.IContainSagaData sagaData, {mapping.PropertyType} value);");
+                sourceWriter.WriteLine($"static extern void WriteTo_Property({sagaDataType} sagaData, {mapping.PropertyType} value);");
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new {accessorClassName}();");
                 sourceWriter.Indentation--;
@@ -190,9 +206,9 @@ public static partial class Sagas
             }
         }
 
-        static string CorrelationPropertyAccessorName(CorrelationPropertyMappingSpec mapping)
+        static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping)
         {
-            var hash = NonCryptographicHash.GetHash(mapping.PropertyType, "_", mapping.PropertyName);
+            var hash = NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName);
             return $"{mapping.PropertyName}As{mapping.PropertyTypeMetadataName}Accessor_{hash:x16}";
         }
     }
