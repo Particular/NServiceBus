@@ -137,7 +137,7 @@ class RollingLogger(
 
     static bool TryParseDate(string datePart, out DateTimeOffset dateTime) => DateTimeOffset.TryParseExact(datePart, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
 
-    static long GetFileSizeOrZero(string path)
+    protected virtual long GetFileSizeOrZero(string path)
     {
         try
         {

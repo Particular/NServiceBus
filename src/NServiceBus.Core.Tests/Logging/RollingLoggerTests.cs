@@ -97,6 +97,36 @@ public class RollingLoggerTests
     }
 
     [Test]
+    public void When_file_is_deleted_underneath_immediately_before_size_lookup()
+    {
+        using var tempPath = new TempPath("RollingLoggerTests");
+        var logger = new RollingLoggerThatDeletesBeforeSizeLookup(tempPath.TempDirectory, maxFileSize: 2)
+        {
+            GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
+        };
+        logger.WriteLine("Foo");
+
+        // Second write exceeds maxFileSize, so the synchronization enumerates today's file;
+        // the override removes it between enumeration and the metadata read
+        logger.WriteLine("Bar");
+
+        // The name proves the sequence number was reused (vanished file counts as empty)
+        // instead of rolling to a new sequence
+        var file = tempPath.GetSingle();
+        Assert.That(Path.GetFileName(file), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
+    }
+
+    class RollingLoggerThatDeletesBeforeSizeLookup(string targetDirectory, long maxFileSize) :
+        RollingLogger(targetDirectory, maxFileSize: maxFileSize)
+    {
+        protected override long GetFileSizeOrZero(string path)
+        {
+            File.Delete(path);
+            return base.GetFileSizeOrZero(path);
+        }
+    }
+
+    [Test]
     public void When_file_already_exists_and_is_too_large_a_new_sequence_file_is_written()
     {
         using var tempPath = new TempPath("RollingLoggerTests");
