@@ -396,4 +396,29 @@ public class RollingLoggerTests
         var singleFile = tempPath.GetSingle();
         Assert.That(Path.GetFileName(singleFile), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
     }
+
+    [Test]
+    public void When_log_directory_is_deleted_underneath_write_does_not_throw_and_recovers()
+    {
+        using var tempPath = new TempPath("RollingLoggerTests");
+        var logger = new RollingLogger(tempPath.TempDirectory)
+        {
+            GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
+        };
+        logger.WriteLine("Foo");
+
+        Directory.Delete(tempPath.TempDirectory, true);
+        logger.GetDate = () => new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
+
+        // Simulates e.g. a deployment or slot swap removing the whole log directory: the synchronization
+        // and the write must degrade to tracing instead of throwing out of WriteLine
+        Assert.That(() => logger.WriteLine("Bar"), Throws.Nothing);
+
+        Directory.CreateDirectory(tempPath.TempDirectory);
+        logger.WriteLine("Baz");
+
+        // GetSingle also verifies the day one file is not resurrected after the directory came back
+        var singleFile = tempPath.GetSingle();
+        Assert.That(Path.GetFileName(singleFile), Is.EqualTo("nsb_log_2010-10-02_0.txt"));
+    }
 }
