@@ -16,8 +16,6 @@ using NServiceBus;
 /// </remarks>
 public partial class MessageMetadataRegistry
 {
-    internal const string TrimmingMessage = "Registering message types using runtime hierarchy inference is not supported in trimming scenarios. The AddMessageType method is intercepted by a source generator when trimming is enabled.";
-
     /// <summary>
     /// Creates a new instance of <see cref="MessageMetadataRegistry"/>.
     /// </summary>
@@ -304,7 +302,7 @@ public partial class MessageMetadataRegistry
 
     [DoesNotReturn]
     static void ThrowStrictMissingMetadataException(Type messageType) =>
-        throw new Exception($"Could not find metadata for '{messageType.FullName}' because the endpoint runs in strict registered-only message metadata mode.{Environment.NewLine}Ensure the following:{Environment.NewLine}1. The message type is registered before the endpoint starts using 'AddMessageType<TMessage>()' or 'RegisterMessageTypeWithHierarchy'.{Environment.NewLine}2. If '{messageType.FullName}' is handled by a handler or saga, register the handler or saga with 'AddHandler<T>()' or 'AddSaga<T>()' and the message type with 'AddMessageType<TMessage>()'.{Environment.NewLine}3. '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.");
+        throw new Exception($"Could not find metadata for '{messageType.FullName}' because the endpoint runs in strict registered-only message metadata mode.{Environment.NewLine}Ensure one of the following registration paths is used:{Environment.NewLine}1. Register the message type before the endpoint starts using 'AddMessageType<TMessage>()' or 'RegisterMessageTypeWithHierarchy'.{Environment.NewLine}2. If '{messageType.FullName}' is handled by a handler or saga, register the handler or saga with 'AddHandler<T>()' or 'AddSaga<T>()' and the message type with 'AddMessageType<TMessage>()'.{Environment.NewLine}In either case, ensure '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.");
 
     static void LogGenericMessageTypeWarning(Type messageType)
     {

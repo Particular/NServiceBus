@@ -11,6 +11,8 @@ using Unicast.Messages;
 /// </summary>
 public static class MessageTypeRegistrationExtensions
 {
+    internal const string TrimmingMessage = "AddMessageType<TMessage> relies on an NServiceBus source-generated interceptor to register the statically known message hierarchy without reflection when trimming is enabled. If this warning is reported, the interceptor was not used for this call; enable or restore the NServiceBus analyzer/source-generator tooling and use a statically known message type.";
+
     /// <summary>
     /// Registers the message type including its hierarchy of base types and implemented interfaces.
     /// </summary>
@@ -23,7 +25,7 @@ public static class MessageTypeRegistrationExtensions
     /// The hierarchy is inferred at runtime using reflection. Under trimming or NativeAOT the call is replaced by a
     /// source-generated, reflection-free registration that registers the statically known hierarchy instead.
     /// </remarks>
-    [RequiresUnreferencedCode(MessageMetadataRegistry.TrimmingMessage)]
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public static void AddMessageType<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TMessage>(this EndpointConfiguration config)
     {
         ArgumentNullException.ThrowIfNull(config);

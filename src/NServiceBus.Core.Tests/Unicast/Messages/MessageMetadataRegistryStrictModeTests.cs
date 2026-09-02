@@ -14,10 +14,7 @@ public class MessageMetadataRegistryStrictModeTests
 
         var exception = Assert.Throws<Exception>(() => registry.GetMessageMetadata(typeof(MyOtherMessage)));
 
-        Assert.That(exception?.Message, Does.Contain("strict registered-only message metadata mode")
-            .And.Contain("AddMessageType<TMessage>()")
-            .And.Contain("AddHandler<T>()")
-            .And.Contain("AddSaga<T>()"));
+        AssertStrictModeExceptionGuidance(exception);
     }
 
     [Test]
@@ -48,10 +45,7 @@ public class MessageMetadataRegistryStrictModeTests
 
         var exception = Assert.Throws<Exception>(() => registry.Initialize(new Conventions().IsMessageType, true));
 
-        Assert.That(exception?.Message, Does.Contain("strict registered-only message metadata mode")
-            .And.Contain("AddMessageType<TMessage>()")
-            .And.Contain("AddHandler<T>()")
-            .And.Contain("AddSaga<T>()"));
+        AssertStrictModeExceptionGuidance(exception);
     }
 
     [Test]
@@ -73,6 +67,20 @@ public class MessageMetadataRegistryStrictModeTests
         var metadata = registry.GetMessageMetadata(typeof(MyMessage).AssemblyQualifiedName);
 
         Assert.That(metadata.MessageType, Is.EqualTo(typeof(MyMessage)));
+    }
+
+    static void AssertStrictModeExceptionGuidance(Exception exception)
+    {
+        var message = exception.Message;
+
+        Assert.That(message, Does.Contain("strict registered-only message metadata mode")
+            .And.Contain("Ensure one of the following registration paths is used:")
+            .And.Contain("1. Register the message type before the endpoint starts using 'AddMessageType<TMessage>()' or 'RegisterMessageTypeWithHierarchy'.")
+            .And.Contain("2. If '")
+            .And.Contain("register the handler or saga with 'AddHandler<T>()' or 'AddSaga<T>()' and the message type with 'AddMessageType<TMessage>()'.")
+            .And.Contain("In either case, ensure")
+            .And.Contain("implements either 'IMessage', 'IEvent' or 'ICommand'")
+            .And.Contain("Unobtrusive Mode"));
     }
 
     static MessageMetadataRegistry CreateStrictRegistry()

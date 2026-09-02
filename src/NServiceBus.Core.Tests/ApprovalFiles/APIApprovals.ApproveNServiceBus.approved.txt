@@ -831,9 +831,7 @@ namespace NServiceBus
     }
     public static class MessageTypeRegistrationExtensions
     {
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering message types using runtime hierarchy inference is not supported in t" +
-            "rimming scenarios. The AddMessageType method is intercepted by a source generato" +
-            "r when trimming is enabled.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode(@"AddMessageType<TMessage> relies on an NServiceBus source-generated interceptor to register the statically known message hierarchy without reflection when trimming is enabled. If this warning is reported, the interceptor was not used for this call; enable or restore the NServiceBus analyzer/source-generator tooling and use a statically known message type.")]
         public static void AddMessageType<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TMessage>(this NServiceBus.EndpointConfiguration config) { }
     }
     public class MoveToError : NServiceBus.RecoverabilityAction
