@@ -156,18 +156,19 @@ public class RollingLoggerTests
     public void When_sync_fails_during_filename_calculation_state_is_not_committed_and_next_write_retries()
     {
         using var tempPath = new TempPath("RollingLoggerTests");
-        var logger = new RollingLoggerThatFailsSizeLookup(tempPath.TempDirectory, maxFileSize: 4)
+        var logger = new RollingLoggerThatFailsSizeLookup(tempPath.TempDirectory, maxFileSize: 20)
         {
             GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
         };
-        logger.WriteLine("Foo");
-        logger.WriteLine("Bar");
+        logger.WriteLine("LongMessage");
+        logger.WriteLine("LongMessage");
 
         logger.GetDate = () => new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
         logger.WriteLine("Baz");
 
-        // The clock moves back to a date that already has an oversized file. The metadata read fails,
-        // so the synchronization must abort without committing the new date
+        // The clock moves back to a date that already has an oversized file while the stale current file
+        // remains below the size limit. The metadata read fails, so the synchronization must abort without
+        // committing the new date; otherwise the next write would stay on the stale file and not retry.
         logger.GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero);
         logger.FailSizeLookup = true;
         logger.WriteLine("Qux");
