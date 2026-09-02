@@ -103,10 +103,7 @@ public abstract class Saga
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12")]
     [Obsolete("Use 'ReplyToOriginator<T>' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
-    // No RequiresUnreferencedCode here: the member is obsolete, never called by the framework, and kept alive on
-    // saga types by DynamicallyAccessedMembers(Handler). An RUC annotation would surface a spurious IL2026 on every
-    // generated saga registration in trimmed applications; the runtime-type reply inside is suppressed instead.
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Runtime-type reply used by the obsolete overload that is removed in version 12; new code must use the generic ReplyToOriginator<T>.")]
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     protected Task ReplyToOriginator(IMessageHandlerContext context, object message, IReadOnlyDictionary<string, string>? outgoingHeaders = null)
     {
         var options = BuildReplyToOriginatorOptions(outgoingHeaders);
