@@ -12,7 +12,7 @@ using Unicast.Messages;
 public static class MessageTypeRegistrationExtensions
 {
     /// <summary>
-    /// Registers the message type including its hierarchy.
+    /// Registers the message type including its hierarchy of base types and implemented interfaces.
     /// </summary>
     /// <remarks>
     /// The type is checked against the endpoint's message conventions when the message metadata registry is initialized.
