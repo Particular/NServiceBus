@@ -52,15 +52,16 @@ class RollingLogger(
             }
             var today = GetDate();
             var nsbLogFiles = GetNsbLogFiles(targetDirectory).ToList();
-            lastWriteDate = today;
             CalculateNewFileName(nsbLogFiles, today);
+            lastWriteDate = today;
             PurgeOldFiles(nsbLogFiles);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             // Tolerate environmental file system failures like the log directory or its files being removed
             // by overlapping processes, deployments, slot swaps or cleanups. Anything else is a bug and propagates.
-            // lastWriteDate is only updated once the synchronization succeeded so a failed attempt is retried on the next write.
+            // The synchronization state is only committed once the filename calculation succeeded so a failed
+            // attempt is retried on the next write.
             var errorMessage = $"NServiceBus.RollingLogger Could not synchronize log files in directory '{targetDirectory}'. Exception: {exception}";
             Trace.WriteLine(errorMessage);
         }
@@ -143,11 +144,13 @@ class RollingLogger(
         {
             return new FileInfo(path).Length;
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
         {
             // The file can vanish between enumerating it and reading its metadata, e.g. removed by
             // overlapping processes, deployments or external cleanup. Treat it as empty so the
-            // sequence number is reused and the file is recreated by the next append
+            // sequence number is reused and the file is recreated by the next append. Any other
+            // failure, like a transient I/O error or an ACL that denies metadata reads, aborts the
+            // synchronization instead of resetting the tracked size and reusing the oversized file.
             return 0;
         }
     }
