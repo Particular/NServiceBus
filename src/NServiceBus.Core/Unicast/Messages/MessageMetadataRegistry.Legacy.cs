@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace NServiceBus.Unicast.Messages;
 
 using System;
@@ -8,7 +10,7 @@ using System.Linq;
 public partial class MessageMetadataRegistry
 {
     [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Dynamic type loading is best-effort; when trimming removes a type, resolution falls back to known registered message metadata.")]
-    Type GetType(string messageTypeIdentifier)
+    Type? GetType(string messageTypeIdentifier)
     {
         if (allowDynamicTypeLoading)
         {
