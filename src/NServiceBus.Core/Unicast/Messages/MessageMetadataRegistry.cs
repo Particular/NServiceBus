@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Logging;
 using NServiceBus;
@@ -286,7 +287,7 @@ public partial class MessageMetadataRegistry
         // pre-initialization bare registrations are also rejected during Initialize.
         if (StrictRegisteredOnlyMode)
         {
-            throw CreateStrictMissingMetadataException(messageType);
+            ThrowStrictMissingMetadataException(messageType);
         }
 
         LogGenericMessageTypeWarning(messageType);
@@ -301,8 +302,9 @@ public partial class MessageMetadataRegistry
         return metadata;
     }
 
-    static Exception CreateStrictMissingMetadataException(Type messageType) =>
-        new($"Could not find metadata for '{messageType.FullName}' because the endpoint runs in strict registered-only message metadata mode.{Environment.NewLine}Ensure the following:{Environment.NewLine}1. The message type is registered before the endpoint starts using 'AddMessageType<TMessage>()' or 'RegisterMessageTypeWithHierarchy'.{Environment.NewLine}2. If '{messageType.FullName}' is handled by a handler or saga, register the handler or saga with 'AddHandler<T>()' or 'AddSaga<T>()' and the message type with 'AddMessageType<TMessage>()'.{Environment.NewLine}3. '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.");
+    [DoesNotReturn]
+    static void ThrowStrictMissingMetadataException(Type messageType) =>
+        throw new Exception($"Could not find metadata for '{messageType.FullName}' because the endpoint runs in strict registered-only message metadata mode.{Environment.NewLine}Ensure the following:{Environment.NewLine}1. The message type is registered before the endpoint starts using 'AddMessageType<TMessage>()' or 'RegisterMessageTypeWithHierarchy'.{Environment.NewLine}2. If '{messageType.FullName}' is handled by a handler or saga, register the handler or saga with 'AddHandler<T>()' or 'AddSaga<T>()' and the message type with 'AddMessageType<TMessage>()'.{Environment.NewLine}3. '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.");
 
     static void LogGenericMessageTypeWarning(Type messageType)
     {
