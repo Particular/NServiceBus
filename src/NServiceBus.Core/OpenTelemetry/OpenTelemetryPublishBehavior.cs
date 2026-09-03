@@ -15,7 +15,7 @@ class OpenTelemetryPublishBehavior(InstrumentationOptions instrumentationOptions
             ? requestedConnector
             : instrumentationOptions.PublishTraceMode;
 
-        context.Headers[Headers.StartNewTrace] = connector == TraceMode.StartNew ? bool.TrueString : bool.FalseString;
+        context.Headers[Headers.StartNewTrace] = TraceModeHeaderValue.From(connector);
 
         return next(context);
     }

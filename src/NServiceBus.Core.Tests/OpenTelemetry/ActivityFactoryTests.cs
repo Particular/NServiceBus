@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus.Core.Tests.OpenTelemetry;
 
@@ -198,6 +198,57 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
             Assert.That(activity!.Tags.ToImmutableDictionary()["nservicebus.native_message_id"], Is.EqualTo(messageContext.NativeMessageId));
+        }
+
+        [Test]
+        public void Should_attach_to_ambient_activity_and_link_to_send_span_when_use_existing_trace_header()
+        {
+            using var sendActivity = CreateCompletedActivity("send activity");
+            using var ambientActivity = new Activity("ambient activity");
+            ambientActivity.SetIdFormat(ActivityIdFormat.W3C);
+            ambientActivity.Start();
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.DiagnosticsTraceParent, sendActivity.Id! },
+                { Headers.StartNewTrace, "UseExisting" }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id), "should attach to the ambient activity instead of the send span");
+                Assert.That(activity.TraceId, Is.EqualTo(ambientActivity.TraceId), "should stay in the ambient trace");
+                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
+                Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
+                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
+            }
+        }
+
+        [Test]
+        public void Should_start_new_linked_trace_when_use_existing_trace_header_and_no_ambient_activity()
+        {
+            using var sendActivity = CreateCompletedActivity("send activity");
+            Assert.That(Activity.Current, Is.Null, "test requires no ambient activity");
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.DiagnosticsTraceParent, sendActivity.Id! },
+                { Headers.StartNewTrace, "UseExisting" }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.ParentId, Is.Null, "should start a new trace when there is no ambient activity");
+                Assert.That(activity.TraceId, Is.Not.EqualTo(sendActivity.TraceId), "should not continue the send trace");
+                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
+                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
+            }
         }
 
         static Activity CreateCompletedActivity(string activityName, ActivityIdFormat idFormat = ActivityIdFormat.W3C)

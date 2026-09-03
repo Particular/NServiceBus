@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
+namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -231,6 +231,56 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
     {
         public TestEndpointWithSpanLinkConnector() =>
             EndpointSetup<DefaultServer>(b => b.Tracing().SendTraceMode = TraceMode.StartNew);
+
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
+        {
+            public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
+    [Test]
+    public async Task Should_link_to_send_span_without_continuing_its_trace_when_endpoint_defaults_to_use_existing()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpointWithUseExistingConnector>(b => b
+                .When(s => s.SendLocal(new OutgoingMessage())))
+            .Run();
+
+        var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+        }
+
+        var sendRequest = sendMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(receiveRequest.TraceId, Is.Not.EqualTo(sendRequest.TraceId), "receive does not continue the trace carried in the message headers");
+            Assert.That(receiveRequest.ParentSpanId, Is.Not.EqualTo(sendRequest.SpanId), "receive is not a child of the send span");
+        }
+
+        ActivityLink link = receiveRequest.Links.FirstOrDefault();
+        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "Receive has a link");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "receive is linked to the send trace");
+            Assert.That(link.Context.SpanId, Is.EqualTo(sendRequest.SpanId), "receive is linked to the send span");
+        }
+    }
+
+    public class TestEndpointWithUseExistingConnector : EndpointConfigurationBuilder
+    {
+        public TestEndpointWithUseExistingConnector() =>
+            EndpointSetup<DefaultServer>(b => b.Tracing().SendTraceMode = TraceMode.UseExisting);
 
         [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>

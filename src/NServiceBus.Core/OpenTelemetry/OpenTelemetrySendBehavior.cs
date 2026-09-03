@@ -16,33 +16,23 @@ class OpenTelemetrySendBehavior(InstrumentationOptions instrumentationOptions) :
             ? requestedConnector
             : instrumentationOptions.SendTraceMode;
 
-        if (operationTraceMode == TraceMode.StartNew)
-        {
-            context.Headers[Headers.StartNewTrace] = bool.TrueString;
-        }
-        else
+        if (operationTraceMode != TraceMode.StartNew)
         {
             // This is needed to ensure the trace continuation behavior is backwards compatible.
-            // If the message is delayed, we always start a new trace unless different behavior is explicitly configured. 
+            // If the message is delayed, we always start a new trace unless different behavior is explicitly configured.
             var isDelayed = context.Extensions.TryGet<DispatchProperties>(out var dispatchProperties) &&
                             (dispatchProperties.DelayDeliveryWith != null || dispatchProperties.DoNotDeliverBefore != null);
 
-            bool startNewTrace;
             if (isDelayed)
             {
                 var isSagaTimeout = context.Headers.ContainsKey(Headers.IsSagaTimeoutMessage);
-                var mode = isSagaTimeout
+                operationTraceMode = isSagaTimeout
                     ? instrumentationOptions.DelayedDelivery.SagaTimeoutTraceMode
                     : instrumentationOptions.DelayedDelivery.SendOperationTraceMode;
-                startNewTrace = mode == TraceMode.StartNew;
             }
-            else
-            {
-                startNewTrace = false;
-            }
-
-            context.Headers[Headers.StartNewTrace] = startNewTrace ? bool.TrueString : bool.FalseString;
         }
+
+        context.Headers[Headers.StartNewTrace] = TraceModeHeaderValue.From(operationTraceMode);
 
         return next(context);
     }

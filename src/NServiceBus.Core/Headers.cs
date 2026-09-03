@@ -1,4 +1,4 @@
-﻿namespace NServiceBus;
+namespace NServiceBus;
 
 /// <summary>
 /// Static class containing headers used by NServiceBus.
@@ -257,8 +257,11 @@ public static partial class Headers
     public const string DataBusConfigContentType = "NServiceBus.DataBusConfig.ContentType"; // NOTE: .DataConfig required for compatibility with the Gateway BLOB matching behavior.
 
     /// <summary>
-    /// This header is set when a new trace should be started when receiving this message.
-    /// This is automatically set when: a saga timeout is requested, a message is set to be delivered at a certain time, a delayed retry is requested or a message is moved to the error queue.
+    /// This header controls how the receiving endpoint relates its processing span to the trace carried in the message headers.
+    /// <c>True</c> starts a new trace linked back to the outgoing span (<see cref="TraceMode.StartNew"/>), <c>False</c> continues the
+    /// trace (<see cref="TraceMode.ContinueExisting"/>), and <c>UseExisting</c> attaches to the ambient activity at receive time
+    /// with a link back to the outgoing span (<see cref="TraceMode.UseExisting"/>).
+    /// The value is derived from <see cref="InstrumentationOptions"/> and the per-message overrides in <see cref="OpenTelemetryExtensions"/>.
     /// </summary>
     public const string StartNewTrace = "NServiceBus.OpenTelemetry.StartNewTrace";
 }

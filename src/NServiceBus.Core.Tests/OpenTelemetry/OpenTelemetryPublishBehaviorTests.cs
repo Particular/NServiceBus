@@ -30,6 +30,29 @@ public class OpenTelemetryPublishBehaviorTests
     }
 
     [Test]
+    public async Task Should_use_existing_trace_on_receive_when_endpoint_trace_mode_is_use_existing()
+    {
+        var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishTraceMode = TraceMode.UseExisting });
+        var context = new TestableOutgoingPublishContext();
+
+        await behavior.Invoke(context, _ => Task.CompletedTask);
+
+        Assert.That(context.Headers[Headers.StartNewTrace], Is.EqualTo("UseExisting"));
+    }
+
+    [Test]
+    public async Task Should_prefer_use_existing_option_over_endpoint_connector()
+    {
+        var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishTraceMode = TraceMode.StartNew });
+        var context = new TestableOutgoingPublishContext();
+        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceMode.UseExisting);
+
+        await behavior.Invoke(context, _ => Task.CompletedTask);
+
+        Assert.That(context.Headers[Headers.StartNewTrace], Is.EqualTo("UseExisting"));
+    }
+
+    [Test]
     public async Task Should_prefer_child_span_option_over_endpoint_connector()
     {
         var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishTraceMode = TraceMode.StartNew });

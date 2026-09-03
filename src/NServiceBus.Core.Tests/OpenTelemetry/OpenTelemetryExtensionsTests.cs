@@ -30,6 +30,28 @@ public class OpenTelemetryExtensionsTests
     }
 
     [Test]
+    public void UseExistingTraceOnReceive_should_set_use_existing_override_on_send_options()
+    {
+        var options = new SendOptions();
+
+        options.UseExistingTraceOnReceive();
+
+        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(connector, Is.EqualTo(TraceMode.UseExisting));
+    }
+
+    [Test]
+    public void UseExistingTraceOnReceive_should_set_use_existing_override_on_publish_options()
+    {
+        var options = new PublishOptions();
+
+        options.UseExistingTraceOnReceive();
+
+        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(connector, Is.EqualTo(TraceMode.UseExisting));
+    }
+
+    [Test]
     public void StartNewTraceOnReceive_should_set_span_link_override_on_publish_options()
     {
         var options = new PublishOptions();

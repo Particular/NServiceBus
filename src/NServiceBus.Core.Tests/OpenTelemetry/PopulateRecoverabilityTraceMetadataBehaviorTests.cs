@@ -100,6 +100,25 @@ public class PopulateRecoverabilityTraceMetadataBehaviorTests
         Assert.That(context.Metadata[Headers.StartNewTrace], Is.EqualTo(bool.FalseString));
     }
 
+    [Test]
+    public async Task Should_use_existing_trace_for_delayed_retry_when_trace_mode_is_use_existing()
+    {
+        var behavior = new PopulateRecoverabilityTraceMetadataBehavior(new InstrumentationOptions
+        {
+            Recoverability = { DelayedRetryTraceMode = TraceMode.UseExisting }
+        });
+
+        var context = new TestableRecoverabilityContext
+        {
+            Headers = { { Headers.DiagnosticsTraceParent, "traceparent" } },
+            RecoverabilityAction = new DelayedRetry(TimeSpan.FromSeconds(10))
+        };
+
+        await behavior.Invoke(context, _ => Task.CompletedTask);
+
+        Assert.That(context.Metadata[Headers.StartNewTrace], Is.EqualTo("UseExisting"));
+    }
+
     static IEnumerable<RecoverabilityAction> ActionsThatWriteMetadata()
     {
         yield return new DelayedRetry(TimeSpan.FromSeconds(10));
