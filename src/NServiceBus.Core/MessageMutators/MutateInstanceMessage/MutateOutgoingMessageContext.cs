@@ -37,6 +37,7 @@ public class MutateOutgoingMessageContext : ICancellableContext
             TreatAsErrorFromVersion = "11",
             RemoveInVersion = "12")]
         [Obsolete("Use 'UpdateMessage<T>(T)' or 'UpdateMessage(object, Type)' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
         set
         {
             ArgumentNullException.ThrowIfNull(value);

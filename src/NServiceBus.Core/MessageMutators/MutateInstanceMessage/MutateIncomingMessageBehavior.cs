@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MessageMutator;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,17 +47,27 @@ class MutateIncomingMessageBehavior(HashSet<IMutateIncomingMessages> mutators)
 
         if (mutatorContext.MessageInstanceChanged)
         {
-            if (mutatorContext.ReplacementMessageType != null)
-            {
-                context.UpdateMessageInstance(mutatorContext.Message, mutatorContext.ReplacementMessageType);
-            }
-            else
-            {
-                context.UpdateMessageInstance(mutatorContext.Message);
-            }
+            UpdateMessageInstance(context, mutatorContext);
         }
 
         await next(context).ConfigureAwait(false);
+    }
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
+        Justification = "Path without compiler-known type can only be visited if MutateIncomingMessageContext.Message setter is used.")]
+#pragma warning disable PS0015 // Multiple cancellable contexts are fine here
+    static void UpdateMessageInstance(IIncomingLogicalMessageContext context, MutateIncomingMessageContext mutatorContext)
+#pragma warning restore PS0015
+    {
+        if (mutatorContext.ReplacementMessageType != null)
+        {
+            context.UpdateMessageInstance(mutatorContext.Message, mutatorContext.ReplacementMessageType);
+        }
+        else
+        {
+            // Requires code path to use MutateIncomingMessageContext.Message which is marked as RequiresUnreferencedCode
+            context.UpdateMessageInstance(mutatorContext.Message);
+        }
     }
 
     volatile bool hasIncomingMessageMutators = true;
