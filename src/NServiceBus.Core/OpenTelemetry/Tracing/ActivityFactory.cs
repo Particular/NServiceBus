@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
@@ -24,6 +24,13 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             return null;
         }
 
+        // TODO: Is this needed??
+
+        // If the native client or transport set a trace with kind consumer, we mark this as internal
+        var activityKind = Activity.Current?.Kind == ActivityKind.Consumer
+            ? ActivityKind.Internal
+            : ActivityKind.Consumer;
+
         Activity? activity;
         var incomingTraceParentExists = headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
         var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
@@ -40,24 +47,35 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             }
 
             activity = activitySource.CreateActivity(name: activityName,
-                ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
+                activityKind, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
         }
         else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
         {
-            var isStartNewTraceHeaderAvailable = headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
-            if (isStartNewTraceHeaderAvailable && shouldStartNewTrace?.Equals(bool.TrueString) is true)
+            headers.TryGetValue(Headers.StartNewTrace, out var traceModeHeader);
+            var traceMode = TraceModeHeaderValue.Parse(traceModeHeader);
+
+            if (traceMode == TraceMode.StartNew)
             {
                 // create a new trace or root activity
                 ActivityLink[] links = [new(sendSpanContext)];
                 //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
                 Activity.Current = null;
-                activity = activitySource.StartActivity(name: activityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
+                activity = activitySource.StartActivity(name: activityName, activityKind, parentContext: default, tags: null, links: links);
+            }
+
+            // TODO: Do we even need a new UseExisting mode? If not, and this is just the new behavior then we need an AppSwitch
+            else if (traceMode == TraceMode.UseExisting && Activity.Current?.Kind == ActivityKind.Consumer)
+            {
+                // ignore the trace carried in the headers: attach to the ambient activity (Activity.Current) when there is one,
+                // otherwise this becomes the root of a new trace. Either way link back to the logical send span.
+                ActivityLink[] links = [new(sendSpanContext)];
+                activity = activitySource.CreateActivity(name: activityName, activityKind, parentContext: default, tags: null, links: links, idFormat: ActivityIdFormat.W3C);
             }
             else
             {
                 // no new trace was requested, so start a child trace
                 ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
-                activity = activitySource.CreateActivity(name: activityName, ActivityKind.Consumer, remoteParentActivityContext);
+                activity = activitySource.CreateActivity(name: activityName, activityKind, remoteParentActivityContext);
             }
         }
         else // otherwise start a new trace

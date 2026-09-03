@@ -810,6 +810,8 @@ namespace NServiceBus
         public static void StartNewTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
         public static void StartNewTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
         public static NServiceBus.InstrumentationOptions Tracing(this NServiceBus.EndpointConfiguration config) { }
+        public static void UseExistingTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
+        public static void UseExistingTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
     }
     public static class OutboxConfigExtensions
     {
@@ -1214,6 +1216,7 @@ namespace NServiceBus
     {
         ContinueExisting = 0,
         StartNew = 1,
+        UseExisting = 2,
     }
     public static class TransportConfig
     {

@@ -17,9 +17,7 @@ class PopulateRecoverabilityTraceMetadataBehavior(InstrumentationOptions instrum
         {
             // Setting it to the metadata makes sure it is propagated to the headers
             // even in more advanced scenarios like native dead-lettering
-            context.Metadata[Headers.StartNewTrace] = instrumentationOptions.Recoverability.DelayedRetryTraceMode == TraceMode.StartNew
-                ? bool.TrueString
-                : bool.FalseString;
+            context.Metadata[Headers.StartNewTrace] = TraceModeHeaderValue.From(instrumentationOptions.Recoverability.DelayedRetryTraceMode);
         }
         else if (context.RecoverabilityAction is MoveToError)
         {

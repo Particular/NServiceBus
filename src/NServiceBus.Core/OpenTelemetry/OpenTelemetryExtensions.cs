@@ -43,6 +43,17 @@ public static class OpenTelemetryExtensions
     }
 
     /// <summary>
+    /// Attach the processing span to the ambient activity on receive of this message (ignoring the trace carried in the headers), linked back to the send span.
+    /// Overrides <see cref="InstrumentationOptions.SendTraceMode"/> for this message.
+    /// </summary>
+    /// <param name="sendOptions">The option being extended.</param>
+    public static void UseExistingTraceOnReceive(this SendOptions sendOptions)
+    {
+        ArgumentNullException.ThrowIfNull(sendOptions);
+        sendOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.UseExisting);
+    }
+
+    /// <summary>
     /// Start a new OpenTelemetry trace on receive of this event, linked back to the publish span.
     /// Overrides <see cref="InstrumentationOptions.PublishTraceMode"/> for this message.
     /// </summary>
@@ -62,6 +73,17 @@ public static class OpenTelemetryExtensions
     {
         ArgumentNullException.ThrowIfNull(publishOptions);
         publishOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.ContinueExisting);
+    }
+
+    /// <summary>
+    /// Attach the processing span to the ambient activity on receive of this event (ignoring the trace carried in the headers), linked back to the publish span.
+    /// Overrides <see cref="InstrumentationOptions.PublishTraceMode"/> for this message.
+    /// </summary>
+    /// <param name="publishOptions">The option being extended.</param>
+    public static void UseExistingTraceOnReceive(this PublishOptions publishOptions)
+    {
+        ArgumentNullException.ThrowIfNull(publishOptions);
+        publishOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.UseExisting);
     }
 
     internal const string TraceConnectorOverrideKey = "NServiceBus.OpenTelemetry.TraceConnectorOverride";

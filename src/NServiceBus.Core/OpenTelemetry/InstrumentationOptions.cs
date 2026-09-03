@@ -27,7 +27,7 @@ public partial class InstrumentationOptions
 
     /// <summary>
     /// Controls instrumentation of explicitly delayed messages (<c>SendOptions.DelayDeliveryWith</c>
-    /// / <c>DoNotDeliverBefore</c> and saga timeouts. 
+    /// / <c>DoNotDeliverBefore</c> and saga timeouts.
     /// Recoverability-driven delayed retries are controlled separately via
     /// <see cref="RecoverabilityInstrumentationOptions.DelayedRetryTraceMode"/>.
     /// </summary>
