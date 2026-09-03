@@ -43,10 +43,7 @@ public class MutateIncomingMessageContext : ICancellableContext
     /// </summary>
     /// <typeparam name="T">The type used to update the message. It determines the logical message type and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="newMessage">The replacement message instance.</param>
-    public void UpdateMessageInstance<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newMessage)
-    {
-        UpdateMessageInstance(newMessage!, typeof(T));
-    }
+    public void UpdateMessageInstance<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newMessage) => UpdateMessageInstance(newMessage!, typeof(T));
 
     /// <summary>
     /// Replaces the current incoming message with the provided message instance and message type. The declared type determines the logical message type.
@@ -76,9 +73,6 @@ public class MutateIncomingMessageContext : ICancellableContext
 
     internal bool MessageInstanceChanged;
 
-    /// <summary>
-    /// The declared logical message type of <see cref="Message" /> when a mutator supplied an explicit type, otherwise <see langword="null" />.
-    /// </summary>
     [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)]
-    internal Type? ReplacementMessageType { get; set; }
+    internal Type? ReplacementMessageType;
 }
