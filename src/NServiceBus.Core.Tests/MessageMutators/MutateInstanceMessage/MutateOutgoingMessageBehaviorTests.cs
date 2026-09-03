@@ -220,7 +220,9 @@ class MutateOutgoingMessageBehaviorTests
     {
         public Task MutateOutgoing(MutateOutgoingMessageContext context)
         {
+#pragma warning disable CS0618 // Deliberate coverage of the legacy runtime-type-routing setter until its removal
             context.OutgoingMessage = new object();
+#pragma warning restore CS0618
 
             return Task.CompletedTask;
         }

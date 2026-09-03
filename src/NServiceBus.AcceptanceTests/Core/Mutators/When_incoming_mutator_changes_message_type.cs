@@ -45,7 +45,9 @@ public class When_incoming_mutator_changes_message_type : NServiceBusAcceptanceT
             public Task MutateIncoming(MutateIncomingMessageContext context)
             {
                 var original = (OriginalMessage)context.Message;
+#pragma warning disable CS0618 // Deliberate coverage of the legacy runtime-type-routing setter until its removal
                 context.Message = new NewMessage { SomeId = original.SomeId };
+#pragma warning restore CS0618
                 return Task.CompletedTask;
             }
         }

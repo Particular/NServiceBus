@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Provides ways to mutate the outgoing message instance.
@@ -30,6 +31,10 @@ public class MutateIncomingMessageContext : ICancellableContext
     public object Message
     {
         get => message;
+        [ObsoleteMetadata(ReplacementTypeOrMember = "UpdateMessageInstance<T>(T)",
+            TreatAsErrorFromVersion = "11",
+            RemoveInVersion = "12")]
+        [Obsolete("Use 'UpdateMessageInstance<T>(T)' or 'UpdateMessageInstance(object, Type)' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         set
         {
             ArgumentNullException.ThrowIfNull(value);
@@ -55,7 +60,8 @@ public class MutateIncomingMessageContext : ICancellableContext
     public void UpdateMessageInstance(object newMessage, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
         MessageTypeValidator.Validate(newMessage, messageType);
-        Message = newMessage;
+        message = newMessage;
+        MessageInstanceChanged = true;
         ReplacementMessageType = messageType;
     }
 

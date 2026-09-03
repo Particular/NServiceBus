@@ -1881,6 +1881,9 @@ namespace NServiceBus.MessageMutator
         public MutateIncomingMessageContext(object message, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        [set: System.Obsolete("Use \'UpdateMessageInstance<T>(T)\' or \'UpdateMessageInstance(object, Type)\' instea" +
+            "d. Will be treated as an error from version 11.0.0. Will be removed in version 1" +
+            "2.0.0.", false)]
         public object Message { get; set; }
         public void UpdateMessageInstance(object newMessage, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] System.Type messageType) { }
         public void UpdateMessageInstance<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  T>(T newMessage) { }
@@ -1897,6 +1900,8 @@ namespace NServiceBus.MessageMutator
         public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object? incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
+        [set: System.Obsolete("Use \'UpdateMessage<T>(T)\' or \'UpdateMessage(object, Type)\' instead. Will be treat" +
+            "ed as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public object OutgoingMessage { get; set; }
         public bool TryGetIncomingHeaders([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders) { }
         public bool TryGetIncomingMessage([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out object? incomingMessage) { }
