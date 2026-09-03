@@ -2,12 +2,6 @@ The following trimming warnings are present in NServiceBus.Core.
 Changes that make this list longer should not be approved.
 -----
 
-src/NServiceBus.Core/MessageMutators/MutateInstanceMessage/MutateIncomingMessageBehavior.cs
-  IL2026: Using member 'NServiceBus.Pipeline.IIncomingLogicalMessageContext.UpdateMessageInstance(Object)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.
-
-src/NServiceBus.Core/MessageMutators/MutateInstanceMessage/MutateOutgoingMessageBehavior.cs
-  IL2026: Using member 'NServiceBus.Pipeline.IOutgoingLogicalMessageContext.UpdateMessage(Object)' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming application code. When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.
-
 src/NServiceBus.Core/Routing/AssemblyRouteSource.cs
   IL2046: Member 'NServiceBus.AssemblyRouteSource.GenerateRoutes(Conventions)' with 'RequiresUnreferencedCodeAttribute' implements interface member 'NServiceBus.IRouteSource.GenerateRoutes(Conventions)' without 'RequiresUnreferencedCodeAttribute'. 'RequiresUnreferencedCodeAttribute' annotations must match across all interface implementations or overrides.
 

@@ -1881,6 +1881,9 @@ namespace NServiceBus.MessageMutator
         public MutateIncomingMessageContext(object message, System.Collections.Generic.Dictionary<string, string> headers, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        [set: System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         [set: System.Obsolete("Use \'UpdateMessageInstance<T>(T)\' or \'UpdateMessageInstance(object, Type)\' instea" +
             "d. Will be treated as an error from version 11.0.0. Will be removed in version 1" +
             "2.0.0.", false)]
@@ -1900,6 +1903,9 @@ namespace NServiceBus.MessageMutator
         public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object? incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string>? incomingHeaders, System.Threading.CancellationToken cancellationToken = default) { }
         public System.Threading.CancellationToken CancellationToken { get; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
+        [set: System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
+            "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
+            "pe is not known at compile time, the overload accepting an explicit Type.")]
         [set: System.Obsolete("Use \'UpdateMessage<T>(T)\' or \'UpdateMessage(object, Type)\' instead. Will be treat" +
             "ed as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
         public object OutgoingMessage { get; set; }
