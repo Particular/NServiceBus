@@ -60,7 +60,7 @@ class MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators) :
     }
 
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
-        Justification = "Path without compiler-known type can only be visited if MutateOutgoingMessageContext.Message setter is used.")]
+        Justification = "Path without compiler-known type can only be visited if MutateOutgoingMessageContext.OutgoingMessage setter is used.")]
 #pragma warning disable PS0015 // Multiple cancellable contexts are fine here
     static void UpdateMessage(IOutgoingLogicalMessageContext context, MutateOutgoingMessageContext mutatorContext)
 #pragma warning restore PS0015
@@ -71,7 +71,7 @@ class MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators) :
         }
         else
         {
-            // Requires code path to use MutateOutgoingMessageContext.Message which is marked as RequiresUnreferencedCode
+            // Requires code path to use MutateOutgoingMessageContext.OutgoingMessage which is marked as RequiresUnreferencedCode
             context.UpdateMessage(mutatorContext.OutgoingMessage);
         }
     }
