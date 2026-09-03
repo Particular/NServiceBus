@@ -640,6 +640,44 @@ public class MessagingMigrationFixerTests : CodeFixTestFixture<MessagingMigratio
     }
 
     [Test]
+    public Task UpdateMessageInstance()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context)
+                {
+                    context.UpdateMessageInstance(new MyMessage());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context)
+                {
+                    context.UpdateMessageInstance<MyMessage>(new MyMessage());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
     public Task MutatorIncomingContext_Message()
     {
         var original =

@@ -1346,6 +1346,158 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
         return Assert(source, DiagnosticIds.GenericMessageTypeIsObject);
     }
 
+    // ===== UpdateMessageInstance on IIncomingLogicalMessageContext =====
+
+    [Test]
+    public Task NSB0039_UpdateMessageInstanceDirectObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context)
+                {
+                    [|context.UpdateMessageInstance(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0040_UpdateMessageInstanceVarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+
+            class MyMessage : IMessage { }
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context)
+                {
+                    var message = new MyMessage();
+                    [|context.UpdateMessageInstance(message)|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_UpdateMessageInstanceCreatedByMessageCreator()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context, IMessageCreator creator)
+                {
+                    [|context.UpdateMessageInstance(creator.CreateInstance<IMyMessage>())|];
+                }
+            }
+
+            public interface IMyMessage { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_UpdateMessageInstanceSealedVariable()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context, MyMessage message)
+                {
+                    [|context.UpdateMessageInstance(message)|];
+                }
+            }
+
+            public sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0041_GenericTIsObject_UpdateMessageInstance()
+    {
+        var source =
+            """
+            using NServiceBus.Pipeline;
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context, object message)
+                {
+                    [|context.UpdateMessageInstance<object>(message)|];
+                }
+            }
+            """;
+        return Assert(source, DiagnosticIds.GenericMessageTypeIsObject);
+    }
+
+    [Test]
+    public Task NoDiagnostic_UpdateMessageInstance_UnrelatedMethod()
+    {
+        var source =
+            """
+            using NServiceBus;
+
+            class Helper
+            {
+                public void UpdateMessageInstance(object message) { }
+            }
+
+            class Foo
+            {
+                void Bar(Helper helper, MyMessage message)
+                {
+                    helper.UpdateMessageInstance(message);
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NSB0039_TestableIncomingLogicalMessageContext_UpdateMessageInstance()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.Testing;
+
+            class Foo
+            {
+                void Bar(TestableIncomingLogicalMessageContext context)
+                {
+                    [|context.UpdateMessageInstance(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return FakeMigrationTest(source).AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
     // ===== Method groups and delegates =====
 
     [Test]
