@@ -4,14 +4,8 @@
 
 namespace NServiceBus.Core.Analyzer.Tests;
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Framework;
 using Particular.AnalyzerTesting;
 
@@ -36,151 +30,6 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
     static AnalyzerTest FakeMigrationTest(string source) =>
         MigrationAuditTest(source).AddReferences(TestingFakesReference);
-
-    static async Task AssertEditorConfigSeverity(
-        string source,
-        string diagnosticId,
-        ReportDiagnostic severity,
-        bool automaticActivation,
-        params string[] expectedDiagnosticIds)
-    {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, path: "Test.cs");
-        var analyzerDiagnostics = await GetEditorConfigDiagnostics(
-            [syntaxTree],
-            syntaxTree,
-            diagnosticId,
-            severity,
-            automaticActivation);
-
-        NUnit.Framework.Assert.That(analyzerDiagnostics.Select(diagnostic => diagnostic.Id), Is.EquivalentTo(expectedDiagnosticIds));
-    }
-
-    static async Task<ImmutableArray<Diagnostic>> GetEditorConfigDiagnostics(
-        ImmutableArray<SyntaxTree> syntaxTrees,
-        SyntaxTree configuredTree,
-        string diagnosticId,
-        ReportDiagnostic severity,
-        bool automaticActivation)
-    {
-        var compilation = CSharpCompilation.Create(
-            "AnalyzerConfigOptionsTest",
-            syntaxTrees,
-            SetUpFixture.ProjectReferences,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                .WithSyntaxTreeOptionsProvider(new TestSyntaxTreeOptionsProvider(configuredTree, diagnosticId, severity)));
-        return await compilation.WithAnalyzers(
-            [new MessagingMigrationAnalyzer()],
-            new CompilationWithAnalyzersOptions(
-                new AnalyzerOptions(
-                    ImmutableArray<AdditionalText>.Empty,
-                    new TestAnalyzerConfigOptionsProvider(automaticActivation)),
-                onAnalyzerException: null,
-                concurrentAnalysis: true,
-                logAnalyzerExecutionTime: false,
-                reportSuppressedDiagnostics: true)).GetAnalyzerDiagnosticsAsync();
-    }
-
-    static async Task<ImmutableArray<Diagnostic>> GetSeverityConfigDiagnostics(
-        string source,
-        string diagnosticId,
-        ReportDiagnostic? severity = null,
-        ReportDiagnostic? globalSeverity = null,
-        ImmutableDictionary<string, string>? treeOptions = null,
-        bool automaticActivation = false)
-    {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, path: "Test.cs");
-        var optionsProvider = severity is null && globalSeverity is null
-            ? null
-            : new TestSyntaxTreeOptionsProvider(syntaxTree, diagnosticId, severity, globalSeverity);
-
-        var compilation = CSharpCompilation.Create(
-            "AnalyzerConfigOptionsTest",
-            [syntaxTree],
-            SetUpFixture.ProjectReferences,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                .WithSyntaxTreeOptionsProvider(optionsProvider));
-        return await compilation.WithAnalyzers(
-            [new MessagingMigrationAnalyzer()],
-            new CompilationWithAnalyzersOptions(
-                new AnalyzerOptions(
-                    ImmutableArray<AdditionalText>.Empty,
-                    new TestAnalyzerConfigOptionsProvider(automaticActivation, treeOptions)),
-                onAnalyzerException: null,
-                concurrentAnalysis: true,
-                logAnalyzerExecutionTime: false,
-                reportSuppressedDiagnostics: true)).GetAnalyzerDiagnosticsAsync();
-    }
-
-    // dotnet_diagnostic severity is a compiler tree option, not an AnalyzerConfigOptions value.
-    // SyntaxTreeOptionsProvider is the Roslyn API that retains the .editorconfig file scope.
-    sealed class TestSyntaxTreeOptionsProvider(
-        SyntaxTree configuredTree,
-        string configuredDiagnosticId,
-        ReportDiagnostic? configuredSeverity = null,
-        ReportDiagnostic? configuredGlobalSeverity = null) : SyntaxTreeOptionsProvider
-    {
-        public override GeneratedKind IsGenerated(SyntaxTree tree, CancellationToken cancellationToken = default) => GeneratedKind.NotGenerated;
-
-#pragma warning disable PS0003 // A parameter of type CancellationToken on a non-private delegate or method should be optional
-        public override bool TryGetDiagnosticValue(
-            SyntaxTree tree,
-            string diagnosticId,
-            CancellationToken cancellationToken,
-            out ReportDiagnostic severity)
-        {
-            if (tree == configuredTree &&
-                diagnosticId == configuredDiagnosticId &&
-                configuredSeverity is { } configuredTreeSeverity)
-            {
-                severity = configuredTreeSeverity;
-                return true;
-            }
-
-            severity = ReportDiagnostic.Default;
-            return false;
-        }
-
-        public override bool TryGetGlobalDiagnosticValue(
-            string diagnosticId,
-            CancellationToken cancellationToken,
-            out ReportDiagnostic severity)
-        {
-            if (configuredGlobalSeverity is { } globalSeverity &&
-                diagnosticId == configuredDiagnosticId)
-            {
-                severity = globalSeverity;
-                return true;
-            }
-
-            severity = ReportDiagnostic.Default;
-            return false;
-        }
-#pragma warning restore PS0003 // A parameter of type CancellationToken on a non-private delegate or method should be optional
-    }
-
-    sealed class TestAnalyzerConfigOptionsProvider(bool automaticActivation, ImmutableDictionary<string, string>? treeOptions = null) : AnalyzerConfigOptionsProvider
-    {
-        static readonly AnalyzerConfigOptions EmptyOptions = new TestAnalyzerConfigOptions(ImmutableDictionary<string, string>.Empty);
-        static readonly AnalyzerConfigOptions AutomaticActivationOptions = new TestAnalyzerConfigOptions(
-            ImmutableDictionary<string, string>.Empty.Add("build_property.PublishTrimmed", "true"));
-
-        readonly AnalyzerConfigOptions treeConfigOptions = treeOptions is { Count: > 0 }
-            ? new TestAnalyzerConfigOptions(treeOptions)
-            : EmptyOptions;
-
-        public override AnalyzerConfigOptions GlobalOptions => automaticActivation ? AutomaticActivationOptions : EmptyOptions;
-
-        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => treeConfigOptions;
-
-        public override AnalyzerConfigOptions GetOptions(AdditionalText text) => EmptyOptions;
-    }
-
-    sealed class TestAnalyzerConfigOptions(ImmutableDictionary<string, string> values) : AnalyzerConfigOptions
-    {
-        public override bool TryGetValue(string key, out string value) => values.TryGetValue(key, out value!);
-
-        public override IEnumerable<string> Keys => values.Keys;
-    }
 
     // ===== NSB0039: Safe object creation =====
 
@@ -2325,19 +2174,16 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             {
                 async Task Bar(IMessageSession session, int? message)
                 {
-                    await session.Send(new MyMessage());
+                    await [|session.Send(new MyMessage())|];
                     await session.Send(message);
                 }
             }
 
             class MyMessage : IMessage { }
             """;
-        return AssertEditorConfigSeverity(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            ReportDiagnostic.Info,
-            automaticActivation: false,
-            DiagnosticIds.UseGenericMessageType);
+        return MigrationTest(source)
+            .WithDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Info)
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
     }
 
     [Test]
@@ -2353,18 +2199,15 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
                 async Task Bar(IMessageSession session, int? message)
                 {
                     await session.Send(new MyMessage());
-                    await session.Send(message);
+                    await [|session.Send(message)|];
                 }
             }
 
             class MyMessage : IMessage { }
             """;
-        return AssertEditorConfigSeverity(
-            source,
-            DiagnosticIds.RuntimeTypeMayDiffer,
-            ReportDiagnostic.Warn,
-            automaticActivation: false,
-            DiagnosticIds.RuntimeTypeMayDiffer);
+        return MigrationTest(source)
+            .WithDiagnosticSeverity(DiagnosticIds.RuntimeTypeMayDiffer, ReportDiagnostic.Warn)
+            .AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
     }
 
     [Test]
@@ -2380,18 +2223,16 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
                 async Task Bar(IMessageSession session, int? message)
                 {
                     await session.Send(new MyMessage());
-                    await session.Send(message);
+                    await [|session.Send(message)|];
                 }
             }
 
             class MyMessage : IMessage { }
             """;
-        return AssertEditorConfigSeverity(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            ReportDiagnostic.Suppress,
-            automaticActivation: true,
-            DiagnosticIds.RuntimeTypeMayDiffer);
+        return MigrationTest(source)
+            .WithProperty("build_property.PublishTrimmed", "true")
+            .WithDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Suppress)
+            .AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
     }
 
     [Test]
@@ -2406,25 +2247,47 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             {
                 async Task Bar(IMessageSession session, int? message)
                 {
-                    await session.Send(new MyMessage());
+                    await [|session.Send(new MyMessage())|];
                     await session.Send(message);
                 }
             }
 
             class MyMessage : IMessage { }
             """;
-        return AssertEditorConfigSeverity(
-            source,
-            DiagnosticIds.RuntimeTypeMayDiffer,
-            ReportDiagnostic.Suppress,
-            automaticActivation: true,
-            DiagnosticIds.UseGenericMessageType);
+        return MigrationTest(source)
+            .WithProperty("build_property.PublishTrimmed", "true")
+            .WithDiagnosticSeverity(DiagnosticIds.RuntimeTypeMayDiffer, ReportDiagnostic.Suppress)
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
     }
 
     [Test]
     public Task MigrationDiagnostics_AutomaticActivation_DefaultSeverityFallsBackToAutomatic()
     {
-        var source =
+        const string source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source)
+            .WithProperty("build_property.PublishTrimmed", "true")
+            .WithDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Default)
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AutomaticActivation_DefaultSeverityOnNSB0039KeepsNSB0040Enabled()
+    {
+        const string source =
             """
             using NServiceBus;
             using System.Threading.Tasks;
@@ -2433,24 +2296,18 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             {
                 async Task Bar(IMessageSession session, int? message)
                 {
-                    await session.Send(new MyMessage());
-                    await session.Send(message);
+                    await [|session.Send(message)|];
                 }
             }
-
-            class MyMessage : IMessage { }
             """;
-        return AssertEditorConfigSeverity(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            ReportDiagnostic.Default,
-            automaticActivation: true,
-            DiagnosticIds.UseGenericMessageType,
-            DiagnosticIds.RuntimeTypeMayDiffer);
+        return MigrationTest(source)
+            .WithProperty("build_property.PublishTrimmed", "true")
+            .WithDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Default)
+            .AssertDiagnostics(DiagnosticIds.RuntimeTypeMayDiffer);
     }
 
     [Test]
-    public async Task MigrationDiagnostics_SeverityIsScopedToConfiguredSyntaxTree()
+    public Task MigrationDiagnostics_SeverityIsScopedToConfiguredSyntaxTree()
     {
         const string configuredSource =
             """
@@ -2476,31 +2333,25 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             {
                 async Task Bar(IMessageSession session)
                 {
-                    await session.Send(new UnconfiguredMessage());
+                    await [|session.Send(new UnconfiguredMessage())|];
                 }
             }
 
             class UnconfiguredMessage : IMessage { }
             """;
-        var configuredTree = CSharpSyntaxTree.ParseText(configuredSource, path: "Configured.cs");
-        var unconfiguredTree = CSharpSyntaxTree.ParseText(unconfiguredSource, path: "Unconfigured.cs");
-
-        var diagnostics = await GetEditorConfigDiagnostics(
-            [configuredTree, unconfiguredTree],
-            configuredTree,
-            DiagnosticIds.UseGenericMessageType,
-            ReportDiagnostic.Suppress,
-            automaticActivation: true);
-
-        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.EquivalentTo([DiagnosticIds.UseGenericMessageType]));
-        NUnit.Framework.Assert.That(diagnostics[0].Location.SourceTree?.FilePath, Is.EqualTo("Unconfigured.cs"));
+        return AnalyzerTest.ForAnalyzer<MessagingMigrationAnalyzer>()
+            .WithSource(configuredSource, "Configured.cs")
+            .WithSource(unconfiguredSource, "Unconfigured.cs")
+            .WithProperty("build_property.PublishTrimmed", "true")
+            .WithDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Suppress, "Configured.cs")
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
     }
 
-    // The global channel (TryGetGlobalDiagnosticValue) was invisible to the old implementation, so
-    // global severities that enable the diagnostics were ignored by the analyzer gate.
+    // The global severity channel (TryGetGlobalDiagnosticValue) was previously invisible to the
+    // analyzer gate, so global severities that enable these diagnostics were ignored.
 
     [Test]
-    public async Task MigrationDiagnostics_AutomaticActivation_RespectsGlobalNoneSeverity()
+    public Task MigrationDiagnostics_AutomaticActivation_RespectsGlobalNoneSeverity()
     {
         var source =
             """
@@ -2517,17 +2368,37 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
             class MyMessage : IMessage { }
             """;
-        var diagnostics = await GetSeverityConfigDiagnostics(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            globalSeverity: ReportDiagnostic.Suppress,
-            automaticActivation: true);
-
-        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.Empty);
+        return MigrationTest(source)
+            .WithProperty("build_property.PublishTrimmed", "true")
+            .WithGlobalDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Suppress)
+            .AssertDiagnostics();
     }
 
     [Test]
-    public async Task MigrationDiagnostics_GlobalSeverity_EnablesWithoutAutomaticActivation()
+    public Task MigrationDiagnostics_GlobalSeverity_EnablesWithoutAutomaticActivation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source)
+            .WithGlobalDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Warn)
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_AutomaticActivation_RespectsBulkCategoryNoneSeverity()
     {
         var source =
             """
@@ -2544,17 +2415,37 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
             class MyMessage : IMessage { }
             """;
-        var diagnostics = await GetSeverityConfigDiagnostics(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            globalSeverity: ReportDiagnostic.Warn,
-            automaticActivation: false);
-
-        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.EquivalentTo([DiagnosticIds.UseGenericMessageType]));
+        return MigrationTest(source)
+            .WithProperty("build_property.PublishTrimmed", "true")
+            .WithEditorConfigOption("dotnet_analyzer_diagnostic.category-NServiceBus.Code.severity", "none")
+            .AssertDiagnostics();
     }
 
     [Test]
-    public async Task MigrationDiagnostics_AutomaticActivation_RespectsBulkCategoryNoneSeverity()
+    public Task MigrationDiagnostics_BulkCategorySeverity_EnablesWithoutAutomaticActivation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using System.Threading.Tasks;
+
+            class Foo
+            {
+                async Task Bar(IMessageSession session)
+                {
+                    await [|session.Send(new MyMessage())|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return MigrationTest(source)
+            .WithEditorConfigOption("dotnet_analyzer_diagnostic.category-NServiceBus.Code.severity", "warning")
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task MigrationDiagnostics_ExplicitPerRuleDefaultSeverity_BlocksBulkConfiguration()
     {
         var source =
             """
@@ -2571,18 +2462,14 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
             class MyMessage : IMessage { }
             """;
-        var diagnostics = await GetSeverityConfigDiagnostics(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            treeOptions: ImmutableDictionary<string, string>.Empty.Add(
-                "dotnet_analyzer_diagnostic.category-NServiceBus.Code.severity", "none"),
-            automaticActivation: true);
-
-        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.Empty);
+        return MigrationTest(source)
+            .WithDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Default)
+            .WithEditorConfigOption("dotnet_analyzer_diagnostic.category-NServiceBus.Code.severity", "warning")
+            .AssertDiagnostics();
     }
 
     [Test]
-    public async Task MigrationDiagnostics_BulkCategorySeverity_EnablesWithoutAutomaticActivation()
+    public Task MigrationDiagnostics_ExplicitGlobalDefaultSeverity_BlocksBulkConfiguration()
     {
         var source =
             """
@@ -2599,18 +2486,14 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
 
             class MyMessage : IMessage { }
             """;
-        var diagnostics = await GetSeverityConfigDiagnostics(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            treeOptions: ImmutableDictionary<string, string>.Empty.Add(
-                "dotnet_analyzer_diagnostic.category-NServiceBus.Code.severity", "warning"),
-            automaticActivation: false);
-
-        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.EquivalentTo([DiagnosticIds.UseGenericMessageType]));
+        return MigrationTest(source)
+            .WithGlobalDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Default)
+            .WithEditorConfigOption("dotnet_analyzer_diagnostic.category-NServiceBus.Code.severity", "warning")
+            .AssertDiagnostics();
     }
 
     [Test]
-    public async Task MigrationDiagnostics_ExplicitPerRuleDefaultSeverity_BlocksBulkConfiguration()
+    public Task MigrationDiagnostics_ExplicitPerRuleDefaultSeverity_StillHonorsAutomaticActivation()
     {
         var source =
             """
@@ -2621,77 +2504,16 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
             {
                 async Task Bar(IMessageSession session)
                 {
-                    await session.Send(new MyMessage());
+                    await [|session.Send(new MyMessage())|];
                 }
             }
 
             class MyMessage : IMessage { }
             """;
-        var diagnostics = await GetSeverityConfigDiagnostics(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            severity: ReportDiagnostic.Default,
-            treeOptions: ImmutableDictionary<string, string>.Empty.Add(
-                "dotnet_analyzer_diagnostic.category-NServiceBus.Code.severity", "warning"),
-            automaticActivation: false);
-
-        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.Empty);
-    }
-
-    [Test]
-    public async Task MigrationDiagnostics_ExplicitGlobalDefaultSeverity_BlocksBulkConfiguration()
-    {
-        var source =
-            """
-            using NServiceBus;
-            using System.Threading.Tasks;
-
-            class Foo
-            {
-                async Task Bar(IMessageSession session)
-                {
-                    await session.Send(new MyMessage());
-                }
-            }
-
-            class MyMessage : IMessage { }
-            """;
-        var diagnostics = await GetSeverityConfigDiagnostics(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            globalSeverity: ReportDiagnostic.Default,
-            treeOptions: ImmutableDictionary<string, string>.Empty.Add(
-                "dotnet_analyzer_diagnostic.category-NServiceBus.Code.severity", "warning"),
-            automaticActivation: false);
-
-        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.Empty);
-    }
-
-    [Test]
-    public async Task MigrationDiagnostics_ExplicitPerRuleDefaultSeverity_StillHonorsAutomaticActivation()
-    {
-        var source =
-            """
-            using NServiceBus;
-            using System.Threading.Tasks;
-
-            class Foo
-            {
-                async Task Bar(IMessageSession session)
-                {
-                    await session.Send(new MyMessage());
-                }
-            }
-
-            class MyMessage : IMessage { }
-            """;
-        var diagnostics = await GetSeverityConfigDiagnostics(
-            source,
-            DiagnosticIds.UseGenericMessageType,
-            severity: ReportDiagnostic.Default,
-            automaticActivation: true);
-
-        NUnit.Framework.Assert.That(diagnostics.Select(diagnostic => diagnostic.Id), Is.EquivalentTo([DiagnosticIds.UseGenericMessageType]));
+        return MigrationTest(source)
+            .WithProperty("build_property.PublishTrimmed", "true")
+            .WithDiagnosticSeverity(DiagnosticIds.UseGenericMessageType, ReportDiagnostic.Default)
+            .AssertDiagnostics(DiagnosticIds.UseGenericMessageType);
     }
 
     // ===== Negative tests =====
