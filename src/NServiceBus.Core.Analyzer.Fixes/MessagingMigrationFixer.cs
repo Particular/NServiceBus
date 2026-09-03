@@ -68,6 +68,24 @@ public sealed class MessagingMigrationFixer : CodeFixProvider
                 continue;
             }
 
+            if (node is AssignmentExpressionSyntax assignment &&
+                TryGetMutatorReplacementMethod(semanticModel, assignment, out var replacementMethodName))
+            {
+                context.RegisterCodeFix(
+                    CodeAction.Create(
+                        "Use the strongly typed message overload",
+                        cancellationToken => ReplaceAssignmentWithTypedCall(
+                            context.Document,
+                            root,
+                            assignment,
+                            replacementMethodName,
+                            messageType!,
+                            cancellationToken),
+                        EquivalenceKey),
+                    diagnostic);
+                continue;
+            }
+
             if (node.FirstAncestorOrSelf<InvocationExpressionSyntax>() is not { } invocation ||
                 !CanAddTypeArgument(invocation.Expression))
             {
@@ -207,6 +225,73 @@ public sealed class MessagingMigrationFixer : CodeFixProvider
         var updatedMethodReference = AddTypeArgumentToExpression(methodReference, messageType)
             .WithAdditionalAnnotations(Formatter.Annotation);
         return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(methodReference, updatedMethodReference)));
+    }
+
+    static bool TryGetMutatorReplacementMethod(
+        SemanticModel? semanticModel,
+        AssignmentExpressionSyntax assignment,
+        out string methodName)
+    {
+        methodName = null!;
+        if (semanticModel is null || assignment.Left is not MemberAccessExpressionSyntax memberAccess)
+        {
+            return false;
+        }
+
+        var propertySymbol = semanticModel.GetSymbolInfo(memberAccess).Symbol;
+        if (propertySymbol is not IPropertySymbol
+            {
+                ContainingType: { } containingType
+            })
+        {
+            return false;
+        }
+
+        var containingTypeName = containingType.ToDisplayString();
+        if (propertySymbol.Name == "Message" &&
+            containingTypeName == "NServiceBus.MessageMutator.MutateIncomingMessageContext")
+        {
+            methodName = "UpdateMessageInstance";
+            return true;
+        }
+
+        if (propertySymbol.Name == "OutgoingMessage" &&
+            containingTypeName == "NServiceBus.MessageMutator.MutateOutgoingMessageContext")
+        {
+            methodName = "UpdateMessage";
+            return true;
+        }
+
+        return false;
+    }
+
+    static Task<Document> ReplaceAssignmentWithTypedCall(
+        Document document,
+        SyntaxNode root,
+        AssignmentExpressionSyntax assignment,
+        string methodName,
+        string messageType,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var memberAccess = (MemberAccessExpressionSyntax)assignment.Left;
+        var typeArgument = SyntaxFactory.ParseTypeName(messageType)
+            .WithAdditionalAnnotations(Simplifier.Annotation);
+        var typeArguments = SyntaxFactory.TypeArgumentList(
+            SyntaxFactory.SingletonSeparatedList(typeArgument));
+
+        var invocation = SyntaxFactory.InvocationExpression(
+            SyntaxFactory.MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                memberAccess.Expression,
+                SyntaxFactory.GenericName(SyntaxFactory.Identifier(methodName), typeArguments)
+                    .WithTriviaFrom(memberAccess.Name)),
+            SyntaxFactory.ArgumentList(
+                SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(assignment.Right))))
+            .WithAdditionalAnnotations(Formatter.Annotation);
+
+        return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(assignment, invocation)));
     }
 
     static ExpressionSyntax AddTypeArgumentToExpression(ExpressionSyntax expression, string messageType)

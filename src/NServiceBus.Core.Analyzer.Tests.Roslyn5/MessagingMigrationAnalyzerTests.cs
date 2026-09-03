@@ -1010,6 +1010,198 @@ public class MessagingMigrationAnalyzerTests : AnalyzerTestFixture<MessagingMigr
         return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
     }
 
+    // ===== Mutator context setters =====
+
+    [Test]
+    public Task NSB0039_MutatorIncomingContext_DirectObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context)
+                {
+                    [|context.Message = new MyMessage()|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MutatorOutgoingContext_DirectObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateOutgoingMessageContext context)
+                {
+                    [|context.OutgoingMessage = new MyEvent()|];
+                }
+            }
+
+            class MyEvent : IEvent { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0039_MutatorIncomingContext_ValueType()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context, MyValue message)
+                {
+                    [|context.Message = message|];
+                }
+            }
+
+            struct MyValue : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.UseGenericMessageType);
+    }
+
+    [Test]
+    public Task NSB0040_MutatorIncomingContext_VarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context)
+                {
+                    var message = new MyMessage();
+                    [|context.Message = message|];
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_MutatorOutgoingContext_VarObjectCreation()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateOutgoingMessageContext context)
+                {
+                    var message = new MyEvent();
+                    [|context.OutgoingMessage = message|];
+                }
+            }
+
+            class MyEvent : IEvent { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_MutatorIncomingContext_SealedVariable()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context, MyMessage message)
+                {
+                    [|context.Message = message|];
+                }
+            }
+
+            sealed class MyMessage : IMessage { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NSB0040_MutatorOutgoingContext_CreatedByMessageCreator()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateOutgoingMessageContext context, IMessageCreator creator)
+                {
+                    [|context.OutgoingMessage = creator.CreateInstance<MyEvent>()|];
+                }
+            }
+
+            class MyEvent : IEvent { }
+            """;
+        return Assert(source, DiagnosticIds.RuntimeTypeMayDiffer);
+    }
+
+    [Test]
+    public Task NoDiagnostic_MutatorContext_ObjectType()
+    {
+        var source =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context)
+                {
+                    context.Message = new object();
+                }
+            }
+            """;
+        return Assert(source);
+    }
+
+    [Test]
+    public Task NoDiagnostic_MutatorContext_UnrelatedMessageProperty()
+    {
+        var source =
+            """
+            using NServiceBus;
+
+            class Foo
+            {
+                public object Message { get; set; }
+
+                void Bar(Foo foo)
+                {
+                    foo.Message = new MyMessage();
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+        return Assert(source);
+    }
+
     // ===== NSB0041: Generic T == object =====
 
     [Test]

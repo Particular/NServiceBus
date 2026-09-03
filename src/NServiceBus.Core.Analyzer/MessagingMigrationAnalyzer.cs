@@ -73,7 +73,99 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             startContext.RegisterOperationAction(
                 operationContext => AnalyzeDelegateCreation(operationContext, knownTypes, severityConfiguration),
                 OperationKind.DelegateCreation);
+            startContext.RegisterOperationAction(
+                operationContext => AnalyzeSimpleAssignment(operationContext, knownTypes, severityConfiguration),
+                OperationKind.SimpleAssignment);
         });
+    }
+
+    static void AnalyzeSimpleAssignment(
+        OperationAnalysisContext context,
+        KnownTypes knownTypes,
+        MigrationDiagnosticConfiguration severityConfiguration)
+    {
+        var assignment = (ISimpleAssignmentOperation)context.Operation;
+        if (assignment.Target is not IPropertyReferenceOperation
+            {
+                Instance: not null,
+                Property: { } property
+            })
+        {
+            return;
+        }
+
+        var replacementMethodName = ResolveMutatorReplacementMethod(property, knownTypes);
+        if (replacementMethodName is null)
+        {
+            return;
+        }
+
+        var messageValue = UnwrapImplicitConversions(assignment.Value);
+        var messageType = messageValue.Type;
+        if (messageType is null || messageType.TypeKind == TypeKind.Dynamic ||
+            messageValue.ConstantValue is { HasValue: true, Value: null })
+        {
+            return;
+        }
+
+        if (!messageType.CanBeReferencedByName)
+        {
+            return;
+        }
+
+        // An object-typed assignment would be fixed to the generic overload with T = System.Object,
+        // which immediately violates NSB0041. Never offer a fixable NSB0039 for the object type.
+        if (messageType.SpecialType == SpecialType.System_Object)
+        {
+            return;
+        }
+
+        // Mutator contexts preserve the previous logical type when the same instance is assigned
+        // again, mirroring UpdateMessage. Only direct creation and value types are provably safe.
+        if (IsRoutingEquivalent(messageValue, messageType, knownTypes.IMessageCreator, isUpdateMessage: true))
+        {
+            if (!severityConfiguration.IsEnabled(context, assignment.Syntax.SyntaxTree, UseGenericTypeRule))
+            {
+                return;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                UseGenericTypeRule,
+                assignment.Syntax.GetLocation(),
+                ImmutableDictionary<string, string?>.Empty.Add(
+                    MessageTypeProperty,
+                    messageType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)),
+                messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
+        }
+        else
+        {
+            if (!severityConfiguration.IsEnabled(context, assignment.Syntax.SyntaxTree, RuntimeTypeMayDifferRule))
+            {
+                return;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                RuntimeTypeMayDifferRule,
+                assignment.Syntax.GetLocation(),
+                messageType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat)));
+        }
+    }
+
+    static string? ResolveMutatorReplacementMethod(IPropertySymbol property, KnownTypes knownTypes)
+    {
+        if (property.Name == "Message" &&
+            SymbolEqualityComparer.Default.Equals(property.ContainingType, knownTypes.MutateIncomingMessageContext))
+        {
+            return "UpdateMessageInstance";
+        }
+
+        if (property.Name == "OutgoingMessage" &&
+            SymbolEqualityComparer.Default.Equals(property.ContainingType, knownTypes.MutateOutgoingMessageContext))
+        {
+            return "UpdateMessage";
+        }
+
+        return null;
     }
 
     static void AnalyzeDelegateCreation(
@@ -660,7 +752,9 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             INamedTypeSymbol messageProcessingContextExtensions,
             INamedTypeSymbol saga,
             INamedTypeSymbol outgoingLogicalMessageContext,
-            INamedTypeSymbol messageCreator)
+            INamedTypeSymbol messageCreator,
+            INamedTypeSymbol mutateIncomingMessageContext,
+            INamedTypeSymbol mutateOutgoingMessageContext)
         {
             IMessageSession = messageSession;
             IPipelineContext = pipelineContext;
@@ -671,6 +765,8 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             Saga = saga;
             IOutgoingLogicalMessageContext = outgoingLogicalMessageContext;
             IMessageCreator = messageCreator;
+            MutateIncomingMessageContext = mutateIncomingMessageContext;
+            MutateOutgoingMessageContext = mutateOutgoingMessageContext;
             ContractInterfaces =
             [
                 messageSession,
@@ -689,6 +785,8 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
         public INamedTypeSymbol Saga { get; }
         public INamedTypeSymbol IOutgoingLogicalMessageContext { get; }
         public INamedTypeSymbol IMessageCreator { get; }
+        public INamedTypeSymbol MutateIncomingMessageContext { get; }
+        public INamedTypeSymbol MutateOutgoingMessageContext { get; }
         public ImmutableArray<INamedTypeSymbol> ContractInterfaces { get; }
 
         readonly ConcurrentDictionary<INamedTypeSymbol, bool> implementsContractCache = new(SymbolEqualityComparer.Default);
@@ -758,11 +856,14 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
             var saga = compilation.GetTypeByMetadataName("NServiceBus.Saga");
             var outgoingLogicalMessageContext = compilation.GetTypeByMetadataName("NServiceBus.Pipeline.IOutgoingLogicalMessageContext");
             var messageCreator = compilation.GetTypeByMetadataName("NServiceBus.IMessageCreator");
+            var mutateIncomingMessageContext = compilation.GetTypeByMetadataName("NServiceBus.MessageMutator.MutateIncomingMessageContext");
+            var mutateOutgoingMessageContext = compilation.GetTypeByMetadataName("NServiceBus.MessageMutator.MutateOutgoingMessageContext");
 
             if (messageSession is null || pipelineContext is null || messageProcessingContext is null ||
                 messageSessionExtensions is null || pipelineContextExtensions is null ||
                 messageProcessingContextExtensions is null || saga is null ||
-                outgoingLogicalMessageContext is null || messageCreator is null)
+                outgoingLogicalMessageContext is null || messageCreator is null ||
+                mutateIncomingMessageContext is null || mutateOutgoingMessageContext is null)
             {
                 knownTypes = null!;
                 return false;
@@ -777,7 +878,9 @@ public sealed class MessagingMigrationAnalyzer : DiagnosticAnalyzer
                 messageProcessingContextExtensions,
                 saga,
                 outgoingLogicalMessageContext,
-                messageCreator);
+                messageCreator,
+                mutateIncomingMessageContext,
+                mutateOutgoingMessageContext);
             return true;
         }
     }
