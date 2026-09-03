@@ -46,7 +46,14 @@ class MutateIncomingMessageBehavior(HashSet<IMutateIncomingMessages> mutators)
 
         if (mutatorContext.MessageInstanceChanged)
         {
-            context.UpdateMessageInstance(mutatorContext.Message);
+            if (mutatorContext.ReplacementMessageType != null)
+            {
+                context.UpdateMessageInstance(mutatorContext.Message, mutatorContext.ReplacementMessageType);
+            }
+            else
+            {
+                context.UpdateMessageInstance(mutatorContext.Message);
+            }
         }
 
         await next(context).ConfigureAwait(false);

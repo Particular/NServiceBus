@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateInstanceMessage;
 
+using System;
 using System.Threading.Tasks;
 using MessageMutator;
 using Microsoft.Extensions.DependencyInjection;
@@ -122,15 +123,68 @@ class MutateOutgoingMessageBehaviorTests
         Assert.That(context.UpdateMessageCalled, Is.True);
     }
 
+    [Test]
+    public async Task When_mutator_declares_a_message_type_should_use_the_explicit_type_overload()
+    {
+        var behavior = new MutateOutgoingMessageBehavior([]);
+
+        var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
+
+        context.Services.AddTransient<IMutateOutgoingMessages>(sp => new MutatorWhichDeclaresAMessageType());
+
+        await behavior.Invoke(context, ctx => Task.CompletedTask);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.UpdateMessageObjCalled, Is.False);
+            Assert.That(context.UpdateMessageWithTypeCalled, Is.True);
+            Assert.That(context.DeclaredMessageType, Is.EqualTo(typeof(IMyMessage)));
+            Assert.That(context.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+        }
+    }
+
+    [Test]
+    public async Task When_mutator_uses_the_object_setter_should_use_the_object_overload()
+    {
+        var behavior = new MutateOutgoingMessageBehavior([]);
+
+        var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
+
+        context.Services.AddTransient<IMutateOutgoingMessages>(sp => new MutatorWhichMutatesTheBody());
+
+        await behavior.Invoke(context, ctx => Task.CompletedTask);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.UpdateMessageObjCalled, Is.True);
+            Assert.That(context.UpdateMessageWithTypeCalled, Is.False);
+        }
+    }
+
     class InterceptUpdateMessageOutgoingLogicalMessageContext : TestableOutgoingLogicalMessageContext
     {
         public bool UpdateMessageCalled { get; private set; }
+
+        public bool UpdateMessageObjCalled { get; private set; }
+
+        public bool UpdateMessageWithTypeCalled { get; private set; }
+
+        public Type DeclaredMessageType { get; private set; }
 
         public override void UpdateMessage(object newInstance)
         {
             base.UpdateMessage(newInstance);
 
             UpdateMessageCalled = true;
+            UpdateMessageObjCalled = true;
+        }
+
+        public override void UpdateMessage(object newInstance, Type messageType)
+        {
+            base.UpdateMessage(newInstance, messageType);
+
+            UpdateMessageWithTypeCalled = true;
+            DeclaredMessageType = messageType;
         }
     }
 
@@ -171,4 +225,20 @@ class MutateOutgoingMessageBehaviorTests
             return Task.CompletedTask;
         }
     }
+
+    class MutatorWhichDeclaresAMessageType : IMutateOutgoingMessages
+    {
+        public Task MutateOutgoing(MutateOutgoingMessageContext context)
+        {
+            context.UpdateMessage<IMyMessage>(new MyMessage());
+
+            return Task.CompletedTask;
+        }
+    }
+
+    interface IMyMessage : IMessage
+    { }
+
+    class MyMessage : IMyMessage
+    { }
 }

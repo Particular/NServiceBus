@@ -41,6 +41,30 @@ public class MutateOutgoingMessageContext : ICancellableContext
     }
 
     /// <summary>
+    /// Replaces the current outgoing message with the provided typed message instance.
+    /// </summary>
+    /// <typeparam name="T">The type used to update the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
+    /// <param name="newMessage">The replacement message instance.</param>
+    public void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newMessage)
+    {
+        UpdateMessage(newMessage!, typeof(T));
+    }
+
+    /// <summary>
+    /// Replaces the current outgoing message with the provided message instance and message type. The declared type controls how the message is routed and the message type header recorded on the message.
+    /// </summary>
+    /// <param name="newMessage">The replacement message instance. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="newMessage" /> as long as the instance is assignable to it.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="newMessage" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newMessage" /> is not assignable to <paramref name="messageType" />.</exception>
+    public void UpdateMessage(object newMessage, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        MessageTypeValidator.Validate(newMessage, messageType);
+        OutgoingMessage = newMessage;
+        ReplacementMessageType = messageType;
+    }
+
+    /// <summary>
     /// The current outgoing headers.
     /// </summary>
     public Dictionary<string, string> OutgoingHeaders { get; }
@@ -72,6 +96,12 @@ public class MutateOutgoingMessageContext : ICancellableContext
     readonly object? incomingMessage;
 
     internal bool MessageInstanceChanged;
+
+    /// <summary>
+    /// The declared logical message type of <see cref="OutgoingMessage" /> when a mutator supplied an explicit type, otherwise <see langword="null" />.
+    /// </summary>
+    [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)]
+    internal Type? ReplacementMessageType { get; set; }
 
     object outgoingMessage;
 }

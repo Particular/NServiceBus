@@ -52,7 +52,14 @@ class MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators) :
 
         if (mutatorContext.MessageInstanceChanged)
         {
-            context.UpdateMessage(mutatorContext.OutgoingMessage);
+            if (mutatorContext.ReplacementMessageType != null)
+            {
+                context.UpdateMessage(mutatorContext.OutgoingMessage, mutatorContext.ReplacementMessageType);
+            }
+            else
+            {
+                context.UpdateMessage(mutatorContext.OutgoingMessage);
+            }
         }
 
         await next(context).ConfigureAwait(false);
