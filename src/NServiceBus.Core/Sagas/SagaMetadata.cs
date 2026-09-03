@@ -143,7 +143,7 @@ public partial class SagaMetadata
 
         var saga = (Saga)RuntimeHelpers.GetUninitializedObject(sagaType);
 
-        var mapper = new SagaMapper(sagaType, associatedMessages, propertyAccessors ?? []);
+        var mapper = new SagaMapper(sagaType, associatedMessages, propertyAccessors ?? [], correlationPropertyAccessor);
 
         saga.ConfigureHowToFindSaga(mapper);
 

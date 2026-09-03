@@ -79,6 +79,40 @@ public class SagaMetadataCreationTests
     }
 
     [Test]
+    public void When_generated_correlation_accessor_is_supplied_it_is_used()
+    {
+        var accessor = new TestCorrelationPropertyAccessor();
+        var metadata = SagaMetadata.Create<MySagaWithMappedProperty, MySagaWithMappedProperty.SagaData>(
+            [new SagaMessage(typeof(SomeMessage), true, false)],
+            accessor,
+            []);
+
+        Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
+        Assert.That(correlatedProperty.Accessor, Is.SameAs(accessor));
+    }
+
+    [Test]
+    public void When_no_correlation_accessor_is_supplied_an_expression_based_accessor_is_created()
+    {
+        var metadata = SagaMetadata.Create<MySagaWithMappedProperty, MySagaWithMappedProperty.SagaData>(
+            [new SagaMessage(typeof(SomeMessage), true, false)],
+            null,
+            []);
+
+        Assert.That(metadata.TryGetCorrelationProperty(out var correlatedProperty), Is.True);
+        Assert.That(correlatedProperty.Accessor, Is.TypeOf<ExpressionBasedCorrelationPropertyAccessor<MySagaWithMappedProperty.SagaData>>());
+    }
+
+    class TestCorrelationPropertyAccessor : CorrelationPropertyAccessor
+    {
+        public override void WriteTo(IContainSagaData sagaData, object value)
+        {
+        }
+
+        public override object AccessFrom(IContainSagaData sagaData) => null;
+    }
+
+    [Test]
     public void AutomaticallyAddUniqueForMappedProperty()
     {
         var metadata = SagaMetadata.Create<MySagaWithMappedProperty>();

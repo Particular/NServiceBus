@@ -18,7 +18,7 @@ public static partial class Sagas
 
     public record SagaSpec : AddHandlerAndSagasRegistrationGenerator.Parser.BaseSpec
     {
-        public SagaSpec(HandlerSpec handler, string sagaDataFullyQualifiedName, CorrelationPropertyMappingSpec correlationProperty, ImmutableEquatableArray<PropertyMappingSpec> propertyMappings)
+        public SagaSpec(HandlerSpec handler, string sagaDataFullyQualifiedName, CorrelationPropertyMappingSpec? correlationProperty, ImmutableEquatableArray<PropertyMappingSpec> propertyMappings)
             : base(handler)
         {
             SagaDataFullyQualifiedName = sagaDataFullyQualifiedName;
@@ -29,7 +29,7 @@ public static partial class Sagas
 
         public string SagaDataFullyQualifiedName { get; }
 
-        public CorrelationPropertyMappingSpec CorrelationPropertyMapping { get; }
+        public CorrelationPropertyMappingSpec? CorrelationPropertyMapping { get; }
         public ImmutableEquatableArray<PropertyMappingSpec> PropertyMappings { get; }
         public HandlerSpec Handler { get; }
     }
@@ -60,10 +60,11 @@ public static partial class Sagas
             var sagaBaseSpec = Handlers.Parser.Parse(sagaType, BaseParser.SpecKind.Saga, knownTypes, cancellationToken);
             var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            // Analyze ConfigureHowToFindSaga to extract mappings
+            // Analyze ConfigureHowToFindSaga to extract mappings. Finder-only sagas have no correlation property
+            // and no property mappings but are still valid sagas that must be registered.
             var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, sagaSemanticModel, cancellationToken);
 
-            return correlationProperty is null ? null : new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, correlationProperty.Value, propertyMappings);
+            return new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, correlationProperty, propertyMappings);
         }
 
         static INamedTypeSymbol? GetSagaDataType(INamedTypeSymbol sagaType)
