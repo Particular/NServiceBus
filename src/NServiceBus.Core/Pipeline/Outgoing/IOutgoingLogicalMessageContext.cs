@@ -39,10 +39,7 @@ public interface IOutgoingLogicalMessageContext : IOutgoingContext
     /// <typeparam name="T">The type used to update the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="newInstance">The replacement message instance.</param>
     [OverloadResolutionPriority(-1)]
-    void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance)
-    {
-        UpdateMessage(newInstance!, typeof(T));
-    }
+    void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newInstance) => UpdateMessage(newInstance!, typeof(T));
 
     /// <summary>
     /// Updates the message instance with the specified message type. The declared type controls how the message is routed and the message type header recorded on the message.
