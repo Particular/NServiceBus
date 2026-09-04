@@ -5,6 +5,7 @@ namespace NServiceBus.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Threading;
 
 /// <summary>
@@ -54,6 +55,12 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// </summary>
     internal int Count => Interlocked.CompareExchange(ref count, 0, 0);
 
+    /// <summary>
+    /// A stable, process-unique id assigned at construction. Useful for
+    /// distinguishing pool instances in <see cref="DictionaryPoolEventSource"/> traces.
+    /// </summary>
+    internal int PoolId { get; }
+
     /// <param name="maxPoolSize">
     /// Soft cap on the number of dictionaries retained. Returns beyond this limit
     /// are dropped rather than growing the pool unbounded. Defaults to a generous
@@ -68,8 +75,14 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// </param>
     public DictionaryPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 1024)
     {
+        PoolId = DictionaryPoolIds.Next();
         this.maxPoolSize = maxPoolSize > 0 ? maxPoolSize : Math.Max(Environment.ProcessorCount * 4, 64);
         this.maxRetainedCapacityPerItem = maxRetainedCapacityPerItem;
+
+        if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryPoolCreated(PoolId, typeof(TKey).ToString(), typeof(TValue).ToString());
+        }
     }
 
     /// <summary>
@@ -84,6 +97,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     public Dictionary<TKey, TValue> Rent(int minimumCapacity = 0)
     {
         Dictionary<TKey, TValue> item;
+        bool allocated = false;
         if (stack.TryPop(out var taken))
         {
             Interlocked.Decrement(ref count);
@@ -92,11 +106,22 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
         else
         {
             item = [];
+            allocated = true;
         }
 
         if (minimumCapacity > 0)
         {
             item.EnsureCapacity(minimumCapacity);
+        }
+
+        if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryRented(PoolId, minimumCapacity);
+        }
+
+        if (allocated && DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryAllocated(PoolId, minimumCapacity);
         }
 
         return item;
@@ -111,11 +136,21 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// Only pass false if you've already cleared it yourself; otherwise the next
     /// <see cref="Rent"/> caller sees stale data.
     /// </param>
+    /// <remarks>
+    /// <para>
+    /// Not returning a dictionary to the pool will NOT result in any memory leaks:
+    /// an unreturned dictionary simply becomes unreachable once the caller drops its
+    /// reference and is reclaimed by the garbage collector. The pool itself is
+    /// bounded by <c>maxPoolSize</c>, so even returned dictionaries beyond the cap
+    /// are dropped rather than retained.
+    /// </para>
+    /// </remarks>
     public void Return(Dictionary<TKey, TValue> dictionary, bool clearDictionary = true)
     {
         ArgumentNullException.ThrowIfNull(dictionary);
 
         bool tooLarge = dictionary.Count > maxRetainedCapacityPerItem;
+        int dictionaryEntryCount = dictionary.Count; // capture before Clear
 
         if (clearDictionary || tooLarge)
         {
@@ -127,14 +162,31 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
             // Release the oversized backing arrays so one outlier usage
             // doesn't permanently inflate the pool's memory footprint.
             dictionary.TrimExcess();
+
+            if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
+            {
+                DictionaryPoolEventSource.Log.DictionaryTrimmed(PoolId, dictionaryEntryCount, maxRetainedCapacityPerItem);
+            }
         }
 
         if (Interlocked.Increment(ref count) > maxPoolSize)
         {
             Interlocked.Decrement(ref count);
-            return; // pool is full: drop it and let the GC reclaim it
+
+            // Pool is full: drop the dictionary and let the GC reclaim it.
+            if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
+            {
+                DictionaryPoolEventSource.Log.DictionaryDropped(PoolId, dictionaryEntryCount, DictionaryPoolEventSource.DictionaryDroppedReason.PoolFull);
+            }
+
+            return;
         }
 
         stack.Push(dictionary);
+
+        if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryReturned(PoolId, dictionaryEntryCount);
+        }
     }
 }
