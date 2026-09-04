@@ -24,7 +24,7 @@ class FakeOutboxStorage : IOutboxStorage
         {
             return Task.FromResult<OutboxMessage?>(new OutboxMessage(
                 ExistingMessage.MessageId,
-                [.. ExistingMessage.TransportOperations.Select(CopyOperation)]));
+                [.. ExistingMessage.TransportOperations.Select(DeepClone)]));
         }
 
         return Task.FromResult(default(OutboxMessage));
@@ -45,7 +45,7 @@ class FakeOutboxStorage : IOutboxStorage
     public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) =>
         Task.FromResult<IOutboxTransaction>(new FakeOutboxTransaction());
 
-    static TransportOperation CopyOperation(TransportOperation operation)
+    static TransportOperation DeepClone(TransportOperation operation)
     {
         var headers = operation.Headers != null
             ? new Dictionary<string, string>(operation.Headers)

@@ -22,7 +22,7 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
         // pipeline pools and clears outgoing header dictionaries after dispatch, so the outbox must hand out
         // fresh dictionaries on every Get. Sharing the stored references would let dispatch clear/pool the
         // stored dictionaries, corrupting storage and leaking aliased dictionaries into the header pool.
-        return Task.FromResult<OutboxMessage?>(new OutboxMessage(messageId, storedMessage.TransportOperations.Select(CopyOperation).ToArray()));
+        return Task.FromResult<OutboxMessage?>(new OutboxMessage(messageId, storedMessage.TransportOperations.Select(DeepClone).ToArray()));
     }
 
     public Task<IOutboxTransaction> BeginTransaction(ContextBag context, CancellationToken cancellationToken = default) => Task.FromResult<IOutboxTransaction>(new AcceptanceTestingOutboxTransaction());
@@ -32,7 +32,7 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
         var tx = (AcceptanceTestingOutboxTransaction)transaction;
         tx.Enlist(() =>
         {
-            if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.Select(CopyOperation).ToArray())))
+            if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.Select(DeepClone).ToArray())))
             {
                 throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
             }
@@ -64,8 +64,8 @@ class AcceptanceTestingOutboxStorage : IOutboxStorage
     }
 
     // Copies headers/options/body into fresh instances so stored data is independent of the live pipeline
-    // dictionaries (which are pooled and cleared after dispatch). Mirrors NonDurableOutboxStorage.CopyOperation.
-    static TransportOperation CopyOperation(TransportOperation operation)
+    // dictionaries (which are pooled and cleared after dispatch). Mirrors FakeOutboxStorage.DeepClone.
+    static TransportOperation DeepClone(TransportOperation operation)
     {
         var headers = operation.Headers != null
             ? new Dictionary<string, string>(operation.Headers)
