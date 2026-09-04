@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Particular.Obsoletes;
 
 /// <summary>
 /// Provides ways to mutate the outgoing message instance.
@@ -32,12 +33,42 @@ public class MutateOutgoingMessageContext : ICancellableContext
     public object OutgoingMessage
     {
         get => outgoingMessage;
+        [ObsoleteMetadata(ReplacementTypeOrMember = "UpdateMessage<T>(T)",
+            TreatAsErrorFromVersion = "11",
+            RemoveInVersion = "12")]
+        [Obsolete("Use 'UpdateMessage<T>(T)' or 'UpdateMessage(object, Type)' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+        [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
         set
         {
             ArgumentNullException.ThrowIfNull(value);
             MessageInstanceChanged = true;
             outgoingMessage = value;
         }
+    }
+
+    /// <summary>
+    /// Replaces the current outgoing message with the provided typed message instance.
+    /// </summary>
+    /// <typeparam name="T">The type used to update the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
+    /// <param name="newMessage">The replacement message instance.</param>
+    public void UpdateMessage<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T newMessage)
+    {
+        UpdateMessage(newMessage!, typeof(T));
+    }
+
+    /// <summary>
+    /// Replaces the current outgoing message with the provided message instance and message type. The declared type controls how the message is routed and the message type header recorded on the message.
+    /// </summary>
+    /// <param name="newMessage">The replacement message instance. Must be assignable to <paramref name="messageType" />.</param>
+    /// <param name="messageType">The declared logical message type. It can differ from the runtime type of <paramref name="newMessage" /> as long as the instance is assignable to it.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="newMessage" /> or <paramref name="messageType" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newMessage" /> is not assignable to <paramref name="messageType" />.</exception>
+    public void UpdateMessage(object newMessage, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
+    {
+        MessageTypeValidator.Validate(newMessage, messageType);
+        outgoingMessage = newMessage;
+        MessageInstanceChanged = true;
+        ReplacementMessageType = messageType;
     }
 
     /// <summary>
@@ -72,6 +103,12 @@ public class MutateOutgoingMessageContext : ICancellableContext
     readonly object? incomingMessage;
 
     internal bool MessageInstanceChanged;
+
+    /// <summary>
+    /// The declared logical message type of <see cref="OutgoingMessage" /> when a mutator supplied an explicit type, otherwise <see langword="null" />.
+    /// </summary>
+    [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)]
+    internal Type? ReplacementMessageType { get; set; }
 
     object outgoingMessage;
 }

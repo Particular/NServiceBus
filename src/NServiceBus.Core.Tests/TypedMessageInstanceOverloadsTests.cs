@@ -333,6 +333,66 @@ public class TypedMessageInstanceOverloadsTests
     }
 
     [Test]
+    public void Testable_incoming_context_ordinary_call_uses_runtime_type()
+    {
+        var context = new TestableIncomingLogicalMessageContext();
+        var message = (IMyMessage)new MyMessage();
+
+        context.UpdateMessageInstance(message);
+
+        Assert.That(context.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
+    }
+
+    [Test]
+    public void Testable_incoming_context_explicit_generic_call_uses_specified_type()
+    {
+        var context = new TestableIncomingLogicalMessageContext();
+        var message = new MyMessage();
+
+        context.UpdateMessageInstance<IMyMessage>(message);
+
+        Assert.That(context.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+    }
+
+    [Test]
+    public void Testable_incoming_context_explicit_type_validates_declared_type()
+    {
+        var context = new TestableIncomingLogicalMessageContext();
+        object message = new MyMessage();
+
+        Assert.Throws<ArgumentException>(() => context.UpdateMessageInstance(message, typeof(MyOtherMessage)));
+    }
+
+    [Test]
+    public void Testable_incoming_context_explicit_type_rejects_null_instance()
+    {
+        var context = new TestableIncomingLogicalMessageContext();
+
+        Assert.Throws<ArgumentNullException>(() => context.UpdateMessageInstance(null!, typeof(IMyMessage)));
+    }
+
+    [Test]
+    public void Testable_incoming_context_explicit_type_rejects_null_message_type()
+    {
+        var context = new TestableIncomingLogicalMessageContext();
+        var message = new MyMessage();
+
+        Assert.Throws<ArgumentNullException>(() => context.UpdateMessageInstance(message, null!));
+    }
+
+    [Test]
+    public void Testable_incoming_context_explicit_type_preserves_declared_type_and_instance()
+    {
+        var context = new TestableIncomingLogicalMessageContext();
+        object message = new MyMessage();
+
+        context.UpdateMessageInstance(message, typeof(IMyMessage));
+
+        Assert.That(context.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+        Assert.That(context.Message.Instance, Is.SameAs(message));
+    }
+
+    [Test]
     public async Task Default_interface_fallback_Send_uses_object_overload()
     {
         var legacy = new LegacyMessageSession();

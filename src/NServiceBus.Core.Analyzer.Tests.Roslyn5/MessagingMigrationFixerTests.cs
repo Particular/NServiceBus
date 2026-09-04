@@ -640,6 +640,158 @@ public class MessagingMigrationFixerTests : CodeFixTestFixture<MessagingMigratio
     }
 
     [Test]
+    public Task UpdateMessageInstance()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context)
+                {
+                    context.UpdateMessageInstance(new MyMessage());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using NServiceBus.Pipeline;
+
+            class Foo
+            {
+                void Bar(IIncomingLogicalMessageContext context)
+                {
+                    context.UpdateMessageInstance<MyMessage>(new MyMessage());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MutatorIncomingContext_Message()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context)
+                {
+                    context.Message = new MyMessage();
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context)
+                {
+                    context.UpdateMessageInstance<MyMessage>(new MyMessage());
+                }
+            }
+
+            class MyMessage : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MutatorOutgoingContext_OutgoingMessage()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateOutgoingMessageContext context)
+                {
+                    context.OutgoingMessage = new MyEvent();
+                }
+            }
+
+            class MyEvent : IEvent { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateOutgoingMessageContext context)
+                {
+                    context.UpdateMessage<MyEvent>(new MyEvent());
+                }
+            }
+
+            class MyEvent : IEvent { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
+    public Task MutatorIncomingContext_MessageValueType()
+    {
+        var original =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context, MyValue message)
+                {
+                    context.Message = message;
+                }
+            }
+
+            struct MyValue : IMessage { }
+            """;
+
+        var expected =
+            """
+            using NServiceBus;
+            using NServiceBus.MessageMutator;
+
+            class Foo
+            {
+                void Bar(MutateIncomingMessageContext context, MyValue message)
+                {
+                    context.UpdateMessageInstance<MyValue>(message);
+                }
+            }
+
+            struct MyValue : IMessage { }
+            """;
+
+        return Assert(original, expected);
+    }
+
+    [Test]
     public Task MethodGroup_SessionSend()
     {
         var original =
