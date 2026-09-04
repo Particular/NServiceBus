@@ -4,10 +4,12 @@ namespace NServiceBus.Core.Tests.Utils;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using NServiceBus.Core.Tests.Helpers;
 using NServiceBus.Utils;
+using NUnit.Framework;
 
 public class DictionaryPoolTests
 {
@@ -151,6 +153,89 @@ public class DictionaryPoolTests
         var reused = pool.Rent();
         Assert.That(reused, Is.SameAs(dict));
         Assert.That(reused.Count, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void PoolId_is_unique_per_pool_instance_and_stable()
+    {
+        var pool1 = new DictionaryPool<string, string>();
+        var pool2 = new DictionaryPool<string, string>();
+        var firstRead = pool1.PoolId;
+
+        Assert.That(pool1.PoolId, Is.Not.EqualTo(pool2.PoolId), "Each pool instance must have a unique PoolId.");
+        Assert.That(pool1.PoolId, Is.EqualTo(firstRead), "PoolId must be stable across reads.");
+    }
+
+    [Test]
+    public void Event_source_reports_pool_creation_with_key_and_value_types()
+    {
+        using var events = new EventListenerScope("NServiceBus.DictionaryPool", EventLevel.Informational);
+
+        var pool = new DictionaryPool<string, int>();
+
+        Assert.That(events.Count, Is.EqualTo(1), "Expected exactly one DictionaryPoolCreated event.");
+        Assert.That(events.First().EventId, Is.EqualTo(6), "Expected DictionaryPoolCreated.");
+        Assert.That(events.First().Payload, Is.EqualTo(new object[] { pool.PoolId, "System.String", "System.Int32" }),
+            "DictionaryPoolCreated: poolId, key type, value type.");
+    }
+
+    [Test]
+    public void Event_source_reports_rent_allocate_and_return()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+
+        using var events = new EventListenerScope("NServiceBus.DictionaryPool", EventLevel.Verbose);
+
+        // The pool starts empty, so the first rent allocates; the return is retained.
+        var dict = pool.Rent(minimumCapacity: 10);
+        for (int i = 0; i < 10; i++)
+        {
+            dict[$"key{i}"] = "value";
+        }
+        pool.Return(dict);
+
+        Assert.That(events.Count, Is.EqualTo(3), "Expected exactly rented, allocated and returned events.");
+        Assert.That(events.Count(e => e.EventId == 1), Is.EqualTo(1), "Expected a single DictionaryRented event.");
+        Assert.That(events.Count(e => e.EventId == 2), Is.EqualTo(1), "Expected a single DictionaryAllocated event.");
+        Assert.That(events.Count(e => e.EventId == 3), Is.EqualTo(1), "Expected a single DictionaryReturned event.");
+        Assert.That(events.First(e => e.EventId == 1).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
+            "DictionaryRented: poolId, minimumCapacity.");
+        Assert.That(events.First(e => e.EventId == 2).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
+            "DictionaryAllocated: poolId, minimumCapacity.");
+        Assert.That(events.First(e => e.EventId == 3).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
+            "DictionaryReturned: poolId, entry count.");
+    }
+
+    [Test]
+    public void Event_source_reports_trim_and_drop()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 1, maxRetainedCapacityPerItem: 5);
+
+        // Two in-flight dictionaries: one oversized, one empty.
+        var oversized = pool.Rent();
+        for (int i = 0; i < 10; i++)
+        {
+            oversized[$"key{i}"] = "value";
+        }
+        var dropped = pool.Rent();
+
+        using var events = new EventListenerScope("NServiceBus.DictionaryPool", EventLevel.Verbose);
+
+        // The oversized dictionary is trimmed and retained; the pool is then full,
+        // so the empty dictionary is dropped.
+        pool.Return(oversized);
+        pool.Return(dropped);
+
+        Assert.That(events.Count, Is.EqualTo(3), "Expected exactly trimmed, returned and dropped events.");
+        Assert.That(events.Count(e => e.EventId == 4), Is.EqualTo(1), "Expected a single DictionaryTrimmed event.");
+        Assert.That(events.Count(e => e.EventId == 3), Is.EqualTo(1), "Expected a single DictionaryReturned event.");
+        Assert.That(events.Count(e => e.EventId == 5), Is.EqualTo(1), "Expected a single DictionaryDropped event.");
+        Assert.That(events.First(e => e.EventId == 4).Payload, Is.EqualTo(new object[] { pool.PoolId, 10, 5 }),
+            "DictionaryTrimmed: poolId, entry count, maxRetainedCapacity.");
+        Assert.That(events.First(e => e.EventId == 3).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
+            "DictionaryReturned: poolId, entry count.");
+        Assert.That(events.First(e => e.EventId == 5).Payload, Is.EqualTo(new object[] { pool.PoolId, 0, 0 }),
+            "DictionaryDropped: poolId, entry count, DictionaryDroppedReason.PoolFull.");
     }
 
     [Test]
