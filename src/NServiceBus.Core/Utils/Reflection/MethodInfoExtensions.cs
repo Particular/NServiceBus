@@ -12,18 +12,23 @@ static class MethodInfoExtensions
 {
     extension(MethodInfo method)
     {
+        [RequiresDynamicCode(DynamicCodeMessage)]
         [RequiresUnreferencedCode(TrimmingMessage)]
         public T? InvokeGeneric<T>(object? target, object?[]? args, Type[] genericTypes) => (T?)method.InvokeGeneric(target, args, genericTypes);
 
+        [RequiresDynamicCode(DynamicCodeMessage)]
         [RequiresUnreferencedCode(TrimmingMessage)]
         public T? InvokeGeneric<T>(object?[]? args, Type[] genericTypes) => (T?)method.InvokeGeneric(null, args, genericTypes);
 
+        [RequiresDynamicCode(DynamicCodeMessage)]
         [RequiresUnreferencedCode(TrimmingMessage)]
         public T? InvokeGeneric<T>(Type genericType) => (T?)method.InvokeGeneric(null, null, [genericType]);
 
+        [RequiresDynamicCode(DynamicCodeMessage)]
         [RequiresUnreferencedCode(TrimmingMessage)]
         public object? InvokeGeneric(object? target, Type[] genericTypes) => method.InvokeGeneric(target, null, genericTypes);
 
+        [RequiresDynamicCode(DynamicCodeMessage)]
         [RequiresUnreferencedCode(TrimmingMessage)]
         public object? InvokeGeneric(object? target, object?[]? args, Type[] genericTypes)
         {
@@ -45,4 +50,5 @@ static class MethodInfoExtensions
     }
 
     const string TrimmingMessage = "Generic invocations might require access to unreferenced code";
+    const string DynamicCodeMessage = "Generic invocation relies on dynamic code generation which is not available with Ahead of Time compilation";
 }

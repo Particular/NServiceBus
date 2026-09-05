@@ -86,6 +86,7 @@ public partial class SagaMetadata
     /// </summary>
     /// <param name="sagaTypes">Potential saga types.</param>
     /// <returns>Saga metadata for all the found saga types.</returns>
+    [RequiresDynamicCode(DynamicCodeMessage)]
     [RequiresUnreferencedCode(TrimmingMessage)]
     public static IEnumerable<SagaMetadata> CreateMany(IEnumerable<Type> sagaTypes)
     {
@@ -108,6 +109,7 @@ public partial class SagaMetadata
     /// </summary>
     /// <typeparam name="TSaga">A type representing a Saga. Must be a non-generic type inheriting from <see cref="Saga" />.</typeparam>
     /// <returns>An instance of <see cref="SagaMetadata" /> describing the Saga.</returns>
+    [RequiresDynamicCode(DynamicCodeMessage)]
     [RequiresUnreferencedCode(TrimmingMessage)]
     public static SagaMetadata Create<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Saga)] TSaga>() where TSaga : Saga
     {
@@ -256,7 +258,8 @@ public partial class SagaMetadata
     static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
         .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
 
-    internal const string TrimmingMessage = "Saga discovery using assembly scanning might require access to unreferenced code";
+    internal const string TrimmingMessage = "Saga discovery using assembly scanning might require access to unreferenced code.";
+    internal const string DynamicCodeMessage = "Saga discovery using assembly scanning might relies on dynamic code generation which is not available with Ahead of Time compilation.";
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.

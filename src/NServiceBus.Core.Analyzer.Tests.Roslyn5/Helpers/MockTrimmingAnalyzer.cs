@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 // Currently, this mock analyzer does not support all trimming-related warnings.
-// It only supports IL2026 for method invocations for now.
+// It only supports IL2026 and IL3050 for method invocations for now.
 #pragma warning disable RS1001 // Yes we don't want it to be found
 class MockTrimmingAnalyzer : DiagnosticAnalyzer
 #pragma warning restore RS1001
@@ -21,7 +21,17 @@ class MockTrimmingAnalyzer : DiagnosticAnalyzer
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true);
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [IL2026Descriptor];
+    static readonly DiagnosticDescriptor IL3050Descriptor = new(
+#pragma warning disable RS2008
+        id: "IL3050",
+#pragma warning restore RS2008
+        title: "Using member with RequiresDynamicCodeAttribute",
+        messageFormat: "Using member '{0}' which has 'RequiresDynamicCodeAttribute'",
+        category: "AOT",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true);
+
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [IL2026Descriptor, IL3050Descriptor];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -36,13 +46,16 @@ class MockTrimmingAnalyzer : DiagnosticAnalyzer
             }
 
             var method = invocation.TargetMethod;
-            if (!method.GetAttributes().Any(attr => attr.AttributeClass?.Name == "RequiresUnreferencedCodeAttribute"))
+            var attributes = method.GetAttributes();
+            if (attributes.Any(attr => attr.AttributeClass?.Name == "RequiresUnreferencedCodeAttribute"))
             {
-                return;
+                operationContext.ReportDiagnostic(Diagnostic.Create(IL2026Descriptor, invocation.Syntax.GetLocation(), method.Name));
             }
 
-            var diagnostic = Diagnostic.Create(IL2026Descriptor, invocation.Syntax.GetLocation(), method.Name);
-            operationContext.ReportDiagnostic(diagnostic);
+            if (attributes.Any(attr => attr.AttributeClass?.Name == "RequiresDynamicCodeAttribute"))
+            {
+                operationContext.ReportDiagnostic(Diagnostic.Create(IL3050Descriptor, invocation.Syntax.GetLocation(), method.Name));
+            }
         }, OperationKind.Invocation);
     }
 }

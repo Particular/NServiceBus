@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using Logging;
 
+[RequiresDynamicCode(XmlSerializer.DynamicCodeMessage)]
 [RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
 class XmlSerializerCache
 {

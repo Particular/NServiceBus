@@ -19,10 +19,12 @@ class AssemblyRouteSource : IRouteSource
         this.route = route;
     }
 
-    [RequiresUnreferencedCode(TrimmingMessage)]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Scanning the configured assembly is intentional; this source can only be constructed through APIs annotated with RequiresUnreferencedCode.")]
+    static Type[] ScanAssemblyTypes(Assembly assembly) => assembly.GetTypes();
+
     public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
     {
-        var routes = messageAssembly.GetTypes()
+        var routes = ScanAssemblyTypes(messageAssembly)
             .Where(t => conventions.IsMessageType(t))
             .Select(t => new RouteTableEntry(t, route))
             .ToArray();

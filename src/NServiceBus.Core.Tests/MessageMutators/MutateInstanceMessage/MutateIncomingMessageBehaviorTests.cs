@@ -165,6 +165,25 @@ class MutateIncomingMessageBehaviorTests
         }
     }
 
+    [Test]
+    public async Task When_typed_replacement_is_followed_by_object_setter_should_use_the_object_overload()
+    {
+        var behavior = new MutateIncomingMessageBehavior([]);
+
+        var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
+
+        context.Services.AddTransient<IMutateIncomingMessages>(sp => new MutatorWhichDeclaresAMessageType());
+        context.Services.AddTransient<IMutateIncomingMessages>(sp => new MutatorWhichMutatesTheBody());
+
+        await behavior.Invoke(context, ctx => Task.CompletedTask);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.UpdateMessageWithTypeCalled, Is.False);
+            Assert.That(context.UpdateMessageObjCalled, Is.True);
+        }
+    }
+
     class InterceptUpdateMessageIncomingLogicalMessageContext : TestableIncomingLogicalMessageContext
     {
         public bool UpdateMessageCalled { get; private set; }

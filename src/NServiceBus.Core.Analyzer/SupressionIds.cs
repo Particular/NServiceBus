@@ -5,4 +5,6 @@ public static class SupressionIds
     public const string AddHandlerInterceptorSuppression = "NSBS0001";
     public const string AddSagaInterceptorSuppression = "NSBS0002";
     public const string AddMessageTypeInterceptorSuppression = "NSBS0003";
+    public const string AddHandlerInterceptorAotSuppression = "NSBS0004";
+    public const string AddSagaInterceptorAotSuppression = "NSBS0005";
 }

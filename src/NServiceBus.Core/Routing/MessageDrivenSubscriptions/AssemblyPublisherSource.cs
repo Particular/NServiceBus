@@ -19,10 +19,12 @@ class AssemblyPublisherSource : IPublisherSource
         this.address = address;
     }
 
-    [RequiresUnreferencedCode(TrimmingMessage)]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Scanning the configured assembly is intentional; this source can only be constructed through APIs annotated with RequiresUnreferencedCode.")]
+    static Type[] ScanAssemblyTypes(Assembly assembly) => assembly.GetTypes();
+
     public IEnumerable<PublisherTableEntry> GenerateWithBestPracticeEnforcement(Conventions conventions)
     {
-        var entries = messageAssembly.GetTypes()
+        var entries = ScanAssemblyTypes(messageAssembly)
             .Where(conventions.IsEventType)
             .Select(t => new PublisherTableEntry(t, address))
             .ToArray();
@@ -35,10 +37,9 @@ class AssemblyPublisherSource : IPublisherSource
         return entries;
     }
 
-    [RequiresUnreferencedCode(TrimmingMessage)]
     public IEnumerable<PublisherTableEntry> GenerateWithoutBestPracticeEnforcement(Conventions conventions)
     {
-        var entries = messageAssembly.GetTypes()
+        var entries = ScanAssemblyTypes(messageAssembly)
             .Where(type => conventions.IsMessageType(type) && !conventions.IsCommandType(type))
             .Select(t => new PublisherTableEntry(t, address))
             .ToArray();

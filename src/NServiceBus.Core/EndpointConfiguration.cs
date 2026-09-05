@@ -128,7 +128,7 @@ public class EndpointConfiguration : ExposeSettings
         InvokeDiscoveredInitializers(availableTypes);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = EndpointCreator.TrimmingSuppressJustification)]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = EndpointCreator.SuppressJustification)]
     void InvokeDiscoveredInitializers(IList<Type> availableTypes)
     {
         ActivateAndInvoke<INeedInitialization>(availableTypes, t => t.Customize(this));
