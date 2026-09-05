@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using NServiceBus.Features;
 using NServiceBus.Installation;
+using NServiceBus.MessageMutator;
 using NServiceBus.Pipeline;
 
 #if INCLUDE_SAGA
@@ -42,6 +43,9 @@ configuration.Conventions().DefiningCommandsAs(type =>
 configuration.EnableFeature<TrimmedScenarioFeature>();
 configuration.EnableInstallers();
 configuration.AddHandler<MyHandler>();
+// Exercise the typed replacement APIs so their trimming-sensitive, annotated paths are covered.
+configuration.RegisterMessageMutator(new ReplacesIncomingMessageInstance());
+configuration.RegisterMessageMutator(new ReplacesOutgoingMessage());
 #if INCLUDE_SAGA
 configuration.AddMessageType<StartOrderCommand>();
 configuration.AddMessageType<HandleOrderCommand>();
@@ -133,6 +137,12 @@ if (!TrimmedScenarioInstaller.Invoked || !TrimmedScenarioBehavior.Invoked)
     return 5;
 }
 
+if (!ReplacesIncomingMessageInstance.Replaced || !MyHandler.ReceivedReplacedInstance || !ReplacesOutgoingMessage.Replaced)
+{
+    Console.Error.WriteLine($"IncomingReplaced={ReplacesIncomingMessageInstance.Replaced} HandlerReceivedReplacedInstance={MyHandler.ReceivedReplacedInstance} OutgoingReplaced={ReplacesOutgoingMessage.Replaced}");
+    return 6;
+}
+
 Console.WriteLine("TRIM-VALIDATION-SUCCESS");
 return 0;
 
@@ -161,10 +171,44 @@ static bool ContainsStrictModeMessage(Exception exception)
 public class MyHandler : IHandleMessages<MyCommand>
 {
     public static bool Invoked;
+    public static bool ReceivedReplacedInstance;
 
     public Task Handle(MyCommand message, IMessageHandlerContext context)
     {
         Invoked = true;
+        ReceivedReplacedInstance = message.SomeValue == "replaced";
+        return Task.CompletedTask;
+    }
+}
+
+public sealed class ReplacesIncomingMessageInstance : IMutateIncomingMessages
+{
+    public static bool Replaced;
+
+    public Task MutateIncoming(MutateIncomingMessageContext context)
+    {
+        if (context.Message is MyCommand)
+        {
+            context.UpdateMessageInstance(new MyCommand { SomeValue = "replaced" });
+            Replaced = true;
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+public sealed class ReplacesOutgoingMessage : IMutateOutgoingMessages
+{
+    public static bool Replaced;
+
+    public Task MutateOutgoing(MutateOutgoingMessageContext context)
+    {
+        if (context.OutgoingMessage is OutgoingCommand)
+        {
+            context.UpdateMessage(new OutgoingCommand { SomeValue = "replaced" }, typeof(OutgoingCommand));
+            Replaced = true;
+        }
+
         return Task.CompletedTask;
     }
 }
