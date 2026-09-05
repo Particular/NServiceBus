@@ -193,13 +193,14 @@ class EndpointCreator
 
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
     {
-        var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
+        var configuredDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
         var strictMode = settings.Get<AssemblyScanningComponent.Configuration>().StrictRegisteredOnlyMode;
         var messageMetadataRegistry = settings.GetOrCreate<MessageMetadataRegistry>();
         // Strict mode is the stronger non-overridable policy: it must be in effect before Initialize so
         // pre-initialization registrations are enforced against it, and it disables dynamic type loading.
+        var allowDynamicTypeLoading = configuredDynamicTypeLoading && !strictMode;
         messageMetadataRegistry.StrictRegisteredOnlyMode = strictMode;
-        messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading && !strictMode);
+        messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
 
         messageMetadataRegistry.RegisterMessageTypes(hostingConfiguration.AvailableTypes);
         messageMetadataRegistry.RegisterMessageTypesBypassingChecks(messageTypesHandled);
