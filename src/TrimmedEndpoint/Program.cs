@@ -32,9 +32,10 @@ configuration.GetSettings().Set("LearningSagaPersistence.SerializerOptions", new
 });
 #endif
 
+// Only send-only message types need explicit registration: types handled by AddHandler/AddSaga are
+// registered by the generated code, and duplicating them here would mask failures in that automatic path.
 // Duplicate registration must be harmless (first registration wins).
-configuration.AddMessageType<MyCommand>();
-configuration.AddMessageType<MyCommand>();
+configuration.AddMessageType<OutgoingCommand>();
 configuration.AddMessageType<OutgoingCommand>();
 configuration.AddMessageType<UnobtrusiveCommand>();
 configuration.Conventions().DefiningCommandsAs(type =>
@@ -47,9 +48,6 @@ configuration.AddHandler<MyHandler>();
 configuration.RegisterMessageMutator(new ReplacesIncomingMessageInstance());
 configuration.RegisterMessageMutator(new ReplacesOutgoingMessage());
 #if INCLUDE_SAGA
-configuration.AddMessageType<StartOrderCommand>();
-configuration.AddMessageType<HandleOrderCommand>();
-configuration.AddMessageType<OrderTimeout>();
 configuration.AddSaga<OrderSaga>();
 #endif
 
@@ -205,7 +203,7 @@ public sealed class ReplacesOutgoingMessage : IMutateOutgoingMessages
     {
         if (context.OutgoingMessage is OutgoingCommand)
         {
-            context.UpdateMessage(new OutgoingCommand { SomeValue = "replaced" }, typeof(OutgoingCommand));
+            context.UpdateMessage(new OutgoingCommand { SomeValue = "replaced" });
             Replaced = true;
         }
 
