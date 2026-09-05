@@ -42,6 +42,8 @@ public class MutateOutgoingMessageContext : ICancellableContext
         {
             ArgumentNullException.ThrowIfNull(value);
             MessageInstanceChanged = true;
+            // The setter declares no message type, so drop any type declared by an earlier replacement.
+            ReplacementMessageType = null;
             outgoingMessage = value;
         }
     }
