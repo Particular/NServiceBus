@@ -14,6 +14,7 @@ public static class MessageHandlerRegistrationExtensions
     /// <summary>
     /// Registers a message handler.
     /// </summary>
+    [RequiresDynamicCode(MessageHandlerRegistry.DynamicCodeMessage)]
     [RequiresUnreferencedCode(MessageHandlerRegistry.TrimmingMessage)]
     public static void AddHandler<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler>(this EndpointConfiguration config)
     {

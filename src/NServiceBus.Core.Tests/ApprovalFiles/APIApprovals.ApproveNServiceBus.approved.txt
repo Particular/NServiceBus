@@ -751,6 +751,8 @@ namespace NServiceBus
     }
     public static class MessageHandlerRegistrationExtensions
     {
+        [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Registering handlers using assembly scanning relies on dynamic code generation wh" +
+            "ich is not available with Ahead of Time compilation.")]
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
             "os.")]
         public static void AddHandler<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandler>(this NServiceBus.EndpointConfiguration config) { }
@@ -1131,7 +1133,9 @@ namespace NServiceBus
     }
     public static class SagaRegistrationExtensions
     {
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
+        [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Saga discovery using assembly scanning might relies on dynamic code generation wh" +
+            "ich is not available with Ahead of Time compilation.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code.")]
         public static void AddSaga<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga>(this NServiceBus.EndpointConfiguration config)
             where TSaga : NServiceBus.Saga, NServiceBus.IHandleMessages { }
     }
@@ -2513,13 +2517,17 @@ namespace NServiceBus.Sagas
         [System.Obsolete("Use the overload without available types and conventions. Will be removed in vers" +
             "ion 11.0.0.", true)]
         public static NServiceBus.Sagas.SagaMetadata Create(System.Type sagaType, System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
+        [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Saga discovery using assembly scanning might relies on dynamic code generation wh" +
+            "ich is not available with Ahead of Time compilation.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code.")]
         public static NServiceBus.Sagas.SagaMetadata Create<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga>()
             where TSaga : NServiceBus.Saga { }
         public static NServiceBus.Sagas.SagaMetadata Create<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]  TSagaData>(System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.SagaMessage> associatedMessages, NServiceBus.Sagas.CorrelationPropertyAccessor? correlationPropertyAccessor = null, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Sagas.MessagePropertyAccessor>? propertyAccessors = null)
             where TSaga : NServiceBus.Saga<TSagaData>
             where TSagaData :  class, NServiceBus.IContainSagaData, new () { }
-        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
+        [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Saga discovery using assembly scanning might relies on dynamic code generation wh" +
+            "ich is not available with Ahead of Time compilation.")]
+        [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code.")]
         public static System.Collections.Generic.IEnumerable<NServiceBus.Sagas.SagaMetadata> CreateMany(System.Collections.Generic.IEnumerable<System.Type> sagaTypes) { }
         public class CorrelationPropertyMetadata
         {
@@ -2863,6 +2871,8 @@ namespace NServiceBus.Unicast
     public class MessageHandlerRegistry
     {
         public MessageHandlerRegistry() { }
+        [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Registering handlers using assembly scanning relies on dynamic code generation wh" +
+            "ich is not available with Ahead of Time compilation.")]
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
             "os.")]
         public void AddHandler<THandler>() { }
@@ -2870,6 +2880,8 @@ namespace NServiceBus.Unicast
             where THandler :  class, NServiceBus.IHandleMessages<TMessage> { }
         public void AddMessageHandlerForMessage<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  THandlerAdapter, TMessage, THandler>()
             where THandlerAdapter :  class, NServiceBus.IHandleMessages<TMessage> { }
+        [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Registering handlers using assembly scanning relies on dynamic code generation wh" +
+            "ich is not available with Ahead of Time compilation.")]
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
             "os.")]
         public void AddScannedHandlers(System.Collections.Generic.IEnumerable<System.Type> orderedTypes) { }
@@ -2878,6 +2890,8 @@ namespace NServiceBus.Unicast
         public void Clear() { }
         public System.Collections.Generic.List<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
+        [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Registering handlers using assembly scanning relies on dynamic code generation wh" +
+            "ich is not available with Ahead of Time compilation.")]
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Registering handlers using assembly scanning is not supported in trimming scenari" +
             "os.")]
         [System.Obsolete("Use \'AddHandler<THandler>()\' instead. Will be treated as an error from version 11" +

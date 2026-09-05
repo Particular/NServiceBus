@@ -61,7 +61,7 @@ class EndpointCreator
 
         return endpointCreator;
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
         static void DiscoverInstallers(InstallerComponent.Settings installerSettings, List<Type> availableTypes) => installerSettings.AddScannedInstallers(availableTypes);
     }
 
@@ -181,13 +181,15 @@ class EndpointCreator
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
         MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = SuppressJustification)]
         static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = SuppressJustification)]
         static void DiscoverSagas(SagaComponent.Settings sagaSettings, ICollection<Type> availableTypes) => sagaSettings.AddDiscoveredSagas(availableTypes);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
         static void DiscoverFeatures(ICollection<Type> availableTypes, FeatureComponent.Settings featureSettings) => featureSettings.AddScannedTypes(availableTypes);
     }
 
@@ -255,5 +257,5 @@ class EndpointCreator
     readonly HostingComponent.Configuration hostingConfiguration;
     readonly Conventions conventions;
 
-    internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
+    internal const string SuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
 }
