@@ -30,7 +30,8 @@ class IncomingPipelineMetrics
     const string OutboxStoreTime = "nservicebus.outbox.store_time";
     const string CommitTime = "nservicebus.persistence.commit_time";
 
-    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator, MetersOptions metersOptions)
+    // queueName and discriminator are null for send-only endpoints, which have no receive queue to report.
+    public IncomingPipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator, MetersOptions metersOptions)
     {
         emitExecutionResultTags = metersOptions.EmitExecutionResultTags;
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
@@ -75,10 +76,18 @@ class IncomingPipelineMetrics
         endpointDiscriminator = discriminator;
     }
 
+    // Only ever reached from the incoming pipeline, which a send-only endpoint doesn't have, so both values are
+    // non-null in practice. The checks keep this honest rather than asserting that from a distance.
     public void AddDefaultIncomingPipelineMetricTags(IncomingPipelineMetricTags incomingPipelineMetricTags)
     {
-        incomingPipelineMetricTags.Add(MeterTags.QueueName, queueNameBase);
-        incomingPipelineMetricTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator);
+        if (queueNameBase != null)
+        {
+            incomingPipelineMetricTags.Add(MeterTags.QueueName, queueNameBase);
+        }
+        if (endpointDiscriminator != null)
+        {
+            incomingPipelineMetricTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator);
+        }
     }
 
     public void RecordProcessingTime(ITransportReceiveContext context, TimeSpan elapsed)
@@ -403,28 +412,41 @@ class IncomingPipelineMetrics
 
     public void RecordSerializeTime(IOutgoingLogicalMessageContext context, TimeSpan elapsed, string? messageType, Exception? error = null)
     {
-        // No incoming pipeline context is available here (this fires from the outgoing send pipeline, which may
-        // run with no incoming message at all), so there's no IncomingPipelineMetricTags to route these through.
         if (!messageSerializeTime.Enabled)
         {
             return;
         }
 
         TagList tags;
+        // A send from a message handler chains its context to the incoming pipeline, so the queue and discriminator
+        // are already in the tag bag and ApplyTags below replaces these in place. A send from IMessageSession has no
+        // incoming pipeline to inherit them from, so seed them from the endpoint configuration instead. Both stay
+        // unset for send-only endpoints, which have no receive queue to report.
+        if (queueNameBase != null)
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.QueueName, queueNameBase));
+        }
+        if (endpointDiscriminator != null)
+        {
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.EndpointDiscriminator, endpointDiscriminator));
+        }
         if (messageType != null)
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, messageType)); // tag-bag-bypass: see comment above
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, messageType));
         }
         if (error != null)
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName)); // tag-bag-bypass: see comment above
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
         }
         if (emitExecutionResultTags)
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, error != null ? "failure" : "success")); // tag-bag-bypass: see comment above
+            // Execution result is to be removed so we don't support overriding it by the user
+            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, error != null ? "failure" : "success"));
         }
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
+                MeterTags.QueueName,
+                MeterTags.EndpointDiscriminator,
                 MeterTags.MessageType,
                 MeterTags.ErrorType],
             messageSerializeTime.Name);
@@ -531,7 +553,7 @@ class IncomingPipelineMetrics
     readonly Histogram<double> outboxStoreTime;
     readonly Histogram<double> persistenceTime;
 
-    readonly string queueNameBase;
-    readonly string endpointDiscriminator;
+    readonly string? queueNameBase;
+    readonly string? endpointDiscriminator;
     readonly bool emitExecutionResultTags;
 }

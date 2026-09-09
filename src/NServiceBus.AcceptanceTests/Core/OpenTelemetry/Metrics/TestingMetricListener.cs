@@ -96,6 +96,16 @@ class TestingMetricListener : IDisposable
         return meterTag.Value;
     }
 
+    public void AssertTagKeyDoesNotExist(string metricName, string tagKey)
+    {
+        if (!Tags.ContainsKey(metricName))
+        {
+            Assert.Fail($"'{metricName}' metric was not reported");
+        }
+
+        Assert.That(Tags[metricName].Select(t => t.Key), Does.Not.Contain(tagKey));
+    }
+
     public void AssertTags(string metricName, Dictionary<string, object> expectedTags)
     {
         foreach (var kvp in expectedTags)
