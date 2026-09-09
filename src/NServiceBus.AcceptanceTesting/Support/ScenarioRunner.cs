@@ -119,7 +119,9 @@ public class ScenarioRunner(
     internal static string GenerateTestTimedOutMessage(TimeSpan maxTime)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
+        sb.AppendLine(maxTime == Timeout.InfiniteTimeSpan
+            ? "The cancellation token passed to the test was cancelled before the test completed"
+            : $"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
         sb.AppendLine("----------------------------------------------------------------------------");
         return sb.ToString();
     }
