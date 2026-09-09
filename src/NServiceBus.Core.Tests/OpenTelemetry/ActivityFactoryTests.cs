@@ -371,4 +371,32 @@ public class ActivityFactoryTests
             Assert.That(activity, Is.Not.Null);
         }
     }
+
+    class RecordError : ActivityFactoryTests
+    {
+        [Test]
+        public void Should_set_legacy_tags_on_every_activity_even_after_exception_already_recorded()
+        {
+            // Simulates an exception unwinding through the pipeline: the handler activity records it first,
+            // then the same exception instance reaches RecordError again on the enclosing pipeline activity.
+            using var pipelineActivity = ActivitySources.Main.StartActivity("pipeline activity");
+            Assert.That(pipelineActivity, Is.Not.Null);
+            using var handlerActivity = ActivitySources.Main.StartActivity("handler activity");
+            Assert.That(handlerActivity, Is.Not.Null);
+            var exception = new Exception("boom");
+
+            activityFactory.RecordError(handlerActivity!, exception, new ContextBag());
+            activityFactory.RecordError(pipelineActivity!, exception, new ContextBag());
+
+            var pipelineTags = pipelineActivity!.Tags.ToImmutableDictionary();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(pipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error), "status should be set on every activity");
+                Assert.That(pipelineTags.ContainsKey("otel.status_code"), Is.True, "legacy tags should be set on every activity, not deduped via ExceptionRecordedFlag");
+                Assert.That(pipelineTags.ContainsKey("otel.status_description"), Is.True, "legacy tags should be set on every activity, not deduped via ExceptionRecordedFlag");
+                Assert.That(handlerActivity!.Events.Count(), Is.EqualTo(1), "the first activity to see the exception records the event");
+                Assert.That(pipelineActivity.Events, Is.Empty, "the exception event itself should still only be recorded once");
+            }
+        }
+    }
 }
