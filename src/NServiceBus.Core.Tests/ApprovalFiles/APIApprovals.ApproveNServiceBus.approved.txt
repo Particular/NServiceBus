@@ -1179,6 +1179,17 @@ namespace NServiceBus
         public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
         public static void AddNServiceBusInstallers(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<NServiceBus.InstallersOptions>? configure = null) { }
     }
+    public static class ServicePlatformConfigExtensions
+    {
+        extension(NServiceBus.EndpointConfiguration endpointConfiguration)
+        {
+            public NServiceBus.ServicePlatformSettings EnableServicePlatform() { }
+        }
+    }
+    public class ServicePlatformSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
+    {
+        public string ServiceControlQueue { get; set; }
+    }
     public static class SettingsExtensions
     {
         extension(NServiceBus.Settings.IReadOnlySettings settings)
