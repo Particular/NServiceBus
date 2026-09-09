@@ -266,6 +266,14 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
+        // Legacy tags apply per-activity (each activity on the way up the pipeline gets its own),
+        // unlike the exception event below which is deduped once per exception via ExceptionRecordedFlag.
+        // Only the "is this worth computing" part is guarded by IsAllDataRequested.
+        if (activity.IsAllDataRequested && !V11BehaviorSwitch.UseV11Behavior) // Removed in v11, see obsoletes-v10.cs
+        {
+            LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
+        }
+
         if (!exception.Data.Contains(ExceptionRecordedFlag))
         {
             if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
@@ -276,14 +284,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             }
             else if (activity.IsAllDataRequested)
             {
-                // Recording the exception on the activity (stack trace event + legacy tags) only matters
-                // if a listener asked for full data; skip it otherwise. The Logs branch above is a separate
-                // capture path and stays unconditional regardless of IsAllDataRequested.
-                if (!V11BehaviorSwitch.UseV11Behavior) // Removed in v11, see obsoletes-v10.cs
-                {
-                    LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
-                }
-
+                // Building the exception event (stack trace) is wasted work when nothing downstream will read it.
                 activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
             }
 
