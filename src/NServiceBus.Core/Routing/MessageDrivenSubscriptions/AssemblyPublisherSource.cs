@@ -19,7 +19,7 @@ class AssemblyPublisherSource : IPublisherSource
         this.address = address;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Scanning the configured assembly is intentional; this source can only be constructed through APIs annotated with RequiresUnreferencedCode.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Scanning the configured assembly is intentional. Construction is gated by the constructor's RequiresUnreferencedCode annotation, and the scanning members cannot be annotated because they implement an unannotated interface (IL2046).")]
     static Type[] ScanAssemblyTypes(Assembly assembly) => assembly.GetTypes();
 
     public IEnumerable<PublisherTableEntry> GenerateWithBestPracticeEnforcement(Conventions conventions)
