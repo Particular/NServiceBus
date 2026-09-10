@@ -286,9 +286,9 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
     }
 
-    // Annotating isn't possible: RequiresDynamicCode on members implementing the unannotated IServiceProvider
-    // interfaces is an IL3051 mismatch, so the accepted risk is documented here instead.
-    const string Justification = "Resolving IEnumerable<T> registrations by runtime Type requires the Type-based GetServices/GetKeyedServices overloads which require dynamic code. Mirrors the framework's own IServiceProvider behavior and cannot be made AOT-safe while supporting Type-based resolution.";
+    // The Microsoft.Extensions.DependencyInjection interfaces implemented here are unannotated,
+    // so adding RequiresDynamicCode to these members would be an IL3051 mismatch.
+    const string Justification = "Resolving IEnumerable<T> registrations by runtime Type requires the Type-based GetServices/GetKeyedServices overloads which require dynamic code. Mirrors the framework's own unannotated IServiceProvider behavior and cannot be made AOT-safe while supporting Type-based resolution.";
 
     [UnconditionalSuppressMessage("AOT", "IL3050", Justification = Justification)]
     static object GetAllServices(IServiceProvider serviceProvider, Type itemType)
