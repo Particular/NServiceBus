@@ -34,30 +34,19 @@ class TestingMetricListener : IDisposable
             }
         };
 
+        // Counters measure in long, the histograms in the incoming pipeline meter measure in double. Both callbacks
+        // have to be registered or the measurements (and therefore the tags) of one kind are never observed. A
+        // counter reports the measurement itself, a histogram reports how many times it recorded.
         meterListener.SetMeasurementEventCallback((Instrument instrument,
             long measurement,
-            ReadOnlySpan<KeyValuePair<string, object>> t,
-            object _) =>
-        {
-            TestContext.Out.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
+            ReadOnlySpan<KeyValuePair<string, object>> tags,
+            object _) => RecordMeasurement(instrument, measurement, measurement, tags));
 
-            var tags = t.ToArray();
-            ReportedMeters.AddOrUpdate(instrument.Name, measurement, (_, val) => val + measurement);
-            Tags.AddOrUpdate(instrument.Name, _ => tags, (_, _) => tags);
-        });
-        // Histograms in the incoming pipeline meter are Histogram<double>; without this callback their
-        // measurements (and therefore their tags) are never observed by this listener.
         meterListener.SetMeasurementEventCallback((Instrument instrument,
             double measurement,
-            ReadOnlySpan<KeyValuePair<string, object>> t,
-            object _) =>
-        {
-            TestContext.Out.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
+            ReadOnlySpan<KeyValuePair<string, object>> tags,
+            object _) => RecordMeasurement(instrument, measurement, 1, tags));
 
-            var tags = t.ToArray();
-            ReportedMeters.AddOrUpdate(instrument.Name, 1, (_, val) => val + 1);
-            Tags.AddOrUpdate(instrument.Name, _ => tags, (_, _) => tags);
-        });
         meterListener.Start();
     }
 
@@ -71,6 +60,15 @@ class TestingMetricListener : IDisposable
     }
 
     public void Dispose() => meterListener?.Dispose();
+
+    void RecordMeasurement<T>(Instrument instrument, T measurement, long reportedValue, ReadOnlySpan<KeyValuePair<string, object>> measurementTags)
+    {
+        TestContext.Out.WriteLine($"{instrument.Meter.Name}\\{instrument.Name}:{measurement}");
+
+        var tags = measurementTags.ToArray();
+        ReportedMeters.AddOrUpdate(instrument.Name, reportedValue, (_, val) => val + reportedValue);
+        Tags.AddOrUpdate(instrument.Name, _ => tags, (_, _) => tags);
+    }
 
     public ConcurrentDictionary<string, long> ReportedMeters { get; } = new();
     public ConcurrentDictionary<string, KeyValuePair<string, object>[]> Tags { get; } = new();
@@ -89,16 +87,6 @@ class TestingMetricListener : IDisposable
                 Assert.That(ReportedMeters[metricName], Is.EqualTo(expected));
             }
         }
-    }
-
-    public void AssertTagKeyDoesNotExist(string metricName, string tagKey)
-    {
-        if (!Tags.ContainsKey(metricName))
-        {
-            Assert.Fail($"'{metricName}' metric was not reported");
-        }
-
-        Assert.That(Tags[metricName].Select(t => t.Key), Does.Not.Contain(tagKey));
     }
 
     public object AssertTagKeyExists(string metricName, string tagKey)
