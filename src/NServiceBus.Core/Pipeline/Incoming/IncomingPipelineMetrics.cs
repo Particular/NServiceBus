@@ -418,18 +418,6 @@ class IncomingPipelineMetrics
         }
 
         TagList tags;
-        // A send from a message handler chains its context to the incoming pipeline, so the queue and discriminator
-        // are already in the tag bag and ApplyTags below replaces these in place. A send from IMessageSession has no
-        // incoming pipeline to inherit them from, so seed them from the endpoint configuration instead. Both stay
-        // unset for send-only endpoints, which have no receive queue to report.
-        if (queueNameBase != null)
-        {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.QueueName, queueNameBase));
-        }
-        if (endpointDiscriminator != null)
-        {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.EndpointDiscriminator, endpointDiscriminator));
-        }
         if (messageType != null)
         {
             tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, messageType));
@@ -444,7 +432,8 @@ class IncomingPipelineMetrics
             tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, error != null ? "failure" : "success"));
         }
 
-        context.IncomingMetricTags.ApplyTags(ref tags, [
+        var contextTags = context.OutgoingMetricTags;
+        contextTags.ApplyTags(ref tags, [
                 MeterTags.QueueName,
                 MeterTags.EndpointDiscriminator,
                 MeterTags.MessageType,

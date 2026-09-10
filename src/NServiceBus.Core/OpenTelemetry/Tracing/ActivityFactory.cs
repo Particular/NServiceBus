@@ -53,11 +53,18 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
                 Activity.Current = null;
                 activity = activitySource.StartActivity(name: activityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
             }
-            else
+            else if(Activity.Current == null || Activity.Current.Kind != ActivityKind.Consumer) //HINT: there is no native SDK activity set
             {
                 // no new trace was requested, so start a child trace
                 ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
                 activity = activitySource.CreateActivity(name: activityName, ActivityKind.Consumer, remoteParentActivityContext);
+            }
+            else
+            {
+                // create a new trace or root activity
+                ActivityLink[] links = [new(sendSpanContext)];
+                //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
+                activity = activitySource.StartActivity(name: activityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
             }
         }
         else // otherwise start a new trace
