@@ -19,7 +19,7 @@ class DeserializeMessageConnector(
     MessageMetadataRegistry messageMetadataRegistry,
     IMessageMapper mapper,
     bool allowContentTypeInference,
-    IncomingPipelineMetrics incomingPipelineMetrics)
+    PipelineMetrics pipelineMetrics)
     : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
 {
     public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
@@ -36,11 +36,11 @@ class DeserializeMessageConnector(
         catch (Exception ex)
 #pragma warning restore PS0019
         {
-            incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), error: ex);
+            pipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), error: ex);
             throw;
         }
 
-        incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart));
+        pipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart));
 
         bool first = true;
         foreach (var message in messages)

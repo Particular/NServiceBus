@@ -15,7 +15,7 @@ public class EnvelopeUnwrapperTests
     ReadOnlyMemory<byte> originalBody;
     MessageContext messageContext;
     TestMeterFactory meterFactory;
-    IncomingPipelineMetrics incomingPipelineMetrics;
+    PipelineMetrics pipelineMetrics;
     List<IEnvelopeHandler> envelopeHandlers;
 
     [SetUp]
@@ -29,7 +29,7 @@ public class EnvelopeUnwrapperTests
         originalBody = "payload"u8.ToArray().AsMemory();
         messageContext = new MessageContext(nativeId, originalHeaders, originalBody, new TransportTransaction(), "receiveAddress", new ContextBag());
         meterFactory = new TestMeterFactory();
-        incomingPipelineMetrics = new IncomingPipelineMetrics(meterFactory, "queue", "disc", new MetersOptions());
+        pipelineMetrics = new PipelineMetrics(meterFactory, "queue", "disc", new MetersOptions());
     }
 
     [TearDown]
@@ -152,7 +152,7 @@ public class EnvelopeUnwrapperTests
         Assert.That(result.Body.Span.SequenceEqual(firstBody.Span), Is.True);
     }
 
-    EnvelopeUnwrapper.IncomingMessageHandle RunTest() => new EnvelopeUnwrapper([.. envelopeHandlers], incomingPipelineMetrics).UnwrapEnvelope(messageContext);
+    EnvelopeUnwrapper.IncomingMessageHandle RunTest() => new EnvelopeUnwrapper([.. envelopeHandlers], pipelineMetrics).UnwrapEnvelope(messageContext);
 
     class ReturningHandler(Dictionary<string, string> headersToReturn, ReadOnlyMemory<byte> bodyToReturn) : IEnvelopeHandler
     {

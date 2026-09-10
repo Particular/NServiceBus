@@ -53,7 +53,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
                 Activity.Current = null;
                 activity = activitySource.StartActivity(name: activityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
             }
-            else if(Activity.Current == null || Activity.Current.Kind != ActivityKind.Consumer) //HINT: there is no native SDK activity set
+            else if (Activity.Current == null || Activity.Current.Kind != ActivityKind.Consumer) //HINT: there is no native SDK activity set
             {
                 // no new trace was requested, so start a child trace
                 ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
@@ -212,8 +212,13 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         }
     }
 
-    public void RecordError(Activity activity, Exception exception, ContextBag context)
+    public void RecordError(Activity? activity, Exception exception, ContextBag context)
     {
+        if (activity == null)
+        {
+            return;
+        }
+
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 

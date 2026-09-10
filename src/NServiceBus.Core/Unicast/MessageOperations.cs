@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
@@ -28,7 +29,7 @@ class MessageOperations
         IActivityFactory activityFactory)
     {
         this.messageMapper = messageMapper;
-        this.publishPipeline = publishPipeline;
+        this.publishPipeline = WrappedInvokeForTracing(publishPipeline);
         this.sendPipeline = sendPipeline;
         this.replyPipeline = replyPipeline;
         this.subscribePipeline = subscribePipeline;
@@ -71,7 +72,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, publishDisplayName, publishContext);
 
-        await publishPipeline.Invoke(publishContext, activity, activityFactory).ConfigureAwait(false);
+        await WrappedInvokeForTracing(publishPipeline, publishContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -90,7 +91,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context);
 
-        await subscribePipeline.Invoke(subscribeContext, activity, activityFactory).ConfigureAwait(false);
+        await WrappedInvokeForTracing(subscribePipeline, subscribeContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     public async Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -104,7 +105,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context);
 
-        await unsubscribePipeline.Invoke(unsubscribeContext, activity, activityFactory).ConfigureAwait(false);
+        await WrappedInvokeForTracing(unsubscribePipeline, unsubscribeContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -138,7 +139,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
 
-        await sendPipeline.Invoke(outgoingContext, activity, activityFactory).ConfigureAwait(false);
+        await WrappedInvokeForTracing(sendPipeline, outgoingContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -172,7 +173,7 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
 
-        await replyPipeline.Invoke(outgoingContext, activity, activityFactory).ConfigureAwait(false);
+        await WrappedInvokeForTracing(replyPipeline, outgoingContext, activity, activityFactory).ConfigureAwait(false);
     }
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
@@ -180,4 +181,28 @@ class MessageOperations
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
         context.Set(new DispatchProperties(dispatchProperties));
     }
+
+    public static Task WrappedInvokeForTracing<TContext>(IPipeline<TContext> pipeline, TContext context, Activity? activity, IActivityFactory activityFactory) where TContext : IBehaviorContext
+    {
+        return activity is null
+            ? pipeline.Invoke(context)
+            : TracePipelineStatus(pipeline, context, activity, activityFactory);
+
+        static async Task TracePipelineStatus(IPipeline<TContext> pipeline, TContext context, Activity activity, IActivityFactory activityFactory)
+        {
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
+            try
+            {
+                await pipeline.Invoke(context).ConfigureAwait(false);
+                activity.SetStatus(ActivityStatusCode.Ok);
+            }
+            catch (Exception ex)
+            {
+                activityFactory.RecordError(activity, ex, context.Extensions);
+                throw;
+            }
+#pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
+        }
+    }
+
 }

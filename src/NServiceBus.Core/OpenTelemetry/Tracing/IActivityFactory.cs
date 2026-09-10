@@ -16,5 +16,5 @@ interface IActivityFactory
     Activity? StartHandlerActivity(MessageHandler messageHandler);
     Activity? StartRecoverabilityActivity(ErrorContext context);
     void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress);
-    void RecordError(Activity activity, Exception exception, ContextBag context);
+    void RecordError(Activity? activity, Exception exception, ContextBag context);
 }

@@ -59,7 +59,7 @@ public class SerializeMessageConnectorTests
         var behavior = new SerializeMessageConnector(
             new FakeSerializer("myContentType"),
             registry,
-            new IncomingPipelineMetrics(new TestMeterFactory(), queueName, discriminator, new MetersOptions()));
+            new PipelineMetrics(new TestMeterFactory(), queueName, discriminator, new MetersOptions()));
 
         return behavior.Invoke(context, _ => Task.CompletedTask);
     }

@@ -44,7 +44,7 @@ public class When_serializing_outgoing_messages : OpenTelemetryAcceptanceTest
             .WithEndpoint<EndpointWithMetrics>()
             .Run();
 
-        using (Assert.EnterMultipleScope())
+        //using (Assert.EnterMultipleScope())
         {
             metricsListener.AssertTagKeyDoesNotExist(MessageSerializeTime, "nservicebus.queue");
             metricsListener.AssertTagKeyDoesNotExist(MessageSerializeTime, "nservicebus.discriminator");

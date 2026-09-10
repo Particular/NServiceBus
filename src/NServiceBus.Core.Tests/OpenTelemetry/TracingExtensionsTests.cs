@@ -21,7 +21,7 @@ public class TracingExtensionsTests
             return Task.CompletedTask;
         });
 
-        await pipeline.Invoke(new FakeRootContext(), null, new ActivityFactory(new InstrumentationOptions()));
+        await pipeline.WrappedInvokeForTracing(new FakeRootContext(), null, new ActivityFactory(new InstrumentationOptions()));
 
         Assert.That(invokedPipeline, Is.True);
     }
@@ -33,7 +33,7 @@ public class TracingExtensionsTests
         using var activity = new Activity("test activity");
         activity.Start();
 
-        await pipeline.Invoke(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions()));
+        await pipeline.WrappedInvokeForTracing(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions()));
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
     }
@@ -46,7 +46,7 @@ public class TracingExtensionsTests
         using var activity = new Activity("test activity");
         activity.Start();
 
-        Assert.ThrowsAsync<Exception>(() => pipeline.Invoke(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions())));
+        Assert.ThrowsAsync<Exception>(() => pipeline.WrappedInvokeForTracing(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions())));
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
 
@@ -69,7 +69,7 @@ public class TracingExtensionsTests
         using var activity = new Activity("test activity");
         activity.Start();
 
-        Assert.ThrowsAsync<Exception>(() => pipeline.Invoke(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.Logs })));
+        Assert.ThrowsAsync<Exception>(() => pipeline.WrappedInvokeForTracing(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.Logs })));
 
         using (Assert.EnterMultipleScope())
         {

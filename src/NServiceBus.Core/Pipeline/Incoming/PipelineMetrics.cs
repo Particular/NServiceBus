@@ -3,13 +3,12 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Transport;
 using Pipeline;
 
-class IncomingPipelineMetrics
+class PipelineMetrics
 {
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
@@ -31,7 +30,7 @@ class IncomingPipelineMetrics
     const string CommitTime = "nservicebus.persistence.commit_time";
 
     // queueName and discriminator are null for send-only endpoints, which have no receive queue to report.
-    public IncomingPipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator, MetersOptions metersOptions)
+    public PipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator, MetersOptions metersOptions)
     {
         emitExecutionResultTags = metersOptions.EmitExecutionResultTags;
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
@@ -72,21 +71,14 @@ class IncomingPipelineMetrics
         persistenceTime = meter.CreateHistogram<double>(CommitTime, "s",
             "The time in seconds for completing the synchronized storage session.");
 
-        queueNameBase = queueName;
-        endpointDiscriminator = discriminator;
-    }
-
-    // Only ever reached from the incoming pipeline, which a send-only endpoint doesn't have, so both values are
-    // non-null in practice. The checks keep this honest rather than asserting that from a distance.
-    public void AddDefaultIncomingPipelineMetricTags(IncomingPipelineMetricTags incomingPipelineMetricTags)
-    {
-        if (queueNameBase != null)
+        if (queueName != null)
         {
-            incomingPipelineMetricTags.Add(MeterTags.QueueName, queueNameBase);
+            DefaultMetricTags.Add(MeterTags.QueueName, queueName);
         }
-        if (endpointDiscriminator != null)
+
+        if (discriminator != null)
         {
-            incomingPipelineMetricTags.Add(MeterTags.EndpointDiscriminator, endpointDiscriminator);
+            DefaultMetricTags.Add(MeterTags.EndpointDiscriminator, discriminator);
         }
     }
 
@@ -97,11 +89,12 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
+
         if (emitExecutionResultTags)
         {
             // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "success"));
+            tags.Add(MeterTags.ExecutionResult, "success");
         }
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
@@ -120,11 +113,12 @@ class IncomingPipelineMetrics
         {
             return;
         }
-        TagList tags;
+
+        var tags = DefaultMetricTags;
         if (emitExecutionResultTags)
         {
             // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "success"));
+            tags.Add(MeterTags.ExecutionResult, "success");
         }
 
         // totalProcessedSuccessfully and criticalTime always share the same tags in this method, so overrides are
@@ -160,14 +154,14 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         if (emitExecutionResultTags)
         {
             // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "failure"));
+            tags.Add(MeterTags.ExecutionResult, "failure");
         }
 
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
+        tags.Add(MeterTags.ErrorType, error.GetType().FullName);
 
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -188,7 +182,7 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.EndpointDiscriminator,
             MeterTags.QueueName,
@@ -205,7 +199,7 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.EndpointDiscriminator,
             MeterTags.QueueName,
@@ -222,14 +216,14 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         if (emitExecutionResultTags)
         {
             // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "success"));
+            tags.Add(MeterTags.ExecutionResult, "success");
         }
 
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName));
+        tags.Add(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName);
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -247,15 +241,15 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         if (emitExecutionResultTags)
         {
             // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, "failure"));
+            tags.Add(MeterTags.ExecutionResult, "failure");
         }
 
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName));
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
+        tags.Add(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName);
+        tags.Add(MeterTags.ErrorType, error.GetType().FullName);
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -274,8 +268,8 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, context.Exception.GetType().FullName));
+        var tags = DefaultMetricTags;
+        tags.Add(MeterTags.ErrorType, context.Exception.GetType().FullName);
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -283,7 +277,8 @@ class IncomingPipelineMetrics
             MeterTags.MessageType,
             MeterTags.MessageHandlerType,
             MeterTags.ErrorType],
-            totalImmediateRetries.Name);
+            totalImmediateRetries.Name
+            );
         totalImmediateRetries.Add(1, tags);
     }
 
@@ -294,8 +289,8 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, context.Exception.GetType().FullName));
+        var tags = DefaultMetricTags;
+        tags.Add(MeterTags.ErrorType, context.Exception.GetType().FullName);
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -314,8 +309,8 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, context.Exception.GetType().FullName));
+        var tags = DefaultMetricTags;
+        tags.Add(MeterTags.ErrorType, context.Exception.GetType().FullName);
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -334,10 +329,10 @@ class IncomingPipelineMetrics
             return default;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes))
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.EnclosedMessageTypes, enclosedMessageTypes));
+            tags.Add(MeterTags.EnclosedMessageTypes, enclosedMessageTypes);
         }
         incomingPipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -356,16 +351,16 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         if (emitExecutionResultTags)
         {
             // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, error != null ? "failure" : "success"));
+            tags.Add(MeterTags.ExecutionResult, error != null ? "failure" : "success");
         }
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.SagaType, sagaType));
+        tags.Add(MeterTags.SagaType, sagaType);
         if (error != null)
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
+            tags.Add(MeterTags.ErrorType, error.GetType().FullName);
         }
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
@@ -385,19 +380,19 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         if (context.Message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes))
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.EnclosedMessageTypes, messageTypes));
+            tags.Add(MeterTags.EnclosedMessageTypes, messageTypes);
         }
         if (error != null)
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
+            tags.Add(MeterTags.ErrorType, error.GetType().FullName);
         }
         if (emitExecutionResultTags)
         {
             // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, error != null ? "failure" : "success"));
+            tags.Add(MeterTags.ExecutionResult, error != null ? "failure" : "success");
         }
 
         context.IncomingMetricTags.ApplyTags(ref tags, [
@@ -417,19 +412,19 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         if (messageType != null)
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.MessageType, messageType));
+            tags.Add(MeterTags.MessageType, messageType);
         }
         if (error != null)
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, error.GetType().FullName));
+            tags.Add(MeterTags.ErrorType, error.GetType().FullName);
         }
         if (emitExecutionResultTags)
         {
             // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ExecutionResult, error != null ? "failure" : "success"));
+            tags.Add(MeterTags.ExecutionResult, error != null ? "failure" : "success");
         }
 
         var contextTags = context.OutgoingMetricTags;
@@ -450,7 +445,7 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator],
@@ -466,7 +461,7 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator],
@@ -482,7 +477,7 @@ class IncomingPipelineMetrics
             return;
         }
 
-        TagList tags;
+        var tags = DefaultMetricTags;
         context.IncomingMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
             MeterTags.EndpointDiscriminator,
@@ -501,11 +496,13 @@ class IncomingPipelineMetrics
         {
             return;
         }
-        TagList tags;
-        tags.Add(new KeyValuePair<string, object?>(MeterTags.EnvelopeUnwrapperType, type.GetType().FullName));
+
+        var tags = DefaultMetricTags;
+        tags.Add(MeterTags.EnvelopeUnwrapperType, type.GetType().FullName);
+
         if (exception != null)
         {
-            tags.Add(new KeyValuePair<string, object?>(MeterTags.ErrorType, exception.GetType().FullName));
+            tags.Add(MeterTags.ErrorType, exception.GetType().FullName);
         }
 
         messageContext.IncomingMetricTags.ApplyTags(ref tags, [
@@ -542,7 +539,6 @@ class IncomingPipelineMetrics
     readonly Histogram<double> outboxStoreTime;
     readonly Histogram<double> persistenceTime;
 
-    readonly string? queueNameBase;
-    readonly string? endpointDiscriminator;
+    readonly TagList DefaultMetricTags;
     readonly bool emitExecutionResultTags;
 }
