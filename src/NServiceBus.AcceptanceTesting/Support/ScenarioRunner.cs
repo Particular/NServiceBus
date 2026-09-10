@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Logging;
+using NUnit.Framework.Internal;
 
 public class ScenarioRunner(
     RunDescriptor runDescriptor,
@@ -92,7 +93,7 @@ public class ScenarioRunner(
                 }
                 catch (OperationCanceledException e)
                 {
-                    throw new TimeoutException(GenerateTestTimedOutMessage(maxTime), e);
+                    throw new TimeoutException(GenerateTestTimedOutMessage(maxTime, cancellationToken), e);
                 }
             }
 
@@ -116,12 +117,21 @@ public class ScenarioRunner(
         }
     }
 
-    internal static string GenerateTestTimedOutMessage(TimeSpan maxTime)
+    internal static string GenerateTestTimedOutMessage(TimeSpan maxTime, CancellationToken cancellationToken = default)
     {
         var sb = new StringBuilder();
-        sb.AppendLine(maxTime == Timeout.InfiniteTimeSpan
-            ? "The cancellation token passed to the test was cancelled before the test completed"
-            : $"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
+        if (cancellationToken.CanBeCanceled && cancellationToken.IsCancellationRequested)
+        {
+            var timeoutMs = TestExecutionContext.CurrentContext.TestCaseTimeout;
+            sb.AppendLine(timeoutMs > 0
+                ? $"The scenario did not complete within the test's timeout budget of {timeoutMs} ms"
+                : "The scenario did not complete before the cancellation token was cancelled");
+        }
+        else
+        {
+            sb.AppendLine($"The maximum time limit for this test({maxTime.TotalSeconds}s) has been reached");
+        }
+
         sb.AppendLine("----------------------------------------------------------------------------");
         return sb.ToString();
     }
