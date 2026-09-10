@@ -259,7 +259,7 @@ public partial class SagaMetadata
         .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
 
     internal const string TrimmingMessage = "Saga discovery using assembly scanning might require access to unreferenced code.";
-    internal const string DynamicCodeMessage = "Saga discovery using assembly scanning might relies on dynamic code generation which is not available with Ahead of Time compilation.";
+    internal const string DynamicCodeMessage = "Saga discovery using assembly scanning might rely on dynamic code generation which is not available with Ahead of Time compilation.";
 
     /// <summary>
     /// Details about a saga data property used to correlate messages hitting the saga.
