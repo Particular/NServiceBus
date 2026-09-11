@@ -102,7 +102,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             return activity;
         }
 
-        activity.DisplayName = Options.UseMessageDestinationInSpanNames
+        activity.DisplayName = Options.UseMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
             : ActivityDisplayNames.ProcessMessage;
 
@@ -182,7 +182,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             activity.AddTag(ActivityTags.RecoverabilityAction, "immediate_retry");
             activity.DisplayName = ActivityDisplayNames.ImmediateRetryOperation;
 
-            if (Options.UseMessageDestinationInSpanNames)
+            if (Options.UseMessageTypeNamesInSpanNames)
             {
                 activity.DisplayName += $" {receiveAddress}";
             }
@@ -192,7 +192,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             activity.AddTag(ActivityTags.RecoverabilityAction, "delayed_retry");
             activity.DisplayName = ActivityDisplayNames.DelayedRetryOperation;
 
-            if (Options.UseMessageDestinationInSpanNames)
+            if (Options.UseMessageTypeNamesInSpanNames)
             {
                 activity.DisplayName += $" {receiveAddress}";
             }
@@ -201,7 +201,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         {
             activity.AddTag(ActivityTags.RecoverabilityAction, "move_to_error");
 
-            activity.DisplayName = Options.UseMessageDestinationInSpanNames
+            activity.DisplayName = Options.UseMessageTypeNamesInSpanNames
                 ? $"{ActivityDisplayNames.MoveToErrorOperation} {moveToError.ErrorQueue}"
                 : $"{ActivityDisplayNames.MoveToErrorOperation} error";
         }
