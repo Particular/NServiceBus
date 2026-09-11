@@ -1348,6 +1348,13 @@ namespace NServiceBus
     {
         public UnsubscribeOptions() { }
     }
+    public static class UsageReportConfigurationExtensions
+    {
+        extension(NServiceBus.ServicePlatformSettings settings)
+        {
+            public void SendUsageInformation() { }
+        }
+    }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +
         "heck\'. Will be removed in version 11.0.0.", true)]
     public static class UseDataBusExtensions
