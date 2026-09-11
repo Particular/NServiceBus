@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Extensibility;
+using Utils;
 using MessageInterfaces;
 using Pipeline;
 using Transport;
@@ -64,10 +65,7 @@ class MessageOperations
     async Task PublishMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, PublishOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
-        {
-            [Headers.MessageId] = messageId
-        };
+        var headers = RentOutgoingHeaders(options.OutgoingHeaders, messageId);
 
         var publishContext = new OutgoingPublishContext(
             new OutgoingLogicalMessage(messageType, message),
@@ -83,10 +81,7 @@ class MessageOperations
         await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
     }
 
-    public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
-    {
-        return Subscribe(context, new Type[] { eventType }, options);
-    }
+    public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options) => Subscribe(context, [eventType], options);
 
     public async Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
     {
@@ -143,10 +138,7 @@ class MessageOperations
     async Task SendMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, SendOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
-        {
-            [Headers.MessageId] = messageId
-        };
+        var headers = RentOutgoingHeaders(options.OutgoingHeaders, messageId);
 
         var outgoingContext = new OutgoingSendContext(
             new OutgoingLogicalMessage(messageType, message),
@@ -181,18 +173,12 @@ class MessageOperations
         return ReplyMessage(context, messageType, message, options);
     }
 
-    public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
-    {
-        return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
-    }
+    public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options) => ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
 
     async Task ReplyMessage(IBehaviorContext context, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, object message, ReplyOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
-        var headers = new Dictionary<string, string>(options.OutgoingHeaders)
-        {
-            [Headers.MessageId] = messageId
-        };
+        var headers = RentOutgoingHeaders(options.OutgoingHeaders, messageId);
 
         var outgoingContext = new OutgoingReplyContext(
             new OutgoingLogicalMessage(messageType, message),
@@ -211,9 +197,15 @@ class MessageOperations
     internal const string RuntimeTypeRoutingTrimmingMessage = "When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.";
     internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
 
-    static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
-    {
+    static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties) =>
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
         context.Set(new DispatchProperties(dispatchProperties));
+
+    static Dictionary<string, string> RentOutgoingHeaders(Dictionary<string, string> outgoingHeaders, string messageId)
+    {
+        var headers = HeaderPool.Shared.Rent(outgoingHeaders.Count);
+        outgoingHeaders.CopyTo(headers);
+        headers[Headers.MessageId] = messageId;
+        return headers;
     }
 }
