@@ -9,7 +9,7 @@ using NServiceBus.Pipeline;
 using NUnit.Framework;
 
 [TestFixture]
-public class TracingExtensionsTests
+public class TracedPipelineTests
 {
     [Test]
     public async Task Invoke_should_invoke_pipeline_when_activity_null()
@@ -21,9 +21,31 @@ public class TracingExtensionsTests
             return Task.CompletedTask;
         });
 
-        await pipeline.WrappedInvokeForTracing(new FakeRootContext(), null, new ActivityFactory(new InstrumentationOptions()));
+        await Traced(pipeline, null).Invoke(new FakeRootContext());
 
         Assert.That(invokedPipeline, Is.True);
+    }
+
+    [Test]
+    public void Invoke_should_rethrow_when_activity_null()
+    {
+        var exception = new Exception("test exception");
+        var pipeline = new FakePipeline(() => throw exception);
+
+        var thrown = Assert.ThrowsAsync<Exception>(() => Traced(pipeline, null).Invoke(new FakeRootContext()));
+
+        Assert.That(thrown, Is.SameAs(exception));
+    }
+
+    [Test]
+    public async Task Invoke_should_dispose_activity_after_pipeline()
+    {
+        var activity = new Activity("test activity");
+        var pipeline = new FakePipeline(() => Task.CompletedTask);
+
+        await Traced(pipeline, activity).Invoke(new FakeRootContext());
+
+        Assert.That(activity.Duration, Is.Not.EqualTo(TimeSpan.Zero), "activity should have been stopped by disposal");
     }
 
     [Test]
@@ -31,9 +53,8 @@ public class TracingExtensionsTests
     {
         var pipeline = new FakePipeline(() => Task.CompletedTask);
         using var activity = new Activity("test activity");
-        activity.Start();
 
-        await pipeline.WrappedInvokeForTracing(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions()));
+        await Traced(pipeline, activity).Invoke(new FakeRootContext());
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Ok));
     }
@@ -44,9 +65,8 @@ public class TracingExtensionsTests
         var exception = new Exception("test exception");
         var pipeline = new FakePipeline(() => throw exception);
         using var activity = new Activity("test activity");
-        activity.Start();
 
-        Assert.ThrowsAsync<Exception>(() => pipeline.WrappedInvokeForTracing(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions())));
+        Assert.ThrowsAsync<Exception>(() => Traced(pipeline, activity).Invoke(new FakeRootContext()));
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
 
@@ -67,15 +87,24 @@ public class TracingExtensionsTests
         var exception = new Exception("test exception");
         var pipeline = new FakePipeline(() => throw exception);
         using var activity = new Activity("test activity");
-        activity.Start();
 
-        Assert.ThrowsAsync<Exception>(() => pipeline.WrappedInvokeForTracing(new FakeRootContext(), activity, new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.Logs })));
+        Assert.ThrowsAsync<Exception>(() => Traced(pipeline, activity, new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.Logs }).Invoke(new FakeRootContext()));
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
             Assert.That(activity.Events, Is.Empty, "no exception event should be added when recording via the log instead");
         }
+    }
+
+    static TracedPipeline<IBehaviorContext> Traced(IPipeline<IBehaviorContext> pipeline, Activity activity, InstrumentationOptions options = null)
+    {
+        var factory = new ActivityFactory(options ?? new InstrumentationOptions());
+        return new TracedPipeline<IBehaviorContext>(pipeline, factory, (_, _) =>
+        {
+            activity?.Start();
+            return activity;
+        });
     }
 
     class FakePipeline : IPipeline<IBehaviorContext>

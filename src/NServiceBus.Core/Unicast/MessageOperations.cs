@@ -2,7 +2,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
@@ -17,7 +16,6 @@ class MessageOperations
     protected readonly IPipeline<IOutgoingReplyContext> replyPipeline;
     protected readonly IPipeline<ISubscribeContext> subscribePipeline;
     protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
-    protected readonly IActivityFactory activityFactory;
 
     public MessageOperations(
         IMessageMapper messageMapper,
@@ -29,12 +27,21 @@ class MessageOperations
         IActivityFactory activityFactory)
     {
         this.messageMapper = messageMapper;
-        this.publishPipeline = WrappedInvokeForTracing(publishPipeline);
-        this.sendPipeline = sendPipeline;
-        this.replyPipeline = replyPipeline;
-        this.subscribePipeline = subscribePipeline;
-        this.unsubscribePipeline = unsubscribePipeline;
-        this.activityFactory = activityFactory;
+        this.publishPipeline = new TracedPipeline<IOutgoingPublishContext>(publishPipeline, activityFactory, static (factory, context) =>
+            factory.StartOutgoingPipelineActivity(
+                ActivityNames.OutgoingEventActivityName,
+                factory.Options.UseMessageDestinationInSpanNames
+                    ? $"{ActivityDisplayNames.PublishOperation} {context.Message.MessageType.Name}"
+                    : ActivityDisplayNames.PublishEvent,
+                context));
+        this.sendPipeline = new TracedPipeline<IOutgoingSendContext>(sendPipeline, activityFactory, static (factory, context) =>
+            factory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, context));
+        this.replyPipeline = new TracedPipeline<IOutgoingReplyContext>(replyPipeline, activityFactory, static (factory, context) =>
+            factory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, context));
+        this.subscribePipeline = new TracedPipeline<ISubscribeContext>(subscribePipeline, activityFactory, static (factory, context) =>
+            factory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context));
+        this.unsubscribePipeline = new TracedPipeline<IUnsubscribeContext>(unsubscribePipeline, activityFactory, static (factory, context) =>
+            factory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context));
     }
 
     public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
@@ -49,7 +56,7 @@ class MessageOperations
         return Publish(context, messageType, message, options);
     }
 
-    async Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
+    Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -66,13 +73,7 @@ class MessageOperations
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        var publishDisplayName = activityFactory.Options.UseMessageDestinationInSpanNames
-            ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
-            : ActivityDisplayNames.PublishEvent;
-
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, publishDisplayName, publishContext);
-
-        await WrappedInvokeForTracing(publishPipeline, publishContext, activity, activityFactory).ConfigureAwait(false);
+        return publishPipeline.Invoke(publishContext);
     }
 
     public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -80,7 +81,7 @@ class MessageOperations
         return Subscribe(context, new Type[] { eventType }, options);
     }
 
-    public async Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
+    public Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
     {
         var subscribeContext = new SubscribeContext(
             context,
@@ -89,12 +90,10 @@ class MessageOperations
 
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context);
-
-        await WrappedInvokeForTracing(subscribePipeline, subscribeContext, activity, activityFactory).ConfigureAwait(false);
+        return subscribePipeline.Invoke(subscribeContext);
     }
 
-    public async Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
+    public Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
     {
         var unsubscribeContext = new UnsubscribeContext(
             context,
@@ -103,9 +102,7 @@ class MessageOperations
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context);
-
-        await WrappedInvokeForTracing(unsubscribePipeline, unsubscribeContext, activity, activityFactory).ConfigureAwait(false);
+        return unsubscribePipeline.Invoke(unsubscribeContext);
     }
 
     public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -120,7 +117,7 @@ class MessageOperations
         return SendMessage(context, messageType, message, options);
     }
 
-    async Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
+    Task SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -137,9 +134,7 @@ class MessageOperations
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
-
-        await WrappedInvokeForTracing(sendPipeline, outgoingContext, activity, activityFactory).ConfigureAwait(false);
+        return sendPipeline.Invoke(outgoingContext);
     }
 
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -154,7 +149,7 @@ class MessageOperations
         return ReplyMessage(context, typeof(T), messageMapper.CreateInstance(messageConstructor), options);
     }
 
-    async Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
+    Task ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)
     {
         var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
         var headers = new Dictionary<string, string>(options.OutgoingHeaders)
@@ -171,9 +166,7 @@ class MessageOperations
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
-
-        await WrappedInvokeForTracing(replyPipeline, outgoingContext, activity, activityFactory).ConfigureAwait(false);
+        return replyPipeline.Invoke(outgoingContext);
     }
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
@@ -181,28 +174,4 @@ class MessageOperations
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
         context.Set(new DispatchProperties(dispatchProperties));
     }
-
-    public static Task WrappedInvokeForTracing<TContext>(IPipeline<TContext> pipeline, TContext context, Activity? activity, IActivityFactory activityFactory) where TContext : IBehaviorContext
-    {
-        return activity is null
-            ? pipeline.Invoke(context)
-            : TracePipelineStatus(pipeline, context, activity, activityFactory);
-
-        static async Task TracePipelineStatus(IPipeline<TContext> pipeline, TContext context, Activity activity, IActivityFactory activityFactory)
-        {
-#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-            try
-            {
-                await pipeline.Invoke(context).ConfigureAwait(false);
-                activity.SetStatus(ActivityStatusCode.Ok);
-            }
-            catch (Exception ex)
-            {
-                activityFactory.RecordError(activity, ex, context.Extensions);
-                throw;
-            }
-#pragma warning restore PS0019 // When catching System.Exception, cancellation needs to be properly accounted for
-        }
-    }
-
 }
