@@ -8,6 +8,7 @@ using System.Linq;
 using MessageInterfaces;
 using Serialization;
 
+[RequiresDynamicCode(XmlSerializer.DynamicCodeMessage)]
 [RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
 class XmlMessageSerializer : IMessageSerializer
 {

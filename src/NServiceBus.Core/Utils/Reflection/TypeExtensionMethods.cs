@@ -69,12 +69,9 @@ static class TypeExtensionMethods
                         }
                     }
 
-                    if (args.Length == 2)
+                    if (args.Length == 2 && t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
                     {
-                        if (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t)
-                        {
-                            result = "NServiceBus." + result;
-                        }
+                        result = "NServiceBus." + result;
                     }
 
                     return result;

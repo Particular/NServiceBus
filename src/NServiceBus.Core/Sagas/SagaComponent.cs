@@ -54,6 +54,7 @@ static class SagaComponent
             settings.SetDefault(new SagaMetadataCollection());
         }
 
+        [RequiresDynamicCode("Saga discovery using assembly scanning might rely on dynamic code generation which is not available with Ahead of Time compilation.")]
         [RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code")]
         public void AddDiscoveredSagas(IEnumerable<Type> availableTypes)
         {

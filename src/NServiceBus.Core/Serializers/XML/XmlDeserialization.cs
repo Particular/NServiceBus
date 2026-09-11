@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using Logging;
 using MessageInterfaces;
 
+[RequiresDynamicCode(XmlSerializer.DynamicCodeMessage)]
 [RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
 class XmlDeserialization(IMessageMapper mapper, XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
 {

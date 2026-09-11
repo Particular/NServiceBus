@@ -4,12 +4,14 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 static class FileVersionRetriever
 {
     public static string GetFileVersion(Type type) => GetFileVersion(type.Assembly);
 
+    [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "Location is checked for empty string before use; falls back to AssemblyFileVersionAttribute or assembly name version when running as a single-file app.")]
     public static string GetFileVersion(Assembly assembly)
     {
         if (!string.IsNullOrEmpty(assembly.Location))

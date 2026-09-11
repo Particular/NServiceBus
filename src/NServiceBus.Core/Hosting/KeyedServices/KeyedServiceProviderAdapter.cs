@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,6 +47,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return ContainsLocalEndpointService(serviceType, computedKey) || ContainsRootKeyedService(serviceType, GetBaseKeyOrServiceKey(serviceKey));
     }
 
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = Justification)]
     public object? GetService(Type serviceType)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
@@ -80,6 +82,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return ContainsRootEndpointKeyedService(itemType) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey.BaseKey) : serviceProvider.GetServices(itemType);
     }
 
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = Justification)]
     public object GetRequiredService(Type serviceType)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
@@ -114,6 +117,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return ContainsRootEndpointKeyedService(itemType) ? serviceProvider.GetKeyedServices(itemType, serviceKeyedServiceKey.BaseKey) : serviceProvider.GetServices(itemType);
     }
 
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = Justification)]
     public object? GetKeyedService(Type serviceType, object? serviceKey)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
@@ -148,6 +152,7 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return GetAllServices(serviceProvider, itemType);
     }
 
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = Justification)]
     public object GetRequiredKeyedService(Type serviceType, object? serviceKey)
     {
         ArgumentNullException.ThrowIfNull(serviceType);
@@ -281,6 +286,11 @@ sealed class KeyedServiceProviderAdapter : IKeyedServiceProvider, ISupportRequir
         return new KeyedServiceKey(serviceKeyedServiceKey, serviceKey);
     }
 
+    // The Microsoft.Extensions.DependencyInjection interfaces implemented here are unannotated,
+    // so adding RequiresDynamicCode to these members would be an IL3051 mismatch.
+    const string Justification = "Resolving IEnumerable<T> registrations by runtime Type requires the Type-based GetServices/GetKeyedServices overloads which require dynamic code. Mirrors the framework's own unannotated IServiceProvider behavior and cannot be made AOT-safe while supporting Type-based resolution.";
+
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = Justification)]
     static object GetAllServices(IServiceProvider serviceProvider, Type itemType)
     {
         Type genericEnumerable = typeof(List<>).MakeGenericType(itemType);

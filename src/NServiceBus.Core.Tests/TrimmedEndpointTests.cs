@@ -35,8 +35,8 @@ public class TrimmedEndpointTests
 
             // The AddMessageType and AddHandler calls in the sample are intercepted by source generators. If they
             // were not intercepted, the RequiresUnreferencedCode fallback would surface as IL2026 trim warnings at
-            // the sample's own call sites. Trim warnings inside NServiceBus.Core itself are tracked separately by
-            // the TrimmabilityWarnings approval test.
+            // the sample's own call sites. Trim warnings inside NServiceBus.Core itself fail the Core build via
+            // EnableTrimAnalyzer.
             var sampleTrimWarnings = publishResult.Output.Split(Environment.NewLine)
                 .Where(line => line.Contains("Program.cs") && line.Contains("IL2026"))
                 .ToArray();

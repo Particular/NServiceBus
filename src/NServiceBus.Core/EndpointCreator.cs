@@ -61,7 +61,7 @@ class EndpointCreator
 
         return endpointCreator;
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
         static void DiscoverInstallers(InstallerComponent.Settings installerSettings, List<Type> availableTypes) => installerSettings.AddScannedInstallers(availableTypes);
     }
 
@@ -181,25 +181,28 @@ class EndpointCreator
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
         MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = SuppressJustification)]
         static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = SuppressJustification)]
         static void DiscoverSagas(SagaComponent.Settings sagaSettings, ICollection<Type> availableTypes) => sagaSettings.AddDiscoveredSagas(availableTypes);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
         static void DiscoverFeatures(ICollection<Type> availableTypes, FeatureComponent.Settings featureSettings) => featureSettings.AddScannedTypes(availableTypes);
     }
 
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
     {
-        var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
+        var configuredDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
         var strictMode = settings.Get<AssemblyScanningComponent.Configuration>().StrictRegisteredOnlyMode;
         var messageMetadataRegistry = settings.GetOrCreate<MessageMetadataRegistry>();
         // Strict mode is the stronger non-overridable policy: it must be in effect before Initialize so
         // pre-initialization registrations are enforced against it, and it disables dynamic type loading.
+        var allowDynamicTypeLoading = configuredDynamicTypeLoading && !strictMode;
         messageMetadataRegistry.StrictRegisteredOnlyMode = strictMode;
-        messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading && !strictMode);
+        messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
 
         messageMetadataRegistry.RegisterMessageTypes(hostingConfiguration.AvailableTypes);
         messageMetadataRegistry.RegisterMessageTypesBypassingChecks(messageTypesHandled);
@@ -254,5 +257,5 @@ class EndpointCreator
     readonly HostingComponent.Configuration hostingConfiguration;
     readonly Conventions conventions;
 
-    internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
+    internal const string SuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
 }
