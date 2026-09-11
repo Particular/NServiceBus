@@ -650,7 +650,7 @@ namespace NServiceBus
         public NServiceBus.TraceMode PublishTraceMode { get; set; }
         public NServiceBus.RecoverabilityInstrumentationOptions Recoverability { get; }
         public NServiceBus.TraceMode SendTraceMode { get; set; }
-        public bool UseMessageDestinationInSpanNames { get; set; }
+        public bool UseMessageTypeNamesInSpanNames { get; set; }
     }
     public sealed class KeyedServiceKey
     {

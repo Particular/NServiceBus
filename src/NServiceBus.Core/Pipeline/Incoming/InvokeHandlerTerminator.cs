@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Pipeline;
 using Sagas;
 
-class InvokeHandlerTerminator(IncomingPipelineMetrics messagingMetricsMeters) : PipelineTerminator<IInvokeHandlerContext>
+class InvokeHandlerTerminator(PipelineMetrics messagingMetricsMeters) : PipelineTerminator<IInvokeHandlerContext>
 {
     protected override async Task Terminate(IInvokeHandlerContext context)
     {

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using NServiceBus.AcceptanceTests.Core.OpenTelemetry.Metrics;
 using NServiceBus.Core.Tests.OpenTelemetry;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
@@ -17,25 +18,53 @@ public class SerializeMessageConnectorTests
     [Test]
     public async Task Should_set_content_type_header()
     {
-        var registry = new MessageMetadataRegistry();
-        registry.Initialize(new Conventions().IsMessageType, true);
+        var context = CreateContext();
 
-        registry.RegisterMessageTypes(
-        [
-            typeof(MyMessage)
-        ]);
-
-        var context = new TestableOutgoingLogicalMessageContext
-        {
-            Message = new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage())
-        };
-
-        var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc", new MetersOptions()));
-
-        await behavior.Invoke(context, c => Task.CompletedTask);
+        await InvokeSerializer(context, queueName: "queue", discriminator: "disc");
 
         Assert.That(context.Headers[Headers.ContentType], Is.EqualTo("myContentType"));
     }
+
+    [Test]
+    public async Task Should_prefer_queue_and_discriminator_from_the_incoming_pipeline_tags()
+    {
+        // A send from a message handler chains its context to the incoming pipeline, whose tags win over the
+        // endpoint configuration defaults. Seeding both tags from the configuration and leaving them off for
+        // send-only endpoints is covered by the When_serializing_outgoing_messages acceptance tests.
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
+        var context = CreateContext();
+        var incomingTags = context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
+        incomingTags.Add("nservicebus.queue", "queue-from-incoming-pipeline");
+        incomingTags.Add("nservicebus.discriminator", "disc-from-incoming-pipeline");
+
+        await InvokeSerializer(context, queueName: "queue", discriminator: "disc");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(metricsListener.AssertTagKeyExists(MessageSerializeTime, "nservicebus.queue"), Is.EqualTo("queue-from-incoming-pipeline"));
+            Assert.That(metricsListener.AssertTagKeyExists(MessageSerializeTime, "nservicebus.discriminator"), Is.EqualTo("disc-from-incoming-pipeline"));
+        }
+    }
+
+    static TestableOutgoingLogicalMessageContext CreateContext() =>
+        new() { Message = new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage()) };
+
+    static Task InvokeSerializer(TestableOutgoingLogicalMessageContext context, string queueName, string discriminator)
+    {
+        var registry = new MessageMetadataRegistry();
+        registry.Initialize(new Conventions().IsMessageType, true);
+        registry.RegisterMessageTypes([typeof(MyMessage)]);
+
+        var behavior = new SerializeMessageConnector(
+            new FakeSerializer("myContentType"),
+            registry,
+            new PipelineMetrics(new TestMeterFactory(), queueName, discriminator, new MetersOptions()));
+
+        return behavior.Invoke(context, _ => Task.CompletedTask);
+    }
+
+    const string MessageSerializeTime = "nservicebus.messaging.serialize_time";
 
     class FakeSerializer(string contentType) : IMessageSerializer
     {
