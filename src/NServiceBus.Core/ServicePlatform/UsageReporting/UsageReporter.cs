@@ -118,7 +118,7 @@ class UsageReporter(
         var message = new EndpointUsageReport
         {
             EndpointName = settings.EndpointName,
-            TimeStamp = DateTimeOffset.UtcNow,
+            TimeStamp = timeProvider.GetUtcNow(),
             MessagesSuccessfullyProcessed = currentSnapshot - previousSnapshot
         };
 
