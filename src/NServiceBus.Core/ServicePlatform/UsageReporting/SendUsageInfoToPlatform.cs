@@ -27,6 +27,7 @@ class SendUsageInfoToPlatform : Feature
                 var settings = new UsageReporterSettings
                 {
                     EndpointName = context.Settings.EndpointName(),
+                    BaseQueueAddress = context.Receiving.LocalQueueAddress.BaseAddress,
                     ReportingInterval = context.Settings.Get<TimeSpan>(ReportingIntervalSettingKey)
                 };
 
