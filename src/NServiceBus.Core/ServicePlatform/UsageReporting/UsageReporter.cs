@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using NServiceBus.Features;
 using NServiceBus.Logging;
 
-class UsageReporter(ServicePlatformSender<EndpointUsageReport> usageReportSender, UsageReporterSettings settings) : FeatureStartupTask, IDisposable
+class UsageReporter(ServicePlatformSender<EndpointUsageReport> usageReportSender, UsageReporterSettings settings, TimeProvider timeProvider) : FeatureStartupTask, IDisposable
 {
     protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
     {
         shutdownTokenSource = new CancellationTokenSource();
         ConfigureMeterListener();
 
-        reporterTask = PeriodicallyReportUsageAndSwallowExceptions(shutdownTokenSource.Token);
+        reporterTask = PeriodicallyReportUsageAndSwallowExceptions(timeProvider, shutdownTokenSource.Token);
 
         return Task.CompletedTask;
     }
@@ -65,11 +65,11 @@ class UsageReporter(ServicePlatformSender<EndpointUsageReport> usageReportSender
             => instrument.Meter.Name == "NServiceBus.Core.Pipeline.Incoming" && instrument.Name == "nservicebus.messaging.successes";
     }
 
-    async Task PeriodicallyReportUsageAndSwallowExceptions(CancellationToken cancellationToken)
+    async Task PeriodicallyReportUsageAndSwallowExceptions(TimeProvider timeProvider, CancellationToken cancellationToken)
     {
         Logger.Debug("Starting usage reporting task.");
 
-        var periodicTimer = new PeriodicTimer(settings.ReportingInterval);
+        using var periodicTimer = new PeriodicTimer(settings.ReportingInterval, timeProvider);
 
         try
         {
