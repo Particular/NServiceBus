@@ -69,22 +69,29 @@ class UsageReporter(ServicePlatformSender<EndpointUsageReport> usageReportSender
     {
         Logger.Debug("Starting usage reporting task.");
 
-        while (!cancellationToken.IsCancellationRequested)
+        var periodicTimer = new PeriodicTimer(settings.ReportingInterval);
+
+        try
         {
-            try
+            while (await periodicTimer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
             {
-                await Task.Delay(settings.ReportingInterval, cancellationToken).ConfigureAwait(false);
-                await SnapshotAndSendUsageReport(cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await SnapshotAndSendUsageReport(cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+                {
+                    Logger.Warn("An error occurred while reporting usage information.", ex);
+                }
             }
-            catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
-            {
-                Logger.Debug("Operation cancelled while reporting usage information. This is expected when the endpoint is shutting down.", ex);
-                break;
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn("An error occurred while reporting usage information.", ex);
-            }
+        }
+        catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+        {
+            Logger.Debug("Operation cancelled while reporting usage information. This is expected when the endpoint is shutting down.", ex);
         }
     }
 

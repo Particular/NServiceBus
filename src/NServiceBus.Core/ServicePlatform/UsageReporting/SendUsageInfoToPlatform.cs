@@ -29,7 +29,7 @@ class SendUsageInfoToPlatform : Feature
                     ReportingInterval = context.Settings.Get<TimeSpan>(ReportingIntervalSettingKey)
                 };
 
-                return new UsageReporter(endpointUsageReportSender, settings);
+                return new UsageReporter(endpointUsageReportSender, settings, TimeProvider.System);
             }
         );
 
