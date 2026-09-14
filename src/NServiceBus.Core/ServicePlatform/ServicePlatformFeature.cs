@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Features;
+using NServiceBus.Transport;
 
 class ServicePlatformFeature : Feature
 {
@@ -12,9 +13,10 @@ class ServicePlatformFeature : Feature
 
     protected override void Setup(FeatureConfigurationContext context)
         => context.Services.AddSingleton(
-                serviceProvider => ActivatorUtilities.CreateInstance<ServicePlatform>(
-                    serviceProvider,
-                    ServicePlatform.GetConfiguration(context.Settings)
+                serviceProvider => new ServicePlatform(
+                    ServicePlatform.GetConfiguration(context.Settings),
+                    serviceProvider.GetRequiredService<IMessageDispatcher>(),
+                    serviceProvider.GetService<ReceiveAddresses>()
                 )
             );
 }
