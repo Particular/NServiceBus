@@ -59,7 +59,6 @@ class UsageReporter(
         {
             if (IsSuccessfulMessageProcessingEvent(instrument))
             {
-                // Update the internal counter
                 for (var i = 0; i < tags.Length; i++)
                 {
                     var tag = tags[i];
@@ -67,17 +66,17 @@ class UsageReporter(
                     {
                         if (tag.Value?.ToString() == settings.EndpointName)
                         {
+                            // Update the internal counter
                             _ = Interlocked.Add(ref messagesSuccessfullyProcessed, measurement);
-                            break;
+                            return;
                         }
                     }
                 }
             }
         });
 
-        // TODO: Move magic strings into constants shared by the two components
         static bool IsSuccessfulMessageProcessingEvent(Instrument instrument)
-            => instrument.Meter.Name == "NServiceBus.Core.Pipeline.Incoming" && instrument.Name == "nservicebus.messaging.successes";
+            => instrument.Meter.Name == IncomingPipelineMetrics.MeterName && instrument.Name == IncomingPipelineMetrics.TotalProcessedSuccessfully;
     }
 
     async Task PeriodicallyReportUsageAndSwallowExceptions(CancellationToken cancellationToken)
