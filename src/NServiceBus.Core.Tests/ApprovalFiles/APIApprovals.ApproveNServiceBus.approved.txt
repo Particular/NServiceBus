@@ -1356,7 +1356,7 @@ namespace NServiceBus
     {
         extension(NServiceBus.ServicePlatformSettings settings)
         {
-            public void SendUsageInformation() { }
+            public NServiceBus.ServicePlatformSettings SendUsageInformation() { }
         }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +

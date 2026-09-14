@@ -14,9 +14,10 @@ public static class UsageReportConfigurationExtensions
         /// <summary>
         /// Enable sending usage information to the service platform.
         /// </summary>
-        public void SendUsageInformation()
+        public ServicePlatformSettings SendUsageInformation()
         {
             settings.Settings.EnableFeature<SendUsageInfoToPlatform>();
+            return settings;
         }
     }
 }
