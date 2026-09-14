@@ -2,6 +2,7 @@
 
 namespace NServiceBus;
 
+using System;
 using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Settings;
 
@@ -15,11 +16,12 @@ public class ServicePlatformSettings : ExposeSettings
     }
 
     /// <summary>
-    /// Gets or sets the primary ServiceControl queue.
+    /// Sets the primary ServiceControl input queue.
     /// </summary>
-    public string ServiceControlQueue
+    public ServicePlatformSettings PrimaryInstanceQueue(string queue)
     {
-        get => Settings.Get<string>(ServicePlatform.ServiceControlQueueSettingKey);
-        set => Settings.Set(ServicePlatform.ServiceControlQueueSettingKey, value);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queue);
+        Settings.Set(ServicePlatform.ServiceControlQueueSettingKey, queue);
+        return this;
     }
 }

@@ -1192,7 +1192,7 @@ namespace NServiceBus
     }
     public class ServicePlatformSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
-        public string ServiceControlQueue { get; set; }
+        public NServiceBus.ServicePlatformSettings PrimaryInstanceQueue(string queue) { }
     }
     public static class SettingsExtensions
     {
