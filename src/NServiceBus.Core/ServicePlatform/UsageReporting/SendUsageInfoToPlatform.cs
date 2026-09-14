@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Features;
 
 class SendUsageInfoToPlatform : Feature
@@ -29,7 +30,9 @@ class SendUsageInfoToPlatform : Feature
                     ReportingInterval = context.Settings.Get<TimeSpan>(ReportingIntervalSettingKey)
                 };
 
-                return new UsageReporter(endpointUsageReportSender, settings, TimeProvider.System);
+                var logger = serviceProvider.GetRequiredService<ILogger<UsageReporter>>();
+
+                return new UsageReporter(endpointUsageReportSender, settings, TimeProvider.System, logger);
             }
         );
 
