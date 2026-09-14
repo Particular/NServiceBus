@@ -11,7 +11,12 @@ using System.Threading.Tasks;
 using NServiceBus.Routing;
 using NServiceBus.Transport;
 
-class ServicePlatformSender<TMessage>
+interface IServicePlatformSender<TMessage>
+{
+    Task Send(TMessage message, CancellationToken cancellationToken = default);
+}
+
+class ServicePlatformSender<TMessage> : IServicePlatformSender<TMessage>
 {
     readonly Dictionary<string, string> headers;
     readonly JsonTypeInfo<TMessage> jsonTypeInfo;
