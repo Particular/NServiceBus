@@ -13,7 +13,7 @@ class SendUsageInfoToPlatform : Feature
         DependsOn<ServicePlatformFeature>();
         Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
             "Usage Information is only relevant for endpoints receiving messages.");
-        Defaults(settings => settings.SetDefault(ReportingIntervalSettingKey, TimeSpan.FromDays(1)));
+        Defaults(settings => settings.SetDefault(ReportingIntervalSettingKey, TimeSpan.FromMinutes(10)));
     }
 
     protected override void Setup(FeatureConfigurationContext context)
