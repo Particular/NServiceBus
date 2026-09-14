@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Features;
 
-class UsageReporter(
     ServicePlatformSender<EndpointUsageReport> usageReportSender,
+partial class UsageReporter(
     UsageReporterSettings settings,
     TimeProvider timeProvider,
     ILogger<UsageReporter> logger
@@ -83,7 +83,7 @@ class UsageReporter(
 
     async Task PeriodicallyReportUsageAndSwallowExceptions(CancellationToken cancellationToken)
     {
-        logger.LogDebug("Starting usage reporting task.");
+        LogStartup(logger);
 
         using var periodicTimer = new PeriodicTimer(settings.ReportingInterval, timeProvider);
 
@@ -101,15 +101,22 @@ class UsageReporter(
                 }
                 catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
                 {
-                    logger.LogWarning(ex, "An error occurred while reporting usage information.");
+                    LogErrorWhileReportingUsage(logger, ex);
                 }
             }
         }
         catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
         {
-            logger.LogDebug(ex, "Operation cancelled while reporting usage information. This is expected when the endpoint is shutting down.");
+            LogOperationCancelled(logger, ex);
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Starting usage reporting task.")]
+    static partial void LogStartup(ILogger logger);
+    [LoggerMessage(Level = LogLevel.Warning, Message = "An error occurred while reporting usage information.")]
+    static partial void LogErrorWhileReportingUsage(ILogger logger, Exception ex);
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Operation cancelled while reporting usage information. This is expected when the endpoint is shutting down")]
+    static partial void LogOperationCancelled(ILogger logger, Exception ex);
 
     async Task SnapshotAndSendUsageReport(CancellationToken cancellationToken)
     {
