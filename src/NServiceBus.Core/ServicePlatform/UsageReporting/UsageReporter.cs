@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Features;
 
-    ServicePlatformSender<EndpointUsageReport> usageReportSender,
 partial class UsageReporter(
+    IServicePlatformSender<EndpointUsageReport> usageReportSender,
     UsageReporterSettings settings,
     TimeProvider timeProvider,
     ILogger<UsageReporter> logger
