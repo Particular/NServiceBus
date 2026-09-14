@@ -60,8 +60,18 @@ class UsageReporter(
             if (IsSuccessfulMessageProcessingEvent(instrument))
             {
                 // Update the internal counter
-                // TODO: See if we're tagged for the right endpoint, and maybe separate counts by queue
-                _ = Interlocked.Add(ref messagesSuccessfullyProcessed, measurement);
+                for (var i = 0; i < tags.Length; i++)
+                {
+                    var tag = tags[i];
+                    if (tag.Key == MeterTags.QueueName)
+                    {
+                        if (tag.Value?.ToString() == settings.EndpointName)
+                        {
+                            _ = Interlocked.Add(ref messagesSuccessfullyProcessed, measurement);
+                            break;
+                        }
+                    }
+                }
             }
         });
 
