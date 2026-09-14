@@ -6,10 +6,15 @@ using System;
 using System.Diagnostics.Metrics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Features;
-using NServiceBus.Logging;
 
-class UsageReporter(ServicePlatformSender<EndpointUsageReport> usageReportSender, UsageReporterSettings settings, TimeProvider timeProvider) : FeatureStartupTask, IDisposable
+class UsageReporter(
+    ServicePlatformSender<EndpointUsageReport> usageReportSender,
+    UsageReporterSettings settings,
+    TimeProvider timeProvider,
+    ILogger<UsageReporter> logger
+) : FeatureStartupTask, IDisposable
 {
     protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
     {
@@ -67,7 +72,7 @@ class UsageReporter(ServicePlatformSender<EndpointUsageReport> usageReportSender
 
     async Task PeriodicallyReportUsageAndSwallowExceptions(TimeProvider timeProvider, CancellationToken cancellationToken)
     {
-        Logger.Debug("Starting usage reporting task.");
+        logger.LogDebug("Starting usage reporting task.");
 
         using var periodicTimer = new PeriodicTimer(settings.ReportingInterval, timeProvider);
 
@@ -85,13 +90,13 @@ class UsageReporter(ServicePlatformSender<EndpointUsageReport> usageReportSender
                 }
                 catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
                 {
-                    Logger.Warn("An error occurred while reporting usage information.", ex);
+                    logger.LogWarning(ex, "An error occurred while reporting usage information.");
                 }
             }
         }
         catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
         {
-            Logger.Debug("Operation cancelled while reporting usage information. This is expected when the endpoint is shutting down.", ex);
+            logger.LogDebug(ex, "Operation cancelled while reporting usage information. This is expected when the endpoint is shutting down.");
         }
     }
 
@@ -116,6 +121,4 @@ class UsageReporter(ServicePlatformSender<EndpointUsageReport> usageReportSender
     MeterListener? meterListener;
     CancellationTokenSource? shutdownTokenSource;
     Task? reporterTask;
-
-    static readonly ILog Logger = LogManager.GetLogger<UsageReporter>();
 }
