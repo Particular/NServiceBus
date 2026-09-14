@@ -21,7 +21,7 @@ class UsageReporter(
         shutdownTokenSource = new CancellationTokenSource();
         ConfigureMeterListener();
 
-        reporterTask = PeriodicallyReportUsageAndSwallowExceptions(timeProvider, shutdownTokenSource.Token);
+        reporterTask = PeriodicallyReportUsageAndSwallowExceptions(shutdownTokenSource.Token);
 
         return Task.CompletedTask;
     }
@@ -70,7 +70,7 @@ class UsageReporter(
             => instrument.Meter.Name == "NServiceBus.Core.Pipeline.Incoming" && instrument.Name == "nservicebus.messaging.successes";
     }
 
-    async Task PeriodicallyReportUsageAndSwallowExceptions(TimeProvider timeProvider, CancellationToken cancellationToken)
+    async Task PeriodicallyReportUsageAndSwallowExceptions(CancellationToken cancellationToken)
     {
         logger.LogDebug("Starting usage reporting task.");
 
