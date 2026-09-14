@@ -64,7 +64,7 @@ class UsageReporter(
                     var tag = tags[i];
                     if (tag.Key == MeterTags.QueueName)
                     {
-                        if (tag.Value?.ToString() == settings.EndpointName)
+                        if (tag.Value?.ToString() == settings.BaseQueueAddress)
                         {
                             // Update the internal counter
                             _ = Interlocked.Add(ref messagesSuccessfullyProcessed, measurement);
@@ -74,6 +74,8 @@ class UsageReporter(
                 }
             }
         });
+
+        meterListener.Start();
 
         static bool IsSuccessfulMessageProcessingEvent(Instrument instrument)
             => instrument.Meter.Name == IncomingPipelineMetrics.MeterName && instrument.Name == IncomingPipelineMetrics.TotalProcessedSuccessfully;
