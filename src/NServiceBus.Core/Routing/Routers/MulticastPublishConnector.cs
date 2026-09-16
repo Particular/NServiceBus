@@ -9,7 +9,7 @@ class MulticastPublishConnector : StageConnector<IOutgoingPublishContext, IOutgo
 {
     public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
     {
-        context.Headers[Headers.MessageIntent] = MessageIntent.Publish.ToString();
+        context.Headers[Headers.MessageIntent] = nameof(MessageIntent.Publish);
 
         var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
             context.Message,
