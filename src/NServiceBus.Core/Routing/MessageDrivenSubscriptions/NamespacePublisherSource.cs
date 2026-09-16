@@ -13,6 +13,7 @@ class NamespacePublisherSource : IPublisherSource
     readonly string messageNamespace;
     readonly PublisherAddress address;
 
+    [RequiresUnreferencedCode(AssemblyPublisherSource.TrimmingMessage)]
     public NamespacePublisherSource(Assembly messageAssembly, string messageNamespace, PublisherAddress address)
     {
         this.messageAssembly = messageAssembly;
@@ -20,10 +21,12 @@ class NamespacePublisherSource : IPublisherSource
         this.messageNamespace = messageNamespace;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public namespace publisher API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Scanning the configured assembly is intentional. Construction is gated by the constructor's RequiresUnreferencedCode annotation, and the scanning members cannot be annotated because they implement an unannotated interface (IL2046).")]
+    static Type[] ScanAssemblyTypes(Assembly assembly) => assembly.GetTypes();
+
     public IEnumerable<PublisherTableEntry> GenerateWithBestPracticeEnforcement(Conventions conventions)
     {
-        var entries = messageAssembly.GetTypes()
+        var entries = ScanAssemblyTypes(messageAssembly)
             .Where(t => conventions.IsEventType(t) && string.Equals(t.Namespace, messageNamespace, StringComparison.OrdinalIgnoreCase))
             .Select(t => new PublisherTableEntry(t, address))
             .ToArray();
@@ -36,10 +39,9 @@ class NamespacePublisherSource : IPublisherSource
         return entries;
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The public namespace publisher API is annotated with RequiresUnreferencedCode because this source intentionally scans the configured assembly.")]
     public IEnumerable<PublisherTableEntry> GenerateWithoutBestPracticeEnforcement(Conventions conventions)
     {
-        var entries = messageAssembly.GetTypes()
+        var entries = ScanAssemblyTypes(messageAssembly)
             .Where(t => conventions.IsMessageType(t) && !conventions.IsCommandType(t) && string.Equals(t.Namespace, messageNamespace, StringComparison.OrdinalIgnoreCase))
             .Select(t => new PublisherTableEntry(t, address))
             .ToArray();

@@ -9,16 +9,23 @@ using Microsoft.CodeAnalysis.Operations;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AddHandlerInterceptorSuppressor : DiagnosticSuppressor
 {
+    const string Justification = "The AddHandler method has been intercepted by a statically generated variant.";
+
     static readonly SuppressionDescriptor SuppressRUCDiagnostic = new(
         SupressionIds.AddHandlerInterceptorSuppression,
         suppressedDiagnosticId: "IL2026",
-        justification: "The AddHandler method has been intercepted by a statically generated variant.");
+        justification: Justification);
+
+    static readonly SuppressionDescriptor SuppressRDCDiagnostic = new(
+        SupressionIds.AddHandlerInterceptorAotSuppression,
+        suppressedDiagnosticId: "IL3050",
+        justification: Justification);
 
     public override void ReportSuppressions(SuppressionAnalysisContext context)
     {
         foreach (var diagnostic in context.ReportedDiagnostics)
         {
-            if (diagnostic.Id != SuppressRUCDiagnostic.SuppressedDiagnosticId)
+            if (diagnostic.Id != SuppressRUCDiagnostic.SuppressedDiagnosticId && diagnostic.Id != SuppressRDCDiagnostic.SuppressedDiagnosticId)
             {
                 continue;
             }
@@ -47,10 +54,11 @@ public sealed class AddHandlerInterceptorSuppressor : DiagnosticSuppressor
             var operation = semanticModel.GetOperation(node, context.CancellationToken);
             if (operation is IInvocationOperation { TargetMethod: { } methodSymbol } && AddHandlerInterceptor.Parser.IsAddHandlerMethod(methodSymbol))
             {
-                context.ReportSuppression(Suppression.Create(SuppressRUCDiagnostic, diagnostic));
+                var targetSuppression = diagnostic.Id == SuppressRUCDiagnostic.SuppressedDiagnosticId ? SuppressRUCDiagnostic : SuppressRDCDiagnostic;
+                context.ReportSuppression(Suppression.Create(targetSuppression, diagnostic));
             }
         }
     }
 
-    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => [SuppressRUCDiagnostic];
+    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => [SuppressRUCDiagnostic, SuppressRDCDiagnostic];
 }

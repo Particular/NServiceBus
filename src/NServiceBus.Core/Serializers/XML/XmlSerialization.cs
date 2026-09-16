@@ -11,23 +11,11 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 
+[RequiresDynamicCode(XmlSerializer.DynamicCodeMessage)]
 [RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
-sealed class XmlSerialization : IDisposable
+sealed class XmlSerialization(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = XmlSerialization.DefaultNamespace)
+    : IDisposable
 {
-    public XmlSerialization(Type messageType, Stream stream, object message, Conventions conventions, XmlSerializerCache cache, bool skipWrappingRawXml, string @namespace = DefaultNamespace)
-    {
-        this.messageType = messageType;
-        this.message = message;
-        this.conventions = conventions;
-        this.cache = cache;
-        this.skipWrappingRawXml = skipWrappingRawXml;
-        this.@namespace = @namespace;
-        writer = new RawXmlTextWriter(stream, new XmlWriterSettings
-        {
-            CloseOutput = false
-        });
-    }
-
     public void Serialize()
     {
         var doc = new XDocument(new XDeclaration("1.0", null, null));
@@ -329,14 +317,10 @@ sealed class XmlSerialization : IDisposable
 
     bool disposed;
 
-    readonly XmlSerializerCache cache;
-    readonly Conventions conventions;
-    readonly object message;
-
-    readonly Type messageType;
-    readonly string @namespace;
-    readonly bool skipWrappingRawXml;
-    readonly RawXmlTextWriter writer;
+    readonly RawXmlTextWriter writer = new(stream, new XmlWriterSettings
+    {
+        CloseOutput = false
+    });
     const string BaseType = "baseType";
 
     const string DefaultNamespace = "http://tempuri.net";

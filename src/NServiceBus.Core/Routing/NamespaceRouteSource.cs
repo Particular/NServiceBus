@@ -21,10 +21,12 @@ class NamespaceRouteSource : IRouteSource
         this.messageNamespace = messageNamespace;
     }
 
-    [RequiresUnreferencedCode(AssemblyRouteSource.TrimmingMessage)]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Scanning the configured assembly is intentional. Construction is gated by the constructor's RequiresUnreferencedCode annotation, and the scanning members cannot be annotated because they implement an unannotated interface (IL2046).")]
+    static Type[] ScanAssemblyTypes(Assembly assembly) => assembly.GetTypes();
+
     public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
     {
-        var routes = messageAssembly.GetTypes()
+        var routes = ScanAssemblyTypes(messageAssembly)
             .Where(t => conventions.IsMessageType(t) && string.Equals(t.Namespace, messageNamespace, StringComparison.OrdinalIgnoreCase))
             .Select(t => new RouteTableEntry(t, route))
             .ToArray();

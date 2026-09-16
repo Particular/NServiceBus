@@ -87,7 +87,6 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
         ];
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The legacy reflection-based path is guarded by JsonSerializer.IsReflectionEnabledByDefault check; throws before reaching this call when reflection is disabled.")]
     static string SerializeToJson(List<ResolvedEntry> resolvedEntries, bool forLog)
     {
         var buffer = new ArrayBufferWriter<byte>();
@@ -115,15 +114,7 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
             }
             else
             {
-                // Legacy path: use reflection-based serialization with the custom options
-                if (!JsonSerializer.IsReflectionEnabledByDefault)
-                {
-                    throw new InvalidOperationException(
-                        $"Startup diagnostics section '{entry.Name}' was registered without JSON type metadata. " +
-                        "Use the overload accepting JsonTypeInfo<T> when reflection serialization is disabled.");
-                }
-
-                JsonSerializer.Serialize(writer, value, diagnosticsOptions);
+                SerializeWithReflection(writer, value, entry.Name);
             }
         }
 
@@ -131,6 +122,20 @@ class HostStartupDiagnosticsWriter(Func<string, CancellationToken, Task> diagnos
         writer.Flush();
 
         return Encoding.UTF8.GetString(buffer.WrittenSpan);
+
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Guarded by JsonSerializer.IsReflectionEnabledByDefault check; throws before reaching this call when reflection is disabled.")]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Guarded by JsonSerializer.IsReflectionEnabledByDefault check; throws before reaching this call when reflection is disabled.")]
+        static void SerializeWithReflection(Utf8JsonWriter jsonWriter, object? entryValue, string entryName)
+        {
+            if (!JsonSerializer.IsReflectionEnabledByDefault)
+            {
+                throw new InvalidOperationException(
+                    $"Startup diagnostics section '{entryName}' was registered without JSON type metadata. " +
+                    "Use the overload accepting JsonTypeInfo<T> when reflection serialization is disabled.");
+            }
+
+            JsonSerializer.Serialize(jsonWriter, entryValue, diagnosticsOptions);
+        }
     }
 
     static IEnumerable<StartupDiagnosticEntries.StartupDiagnosticEntry> DeduplicateEntries(List<StartupDiagnosticEntries.StartupDiagnosticEntry> entries)
