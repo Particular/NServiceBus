@@ -26,7 +26,7 @@ class UnicastPublishConnector : StageConnector<IOutgoingPublishContext, IOutgoin
             return;
         }
 
-        context.Headers[Headers.MessageIntent] = MessageIntent.Publish.ToString();
+        context.Headers[Headers.MessageIntent] = nameof(MessageIntent.Publish);
 
         try
         {

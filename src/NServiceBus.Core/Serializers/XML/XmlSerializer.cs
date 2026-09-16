@@ -11,10 +11,10 @@ using Unicast.Messages;
 /// <summary>
 /// Defines the capabilities of the XML serializer.
 /// </summary>
+[RequiresDynamicCode(DynamicCodeMessage)]
 [RequiresUnreferencedCode(TrimmingMessage)]
 public class XmlSerializer : SerializationDefinition
 {
-    internal const string TrimmingMessage = "XmlSerializer is not supported in trimming scenarios.";
     /// <summary>
     /// Provides a factory method for building a message serializer.
     /// </summary>
@@ -52,4 +52,7 @@ public class XmlSerializer : SerializationDefinition
     internal const string CustomNamespaceConfigurationKey = "XmlSerializer.CustomNamespace";
     internal const string SkipWrappingRawXml = "XmlSerializer.SkipWrappingRawXml";
     internal const string SanitizeInput = "XmlSerializer.SanitizeInput";
+
+    internal const string TrimmingMessage = "XmlSerializer is not supported in trimming scenarios and members from deserialized types may be trimmed if not referenced directly.";
+    internal const string DynamicCodeMessage = "XmlSerializer relies on dynamic code generation which is not available with Ahead of Time compilation";
 }
