@@ -11,8 +11,9 @@ using NServiceBus.Utils;
 /// </summary>
 /// <remarks>
 /// Use <see cref="Shared"/> for the process-wide instance. The retained-capacity
-/// threshold defaults to 64, well above typical header counts, so normal usage
-/// always takes the no-realloc path on reuse.
+/// threshold defaults to 64, overriding the base class default of 1024, well
+/// above typical header counts, so normal usage always takes the no-realloc
+/// path on reuse.
 /// </remarks>
 public class HeaderPool : DictionaryPool<string, string>
 {
@@ -25,7 +26,8 @@ public class HeaderPool : DictionaryPool<string, string>
     /// </param>
     /// <param name="maxRetainedCapacityPerItem">
     /// If a returned dictionary's entry count exceeds this, it is trimmed before
-    /// being pooled. Defaults to 64, well above typical header counts.
+    /// being pooled. Defaults to 64, overriding the base class default of 1024,
+    /// well above typical header counts.
     /// </param>
     public HeaderPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 64)
         : base(maxPoolSize, maxRetainedCapacityPerItem)
