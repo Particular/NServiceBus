@@ -11,6 +11,7 @@ using Extensibility;
 using Logging;
 using Transport;
 
+
 class LearningTransportMessagePump : IMessageReceiver
 {
     public LearningTransportMessagePump(string id,
@@ -306,70 +307,50 @@ class LearningTransportMessagePump : IMessageReceiver
 
     async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
     {
-        var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken).ConfigureAwait(false);
+        var messageBytes = await AsyncFile.ReadBytes(transaction.FileToProcess, messageProcessingCancellationToken).ConfigureAwait(false);
 
         var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
-        var headers = HeaderSerializer.Deserialize(message);
+        var headers = HeaderSerializer.Deserialize(messageBytes, HeaderPool.Shared);
+        Dictionary<string, string> errorHeaders = null;
 
         var fileCreatedAt = File.GetCreationTimeUtc(transaction.FileToProcess);
 
-        if (headers.Remove(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
-        {
-            var ttbr = TimeSpan.Parse(ttbrString);
-
-            var utcNow = DateTime.UtcNow;
-
-            if (fileCreatedAt + ttbr < utcNow)
-            {
-                await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
-                log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, fileCreatedAt, utcNow);
-                return;
-            }
-        }
-
-        var body = await AsyncFile.ReadBytes(bodyPath, messageProcessingCancellationToken).ConfigureAwait(false);
-
-        var transportTransaction = new TransportTransaction();
-
-        if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
-        {
-            transportTransaction.Set(transaction);
-        }
-
-        var processingContext = new ContextBag();
-        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
-        {
-            ["LearningTransport.FileCreatedAt"] = fileCreatedAt.ToString("O")
-        });
-
-        var messageContext = new MessageContext(messageId, headers, body, receiveProperties, transportTransaction, ReceiveAddress, processingContext);
-
         try
         {
-            await onMessage(messageContext, messageProcessingCancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
-        {
-            log.Debug("Message processing canceled. Rolling back transaction.", ex);
-            transaction.Rollback();
-            throw;
-        }
-        catch (Exception exception)
-        {
-            transaction.ClearPendingOutgoingOperations();
+            if (headers.Remove(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
+            {
+                var ttbr = TimeSpan.Parse(ttbrString);
 
-            var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
+                var utcNow = DateTime.UtcNow;
 
-            headers = HeaderSerializer.Deserialize(message);
-            headers.Remove(LearningTransportHeaders.TimeToBeReceived);
+                if (fileCreatedAt + ttbr < utcNow)
+                {
+                    await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
+                    log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, fileCreatedAt, utcNow);
+                    return;
+                }
+            }
 
-            var errorContext = new ErrorContext(exception, headers, messageId, body, receiveProperties, transportTransaction, processingFailures, ReceiveAddress, processingContext);
+            var body = await AsyncFile.ReadBytes(bodyPath, messageProcessingCancellationToken).ConfigureAwait(false);
 
-            ErrorHandleResult result;
+            var transportTransaction = new TransportTransaction();
+
+            if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+            {
+                transportTransaction.Set(transaction);
+            }
+
+            var processingContext = new ContextBag();
+            var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
+            {
+                ["LearningTransport.FileCreatedAt"] = fileCreatedAt.ToString("O")
+            });
+
+            var messageContext = new MessageContext(messageId, headers, body, receiveProperties, transportTransaction, ReceiveAddress, processingContext);
 
             try
             {
-                result = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
+                await onMessage(messageContext, messageProcessingCancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
             {
@@ -377,20 +358,52 @@ class LearningTransportMessagePump : IMessageReceiver
                 transaction.Rollback();
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, messageProcessingCancellationToken);
-                result = ErrorHandleResult.RetryRequired;
+                transaction.ClearPendingOutgoingOperations();
+
+                var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
+
+                errorHeaders = HeaderSerializer.Deserialize(messageBytes, HeaderPool.Shared);
+                errorHeaders.Remove(LearningTransportHeaders.TimeToBeReceived);
+
+                var errorContext = new ErrorContext(exception, errorHeaders, messageId, body, receiveProperties, transportTransaction, processingFailures, ReceiveAddress, processingContext);
+
+                ErrorHandleResult result;
+
+                try
+                {
+                    result = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
+                {
+                    log.Debug("Message processing canceled. Rolling back transaction.", ex);
+                    transaction.Rollback();
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, messageProcessingCancellationToken);
+                    result = ErrorHandleResult.RetryRequired;
+                }
+
+                if (result == ErrorHandleResult.RetryRequired)
+                {
+                    transaction.Rollback();
+                    return;
+                }
             }
 
-            if (result == ErrorHandleResult.RetryRequired)
-            {
-                transaction.Rollback();
-                return;
-            }
+            await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
         }
-
-        await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
+        finally
+        {
+            if (errorHeaders is not null)
+            {
+                HeaderPool.Shared.Return(errorHeaders);
+            }
+            HeaderPool.Shared.Return(headers);
+        }
     }
 
     CancellationTokenSource messagePumpCancellationTokenSource;
