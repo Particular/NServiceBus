@@ -8,6 +8,7 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading.Tasks;
 using NServiceBus.Core.Tests.Helpers;
+using NServiceBus.Transport;
 using NServiceBus.Utils;
 using NUnit.Framework;
 
@@ -339,5 +340,51 @@ public class DictionaryPoolTests
         reused["b"] = "2";
         pool.Return(reused);
         Assert.That(pool.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Always_allocate_rent_returns_fresh_dictionary_honoring_capacity()
+    {
+        var first = HeaderPool.AlwaysAllocate.Rent(minimumCapacity: 10);
+        var second = HeaderPool.AlwaysAllocate.Rent(minimumCapacity: 10);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(first, Is.Not.SameAs(second), "AlwaysAllocate must never hand out the same instance twice.");
+            Assert.That(first, Is.Empty);
+            Assert.That(second, Is.Empty);
+            Assert.That(first.Capacity, Is.GreaterThanOrEqualTo(10), "minimumCapacity must pre-size the dictionary.");
+            Assert.That(second.Capacity, Is.GreaterThanOrEqualTo(10), "minimumCapacity must pre-size the dictionary.");
+        }
+    }
+
+    [Test]
+    public void Always_allocate_return_is_a_no_op()
+    {
+        var dict = HeaderPool.AlwaysAllocate.Rent();
+        dict["a"] = "1";
+
+        HeaderPool.AlwaysAllocate.Return(dict);
+
+        Assert.That(dict, Does.ContainKey("a"), "A no-op return must not clear the dictionary.");
+    }
+
+    [Test]
+    public void Always_allocate_return_discards_instances_rented_from_a_real_pool()
+    {
+        var realPool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var rented = realPool.Rent();
+        rented["a"] = "1";
+
+        HeaderPool.AlwaysAllocate.Return(rented);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(rented, Does.ContainKey("a"), "Discard must not clear the dictionary.");
+            Assert.That(realPool.Count, Is.Zero, "A dictionary discarded by AlwaysAllocate must not end up in any pool.");
+        }
+
+        var fresh = realPool.Rent();
+        Assert.That(fresh, Is.Not.SameAs(rented), "Rent must allocate a fresh dictionary.");
     }
 }

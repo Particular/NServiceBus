@@ -363,6 +363,14 @@ namespace NServiceBus
         public static System.Collections.Generic.IReadOnlyDictionary<string, string> GetHeaders(this NServiceBus.Extensibility.ExtendableOptions options) { }
         public static void SetHeader(this NServiceBus.Extensibility.ExtendableOptions options, string key, string value) { }
     }
+    public static class HeaderPoolingConfigExtensions
+    {
+        extension(NServiceBus.EndpointConfiguration config)
+        {
+            public void EnableHeaderPooling() { }
+            public void DisableHeaderPooling() { }
+        }
+    }
     public static class Headers
     {
         public const string ContentType = "NServiceBus.ContentType";
@@ -2679,13 +2687,19 @@ namespace NServiceBus.Transport
     public class HeaderPool : NServiceBus.Utils.DictionaryPool<string, string>
     {
         public HeaderPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 64) { }
+        public new static NServiceBus.Transport.HeaderPool AlwaysAllocate { get; }
         public new static NServiceBus.Transport.HeaderPool Shared { get; }
+    }
+    public static class HeaderPoolingSettingsExtensions
+    {
+        public static NServiceBus.Transport.HeaderPool GetHeaderPool(this NServiceBus.Settings.IReadOnlySettings settings) { }
     }
     public class HostSettings
     {
         public HostSettings(string name, string hostDisplayName, NServiceBus.StartupDiagnosticEntries startupDiagnostic, System.Action<string, System.Exception, System.Threading.CancellationToken> criticalErrorAction, bool setupInfrastructure, NServiceBus.Settings.IReadOnlySettings? coreSettings = null) { }
         public NServiceBus.Settings.IReadOnlySettings? CoreSettings { get; }
         public System.Action<string, System.Exception, System.Threading.CancellationToken> CriticalErrorAction { get; }
+        public NServiceBus.Transport.HeaderPool HeaderPool { get; init; }
         public string HostDisplayName { get; }
         [System.Diagnostics.CodeAnalysis.MemberNotNullWhen(false, "CoreSettings")]
         [get: System.Diagnostics.CodeAnalysis.MemberNotNullWhen(false, "CoreSettings")]
@@ -2996,9 +3010,10 @@ namespace NServiceBus.Utils
         where TKey :  notnull
     {
         public DictionaryPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 1024) { }
+        public static NServiceBus.Utils.DictionaryPool<TKey, TValue> AlwaysAllocate { get; }
         public static NServiceBus.Utils.DictionaryPool<TKey, TValue> Shared { get; }
-        public System.Collections.Generic.Dictionary<TKey, TValue> Rent(int minimumCapacity = 0) { }
-        public void Return(System.Collections.Generic.Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
+        public virtual System.Collections.Generic.Dictionary<TKey, TValue> Rent(int minimumCapacity = 0) { }
+        public virtual void Return(System.Collections.Generic.Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
     }
     public static class ReadOnlyDictionaryExtensions
     {

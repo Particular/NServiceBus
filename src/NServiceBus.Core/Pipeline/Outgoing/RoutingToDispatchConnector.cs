@@ -12,7 +12,7 @@ using Pipeline;
 using Routing;
 using Transport;
 
-class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
+class RoutingToDispatchConnector(HeaderPool headerPool) : StageConnector<IRoutingContext, IDispatchContext>
 {
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
@@ -40,7 +40,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         var copySharedMutableMessageState = context.RoutingStrategies.Count > 1;
         foreach (var strategy in context.RoutingStrategies)
         {
-            var transportOperation = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
+            var transportOperation = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState, headerPool);
 
             foreach (var (propertyName, propertyValue) in receiveProperties)
             {
@@ -67,7 +67,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         // (unicast), the original is in the transport operations and will be returned after dispatch.
         if (copySharedMutableMessageState)
         {
-            HeaderPool.Shared.Return(outgoingMessage.Headers);
+            headerPool.Return(outgoingMessage.Headers);
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))

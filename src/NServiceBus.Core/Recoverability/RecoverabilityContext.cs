@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using Extensibility;
 using NServiceBus.Transport;
+using NServiceBus.Utils;
 using Particular.Obsoletes;
 using Pipeline;
 
@@ -23,8 +24,10 @@ sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext
         Dictionary<string, string> metadata,
         RecoverabilityAction recoverabilityAction,
         ContextBag parent,
+        DictionaryPool<string, string> headerPool,
         CancellationToken cancellationToken) : base(serviceProvider, messageOperations, pipelineCache, cancellationToken, parent)
     {
+        Extensions.Set(headerPool);
 #pragma warning disable CS0618 // Type or member is obsolete. Can be removed in the next major when FailedMessage is removed from the interface.
         FailedMessage = errorContext.Message;
 #pragma warning restore CS0618 // Type or member is obsolete

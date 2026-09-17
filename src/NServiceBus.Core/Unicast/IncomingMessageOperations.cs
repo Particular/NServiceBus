@@ -1,7 +1,7 @@
 namespace NServiceBus;
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Routing;
 using Transport;
@@ -12,7 +12,8 @@ static class IncomingMessageOperations
     public static Task ForwardCurrentMessageTo(IIncomingContext context, string destination)
     {
         var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
-        var headers = HeaderPool.Shared.Rent(messageBeingProcessed.Headers.Count);
+        var headerPool = context.Builder.GetRequiredService<HeaderPool>();
+        var headers = headerPool.Rent(messageBeingProcessed.Headers.Count);
         messageBeingProcessed.Headers.CopyTo(headers);
 
         var outgoingMessage = new OutgoingMessage(

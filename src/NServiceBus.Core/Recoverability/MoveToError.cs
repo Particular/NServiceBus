@@ -43,7 +43,10 @@ public class MoveToError : RecoverabilityAction
             notifications.Add(new MessageFaulted(ErrorQueue, context.NativeMessageId, context.MessageId, context.Headers, context.Body, context.ReceiveProperties, exception));
         }
 
-        var outgoingMessageHeaders = HeaderPool.Shared.Rent(context.Headers.Count);
+        var headerPool = context.Extensions.TryGet<DictionaryPool<string, string>>(out var pool)
+            ? pool
+            : HeaderPool.AlwaysAllocate;
+        var outgoingMessageHeaders = headerPool.Rent(context.Headers.Count);
         context.Headers.CopyTo(outgoingMessageHeaders);
         _ = outgoingMessageHeaders.Remove(Headers.DelayedRetries);
         _ = outgoingMessageHeaders.Remove(Headers.ImmediateRetries);

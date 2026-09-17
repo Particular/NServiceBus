@@ -10,12 +10,12 @@ using NServiceBus.Utils;
 
 static class RoutingContextExtensions
 {
-    public static TransportOperation ToTransportOperation(this IRoutingContext context, RoutingStrategy strategy, DispatchConsistency dispatchConsistency, bool copySharedMutableMessageState)
+    public static TransportOperation ToTransportOperation(this IRoutingContext context, RoutingStrategy strategy, DispatchConsistency dispatchConsistency, bool copySharedMutableMessageState, HeaderPool headerPool)
     {
         Dictionary<string, string> headers;
         if (copySharedMutableMessageState)
         {
-            headers = HeaderPool.Shared.Rent(context.Message.Headers.Count);
+            headers = headerPool.Rent(context.Message.Headers.Count);
             context.Message.Headers.CopyTo(headers);
         }
         else

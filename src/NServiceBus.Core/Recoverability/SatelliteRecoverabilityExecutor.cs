@@ -13,6 +13,7 @@ using Transport;
 
 class SatelliteRecoverabilityExecutor<TState>(
     IServiceProvider serviceProvider,
+    HeaderPool headerPool,
     FaultMetadataExtractor faultMetadataExtractor,
     Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy,
     TState state)
@@ -28,6 +29,7 @@ class SatelliteRecoverabilityExecutor<TState>(
         var actionContext = new BehaviorActionContext(
             errorContext,
             metadata,
+            headerPool,
             serviceProvider,
             cancellationToken);
 
@@ -43,7 +45,7 @@ class SatelliteRecoverabilityExecutor<TState>(
             var copySharedMutableMessageState = routingContext.RoutingStrategies.Count > 1;
             foreach (var strategy in routingContext.RoutingStrategies)
             {
-                var transportOperation = routingContext.ToTransportOperation(strategy, DispatchConsistency.Default, copySharedMutableMessageState);
+                var transportOperation = routingContext.ToTransportOperation(strategy, DispatchConsistency.Default, copySharedMutableMessageState, headerPool);
                 transportOperations.Add(transportOperation);
             }
         }
@@ -62,10 +64,19 @@ class SatelliteRecoverabilityExecutor<TState>(
     sealed class BehaviorActionContext(
         ErrorContext errorContext,
         IReadOnlyDictionary<string, string> metadata,
+        HeaderPool headerPool,
         IServiceProvider serviceProvider,
         CancellationToken cancellationToken)
         : IRecoverabilityActionContext
     {
+        public ContextBag Extensions { get; } = CreateExtensions(headerPool);
+
+        static ContextBag CreateExtensions(HeaderPool pool)
+        {
+            var extensions = new ContextBag();
+            extensions.Set(pool);
+            return extensions;
+        }
 #pragma warning disable CS0618 // Type or member is obsolete. Can be removed in the next major when FailedMessage is removed from the interface.
         public IncomingMessage FailedMessage { get; } = errorContext.Message;
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -90,7 +101,6 @@ class SatelliteRecoverabilityExecutor<TState>(
 
         public CancellationToken CancellationToken { get; } = cancellationToken;
 
-        public ContextBag Extensions => field ??= new ContextBag();
         public IServiceProvider Builder { get; } = serviceProvider;
         public IReadOnlyDictionary<string, string> Metadata { get; } = metadata;
     }
