@@ -43,7 +43,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// <summary>A shared, process-wide pool instance, analogous to <c>ArrayPool&lt;T&gt;.Shared</c>.</summary>
     public static DictionaryPool<TKey, TValue> Shared { get; } = new();
 
-    readonly ConcurrentStack<Dictionary<TKey, TValue>> stack = [];
+    readonly ConcurrentStack<Pooled> stack = [];
     readonly int maxPoolSize;
     readonly int maxRetainedCapacityPerItem;
     int count; // approximate size, maintained via Interlocked
@@ -96,11 +96,12 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// </param>
     public Dictionary<TKey, TValue> Rent(int minimumCapacity = 0)
     {
-        Dictionary<TKey, TValue> item;
-        bool allocated = false;
+        Pooled item;
+        var allocated = false;
         if (stack.TryPop(out var taken))
         {
             Interlocked.Decrement(ref count);
+            taken.MarkAsRentedOut();
             item = taken;
         }
         else
@@ -128,7 +129,9 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     }
 
     /// <summary>
-    /// Returns a previously-rented dictionary to the pool for reuse.
+    /// Returns a previously-rented dictionary to the pool for reuse. Dictionaries
+    /// that did not come from <see cref="Rent"/>, or that are returned more than
+    /// once, are ignored and left to the garbage collector.
     /// </summary>
     /// <param name="dictionary">The dictionary previously obtained from <see cref="Rent"/>.</param>
     /// <param name="clearDictionary">
@@ -138,7 +141,13 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// </param>
     /// <remarks>
     /// <para>
-    /// Not returning a dictionary to the pool will NOT result in any memory leaks:
+    /// The pool only retains instances it handed out itself. Returning a dictionary
+    /// that was not rented from this pool, or returning the same instance twice,
+    /// is a no-op: the instance is not pooled, not cleared, and simply left to the
+    /// garbage collector.
+    /// </para>
+    /// <para>
+    /// Not returning a rented dictionary will NOT result in any memory leaks:
     /// an unreturned dictionary simply becomes unreachable once the caller drops its
     /// reference and is reclaimed by the garbage collector. The pool itself is
     /// bounded by <c>maxPoolSize</c>, so even returned dictionaries beyond the cap
@@ -149,19 +158,24 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     {
         ArgumentNullException.ThrowIfNull(dictionary);
 
-        bool tooLarge = dictionary.Count > maxRetainedCapacityPerItem;
-        int dictionaryEntryCount = dictionary.Count; // capture before Clear
+        if (dictionary is not Pooled pooled || !pooled.TryMarkInPool())
+        {
+            return;
+        }
+
+        var tooLarge = pooled.Count > maxRetainedCapacityPerItem;
+        var dictionaryEntryCount = pooled.Count; // capture before Clear
 
         if (clearDictionary || tooLarge)
         {
-            dictionary.Clear();
+            pooled.Clear();
         }
 
         if (tooLarge)
         {
             // Release the oversized backing arrays so one outlier usage
             // doesn't permanently inflate the pool's memory footprint.
-            dictionary.TrimExcess();
+            pooled.TrimExcess();
 
             if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
             {
@@ -182,11 +196,28 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
             return;
         }
 
-        stack.Push(dictionary);
+        stack.Push(pooled);
 
         if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Verbose, EventKeywords.None))
         {
             DictionaryPoolEventSource.Log.DictionaryReturned(PoolId, dictionaryEntryCount);
         }
+    }
+
+    /// <summary>
+    /// A dictionary created by this pool. The type itself is the ownership marker:
+    /// <see cref="Return(Dictionary{TKey, TValue}, bool)"/> only pools instances of this
+    /// class, and the state tracked inside it guards against returning the same instance twice.
+    /// </summary>
+    sealed class Pooled : Dictionary<TKey, TValue>
+    {
+        const int RentedOut = 0;
+        const int InPool = 1;
+
+        int state = RentedOut;
+
+        internal bool TryMarkInPool() => Interlocked.Exchange(ref state, InPool) == RentedOut;
+
+        internal void MarkAsRentedOut() => Volatile.Write(ref state, RentedOut);
     }
 }
