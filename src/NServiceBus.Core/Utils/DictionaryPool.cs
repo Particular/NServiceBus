@@ -40,27 +40,6 @@ using System.Threading;
 /// </remarks>
 public class DictionaryPool<TKey, TValue> where TKey : notnull
 {
-    /// <summary>A shared, process-wide pool instance, analogous to <c>ArrayPool&lt;T&gt;.Shared</c>.</summary>
-    public static DictionaryPool<TKey, TValue> Shared { get; } = new();
-
-    readonly ConcurrentStack<Pooled> stack = [];
-    readonly int maxPoolSize;
-    readonly int maxRetainedCapacityPerItem;
-    int count; // approximate size, maintained via Interlocked
-
-    /// <summary>
-    /// Approximate number of dictionaries currently retained in the pool.
-    /// Thread-safe and safe to read at any time, but may lag behind the actual
-    /// contents under concurrent access. Intended for diagnostics and testing.
-    /// </summary>
-    internal int Count => Interlocked.CompareExchange(ref count, 0, 0);
-
-    /// <summary>
-    /// A stable, process-unique id assigned at construction. Useful for
-    /// distinguishing pool instances in <see cref="DictionaryPoolEventSource"/> traces.
-    /// </summary>
-    internal int PoolId { get; }
-
     /// <param name="maxPoolSize">
     /// Soft cap on the number of dictionaries retained. Returns beyond this limit
     /// are dropped rather than growing the pool unbounded. Defaults to a generous
@@ -85,6 +64,29 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
         }
     }
 
+    /// <summary>A shared, process-wide pool instance, analogous to <c>ArrayPool&lt;T&gt;.Shared</c>.</summary>
+    public static DictionaryPool<TKey, TValue> Shared { get; } = new();
+
+    /// <summary>
+    /// A pool instance that never reuses dictionaries: <see cref="Rent"/> always allocates
+    /// a fresh dictionary and <see cref="Return"/> discards it. Used where pooling is disabled,
+    /// so rent and return sites need no branching.
+    /// </summary>
+    public static DictionaryPool<TKey, TValue> AlwaysAllocate { get; } = new AlwaysAllocatePool();
+
+    /// <summary>
+    /// Approximate number of dictionaries currently retained in the pool.
+    /// Thread-safe and safe to read at any time, but may lag behind the actual
+    /// contents under concurrent access. Intended for diagnostics and testing.
+    /// </summary>
+    internal int Count => Interlocked.CompareExchange(ref count, 0, 0);
+
+    /// <summary>
+    /// A stable, process-unique id assigned at construction. Useful for
+    /// distinguishing pool instances in <see cref="DictionaryPoolEventSource"/> traces.
+    /// </summary>
+    internal int PoolId { get; }
+
     /// <summary>
     /// Rents a dictionary from the pool, or allocates a new one if the pool is
     /// currently empty. The returned dictionary is always empty.
@@ -94,7 +96,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// When provided, the returned dictionary is pre-sized so you can fill it
     /// without triggering internal resizes.
     /// </param>
-    public Dictionary<TKey, TValue> Rent(int minimumCapacity = 0)
+    public virtual Dictionary<TKey, TValue> Rent(int minimumCapacity = 0)
     {
         Pooled item;
         var allocated = false;
@@ -154,7 +156,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// are dropped rather than retained.
     /// </para>
     /// </remarks>
-    public void Return(Dictionary<TKey, TValue> dictionary, bool clearDictionary = true)
+    public virtual void Return(Dictionary<TKey, TValue> dictionary, bool clearDictionary = true)
     {
         ArgumentNullException.ThrowIfNull(dictionary);
 
@@ -204,6 +206,11 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
         }
     }
 
+    readonly ConcurrentStack<Pooled> stack = [];
+    readonly int maxPoolSize;
+    readonly int maxRetainedCapacityPerItem;
+    int count; // approximate size, maintained via Interlocked
+
     /// <summary>
     /// A dictionary created by this pool. The type itself is the ownership marker:
     /// <see cref="Return(Dictionary{TKey, TValue}, bool)"/> only pools instances of this
@@ -219,5 +226,15 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
         internal bool TryMarkInPool() => Interlocked.Exchange(ref state, InPool) == RentedOut;
 
         internal void MarkAsRentedOut() => Volatile.Write(ref state, RentedOut);
+    }
+
+    sealed class AlwaysAllocatePool : DictionaryPool<TKey, TValue>
+    {
+        public override Dictionary<TKey, TValue> Rent(int minimumCapacity = 0) =>
+            minimumCapacity > 0 ? new Dictionary<TKey, TValue>(capacity: minimumCapacity) : [];
+
+        // Discarding without clearing: the caller may still legitimately read the
+        // dictionary after a no-op return, and the next rent never sees this instance.
+        public override void Return(Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
     }
 }

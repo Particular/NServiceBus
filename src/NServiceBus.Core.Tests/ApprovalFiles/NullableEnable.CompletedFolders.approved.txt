@@ -35,6 +35,7 @@ NServiceBus.Core/Notifications
 NServiceBus.Core/OpenTelemetry
 NServiceBus.Core/OpenTelemetry/Metrics
 NServiceBus.Core/OpenTelemetry/Tracing
+NServiceBus.Core/Performance/HeaderPooling
 NServiceBus.Core/Performance/MessageProcessingOptimizations
 NServiceBus.Core/Performance/Statistics
 NServiceBus.Core/Performance/TimeToBeReceived
