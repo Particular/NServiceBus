@@ -398,6 +398,9 @@ class LearningTransportMessagePump : IMessageReceiver
         }
         finally
         {
+            // Unlike ImmediateDispatchTerminator, every consumer of these dictionaries
+            // (onMessage/onError) has completed once this finally runs, so returning them
+            // here is safe even when processing failed.
             if (errorHeaders is not null)
             {
                 HeaderPool.Shared.Return(errorHeaders);
