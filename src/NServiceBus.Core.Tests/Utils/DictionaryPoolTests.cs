@@ -19,7 +19,7 @@ public class DictionaryPoolTests
         var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
         var dict = pool.Rent();
         Assert.That(dict, Is.Not.Null);
-        Assert.That(dict.Count, Is.EqualTo(0));
+        Assert.That(dict, Is.Empty);
     }
 
     [Test]
@@ -32,7 +32,7 @@ public class DictionaryPoolTests
 
         var reused = pool.Rent();
         Assert.That(reused, Is.SameAs(dict));
-        Assert.That(reused.Count, Is.EqualTo(0));
+        Assert.That(reused, Is.Empty);
     }
 
     [Test]
@@ -40,13 +40,13 @@ public class DictionaryPoolTests
     {
         var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
         var dict = pool.Rent(minimumCapacity: 100);
-        Assert.That(dict.Count, Is.EqualTo(0));
+        Assert.That(dict, Is.Empty);
 
         for (int i = 0; i < 100; i++)
         {
             dict[$"key{i}"] = $"value{i}";
         }
-        Assert.That(dict.Count, Is.EqualTo(100));
+        Assert.That(dict, Has.Count.EqualTo(100));
     }
 
     [Test]
@@ -71,7 +71,7 @@ public class DictionaryPoolTests
         // Rent again — should get the same instance with its capacity intact.
         var reused = pool.Rent();
         Assert.That(reused, Is.SameAs(first));
-        Assert.That(reused.Count, Is.EqualTo(0), "Cleared dictionary must be empty.");
+        Assert.That(reused, Is.Empty, "Cleared dictionary must be empty.");
         Assert.That(reused.Capacity, Is.EqualTo(capacityAfterFill),
             "Clear() must preserve Capacity so the next rent avoids resize.");
 
@@ -98,7 +98,7 @@ public class DictionaryPoolTests
 
         var reused = pool.Rent();
         reused["x"] = "1";
-        Assert.That(reused.Count, Is.EqualTo(1));
+        Assert.That(reused, Has.Count.EqualTo(1));
     }
 
     [Test]
@@ -122,14 +122,17 @@ public class DictionaryPoolTests
         var r1 = pool.Rent();
         var r2 = pool.Rent();
 
-        Assert.That(r1, Is.SameAs(d2).Or.SameAs(d1), "First rent should return a pooled dictionary.");
-        Assert.That(r2, Is.SameAs(d2).Or.SameAs(d1), "Second rent should return a pooled dictionary.");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(r1, Is.SameAs(d2).Or.SameAs(d1), "First rent should return a pooled dictionary.");
+            Assert.That(r2, Is.SameAs(d2).Or.SameAs(d1), "Second rent should return a pooled dictionary.");
+        }
         Assert.That(r1, Is.Not.SameAs(r2), "The two rents should return different dictionaries.");
 
         // The third rent must NOT return d3 — it was dropped by the cap.
         var r3 = pool.Rent();
         Assert.That(r3, Is.Not.SameAs(d3), "Dropped dictionary must not be returned from the pool.");
-        Assert.That(r3.Count, Is.EqualTo(0), "Fresh rent must be empty.");
+        Assert.That(r3, Is.Empty, "Fresh rent must be empty.");
     }
 
     [Test]
@@ -152,7 +155,7 @@ public class DictionaryPoolTests
 
         var reused = pool.Rent();
         Assert.That(reused, Is.SameAs(dict));
-        Assert.That(reused.Count, Is.EqualTo(0));
+        Assert.That(reused, Is.Empty);
     }
 
     [Test]
@@ -173,10 +176,13 @@ public class DictionaryPoolTests
 
         var pool = new DictionaryPool<string, int>();
 
-        Assert.That(events.Count, Is.EqualTo(1), "Expected exactly one DictionaryPoolCreated event.");
-        Assert.That(events.First().EventId, Is.EqualTo(6), "Expected DictionaryPoolCreated.");
-        Assert.That(events.First().Payload, Is.EqualTo(new object[] { pool.PoolId, "System.String", "System.Int32" }),
-            "DictionaryPoolCreated: poolId, key type, value type.");
+        Assert.That(events, Has.Count.EqualTo(1), "Expected exactly one DictionaryPoolCreated event.");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(events.First().EventId, Is.EqualTo(6), "Expected DictionaryPoolCreated.");
+            Assert.That(events.First().Payload, Is.EqualTo(new object[] { pool.PoolId, "System.String", "System.Int32" }),
+                "DictionaryPoolCreated: poolId, key type, value type.");
+        }
     }
 
     [Test]
@@ -194,16 +200,19 @@ public class DictionaryPoolTests
         }
         pool.Return(dict);
 
-        Assert.That(events.Count, Is.EqualTo(3), "Expected exactly rented, allocated and returned events.");
-        Assert.That(events.Count(e => e.EventId == 1), Is.EqualTo(1), "Expected a single DictionaryRented event.");
-        Assert.That(events.Count(e => e.EventId == 2), Is.EqualTo(1), "Expected a single DictionaryAllocated event.");
-        Assert.That(events.Count(e => e.EventId == 3), Is.EqualTo(1), "Expected a single DictionaryReturned event.");
-        Assert.That(events.First(e => e.EventId == 1).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
-            "DictionaryRented: poolId, minimumCapacity.");
-        Assert.That(events.First(e => e.EventId == 2).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
-            "DictionaryAllocated: poolId, minimumCapacity.");
-        Assert.That(events.First(e => e.EventId == 3).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
-            "DictionaryReturned: poolId, entry count.");
+        Assert.That(events, Has.Count.EqualTo(3), "Expected exactly rented, allocated and returned events.");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(events.Count(e => e.EventId == 1), Is.EqualTo(1), "Expected a single DictionaryRented event.");
+            Assert.That(events.Count(e => e.EventId == 2), Is.EqualTo(1), "Expected a single DictionaryAllocated event.");
+            Assert.That(events.Count(e => e.EventId == 3), Is.EqualTo(1), "Expected a single DictionaryReturned event.");
+            Assert.That(events.First(e => e.EventId == 1).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
+                "DictionaryRented: poolId, minimumCapacity.");
+            Assert.That(events.First(e => e.EventId == 2).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
+                "DictionaryAllocated: poolId, minimumCapacity.");
+            Assert.That(events.First(e => e.EventId == 3).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
+                "DictionaryReturned: poolId, entry count.");
+        }
     }
 
     [Test]
@@ -226,16 +235,19 @@ public class DictionaryPoolTests
         pool.Return(oversized);
         pool.Return(dropped);
 
-        Assert.That(events.Count, Is.EqualTo(3), "Expected exactly trimmed, returned and dropped events.");
-        Assert.That(events.Count(e => e.EventId == 4), Is.EqualTo(1), "Expected a single DictionaryTrimmed event.");
-        Assert.That(events.Count(e => e.EventId == 3), Is.EqualTo(1), "Expected a single DictionaryReturned event.");
-        Assert.That(events.Count(e => e.EventId == 5), Is.EqualTo(1), "Expected a single DictionaryDropped event.");
-        Assert.That(events.First(e => e.EventId == 4).Payload, Is.EqualTo(new object[] { pool.PoolId, 10, 5 }),
-            "DictionaryTrimmed: poolId, entry count, maxRetainedCapacity.");
-        Assert.That(events.First(e => e.EventId == 3).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
-            "DictionaryReturned: poolId, entry count.");
-        Assert.That(events.First(e => e.EventId == 5).Payload, Is.EqualTo(new object[] { pool.PoolId, 0, 0 }),
-            "DictionaryDropped: poolId, entry count, DictionaryDroppedReason.PoolFull.");
+        Assert.That(events, Has.Count.EqualTo(3), "Expected exactly trimmed, returned and dropped events.");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(events.Count(e => e.EventId == 4), Is.EqualTo(1), "Expected a single DictionaryTrimmed event.");
+            Assert.That(events.Count(e => e.EventId == 3), Is.EqualTo(1), "Expected a single DictionaryReturned event.");
+            Assert.That(events.Count(e => e.EventId == 5), Is.EqualTo(1), "Expected a single DictionaryDropped event.");
+            Assert.That(events.First(e => e.EventId == 4).Payload, Is.EqualTo(new object[] { pool.PoolId, 10, 5 }),
+                "DictionaryTrimmed: poolId, entry count, maxRetainedCapacity.");
+            Assert.That(events.First(e => e.EventId == 3).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
+                "DictionaryReturned: poolId, entry count.");
+            Assert.That(events.First(e => e.EventId == 5).Payload, Is.EqualTo(new object[] { pool.PoolId, 0, 0 }),
+                "DictionaryDropped: poolId, entry count, DictionaryDroppedReason.PoolFull.");
+        }
     }
 
     [Test]
@@ -263,11 +275,14 @@ public class DictionaryPoolTests
             pool.Return(dict);
         });
 
-        Assert.That(failures, Is.Empty, $"{failures.Count} rent-return cycles saw stale data: {string.Join("; ", failures.Take(5))}");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(failures, Is.Empty, $"{failures.Count} rent-return cycles saw stale data: {string.Join("; ", failures.Take(5))}");
 
-        // The pool's approximate count must never exceed the cap.
-        Assert.That(pool.Count, Is.LessThanOrEqualTo(64),
-            $"Pool count {pool.Count} exceeded maxPoolSize of 64.");
+            // The pool's approximate count must never exceed the cap.
+            Assert.That(pool.Count, Is.LessThanOrEqualTo(64),
+                $"Pool count {pool.Count} exceeded maxPoolSize of 64.");
+        }
 
         // Drain the pool by renting until it's empty. Every returned dictionary
         // must be empty (Return must have cleared it).
@@ -283,5 +298,46 @@ public class DictionaryPoolTests
         }
 
         Assert.That(drained, Is.LessThanOrEqualTo(64), $"Pool retained {drained} dictionaries, exceeding maxPoolSize of 64.");
+    }
+
+    [Test]
+    public void Return_of_foreign_dictionary_is_a_no_op()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var foreign = new Dictionary<string, string> { ["a"] = "1" };
+
+        pool.Return(foreign);
+
+        Assert.That(pool.Count, Is.Zero, "Foreign dictionary must not be pooled.");
+
+        var rented = pool.Rent();
+        Assert.That(rented, Is.Not.SameAs(foreign), "Rent must never hand out a dictionary the pool did not create.");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(rented, Is.Empty, "Fresh rent must be empty.");
+            Assert.That(foreign, Does.ContainKey("a"), "Foreign dictionary must not be cleared.");
+        }
+    }
+
+    [Test]
+    public void Double_return_is_a_no_op()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var dict = pool.Rent();
+        dict["a"] = "1";
+
+        pool.Return(dict);
+        pool.Return(dict);
+
+        Assert.That(pool.Count, Is.EqualTo(1), "Double return must not retain the dictionary twice.");
+
+        var reused = pool.Rent();
+        Assert.That(reused, Is.SameAs(dict));
+        Assert.That(reused, Is.Empty);
+
+        // The recycled dictionary can be returned again after being rented out.
+        reused["b"] = "2";
+        pool.Return(reused);
+        Assert.That(pool.Count, Is.EqualTo(1));
     }
 }
