@@ -57,7 +57,7 @@ class AcceptanceTestingTransportInfrastructure(
         {
             subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
         }
-        var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode);
+        var pump = new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transportSettings.TransportTransactionMode, settings.HeaderPool);
         return Task.FromResult<IMessageReceiver>(pump);
     }
 

@@ -6,9 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Pipeline;
 using Transport;
-using Utils;
 
-class ImmediateDispatchTerminator(IMessageDispatcher dispatcher, DictionaryPool<string, string> headerPool) : PipelineTerminator<IDispatchContext>
+class ImmediateDispatchTerminator(IMessageDispatcher dispatcher, HeaderPool headerPool) : PipelineTerminator<IDispatchContext>
 {
     protected override async Task Terminate(IDispatchContext context)
     {

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using NServiceBus.Routing;
 using NServiceBus.Transport;
-using NServiceBus.Utils;
 
 [TestFixture]
 public class ImmediateDispatchTerminatorTests
@@ -82,9 +81,9 @@ public class ImmediateDispatchTerminatorTests
         }
     }
 
-    static DictionaryPool<string, string> NewPool() => new(maxPoolSize: 4);
+    static HeaderPool NewPool() => new(maxPoolSize: 4);
 
-    static Dictionary<string, string> RentHeaders(DictionaryPool<string, string> pool, string messageId)
+    static Dictionary<string, string> RentHeaders(HeaderPool pool, string messageId)
     {
         var headers = pool.Rent();
         headers["NServiceBus.MessageId"] = messageId;

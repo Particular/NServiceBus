@@ -11,26 +11,17 @@ using Extensibility;
 using Logging;
 using Transport;
 
-
-class LearningTransportMessagePump : IMessageReceiver
+class LearningTransportMessagePump(
+    string id,
+    string receiveAddress,
+    string basePath,
+    Action<string, Exception, CancellationToken> criticalErrorAction,
+    ISubscriptionManager subscriptionManager,
+    ReceiveSettings receiveSettings,
+    TransportTransactionMode transactionMode,
+    HeaderPool headerPool)
+    : IMessageReceiver
 {
-    public LearningTransportMessagePump(string id,
-        string receiveAddress,
-        string basePath,
-        Action<string, Exception, CancellationToken> criticalErrorAction,
-        ISubscriptionManager subscriptionManager,
-        ReceiveSettings receiveSettings,
-        TransportTransactionMode transactionMode)
-    {
-        Id = id;
-        ReceiveAddress = receiveAddress;
-        this.basePath = basePath;
-        this.criticalErrorAction = criticalErrorAction;
-        Subscriptions = subscriptionManager;
-        this.receiveSettings = receiveSettings;
-        this.transactionMode = transactionMode;
-    }
-
     public void Init()
     {
         PathChecker.ThrowForBadPath(ReceiveAddress, "InputQueue");
@@ -130,11 +121,11 @@ class LearningTransportMessagePump : IMessageReceiver
         await StartReceive(cancellationToken).ConfigureAwait(false);
     }
 
-    public ISubscriptionManager Subscriptions { get; }
+    public ISubscriptionManager Subscriptions { get; } = subscriptionManager;
 
-    public string Id { get; }
+    public string Id { get; } = id;
 
-    public string ReceiveAddress { get; }
+    public string ReceiveAddress { get; } = receiveAddress;
 
     void RecoverPendingTransactions()
     {
@@ -310,7 +301,7 @@ class LearningTransportMessagePump : IMessageReceiver
         var messageBytes = await AsyncFile.ReadBytes(transaction.FileToProcess, messageProcessingCancellationToken).ConfigureAwait(false);
 
         var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
-        var headers = HeaderSerializer.Deserialize(messageBytes, HeaderPool.Shared);
+        var headers = HeaderSerializer.Deserialize(messageBytes, headerPool);
         Dictionary<string, string> errorHeaders = null;
 
         var fileCreatedAt = File.GetCreationTimeUtc(transaction.FileToProcess);
@@ -364,7 +355,7 @@ class LearningTransportMessagePump : IMessageReceiver
 
                 var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
 
-                errorHeaders = HeaderSerializer.Deserialize(messageBytes, HeaderPool.Shared);
+                errorHeaders = HeaderSerializer.Deserialize(messageBytes, headerPool);
                 errorHeaders.Remove(LearningTransportHeaders.TimeToBeReceived);
 
                 var errorContext = new ErrorContext(exception, errorHeaders, messageId, body, receiveProperties, transportTransaction, processingFailures, ReceiveAddress, processingContext);
@@ -403,9 +394,9 @@ class LearningTransportMessagePump : IMessageReceiver
             // here is safe even when processing failed.
             if (errorHeaders is not null)
             {
-                HeaderPool.Shared.Return(errorHeaders);
+                headerPool.Return(errorHeaders);
             }
-            HeaderPool.Shared.Return(headers);
+            headerPool.Return(headers);
         }
     }
 
@@ -424,10 +415,6 @@ class LearningTransportMessagePump : IMessageReceiver
     OnError onError;
 
     readonly ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
-    readonly string basePath;
-    readonly Action<string, Exception, CancellationToken> criticalErrorAction;
-    readonly ReceiveSettings receiveSettings;
-    readonly TransportTransactionMode transactionMode;
 
     static readonly ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
 

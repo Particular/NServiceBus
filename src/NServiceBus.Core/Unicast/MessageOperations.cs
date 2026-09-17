@@ -10,33 +10,22 @@ using MessageInterfaces;
 using Pipeline;
 using Transport;
 
-class MessageOperations
+class MessageOperations(
+    IMessageMapper messageMapper,
+    IPipeline<IOutgoingPublishContext> publishPipeline,
+    IPipeline<IOutgoingSendContext> sendPipeline,
+    IPipeline<IOutgoingReplyContext> replyPipeline,
+    IPipeline<ISubscribeContext> subscribePipeline,
+    IPipeline<IUnsubscribeContext> unsubscribePipeline,
+    IActivityFactory activityFactory,
+    HeaderPool headerPool)
 {
-    readonly IMessageMapper messageMapper;
-    protected readonly IPipeline<IOutgoingPublishContext> publishPipeline;
-    protected readonly IPipeline<IOutgoingSendContext> sendPipeline;
-    protected readonly IPipeline<IOutgoingReplyContext> replyPipeline;
-    protected readonly IPipeline<ISubscribeContext> subscribePipeline;
-    protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
-    protected readonly IActivityFactory activityFactory;
-
-    public MessageOperations(
-        IMessageMapper messageMapper,
-        IPipeline<IOutgoingPublishContext> publishPipeline,
-        IPipeline<IOutgoingSendContext> sendPipeline,
-        IPipeline<IOutgoingReplyContext> replyPipeline,
-        IPipeline<ISubscribeContext> subscribePipeline,
-        IPipeline<IUnsubscribeContext> unsubscribePipeline,
-        IActivityFactory activityFactory)
-    {
-        this.messageMapper = messageMapper;
-        this.publishPipeline = publishPipeline;
-        this.sendPipeline = sendPipeline;
-        this.replyPipeline = replyPipeline;
-        this.subscribePipeline = subscribePipeline;
-        this.unsubscribePipeline = unsubscribePipeline;
-        this.activityFactory = activityFactory;
-    }
+    protected readonly IPipeline<IOutgoingPublishContext> publishPipeline = publishPipeline;
+    protected readonly IPipeline<IOutgoingSendContext> sendPipeline = sendPipeline;
+    protected readonly IPipeline<IOutgoingReplyContext> replyPipeline = replyPipeline;
+    protected readonly IPipeline<ISubscribeContext> subscribePipeline = subscribePipeline;
+    protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline = unsubscribePipeline;
+    protected readonly IActivityFactory activityFactory = activityFactory;
 
     public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, PublishOptions options)
     {
@@ -201,9 +190,9 @@ class MessageOperations
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
         context.Set(new DispatchProperties(dispatchProperties));
 
-    static Dictionary<string, string> RentOutgoingHeaders(Dictionary<string, string> outgoingHeaders, string messageId)
+    Dictionary<string, string> RentOutgoingHeaders(Dictionary<string, string> outgoingHeaders, string messageId)
     {
-        var headers = HeaderPool.Shared.Rent(outgoingHeaders.Count);
+        var headers = headerPool.Rent(outgoingHeaders.Count);
         outgoingHeaders.CopyTo(headers);
         headers[Headers.MessageId] = messageId;
         return headers;

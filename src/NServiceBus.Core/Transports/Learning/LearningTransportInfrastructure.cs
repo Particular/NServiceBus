@@ -15,6 +15,7 @@ class LearningTransportInfrastructure : TransportInfrastructure
     {
         this.settings = settings;
         this.transport = transport;
+        headerPool = settings.HeaderPool;
 
         if (string.IsNullOrWhiteSpace(storagePath = transport.StorageDirectory))
         {
@@ -68,12 +69,13 @@ class LearningTransportInfrastructure : TransportInfrastructure
 
             subscriptionManager = new LearningTransportSubscriptionManager(storagePath, settings.Name, queueAddress);
         }
-        return new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode);
+        return new LearningTransportMessagePump(receiveSettings.Id, queueAddress, storagePath, settings.CriticalErrorAction, subscriptionManager, receiveSettings, transport.TransportTransactionMode, headerPool);
     }
 
     readonly string storagePath;
     readonly HostSettings settings;
     readonly LearningTransport transport;
+    readonly HeaderPool headerPool;
 
     const string DefaultLearningTransportDirectory = ".learningtransport";
 
