@@ -40,10 +40,17 @@ class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSe
         var transportDefinition = transportSeamSettings.TransportDefinition;
         transportSeamSettings.settings.Set(transportDefinition);
 
+        var headerPool = transportSeamSettings.settings.GetHeaderPool();
+
         var settings = new HostSettings(hostingConfiguration.EndpointName,
             hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
             hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers,
-            transportSeamSettings.settings);
+            transportSeamSettings.settings)
+        {
+            HeaderPool = headerPool
+        };
+
+        hostingConfiguration.Services.AddSingleton(headerPool);
 
         var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
 

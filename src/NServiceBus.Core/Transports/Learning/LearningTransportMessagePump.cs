@@ -11,25 +11,17 @@ using Extensibility;
 using Logging;
 using Transport;
 
-class LearningTransportMessagePump : IMessageReceiver
+class LearningTransportMessagePump(
+    string id,
+    string receiveAddress,
+    string basePath,
+    Action<string, Exception, CancellationToken> criticalErrorAction,
+    ISubscriptionManager subscriptionManager,
+    ReceiveSettings receiveSettings,
+    TransportTransactionMode transactionMode,
+    HeaderPool headerPool)
+    : IMessageReceiver
 {
-    public LearningTransportMessagePump(string id,
-        string receiveAddress,
-        string basePath,
-        Action<string, Exception, CancellationToken> criticalErrorAction,
-        ISubscriptionManager subscriptionManager,
-        ReceiveSettings receiveSettings,
-        TransportTransactionMode transactionMode)
-    {
-        Id = id;
-        ReceiveAddress = receiveAddress;
-        this.basePath = basePath;
-        this.criticalErrorAction = criticalErrorAction;
-        Subscriptions = subscriptionManager;
-        this.receiveSettings = receiveSettings;
-        this.transactionMode = transactionMode;
-    }
-
     public void Init()
     {
         PathChecker.ThrowForBadPath(ReceiveAddress, "InputQueue");
@@ -129,11 +121,11 @@ class LearningTransportMessagePump : IMessageReceiver
         await StartReceive(cancellationToken).ConfigureAwait(false);
     }
 
-    public ISubscriptionManager Subscriptions { get; }
+    public ISubscriptionManager Subscriptions { get; } = subscriptionManager;
 
-    public string Id { get; }
+    public string Id { get; } = id;
 
-    public string ReceiveAddress { get; }
+    public string ReceiveAddress { get; } = receiveAddress;
 
     void RecoverPendingTransactions()
     {
@@ -306,70 +298,50 @@ class LearningTransportMessagePump : IMessageReceiver
 
     async Task ProcessFile(ILearningTransportTransaction transaction, string messageId, CancellationToken messageProcessingCancellationToken)
     {
-        var message = await AsyncFile.ReadText(transaction.FileToProcess, messageProcessingCancellationToken).ConfigureAwait(false);
+        var messageBytes = await AsyncFile.ReadBytes(transaction.FileToProcess, messageProcessingCancellationToken).ConfigureAwait(false);
 
         var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
-        var headers = HeaderSerializer.Deserialize(message);
+        var headers = HeaderSerializer.Deserialize(messageBytes, headerPool);
+        Dictionary<string, string> errorHeaders = null;
 
         var fileCreatedAt = File.GetCreationTimeUtc(transaction.FileToProcess);
 
-        if (headers.Remove(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
-        {
-            var ttbr = TimeSpan.Parse(ttbrString);
-
-            var utcNow = DateTime.UtcNow;
-
-            if (fileCreatedAt + ttbr < utcNow)
-            {
-                await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
-                log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, fileCreatedAt, utcNow);
-                return;
-            }
-        }
-
-        var body = await AsyncFile.ReadBytes(bodyPath, messageProcessingCancellationToken).ConfigureAwait(false);
-
-        var transportTransaction = new TransportTransaction();
-
-        if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
-        {
-            transportTransaction.Set(transaction);
-        }
-
-        var processingContext = new ContextBag();
-        var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
-        {
-            ["LearningTransport.FileCreatedAt"] = fileCreatedAt.ToString("O")
-        });
-
-        var messageContext = new MessageContext(messageId, headers, body, receiveProperties, transportTransaction, ReceiveAddress, processingContext);
-
         try
         {
-            await onMessage(messageContext, messageProcessingCancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
-        {
-            log.Debug("Message processing canceled. Rolling back transaction.", ex);
-            transaction.Rollback();
-            throw;
-        }
-        catch (Exception exception)
-        {
-            transaction.ClearPendingOutgoingOperations();
+            if (headers.Remove(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
+            {
+                var ttbr = TimeSpan.Parse(ttbrString);
 
-            var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
+                var utcNow = DateTime.UtcNow;
 
-            headers = HeaderSerializer.Deserialize(message);
-            headers.Remove(LearningTransportHeaders.TimeToBeReceived);
+                if (fileCreatedAt + ttbr < utcNow)
+                {
+                    await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
+                    log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, fileCreatedAt, utcNow);
+                    return;
+                }
+            }
 
-            var errorContext = new ErrorContext(exception, headers, messageId, body, receiveProperties, transportTransaction, processingFailures, ReceiveAddress, processingContext);
+            var body = await AsyncFile.ReadBytes(bodyPath, messageProcessingCancellationToken).ConfigureAwait(false);
 
-            ErrorHandleResult result;
+            var transportTransaction = new TransportTransaction();
+
+            if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+            {
+                transportTransaction.Set(transaction);
+            }
+
+            var processingContext = new ContextBag();
+            var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
+            {
+                ["LearningTransport.FileCreatedAt"] = fileCreatedAt.ToString("O")
+            });
+
+            var messageContext = new MessageContext(messageId, headers, body, receiveProperties, transportTransaction, ReceiveAddress, processingContext);
 
             try
             {
-                result = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
+                await onMessage(messageContext, messageProcessingCancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
             {
@@ -377,20 +349,55 @@ class LearningTransportMessagePump : IMessageReceiver
                 transaction.Rollback();
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, messageProcessingCancellationToken);
-                result = ErrorHandleResult.RetryRequired;
+                transaction.ClearPendingOutgoingOperations();
+
+                var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
+
+                errorHeaders = HeaderSerializer.Deserialize(messageBytes, headerPool);
+                errorHeaders.Remove(LearningTransportHeaders.TimeToBeReceived);
+
+                var errorContext = new ErrorContext(exception, errorHeaders, messageId, body, receiveProperties, transportTransaction, processingFailures, ReceiveAddress, processingContext);
+
+                ErrorHandleResult result;
+
+                try
+                {
+                    result = await onError(errorContext, messageProcessingCancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex.IsCausedBy(messageProcessingCancellationToken))
+                {
+                    log.Debug("Message processing canceled. Rolling back transaction.", ex);
+                    transaction.Rollback();
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    criticalErrorAction($"Failed to execute recoverability policy for message with native ID: `{messageContext.NativeMessageId}`", ex, messageProcessingCancellationToken);
+                    result = ErrorHandleResult.RetryRequired;
+                }
+
+                if (result == ErrorHandleResult.RetryRequired)
+                {
+                    transaction.Rollback();
+                    return;
+                }
             }
 
-            if (result == ErrorHandleResult.RetryRequired)
-            {
-                transaction.Rollback();
-                return;
-            }
+            await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
         }
-
-        await transaction.Commit(messageProcessingCancellationToken).ConfigureAwait(false);
+        finally
+        {
+            // Unlike ImmediateDispatchTerminator, every consumer of these dictionaries
+            // (onMessage/onError) has completed once this finally runs, so returning them
+            // here is safe even when processing failed.
+            if (errorHeaders is not null)
+            {
+                headerPool.Return(errorHeaders);
+            }
+            headerPool.Return(headers);
+        }
     }
 
     CancellationTokenSource messagePumpCancellationTokenSource;
@@ -408,10 +415,6 @@ class LearningTransportMessagePump : IMessageReceiver
     OnError onError;
 
     readonly ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
-    readonly string basePath;
-    readonly Action<string, Exception, CancellationToken> criticalErrorAction;
-    readonly ReceiveSettings receiveSettings;
-    readonly TransportTransactionMode transactionMode;
 
     static readonly ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
 

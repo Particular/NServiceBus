@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Outbox;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus.Outbox;
 using NUnit.Framework;
@@ -151,6 +152,62 @@ public class OutboxStorageTests(TestVariant param)
 
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
         Assert.That(message, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task Should_return_fresh_header_dictionaries_from_get()
+    {
+        configuration.RequiresOutboxSupport();
+
+        var storage = configuration.OutboxStorage;
+        var ctx = configuration.GetContextBagForOutbox();
+
+        var messageId = Guid.NewGuid().ToString();
+        _ = await storage.Get(messageId, ctx); // dedup prime, per existing suite convention
+
+        var operationId = Guid.NewGuid().ToString();
+        var headers = new Dictionary<string, string>
+        {
+            { "HeaderPooling.Key1", "value1" },
+            { "HeaderPooling.Key2", "value2" },
+        };
+        var messageToStore = new OutboxMessage(messageId,
+            [new TransportOperation(operationId, null, new byte[] { 1, 2, 3 }, headers)]);
+
+        await using (var transaction = await storage.BeginTransaction(ctx))
+        {
+            await storage.Store(messageToStore, transaction, ctx);
+
+            await transaction.Commit();
+        }
+
+        var firstGet = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+
+        // Emulates the dispatch pipeline under header pooling: ImmediateDispatchTerminator returns every
+        // dispatched operation's header dictionary to HeaderPool.Shared, which clears it. An outbox that
+        // handed out a shared reference to stored state gets its stored entry wiped right here.
+        foreach (var operation in firstGet.TransportOperations)
+        {
+            operation.Headers.Clear();
+        }
+
+        var secondGet = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+
+        Assert.That(secondGet, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(secondGet.TransportOperations, Has.Length.EqualTo(1));
+            Assert.That(secondGet.TransportOperations[0].Headers, Is.Not.SameAs(firstGet.TransportOperations[0].Headers),
+                "IOutboxStorage.Get must return freshly-owned header dictionaries per call; a cached or stored dictionary instance is cleared by dispatch pooling.");
+        }
+        Assert.That(secondGet.TransportOperations[0].Headers, Is.SupersetOf(new Dictionary<string, string>
+        {
+            { "HeaderPooling.Key1", "value1" },
+            { "HeaderPooling.Key2", "value2" },
+        }), "IOutboxStorage.Get must return freshly-owned header dictionaries; shared references to stored state are cleared by dispatch pooling and corrupt the stored outbox entry.");
+
+        // Prove the dedup lifecycle still completes on the (allegedly) uncorrupted entry.
+        await storage.SetAsDispatched(messageId, configuration.GetContextBagForOutbox());
     }
 
     PersistenceTestsConfiguration configuration;
