@@ -77,17 +77,7 @@ class TransportReceiveToPhysicalMessageConnector(
 
         if (operations.Length > 0)
         {
-            var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
-            if (physicalMessageContext.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
-            {
-                WriteDispatchingEvent(activity, operations.Length);
-                await this.Fork(batchDispatchContext).ConfigureAwait(false);
-                activity.AddEvent(new ActivityEvent("Finished dispatching"));
-            }
-            else
-            {
-                await this.Fork(batchDispatchContext).ConfigureAwait(false);
-            }
+            await DispatchOperations(operations, physicalMessageContext).ConfigureAwait(false);
         }
 
         await outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
@@ -122,29 +112,34 @@ class TransportReceiveToPhysicalMessageConnector(
 
         if (operations.Length > 0)
         {
-            var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
-            if (physicalMessageContext.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
-            {
-                WriteDispatchingEvent(activity, operations.Length);
-                await this.Fork(batchDispatchContext).ConfigureAwait(false);
-                activity.AddEvent(new ActivityEvent("Finished dispatching"));
-            }
-            else
-            {
-                await this.Fork(batchDispatchContext).ConfigureAwait(false);
-            }
+            await DispatchOperations(operations, physicalMessageContext).ConfigureAwait(false);
         }
 
         incomingPipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
     }
 
-    static void WriteDispatchingEvent(Activity activity, int operationCount)
+    // Deliberately not async: when no activity is recording - the common case - this returns the Fork task
+    // directly without an extra state machine. Only the activity-recording path pays for one, and that path
+    // is already allocating activity events. The activity is resolved from the physical message context; child
+    // context bags read through to their parent, so this sees the same activity as the root receive context.
+    Task DispatchOperations(Transport.TransportOperation[] operations, IIncomingPhysicalMessageContext physicalMessageContext)
     {
-        var tags = new ActivityTagsCollection
+        var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
+
+        if (physicalMessageContext.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
         {
-            { "message-count", operationCount }
-        };
-        activity.AddEvent(new ActivityEvent("Start dispatching", tags: tags));
+            return ForkWithActivityEvents(batchDispatchContext, activity, operations.Length);
+        }
+
+        return this.Fork(batchDispatchContext);
+
+        async Task ForkWithActivityEvents(IBatchDispatchContext batchDispatchContext, Activity activity, int operationCount)
+        {
+            activity.AddEvent(new ActivityEvent("Start dispatching",
+                tags: new ActivityTagsCollection { { "message-count", operationCount } }));
+            await this.Fork(batchDispatchContext).ConfigureAwait(false);
+            activity.AddEvent(new ActivityEvent("Finished dispatching"));
+        }
     }
 
     static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
