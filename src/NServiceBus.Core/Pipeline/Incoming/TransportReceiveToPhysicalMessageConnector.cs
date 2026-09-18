@@ -80,7 +80,7 @@ class TransportReceiveToPhysicalMessageConnector(
             var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
             var dispatchActivity = WriteStartDispatchingEvent(physicalMessageContext, operations.Length);
             await this.Fork(batchDispatchContext).ConfigureAwait(false);
-            dispatchActivity?.AddEvent(new ActivityEvent("Finished dispatching"));
+            dispatchActivity?.AddEvent(new("Finished dispatching"));
         }
 
         await outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
@@ -118,7 +118,7 @@ class TransportReceiveToPhysicalMessageConnector(
             var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
             var dispatchActivity = WriteStartDispatchingEvent(physicalMessageContext, operations.Length);
             await this.Fork(batchDispatchContext).ConfigureAwait(false);
-            dispatchActivity?.AddEvent(new ActivityEvent("Finished dispatching"));
+            dispatchActivity?.AddEvent(new("Finished dispatching"));
         }
 
         incomingPipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
@@ -135,8 +135,8 @@ class TransportReceiveToPhysicalMessageConnector(
             return null;
         }
 
-        activity.AddEvent(new ActivityEvent("Start dispatching",
-            tags: new ActivityTagsCollection { { "message-count", operationCount } }));
+        activity.AddEvent(new("Start dispatching",
+            tags: new() { { "message-count", operationCount } }));
         return activity;
     }
 
@@ -147,7 +147,7 @@ class TransportReceiveToPhysicalMessageConnector(
             var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
 
             pendingTransportOperations.Add(
-                new Transport.TransportOperation(
+                new(
                     message,
                     DeserializeRoutingStrategy(operation.Options),
                     operation.Options,
@@ -164,7 +164,7 @@ class TransportReceiveToPhysicalMessageConnector(
             var operation = operations[index];
             SerializeRoutingStrategy(operation.AddressTag, operation.Properties);
 
-            transportOperations[index] = new TransportOperation(operation.Message.MessageId, operation.Properties, operation.Message.Body, operation.Message.Headers);
+            transportOperations[index] = new(operation.Message.MessageId, operation.Properties, operation.Message.Body, operation.Message.Headers);
         }
 
         return transportOperations;
