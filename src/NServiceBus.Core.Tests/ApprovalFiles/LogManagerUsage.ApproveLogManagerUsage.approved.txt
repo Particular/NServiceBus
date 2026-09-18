@@ -45,7 +45,6 @@ NServiceBus.SerializationFeature
 NServiceBus.SerializationSettingsExtensions
 NServiceBus.SerializeMessageConnector
 NServiceBus.SubscriptionReceiverBehavior
-NServiceBus.TransportReceiveToPhysicalMessageConnector
 NServiceBus.Unicast.Messages.MessageMetadataRegistry
 NServiceBus.UnicastPublishRouter
 NServiceBus.Validations

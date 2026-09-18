@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Abstractions;
 using NServiceBus.Outbox;
 using NServiceBus.Pipeline;
 using NServiceBus.Routing;
@@ -174,6 +175,63 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         }
     }
 
+    [Test]
+    public async Task Should_store_outbox_message_when_outbox_is_enabled()
+    {
+        var context = CreateContext(fakeBatchPipeline, "id");
+
+        await Invoke(context, c =>
+        {
+            c.Extensions.Get<PendingTransportOperations>().Add(
+                new TransportOperation(new OutgoingMessage("out-1", [], Array.Empty<byte>()), new UnicastAddressTag("destination")));
+            return Task.CompletedTask;
+        });
+
+        Assert.That(fakeOutbox.StoredMessage, Is.Not.Null);
+        var stored = fakeOutbox.StoredMessage!;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(stored.MessageId, Is.EqualTo("id"));
+            Assert.That(stored.TransportOperations, Has.Length.EqualTo(1));
+            Assert.That(stored.TransportOperations[0].Options!["Destination"], Is.EqualTo("destination"));
+        }
+    }
+
+    [Test]
+    public async Task Should_still_dispatch_when_outbox_is_disabled()
+    {
+        var noOpBehavior = new TransportReceiveToPhysicalMessageConnector(
+            new NoOpOutboxStorage(), new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
+
+        var context = CreateContext(fakeBatchPipeline, "id");
+
+        await noOpBehavior.Invoke(context, c =>
+        {
+            c.Extensions.Get<PendingTransportOperations>().AddRange([
+                new TransportOperation(new OutgoingMessage("out-1", [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
+                new TransportOperation(new OutgoingMessage("out-2", [], Array.Empty<byte>()), new MulticastAddressTag(typeof(MyEvent)))
+            ]);
+            return Task.CompletedTask;
+        });
+
+        Assert.That(fakeBatchPipeline.TransportOperations, Is.Not.Null);
+        var dispatched = fakeBatchPipeline.TransportOperations!.ToArray();
+        Assert.That(dispatched, Has.Length.EqualTo(2));
+
+        var unicast = dispatched.Single(o => o.Message.MessageId == "out-1");
+        var multicast = dispatched.Single(o => o.Message.MessageId == "out-2");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(((UnicastAddressTag)unicast.AddressTag).Destination, Is.EqualTo("destination"));
+            Assert.That(((MulticastAddressTag)multicast.AddressTag).MessageType, Is.EqualTo(typeof(MyEvent)));
+
+            // With no outbox there is nothing to round-trip the address tag through, so the operations are
+            // dispatched without the routing strategy being serialized into their dispatch properties.
+            Assert.That(unicast.Properties.ContainsKey("Destination"), Is.False);
+            Assert.That(multicast.Properties.ContainsKey("EventType"), Is.False);
+        }
+    }
+
     static TestableTransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)
     {
         var context = new TestableTransportReceiveContext
@@ -192,7 +250,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         fakeOutbox = new FakeOutboxStorage();
         fakeBatchPipeline = new FakeBatchPipeline();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
     }
 
     Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task>? next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));
