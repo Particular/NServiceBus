@@ -135,8 +135,7 @@ class TransportReceiveToPhysicalMessageConnector(
             return null;
         }
 
-        activity.AddEvent(new("Start dispatching",
-            tags: new() { { "message-count", operationCount } }));
+        activity.AddEvent(new("Start dispatching", tags: new() { { "message-count", operationCount } }));
         return activity;
     }
 
@@ -146,13 +145,7 @@ class TransportReceiveToPhysicalMessageConnector(
         {
             var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
 
-            pendingTransportOperations.Add(
-                new(
-                    message,
-                    DeserializeRoutingStrategy(operation.Options),
-                    operation.Options,
-                    DispatchConsistency.Isolated
-                    ));
+            pendingTransportOperations.Add(new(message, DeserializeRoutingStrategy(operation.Options), operation.Options, DispatchConsistency.Isolated));
         }
     }
 
