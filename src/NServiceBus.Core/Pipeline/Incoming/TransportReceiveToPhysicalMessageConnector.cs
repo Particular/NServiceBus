@@ -77,7 +77,10 @@ class TransportReceiveToPhysicalMessageConnector(
 
         if (operations.Length > 0)
         {
-            await DispatchOperations(operations, physicalMessageContext).ConfigureAwait(false);
+            var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
+            var dispatchActivity = WriteStartDispatchingEvent(physicalMessageContext, operations.Length);
+            await this.Fork(batchDispatchContext).ConfigureAwait(false);
+            dispatchActivity?.AddEvent(new ActivityEvent("Finished dispatching"));
         }
 
         await outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
@@ -112,34 +115,29 @@ class TransportReceiveToPhysicalMessageConnector(
 
         if (operations.Length > 0)
         {
-            await DispatchOperations(operations, physicalMessageContext).ConfigureAwait(false);
+            var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
+            var dispatchActivity = WriteStartDispatchingEvent(physicalMessageContext, operations.Length);
+            await this.Fork(batchDispatchContext).ConfigureAwait(false);
+            dispatchActivity?.AddEvent(new ActivityEvent("Finished dispatching"));
         }
 
         incomingPipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
     }
 
-    // Deliberately not async: when no activity is recording - the common case - this returns the Fork task
-    // directly without an extra state machine. Only the activity-recording path pays for one, and that path
-    // is already allocating activity events. The activity is resolved from the physical message context; child
-    // context bags read through to their parent, so this sees the same activity as the root receive context.
-    Task DispatchOperations(Transport.TransportOperation[] operations, IIncomingPhysicalMessageContext physicalMessageContext)
+    // Synchronous by design so the dispatch instrumentation lives in one place without adding an async state
+    // machine to either path; the Fork await stays in the callers. The activity is resolved from the physical
+    // message context; child context bags read through to their parent, so this sees the same activity as the
+    // root receive context. Returns the activity (or null) so the caller can emit the finished event after the fork.
+    static Activity? WriteStartDispatchingEvent(IIncomingPhysicalMessageContext physicalMessageContext, int operationCount)
     {
-        var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
-
-        if (physicalMessageContext.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
+        if (!physicalMessageContext.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
         {
-            return ForkWithActivityEvents(batchDispatchContext, activity, operations.Length);
+            return null;
         }
 
-        return this.Fork(batchDispatchContext);
-
-        async Task ForkWithActivityEvents(IBatchDispatchContext batchDispatchContext, Activity activity, int operationCount)
-        {
-            activity.AddEvent(new ActivityEvent("Start dispatching",
-                tags: new ActivityTagsCollection { { "message-count", operationCount } }));
-            await this.Fork(batchDispatchContext).ConfigureAwait(false);
-            activity.AddEvent(new ActivityEvent("Finished dispatching"));
-        }
+        activity.AddEvent(new ActivityEvent("Start dispatching",
+            tags: new ActivityTagsCollection { { "message-count", operationCount } }));
+        return activity;
     }
 
     static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
