@@ -9,11 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using Outbox;
 using Pipeline;
 using Transport;
 using Unicast;
+using ILoggerFactory = Logging.ILoggerFactory;
 
 partial class ReceiveComponent
 {
@@ -64,15 +66,15 @@ partial class ReceiveComponent
             return transport.Receivers[MainReceiverId].Subscriptions;
         });
 
-        pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
+        pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", static b =>
         {
             var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
-            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMetrics>());
+            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMetrics>(), b.GetRequiredService<ILogger<TransportReceiveToPhysicalMessageConnector>>());
         }, "Allows to abort processing the message");
 
-        pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+        pipelineSettings.Register("LoadHandlersConnector", sp => new LoadHandlersConnector(sp.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-        pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(sp.GetRequiredService<IncomingPipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
+        pipelineSettings.Register("InvokeHandlers", static sp => new InvokeHandlerTerminator(sp.GetRequiredService<IncomingPipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
 
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 

@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Abstractions;
 using NServiceBus.Outbox;
 using NServiceBus.Pipeline;
 using NServiceBus.Routing;
@@ -200,7 +201,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     public async Task Should_still_dispatch_when_outbox_is_disabled()
     {
         var noOpBehavior = new TransportReceiveToPhysicalMessageConnector(
-            new NoOpOutboxStorage(), new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+            new NoOpOutboxStorage(), new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
 
         var context = CreateContext(fakeBatchPipeline, "id");
 
@@ -249,7 +250,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         fakeOutbox = new FakeOutboxStorage();
         fakeBatchPipeline = new FakeBatchPipeline();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"));
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
     }
 
     Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task>? next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));

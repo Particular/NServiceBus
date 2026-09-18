@@ -6,16 +6,18 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Logging;
+using Microsoft.Extensions.Logging;
 using Outbox;
 using Pipeline;
 using Routing;
 using Transport;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 using TransportOperation = Outbox.TransportOperation;
 
-class TransportReceiveToPhysicalMessageConnector(
+partial class TransportReceiveToPhysicalMessageConnector(
     IOutboxStorage outboxStorage,
-    IncomingPipelineMetrics incomingPipelineMetrics)
+    IncomingPipelineMetrics incomingPipelineMetrics,
+    ILogger<TransportReceiveToPhysicalMessageConnector> logger)
     : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
     // When no outbox is configured the storage is a no-op that discards whatever it is handed, so building an
@@ -68,7 +70,7 @@ class TransportReceiveToPhysicalMessageConnector(
         }
         else
         {
-            Log.InfoFormat("Outbox duplicate detected for message '{0}'. Skipping handler execution", messageId);
+            LogOutboxDuplicateDetectedForMessageMessageIdSkippingHandlerExecution(messageId);
             context.Extensions.TryGetRecordingIncomingPipelineActivity(out var deduplicationActivity);
             deduplicationActivity?.AddTag("nservicebus.outbox.deduplicate-message", true);
             ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
@@ -196,5 +198,6 @@ class TransportReceiveToPhysicalMessageConnector(
         throw new Exception("Could not find routing strategy to deserialize");
     }
 
-    static readonly ILog Log = LogManager.GetLogger<TransportReceiveToPhysicalMessageConnector>();
+    [LoggerMessage(LogLevel.Information, "Outbox duplicate detected for message '{MessageId}'. Skipping handler execution")]
+    partial void LogOutboxDuplicateDetectedForMessageMessageIdSkippingHandlerExecution(string messageId);
 }
