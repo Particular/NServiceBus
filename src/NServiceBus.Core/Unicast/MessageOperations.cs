@@ -3,6 +3,7 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
@@ -23,6 +24,7 @@ class MessageOperations(
     protected readonly IPipeline<IOutgoingReplyContext> replyPipeline = replyPipeline;
     protected readonly IPipeline<ISubscribeContext> subscribePipeline = subscribePipeline;
     protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline = unsubscribePipeline;
+    readonly bool UseMessageTypeNamesInSpanNames = activityFactory.Options.UseMessageTypeNamesInSpanNames;
 
 
     public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
@@ -54,7 +56,7 @@ class MessageOperations(
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        var displayName = activityFactory.Options.UseMessageTypeNamesInSpanNames
+        var displayName = UseMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
             : ActivityDisplayNames.PublishEvent;
 
@@ -88,7 +90,11 @@ class MessageOperations(
 
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context);
+        var displayName = UseMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.SubscribeEvent} {string.Join(' ', eventTypes.Select(x => x.Name))}"
+            : ActivityDisplayNames.SubscribeEvent;
+
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, displayName, context);
 
         try
         {
@@ -113,7 +119,11 @@ class MessageOperations(
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context);
+        var displayName = UseMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.UnsubscribeEvent} {eventType.Name}"
+            : ActivityDisplayNames.UnsubscribeEvent;
+
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, displayName, context);
 
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
         try
@@ -158,9 +168,12 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
+        var displayName = UseMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.SendMessage} {messageType.Name}"
+            : ActivityDisplayNames.SendMessage;
 
-#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, displayName, outgoingContext);
+
         try
         {
             await sendPipeline.Invoke(outgoingContext)
@@ -203,9 +216,12 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
+        var displayName = UseMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.ReplyMessage} {messageType.Name}"
+            : ActivityDisplayNames.ReplyMessage;
 
-#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, displayName, context);
+
         try
         {
             await replyPipeline.Invoke(outgoingContext)
