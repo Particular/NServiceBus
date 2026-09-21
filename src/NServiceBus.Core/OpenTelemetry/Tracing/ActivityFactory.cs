@@ -205,8 +205,13 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         }
     }
 
-    public void RecordError(Activity activity, Exception exception, ContextBag context)
+    public void RecordError(Activity? activity, Exception exception, ContextBag context)
     {
+        if (activity == null)
+        {
+            return;
+        }
+
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
