@@ -12,7 +12,7 @@ static class ActivityDisplayNames
     public const string ReplyMessage = "reply";
     public const string Recoverability = "recover";
 
-    // Operation-only prefixes used when UseMessageDestinationInSpanNames is enabled
+    // Operation-only prefixes used when UseMessageTypeNamesInSpanNames is enabled
     internal const string ProcessOperation = "process";
     internal const string PublishOperation = "publish";
     internal const string SendOperation = "send";

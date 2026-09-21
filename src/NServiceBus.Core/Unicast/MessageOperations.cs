@@ -65,7 +65,7 @@ class MessageOperations
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        var publishDisplayName = activityFactory.Options.UseMessageDestinationInSpanNames
+        var publishDisplayName = activityFactory.Options.UseMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
             : ActivityDisplayNames.PublishEvent;
 

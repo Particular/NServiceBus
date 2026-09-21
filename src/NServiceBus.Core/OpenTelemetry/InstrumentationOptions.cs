@@ -13,7 +13,7 @@ public partial class InstrumentationOptions
     /// <c>{messaging.operation.name} {destination}</c>, e.g. "process orders" or "send payments".
     /// Disabled by default for backward compatibility.
     /// </summary>
-    public bool UseMessageDestinationInSpanNames { get; set; }
+    public bool UseMessageTypeNamesInSpanNames { get; set; }
 
     /// <summary>
     /// Controls instrumentation of the recoverability pipeline (retries and error handling).

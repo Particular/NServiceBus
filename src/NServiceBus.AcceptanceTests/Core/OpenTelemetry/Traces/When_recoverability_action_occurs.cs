@@ -59,7 +59,7 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
                 .CustomConfig(c =>
                 {
                     c.Recoverability().Immediate(i => i.NumberOfRetries(1)).Delayed(i => i.NumberOfRetries(0));
-                    c.Tracing().UseMessageDestinationInSpanNames = true;
+                    c.Tracing().UseMessageTypeNamesInSpanNames = true;
                 })
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
