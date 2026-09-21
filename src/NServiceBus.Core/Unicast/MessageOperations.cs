@@ -2,39 +2,28 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
 using Pipeline;
 using Transport;
 
-class MessageOperations
+class MessageOperations(
+    IMessageMapper messageMapper,
+    IPipeline<IOutgoingPublishContext> publishPipeline,
+    IPipeline<IOutgoingSendContext> sendPipeline,
+    IPipeline<IOutgoingReplyContext> replyPipeline,
+    IPipeline<ISubscribeContext> subscribePipeline,
+    IPipeline<IUnsubscribeContext> unsubscribePipeline,
+    IActivityFactory activityFactory)
 {
-    readonly IMessageMapper messageMapper;
-    protected readonly IPipeline<IOutgoingPublishContext> publishPipeline;
-    protected readonly IPipeline<IOutgoingSendContext> sendPipeline;
-    protected readonly IPipeline<IOutgoingReplyContext> replyPipeline;
-    protected readonly IPipeline<ISubscribeContext> subscribePipeline;
-    protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
-    protected readonly IActivityFactory activityFactory;
+    protected readonly IPipeline<IOutgoingPublishContext> publishPipeline = publishPipeline;
+    protected readonly IPipeline<IOutgoingSendContext> sendPipeline = sendPipeline;
+    protected readonly IPipeline<IOutgoingReplyContext> replyPipeline = replyPipeline;
+    protected readonly IPipeline<ISubscribeContext> subscribePipeline = subscribePipeline;
+    protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline = unsubscribePipeline;
 
-    public MessageOperations(
-        IMessageMapper messageMapper,
-        IPipeline<IOutgoingPublishContext> publishPipeline,
-        IPipeline<IOutgoingSendContext> sendPipeline,
-        IPipeline<IOutgoingReplyContext> replyPipeline,
-        IPipeline<ISubscribeContext> subscribePipeline,
-        IPipeline<IUnsubscribeContext> unsubscribePipeline,
-        IActivityFactory activityFactory)
-    {
-        this.messageMapper = messageMapper;
-        this.publishPipeline = publishPipeline;
-        this.sendPipeline = sendPipeline;
-        this.replyPipeline = replyPipeline;
-        this.subscribePipeline = subscribePipeline;
-        this.unsubscribePipeline = unsubscribePipeline;
-        this.activityFactory = activityFactory;
-    }
 
     public Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
     {
@@ -65,13 +54,24 @@ class MessageOperations
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        var publishDisplayName = activityFactory.Options.UseMessageTypeNamesInSpanNames
+        var displayName = activityFactory.Options.UseMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
             : ActivityDisplayNames.PublishEvent;
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, publishDisplayName, publishContext);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, displayName, publishContext);
 
-        await publishPipeline.Invoke(publishContext, activity, activityFactory).ConfigureAwait(false);
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        try
+        {
+            await publishPipeline.Invoke(publishContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            throw;
+        }
     }
 
     public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -90,7 +90,17 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context);
 
-        await subscribePipeline.Invoke(subscribeContext, activity, activityFactory).ConfigureAwait(false);
+        try
+        {
+            await subscribePipeline.Invoke(subscribeContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            throw;
+        }
     }
 
     public async Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -98,13 +108,25 @@ class MessageOperations
         var unsubscribeContext = new UnsubscribeContext(
             context,
             eventType,
-            options.Context);
+            options.Context
+            );
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context);
 
-        await unsubscribePipeline.Invoke(unsubscribeContext, activity, activityFactory).ConfigureAwait(false);
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        try
+        {
+            await unsubscribePipeline.Invoke(unsubscribeContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            throw;
+        }
     }
 
     public Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -138,7 +160,18 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
 
-        await sendPipeline.Invoke(outgoingContext, activity, activityFactory).ConfigureAwait(false);
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        try
+        {
+            await sendPipeline.Invoke(outgoingContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            throw;
+        }
     }
 
     public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -172,7 +205,18 @@ class MessageOperations
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
 
-        await replyPipeline.Invoke(outgoingContext, activity, activityFactory).ConfigureAwait(false);
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        try
+        {
+            await replyPipeline.Invoke(outgoingContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            throw;
+        }
     }
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)

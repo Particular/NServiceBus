@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,12 +52,15 @@ class MainPipelineExecutor(
 
             try
             {
-                await receivePipeline.Invoke(transportReceiveContext, activity, activityFactory).ConfigureAwait(false);
+
+                await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
+                activity?.SetStatus(ActivityStatusCode.Ok);
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
             catch (Exception ex)
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
             {
+                activityFactory.RecordError(activity, ex, transportReceiveContext.Extensions);
                 ex.Data["Message ID"] = message.MessageId;
 
                 if (message.NativeMessageId != message.MessageId)
