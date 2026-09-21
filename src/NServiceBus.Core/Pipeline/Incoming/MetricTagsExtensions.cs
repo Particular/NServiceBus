@@ -20,6 +20,7 @@ public static class MetricTagsExtensions
         public IMetricsTags MetricTags => context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
 
         internal IncomingPipelineMetricTags IncomingMetricTags => context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
+        internal IncomingPipelineMetricTags OutgoingMetricTags => context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
     }
 
     extension(MessageContext context)

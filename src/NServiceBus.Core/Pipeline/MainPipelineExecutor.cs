@@ -23,11 +23,8 @@ class MainPipelineExecutor(
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
+
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
-
-        var pipelineMetricsTags = messageContext.IncomingMetricTags;
-
-        pipelineMetrics.AddDefaultIncomingPipelineMetricTags(pipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
@@ -36,7 +33,7 @@ class MainPipelineExecutor(
             IncomingMessage message = incomingMessageHandle;
 
             //This needs to happen after envelope unwrapping to ensure the proper value of the EnclosedMessageTypes header
-            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(pipelineMetricsTags, message);
+            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(messageContext.IncomingMetricTags, message);
 
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
@@ -71,13 +68,13 @@ class MainPipelineExecutor(
 
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
-                    pipelineMetrics.RecordMessageProcessingFailure(pipelineMetricsTags, ex);
+                    pipelineMetrics.RecordMessageProcessingFailure(messageContext.IncomingMetricTags, ex);
                 }
                 throw;
             }
             finally
             {
-                pipelineMetrics.RecordFetchedMessage(pipelineMetricsTags);
+                pipelineMetrics.RecordFetchedMessage(messageContext.IncomingMetricTags);
             }
 
             var completedAt = DateTimeOffset.UtcNow;
