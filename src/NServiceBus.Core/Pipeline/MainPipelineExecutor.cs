@@ -16,7 +16,7 @@ class MainPipelineExecutor(
     INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
-    IncomingPipelineMetrics incomingPipelineMetrics,
+    PipelineMetrics pipelineMetrics,
     EnvelopeUnwrapper envelopeUnwrapper)
     : IPipelineExecutor
 {
@@ -25,9 +25,9 @@ class MainPipelineExecutor(
         var pipelineStartedAt = DateTimeOffset.UtcNow;
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
 
-        var incomingPipelineMetricsTags = messageContext.IncomingMetricTags;
+        var pipelineMetricsTags = messageContext.IncomingMetricTags;
 
-        incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
+        pipelineMetrics.AddDefaultIncomingPipelineMetricTags(pipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
@@ -36,7 +36,7 @@ class MainPipelineExecutor(
             IncomingMessage message = incomingMessageHandle;
 
             //This needs to happen after envelope unwrapping to ensure the proper value of the EnclosedMessageTypes header
-            using var activeMessageScope = incomingPipelineMetrics.TrackMessageProcessing(incomingPipelineMetricsTags, message);
+            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(pipelineMetricsTags, message);
 
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
@@ -71,13 +71,13 @@ class MainPipelineExecutor(
 
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
-                    incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+                    pipelineMetrics.RecordMessageProcessingFailure(pipelineMetricsTags, ex);
                 }
                 throw;
             }
             finally
             {
-                incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
+                pipelineMetrics.RecordFetchedMessage(pipelineMetricsTags);
             }
 
             var completedAt = DateTimeOffset.UtcNow;

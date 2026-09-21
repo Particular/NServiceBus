@@ -8,14 +8,14 @@ using Pipeline;
 
 class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IRoutingContext>
 {
-    readonly IncomingPipelineMetrics incomingPipelineMetrics;
+    readonly PipelineMetrics pipelineMetrics;
 
     public RecoverabilityRoutingConnector(
-        IncomingPipelineMetrics incomingPipelineMetrics,
+        PipelineMetrics pipelineMetrics,
         INotificationSubscriptions<MessageToBeRetried> messageRetryNotification,
         INotificationSubscriptions<MessageFaulted> messageFaultedNotification)
     {
-        this.incomingPipelineMetrics = incomingPipelineMetrics;
+        this.pipelineMetrics = pipelineMetrics;
         notifications = new CompositeNotification();
         notifications.Register(messageRetryNotification);
         notifications.Register(messageFaultedNotification);
@@ -35,15 +35,15 @@ class RecoverabilityRoutingConnector : StageConnector<IRecoverabilityContext, IR
 
         if (context.RecoverabilityAction is ImmediateRetry)
         {
-            incomingPipelineMetrics.RecordImmediateRetry(context);
+            pipelineMetrics.RecordImmediateRetry(context);
         }
         else if (context.RecoverabilityAction is DelayedRetry)
         {
-            incomingPipelineMetrics.RecordDelayedRetry(context);
+            pipelineMetrics.RecordDelayedRetry(context);
         }
         else if (context.RecoverabilityAction is MoveToError)
         {
-            incomingPipelineMetrics.RecordSendToErrorQueue(context);
+            pipelineMetrics.RecordSendToErrorQueue(context);
         }
 
         if (context is IRecoverabilityActionContextNotifications events)

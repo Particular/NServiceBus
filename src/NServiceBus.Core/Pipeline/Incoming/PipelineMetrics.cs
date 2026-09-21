@@ -9,7 +9,7 @@ using System.Diagnostics.Metrics;
 using Transport;
 using Pipeline;
 
-class IncomingPipelineMetrics
+class PipelineMetrics
 {
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
@@ -30,7 +30,7 @@ class IncomingPipelineMetrics
     const string OutboxStoreTime = "nservicebus.outbox.store_time";
     const string CommitTime = "nservicebus.persistence.commit_time";
 
-    public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator, MetersOptions metersOptions)
+    public PipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator, MetersOptions metersOptions)
     {
         emitExecutionResultTags = metersOptions.EmitExecutionResultTags;
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");

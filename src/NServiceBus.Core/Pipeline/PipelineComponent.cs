@@ -20,7 +20,7 @@ sealed class PipelineComponent
         {
             var meterFactory = sp.GetRequiredService<IMeterFactory>();
             string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
-            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator, metersOptions);
+            return new PipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator, metersOptions);
         });
 
         return new PipelineComponent(settings.modifications);
