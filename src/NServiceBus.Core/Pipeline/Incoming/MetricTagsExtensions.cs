@@ -17,14 +17,13 @@ public static class MetricTagsExtensions
         /// The <see cref="IMetricsTags" /> collected for the message currently being processed. Add to this
         /// collection to have the tags applied to the metrics emitted for that message.
         /// </summary>
-        public IMetricsTags MetricTags => context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
+        public IMetricsTags MetricTags => context.Extensions.GetOrCreate<PipelineMetricTags>();
 
-        internal IncomingPipelineMetricTags IncomingMetricTags => context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
-        internal IncomingPipelineMetricTags OutgoingMetricTags => context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
+        internal PipelineMetricTags PipelineMetricTags => context.Extensions.GetOrCreate<PipelineMetricTags>();
     }
 
     extension(MessageContext context)
     {
-        internal IncomingPipelineMetricTags IncomingMetricTags => context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
+        internal PipelineMetricTags MetricTags => context.Extensions.GetOrCreate<PipelineMetricTags>();
     }
 }
