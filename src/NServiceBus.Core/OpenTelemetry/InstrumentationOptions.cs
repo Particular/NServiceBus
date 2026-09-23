@@ -9,6 +9,15 @@ namespace NServiceBus;
 public partial class InstrumentationOptions
 {
     /// <summary>
+    /// Initializes the options with their defaults.
+    /// </summary>
+    public InstrumentationOptions() => ApplyPreV11Defaults();
+
+    // Implemented in obsolete_v11.cs. A partial void method without an implementation is removed
+    // by the compiler, so deleting that file makes the initializers below the final defaults.
+    partial void ApplyPreV11Defaults();
+
+    /// <summary>
     /// Controls instrumentation of the recoverability pipeline (retries and error handling).
     /// </summary>
     public RecoverabilityInstrumentationOptions Recoverability { get; } = new();
@@ -31,11 +40,12 @@ public partial class InstrumentationOptions
 
     /// <summary>
     /// Controls how the receive-side processing span relates to the publish span for events published by this endpoint.
-    /// Defaults to <see cref="TraceMode.StartNew"/>: receivers start a new trace linked back to the publish span.
+    /// Defaults to <see cref="TraceMode.ContinueExisting"/>: receivers continue the trace.
+    /// Until v11 the default is <see cref="TraceMode.StartNew"/> for backward compatibility, see obsolete_v11.cs.
     /// Can be overridden per message via <see cref="OpenTelemetryExtensions.StartNewTraceOnReceive(PublishOptions)"/>
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
-    public TraceMode PublishTraceMode { get; set; } = TraceMode.StartNew;
+    public TraceMode PublishTraceMode { get; set; } = TraceMode.ContinueExisting;
 }
 
 /// <summary>

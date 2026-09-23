@@ -212,6 +212,12 @@ static class LegacyExceptionTags
 
 public partial class InstrumentationOptions
 {
+    // Publishes start a new linked trace by default in v10 for backward compatibility. In v11,
+    // delete this method: PublishTraceMode then defaults to TraceMode.ContinueExisting through
+    // its initializer in InstrumentationOptions.cs, and the empty partial declaration plus the
+    // constructor call there can be removed.
+    partial void ApplyPreV11Defaults() => PublishTraceMode = TraceMode.StartNew;
+
     /// <summary>
     /// Appends the destination to span names following the OTel messaging convention
     /// <c>{messaging.operation.name} {destination}</c>, e.g. "process orders" or "send payments".
