@@ -6,6 +6,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Features;
+using NServiceBus.ServicePlatform;
 
 class SendUsageInfoToPlatform : Feature
 {
@@ -21,8 +22,7 @@ class SendUsageInfoToPlatform : Feature
         => context.RegisterStartupTask(
             serviceProvider =>
             {
-                var servicePlatformSender = serviceProvider.GetRequiredService<ServicePlatform>();
-                var endpointUsageReportSender = servicePlatformSender.CreatePrimarySender(UsageReportingMessagesJsonContext.Default.EndpointUsageReport);
+                var servicePlatform = serviceProvider.GetRequiredService<ServicePlatformConnection>();
 
                 var settings = new UsageReporterSettings
                 {
@@ -33,7 +33,7 @@ class SendUsageInfoToPlatform : Feature
 
                 var logger = serviceProvider.GetRequiredService<ILogger<UsageReporter>>();
 
-                return new UsageReporter(endpointUsageReportSender, settings, TimeProvider.System, logger);
+                return new UsageReporter(servicePlatform.PrimaryInstance, settings, TimeProvider.System, logger);
             }
         );
 

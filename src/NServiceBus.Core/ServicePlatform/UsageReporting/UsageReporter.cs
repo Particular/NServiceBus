@@ -8,14 +8,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Features;
+using NServiceBus.ServicePlatform;
 
 partial class UsageReporter(
-    IServicePlatformSender<EndpointUsageReport> usageReportSender,
+    ServicePlatformChannel servicePlatformChannel,
     UsageReporterSettings settings,
     TimeProvider timeProvider,
     ILogger<UsageReporter> logger
 ) : FeatureStartupTask, IDisposable
 {
+    readonly ServicePlatformSender<EndpointUsageReport> usageReportSender = servicePlatformChannel.CreateSender(UsageReportingMessagesJsonContext.Default.EndpointUsageReport);
+
     protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
     {
         shutdownTokenSource = new CancellationTokenSource();
