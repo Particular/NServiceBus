@@ -43,9 +43,10 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
                 transportActivity.Context,
                 links: senderContextExists ? [new ActivityLink(senderContext)] : null);
         }
-        else if (senderContextExists) // otherwise directly create child from logical send
+        else if (senderContextExists) // otherwise directly create a child from a logical send
         {
-            if (headers.TryGetValue(Headers.StartNewTrace, out var startNewTrace) && startNewTrace == bool.TrueString)
+            if (headers.TryGetValue(Headers.StartNewTrace, out var startNewTrace) &&
+                string.Equals(startNewTrace, bool.TrueString, StringComparison.OrdinalIgnoreCase))
             {
                 // Create a brand-new trace and link the span to the NSB sender span.
                 // An activity without a parent context adopts Activity.Current as its parent when it
@@ -55,7 +56,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             }
             else
             {
-                // Create a span that is child of the NSB sender span
+                // Create a span that is a child of the NSB sender span
                 activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: senderContext);
             }
         }
