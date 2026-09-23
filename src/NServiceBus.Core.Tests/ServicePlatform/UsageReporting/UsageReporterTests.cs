@@ -1,14 +1,17 @@
 ﻿namespace NServiceBus.Core.Tests.ServicePlatform.UsageReporting;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
+using NServiceBus.ServicePlatform;
 using NServiceBus.Testing;
 using NUnit.Framework;
 
@@ -17,6 +20,7 @@ public class UsageReporterTests
 {
     FakeTimeProvider fakeTimeProvider;
     UsageReporterSettings settings;
+    FakeServicePlatformChannel fakeChannel;
     FakeServicePlatformSender<EndpointUsageReport> fakeUsageReportSender;
     FakePipeline fakePipeline;
     UsageReporter usageReporter;
@@ -34,9 +38,12 @@ public class UsageReporterTests
             BaseQueueAddress = "TestQueue",
             ReportingInterval = TimeSpan.FromMinutes(10)
         };
+
         fakeUsageReportSender = new();
+        fakeChannel = new(fakeUsageReportSender);
+
         fakePipeline = FakePipeline.Build(settings.BaseQueueAddress);
-        usageReporter = new(fakeUsageReportSender, settings, fakeTimeProvider, NullLogger<UsageReporter>.Instance);
+        usageReporter = new(fakeChannel, settings, fakeTimeProvider, NullLogger<UsageReporter>.Instance);
 
         await usageReporter.PerformStartup(null);
     }
@@ -141,11 +148,17 @@ public class UsageReporterTests
         }
     }
 
-    class FakeServicePlatformSender<TMessage> : IServicePlatformSender<TMessage>
+    class FakeServicePlatformChannel(params object[] senders) : ServicePlatformChannel
+    {
+        public override ServicePlatformSender<TMessage> CreateSender<TMessage>(JsonTypeInfo<TMessage> jsonTypeInfo)
+            => senders.OfType<ServicePlatformSender<TMessage>>().Single();
+    }
+
+    class FakeServicePlatformSender<TMessage> : ServicePlatformSender<TMessage>
     {
         public List<TMessage> SentMessages { get; } = [];
 
-        public Task Send(TMessage message, CancellationToken cancellationToken = default)
+        public override Task Send(TMessage message, CancellationToken cancellationToken = default)
         {
             SentMessages.Add(message);
             return Task.CompletedTask;
