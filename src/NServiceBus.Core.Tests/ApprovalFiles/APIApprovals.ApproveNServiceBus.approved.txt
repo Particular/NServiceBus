@@ -836,6 +836,13 @@ namespace NServiceBus
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode(@"AddMessageType<TMessage> relies on an NServiceBus source-generated interceptor to register the statically known message hierarchy without reflection when trimming is enabled. If this warning is reported, the interceptor was not used for this call; enable or restore the NServiceBus analyzer/source-generator tooling and use a statically known message type.")]
         public static void AddMessageType<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TMessage>(this NServiceBus.EndpointConfiguration config) { }
     }
+    public static class MessagingBasedServicePlatformConfigExtensions
+    {
+        extension(NServiceBus.ServicePlatformSettings settings)
+        {
+            public NServiceBus.ServicePlatformSettings PrimaryInstanceQueue(string queue) { }
+        }
+    }
     public class MoveToError : NServiceBus.RecoverabilityAction
     {
         protected MoveToError(string errorQueue) { }
@@ -1190,10 +1197,7 @@ namespace NServiceBus
             public NServiceBus.ServicePlatformSettings EnableServicePlatform() { }
         }
     }
-    public class ServicePlatformSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
-    {
-        public NServiceBus.ServicePlatformSettings PrimaryInstanceQueue(string queue) { }
-    }
+    public class ServicePlatformSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings { }
     public static class SettingsExtensions
     {
         extension(NServiceBus.Settings.IReadOnlySettings settings)
@@ -2584,6 +2588,24 @@ namespace NServiceBus.Serialization
         where T : NServiceBus.Serialization.SerializationDefinition
     {
         public SerializationExtensions(NServiceBus.Settings.SettingsHolder serializerSettings, NServiceBus.Settings.SettingsHolder endpointConfigurationSettings) { }
+    }
+}
+namespace NServiceBus.ServicePlatform
+{
+    public abstract class ServicePlatformChannel
+    {
+        protected ServicePlatformChannel() { }
+        public abstract NServiceBus.ServicePlatform.ServicePlatformSender<TMessage> CreateSender<TMessage>(System.Text.Json.Serialization.Metadata.JsonTypeInfo<TMessage> jsonTypeInfo);
+    }
+    public abstract class ServicePlatformConnection
+    {
+        protected ServicePlatformConnection() { }
+        public abstract NServiceBus.ServicePlatform.ServicePlatformChannel PrimaryInstance { get; }
+    }
+    public abstract class ServicePlatformSender<TMessage>
+    {
+        protected ServicePlatformSender() { }
+        public abstract System.Threading.Tasks.Task Send(TMessage message, System.Threading.CancellationToken cancellationToken = default);
     }
 }
 namespace NServiceBus.Settings
