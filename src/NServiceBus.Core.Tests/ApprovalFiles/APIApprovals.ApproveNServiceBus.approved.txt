@@ -398,6 +398,7 @@ namespace NServiceBus
         public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";
         public const string MessageId = "NServiceBus.MessageId";
         public const string MessageIntent = "NServiceBus.MessageIntent";
+        public const string NServiceBusDiagnosticsTraceParent = "NServiceBus.TraceParent";
         public const string NServiceBusVersion = "NServiceBus.Version";
         public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
         public const string OriginatingAddress = "NServiceBus.OriginatingAddress";

@@ -144,6 +144,24 @@ public class ActivityFactoryTests
             }
         }
 
+        [Test]
+        public void Should_prefer_nservicebus_trace_header_over_w3c_trace_header()
+        {
+            using var sendActivity = CreateCompletedActivity("send activity");
+            using var transportActivity = CreateCompletedActivity("transport activity that overwrote the w3c header");
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.NServiceBusDiagnosticsTraceParent, sendActivity.Id! },
+                { Headers.DiagnosticsTraceParent, transportActivity.Id! }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id), "should use the NServiceBus header, not the W3C one");
+        }
+
         [TestCase(ActivityIdFormat.W3C)]
         [TestCase(ActivityIdFormat.Hierarchical)]
         public void Should_attach_to_ambient_trace_when_no_activity_on_context_and_no_trace_header_and_ambient_activity(ActivityIdFormat ambientActivityIdFormat)

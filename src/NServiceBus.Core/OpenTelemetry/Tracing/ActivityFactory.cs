@@ -24,13 +24,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             return null;
         }
 
-        var senderContextExists = false;
-        ActivityContext senderContext;
-
-        if (headers.TryGetValue(Headers.DiagnosticsTraceParent, out var senderSpanId))
-        {
-            senderContextExists = ActivityContext.TryParse(senderSpanId, null, isRemote: true, out senderContext);
-        }
+        var senderContextExists = TryParseSenderContext(headers, out ActivityContext senderContext);
 
         Activity? activity;
 
@@ -79,6 +73,23 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         ActivityDecorator.PromoteHeadersToTags(activity, headers);
 
         return activity;
+    }
+
+    static bool TryParseSenderContext(Dictionary<string, string> headers, out ActivityContext senderContext)
+    {
+        senderContext = default;
+
+        // The NServiceBus-specific header takes precedence because a transport SDK may have
+        // overwritten the W3C header with its own context. The W3C header is the fallback so
+        // messages from endpoints on older versions, which only write that one, still continue
+        // the trace. A present but unparsable NServiceBus header does not fall back.
+        if (headers.TryGetValue(Headers.NServiceBusDiagnosticsTraceParent, out var senderSpanId) ||
+            headers.TryGetValue(Headers.DiagnosticsTraceParent, out senderSpanId))
+        {
+            return ActivityContext.TryParse(senderSpanId, null, isRemote: true, out senderContext);
+        }
+
+        return false;
     }
 
     public Activity? StartIncomingPipelineActivity(MessageContext context)
