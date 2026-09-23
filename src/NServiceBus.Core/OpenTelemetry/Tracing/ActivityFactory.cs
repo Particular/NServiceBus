@@ -24,46 +24,45 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             return null;
         }
 
-        Activity? activity;
-        var incomingTraceParentExists = headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
-        var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
+        var senderContextExists = false;
+        ActivityContext senderContext;
 
-        if (extensions.TryGet<Activity>(out var transportActivity)) // attach to transport span but link receive pipeline span to send pipeline span
+        if (headers.TryGetValue(Headers.DiagnosticsTraceParent, out var senderSpanId))
         {
-            ActivityLink[]? links = null;
-            if (incomingTraceParentExists && sendSpanId != transportActivity.Id)
-            {
-                if (activityContextCreatedFromIncomingTraceParent)
-                {
-                    links = [new ActivityLink(sendSpanContext)];
-                }
-            }
-
-            activity = activitySource.CreateActivity(name: activityName,
-                ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
+            senderContextExists = ActivityContext.TryParse(senderSpanId, null, isRemote: true, out senderContext);
         }
-        else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
+
+        Activity? activity;
+
+        if (extensions.TryGet<Activity>(out var transportActivity))
         {
-            var isStartNewTraceHeaderAvailable = headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
-            if (isStartNewTraceHeaderAvailable && shouldStartNewTrace?.Equals(bool.TrueString) is true)
+            // Create a child span of the transport span and link to the NSB sender span
+            activity = activitySource.CreateActivity(
+                activityName,
+                ActivityKind.Consumer,
+                transportActivity.Context,
+                links: senderContextExists ? [new ActivityLink(senderContext)] : null);
+        }
+        else if (senderContextExists) // otherwise directly create child from logical send
+        {
+            if (headers.TryGetValue(Headers.StartNewTrace, out var startNewTrace) && startNewTrace == bool.TrueString)
             {
-                // create a new trace or root activity
-                ActivityLink[] links = [new(sendSpanContext)];
-                //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
+                // Create a brand-new trace and link the span to the NSB sender span.
+                // An activity without a parent context adopts Activity.Current as its parent when it
+                // starts, so Current has to be cleared. See: https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
                 Activity.Current = null;
-                activity = activitySource.StartActivity(name: activityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
+                activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
             }
             else
             {
-                // no new trace was requested, so start a child trace
-                ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
-                activity = activitySource.CreateActivity(name: activityName, ActivityKind.Consumer, remoteParentActivityContext);
+                // Create a span that is child of the NSB sender span
+                activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: senderContext);
             }
         }
-        else // otherwise start a new trace
+        else
         {
-            // This will set Activity.Current as parent if available
-            activity = activitySource.CreateActivity(name: activityName, ActivityKind.Consumer);
+            // Create a span that will be a child of Activity.Current if available
+            activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default);
         }
 
         if (activity is null)
@@ -74,8 +73,8 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         ContextPropagation.PropagateContextFromHeaders(activity, headers);
 
         activity.SetIdFormat(ActivityIdFormat.W3C);
-        activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
 
+        activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
         ActivityDecorator.PromoteHeadersToTags(activity, headers);
 
         return activity;
