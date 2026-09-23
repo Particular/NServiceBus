@@ -9,21 +9,9 @@ namespace NServiceBus;
 public partial class InstrumentationOptions
 {
     /// <summary>
-    /// Appends the destination to span names following the OTel messaging convention
-    /// <c>{messaging.operation.name} {destination}</c>, e.g. "process orders" or "send payments".
-    /// Disabled by default for backward compatibility.
-    /// </summary>
-    public bool UseMessageTypeNamesInSpanNames { get; set; }
-
-    /// <summary>
     /// Controls instrumentation of the recoverability pipeline (retries and error handling).
     /// </summary>
     public RecoverabilityInstrumentationOptions Recoverability { get; } = new();
-
-    /// <summary>
-    /// Controls meter instruments behaviors.
-    /// </summary>
-    public MetersOptions Meters { get; } = new();
 
     /// <summary>
     /// Controls instrumentation of explicitly delayed messages (<c>SendOptions.DelayDeliveryWith</c>
@@ -32,14 +20,6 @@ public partial class InstrumentationOptions
     /// <see cref="RecoverabilityInstrumentationOptions.DelayedRetryTraceMode"/>.
     /// </summary>
     public DelayedDeliveryInstrumentationOptions DelayedDelivery { get; } = new();
-
-    /// <summary>
-    /// Controls whether the "Start dispatching" and "Finished dispatching" activity events
-    /// are added to the incoming message span when outgoing messages are dispatched.
-    /// Enabled by default for backward compatibility. Disable to avoid the ingestion cost
-    /// of these events when they add no diagnostic value.
-    /// </summary>
-    public bool EmitMessageDispatchingEvents { get; set; } = true;
 
     /// <summary>
     /// Controls how the receive-side processing span relates to the send span for messages sent by this endpoint.
@@ -56,12 +36,6 @@ public partial class InstrumentationOptions
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
     public TraceMode PublishTraceMode { get; set; } = TraceMode.StartNew;
-
-    /// <summary>
-    /// Controls how exception details are recorded when an operation fails.
-    /// Defaults to <see cref="NServiceBus.ExceptionRecordingMode.SpanAndLogs"/>: exceptions are recorded as an event on the activity.
-    /// </summary>
-    public ExceptionRecordingMode ExceptionRecordingMode { get; set; } = ExceptionRecordingMode.SpanAndLogs;
 }
 
 /// <summary>
