@@ -24,7 +24,7 @@ sealed class NoOpActivityFactory : IActivityFactory
     {
     }
 
-    public void RecordError(Activity activity, Exception exception, ContextBag context)
+    public void RecordError(Activity? activity, Exception exception, ContextBag context)
     {
     }
 }

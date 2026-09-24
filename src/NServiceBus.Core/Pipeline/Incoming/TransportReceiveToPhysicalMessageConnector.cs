@@ -15,7 +15,7 @@ using TransportOperation = Outbox.TransportOperation;
 
 class TransportReceiveToPhysicalMessageConnector(
     IOutboxStorage outboxStorage,
-    IncomingPipelineMetrics incomingPipelineMetrics,
+    PipelineMetrics pipelineMetrics,
     InstrumentationOptions instrumentationOptions)
     : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
@@ -27,7 +27,7 @@ class TransportReceiveToPhysicalMessageConnector(
 
         var outboxFetchStart = Stopwatch.GetTimestamp();
         var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
-        incomingPipelineMetrics.RecordOutboxFetchTime(context, Stopwatch.GetElapsedTime(outboxFetchStart));
+        pipelineMetrics.RecordOutboxFetchTime(context, Stopwatch.GetElapsedTime(outboxFetchStart));
         var pendingTransportOperations = new PendingTransportOperations();
         if (deduplicationEntry == null)
         {
@@ -44,7 +44,7 @@ class TransportReceiveToPhysicalMessageConnector(
                 var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                 var outboxStoreStart = Stopwatch.GetTimestamp();
                 await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
-                incomingPipelineMetrics.RecordOutboxStoreTime(context, Stopwatch.GetElapsedTime(outboxStoreStart));
+                pipelineMetrics.RecordOutboxStoreTime(context, Stopwatch.GetElapsedTime(outboxStoreStart));
 
                 context.Extensions.Remove<IOutboxTransaction>();
                 await outboxTransaction.Commit(context.CancellationToken).ConfigureAwait(false);
@@ -54,7 +54,7 @@ class TransportReceiveToPhysicalMessageConnector(
             // Under some specific configurations the heavy lifting is not done as part of the commit but
             // as part of the transaction scope dispose (e.g., when using SQL with transaction scope and DTC)
             var elapsedTime = Stopwatch.GetElapsedTime(processingStartedAt);
-            incomingPipelineMetrics.RecordProcessingTime(context, elapsedTime);
+            pipelineMetrics.RecordProcessingTime(context, elapsedTime);
 
             physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
         }
@@ -63,7 +63,7 @@ class TransportReceiveToPhysicalMessageConnector(
             Log.InfoFormat("Outbox duplicate detected for message '{0}'. Skipping handler execution", messageId);
             context.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity);
             activity?.AddTag("nservicebus.outbox.deduplicate-message", true);
-            incomingPipelineMetrics.RecordDeduplicatedMessage(context);
+            pipelineMetrics.RecordDeduplicatedMessage(context);
             ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
         }
 
@@ -88,7 +88,7 @@ class TransportReceiveToPhysicalMessageConnector(
 
         if (pendingTransportOperations.HasOperations || deduplicationEntry == null)
         {
-            incomingPipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
+            pipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
         }
     }
 

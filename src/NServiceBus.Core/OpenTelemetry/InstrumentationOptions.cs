@@ -9,21 +9,18 @@ namespace NServiceBus;
 public partial class InstrumentationOptions
 {
     /// <summary>
-    /// Appends the destination to span names following the OTel messaging convention
-    /// <c>{messaging.operation.name} {destination}</c>, e.g. "process orders" or "send payments".
-    /// Disabled by default for backward compatibility.
+    /// Initializes the options with their defaults.
     /// </summary>
-    public bool UseMessageDestinationInSpanNames { get; set; }
+    public InstrumentationOptions() => ApplyPreV11Defaults();
+
+    // Implemented in obsolete_v11.cs. A partial void method without an implementation is removed
+    // by the compiler, so deleting that file makes the initializers below the final defaults.
+    partial void ApplyPreV11Defaults();
 
     /// <summary>
     /// Controls instrumentation of the recoverability pipeline (retries and error handling).
     /// </summary>
     public RecoverabilityInstrumentationOptions Recoverability { get; } = new();
-
-    /// <summary>
-    /// Controls meter instruments behaviors.
-    /// </summary>
-    public MetersOptions Meters { get; } = new();
 
     /// <summary>
     /// Controls instrumentation of explicitly delayed messages (<c>SendOptions.DelayDeliveryWith</c>
@@ -32,14 +29,6 @@ public partial class InstrumentationOptions
     /// <see cref="RecoverabilityInstrumentationOptions.DelayedRetryTraceMode"/>.
     /// </summary>
     public DelayedDeliveryInstrumentationOptions DelayedDelivery { get; } = new();
-
-    /// <summary>
-    /// Controls whether the "Start dispatching" and "Finished dispatching" activity events
-    /// are added to the incoming message span when outgoing messages are dispatched.
-    /// Enabled by default for backward compatibility. Disable to avoid the ingestion cost
-    /// of these events when they add no diagnostic value.
-    /// </summary>
-    public bool EmitMessageDispatchingEvents { get; set; } = true;
 
     /// <summary>
     /// Controls how the receive-side processing span relates to the send span for messages sent by this endpoint.
@@ -51,17 +40,12 @@ public partial class InstrumentationOptions
 
     /// <summary>
     /// Controls how the receive-side processing span relates to the publish span for events published by this endpoint.
-    /// Defaults to <see cref="TraceMode.StartNew"/>: receivers start a new trace linked back to the publish span.
+    /// Defaults to <see cref="TraceMode.ContinueExisting"/>: receivers continue the trace.
+    /// Until v11 the default is <see cref="TraceMode.StartNew"/> for backward compatibility, see obsolete_v11.cs.
     /// Can be overridden per message via <see cref="OpenTelemetryExtensions.StartNewTraceOnReceive(PublishOptions)"/>
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
-    public TraceMode PublishTraceMode { get; set; } = TraceMode.StartNew;
-
-    /// <summary>
-    /// Controls how exception details are recorded when an operation fails.
-    /// Defaults to <see cref="NServiceBus.ExceptionRecordingMode.SpanAndLogs"/>: exceptions are recorded as an event on the activity.
-    /// </summary>
-    public ExceptionRecordingMode ExceptionRecordingMode { get; set; } = ExceptionRecordingMode.SpanAndLogs;
+    public TraceMode PublishTraceMode { get; set; } = TraceMode.ContinueExisting;
 }
 
 /// <summary>

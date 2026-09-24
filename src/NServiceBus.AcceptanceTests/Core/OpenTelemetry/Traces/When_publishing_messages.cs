@@ -208,7 +208,7 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         public PublisherWithDestinationNaming() =>
             EndpointSetup<DefaultServer>(b =>
             {
-                b.Tracing().UseMessageDestinationInSpanNames = true;
+                b.Tracing().UseMessageTypeNamesInSpanNames = true;
                 b.OnEndpointSubscribed<Context>((s, context) =>
                 {
                     if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(SubscriberForPublisherWithDestinationNaming))))

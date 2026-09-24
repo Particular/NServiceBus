@@ -19,7 +19,7 @@ class DeserializeMessageConnector(
     MessageMetadataRegistry messageMetadataRegistry,
     IMessageMapper mapper,
     bool allowContentTypeInference,
-    IncomingPipelineMetrics incomingPipelineMetrics)
+    PipelineMetrics pipelineMetrics)
     : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
 {
     public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
@@ -36,19 +36,18 @@ class DeserializeMessageConnector(
         catch (Exception ex)
 #pragma warning restore PS0019
         {
-            incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), error: ex);
+            pipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart), error: ex);
             throw;
         }
 
-        incomingPipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart));
+        pipelineMetrics.RecordDeserializeTime(context, Stopwatch.GetElapsedTime(deserializeStart));
 
         bool first = true;
         foreach (var message in messages)
         {
             if (first) // ignore the legacy case in which a single message payload contained multiple messages
             {
-                var availableMetricTags = context.IncomingMetricTags;
-                availableMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName!);
+                context.PipelineMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName!);
                 first = false;
             }
             await stage(this.CreateIncomingLogicalMessageContext(message, context)).ConfigureAwait(false);

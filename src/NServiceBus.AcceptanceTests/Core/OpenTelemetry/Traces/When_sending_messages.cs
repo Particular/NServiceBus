@@ -150,7 +150,7 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
     public class TestEndpointWithDestinationNaming : EndpointConfigurationBuilder
     {
         public TestEndpointWithDestinationNaming() =>
-            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageDestinationInSpanNames = true);
+            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageTypeNamesInSpanNames = true);
 
         [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>

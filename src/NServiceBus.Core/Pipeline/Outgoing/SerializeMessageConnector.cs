@@ -13,11 +13,11 @@ using Unicast.Messages;
 
 class SerializeMessageConnector : StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext>
 {
-    public SerializeMessageConnector(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry, IncomingPipelineMetrics incomingPipelineMetrics)
+    public SerializeMessageConnector(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry, PipelineMetrics pipelineMetrics)
     {
         this.messageSerializer = messageSerializer;
         this.messageMetadataRegistry = messageMetadataRegistry;
-        this.incomingPipelineMetrics = incomingPipelineMetrics;
+        this.pipelineMetrics = pipelineMetrics;
     }
 
     public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> stage)
@@ -45,13 +45,13 @@ class SerializeMessageConnector : StageConnector<IOutgoingLogicalMessageContext,
             try
             {
                 messageSerializer.Serialize(context.Message.Instance, ms);
-                incomingPipelineMetrics.RecordSerializeTime(context, Stopwatch.GetElapsedTime(serializeStart), context.Message.MessageType?.FullName);
+                pipelineMetrics.RecordSerializeTime(context, Stopwatch.GetElapsedTime(serializeStart), context.Message.MessageType?.FullName);
             }
 #pragma warning disable PS0019
             catch (Exception ex)
 #pragma warning restore PS0019
             {
-                incomingPipelineMetrics.RecordSerializeTime(context, Stopwatch.GetElapsedTime(serializeStart), context.Message.MessageType?.FullName, error: ex);
+                pipelineMetrics.RecordSerializeTime(context, Stopwatch.GetElapsedTime(serializeStart), context.Message.MessageType?.FullName, error: ex);
                 throw;
             }
 
@@ -63,7 +63,7 @@ class SerializeMessageConnector : StageConnector<IOutgoingLogicalMessageContext,
 
     readonly MessageMetadataRegistry messageMetadataRegistry;
     readonly IMessageSerializer messageSerializer;
-    readonly IncomingPipelineMetrics incomingPipelineMetrics;
+    readonly PipelineMetrics pipelineMetrics;
 
     static readonly ILog log = LogManager.GetLogger<SerializeMessageConnector>();
 }

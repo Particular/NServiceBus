@@ -19,8 +19,14 @@ sealed class PipelineComponent
         hostingConfiguration.Services.AddSingleton(sp =>
         {
             var meterFactory = sp.GetRequiredService<IMeterFactory>();
+
+            if (receiveConfiguration.IsSendOnlyEndpoint)
+            {
+                return new PipelineMetrics(meterFactory, null, null, metersOptions);
+            }
+
             string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
-            return new IncomingPipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator, metersOptions);
+            return new PipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator, metersOptions);
         });
 
         return new PipelineComponent(settings.modifications);

@@ -14,7 +14,7 @@ using Transport;
 using Unicast.Messages;
 
 [TestFixture]
-public class IncomingPipelineMetricTagsTests
+public class PipelineMetricTagsTests
 {
     [Test]
     public void Should_not_fail_when_handling_more_than_one_logical_message()
@@ -36,11 +36,11 @@ public class IncomingPipelineMetricTagsTests
         };
 
         var messageMapper = new MessageMapper();
-        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc", new MetersOptions()));
+        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false, new PipelineMetrics(new TestMeterFactory(), "queue", "disc", new MetersOptions()));
 
         Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
         {
-            c.IncomingMetricTags.Add("Same", "Same");
+            c.PipelineMetricTags.Add("Same", "Same");
             return Task.CompletedTask;
         }));
     }

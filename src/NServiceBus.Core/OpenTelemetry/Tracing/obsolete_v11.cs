@@ -209,3 +209,55 @@ static class LegacyExceptionTags
 
     public static TagList EscapedTagList { get; } = new() { { "exception.escaped", true } };
 }
+
+public partial class InstrumentationOptions
+{
+    // Publishes start a new linked trace by default in v10 for backward compatibility. In v11,
+    // delete this method: PublishTraceMode then defaults to TraceMode.ContinueExisting through
+    // its initializer in InstrumentationOptions.cs, and the empty partial declaration plus the
+    // constructor call there can be removed.
+    partial void ApplyPreV11Defaults() => PublishTraceMode = TraceMode.StartNew;
+
+    /// <summary>
+    /// Appends the destination to span names following the OTel messaging convention
+    /// <c>{messaging.operation.name} {destination}</c>, e.g. "process orders" or "send payments".
+    /// Disabled by default for backward compatibility.
+    /// </summary>
+    /// <remarks>
+    /// In v11, this property will be dropped and "true" will be the only behavior.
+    /// </remarks>
+    public bool UseMessageTypeNamesInSpanNames { get; set; }
+
+    /// <summary>
+    /// Controls whether the "Start dispatching" and "Finished dispatching" activity events
+    /// are added to the incoming message span when outgoing messages are dispatched.
+    /// Enabled by default for backward compatibility. Disable to avoid the ingestion cost
+    /// of these events when they add no diagnostic value.
+    /// </summary>
+    /// <remarks>
+    /// In v11, this property will be dropped and "false" will be the only behavior.
+    /// </remarks>
+    public bool EmitMessageDispatchingEvents { get; set; } = true;
+
+    /// <summary>
+    /// Controls meter instruments behaviors.
+    /// </summary>
+    public MetersOptions Meters { get; } = new();
+}
+
+/// <summary>
+/// Controls opt-in meter instruments behaviors.
+/// Accessed via <c>endpointConfiguration.Tracing().Meters</c>.
+/// </summary>
+public class MetersOptions
+{
+    /// <summary>
+    /// Emits the legacy <c>execution.result</c> tag with values <c>"success"</c> or <c>"failure"</c>
+    /// on handler time, processing time, saga fetch time, deserialize time, and serialize time metrics.
+    /// Enabled by default for backwards compatibility. Disable to reduce tag cardinality.
+    /// </summary>
+    /// <remarks>
+    /// In v11, this property will be dropped and "false" will be the only behavior.
+    /// </remarks>
+    public bool EmitExecutionResultTags { get; set; } = true;
+}

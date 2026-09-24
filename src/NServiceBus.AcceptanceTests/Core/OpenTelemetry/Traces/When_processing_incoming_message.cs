@@ -99,7 +99,7 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
     public class ReceivingEndpointWithDestinationNaming : EndpointConfigurationBuilder
     {
         public ReceivingEndpointWithDestinationNaming() =>
-            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageDestinationInSpanNames = true);
+            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageTypeNamesInSpanNames = true);
 
         [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
