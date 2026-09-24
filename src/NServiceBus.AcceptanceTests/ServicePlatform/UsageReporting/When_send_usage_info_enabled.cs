@@ -116,7 +116,6 @@ public class When_send_usage_info_enabled : NServiceBusAcceptanceTest
         {
             endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);
             endpointConfiguration.UseSerialization<SystemJsonSerializer>();
-            //endpointConfiguration.AddMessageType<EndpointUsageReport>();
             endpointConfiguration.Pipeline.Register(
                 new FixEnclosedMessageTypeBehavior(),
                 "Fixes the enclosed message type header to match the message type in the test"
