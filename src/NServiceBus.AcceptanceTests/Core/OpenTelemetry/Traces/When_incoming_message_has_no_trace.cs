@@ -36,6 +36,7 @@ public class When_incoming_message_has_no_trace : OpenTelemetryAcceptanceTest
             {
                 foreach (TransportOperation transportOperation in context.Operations)
                 {
+                    transportOperation.Message.Headers.Remove(Headers.NServiceBusDiagnosticsTraceParent);
                     transportOperation.Message.Headers.Remove(Headers.DiagnosticsTraceParent);
                     transportOperation.Message.Headers.Remove(Headers.DiagnosticsTraceState);
                     transportOperation.Message.Headers.Remove(Headers.DiagnosticsBaggage);

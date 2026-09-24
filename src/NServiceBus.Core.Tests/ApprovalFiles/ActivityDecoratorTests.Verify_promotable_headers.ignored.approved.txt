@@ -11,6 +11,7 @@ Headers.TimeSent
 Headers.SubscriptionMessageType
 Headers.SubscriberTransportAddress
 Headers.SubscriberEndpoint
+Headers.NServiceBusDiagnosticsTraceParent
 Headers.DiagnosticsTraceParent
 Headers.DiagnosticsTraceState
 Headers.DiagnosticsBaggage
