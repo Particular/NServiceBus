@@ -15,7 +15,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 {
     public InstrumentationOptions Options { get; } = options;
 
-    static Activity? CreateActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, string nativeMessageId, ContextBag extensions)
+    static Activity? CreateActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, string nativeMessageId)
     {
         // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
         // here nonetheless to avoid having to parse headers, access the extension bag, etc.
@@ -28,16 +28,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
         Activity? activity;
 
-        if (extensions.TryGet<Activity>(out var transportActivity))
-        {
-            // Create a child span of the transport span and link to the NSB sender span
-            activity = activitySource.CreateActivity(
-                activityName,
-                ActivityKind.Consumer,
-                transportActivity.Context,
-                links: senderContextExists ? [new ActivityLink(senderContext)] : null);
-        }
-        else if (senderContextExists) // otherwise directly create a child from a logical send
+        if (senderContextExists) // create a child from a logical send
         {
             var startNewTrace = headers.TryGetValue(Headers.StartNewTrace, out var startNewTraceHeaderValue)
                                 && string.Equals(startNewTraceHeaderValue, bool.TrueString, StringComparison.OrdinalIgnoreCase);
@@ -106,8 +97,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             ActivitySources.Main,
             ActivityNames.IncomingMessageActivityName,
             context.Headers,
-            context.NativeMessageId,
-            context.Extensions);
+            context.NativeMessageId);
 
         if (activity is null)
         {
@@ -172,8 +162,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             ActivitySources.Recoverability,
             ActivityNames.RecoverabilityActivityName,
             context.Headers,
-            context.NativeMessageId,
-            context.Extensions);
+            context.NativeMessageId);
 
         if (activity is null)
         {
