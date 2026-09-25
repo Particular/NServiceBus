@@ -182,6 +182,54 @@ static class HandlerActivitySourceSwitch
 }
 
 
+// When a transport SDK (Azure Service Bus, RabbitMQ, SQS, ...) has its own OpenTelemetry
+// instrumentation, an SDK "receive" span is the ambient Activity.Current while the incoming
+// pipeline starts. The incoming message span should then be a child of that SDK span and only
+// link to the NServiceBus sender span, matching what already happens when a transport puts its
+// receive Activity in the ContextBag. Until v11 the sender span stays the parent by default so
+// existing trace shapes don't change on a minor upgrade; the new shape is opt-in via an
+// AppContext switch.
+//
+// In v11 the SDK span becomes the parent unconditionally: delete this class, remove the
+// `TransportParentSpanSwitch.UseTransportSpanAsParent` check in
+// ActivityFactory.CreateActivityFromIncomingMessage (keeping only the branch that links to the
+// sender span), delete TransportParentSpanDefaultBehaviorTests.cs and remove the opt-in
+// SetUp/TearDown pair in ActivityFactoryTests.StartIncomingActivity.
+static class TransportParentSpanSwitch
+{
+    enum SwitchState : byte
+    {
+        Unchecked = 0,
+        Enabled = 1,
+        Disabled = 2
+    }
+
+    static SwitchState cachedUseTransportSpanAsParent;
+
+    public const string UseTransportSpanAsParentSwitchName = "NServiceBus.Core.OpenTelemetry.UseTransportSpanAsParent";
+
+    public static bool UseTransportSpanAsParent
+    {
+        get
+        {
+            var state = cachedUseTransportSpanAsParent;
+            if (state != SwitchState.Unchecked)
+            {
+                return state == SwitchState.Enabled;
+            }
+
+            state = AppContext.TryGetSwitch(UseTransportSpanAsParentSwitchName, out var isEnabled) && isEnabled
+                ? SwitchState.Enabled
+                : SwitchState.Disabled;
+            cachedUseTransportSpanAsParent = state;
+
+            return state == SwitchState.Enabled;
+        }
+    }
+
+    internal static void ResetUseTransportSpanAsParent() => cachedUseTransportSpanAsParent = SwitchState.Unchecked;
+}
+
 // This class bridges two independent legacy exception-tagging behaviors, both
 // scheduled for removal in v11:
 //

@@ -39,13 +39,21 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         }
         else if (senderContextExists) // otherwise directly create a child from a logical send
         {
-            if (headers.TryGetValue(Headers.StartNewTrace, out var startNewTrace) &&
-                string.Equals(startNewTrace, bool.TrueString, StringComparison.OrdinalIgnoreCase))
+            var startNewTrace = headers.TryGetValue(Headers.StartNewTrace, out var startNewTraceHeaderValue)
+                                && string.Equals(startNewTraceHeaderValue, bool.TrueString, StringComparison.OrdinalIgnoreCase);
+
+            if (startNewTrace)
             {
                 // Create a brand-new trace and link the span to the NSB sender span.
                 // An activity without a parent context adopts Activity.Current as its parent when it
                 // starts, so Current has to be cleared. See: https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
                 Activity.Current = null;
+                activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
+            }
+            else if (TransportParentSpanSwitch.UseTransportSpanAsParent && Activity.Current != null) // remove the switch check in v11, see obsolete_v11.cs
+            {
+                // A transport SDK receive span is ambient: make it the parent (an activity without
+                // a parent context adopts Activity.Current when it starts) and link to the NSB sender span.
                 activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
             }
             else
