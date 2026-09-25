@@ -69,12 +69,15 @@ public class ActivityFactoryTests
             TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
         }
 
-        [Test]
-        public void Should_attach_to_header_trace_when_no_activity_on_context_and_trace_header()
+        // The W3C-only case is a message from an endpoint on a version that predates the
+        // NServiceBus.TraceParent header and must keep continuing the trace (backwards compatibility).
+        [TestCase(Headers.NServiceBusDiagnosticsTraceParent, TestName = "Should_attach_to_header_trace_when_only_nservicebus_trace_header")]
+        [TestCase(Headers.DiagnosticsTraceParent, TestName = "Should_attach_to_header_trace_when_only_w3c_trace_header_from_older_sender")]
+        public void Should_attach_to_header_trace_when_no_activity_on_context_and_trace_header(string traceHeader)
         {
             using var sendActivity = CreateCompletedActivity("send activity");
 
-            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
+            var messageHeaders = new Dictionary<string, string> { { traceHeader, sendActivity.Id! } };
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
@@ -123,6 +126,27 @@ public class ActivityFactoryTests
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
             Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id), "should use the NServiceBus header, not the W3C one");
+        }
+
+        [Test]
+        public void Should_not_fall_back_to_w3c_trace_header_when_nservicebus_trace_header_is_invalid()
+        {
+            using var transportActivity = CreateCompletedActivity("transport activity that overwrote the w3c header");
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.NServiceBusDiagnosticsTraceParent, "Some invalid traceparent format" },
+                { Headers.DiagnosticsTraceParent, transportActivity.Id! }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.ParentId, Is.Null, "should start a new trace instead of using the W3C header");
+                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            }
         }
 
         [TestCase(ActivityIdFormat.W3C)]
