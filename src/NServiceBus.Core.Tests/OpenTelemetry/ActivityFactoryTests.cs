@@ -51,88 +51,33 @@ public class ActivityFactoryTests
 
     class StartIncomingActivity : ActivityFactoryTests
     {
-        [Test]
-        public void Should_attach_to_context_activity_when_activity_on_context()
+        // Until v11 the "transport span as parent" behavior is opt-in. This fixture runs with it
+        // enabled because that is the v11 default the tests below describe; the pre-v11 default
+        // is covered by TransportParentSpanDefaultBehaviorTests. In v11, delete this SetUp/TearDown
+        // pair together with obsolete_v11.cs.
+        [SetUp]
+        public void OptInToTransportSpanAsParent()
         {
-            using var contextActivity = CreateCompletedActivity("transport receive activity");
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
-                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
-            }
+            AppContext.SetSwitch(TransportParentSpanSwitch.UseTransportSpanAsParentSwitchName, true);
+            TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
         }
 
-        [Test]
-        public void Should_attach_to_context_activity_when_activity_on_context_and_trace_message_header()
+        [TearDown]
+        public void ResetTransportSpanSwitch()
         {
-            using var contextActivity = CreateCompletedActivity("transport receive activity");
-            using var sendActivity = CreateCompletedActivity("send activity");
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders, contextBag));
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
-                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
-                Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
-                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
-            }
+            AppContext.SetSwitch(TransportParentSpanSwitch.UseTransportSpanAsParentSwitchName, false);
+            TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
         }
 
-        [Test]
-        public void Should_attach_to_context_activity_when_activity_on_context_and_ambient_activity()
-        {
-            using var contextActivity = CreateCompletedActivity("transport receive activity");
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            using var ambientActivity = ActivitySources.Main.StartActivity("ambient activity");
-            Assert.That(Activity.Current, Is.EqualTo(ambientActivity));
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
-        }
-
-        [Test]
-        public void Should_start_new_trace_when_activity_on_context_uses_legacy_id_format()
-        {
-            using var contextActivity = CreateCompletedActivity("transport receive activity", ActivityIdFormat.Hierarchical);
-            Assert.That(contextActivity.IdFormat, Is.EqualTo(ActivityIdFormat.Hierarchical));
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(activity.ParentId, Is.Null, "should create a new trace");
-                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
-            }
-        }
-
-        [Test]
-        public void Should_attach_to_header_trace_when_no_activity_on_context_and_trace_header()
+        // The W3C-only case is a message from an endpoint on a version that predates the
+        // NServiceBus.TraceParent header and must keep continuing the trace (backwards compatibility).
+        [TestCase(Headers.NServiceBusDiagnosticsTraceParent, TestName = "Should_attach_to_header_trace_when_only_nservicebus_trace_header")]
+        [TestCase(Headers.DiagnosticsTraceParent, TestName = "Should_attach_to_header_trace_when_only_w3c_trace_header_from_older_sender")]
+        public void Should_attach_to_header_trace_when_no_activity_on_context_and_trace_header(string traceHeader)
         {
             using var sendActivity = CreateCompletedActivity("send activity");
 
-            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
+            var messageHeaders = new Dictionary<string, string> { { traceHeader, sendActivity.Id! } };
 
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
 
@@ -141,6 +86,27 @@ public class ActivityFactoryTests
             {
                 Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id));
                 Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            }
+        }
+
+        [Test]
+        public void Should_attach_to_ambient_activity_and_link_header_trace_when_no_activity_on_context_and_trace_header_and_ambient_activity()
+        {
+            using var sendActivity = CreateCompletedActivity("send activity");
+            using var ambientActivity = new Activity("transport sdk receive activity");
+            ambientActivity.Start();
+
+            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id), "should use the ambient transport activity as parent");
+                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
+                Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
+                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
             }
         }
 
@@ -160,6 +126,27 @@ public class ActivityFactoryTests
 
             Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
             Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id), "should use the NServiceBus header, not the W3C one");
+        }
+
+        [Test]
+        public void Should_not_fall_back_to_w3c_trace_header_when_nservicebus_trace_header_is_invalid()
+        {
+            using var transportActivity = CreateCompletedActivity("transport activity that overwrote the w3c header");
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.NServiceBusDiagnosticsTraceParent, "Some invalid traceparent format" },
+                { Headers.DiagnosticsTraceParent, transportActivity.Id! }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.ParentId, Is.Null, "should start a new trace instead of using the W3C header");
+                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            }
         }
 
         [TestCase(ActivityIdFormat.W3C)]
@@ -227,14 +214,14 @@ public class ActivityFactoryTests
             return activity;
         }
 
-        static MessageContext CreateMessageContext(Dictionary<string, string>? messageHeaders = null, ContextBag? contextBag = null) =>
+        static MessageContext CreateMessageContext(Dictionary<string, string>? messageHeaders = null) =>
             new(
                 Guid.NewGuid().ToString(),
                 messageHeaders ?? [],
                 Array.Empty<byte>(),
                 new TransportTransaction(),
                 "receiver",
-                contextBag ?? new ContextBag());
+                new ContextBag());
     }
 
     class StartOutgoingPipelineActivity : ActivityFactoryTests

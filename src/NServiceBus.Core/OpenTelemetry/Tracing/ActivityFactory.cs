@@ -15,7 +15,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 {
     public InstrumentationOptions Options { get; } = options;
 
-    static Activity? CreateActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, string nativeMessageId, ContextBag extensions)
+    static Activity? CreateActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, string nativeMessageId)
     {
         // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
         // here nonetheless to avoid having to parse headers, access the extension bag, etc.
@@ -28,24 +28,23 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
         Activity? activity;
 
-        if (extensions.TryGet<Activity>(out var transportActivity))
+        if (senderContextExists) // create a child from a logical send
         {
-            // Create a child span of the transport span and link to the NSB sender span
-            activity = activitySource.CreateActivity(
-                activityName,
-                ActivityKind.Consumer,
-                transportActivity.Context,
-                links: senderContextExists ? [new ActivityLink(senderContext)] : null);
-        }
-        else if (senderContextExists) // otherwise directly create a child from a logical send
-        {
-            if (headers.TryGetValue(Headers.StartNewTrace, out var startNewTrace) &&
-                string.Equals(startNewTrace, bool.TrueString, StringComparison.OrdinalIgnoreCase))
+            var startNewTrace = headers.TryGetValue(Headers.StartNewTrace, out var startNewTraceHeaderValue)
+                                && string.Equals(startNewTraceHeaderValue, bool.TrueString, StringComparison.OrdinalIgnoreCase);
+
+            if (startNewTrace)
             {
                 // Create a brand-new trace and link the span to the NSB sender span.
                 // An activity without a parent context adopts Activity.Current as its parent when it
                 // starts, so Current has to be cleared. See: https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
                 Activity.Current = null;
+                activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
+            }
+            else if (TransportParentSpanSwitch.UseTransportSpanAsParent && Activity.Current != null) // remove the switch check in v11, see obsolete_v11.cs
+            {
+                // A transport SDK receive span is ambient: make it the parent (an activity without
+                // a parent context adopts Activity.Current when it starts) and link to the NSB sender span.
                 activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
             }
             else
@@ -98,8 +97,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             ActivitySources.Main,
             ActivityNames.IncomingMessageActivityName,
             context.Headers,
-            context.NativeMessageId,
-            context.Extensions);
+            context.NativeMessageId);
 
         if (activity is null)
         {
@@ -164,8 +162,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             ActivitySources.Recoverability,
             ActivityNames.RecoverabilityActivityName,
             context.Headers,
-            context.NativeMessageId,
-            context.Extensions);
+            context.NativeMessageId);
 
         if (activity is null)
         {
