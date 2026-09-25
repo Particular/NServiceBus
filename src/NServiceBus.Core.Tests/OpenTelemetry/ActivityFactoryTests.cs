@@ -51,6 +51,24 @@ public class ActivityFactoryTests
 
     class StartIncomingActivity : ActivityFactoryTests
     {
+        // Until v11 the "transport span as parent" behavior is opt-in. This fixture runs with it
+        // enabled because that is the v11 default the tests below describe; the pre-v11 default
+        // is covered by TransportParentSpanDefaultBehaviorTests. In v11, delete this SetUp/TearDown
+        // pair together with obsolete_v11.cs.
+        [SetUp]
+        public void OptInToTransportSpanAsParent()
+        {
+            AppContext.SetSwitch(TransportParentSpanSwitch.UseTransportSpanAsParentSwitchName, true);
+            TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
+        }
+
+        [TearDown]
+        public void ResetTransportSpanSwitch()
+        {
+            AppContext.SetSwitch(TransportParentSpanSwitch.UseTransportSpanAsParentSwitchName, false);
+            TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
+        }
+
         [Test]
         public void Should_attach_to_context_activity_when_activity_on_context()
         {
@@ -141,6 +159,27 @@ public class ActivityFactoryTests
             {
                 Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id));
                 Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+            }
+        }
+
+        [Test]
+        public void Should_attach_to_ambient_activity_and_link_header_trace_when_no_activity_on_context_and_trace_header_and_ambient_activity()
+        {
+            using var sendActivity = CreateCompletedActivity("send activity");
+            using var ambientActivity = new Activity("transport sdk receive activity");
+            ambientActivity.Start();
+
+            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.ParentId, Is.EqualTo(ambientActivity.Id), "should use the ambient transport activity as parent");
+                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
+                Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
+                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
             }
         }
 
