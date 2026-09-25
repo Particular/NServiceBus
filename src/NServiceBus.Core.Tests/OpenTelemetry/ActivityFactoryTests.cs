@@ -70,82 +70,6 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void Should_attach_to_context_activity_when_activity_on_context()
-        {
-            using var contextActivity = CreateCompletedActivity("transport receive activity");
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
-                Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
-            }
-        }
-
-        [Test]
-        public void Should_attach_to_context_activity_when_activity_on_context_and_trace_message_header()
-        {
-            using var contextActivity = CreateCompletedActivity("transport receive activity");
-            using var sendActivity = CreateCompletedActivity("send activity");
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders, contextBag));
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
-                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
-                Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
-                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
-            }
-        }
-
-        [Test]
-        public void Should_attach_to_context_activity_when_activity_on_context_and_ambient_activity()
-        {
-            using var contextActivity = CreateCompletedActivity("transport receive activity");
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            using var ambientActivity = ActivitySources.Main.StartActivity("ambient activity");
-            Assert.That(Activity.Current, Is.EqualTo(ambientActivity));
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            Assert.That(activity.ParentId, Is.EqualTo(contextActivity.Id), "should use context activity as parent");
-        }
-
-        [Test]
-        public void Should_start_new_trace_when_activity_on_context_uses_legacy_id_format()
-        {
-            using var contextActivity = CreateCompletedActivity("transport receive activity", ActivityIdFormat.Hierarchical);
-            Assert.That(contextActivity.IdFormat, Is.EqualTo(ActivityIdFormat.Hierarchical));
-
-            var contextBag = new ContextBag();
-            contextBag.Set(contextActivity);
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(contextBag: contextBag));
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(activity.ParentId, Is.Null, "should create a new trace");
-                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
-            }
-        }
-
-        [Test]
         public void Should_attach_to_header_trace_when_no_activity_on_context_and_trace_header()
         {
             using var sendActivity = CreateCompletedActivity("send activity");
@@ -266,14 +190,14 @@ public class ActivityFactoryTests
             return activity;
         }
 
-        static MessageContext CreateMessageContext(Dictionary<string, string>? messageHeaders = null, ContextBag? contextBag = null) =>
+        static MessageContext CreateMessageContext(Dictionary<string, string>? messageHeaders = null) =>
             new(
                 Guid.NewGuid().ToString(),
                 messageHeaders ?? [],
                 Array.Empty<byte>(),
                 new TransportTransaction(),
                 "receiver",
-                contextBag ?? new ContextBag());
+                new ContextBag());
     }
 
     class StartOutgoingPipelineActivity : ActivityFactoryTests

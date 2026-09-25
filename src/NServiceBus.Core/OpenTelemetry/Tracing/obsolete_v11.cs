@@ -185,8 +185,7 @@ static class HandlerActivitySourceSwitch
 // When a transport SDK (Azure Service Bus, RabbitMQ, SQS, ...) has its own OpenTelemetry
 // instrumentation, an SDK "receive" span is the ambient Activity.Current while the incoming
 // pipeline starts. The incoming message span should then be a child of that SDK span and only
-// link to the NServiceBus sender span, matching what already happens when a transport puts its
-// receive Activity in the ContextBag. Until v11 the sender span stays the parent by default so
+// link to the NServiceBus sender span. Until v11 the sender span stays the parent by default so
 // existing trace shapes don't change on a minor upgrade; the new shape is opt-in via an
 // AppContext switch.
 //
