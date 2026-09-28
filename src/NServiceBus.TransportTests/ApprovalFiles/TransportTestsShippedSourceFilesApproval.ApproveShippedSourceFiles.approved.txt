@@ -11,6 +11,7 @@ When_cancelling_stop_on_message.cs
 When_creating_send_only_transport.cs
 When_failure_happens_after_isolated_send.cs
 When_failure_happens_after_send.cs
+When_headers_are_cleared_after_dispatch.cs
 When_message_is_available.cs
 When_modifying_headers_before_on_error.cs
 When_modifying_headers_before_retry.cs

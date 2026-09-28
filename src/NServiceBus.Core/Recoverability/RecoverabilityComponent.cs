@@ -89,6 +89,7 @@ class RecoverabilityComponent
         return new RecoverabilityPipelineExecutor<(RecoverabilityComponent,
             Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>)>(
             serviceProvider,
+            serviceProvider.GetRequiredService<HeaderPool>(),
             pipelineCache,
             messageOperations,
             recoverabilityConfig,
@@ -114,6 +115,7 @@ class RecoverabilityComponent
 
         return new SatelliteRecoverabilityExecutor<(RecoverabilityComponent, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>)>(
             serviceProvider,
+            serviceProvider.GetRequiredService<HeaderPool>(),
             faultMetadataExtractor,
             (errorContext, state) =>
             {

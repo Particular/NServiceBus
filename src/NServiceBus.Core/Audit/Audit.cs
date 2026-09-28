@@ -3,6 +3,7 @@
 namespace NServiceBus.Features;
 
 using Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Transport;
 
 /// <summary>
@@ -34,7 +35,7 @@ public sealed class Audit : Feature
         }
 
         context.Pipeline.Register("AuditToDispatchConnector", new AuditToRoutingConnector(), "Dispatches the audit message to the transport");
-        context.Pipeline.Register("AuditProcessedMessage", new InvokeAuditPipelineBehavior(auditConfig.Address, auditConfig.TimeToBeReceived), "Execute the audit pipeline");
+        context.Pipeline.Register("AuditProcessedMessage", sp => new InvokeAuditPipelineBehavior(auditConfig.Address, auditConfig.TimeToBeReceived, sp.GetRequiredService<HeaderPool>()), "Execute the audit pipeline");
 
         context.Settings.Get<QueueBindings>().BindSending(auditConfig.Address);
 

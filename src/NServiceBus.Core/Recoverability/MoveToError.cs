@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System.Collections.Generic;
 using Logging;
+using NServiceBus.Utils;
 using Pipeline;
 using Recoverability;
 using Routing;
@@ -42,7 +43,11 @@ public class MoveToError : RecoverabilityAction
             notifications.Add(new MessageFaulted(ErrorQueue, context.NativeMessageId, context.MessageId, context.Headers, context.Body, context.ReceiveProperties, exception));
         }
 
-        var outgoingMessageHeaders = new Dictionary<string, string>(context.Headers);
+        var headerPool = context.Extensions.TryGet<DictionaryPool<string, string>>(out var pool)
+            ? pool
+            : HeaderPool.AlwaysAllocate;
+        var outgoingMessageHeaders = headerPool.Rent(context.Headers.Count);
+        context.Headers.CopyTo(outgoingMessageHeaders);
         _ = outgoingMessageHeaders.Remove(Headers.DelayedRetries);
         _ = outgoingMessageHeaders.Remove(Headers.ImmediateRetries);
         var outgoingMessage = new OutgoingMessage(context.MessageId, outgoingMessageHeaders, context.Body);

@@ -7,19 +7,20 @@ using System.Threading.Tasks;
 using Pipeline;
 using Transport;
 
-class ImmediateDispatchTerminator : PipelineTerminator<IDispatchContext>
+class ImmediateDispatchTerminator(IMessageDispatcher dispatcher, HeaderPool headerPool) : PipelineTerminator<IDispatchContext>
 {
-    public ImmediateDispatchTerminator(IMessageDispatcher dispatcher)
-    {
-        this.dispatcher = dispatcher;
-    }
-
-    protected override Task Terminate(IDispatchContext context)
+    protected override async Task Terminate(IDispatchContext context)
     {
         var transaction = context.Extensions.GetOrCreate<TransportTransaction>();
         var operations = context.Operations as TransportOperation[] ?? context.Operations.ToArray();
-        return dispatcher.Dispatch(new TransportOperations(operations), transaction, context.CancellationToken);
-    }
 
-    readonly IMessageDispatcher dispatcher;
+        // Deliberately no try/finally: after a failed dispatch, ownership of the headers is ambiguous
+        // (partial transport consumption, observers), so they leak to the GC instead of being pooled.
+        await dispatcher.Dispatch(new TransportOperations(operations), transaction, context.CancellationToken).ConfigureAwait(false);
+
+        foreach (var operation in operations)
+        {
+            headerPool.Return(operation.Message.Headers);
+        }
+    }
 }
