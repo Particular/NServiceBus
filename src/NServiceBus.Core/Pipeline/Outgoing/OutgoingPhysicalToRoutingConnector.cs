@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
 using Transport;
@@ -11,8 +12,8 @@ class OutgoingPhysicalToRoutingConnector : StageConnector<IOutgoingPhysicalMessa
 {
     public override Task Invoke(IOutgoingPhysicalMessageContext context, Func<IRoutingContext, Task> stage)
     {
+        ContextPropagation.PropagateContextToHeaders(Activity.Current, context.Headers);
         var message = new OutgoingMessage(context.MessageId, context.Headers, context.Body);
-
         return stage(this.CreateRoutingContext(message, context.RoutingStrategies, context));
     }
 }
