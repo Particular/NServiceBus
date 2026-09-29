@@ -37,9 +37,9 @@ public class TransportParentSpanDefaultBehaviorTests
     }
 
     [Test]
-    public void Default_attaches_to_header_trace_when_no_activity_on_context_and_trace_header_and_ambient_activity()
+    public void Default_attaches_to_header_trace_when_even_id_ambient_activity_exists()
     {
-        using var sendActivity = new Activity("send activity");
+        var sendActivity = new Activity("send activity");
         sendActivity.SetIdFormat(ActivityIdFormat.W3C);
         sendActivity.Start();
         sendActivity.Stop();
@@ -47,7 +47,7 @@ public class TransportParentSpanDefaultBehaviorTests
         using var ambientActivity = new Activity("transport sdk receive activity");
         ambientActivity.Start();
 
-        var messageHeaders = new Dictionary<string, string> { { Headers.DiagnosticsTraceParent, sendActivity.Id! } };
+        var messageHeaders = new Dictionary<string, string> { { Headers.NServiceBusDiagnosticsTraceParent, sendActivity.Id! } };
         var messageContext = new MessageContext(Guid.NewGuid().ToString(), messageHeaders, Array.Empty<byte>(), new TransportTransaction(), "receiver", new ContextBag());
 
         var activity = activityFactory.StartIncomingPipelineActivity(messageContext);

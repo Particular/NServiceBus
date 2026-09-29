@@ -79,13 +79,23 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         senderContext = default;
 
         // The NServiceBus-specific header takes precedence because a transport SDK may have
-        // overwritten the W3C header with its own context. The W3C header is the fallback so
-        // messages from endpoints on older versions, which only write that one, still continue
-        // the trace. A present but unparsable NServiceBus header does not fall back.
-        if (headers.TryGetValue(Headers.NServiceBusDiagnosticsTraceParent, out var senderSpanId) ||
-            headers.TryGetValue(Headers.DiagnosticsTraceParent, out senderSpanId))
+        // overwritten the W3C header with its own context.
+        if (headers.TryGetValue(Headers.NServiceBusDiagnosticsTraceParent, out var senderSpanId))
         {
-            return ActivityContext.TryParse(senderSpanId, null, isRemote: true, out senderContext);
+            if (ActivityContext.TryParse(senderSpanId, null, isRemote: true, out senderContext))
+            {
+                return true;
+            }
+        }
+
+        // The W3C header is the fallback, so messages from endpoints on older versions,
+        // which only write that one, still continue the trace.
+        if (headers.TryGetValue(Headers.DiagnosticsTraceParent, out senderSpanId))
+        {
+            if (ActivityContext.TryParse(senderSpanId, null, isRemote: true, out senderContext))
+            {
+                return true;
+            }
         }
 
         return false;
