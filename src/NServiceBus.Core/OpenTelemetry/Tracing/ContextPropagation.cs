@@ -9,6 +9,18 @@ static class ContextPropagation
 {
     public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers)
     {
+        if (activity is null)
+        {
+            return;
+        }
+
+        // Written on both propagation paths below. The W3C "traceparent" header is still written
+        // too, so endpoints on older versions keep reading the context from where they expect it.
+        if (activity.Id is not null)
+        {
+            headers[Headers.NServiceBusDiagnosticsTraceParent] = activity.Id;
+        }
+
         // TODO: investigate if we need to improve the switch check for better performance
         // Removed in v11, see obsolete_v11.cs
         if (!LegacyContextPropagation.UseDistributedContextPropagator)
@@ -19,11 +31,6 @@ static class ContextPropagation
 
         // The following part was intentionally not extracted to a separate class to prevent
         // accidental leftovers when because that the legacy propagator will be removed in v11 
-        if (activity is null)
-        {
-            return;
-        }
-
         DistributedContextPropagator.Current.Inject(activity, headers, Setter);
     }
 

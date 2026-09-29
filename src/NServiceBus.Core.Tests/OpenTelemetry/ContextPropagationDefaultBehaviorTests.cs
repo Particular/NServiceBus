@@ -68,4 +68,21 @@ public class ContextPropagationDefaultBehaviorTests
         // the DistributedContextPropagator (opt-in) would trim it.
         Assert.That(incoming.GetBaggageItem("key1"), Is.EqualTo(" leading-and-trailing "));
     }
+
+    [Test]
+    public void Default_writes_the_nservicebus_trace_header_alongside_the_w3c_header()
+    {
+        using var activity = new Activity(ActivityNames.OutgoingMessageActivityName);
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.Start();
+
+        var headers = new Dictionary<string, string>();
+        ContextPropagation.PropagateContextToHeaders(activity, headers);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(headers[Headers.NServiceBusDiagnosticsTraceParent], Is.EqualTo(activity.Id));
+            Assert.That(headers[Headers.DiagnosticsTraceParent], Is.EqualTo(activity.Id), "the W3C header stays for older receivers");
+        }
+    }
 }

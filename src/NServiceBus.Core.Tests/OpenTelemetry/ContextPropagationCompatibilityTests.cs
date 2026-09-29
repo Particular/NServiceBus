@@ -23,6 +23,7 @@ public class ContextPropagationCompatibilityTests
     }
 
     delegate void Writer(Activity activity, Dictionary<string, string> headers);
+
     delegate void Reader(Activity activity, IDictionary<string, string> headers);
 
     static readonly Writer LegacyWrite = LegacyContextPropagation.PropagateContextToHeaders;
@@ -76,7 +77,7 @@ public class ContextPropagationCompatibilityTests
         var received = Transmit(AllSpecialCharacters, NewWrite, LegacyRead);
 
         Assert.That(received, Is.EqualTo(" " + AllSpecialCharacters),
-                "ignoring the leading space, every special character round-trips correctly");
+            "ignoring the leading space, every special character round-trips correctly");
     }
 
     [Test]
