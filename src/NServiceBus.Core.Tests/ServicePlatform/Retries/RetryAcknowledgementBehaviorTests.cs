@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,29 @@ public class RetryAcknowledgementBehaviorTests
 
             Assert.That(context.Extensions.TryGet<MarkAsAcknowledgedBehavior.State>(out _), Is.True);
         }
+    }
+
+    [Test]
+    public async Task Should_propagate_current_trace_context_to_acknowledgement()
+    {
+        var routingPipeline = new RoutingPipeline();
+        var behavior = new RetryAcknowledgementBehavior();
+
+        var context = SetupTestableContext(routingPipeline);
+        context.Message.Headers[RetryAcknowledgementBehavior.RetryUniqueMessageIdHeaderKey] = Guid.NewGuid().ToString("N");
+        context.Message.Headers[RetryAcknowledgementBehavior.RetryConfirmationQueueHeaderKey] = "SomeQueue";
+
+        using var processingActivity = new Activity("processing activity");
+        processingActivity.SetIdFormat(ActivityIdFormat.W3C);
+        processingActivity.Start();
+
+        await behavior.Invoke(context, _ => Task.CompletedTask);
+
+        var outgoingMessage = routingPipeline.ForkInvocations.Single();
+        Assert.That(
+            outgoingMessage.Message.Headers[Headers.DiagnosticsTraceParent],
+            Is.EqualTo(processingActivity.Id),
+            "the acknowledgement should be correlated to the processing of the retried message");
     }
 
     [Test]

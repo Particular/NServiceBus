@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Pipeline;
 using Routing;
@@ -40,6 +41,11 @@ class RetryAcknowledgementBehavior : IForkConnector<ITransportReceiveContext, IT
                     { Headers.ControlMessageHeader, bool.TrueString }
                 },
                 Array.Empty<byte>());
+
+            // The acknowledgement is a control message that bypasses the outgoing pipeline. Propagate the trace
+            // context explicitly so it stays correlated to the processing of the retried message.
+            ContextPropagation.PropagateContextToHeaders(Activity.Current, messageToDispatch.Headers);
+
             var routingContext = new RoutingContext(messageToDispatch, new UnicastRoutingStrategy(acknowledgementQueue), context);
             await this.Fork(routingContext).ConfigureAwait(false);
         }
