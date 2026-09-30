@@ -30,33 +30,54 @@ static class ContextPropagation
         }
 
         // The following part was intentionally not extracted to a separate class to prevent
-        // accidental leftovers when because that the legacy propagator will be removed in v11 
+        // accidental leftovers when because that the legacy propagator will be removed in v11
         DistributedContextPropagator.Current.Inject(activity, headers, Setter);
     }
 
     public static void PropagateContextFromHeaders(Activity? activity, IDictionary<string, string> headers)
     {
-        // Removed in v11, see obsolete_v11.cs
-        if (!LegacyContextPropagation.UseDistributedContextPropagator)
-        {
-            LegacyContextPropagation.PropagateContextFromHeaders(activity, headers);
-            return;
-        }
-
-        // The following part was intentionally not extracted to a separate class to prevent
-        // accidental leftovers when because that the legacy propagator will be removed in v11 
         if (activity is null)
         {
             return;
         }
 
+        PropagateTraceStateFromHeaders(activity, headers);
+        PropagateBaggageFromHeaders(activity, headers);
+    }
+
+    public static void PropagateTraceStateFromHeaders(Activity activity, IDictionary<string, string> headers)
+    {
+        // Removed in v11, see obsolete_v11.cs
+        if (!LegacyContextPropagation.UseDistributedContextPropagator)
+        {
+            LegacyContextPropagation.PropagateTraceStateFromHeaders(activity, headers);
+            return;
+        }
+
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11
         DistributedContextPropagator.Current.ExtractTraceIdAndState(headers, Getter, out _, out var traceState);
 
         if (traceState is not null)
         {
             activity.TraceStateString = traceState;
         }
+    }
 
+    // The activity must be started. Baggage the parent chain already carries (for example because a
+    // transport SDK extracted it from the same message onto its receive span) is not added again from
+    // the headers. Otherwise every hop would put each key on the wire twice.
+    public static void PropagateBaggageFromHeaders(Activity activity, IDictionary<string, string> headers)
+    {
+        // Removed in v11, see obsolete_v11.cs
+        if (!LegacyContextPropagation.UseDistributedContextPropagator)
+        {
+            LegacyContextPropagation.PropagateBaggageFromHeaders(activity, headers, activity.Parent);
+            return;
+        }
+
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11
         var baggage = DistributedContextPropagator.Current.ExtractBaggage(headers, Getter);
 
         if (baggage is null)
@@ -66,7 +87,10 @@ static class ContextPropagation
 
         foreach (var baggageItem in baggage)
         {
-            activity.AddBaggage(baggageItem.Key, baggageItem.Value);
+            if (activity.Parent?.GetBaggageItem(baggageItem.Key) is null)
+            {
+                activity.AddBaggage(baggageItem.Key, baggageItem.Value);
+            }
         }
     }
 

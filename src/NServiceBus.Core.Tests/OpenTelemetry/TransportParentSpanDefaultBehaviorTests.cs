@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 namespace NServiceBus.Core.Tests.OpenTelemetry;
 
@@ -57,6 +57,36 @@ public class TransportParentSpanDefaultBehaviorTests
         {
             Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id), "should use the sender span as parent, ignoring the ambient activity");
             Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+        }
+    }
+
+    [Test]
+    public void Default_propagates_header_baggage_but_not_ambient_baggage()
+    {
+        var sendActivity = new Activity("send activity");
+        sendActivity.SetIdFormat(ActivityIdFormat.W3C);
+        sendActivity.Start();
+        sendActivity.Stop();
+
+        using var ambientActivity = new Activity("transport sdk receive activity");
+        ambientActivity.AddBaggage("ambient-only", "value");
+        ambientActivity.Start();
+
+        var messageHeaders = new Dictionary<string, string>
+        {
+            { Headers.NServiceBusDiagnosticsTraceParent, sendActivity.Id! },
+            { Headers.DiagnosticsBaggage, "tenant=acme" }
+        };
+        var messageContext = new MessageContext(Guid.NewGuid().ToString(), messageHeaders, Array.Empty<byte>(), new TransportTransaction(), "receiver", new ContextBag());
+
+        var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
+
+        Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(activity.Parent, Is.Null, "the sender span is the parent, so the ambient activity is not in the parent chain");
+            Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"), "baggage from the message is propagated");
+            Assert.That(activity.GetBaggageItem("ambient-only"), Is.Null, "baggage of an activity that is not the parent is not NServiceBus' concern");
         }
     }
 }
