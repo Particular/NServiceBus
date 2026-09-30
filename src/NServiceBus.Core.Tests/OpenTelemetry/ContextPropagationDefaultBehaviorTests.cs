@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.OpenTelemetry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 
 [TestFixture]
@@ -67,6 +68,26 @@ public class ContextPropagationDefaultBehaviorTests
         // Legacy propagation preserves leading/trailing whitespace via percent-encoding;
         // the DistributedContextPropagator (opt-in) would trim it.
         Assert.That(incoming.GetBaggageItem("key1"), Is.EqualTo(" leading-and-trailing "));
+    }
+
+    [Test]
+    public void Default_skips_baggage_the_parent_already_carries()
+    {
+        using var parent = new Activity("transport sdk receive activity");
+        parent.AddBaggage("tenant", "acme");
+        parent.Start();
+
+        using var incoming = new Activity(ActivityNames.IncomingMessageActivityName);
+        var headers = new Dictionary<string, string> { { Headers.DiagnosticsBaggage, "tenant=acme,region=eu" } };
+
+        ContextPropagation.PropagateBaggageFromHeaders(incoming, headers, parent);
+        incoming.Start();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(incoming.GetBaggageItem("region"), Is.EqualTo("eu"));
+            Assert.That(incoming.Baggage.Count(item => item.Key == "tenant"), Is.EqualTo(1), "should only be the inherited one");
+        }
     }
 
     [Test]

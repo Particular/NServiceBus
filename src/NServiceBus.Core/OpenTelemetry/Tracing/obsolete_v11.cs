@@ -18,8 +18,8 @@ using Particular.Obsoletes;
 // switch and the legacy propagator below remains the default.
 //
 // In v11 the new propagator becomes the default: delete this entire file and
-// remove the two `if (!ObsoleteV11.UseDistributedContextPropagator)` delegation
-// blocks in ContextPropagation.cs.
+// remove the `if (!LegacyContextPropagation.UseDistributedContextPropagator)`
+// delegation blocks in ContextPropagation.cs.
 // =============================================================================
 static class LegacyContextPropagation
 {
@@ -92,41 +92,58 @@ static class LegacyContextPropagation
             return;
         }
 
+        PropagateTraceStateFromHeaders(activity, headers);
+        PropagateBaggageFromHeaders(activity, headers);
+    }
+
+    public static void PropagateTraceStateFromHeaders(Activity activity, IDictionary<string, string> headers)
+    {
         if (headers.TryGetValue(Headers.DiagnosticsTraceState, out var traceState))
         {
             activity.TraceStateString = traceState;
         }
+    }
 
-        if (headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))
+    // See ContextPropagation.PropagateBaggageFromHeaders for the meaning of the parent parameter.
+    public static void PropagateBaggageFromHeaders(Activity activity, IDictionary<string, string> headers, Activity? parent = null)
+    {
+        if (!headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))
         {
-            var baggageSpan = baggageValue.AsSpan();
-            // HINT: Iterate in reverse order because Activity baggage is LIFO
-            while (!baggageSpan.IsEmpty)
+            return;
+        }
+
+        var baggageSpan = baggageValue.AsSpan();
+        // HINT: Iterate in reverse order because Activity baggage is LIFO
+        while (!baggageSpan.IsEmpty)
+        {
+            var lastComma = baggageSpan.LastIndexOf(',');
+            ReadOnlySpan<char> baggageItem;
+
+            if (lastComma >= 0)
             {
-                var lastComma = baggageSpan.LastIndexOf(',');
-                ReadOnlySpan<char> baggageItem;
-
-                if (lastComma >= 0)
-                {
-                    baggageItem = baggageSpan[(lastComma + 1)..];
-                    baggageSpan = baggageSpan[..lastComma];
-                }
-                else
-                {
-                    baggageItem = baggageSpan;
-                    baggageSpan = [];
-                }
-
-                var firstEquals = baggageItem.IndexOf('=');
-                if (firstEquals < 0 || firstEquals >= baggageItem.Length)
-                {
-                    continue;
-                }
-
-                var key = baggageItem[..firstEquals].Trim();
-                var value = baggageItem[(firstEquals + 1)..];
-                activity.AddBaggage(key.ToString(), Uri.UnescapeDataString(value));
+                baggageItem = baggageSpan[(lastComma + 1)..];
+                baggageSpan = baggageSpan[..lastComma];
             }
+            else
+            {
+                baggageItem = baggageSpan;
+                baggageSpan = [];
+            }
+
+            var firstEquals = baggageItem.IndexOf('=');
+            if (firstEquals < 0 || firstEquals >= baggageItem.Length)
+            {
+                continue;
+            }
+
+            var key = baggageItem[..firstEquals].Trim().ToString();
+            if (parent?.GetBaggageItem(key) is not null)
+            {
+                continue;
+            }
+
+            var value = baggageItem[(firstEquals + 1)..];
+            activity.AddBaggage(key, Uri.UnescapeDataString(value));
         }
     }
 }

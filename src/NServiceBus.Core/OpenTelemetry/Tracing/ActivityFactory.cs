@@ -30,6 +30,10 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
         if (senderContextExists) // create a child from a logical send
         {
+            // Set when the ambient activity becomes Activity.Parent once the activity starts, so that
+            // baggage it already carries is not added a second time from the headers.
+            Activity? adoptedParent = null;
+
             var startNewTrace = headers.TryGetValue(Headers.StartNewTrace, out var startNewTraceHeaderValue)
                                 && string.Equals(startNewTraceHeaderValue, bool.TrueString, StringComparison.OrdinalIgnoreCase);
 
@@ -45,6 +49,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             {
                 // A transport SDK receive span is ambient: make it the parent (an activity without
                 // a parent context adopts Activity.Current when it starts) and link to the NSB sender span.
+                adoptedParent = Activity.Current;
                 activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
             }
             else
@@ -52,19 +57,31 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
                 // Create a span that is a child of the NSB sender span
                 activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: senderContext);
             }
+
+            if (activity is null)
+            {
+                return null;
+            }
+
+            // The message carries NServiceBus trace context, so the trace state and baggage headers
+            // that travel with it are NServiceBus' responsibility. Baggage is always applied, also when
+            // a transport SDK span is the parent: none of the supported SDKs propagate baggage yet.
+            ContextPropagation.PropagateTraceStateFromHeaders(activity, headers);
+            ContextPropagation.PropagateBaggageFromHeaders(activity, headers, adoptedParent);
         }
         else
         {
-            // Create a span that will be a child of Activity.Current if available
+            // No NServiceBus trace context on the message, so there is nothing for NServiceBus to
+            // propagate from the headers: trace state and baggage are only meaningful together with
+            // a trace parent. The span adopts Activity.Current as parent, if available, and inherits
+            // whatever trace state and baggage that activity carries through the parent chain.
             activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default);
-        }
 
-        if (activity is null)
-        {
-            return activity;
+            if (activity is null)
+            {
+                return null;
+            }
         }
-
-        ContextPropagation.PropagateContextFromHeaders(activity, headers);
 
         activity.SetIdFormat(ActivityIdFormat.W3C);
 
