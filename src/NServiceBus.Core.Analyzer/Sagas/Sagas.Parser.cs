@@ -34,8 +34,8 @@ public static partial class Sagas
         public HandlerSpec Handler { get; }
     }
 
-    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? ExternGetterReceiverType, bool UsesUpdatedMemorySafetyRules);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules);
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? ExternGetterReceiverType, bool UsesUpdatedMemorySafetyRules, string? InterfaceReceiverType);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules, string? InterfaceReceiverType, bool InterfaceHasSetter);
 
     public static class Parser
     {
@@ -201,7 +201,7 @@ public static partial class Sagas
                 var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
                 var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod, true);
                 var needsExtern = externGetterReceiverType is not null || externSetterReceiverType is not null;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules());
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules(), InterfaceReceiverType(propertySymbol), propertySymbol.SetMethod is not null);
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -251,8 +251,13 @@ public static partial class Sagas
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
-                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, externGetterReceiverType, externGetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules()));
+                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, externGetterReceiverType, externGetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules(),
+                    InterfaceReceiverType(propertySymbol)));
             }
+
+            // An explicitly implemented interface member only exists on the interface, so access must go through it.
+            static string? InterfaceReceiverType(IPropertySymbol property) =>
+                property.ContainingType is { TypeKind: TypeKind.Interface } declaringInterface ? declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : null;
 
             // Generated code can't call init-only or inaccessible accessors directly, so they go through an extern accessor on the declaring type.
             string? ExternReceiverType(IMethodSymbol? accessor, bool initOnlyNeedsExtern) =>

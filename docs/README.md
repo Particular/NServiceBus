@@ -31,7 +31,7 @@ A pull request is listed here only when it is the canonical record for a decisio
 - The trimming and NativeAOT support strategy spans multiple coordinated changes rather than one switch — [#7929](https://github.com/Particular/NServiceBus/pull/7929)
 - Object-overload `Send`/`Publish`/`Reply` calls keep runtime-type routing by default; the trimming-safe path is opt-in through explicit generic or `Type` overloads — [#7889](https://github.com/Particular/NServiceBus/pull/7889)
 - Message metadata resolves without reflection-based assembly scanning so it stays trimming-safe — [#7918](https://github.com/Particular/NServiceBus/pull/7918)
-- Generated saga accessors use direct property access and keep an `UnsafeAccessor` only where generated code cannot assign the setter, so they compile under the C# 15 updated memory safety rules — [#7953](https://github.com/Particular/NServiceBus/pull/7953)
+- Generated saga accessors use direct property access and keep an `UnsafeAccessor` only for init-only setters and for getters or setters that generated code cannot reach, so they compile under the C# 15 updated memory safety rules — [#7953](https://github.com/Particular/NServiceBus/pull/7953)
 - Startup diagnostics sections carry explicit `JsonTypeInfo<T>` metadata to avoid reflection-based serialization under NativeAOT — [#7882](https://github.com/Particular/NServiceBus/pull/7882)
 - Out-of-slot logging is routed through a DI-registered ambient `AsyncLocal` factory instead of mutating `LogManager` global state — [#7758](https://github.com/Particular/NServiceBus/pull/7758)
 - `ContextBag`/`BehaviorContext` store pipeline context values in a fixed-size inline array instead of a lazily allocated dictionary — [#7823](https://github.com/Particular/NServiceBus/pull/7823)

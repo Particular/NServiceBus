@@ -333,6 +333,99 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
+    public void Message_property_mapped_through_an_explicit_interface_implementation_is_read()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                         }
+                     }
+
+                     public interface IHasId
+                     {
+                         string Id { get; }
+                     }
+
+                     [Saga]
+                     public class InterfaceSaga : Saga<InterfaceSagaData>, IAmStartedByMessages<StartInterface>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<InterfaceSagaData> mapper) =>
+                             mapper.MapSaga(s => s.Id2).ToMessage<StartInterface>(m => ((IHasId)m).Id);
+
+                         public Task Handle(StartInterface message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class InterfaceSagaData : ContainSagaData
+                     {
+                         public string Id2 { get; set; }
+                     }
+
+                     public class StartInterface : ICommand, IHasId
+                     {
+                         string IHasId.Id => "correlation-value";
+                     }
+                     """;
+
+        var assembly = CompileAndLoad(source);
+
+        var accessor = GetAccessor<MessagePropertyAccessor>(assembly);
+        var message = Activator.CreateInstance(assembly.GetType("StartInterface")!)!;
+
+        Assert.That(accessor.AccessFrom(message), Is.EqualTo("correlation-value"));
+    }
+
+    [Test]
+    public void Correlation_property_mapped_through_an_explicit_interface_implementation_round_trips()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                         }
+                     }
+
+                     public interface IHasCorrelationId
+                     {
+                         string CorrelationId { get; set; }
+                     }
+
+                     [Saga]
+                     public class ExplicitSaga : Saga<ExplicitSagaData>, IAmStartedByMessages<StartExplicit>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ExplicitSagaData> mapper) =>
+                             mapper.MapSaga(s => ((IHasCorrelationId)s).CorrelationId).ToMessage<StartExplicit>(m => m.CorrelationId);
+
+                         public Task Handle(StartExplicit message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class ExplicitSagaData : ContainSagaData, IHasCorrelationId
+                     {
+                         string IHasCorrelationId.CorrelationId { get; set; }
+                     }
+
+                     public class StartExplicit : ICommand
+                     {
+                         public string CorrelationId { get; set; }
+                     }
+                     """;
+
+        var assembly = CompileAndLoad(source);
+
+        AssertCorrelationRoundTrip(assembly, "ExplicitSagaData");
+    }
+
+    [Test]
     public void Properties_named_like_keywords_are_accessed_with_an_escape()
     {
         var source = """
