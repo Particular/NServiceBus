@@ -34,8 +34,8 @@ public static partial class Sagas
         public HandlerSpec Handler { get; }
     }
 
-    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName);
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? ExternGetterReceiverType, bool UsesUpdatedMemorySafetyRules, string? InterfaceReceiverType);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules, string? InterfaceReceiverType, bool InterfaceHasSetter);
 
     public static class Parser
     {
@@ -198,7 +198,10 @@ public static partial class Sagas
                 // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName);
+                var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
+                var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod ?? ImplementedSetter(propertySymbol, memberAccess), true);
+                var needsExtern = externGetterReceiverType is not null || externSetterReceiverType is not null;
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules(), InterfaceReceiverType(propertySymbol), propertySymbol.SetMethod is not null);
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -247,8 +250,30 @@ public static partial class Sagas
 
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
+                var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
+                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, externGetterReceiverType, externGetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules(),
+                    InterfaceReceiverType(propertySymbol)));
             }
+
+            // A get-only interface property can still be written through the setter of its implicit implementation.
+            IMethodSymbol? ImplementedSetter(IPropertySymbol property, MemberAccessExpressionSyntax memberAccess) =>
+                property.ContainingType is { TypeKind: TypeKind.Interface }
+                && semanticModel.GetTypeInfo(StripSyntaxWrappers(memberAccess.Expression, cancellationToken), cancellationToken).Type?.FindImplementationForInterfaceMember(property)
+                    is IPropertySymbol { ExplicitInterfaceImplementations.IsEmpty: true, SetMethod: { } setter }
+                    ? setter
+                    : null;
+
+            // An explicitly implemented interface member only exists on the interface, so access must go through it.
+            static string? InterfaceReceiverType(IPropertySymbol property) =>
+                property.ContainingType is { TypeKind: TypeKind.Interface } declaringInterface ? declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : null;
+
+            // Generated code can't call init-only or inaccessible accessors directly, so they go through an extern accessor on the declaring type.
+            string? ExternReceiverType(IMethodSymbol? accessor, bool initOnlyNeedsExtern) =>
+                accessor is not null
+                && ((initOnlyNeedsExtern && accessor.IsInitOnly)
+                    || (accessor.DeclaredAccessibility != Accessibility.Public && !semanticModel.Compilation.IsSymbolAccessibleWithin(accessor, semanticModel.Compilation.Assembly)))
+                    ? accessor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                    : null;
 
             static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
                 node is ExpressionSyntax expression

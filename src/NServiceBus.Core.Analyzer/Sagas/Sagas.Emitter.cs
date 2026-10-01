@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp;
 using Handlers;
 using Utility;
 
@@ -110,10 +111,15 @@ public static partial class Sagas
 
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
-                sourceWriter.WriteLine($"static extern {mapping.MessagePropertyType} AccessFrom_Property({mapping.MessageType} message);");
+                var getterReceiverType = mapping.ExternGetterReceiverType;
+                var directReceiver = mapping.InterfaceReceiverType is { } interfaceType ? $"(({interfaceType})message)" : "message";
+                var read = getterReceiverType is null ? $"{directReceiver}.{MemberName(mapping.MessagePropertyName)}" : "AccessFrom_Property(message)";
+                sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => {read};");
+                if (getterReceiverType is not null)
+                {
+                    WriteExternAccessor(sourceWriter, "get", mapping.MessagePropertyName, mapping.MessagePropertyType, $"{getterReceiverType} message", mapping.UsesUpdatedMemorySafetyRules);
+                }
+
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new {accessorClassName}();");
                 sourceWriter.Indentation--;
@@ -126,6 +132,17 @@ public static partial class Sagas
             }
         }
 
+        static void WriteExternAccessor(SourceWriter sourceWriter, string accessorKind, string propertyName, string returnType, string parameters, bool usesUpdatedMemorySafetyRules)
+        {
+            var methodName = accessorKind == "get" ? "AccessFrom_Property" : "WriteTo_Property";
+            var safetyModifier = usesUpdatedMemorySafetyRules ? "safe " : "";
+            sourceWriter.WriteLine();
+            sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"{accessorKind}_{propertyName}\")]");
+            sourceWriter.WriteLine($"static {safetyModifier}extern {returnType} {methodName}({parameters});");
+        }
+
+        static string MemberName(string name) => SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None ? $"@{name}" : name;
+
         static string MessagePropertyAccessorName(PropertyMappingSpec mapping)
         {
             var hash = NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName);
@@ -134,9 +151,7 @@ public static partial class Sagas
 
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
-            // Accessors are keyed by the concrete saga-data type plus property identity: two saga-data classes with
-            // the same correlation property name and type must not share an accessor, because the UnsafeAccessor
-            // receiver is the concrete saga-data type.
+            // Keyed by saga-data type too because the generated cast targets the concrete type.
             var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
             foreach (var saga in sagas)
             {
@@ -185,15 +200,27 @@ public static partial class Sagas
 
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(({sagaDataType})sagaData);");
+                var member = MemberName(mapping.PropertyName);
+                var getterReceiverType = mapping.ExternGetterReceiverType;
+                var setterReceiverType = mapping.ExternSetterReceiverType;
+                var readReceiver = $"(({mapping.InterfaceReceiverType ?? sagaDataType})sagaData)";
+                var writeReceiver = $"(({(mapping.InterfaceHasSetter ? mapping.InterfaceReceiverType : null) ?? sagaDataType})sagaData)";
+                var read = getterReceiverType is null ? $"{readReceiver}.{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
+                var write = setterReceiverType is null ? $"{writeReceiver}.{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
+
+                sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};");
+                if (getterReceiverType is not null)
+                {
+                    WriteExternAccessor(sourceWriter, "get", mapping.PropertyName, mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
+                }
+
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.PropertyName}\")]");
-                sourceWriter.WriteLine($"static extern {mapping.PropertyType} AccessFrom_Property({sagaDataType} sagaData);");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(({sagaDataType})sagaData, (({mapping.PropertyType})value));");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"set_{mapping.PropertyName}\")]");
-                sourceWriter.WriteLine($"static extern void WriteTo_Property({sagaDataType} sagaData, {mapping.PropertyType} value);");
+                sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};");
+                if (setterReceiverType is not null)
+                {
+                    WriteExternAccessor(sourceWriter, "set", mapping.PropertyName, "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);
+                }
+
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new {accessorClassName}();");
                 sourceWriter.Indentation--;
