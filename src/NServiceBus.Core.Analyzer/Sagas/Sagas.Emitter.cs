@@ -3,6 +3,7 @@
 namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp;
 using Handlers;
 using Utility;
 
@@ -110,10 +111,7 @@ public static partial class Sagas
 
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => AccessFrom_Property(message);");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.MessagePropertyName}\")]");
-                sourceWriter.WriteLine($"static extern {mapping.MessagePropertyType} AccessFrom_Property({mapping.MessageType} message);");
+                sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => message.{MemberName(mapping.MessagePropertyName)};");
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new {accessorClassName}();");
                 sourceWriter.Indentation--;
@@ -126,6 +124,8 @@ public static partial class Sagas
             }
         }
 
+        static string MemberName(string name) => SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None ? $"@{name}" : name;
+
         static string MessagePropertyAccessorName(PropertyMappingSpec mapping)
         {
             var hash = NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName);
@@ -134,9 +134,7 @@ public static partial class Sagas
 
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
-            // Accessors are keyed by the concrete saga-data type plus property identity: two saga-data classes with
-            // the same correlation property name and type must not share an accessor, because the UnsafeAccessor
-            // receiver is the concrete saga-data type.
+            // Keyed by saga-data type too because the generated cast targets the concrete type.
             var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
             foreach (var saga in sagas)
             {
@@ -185,15 +183,21 @@ public static partial class Sagas
 
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(({sagaDataType})sagaData);");
+                sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => (({sagaDataType})sagaData).{MemberName(mapping.PropertyName)};");
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"get_{mapping.PropertyName}\")]");
-                sourceWriter.WriteLine($"static extern {mapping.PropertyType} AccessFrom_Property({sagaDataType} sagaData);");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(({sagaDataType})sagaData, (({mapping.PropertyType})value));");
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"set_{mapping.PropertyName}\")]");
-                sourceWriter.WriteLine($"static extern void WriteTo_Property({sagaDataType} sagaData, {mapping.PropertyType} value);");
+                if (mapping.ExternSetterReceiverType is { } setterReceiverType)
+                {
+                    var safetyModifier = mapping.UsesUpdatedMemorySafetyRules ? "safe " : "";
+                    sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(({setterReceiverType})sagaData, (({mapping.PropertyType})value));");
+                    sourceWriter.WriteLine();
+                    sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"set_{mapping.PropertyName}\")]");
+                    sourceWriter.WriteLine($"static {safetyModifier}extern void WriteTo_Property({setterReceiverType} sagaData, {mapping.PropertyType} value);");
+                }
+                else
+                {
+                    sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => (({sagaDataType})sagaData).{MemberName(mapping.PropertyName)} = ({mapping.PropertyType})value;");
+                }
+
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new {accessorClassName}();");
                 sourceWriter.Indentation--;

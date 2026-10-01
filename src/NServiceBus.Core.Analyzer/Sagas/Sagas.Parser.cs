@@ -35,7 +35,7 @@ public static partial class Sagas
     }
 
     public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules);
 
     public static class Parser
     {
@@ -198,7 +198,12 @@ public static partial class Sagas
                 // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName);
+                // Init-only and inaccessible setters can't be assigned from generated code, so they go through an extern accessor.
+                var externSetterReceiverType = propertySymbol.SetMethod is { } setter
+                    && (setter.IsInitOnly || (setter.DeclaredAccessibility != Accessibility.Public && !semanticModel.Compilation.IsSymbolAccessibleWithin(setter, semanticModel.Compilation.Assembly)))
+                    ? setter.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                    : null;
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externSetterReceiverType, externSetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules());
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
