@@ -560,6 +560,49 @@ public class GeneratedCorrelationAccessorExecutionTests
         AssertCorrelationRoundTrip(assembly, "GetOnlySagaData");
     }
 
+    [TestCase("public interface IStart : IEvent { string Id { get; } } public class Impl : IStart { public string Id => \"correlation-value\"; }", "IStart")]
+    [TestCase("public interface IBase { string Id { get; } } public interface IStart : IEvent, IBase { } public class Impl : IStart { public string Id => \"correlation-value\"; }", "IStart")]
+    [TestCase("public class BaseMessage : ICommand { public string Id => \"correlation-value\"; } public class Impl : BaseMessage { }", "Impl")]
+    [TestCase("public class BaseMessage : ICommand { public string Id { internal get; set; } = \"correlation-value\"; } public class Impl : BaseMessage { }", "Impl")]
+    public void Message_properties_declared_on_interfaces_and_base_types_are_read(string declarations, string mappedType)
+    {
+        var source = $$"""
+                       using System.Threading.Tasks;
+                       using NServiceBus;
+
+                       public class Test
+                       {
+                           public void Configure(EndpointConfiguration cfg)
+                           {
+                               cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                           }
+                       }
+
+                       {{declarations}}
+
+                       [Saga]
+                       public class MessageSaga : Saga<MessageSagaData>, IAmStartedByMessages<{{mappedType}}>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<{{mappedType}}>(m => m.Id);
+
+                           public Task Handle({{mappedType}} message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class MessageSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; }
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source);
+
+        var accessor = GetAccessor<MessagePropertyAccessor>(assembly);
+        var message = Activator.CreateInstance(assembly.GetType("Impl")!)!;
+
+        Assert.That(accessor.AccessFrom(message), Is.EqualTo("correlation-value"));
+    }
+
     [Test]
     public void Properties_named_like_keywords_are_accessed_with_an_escape()
     {
