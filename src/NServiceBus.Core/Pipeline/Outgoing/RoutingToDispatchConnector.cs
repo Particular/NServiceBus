@@ -3,7 +3,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Extensibility;
@@ -30,10 +29,6 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         }
 
         var outgoingMessage = context.Message;
-
-        // HINT: Context is propagated to the message headers from the current activity, if present.
-        // This may not be the outgoing message activity created by NServiceBus.
-        ContextPropagation.PropagateContextToHeaders(Activity.Current, outgoingMessage.Headers);
 
         // We only propagate receive properties when the message id matches the incoming message id.
         var receiveProperties =
