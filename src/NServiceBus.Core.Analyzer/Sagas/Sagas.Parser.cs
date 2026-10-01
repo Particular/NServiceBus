@@ -34,8 +34,8 @@ public static partial class Sagas
         public HandlerSpec Handler { get; }
     }
 
-    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules);
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? ExternGetterReceiverType, bool UsesUpdatedMemorySafetyRules);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules);
 
     public static class Parser
     {
@@ -198,12 +198,10 @@ public static partial class Sagas
                 // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
-                // Init-only and inaccessible setters can't be assigned from generated code, so they go through an extern accessor.
-                var externSetterReceiverType = propertySymbol.SetMethod is { } setter
-                    && (setter.IsInitOnly || (setter.DeclaredAccessibility != Accessibility.Public && !semanticModel.Compilation.IsSymbolAccessibleWithin(setter, semanticModel.Compilation.Assembly)))
-                    ? setter.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
-                    : null;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externSetterReceiverType, externSetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules());
+                var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
+                var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod, true);
+                var needsExtern = externGetterReceiverType is not null || externSetterReceiverType is not null;
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules());
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -252,8 +250,17 @@ public static partial class Sagas
 
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
+                var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
+                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, externGetterReceiverType, externGetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules()));
             }
+
+            // Generated code can't call init-only or inaccessible accessors directly, so they go through an extern accessor on the declaring type.
+            string? ExternReceiverType(IMethodSymbol? accessor, bool initOnlyNeedsExtern) =>
+                accessor is not null
+                && ((initOnlyNeedsExtern && accessor.IsInitOnly)
+                    || (accessor.DeclaredAccessibility != Accessibility.Public && !semanticModel.Compilation.IsSymbolAccessibleWithin(accessor, semanticModel.Compilation.Assembly)))
+                    ? accessor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                    : null;
 
             static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
                 node is ExpressionSyntax expression

@@ -78,11 +78,9 @@ public class GeneratedCorrelationAccessorExecutionTests
         var assembly = CompileAndLoad(source);
 
         // Two saga-data classes with a colliding property name/type must not share one generated accessor.
-        var accessorTypes = assembly.GetTypes()
-            .Where(t => typeof(CorrelationPropertyAccessor).IsAssignableFrom(t) && !t.IsAbstract)
-            .ToArray();
+        var accessors = GetAccessors<CorrelationPropertyAccessor>(assembly);
 
-        Assert.That(accessorTypes, Has.Length.EqualTo(2), "Each saga-data class must get its own generated correlation accessor.");
+        Assert.That(accessors, Has.Length.EqualTo(2), "Each saga-data class must get its own generated correlation accessor.");
 
         var sagaDataTypes = assembly.GetTypes()
             .Where(t => typeof(IContainSagaData).IsAssignableFrom(t) && !t.IsAbstract)
@@ -91,14 +89,12 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(sagaDataTypes, Has.Length.EqualTo(2));
 
         var claimedSagaDataTypes = new HashSet<Type>();
-        foreach (var accessorType in accessorTypes)
+        foreach (var accessor in accessors)
         {
-            var accessor = (CorrelationPropertyAccessor)accessorType.GetField("Instance")!.GetValue(null)!;
-
             // The generated accessor casts to its concrete saga-data type, so a mismatching instance throws.
             var matching = sagaDataTypes.Where(sagaDataType =>
             {
-                var sagaData = (IContainSagaData)Activator.CreateInstance(sagaDataType);
+                var sagaData = (IContainSagaData)Activator.CreateInstance(sagaDataType)!;
                 try
                 {
                     accessor.WriteTo(sagaData, "correlation-value");
@@ -110,7 +106,7 @@ public class GeneratedCorrelationAccessorExecutionTests
                 }
             }).ToArray();
 
-            Assert.That(matching, Has.Length.EqualTo(1), $"Accessor {accessorType.Name} must round-trip for exactly one saga-data type.");
+            Assert.That(matching, Has.Length.EqualTo(1), $"Accessor {accessor.GetType().Name} must round-trip for exactly one saga-data type.");
             Assert.That(claimedSagaDataTypes.Add(matching[0]), Is.True, $"{matching[0].Name} is served by more than one accessor.");
         }
     }
@@ -152,13 +148,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     {
         var assembly = CompileAndLoad(InitOnlySagaSource);
 
-        var accessorType = assembly.GetTypes().Single(t => typeof(CorrelationPropertyAccessor).IsAssignableFrom(t) && !t.IsAbstract);
-        var accessor = (CorrelationPropertyAccessor)accessorType.GetField("Instance")!.GetValue(null)!;
-        var sagaData = (IContainSagaData)Activator.CreateInstance(assembly.GetType("InitSagaData")!)!;
-
-        accessor.WriteTo(sagaData, "correlation-value");
-
-        Assert.That(accessor.AccessFrom(sagaData), Is.EqualTo("correlation-value"));
+        AssertCorrelationRoundTrip(assembly, "InitSagaData");
     }
 
     [TestCase(false, "static extern void WriteTo_Property")]
@@ -214,13 +204,7 @@ public class GeneratedCorrelationAccessorExecutionTests
 
         var assembly = CompileAndLoad(source);
 
-        var accessorType = assembly.GetTypes().Single(t => typeof(CorrelationPropertyAccessor).IsAssignableFrom(t) && !t.IsAbstract);
-        var accessor = (CorrelationPropertyAccessor)accessorType.GetField("Instance")!.GetValue(null)!;
-        var sagaData = (IContainSagaData)Activator.CreateInstance(assembly.GetType("ExternSagaData")!)!;
-
-        accessor.WriteTo(sagaData, "correlation-value");
-
-        Assert.That(accessor.AccessFrom(sagaData), Is.EqualTo("correlation-value"));
+        AssertCorrelationRoundTrip(assembly, "ExternSagaData");
     }
 
     [Test]
@@ -261,13 +245,91 @@ public class GeneratedCorrelationAccessorExecutionTests
 
         var assembly = CompileAndLoad(source);
 
-        var accessorType = assembly.GetTypes().Single(t => typeof(CorrelationPropertyAccessor).IsAssignableFrom(t) && !t.IsAbstract);
-        var accessor = (CorrelationPropertyAccessor)accessorType.GetField("Instance")!.GetValue(null)!;
-        var sagaData = (IContainSagaData)Activator.CreateInstance(assembly.GetType("ExternSagaData")!)!;
+        AssertCorrelationRoundTrip(assembly, "ExternSagaData");
+    }
 
-        accessor.WriteTo(sagaData, "correlation-value");
+    [Test]
+    public void Message_getter_only_reachable_from_a_nested_saga_is_read_through_an_extern_accessor()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
 
-        Assert.That(accessor.AccessFrom(sagaData), Is.EqualTo("correlation-value"));
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                         }
+                     }
+
+                     public class OuterMessage : ICommand
+                     {
+                         public string CorrelationId { private get; set; }
+
+                         [Saga]
+                         public class NestedSaga : Saga<NestedSagaData>, IAmStartedByMessages<OuterMessage>
+                         {
+                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NestedSagaData> mapper) =>
+                                 mapper.MapSaga(s => s.CorrelationId).ToMessage<OuterMessage>(m => m.CorrelationId);
+
+                             public Task Handle(OuterMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class NestedSagaData : ContainSagaData
+                     {
+                         public string CorrelationId { get; set; }
+                     }
+                     """;
+
+        var assembly = CompileAndLoad(source);
+
+        var accessor = GetAccessor<MessagePropertyAccessor>(assembly);
+        var message = Activator.CreateInstance(assembly.GetType("OuterMessage")!)!;
+        message.GetType().GetProperty("CorrelationId")!.SetValue(message, "correlation-value");
+
+        Assert.That(accessor.AccessFrom(message), Is.EqualTo("correlation-value"));
+    }
+
+    [Test]
+    public void Correlation_getter_only_reachable_from_a_nested_saga_is_read_through_an_extern_accessor()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                         }
+                     }
+
+                     public class OuterSagaData : ContainSagaData
+                     {
+                         public string CorrelationId { private get; set; }
+
+                         [Saga]
+                         public class NestedSaga : Saga<OuterSagaData>, IAmStartedByMessages<StartNested>
+                         {
+                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OuterSagaData> mapper) =>
+                                 mapper.MapSaga(s => s.CorrelationId).ToMessage<StartNested>(m => m.CorrelationId);
+
+                             public Task Handle(StartNested message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class StartNested : ICommand
+                     {
+                         public string CorrelationId { get; set; }
+                     }
+                     """;
+
+        var assembly = CompileAndLoad(source);
+
+        AssertCorrelationRoundTrip(assembly, "OuterSagaData");
     }
 
     [Test]
@@ -306,6 +368,25 @@ public class GeneratedCorrelationAccessorExecutionTests
                      """;
 
         Assert.DoesNotThrow(() => CompileAndLoad(source));
+    }
+
+    static T[] GetAccessors<T>(Assembly assembly) =>
+    [
+        .. assembly.GetTypes()
+            .Where(t => typeof(T).IsAssignableFrom(t) && !t.IsAbstract)
+            .Select(t => (T)t.GetField("Instance")!.GetValue(null)!)
+    ];
+
+    static T GetAccessor<T>(Assembly assembly) => GetAccessors<T>(assembly).Single();
+
+    static void AssertCorrelationRoundTrip(Assembly assembly, string sagaDataTypeName)
+    {
+        var accessor = GetAccessor<CorrelationPropertyAccessor>(assembly);
+        var sagaData = (IContainSagaData)Activator.CreateInstance(assembly.GetType(sagaDataTypeName)!)!;
+
+        accessor.WriteTo(sagaData, "correlation-value");
+
+        Assert.That(accessor.AccessFrom(sagaData), Is.EqualTo("correlation-value"));
     }
 
     static Assembly CompileAndLoad(string source)
