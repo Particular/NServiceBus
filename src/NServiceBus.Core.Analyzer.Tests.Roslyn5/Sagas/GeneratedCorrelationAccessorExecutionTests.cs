@@ -471,6 +471,51 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
+    public void Init_only_interface_property_is_written_through_an_extern_accessor()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                         }
+                     }
+
+                     public interface IHasCorrelationId
+                     {
+                         string CorrelationId { get; init; }
+                     }
+
+                     [Saga]
+                     public class InitOnlySaga : Saga<InitOnlySagaData>, IAmStartedByMessages<StartInitOnly>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<InitOnlySagaData> mapper) =>
+                             mapper.MapSaga(s => ((IHasCorrelationId)s).CorrelationId).ToMessage<StartInitOnly>(m => m.CorrelationId);
+
+                         public Task Handle(StartInitOnly message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class InitOnlySagaData : ContainSagaData, IHasCorrelationId
+                     {
+                         public string CorrelationId { get; init; }
+                     }
+
+                     public class StartInitOnly : ICommand
+                     {
+                         public string CorrelationId { get; set; }
+                     }
+                     """;
+
+        var assembly = CompileAndLoad(source);
+
+        AssertCorrelationRoundTrip(assembly, "InitOnlySagaData");
+    }
+
+    [Test]
     public void Get_only_interface_property_with_a_private_concrete_setter_is_written_through_an_extern_accessor()
     {
         var source = """
