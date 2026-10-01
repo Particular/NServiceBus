@@ -199,7 +199,7 @@ public static partial class Sagas
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
                 var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
-                var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod, true);
+                var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod ?? ImplementedSetter(propertySymbol, memberAccess), true);
                 var needsExtern = externGetterReceiverType is not null || externSetterReceiverType is not null;
                 CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules(), InterfaceReceiverType(propertySymbol), propertySymbol.SetMethod is not null);
             }
@@ -254,6 +254,14 @@ public static partial class Sagas
                 Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, externGetterReceiverType, externGetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules(),
                     InterfaceReceiverType(propertySymbol)));
             }
+
+            // A get-only interface property can still be written through the setter of its implicit implementation.
+            IMethodSymbol? ImplementedSetter(IPropertySymbol property, MemberAccessExpressionSyntax memberAccess) =>
+                property.ContainingType is { TypeKind: TypeKind.Interface }
+                && semanticModel.GetTypeInfo(StripSyntaxWrappers(memberAccess.Expression, cancellationToken), cancellationToken).Type?.FindImplementationForInterfaceMember(property)
+                    is IPropertySymbol { ExplicitInterfaceImplementations.IsEmpty: true, SetMethod: { } setter }
+                    ? setter
+                    : null;
 
             // An explicitly implemented interface member only exists on the interface, so access must go through it.
             static string? InterfaceReceiverType(IPropertySymbol property) =>

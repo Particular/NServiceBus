@@ -426,6 +426,96 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
+    public void Get_only_interface_property_is_read_through_the_interface_and_written_on_the_concrete_type()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                         }
+                     }
+
+                     public interface IHasCorrelationId
+                     {
+                         string CorrelationId { get; }
+                     }
+
+                     [Saga]
+                     public class GetOnlySaga : Saga<GetOnlySagaData>, IAmStartedByMessages<StartGetOnly>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetOnlySagaData> mapper) =>
+                             mapper.MapSaga(s => ((IHasCorrelationId)s).CorrelationId).ToMessage<StartGetOnly>(m => m.CorrelationId);
+
+                         public Task Handle(StartGetOnly message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class GetOnlySagaData : ContainSagaData, IHasCorrelationId
+                     {
+                         public string CorrelationId { get; set; }
+                     }
+
+                     public class StartGetOnly : ICommand
+                     {
+                         public string CorrelationId { get; set; }
+                     }
+                     """;
+
+        var assembly = CompileAndLoad(source);
+
+        AssertCorrelationRoundTrip(assembly, "GetOnlySagaData");
+    }
+
+    [Test]
+    public void Get_only_interface_property_with_a_private_concrete_setter_is_written_through_an_extern_accessor()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                         }
+                     }
+
+                     public interface IHasCorrelationId
+                     {
+                         string CorrelationId { get; }
+                     }
+
+                     [Saga]
+                     public class GetOnlySaga : Saga<GetOnlySagaData>, IAmStartedByMessages<StartGetOnly>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GetOnlySagaData> mapper) =>
+                             mapper.MapSaga(s => ((IHasCorrelationId)s).CorrelationId).ToMessage<StartGetOnly>(m => m.CorrelationId);
+
+                         public Task Handle(StartGetOnly message, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class GetOnlySagaData : ContainSagaData, IHasCorrelationId
+                     {
+                         public string CorrelationId { get; private set; }
+                     }
+
+                     public class StartGetOnly : ICommand
+                     {
+                         public string CorrelationId { get; set; }
+                     }
+                     """;
+
+        var assembly = CompileAndLoad(source);
+
+        AssertCorrelationRoundTrip(assembly, "GetOnlySagaData");
+    }
+
+    [Test]
     public void Properties_named_like_keywords_are_accessed_with_an_escape()
     {
         var source = """
