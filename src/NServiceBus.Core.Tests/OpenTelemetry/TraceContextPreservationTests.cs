@@ -94,7 +94,7 @@ public class TraceContextPreservationTests
     static Dictionary<string, string> CreateReceivedHeaders() =>
         new()
         {
-            [Headers.DiagnosticsTraceParent] = OriginalTraceParent
+            [Headers.NServiceBusDiagnosticsTraceParent] = OriginalTraceParent
         };
 
     static async Task<Dictionary<string, string>> DispatchWithAmbientActivity(IRoutingContext routingContext)
@@ -121,7 +121,7 @@ public class TraceContextPreservationTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(
-                headers[Headers.DiagnosticsTraceParent],
+                headers[Headers.NServiceBusDiagnosticsTraceParent],
                 Is.EqualTo(OriginalTraceParent),
                 "traceparent of the received message must be preserved");
             Assert.That(
