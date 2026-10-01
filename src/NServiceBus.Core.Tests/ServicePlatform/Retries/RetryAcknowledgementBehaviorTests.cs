@@ -69,7 +69,7 @@ public class RetryAcknowledgementBehaviorTests
 
         var outgoingMessage = routingPipeline.ForkInvocations.Single();
         Assert.That(
-            outgoingMessage.Message.Headers[Headers.DiagnosticsTraceParent],
+            outgoingMessage.Message.Headers[Headers.NServiceBusDiagnosticsTraceParent],
             Is.EqualTo(processingActivity.Id),
             "the acknowledgement should be correlated to the processing of the retried message");
     }
