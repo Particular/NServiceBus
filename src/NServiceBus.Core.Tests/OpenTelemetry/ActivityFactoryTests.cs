@@ -174,7 +174,83 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void Should_apply_header_baggage_when_attached_to_ambient_activity()
+        public void Should_propagate_header_trace_state_when_attached_to_header_trace()
+        {
+            var sendActivity = CreateCompletedActivity("send activity");
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.NServiceBusDiagnosticsTraceParent, sendActivity.Id! },
+                { Headers.DiagnosticsTraceState, "vendor=value" }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            Assert.That(activity.TraceStateString, Is.EqualTo("vendor=value"));
+        }
+
+        [Test]
+        public void Should_propagate_header_trace_state_when_attached_to_ambient_activity()
+        {
+            var sendActivity = CreateCompletedActivity("send activity");
+
+            using var ambientActivity = new Activity("transport sdk receive activity");
+            ambientActivity.Start();
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.NServiceBusDiagnosticsTraceParent, sendActivity.Id! },
+                { Headers.DiagnosticsTraceState, "vendor=value" }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Parent, Is.SameAs(ambientActivity));
+                Assert.That(activity.TraceStateString, Is.EqualTo("vendor=value"));
+            }
+        }
+
+        [Test]
+        public void Should_not_propagate_header_trace_state_when_starting_new_trace()
+        {
+            var sendActivity = CreateCompletedActivity("send activity");
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.NServiceBusDiagnosticsTraceParent, sendActivity.Id! },
+                { Headers.StartNewTrace, bool.TrueString },
+                { Headers.DiagnosticsTraceState, "vendor=value" }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Parent, Is.Null, "a new trace has no parent");
+                Assert.That(activity.TraceStateString, Is.Null, "trace state belongs to the trace it was recorded in");
+            }
+        }
+
+        [Test]
+        public void Should_return_started_activity()
+        {
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Id, Is.Not.Null, "an id is only assigned to a started activity");
+                Assert.That(Activity.Current, Is.SameAs(activity));
+            }
+        }
+
+        [Test]
+        public void Should_propagate_header_baggage_when_attached_to_ambient_activity()
         {
             var sendActivity = CreateCompletedActivity("send activity");
 
@@ -193,7 +269,7 @@ public class ActivityFactoryTests
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(activity.Parent, Is.SameAs(ambientActivity));
-                Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"), "transport SDKs do not propagate baggage, so NServiceBus applies it even with an ambient parent");
+                Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"), "transport SDKs do not propagate baggage, so NServiceBus propagates it even with an ambient parent");
             }
         }
 
@@ -225,7 +301,7 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void Should_apply_header_baggage_but_not_ambient_baggage_when_starting_new_trace()
+        public void Should_propagate_header_baggage_but_not_ambient_baggage_when_starting_new_trace()
         {
             var sendActivity = CreateCompletedActivity("send activity");
 
@@ -246,25 +322,8 @@ public class ActivityFactoryTests
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(activity.Parent, Is.Null, "a new trace has no parent");
-                Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"), "baggage from the message is applied regardless of the trace shape");
+                Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"), "baggage from the message is propagated regardless of the trace shape");
                 Assert.That(activity.GetBaggageItem("ambient-only"), Is.Null, "the ambient activity is not part of the new trace");
-            }
-        }
-
-        [Test]
-        public void Should_inherit_ambient_baggage_when_no_trace_header()
-        {
-            using var ambientActivity = new Activity("transport sdk receive activity");
-            ambientActivity.AddBaggage("tenant", "acme");
-            ambientActivity.Start();
-
-            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
-
-            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(activity.Parent, Is.SameAs(ambientActivity));
-                Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"));
             }
         }
 

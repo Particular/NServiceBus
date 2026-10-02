@@ -104,7 +104,8 @@ static class LegacyContextPropagation
         }
     }
 
-    // See ContextPropagation.PropagateBaggageFromHeaders for the meaning of the parent parameter.
+    // parent: the activity whose baggage chain is checked so keys it already carries are not added again,
+    // see ContextPropagation.PropagateBaggageFromHeaders.
     public static void PropagateBaggageFromHeaders(Activity activity, IDictionary<string, string> headers, Activity? parent = null)
     {
         if (!headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))

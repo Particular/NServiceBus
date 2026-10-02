@@ -1,4 +1,4 @@
-# Receive-side trace state and baggage propagation stays an NServiceBus responsibility
+﻿# Receive-side trace state and baggage propagation stays an NServiceBus responsibility
 
 **Date:** 2026-10-01
 **Pull request:** [#7954](https://github.com/Particular/NServiceBus/pull/7954)
@@ -19,9 +19,9 @@ flowchart TD
     D -- no --> F{Ambient SDK span and<br/>UseTransportSpanAsParent?}
     F -- yes --> G[Child of ambient SDK span<br/>link to sender span]
     F -- no --> H[Child of sender span<br/>v10 default]
-    E --> I[Apply tracestate and baggage from headers]
-    G --> J[Apply tracestate from headers<br/>Apply baggage, skipping keys the SDK span already carries]
-    H --> I
+    E --> K[Propagate baggage from headers<br/>tracestate stays with the old trace]
+    G --> J[Propagate tracestate from headers<br/>Propagate baggage, skipping keys the SDK span already carries]
+    H --> I[Propagate tracestate and baggage from headers]
 ```
 
 The question this record answers is who owns baggage on the receive side now that transport SDKs
@@ -41,6 +41,10 @@ passed in belongs to the ambient `Activity.Current`. This was verified with a sm
 Consequently only the two branches that pass a default parent context (ambient SDK span as parent, and
 no sender context) inherit the ambient span's baggage. The v10 default branch and the start-new-trace
 branch do not, and nothing in the runtime bridges that gap.
+
+Because `Parent` is assigned by `Start()`, any check against the parent chain has to run on a started
+activity. `SetIdFormat` on the other hand only works before `Start()`; on a started activity it is
+ignored and the runtime throws and swallows an `InvalidOperationException` internally.
 
 ### What the transport SDKs do today
 
@@ -67,32 +71,40 @@ would therefore mean filtering header names in the setter or hand-rolling trace 
 
 ## Decision
 
-1. **Trace state and baggage from the headers are applied only when the message carries NServiceBus
+1. **Trace state and baggage from the headers are propagated only when the message carries NServiceBus
    trace context**, that is a parseable `NServiceBus.TraceParent` or `traceparent` header. The W3C
    specifications define `tracestate` and `baggage` as companions of `traceparent`. Without it there is
    nothing of NServiceBus' own to propagate. The span adopts `Activity.Current` as parent if one exists
    and inherits that activity's trace state and baggage through the runtime's parent chain.
 
-2. **NServiceBus always applies the header baggage, also when an ambient transport SDK span is the
+2. **NServiceBus always propagates the header baggage, also when an ambient transport SDK span is the
    parent.** No supported SDK propagates baggage, so NServiceBus, as the middleware, carries it.
 
 3. **When the ambient SDK span becomes the parent, a header key the span already carries is skipped.**
    This is forward-looking. Once an SDK extracts baggage onto its receive span, the same items would
    otherwise sit on both the child and the parent, outgoing serialization would write both, and the next
-   hop would double them again. The skip is checked against the ambient activity directly because
-   `Parent` is not assigned until `Start()`.
+   hop would double them again. The incoming activity is started before the headers are read, so the
+   skip reads through the runtime's own `Activity.Parent` chain instead of tracking the adopted parent
+   separately.
 
-4. **Baggage is never copied from an ambient activity that does not become the parent.** Any baggage on
+4. **Trace state from the headers is not propagated when the message starts a new trace.** `tracestate`
+   carries vendor data about the trace the sender recorded in, such as sampling decisions. A new trace
+   has no relation to it, so carrying it over would attach foreign state to an unrelated trace. The
+   ambient-parent and child-of-sender branches propagate it as before.
+
+5. **Baggage is never copied from an ambient activity that does not become the parent.** Any baggage on
    such an activity is either from the same message, which the header already covers, or process-local
    context that NServiceBus deliberately did not parent on.
 
-5. **Outgoing propagation is unchanged.** NServiceBus keeps writing `baggage` alongside its trace
+6. **Outgoing propagation is unchanged.** NServiceBus keeps writing `baggage` alongside its trace
    headers.
 
-Mechanically, `ContextPropagation.PropagateContextFromHeaders` is split into
-`PropagateTraceStateFromHeaders` and `PropagateBaggageFromHeaders(activity, headers, parent)` on both
-propagator paths, including the legacy one in `obsolete_v11.cs`. The combined method remains for
-callers that need both.
+Mechanically, `ActivityFactory` creates the incoming activity, forces the W3C id format, adds the
+tags and starts it, and only then reads the headers. `ContextPropagation.PropagateContextFromHeaders`
+is split into `PropagateTraceStateFromHeaders(activity, headers)` and
+`PropagateBaggageFromHeaders(activity, headers)` on both propagator paths, including the legacy one in
+`obsolete_v11.cs`. Both expect a started activity. The combined method remains for callers that need
+both.
 
 ## Consequences
 
@@ -109,10 +121,15 @@ callers that need both.
   default, where the sender span is the parent. Accepted as consistent with not parenting on that
   activity. In v11 the ambient span becomes the parent and the runtime inherits it.
 - Duplicate keys within a single `baggage` header are still added as they were. The skip only looks at
-  the adopted parent, so legacy parsing behaviour is unchanged.
+  the parent chain, not at the activity itself, so legacy parsing behaviour is unchanged.
 - Trace state needs no equivalent treatment. `TraceStateString` also reads through the parent chain, but
   it is a single value and the child's shadows the parent's, so nothing accumulates.
-- Cost: one `GetBaggageItem` lookup per header item, only when an adopted parent exists.
+- A message that starts a new trace drops the sender's `tracestate`. Accepted: the value describes a
+  trace the new one is deliberately detached from. The sender span is still reachable through the link.
+- The incoming activity is started before `ActivityFactory` returns it, and the caller sets the display
+  name afterwards. `ActivityListener.ActivityStarted` callbacks therefore see the operation name and
+  tags but not yet the display name. Exporters read the activity when it stops, so this is cosmetic.
+- Cost: one `GetBaggageItem` lookup per header item, only when the activity has a parent.
 - Follow-up: document the receive-side behaviour on the public OpenTelemetry page on docs.particular.net.
   Whether an opt-out for baggage propagation should exist on `InstrumentationOptions` remains open and is
   not decided here. When an SDK starts extracting baggage, re-verify the skip against the real span.
@@ -137,7 +154,7 @@ on. The copy added allocations per message and a precedence rule for nothing tha
 
 ### Add header baggage unconditionally, also under an ambient parent
 
-The simplest reading of "NServiceBus always applies baggage". Rejected because it doubles baggage on
+The simplest reading of "NServiceBus always propagates baggage". Rejected because it doubles baggage on
 every hop as soon as an SDK extracts baggage onto the parent span, with no error and growing headers.
 
 ### Skip header baggage entirely when the ambient parent carries any baggage

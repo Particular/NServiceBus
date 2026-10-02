@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 namespace NServiceBus.Core.Tests.OpenTelemetry;
 
@@ -61,7 +61,7 @@ public class TransportParentSpanDefaultBehaviorTests
     }
 
     [Test]
-    public void Default_applies_header_baggage_but_not_ambient_baggage()
+    public void Default_propagates_header_baggage_but_not_ambient_baggage()
     {
         var sendActivity = new Activity("send activity");
         sendActivity.SetIdFormat(ActivityIdFormat.W3C);
@@ -85,7 +85,7 @@ public class TransportParentSpanDefaultBehaviorTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(activity.Parent, Is.Null, "the sender span is the parent, so the ambient activity is not in the parent chain");
-            Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"), "baggage from the message is applied");
+            Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"), "baggage from the message is propagated");
             Assert.That(activity.GetBaggageItem("ambient-only"), Is.Null, "baggage of an activity that is not the parent is not NServiceBus' concern");
         }
     }

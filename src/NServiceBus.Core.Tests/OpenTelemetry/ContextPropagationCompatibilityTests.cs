@@ -1,4 +1,4 @@
-namespace NServiceBus.Core.Tests.OpenTelemetry;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
 using System.Collections.Generic;
@@ -72,14 +72,16 @@ public class ContextPropagationCompatibilityTests
         parent.AddBaggage("tenant", "acme");
         parent.Start();
 
+        // Adopts the parent from Activity.Current; the propagation reads through that chain
         using var incoming = new Activity(ActivityNames.IncomingMessageActivityName);
+        incoming.Start();
         var headers = new Dictionary<string, string> { { Headers.DiagnosticsBaggage, "tenant=acme,region=eu" } };
 
-        ContextPropagation.PropagateBaggageFromHeaders(incoming, headers, parent);
-        incoming.Start();
+        ContextPropagation.PropagateBaggageFromHeaders(incoming, headers);
 
         using (Assert.EnterMultipleScope())
         {
+            Assert.That(incoming.Parent, Is.SameAs(parent));
             Assert.That(incoming.GetBaggageItem("region"), Is.EqualTo("eu"));
             Assert.That(incoming.Baggage.Count(item => item.Key == "tenant"), Is.EqualTo(1), "should only be the inherited one");
         }
