@@ -1,8 +1,9 @@
-namespace NServiceBus.Core.Tests.OpenTelemetry;
+﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 
 [TestFixture]
@@ -63,6 +64,28 @@ public class ContextPropagationCompatibilityTests
     }
 
     static string Transmit(string value, Writer write, Reader read) => Receive(Send(value, write), read);
+
+    [Test]
+    public void New_receiver_skips_baggage_the_parent_already_carries()
+    {
+        using var parent = new Activity("transport sdk receive activity");
+        parent.AddBaggage("tenant", "acme");
+        parent.Start();
+
+        // Adopts the parent from Activity.Current; the propagation reads through that chain
+        using var incoming = new Activity(ActivityNames.IncomingMessageActivityName);
+        incoming.Start();
+        var headers = new Dictionary<string, string> { { Headers.DiagnosticsBaggage, "tenant=acme,region=eu" } };
+
+        ContextPropagation.PropagateBaggageFromHeaders(incoming, headers);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(incoming.Parent, Is.SameAs(parent));
+            Assert.That(incoming.GetBaggageItem("region"), Is.EqualTo("eu"));
+            Assert.That(incoming.Baggage.Count(item => item.Key == "tenant"), Is.EqualTo(1), "should only be the inherited one");
+        }
+    }
 
     [Test]
     public void Legacy_sender_to_new_receiver_preserves_the_value()
