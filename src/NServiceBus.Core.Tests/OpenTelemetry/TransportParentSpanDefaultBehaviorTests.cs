@@ -25,15 +25,15 @@ public class TransportParentSpanDefaultBehaviorTests
     public void SetUp()
     {
         nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-        AppContext.SetSwitch(TransportParentSpanSwitch.UseTransportSpanAsParentSwitchName, false);
-        TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
+        AppContext.SetSwitch(TransportParentActivitySwitch.UseTransportActivityAsParentSwitchName, false);
+        TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
     }
 
     [TearDown]
     public void TearDown()
     {
         nsbActivityListener.Dispose();
-        TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
+        TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
     }
 
     [Test]

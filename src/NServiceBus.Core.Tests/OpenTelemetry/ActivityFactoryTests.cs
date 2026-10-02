@@ -58,15 +58,15 @@ public class ActivityFactoryTests
         [SetUp]
         public void OptInToTransportSpanAsParent()
         {
-            AppContext.SetSwitch(TransportParentSpanSwitch.UseTransportSpanAsParentSwitchName, true);
-            TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
+            AppContext.SetSwitch(TransportParentActivitySwitch.UseTransportActivityAsParentSwitchName, true);
+            TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
         }
 
         [TearDown]
         public void ResetTransportSpanSwitch()
         {
-            AppContext.SetSwitch(TransportParentSpanSwitch.UseTransportSpanAsParentSwitchName, false);
-            TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
+            AppContext.SetSwitch(TransportParentActivitySwitch.UseTransportActivityAsParentSwitchName, false);
+            TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
         }
 
         [TestCase(Headers.NServiceBusDiagnosticsTraceParent)]

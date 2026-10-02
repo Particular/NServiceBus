@@ -211,7 +211,7 @@ static class HandlerActivitySourceSwitch
 // ActivityFactory.CreateActivityFromIncomingMessage (keeping only the branch that links to the
 // sender span), delete TransportParentSpanDefaultBehaviorTests.cs and remove the opt-in
 // SetUp/TearDown pair in ActivityFactoryTests.StartIncomingActivity.
-static class TransportParentSpanSwitch
+static class TransportParentActivitySwitch
 {
     enum SwitchState : byte
     {
@@ -220,30 +220,30 @@ static class TransportParentSpanSwitch
         Disabled = 2
     }
 
-    static SwitchState cachedUseTransportSpanAsParent;
+    static SwitchState cachedUseTransportActivityAsParent;
 
-    public const string UseTransportSpanAsParentSwitchName = "NServiceBus.Core.OpenTelemetry.UseTransportSpanAsParent";
+    public const string UseTransportActivityAsParentSwitchName = "NServiceBus.Core.OpenTelemetry.UseTransportActivityAsParent";
 
-    public static bool UseTransportSpanAsParent
+    public static bool UseTransportActivityAsParent
     {
         get
         {
-            var state = cachedUseTransportSpanAsParent;
+            var state = cachedUseTransportActivityAsParent;
             if (state != SwitchState.Unchecked)
             {
                 return state == SwitchState.Enabled;
             }
 
-            state = AppContext.TryGetSwitch(UseTransportSpanAsParentSwitchName, out var isEnabled) && isEnabled
+            state = AppContext.TryGetSwitch(UseTransportActivityAsParentSwitchName, out var isEnabled) && isEnabled
                 ? SwitchState.Enabled
                 : SwitchState.Disabled;
-            cachedUseTransportSpanAsParent = state;
+            cachedUseTransportActivityAsParent = state;
 
             return state == SwitchState.Enabled;
         }
     }
 
-    internal static void ResetUseTransportSpanAsParent() => cachedUseTransportSpanAsParent = SwitchState.Unchecked;
+    internal static void ResetUseTransportActivityAsParent() => cachedUseTransportActivityAsParent = SwitchState.Unchecked;
 }
 
 // This class bridges two independent legacy exception-tagging behaviors, both
