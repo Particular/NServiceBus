@@ -42,7 +42,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
                 Activity.Current = null;
                 activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
             }
-            else if (TransportParentSpanSwitch.UseTransportSpanAsParent && Activity.Current != null) // remove the switch check in v11, see obsolete_v11.cs
+            else if (TransportParentActivitySwitch.UseTransportActivityAsParent && Activity.Current != null) // remove the switch check in v11, see obsolete_v11.cs
             {
                 // A transport SDK receive span is ambient: make it the parent (an activity without
                 // a parent context adopts Activity.Current when it starts) and link to the NSB sender span.

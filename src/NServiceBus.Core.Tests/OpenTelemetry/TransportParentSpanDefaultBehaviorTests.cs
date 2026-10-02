@@ -11,7 +11,7 @@ using NServiceBus.Extensibility;
 using NServiceBus.Transport;
 using NUnit.Framework;
 
-// Covers the pre-v11 default of TransportParentSpanSwitch: without the opt-in switch the incoming
+// Covers the pre-v11 default of TransportParentActivitySwitch: without the opt-in switch the incoming
 // message span stays a child of the NServiceBus sender span even when a transport SDK span is
 // ambient. In v11 that default is gone, so delete this file together with obsolete_v11.cs.
 [TestFixture]
@@ -25,15 +25,15 @@ public class TransportParentSpanDefaultBehaviorTests
     public void SetUp()
     {
         nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-        AppContext.SetSwitch(TransportParentSpanSwitch.UseTransportSpanAsParentSwitchName, false);
-        TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
+        AppContext.SetSwitch(TransportParentActivitySwitch.UseTransportActivityAsParentSwitchName, false);
+        TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
     }
 
     [TearDown]
     public void TearDown()
     {
         nsbActivityListener.Dispose();
-        TransportParentSpanSwitch.ResetUseTransportSpanAsParent();
+        TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
     }
 
     [Test]
