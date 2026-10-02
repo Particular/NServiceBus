@@ -172,6 +172,29 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         Assert.That(pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(1));
     }
 
+    // In v11 the dispatching events are gone: delete this test and
+    // Should_add_batch_dispatch_events_when_sending_batched_messages together with the
+    // V11BehaviorSwitch block in obsoletes-v10.cs.
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_not_add_batch_dispatch_events_when_sending_batched_messages()
+    {
+        var context = CreateContext(fakeBatchPipeline, Guid.NewGuid().ToString());
+
+        using var pipelineActivity = new Activity("test activity");
+        pipelineActivity.Start();
+        context.Extensions.SetIncomingPipelineActivity(pipelineActivity);
+
+        await Invoke(context, c =>
+        {
+            var batchedSends = c.Extensions.Get<PendingTransportOperations>();
+            batchedSends.Add(new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")));
+            return Task.CompletedTask;
+        });
+
+        Assert.That(pipelineActivity.Events, Is.Empty);
+    }
+
     [Test]
     public async Task Should_not_add_batch_dispatch_events_when_no_batched_messages()
     {
@@ -216,7 +239,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     public async Task Should_still_dispatch_when_outbox_is_disabled()
     {
         var noOpBehavior = new TransportReceiveToPhysicalMessageConnector(
-            new NoOpOutboxStorage(), new PipelineMetrics(fakeMeterFactory, "queue", "disc", new MetersOptions()), new InstrumentationOptions(), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
+            new NoOpOutboxStorage(), new PipelineMetrics(fakeMeterFactory, "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
 
         var context = CreateContext(fakeBatchPipeline, "id");
 
@@ -267,7 +290,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         fakeBatchPipeline = new FakeBatchPipeline();
         fakeMeterFactory = new TestMeterFactory();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new PipelineMetrics(fakeMeterFactory, "queue", "disc", new MetersOptions()), new InstrumentationOptions(), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new PipelineMetrics(fakeMeterFactory, "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
     }
 
     [TearDown]

@@ -49,26 +49,13 @@ public class ActivityFactoryTests
             new(Guid.NewGuid().ToString(), [], Array.Empty<byte>(), new TransportTransaction(), "receiver", new ContextBag());
     }
 
+    // Until v11 the "transport span as parent" behavior is opt-in. This fixture runs with the v11
+    // defaults because that is what the tests below describe; the pre-v11 default is covered by
+    // TransportParentSpanDefaultBehaviorTests. In v11, remove the attribute together with the
+    // V11BehaviorSwitch block in obsoletes-v10.cs.
+    [OpenTelemetryV11Defaults]
     class StartIncomingActivity : ActivityFactoryTests
     {
-        // Until v11 the "transport span as parent" behavior is opt-in. This fixture runs with it
-        // enabled because that is the v11 default the tests below describe; the pre-v11 default
-        // is covered by TransportParentSpanDefaultBehaviorTests. In v11, delete this SetUp/TearDown
-        // pair together with obsolete_v11.cs.
-        [SetUp]
-        public void OptInToTransportSpanAsParent()
-        {
-            AppContext.SetSwitch(TransportParentActivitySwitch.UseTransportActivityAsParentSwitchName, true);
-            TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
-        }
-
-        [TearDown]
-        public void ResetTransportSpanSwitch()
-        {
-            AppContext.SetSwitch(TransportParentActivitySwitch.UseTransportActivityAsParentSwitchName, false);
-            TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
-        }
-
         [TestCase(Headers.NServiceBusDiagnosticsTraceParent)]
         [TestCase(Headers.DiagnosticsTraceParent)] // for backwards compatibility
         public void Should_attach_to_header_trace_when_available_and_no_ambient_activity(string headerName)

@@ -36,7 +36,7 @@ public class PipelineMetricTagsTests
         };
 
         var messageMapper = new MessageMapper();
-        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false, new PipelineMetrics(new TestMeterFactory(), "queue", "disc", new MetersOptions()));
+        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false, new PipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
         Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
         {

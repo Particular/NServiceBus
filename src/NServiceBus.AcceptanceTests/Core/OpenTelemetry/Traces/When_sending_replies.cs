@@ -56,10 +56,11 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_use_destination_in_reply_span_name_when_opted_in()
+    [OpenTelemetryV11Defaults]
+    public async Task Should_include_destination_in_reply_span_name()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<TestEndpointWithDestinationNaming>(b => b
+            .WithEndpoint<TestEndpoint>(b => b
                 .When(s => s.SendLocal(new IncomingMessage())))
             .Run();
 
@@ -68,25 +69,6 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
         var replyMessage = outgoingMessageActivities[1];
 
         Assert.That(replyMessage.DisplayName, Does.StartWith("reply "));
-    }
-
-    public class TestEndpointWithDestinationNaming : EndpointConfigurationBuilder
-    {
-        public TestEndpointWithDestinationNaming() =>
-            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageTypeNamesInSpanNames = true);
-
-        [Handler]
-        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>,
-            IHandleMessages<OutgoingReply>
-        {
-            public Task Handle(IncomingMessage message, IMessageHandlerContext context) => context.Reply(new OutgoingReply());
-
-            public Task Handle(OutgoingReply message, IMessageHandlerContext context)
-            {
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
     }
 
     public class IncomingMessage : IMessage;

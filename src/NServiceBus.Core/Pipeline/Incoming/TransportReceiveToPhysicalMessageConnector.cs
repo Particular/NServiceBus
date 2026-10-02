@@ -17,7 +17,6 @@ using TransportOperation = Outbox.TransportOperation;
 partial class TransportReceiveToPhysicalMessageConnector(
     IOutboxStorage outboxStorage,
     PipelineMetrics pipelineMetrics,
-    InstrumentationOptions instrumentationOptions,
     ILogger<TransportReceiveToPhysicalMessageConnector> logger)
     : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
@@ -134,7 +133,7 @@ partial class TransportReceiveToPhysicalMessageConnector(
     // task directly and adds no state machine of its own.
     Task Dispatch(IBatchDispatchContext batchDispatchContext)
     {
-        if (instrumentationOptions.EmitMessageDispatchingEvents &&
+        if (!V11BehaviorSwitch.UseV11Behavior && // removed in v11 together with the events, see obsoletes-v10.cs
             batchDispatchContext.Extensions.TryGetIncomingPipelineActivity(out var activity))
         {
             return DispatchWithEvents(batchDispatchContext, activity);

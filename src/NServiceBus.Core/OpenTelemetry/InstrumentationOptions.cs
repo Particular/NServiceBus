@@ -13,7 +13,7 @@ public partial class InstrumentationOptions
     /// </summary>
     public InstrumentationOptions() => ApplyPreV11Defaults();
 
-    // Implemented in obsolete_v11.cs. A partial void method without an implementation is removed
+    // Implemented in obsoletes-v10.cs. A partial void method without an implementation is removed
     // by the compiler, so deleting that file makes the initializers below the final defaults.
     partial void ApplyPreV11Defaults();
 
@@ -41,7 +41,7 @@ public partial class InstrumentationOptions
     /// <summary>
     /// Controls how the receive-side processing span relates to the publish span for events published by this endpoint.
     /// Defaults to <see cref="TraceMode.ContinueExisting"/>: receivers continue the trace.
-    /// Until v11 the default is <see cref="TraceMode.StartNew"/> for backward compatibility, see obsolete_v11.cs.
+    /// Until v11 the default is <see cref="TraceMode.StartNew"/> for backward compatibility, see obsoletes-v10.cs.
     /// Can be overridden per message via <see cref="OpenTelemetryExtensions.StartNewTraceOnReceive(PublishOptions)"/>
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>

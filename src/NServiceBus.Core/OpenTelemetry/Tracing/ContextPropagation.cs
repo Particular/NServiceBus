@@ -22,8 +22,8 @@ static class ContextPropagation
         }
 
         // TODO: investigate if we need to improve the switch check for better performance
-        // Removed in v11, see obsolete_v11.cs
-        if (!LegacyContextPropagation.UseDistributedContextPropagator)
+        // Removed in v11, see obsoletes-v10.cs
+        if (!V11BehaviorSwitch.UseV11Behavior)
         {
             LegacyContextPropagation.PropagateContextToHeaders(activity, headers);
             return;
@@ -47,8 +47,8 @@ static class ContextPropagation
 
     public static void PropagateTraceStateFromHeaders(Activity activity, IDictionary<string, string> headers)
     {
-        // Removed in v11, see obsolete_v11.cs
-        if (!LegacyContextPropagation.UseDistributedContextPropagator)
+        // Removed in v11, see obsoletes-v10.cs
+        if (!V11BehaviorSwitch.UseV11Behavior)
         {
             LegacyContextPropagation.PropagateTraceStateFromHeaders(activity, headers);
             return;
@@ -69,8 +69,8 @@ static class ContextPropagation
     // the headers. Otherwise every hop would put each key on the wire twice.
     public static void PropagateBaggageFromHeaders(Activity activity, IDictionary<string, string> headers)
     {
-        // Removed in v11, see obsolete_v11.cs
-        if (!LegacyContextPropagation.UseDistributedContextPropagator)
+        // Removed in v11, see obsoletes-v10.cs
+        if (!V11BehaviorSwitch.UseV11Behavior)
         {
             LegacyContextPropagation.PropagateBaggageFromHeaders(activity, headers, activity.Parent);
             return;

@@ -42,7 +42,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
                 Activity.Current = null;
                 activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
             }
-            else if (TransportParentActivitySwitch.UseTransportActivityAsParent && Activity.Current != null) // remove the switch check in v11, see obsolete_v11.cs
+            else if (V11BehaviorSwitch.UseV11Behavior && Activity.Current != null) // remove the switch check in v11, see obsoletes-v10.cs
             {
                 // A transport SDK receive span is ambient: make it the parent (an activity without
                 // a parent context adopts Activity.Current when it starts) and link to the NSB sender span.
@@ -136,7 +136,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
-        activity.DisplayName = Options.UseMessageTypeNamesInSpanNames
+        activity.DisplayName = V11BehaviorSwitch.UseV11Behavior
             ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
             : ActivityDisplayNames.ProcessMessage;
 
@@ -170,7 +170,8 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
         // Until v11 the dedicated handler source is opt-in; existing configurations only
         // subscribe to the main source and must keep receiving handler spans from it.
-        var source = HandlerActivitySourceSwitch.UseHandlerActivitySource
+        // Remove the switch check in v11, see obsoletes-v10.cs.
+        var source = V11BehaviorSwitch.UseV11Behavior
             ? ActivitySources.Handler
             : ActivitySources.Main;
 
@@ -211,7 +212,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             activity.AddTag(ActivityTags.RecoverabilityAction, "immediate_retry");
             activity.DisplayName = ActivityDisplayNames.ImmediateRetryOperation;
 
-            if (Options.UseMessageTypeNamesInSpanNames)
+            if (V11BehaviorSwitch.UseV11Behavior)
             {
                 activity.DisplayName += $" {receiveAddress}";
             }
@@ -221,7 +222,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             activity.AddTag(ActivityTags.RecoverabilityAction, "delayed_retry");
             activity.DisplayName = ActivityDisplayNames.DelayedRetryOperation;
 
-            if (Options.UseMessageTypeNamesInSpanNames)
+            if (V11BehaviorSwitch.UseV11Behavior)
             {
                 activity.DisplayName += $" {receiveAddress}";
             }
@@ -230,7 +231,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         {
             activity.AddTag(ActivityTags.RecoverabilityAction, "move_to_error");
 
-            activity.DisplayName = Options.UseMessageTypeNamesInSpanNames
+            activity.DisplayName = V11BehaviorSwitch.UseV11Behavior
                 ? $"{ActivityDisplayNames.MoveToErrorOperation} {moveToError.ErrorQueue}"
                 : $"{ActivityDisplayNames.MoveToErrorOperation} error";
         }
@@ -251,7 +252,11 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
-        LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
+        // Removed in v11, see obsoletes-v10.cs
+        if (!V11BehaviorSwitch.UseV11Behavior)
+        {
+            LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
+        }
 
         if (!exception.Data.Contains(ExceptionRecordedFlag))
         {
@@ -263,7 +268,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             }
             else
             {
-                activity.AddException(exception, LegacyExceptionTags.EscapedTagList);
+                activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
             }
 
             exception.Data[ExceptionRecordedFlag] = true;

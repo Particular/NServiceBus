@@ -29,7 +29,7 @@ public class EnvelopeUnwrapperTests
         originalBody = "payload"u8.ToArray().AsMemory();
         messageContext = new MessageContext(nativeId, originalHeaders, originalBody, new TransportTransaction(), "receiveAddress", new ContextBag());
         meterFactory = new TestMeterFactory();
-        pipelineMetrics = new PipelineMetrics(meterFactory, "queue", "disc", new MetersOptions());
+        pipelineMetrics = new PipelineMetrics(meterFactory, "queue", "disc");
     }
 
     [TearDown]

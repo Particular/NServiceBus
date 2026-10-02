@@ -7,22 +7,9 @@ using System.Linq;
 using NUnit.Framework;
 
 [TestFixture]
+[OpenTelemetryV11Defaults]
 public class ContextPropagationCompatibilityTests
 {
-    [SetUp]
-    public void EnableDistributedContextPropagator()
-    {
-        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, true);
-        LegacyContextPropagation.ResetUseDistributedContextPropagator();
-    }
-
-    [TearDown]
-    public void ResetDistributedContextPropagator()
-    {
-        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, false);
-        LegacyContextPropagation.ResetUseDistributedContextPropagator();
-    }
-
     delegate void Writer(Activity activity, Dictionary<string, string> headers);
 
     delegate void Reader(Activity activity, IDictionary<string, string> headers);

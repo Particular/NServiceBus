@@ -25,7 +25,7 @@ class MessageOperations(
     protected readonly IPipeline<IOutgoingReplyContext> replyPipeline = replyPipeline;
     protected readonly IPipeline<ISubscribeContext> subscribePipeline = subscribePipeline;
     protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline = unsubscribePipeline;
-    readonly bool UseMessageTypeNamesInSpanNames = activityFactory.Options.UseMessageTypeNamesInSpanNames;
+    readonly bool useMessageTypeNamesInSpanNames = V11BehaviorSwitch.UseV11Behavior; // removed in v11, see obsoletes-v10.cs
 
 
     public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, PublishOptions options)
@@ -69,7 +69,7 @@ class MessageOperations(
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        var displayName = UseMessageTypeNamesInSpanNames
+        var displayName = useMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
             : ActivityDisplayNames.PublishEvent;
 
@@ -103,7 +103,7 @@ class MessageOperations(
 
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-        var displayName = UseMessageTypeNamesInSpanNames
+        var displayName = useMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.SubscribeEvent} {string.Join(' ', eventTypes.Select(x => x.Name))}"
             : ActivityDisplayNames.SubscribeEvent;
 
@@ -132,7 +132,7 @@ class MessageOperations(
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-        var displayName = UseMessageTypeNamesInSpanNames
+        var displayName = useMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.UnsubscribeEvent} {eventType.Name}"
             : ActivityDisplayNames.UnsubscribeEvent;
 
@@ -193,7 +193,7 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        var displayName = UseMessageTypeNamesInSpanNames
+        var displayName = useMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.SendMessage} {messageType.Name}"
             : ActivityDisplayNames.SendMessage;
 
@@ -253,7 +253,7 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        var displayName = UseMessageTypeNamesInSpanNames
+        var displayName = useMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.ReplyMessage} {messageType.Name}"
             : ActivityDisplayNames.ReplyMessage;
 

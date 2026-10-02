@@ -180,12 +180,13 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_use_event_type_in_span_name_when_opted_in()
+    [OpenTelemetryV11Defaults]
+    public async Task Should_include_event_type_in_span_name()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<PublisherWithDestinationNaming>(b => b
+            .WithEndpoint<PublisherForV11Naming>(b => b
                 .When(ctx => ctx.SomeEventSubscribed, s => s.Publish<ThisIsAnEvent>()))
-            .WithEndpoint<SubscriberForPublisherWithDestinationNaming>(b => b.When((session, ctx) =>
+            .WithEndpoint<SubscriberForPublisherForV11Naming>(b => b.When((session, ctx) =>
             {
                 if (ctx.HasNativePubSubSupport)
                 {
@@ -203,15 +204,14 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
         Assert.That(publishedMessage.DisplayName, Is.EqualTo("publish ThisIsAnEvent"));
     }
 
-    public class PublisherWithDestinationNaming : EndpointConfigurationBuilder
+    public class PublisherForV11Naming : EndpointConfigurationBuilder
     {
-        public PublisherWithDestinationNaming() =>
+        public PublisherForV11Naming() =>
             EndpointSetup<DefaultServer>(b =>
             {
-                b.Tracing().UseMessageTypeNamesInSpanNames = true;
                 b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(SubscriberForPublisherWithDestinationNaming))))
+                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(SubscriberForPublisherForV11Naming))))
                     {
                         if (s.MessageType == typeof(ThisIsAnEvent).AssemblyQualifiedName)
                         {
@@ -222,13 +222,13 @@ public class When_publishing_messages : OpenTelemetryAcceptanceTest
             });
     }
 
-    public class SubscriberForPublisherWithDestinationNaming : EndpointConfigurationBuilder
+    public class SubscriberForPublisherForV11Naming : EndpointConfigurationBuilder
     {
-        public SubscriberForPublisherWithDestinationNaming() =>
+        public SubscriberForPublisherForV11Naming() =>
             EndpointSetup<DefaultServer>(c => { },
                 metadata =>
                 {
-                    metadata.RegisterPublisherFor<ThisIsAnEvent, PublisherWithDestinationNaming>();
+                    metadata.RegisterPublisherFor<ThisIsAnEvent, PublisherForV11Naming>();
                 });
 
         [Handler]

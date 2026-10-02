@@ -9,15 +9,8 @@ using NUnit.Framework;
 [TestFixture]
 public class ContextPropagationDefaultBehaviorTests
 {
-    // Without the opt-in switch, the endpoint default must remain the backwards-compatible
-    // legacy propagator (percent-encoded, comma-separated, whitespace preserved).
-    [SetUp]
-    public void EnsureDefault()
-    {
-        AppContext.SetSwitch(LegacyContextPropagation.UseDistributedContextPropagatorSwitchName, false);
-        LegacyContextPropagation.ResetUseDistributedContextPropagator();
-    }
-
+    // Without the OpenTelemetryV11Defaults attribute, the endpoint default must remain the
+    // backwards-compatible legacy propagator (percent-encoded, comma-separated, whitespace preserved).
     [Test]
     public void Default_uses_legacy_percent_encoded_baggage_format()
     {

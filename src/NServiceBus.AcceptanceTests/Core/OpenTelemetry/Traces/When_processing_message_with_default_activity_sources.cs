@@ -10,7 +10,7 @@ public class When_processing_message_with_default_activity_sources : OpenTelemet
 {
     // Until v11, handler spans are emitted from the "NServiceBus.Core" ActivitySource by default
     // for backwards compatibility. The dedicated "NServiceBus.Core.Handler" source is opt-in via
-    // the NServiceBus.Core.OpenTelemetry.UseHandlerActivitySource AppContext switch (default in v11).
+    // the NServiceBus.Core.OpenTelemetry.UseV11Behavior AppContext switch (the only behavior in v11).
     [Test]
     public async Task Should_emit_handler_span_from_main_source()
     {

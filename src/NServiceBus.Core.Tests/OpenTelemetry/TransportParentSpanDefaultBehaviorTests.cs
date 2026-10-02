@@ -11,9 +11,9 @@ using NServiceBus.Extensibility;
 using NServiceBus.Transport;
 using NUnit.Framework;
 
-// Covers the pre-v11 default of TransportParentActivitySwitch: without the opt-in switch the incoming
+// Covers the pre-v11 default of V11BehaviorSwitch: without the OpenTelemetryV11Defaults attribute the incoming
 // message span stays a child of the NServiceBus sender span even when a transport SDK span is
-// ambient. In v11 that default is gone, so delete this file together with obsolete_v11.cs.
+// ambient. In v11 that default is gone, so delete this file together with the V11BehaviorSwitch block in obsoletes-v10.cs.
 [TestFixture]
 public class TransportParentSpanDefaultBehaviorTests
 {
@@ -25,15 +25,12 @@ public class TransportParentSpanDefaultBehaviorTests
     public void SetUp()
     {
         nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
-        AppContext.SetSwitch(TransportParentActivitySwitch.UseTransportActivityAsParentSwitchName, false);
-        TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
     }
 
     [TearDown]
     public void TearDown()
     {
         nsbActivityListener.Dispose();
-        TransportParentActivitySwitch.ResetUseTransportActivityAsParent();
     }
 
     [Test]

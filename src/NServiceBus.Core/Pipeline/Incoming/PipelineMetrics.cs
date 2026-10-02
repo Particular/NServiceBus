@@ -30,9 +30,9 @@ class PipelineMetrics
     const string CommitTime = "nservicebus.persistence.commit_time";
 
     // queueName and discriminator are null for send-only endpoints, which have no receive queue to report.
-    public PipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator, MetersOptions metersOptions)
+    public PipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator)
     {
-        emitExecutionResultTags = metersOptions.EmitExecutionResultTags;
+        emitExecutionResultTags = !V11BehaviorSwitch.UseV11Behavior; // removed in v11 together with the tag, see obsoletes-v10.cs
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");

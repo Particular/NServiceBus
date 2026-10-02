@@ -12,8 +12,7 @@ sealed class PipelineComponent
     PipelineComponent(PipelineModifications modifications) => this.modifications = modifications;
 
     public static PipelineComponent Initialize(PipelineSettings settings,
-        HostingComponent.Configuration hostingConfiguration, ReceiveComponent.Configuration receiveConfiguration,
-        MetersOptions metersOptions)
+        HostingComponent.Configuration hostingConfiguration, ReceiveComponent.Configuration receiveConfiguration)
     {
         // make the PipelineMetrics available to the Pipeline
         hostingConfiguration.Services.AddSingleton(sp =>
@@ -22,11 +21,11 @@ sealed class PipelineComponent
 
             if (receiveConfiguration.IsSendOnlyEndpoint)
             {
-                return new PipelineMetrics(meterFactory, null, null, metersOptions);
+                return new PipelineMetrics(meterFactory, null, null);
             }
 
             string discriminator = receiveConfiguration.InstanceSpecificQueueAddress?.Discriminator ?? "";
-            return new PipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator, metersOptions);
+            return new PipelineMetrics(meterFactory, receiveConfiguration.LocalQueueAddress.BaseAddress, discriminator);
         });
 
         return new PipelineComponent(settings.modifications);
