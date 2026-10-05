@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -144,8 +145,10 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
+        // An endpoint has a handful of receive addresses (main, instance-specific, satellites), so the name is
+        // built once per address instead of once per message. Remove the switch check in v11, see obsoletes-v10.cs.
         activity.DisplayName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
+            ? processDisplayNames.GetOrAdd(context.ReceiveAddress, static address => $"{ActivityDisplayNames.ProcessOperation} {address}")
             : ActivityDisplayNames.ProcessMessage;
 
         return activity;
@@ -337,6 +340,8 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
     }
 
     const string ExceptionRecordedFlag = "otel.exception.recorded";
+
+    readonly ConcurrentDictionary<string, string> processDisplayNames = new();
 
     ILogger? logger;
 
