@@ -34,7 +34,7 @@ public class ReceivePropertiesTests
     }
 
     [Test]
-    public void Should_be_same_reference_as_source()
+    public void Should_copy_from_provided_dictionary()
     {
         var source = new Dictionary<string, string> { ["Key"] = "Value" };
         var properties = new ReceiveProperties(source);

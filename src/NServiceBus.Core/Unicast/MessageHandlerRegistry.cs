@@ -44,13 +44,11 @@ public class MessageHandlerRegistry
     /// Lists all message type for which we have handlers.
     /// </summary>
     /// <remarks>This method should not be called on a hot path.</remarks>
-    public IEnumerable<Type> GetMessageTypes()
-    {
-        return (from messagesBeingHandled in messageHandlerFactories.Values
-                from typeHandled in messagesBeingHandled
-                let messageType = typeHandled.MessageType
-                select messageType).Distinct();
-    }
+    public IEnumerable<Type> GetMessageTypes() =>
+        (from messagesBeingHandled in messageHandlerFactories.Values
+         from typeHandled in messagesBeingHandled
+         let messageType = typeHandled.MessageType
+         select messageType).Distinct();
 
     /// <summary>
     /// Registers the given potential handler type.
@@ -59,12 +57,14 @@ public class MessageHandlerRegistry
         TreatAsErrorFromVersion = "11",
         RemoveInVersion = "12")]
     [Obsolete("Use 'AddHandler<THandler>()' instead. Will be treated as an error from version 11.0.0. Will be removed in version 12.0.0.", false)]
+    [RequiresDynamicCode(DynamicCodeMessage)]
     [RequiresUnreferencedCode(TrimmingMessage)]
     public void RegisterHandler(Type handlerType) => AddHandlerWithReflection(handlerType);
 
     /// <summary>
     /// Registers the handler type.
     /// </summary>
+    [RequiresDynamicCode(DynamicCodeMessage)]
     [RequiresUnreferencedCode(TrimmingMessage)]
     public void AddHandler<THandler>()
     {
@@ -159,6 +159,7 @@ public class MessageHandlerRegistry
     /// Add handlers from types scanned at runtime.
     /// </summary>
     /// <param name="orderedTypes">Scanned types, with "load handlers first" types ordered first.</param>
+    [RequiresDynamicCode(DynamicCodeMessage)]
     [RequiresUnreferencedCode(TrimmingMessage)]
     public void AddScannedHandlers(IEnumerable<Type> orderedTypes)
     {
@@ -190,6 +191,7 @@ public class MessageHandlerRegistry
         deduplicationSet.Clear();
     }
 
+    [RequiresDynamicCode(DynamicCodeMessage)]
     [RequiresUnreferencedCode(TrimmingMessage)]
     void AddHandlerWithReflection(Type handlerType) =>
         AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
@@ -200,13 +202,11 @@ public class MessageHandlerRegistry
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-        .SingleOrDefault(m => m.Name == nameof(AddMessageHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        .GetMethod(nameof(AddMessageHandlerForMessage), 2, BindingFlags.Public | BindingFlags.Instance, null, [], null)
         ?? throw new MissingMethodException(nameof(AddMessageHandlerForMessage));
 
     static readonly MethodInfo AddTimeoutHandlerForMessageMethod = typeof(MessageHandlerRegistry)
-        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-        .SingleOrDefault(m => m.Name == nameof(AddTimeoutHandlerForMessage) && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 2)
+        .GetMethod(nameof(AddTimeoutHandlerForMessage), 2, BindingFlags.Public | BindingFlags.Instance, null, [], null)
         ?? throw new MissingMethodException(nameof(AddTimeoutHandlerForMessage));
 
     readonly Dictionary<Type, List<IMessageHandlerFactory>> messageHandlerFactories = [];
@@ -214,6 +214,7 @@ public class MessageHandlerRegistry
     static readonly Type IHandleMessagesType = typeof(IHandleMessages<>);
 
     internal const string TrimmingMessage = "Registering handlers using assembly scanning is not supported in trimming scenarios.";
+    internal const string DynamicCodeMessage = "Registering handlers using assembly scanning relies on dynamic code generation which is not available with Ahead of Time compilation.";
 
     readonly record struct HandlerAndMessage(Type HandlerType, Type MessageType, bool IsTimeoutHandler)
     {
@@ -250,6 +251,7 @@ public class MessageHandlerRegistry
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 
         static readonly ObjectFactory<IHandleTimeouts<TMessage>> handlerFactory =
+            // SAFETY: Registration validated THandler implements IHandleTimeouts<TMessage>; retype skips the interface cast.
             static (sp, args) => Unsafe.As<IHandleTimeouts<TMessage>>(factory(sp, args));
     }
 
@@ -276,6 +278,7 @@ public class MessageHandlerRegistry
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 
         static readonly ObjectFactory<IHandleMessages<TMessage>> handlerFactory =
+            // SAFETY: Registration validated THandler implements IHandleMessages<TMessage>; retype skips the interface cast.
             static (sp, args) => Unsafe.As<IHandleMessages<TMessage>>(factory(sp, args));
     }
 }

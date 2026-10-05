@@ -34,6 +34,26 @@ public class EndpointLoggingScopeTests
     }
 
     [Test]
+    public void Should_preserve_structured_state_when_logging_in_slot_scope()
+    {
+        var loggerFactory = new FakeLoggerLoggerFactory();
+        var slot = new EndpointLogSlot("Sales", "blue");
+        LogManager.RegisterSlotFactory(slot, new MicrosoftLoggerFactoryAdapter(loggerFactory));
+
+        var logger = LogManager.GetLogger($"{nameof(EndpointLoggingScopeTests)}-{Guid.NewGuid():N}");
+
+        using (LogManager.BeginSlotScope(slot))
+        {
+            logger.InfoFormat("message {0}", "value");
+        }
+
+        Assert.That(loggerFactory.CapturedStructuredState, Has.Some.Matches<IReadOnlyList<KeyValuePair<string, string?>>?>(state =>
+            state is not null &&
+            state.Any(kv => kv is { Key: "{OriginalFormat}", Value: "message {0}" }) &&
+            state.Any(kv => kv is { Key: "0", Value: "value" })));
+    }
+
+    [Test]
     public void Should_include_only_endpoint_name_when_identifier_is_not_provided()
     {
         var loggerFactory = new FakeLoggerLoggerFactory();
@@ -313,6 +333,8 @@ public class EndpointLoggingScopeTests
         readonly FakeLoggerProvider provider = new();
 
         public List<string> CapturedMessages => [.. provider.Collector.GetSnapshot().Select(r => r.Message)];
+
+        public List<IReadOnlyList<KeyValuePair<string, string?>>?> CapturedStructuredState => [.. provider.Collector.GetSnapshot().Select(r => r.StructuredState)];
 
         public List<IReadOnlyList<KeyValuePair<string, object>>> CapturedLogScopes =>
         [

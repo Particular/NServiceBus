@@ -9,7 +9,6 @@ NServiceBus.ContentTypes
 NServiceBus.DateTimeOffsetHelper
 NServiceBus.DistributionPolicy
 NServiceBus.EndpointConfiguration
-NServiceBus.Faults.FailedMessage
 NServiceBus.Headers
 NServiceBus.IDistributionPolicy
 NServiceBus.IMessageHandlerContext
@@ -22,12 +21,6 @@ NServiceBus.MessageDrivenSubscriptionsConfigExtensions
 NServiceBus.MessageProcessingContextExtensions
 NServiceBus.MessageSessionExtensions
 NServiceBus.OnSatelliteMessage
-NServiceBus.Outbox.IOutboxStorage
-NServiceBus.Outbox.OutboxMessage
-NServiceBus.Outbox.TransportOperation
-NServiceBus.OutboxConfigExtensions
-NServiceBus.Persistence.CompletableSynchronizedStorageSessionExtensions
-NServiceBus.Persistence.ICompletableSynchronizedStorageSession
 NServiceBus.Pipeline.ISubscribeContext
 NServiceBus.Pipeline.IUnsubscribeContext
 NServiceBus.ReceiveSettingsExtensions
@@ -56,18 +49,9 @@ NServiceBus.Sagas.SagaCorrelationProperty
 NServiceBus.Sagas.SagaFinderDefinition
 NServiceBus.Sagas.SagaIdGeneratorContext
 NServiceBus.SagasConfigExtensions
-NServiceBus.Serialization.IMessageSerializer
-NServiceBus.Serialization.SerializationDefinition
-NServiceBus.Serialization.SerializationExtensions`1
-NServiceBus.SerializationConfigExtensions
-NServiceBus.SerializationContextExtensions
-NServiceBus.SerializationExtensionsExtensions
 NServiceBus.Settings.IReadOnlySettings
 NServiceBus.Settings.SettingsHolder
-NServiceBus.StaticHeadersConfigExtensions
 NServiceBus.SubscriptionMigrationModeSettings
-NServiceBus.Support.RuntimeEnvironment
-NServiceBus.Transport.DispatchProperties
 NServiceBus.Transport.ErrorContext
 NServiceBus.Transport.IMessageDispatcher
 NServiceBus.Transport.IMessageReceiver
@@ -99,6 +83,5 @@ NServiceBus.Unicast.Queuing.QueueNotFoundException
 NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.ISubscriptionStorage
 NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber
 NServiceBus.Unicast.Subscriptions.MessageType
-NServiceBus.UnitOfWorkSettingsExtensions
 NServiceBus.XmlSerializationExtensions
 NServiceBus.XmlSerializer

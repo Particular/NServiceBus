@@ -1,5 +1,6 @@
 namespace NServiceBus.TransportTests;
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -15,18 +16,18 @@ public class When_message_is_available : NServiceBusTransportTest
     {
         var onMessageInvoked = CreateTaskCompletionSource<MessageContext>();
 
-        byte[] messageBody = null;
-
         await StartPump(
-            (context, _) =>
-            {
-                messageBody = context.Body.ToArray();
-                return onMessageInvoked.SetCompleted(context);
-            },
+            (context, _) => onMessageInvoked.SetCompleted(new MessageContext(
+                context.NativeMessageId,
+                new Dictionary<string, string>(context.Headers),
+                context.Body.ToArray(),
+                context.TransportTransaction,
+                context.ReceiveAddress,
+                context.Extensions)),
             (_, __) => Task.FromResult(ErrorHandleResult.Handled),
             transactionMode);
 
-        await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } }, body: new byte[] { 1, 2, 3 });
+        await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } }, body: [1, 2, 3]);
 
         var messageContext = await onMessageInvoked.Task;
 
@@ -34,7 +35,7 @@ public class When_message_is_available : NServiceBusTransportTest
         {
             Assert.That(string.IsNullOrEmpty(messageContext.NativeMessageId), Is.False, "Should pass the native message id");
             Assert.That(messageContext.Headers["MyHeader"], Is.EqualTo("MyValue"), "Should pass the message headers");
-            Assert.That(messageBody, Is.EqualTo(new byte[] { 1, 2, 3 }), "Should pass the body");
+            Assert.That(messageContext.Body.Span.SequenceEqual(new byte[] { 1, 2, 3 }), Is.True, "Should pass the body");
         }
     }
 }

@@ -62,7 +62,7 @@ public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
                 return Task.CompletedTask;
             }
 
-            public Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context) => ReplyToOriginator(context, new MyReplyToOriginator());
+            public Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context) => ReplyToOriginator<MyReplyToOriginator>(context, new MyReplyToOriginator());
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper) =>
                 mapper.MapSaga(s => s.SagaCorrelationId)

@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,7 +17,7 @@ class EnvelopeComponent(EnvelopeComponent.Settings settings)
     {
         readonly Dictionary<Type, Func<IServiceProvider, IEnvelopeHandler>> factories = [];
 
-        public void AddEnvelopeHandler<THandler>() where THandler : IEnvelopeHandler
+        public void AddEnvelopeHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler>() where THandler : IEnvelopeHandler
         {
             if (factories.ContainsKey(typeof(THandler)))
             {

@@ -18,7 +18,7 @@ class MigrationModePublishConnector : StageConnector<IOutgoingPublishContext, IO
 
     public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
     {
-        context.Headers[Headers.MessageIntent] = MessageIntent.Publish.ToString();
+        context.Headers[Headers.MessageIntent] = nameof(MessageIntent.Publish);
 
         var eventType = context.Message.MessageType;
         var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);

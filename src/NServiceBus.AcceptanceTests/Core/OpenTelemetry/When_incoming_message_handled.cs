@@ -73,7 +73,9 @@ public class When_incoming_message_handled : NServiceBusAcceptanceTest
                             {
                                 try
                                 {
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                                     await session.SendLocal(messageFactory.Invoke());
+#pragma warning restore NSB0040
                                 }
                                 catch (Exception e)
                                 {

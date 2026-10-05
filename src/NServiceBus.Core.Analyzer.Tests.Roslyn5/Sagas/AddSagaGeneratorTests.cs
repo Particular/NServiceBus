@@ -8,6 +8,61 @@ using Particular.AnalyzerTesting;
 public class AddSagaGeneratorTests
 {
     [Test]
+    public void FinderOnlySagas()
+    {
+        var source = """
+                     using System.Threading;
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+                     using NServiceBus.Persistence;
+                     using NServiceBus.Extensibility;
+                     using NServiceBus.Sagas;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.FinderOnlySagasAssembly.AddAll();
+                         }
+                     }
+
+                     namespace FinderOnly
+                     {
+                         [Saga]
+                         public class FinderOnlySaga : Saga<FinderOnlySagaData>,
+                             IAmStartedByMessages<StartSagaMessage>
+                         {
+                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<FinderOnlySagaData> mapper)
+                             {
+                                 mapper.ConfigureFinderMapping<StartSagaMessage, FinderOnlyFinder>();
+                             }
+
+                             public Task Handle(StartSagaMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+
+                         public class FinderOnlySagaData : ContainSagaData
+                         {
+                             public string Property { get; set; }
+                         }
+
+                         public class FinderOnlyFinder : ISagaFinder<FinderOnlySagaData, StartSagaMessage>
+                         {
+                             public Task<FinderOnlySagaData> FindBy(StartSagaMessage message, ISynchronizedStorageSession storageSession, IReadOnlyContextBag context, CancellationToken cancellationToken = default) => Task.FromResult(default(FinderOnlySagaData));
+                         }
+
+                         public class StartSagaMessage : IMessage;
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Run()
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void BasicSagas()
     {
         var source = """

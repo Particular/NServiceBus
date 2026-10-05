@@ -7,13 +7,8 @@ using System.Text;
 
 // A StreamReader that excludes XML-illegal characters while reading.
 [RequiresUnreferencedCode(XmlSerializer.TrimmingMessage)]
-class XmlSanitizingStream : StreamReader
+class XmlSanitizingStream(Stream streamToSanitize) : StreamReader(streamToSanitize, true)
 {
-    public XmlSanitizingStream(Stream streamToSanitize)
-        : base(streamToSanitize, true)
-    {
-    }
-
     public static bool IsLegalXmlChar(string xmlVersion, int character)
     {
         switch (xmlVersion)

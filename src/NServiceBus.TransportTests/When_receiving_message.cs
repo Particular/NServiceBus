@@ -1,6 +1,7 @@
 namespace NServiceBus.TransportTests;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Transport;
@@ -23,7 +24,15 @@ public class When_receiving_message : NServiceBusTransportTest
             },
             (context, _) =>
             {
-                onError.SetResult(context);
+                onError.SetResult(new ErrorContext(
+                    context.Exception,
+                    new Dictionary<string, string>(context.Headers),
+                    context.NativeMessageId,
+                    context.Body.ToArray(),
+                    context.TransportTransaction,
+                    context.ImmediateProcessingFailures,
+                    context.ReceiveAddress,
+                    context.Extensions));
                 return Task.FromResult(ErrorHandleResult.Handled);
             },
             transactionMode);

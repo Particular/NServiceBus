@@ -14,7 +14,8 @@ public sealed record HandlerKnownTypes(
     INamedTypeSymbol SagaBase,
     INamedTypeSymbol IMessageHandlerContext,
     INamedTypeSymbol? CancellationTokenType,
-    INamedTypeSymbol? ActivatorUtilitiesConstructorAttributeType)
+    INamedTypeSymbol? ActivatorUtilitiesConstructorAttributeType,
+    INamedTypeSymbol? FromKeyedServicesAttributeType)
 {
     public static bool TryGet(Compilation compilation, [NotNullWhen(true)] out HandlerKnownTypes? knownTypes)
     {
@@ -27,6 +28,7 @@ public sealed record HandlerKnownTypes(
         var iMessageHandlerContext = compilation.GetTypeByMetadataName("NServiceBus.IMessageHandlerContext");
         var cancellationTokenType = compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
         var activatorUtilitiesConstructorAttributeType = compilation.GetTypeByMetadataName("Microsoft.Extensions.DependencyInjection.ActivatorUtilitiesConstructorAttribute");
+        var fromKeyedServicesAttributeType = compilation.GetTypeByMetadataName("Microsoft.Extensions.DependencyInjection.FromKeyedServicesAttribute");
 
         if (iHandleMessages is null || iHandleTimeouts is null || iAmStartedByMessages is null ||
             handlerAttribute is null || sagaBase is null || iMessageHandlerContext is null)
@@ -44,7 +46,8 @@ public sealed record HandlerKnownTypes(
             sagaBase,
             iMessageHandlerContext,
             cancellationTokenType,
-            activatorUtilitiesConstructorAttributeType);
+            activatorUtilitiesConstructorAttributeType,
+            fromKeyedServicesAttributeType);
         return true;
     }
 }

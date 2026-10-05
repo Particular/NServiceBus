@@ -3,12 +3,13 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using Pipeline;
 
 static class BehaviorTypeChecker
 {
-    public static void ThrowIfInvalid(Type behavior, string paramName)
+    public static void ThrowIfInvalid([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type behavior, string paramName)
     {
         ArgumentNullException.ThrowIfNull(behavior);
         if (behavior.IsAbstract)

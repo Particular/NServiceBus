@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NServiceBus.Settings;
 using Transport;
@@ -11,6 +12,7 @@ using Unicast;
 
 partial class ReceiveComponent
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The startup diagnostics message schema is best-effort and reflects over application message properties that may be removed when trimming.")]
     public void AddManifest(HostingComponent.Configuration hostingConfiguration, SettingsHolder settings)
     {
         var messageTypes = configuration.MessageHandlerRegistry.GetMessageTypes();
@@ -24,7 +26,7 @@ partial class ReceiveComponent
             IsEvent = conventions.IsEventType(type),
         });
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Manifest-MessageTypes",
+        hostingConfiguration.AddStartupDiagnosticsSectionFactory("Manifest-MessageTypes",
             () => handledMessages.Select(handledMessage => new ReceiveComponentManifestMessageType
             {
                 Name = handledMessage.MessageType.Name,
@@ -37,25 +39,28 @@ partial class ReceiveComponent
                     Name = prop.Name,
                     Type = prop.PropertyType.Name,
                 }).ToArray()
-            }).ToArray());
+            }).ToArray(), StartupDiagnosticsJsonContext.Default.ReceiveComponentManifestMessageTypeArray);
     }
+}
 
-    record ReceiveComponentManifestMessageType
+sealed record ReceiveComponentManifestMessageType
+{
+    public sealed record SchemaProperty
     {
-        public record SchemaProperty
-        {
-            public required string Name { get; init; }
-            public required string Type { get; init; }
-        }
-
         public required string Name { get; init; }
-        public required string FullName { get; init; }
-        public bool IsMessage { get; init; }
-        public bool IsEvent { get; init; }
-        public bool IsCommand { get; init; }
-        public required SchemaProperty[] Schema { get; init; }
+        public required string Type { get; init; }
     }
 
+    public required string Name { get; init; }
+    public required string FullName { get; init; }
+    public bool IsMessage { get; init; }
+    public bool IsEvent { get; init; }
+    public bool IsCommand { get; init; }
+    public required SchemaProperty[] Schema { get; init; }
+}
+
+partial class ReceiveComponent
+{
     public static Configuration PrepareConfiguration(Settings settings, TransportSeam transportSeam)
     {
         var isSendOnlyEndpoint = settings.IsSendOnlyEndpoint;

@@ -4,6 +4,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -38,6 +40,7 @@ public partial class TestableMessageProcessingContext : TestablePipelineContext,
     /// </summary>
     /// <param name="message">The message to send.</param>
     /// <param name="options">Options for this reply.</param>
+    [RequiresUnreferencedCode(DynamicMemberTypeAccess.RuntimeTypeRoutingTrimmingMessage)]
     public virtual Task Reply(object message, ReplyOptions options)
     {
         repliedMessages.Enqueue(new RepliedMessage<object>(message, options));
@@ -45,10 +48,33 @@ public partial class TestableMessageProcessingContext : TestablePipelineContext,
     }
 
     /// <summary>
+    /// Sends the typed message to the endpoint which sent the message currently being handled.
+    /// </summary>
+    /// <typeparam name="T">The type used to reply with the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
+    /// <param name="message">The message to send.</param>
+    /// <param name="options">Options for this reply.</param>
+    [OverloadResolutionPriority(-1)]
+    public virtual Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, ReplyOptions options)
+    {
+#pragma warning disable IDE0004 // Cast is redundant
+        return Reply((object)message!, options);
+#pragma warning restore IDE0004
+    }
+
+    /// <summary>
+    /// Sends the message with the specified message type to the endpoint which sent the message currently being handled.
+    /// </summary>
+    public virtual Task Reply(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, ReplyOptions options)
+    {
+        MessageTypeValidator.Validate(message, messageType);
+        return Reply(message, options);
+    }
+
+    /// <summary>
     /// Instantiates a message of type T and performs a regular
     /// <see cref="M:NServiceBus.IMessageProcessingContext.Reply(System.Object,NServiceBus.ReplyOptions)" />.
     /// </summary>
-    /// <typeparam name="T">The type of message, usually an interface.</typeparam>
+    /// <typeparam name="T">The type used to reply with the message. It determines how the message is routed and the message type header recorded on the message, and can differ from the runtime type of the message instance as long as the instance is assignable to T.</typeparam>
     /// <param name="messageConstructor">An action which initializes properties of the message.</param>
     /// <param name="options">Options for this reply.</param>
     public virtual Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)

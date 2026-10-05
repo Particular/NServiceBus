@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope;
+﻿#nullable enable
+
+namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;

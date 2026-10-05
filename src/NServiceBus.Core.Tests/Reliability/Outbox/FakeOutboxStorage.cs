@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Tests.Reliability.Outbox;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests.Reliability.Outbox;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,16 +10,17 @@ using NServiceBus.Outbox;
 
 class FakeOutboxStorage : IOutboxStorage
 {
-    public OutboxMessage ExistingMessage { get; set; }
-    public OutboxMessage StoredMessage { get; set; }
+    public OutboxMessage? ExistingMessage { get; set; }
+
+    public OutboxMessage? StoredMessage { get; set; }
 
     public bool WasDispatched { get; set; }
 
-    public Task<OutboxMessage> Get(string messageId, ContextBag options, CancellationToken cancellationToken = default)
+    public Task<OutboxMessage?> Get(string messageId, ContextBag options, CancellationToken cancellationToken = default)
     {
-        if (ExistingMessage != null && ExistingMessage.MessageId == messageId)
+        if (ExistingMessage is not null && ExistingMessage.MessageId == messageId)
         {
-            return Task.FromResult(ExistingMessage);
+            return Task.FromResult<OutboxMessage?>(ExistingMessage);
         }
 
         return Task.FromResult(default(OutboxMessage));

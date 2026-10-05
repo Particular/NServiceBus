@@ -51,4 +51,9 @@ public static class DiagnosticIds
     public const string ConventionBasedHandlerNoAccessibleConstructor = "NSB0036";
     public const string ConventionBasedHandlerAmbiguousConstructor = "NSB0037";
     public const string HandlerClassCannotBeStatic = "NSB0038";
+
+    // Messaging migration diagnostics
+    public const string UseGenericMessageType = "NSB0039";
+    public const string RuntimeTypeMayDiffer = "NSB0040";
+    public const string GenericMessageTypeIsObject = "NSB0041";
 }

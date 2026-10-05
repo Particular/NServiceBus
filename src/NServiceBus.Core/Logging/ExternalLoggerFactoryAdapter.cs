@@ -1,4 +1,5 @@
 #nullable enable
+
 namespace NServiceBus;
 
 using System;
@@ -11,6 +12,8 @@ sealed class ExternalLoggerFactoryAdapter(ILoggerFactory externalFactory, Micros
     readonly ILogger scopeLogger = microsoftLoggerFactory.CreateLogger(MicrosoftLoggerFactoryAdapter.ScopeLoggerName);
 
     public ILog GetLogger(Type type) => GetLogger(type.FullName ?? type.Name);
+
     public ILog GetLogger(string name) => externalFactory.GetLogger(name);
+
     public IDisposable BeginScope(LogScopeState scopeState) => scopeLogger.BeginScope(scopeState) ?? NullScope.Instance;
 }

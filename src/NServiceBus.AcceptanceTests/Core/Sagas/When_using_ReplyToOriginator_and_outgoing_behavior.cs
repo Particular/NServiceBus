@@ -93,7 +93,7 @@ public class When_using_ReplyToOriginator_and_outgoing_behavior : NServiceBusAcc
                 testContext.ContinueSagaMessageCorrId = context.MessageHeaders[Headers.CorrelationId];
                 testContext.SagaContinued = true;
                 testContext.MaybeCompleted();
-                return ReplyToOriginator(context, new ReplyToOriginatorMessage());
+                return ReplyToOriginator<ReplyToOriginatorMessage>(context, new ReplyToOriginatorMessage());
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper) =>

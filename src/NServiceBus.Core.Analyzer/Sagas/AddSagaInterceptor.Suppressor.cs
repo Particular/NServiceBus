@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System.Collections.Immutable;
+using Handlers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -9,16 +10,23 @@ using Microsoft.CodeAnalysis.Operations;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AddSagaInterceptorSuppressor : DiagnosticSuppressor
 {
+    const string Justification = "The AddSaga method has been intercepted by a statically generated variant.";
+
     static readonly SuppressionDescriptor SuppressRUCDiagnostic = new(
         SupressionIds.AddSagaInterceptorSuppression,
         suppressedDiagnosticId: "IL2026",
-        justification: "The AddSaga method has been intercepted by a statically generated variant.");
+        justification: Justification);
+
+    static readonly SuppressionDescriptor SuppressRDCDiagnostic = new(
+        SupressionIds.AddSagaInterceptorAotSuppression,
+        suppressedDiagnosticId: "IL3050",
+        justification: Justification);
 
     public override void ReportSuppressions(SuppressionAnalysisContext context)
     {
         foreach (var diagnostic in context.ReportedDiagnostics)
         {
-            if (diagnostic.Id != SuppressRUCDiagnostic.SuppressedDiagnosticId)
+            if (diagnostic.Id != SuppressRUCDiagnostic.SuppressedDiagnosticId && diagnostic.Id != SuppressRDCDiagnostic.SuppressedDiagnosticId)
             {
                 continue;
             }
@@ -45,12 +53,25 @@ public sealed class AddSagaInterceptorSuppressor : DiagnosticSuppressor
 
             var semanticModel = context.GetSemanticModel(sourceTree);
             var operation = semanticModel.GetOperation(node, context.CancellationToken);
-            if (operation is IInvocationOperation { TargetMethod: { } methodSymbol } && AddSagaInterceptor.Parser.IsAddSagaMethod(methodSymbol))
+            if (operation is not IInvocationOperation { TargetMethod: { } methodSymbol } || !AddSagaInterceptor.Parser.IsAddSagaMethod(methodSymbol))
             {
-                context.ReportSuppression(Suppression.Create(SuppressRUCDiagnostic, diagnostic));
+                continue;
             }
+
+            // Only suppress when an interceptor can actually be emitted for this call site. A saga that cannot be
+            // parsed (no Saga<TSagaData> base, abstract, or otherwise unsupported) keeps the RequiresUnreferencedCode
+            // and RequiresDynamicCode fallback warnings.
+            if (methodSymbol.TypeArguments[0] is not INamedTypeSymbol sagaType ||
+                !HandlerKnownTypes.TryGet(context.Compilation, out var knownTypes) ||
+                Sagas.Parser.Parse(semanticModel, sagaType, knownTypes, context.CancellationToken) is null)
+            {
+                continue;
+            }
+
+            var targetSuppression = diagnostic.Id == SuppressRUCDiagnostic.SuppressedDiagnosticId ? SuppressRUCDiagnostic : SuppressRDCDiagnostic;
+            context.ReportSuppression(Suppression.Create(targetSuppression, diagnostic));
         }
     }
 
-    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => [SuppressRUCDiagnostic];
+    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => [SuppressRUCDiagnostic, SuppressRDCDiagnostic];
 }

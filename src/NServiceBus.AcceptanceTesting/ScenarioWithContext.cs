@@ -21,6 +21,11 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
 
     public async Task<TContext> Run(RunSettings settings, CancellationToken cancellationToken = default)
     {
+        if (!cancellationToken.CanBeCanceled)
+        {
+            cancellationToken = TestContext.CurrentContext.CancellationToken;
+        }
+
         var scenarioContext = new TContext();
         initializer(scenarioContext);
 
@@ -160,7 +165,7 @@ public class ScenarioWithContext<TContext>(Action<TContext> initializer) : IScen
             }
             catch (OperationCanceledException e) when (combinedDoneTokenSource.Token.IsCancellationRequested)
             {
-                throw new TimeoutException(GenerateTestTimedOutMessage(maxTime), e);
+                throw new TimeoutException(GenerateTestTimedOutMessage(maxTime, cancellationToken), e);
             }
         });
         return this;

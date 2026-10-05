@@ -39,7 +39,9 @@ public class When_replying_with_pre_created_interface : NServiceBusAcceptanceTes
             public Task Handle(MyRequest message, IMessageHandlerContext context)
             {
                 var interfaceMessage = messageCreator.CreateInstance<IMyReply>();
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                 return context.Reply(interfaceMessage);
+#pragma warning restore NSB0040
             }
         }
 

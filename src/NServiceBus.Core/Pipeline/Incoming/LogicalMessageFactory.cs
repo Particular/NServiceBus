@@ -45,8 +45,24 @@ public class LogicalMessageFactory
 
         var realMessageType = messageMapper.GetMappedTypeFor(messageType);
 
-        return new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(realMessageType), message);
+        return Create(messageMetadataRegistry.GetMessageMetadata(realMessageType), message);
     }
+
+    /// <summary>
+    /// Creates a new <see cref="LogicalMessage" /> using the specified metadata and message instance without invoking the message mapper.
+    /// </summary>
+    /// <param name="metadata">The metadata for the message.</param>
+    /// <param name="message">The message instance.</param>
+    /// <returns>A new <see cref="LogicalMessage" />.</returns>
+#pragma warning disable CA1822 // Mark members as static
+    public LogicalMessage Create(MessageMetadata metadata, object message)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+        ArgumentNullException.ThrowIfNull(message);
+
+        return new LogicalMessage(metadata, message);
+    }
+#pragma warning restore CA1822 // Mark members as static
 
     readonly IMessageMapper messageMapper;
     readonly MessageMetadataRegistry messageMetadataRegistry;

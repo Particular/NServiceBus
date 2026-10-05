@@ -1,4 +1,5 @@
 ﻿#nullable enable
+
 namespace NServiceBus.Serializers.SystemJson;
 
 using System.Text.Json;

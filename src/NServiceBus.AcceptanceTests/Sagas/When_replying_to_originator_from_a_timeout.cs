@@ -70,7 +70,7 @@ public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceT
 
             public Task Timeout(DelayReply state, IMessageHandlerContext context) =>
                 //reply to originator must be used here since the sender of the incoming message is the TimeoutManager and not the requesting saga
-                ReplyToOriginator(context, new ResponseFromOtherSaga
+                ReplyToOriginator<ResponseFromOtherSaga>(context, new ResponseFromOtherSaga
                 {
                     SomeCorrelationId = Data.CorrIdForRequest
                 });

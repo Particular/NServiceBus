@@ -24,7 +24,15 @@ public class When_modifying_headers_before_on_error : NServiceBusTransportTest
             },
             (context, __) =>
             {
-                errorHandled.SetResult(context);
+                errorHandled.SetResult(new ErrorContext(
+                    context.Exception,
+                    new Dictionary<string, string>(context.Headers),
+                    context.NativeMessageId,
+                    context.Body.ToArray(),
+                    context.TransportTransaction,
+                    context.ImmediateProcessingFailures,
+                    context.ReceiveAddress,
+                    context.Extensions));
                 return Task.FromResult(ErrorHandleResult.Handled);
             },
             transactionMode);

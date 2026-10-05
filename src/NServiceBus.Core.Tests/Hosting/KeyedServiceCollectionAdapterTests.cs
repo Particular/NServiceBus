@@ -9,8 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NUnit.Framework;
 
-#pragma warning disable IDE0028 // Collection initialization can be simplified — test clarity requires explicit Add calls
-
 [TestFixture]
 public class KeyedServiceCollectionAdapterTests
 {
@@ -414,20 +412,6 @@ public class KeyedServiceCollectionAdapterTests
     }
 
     [Test]
-    public void Remove_should_decrement_service_type_count()
-    {
-        var inner = new ServiceCollection();
-        var adapter = new KeyedServiceCollectionAdapter(inner, "ep");
-
-        var descriptor = new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Singleton);
-        adapter.Add(descriptor);
-
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-        adapter.Remove(descriptor);
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.False);
-    }
-
-    [Test]
     public void RemoveAt_should_remove_descriptor_at_index()
     {
         var inner = new ServiceCollection();
@@ -450,27 +434,14 @@ public class KeyedServiceCollectionAdapterTests
     }
 
     [Test]
-    public void RemoveAt_should_decrement_service_type_count()
-    {
-        var inner = new ServiceCollection();
-        var adapter = new KeyedServiceCollectionAdapter(inner, "ep");
-
-        var d1 = new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient);
-        adapter.Add(d1);
-
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-        adapter.RemoveAt(0);
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.False);
-    }
-
-    [Test]
     public void Clear_should_remove_all_from_adapter_and_inner()
     {
         var inner = new ServiceCollection();
-        var adapter = new KeyedServiceCollectionAdapter(inner, "ep");
-
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient));
-        adapter.Add(new ServiceDescriptor(typeof(IBar), typeof(Bar), ServiceLifetime.Scoped));
+        var adapter = new KeyedServiceCollectionAdapter(inner, "ep")
+        {
+            new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient),
+            new ServiceDescriptor(typeof(IBar), typeof(Bar), ServiceLifetime.Scoped)
+        };
 
         adapter.Clear();
 
@@ -479,18 +450,6 @@ public class KeyedServiceCollectionAdapterTests
             Assert.That(adapter, Is.Empty);
             Assert.That(inner, Is.Empty);
         }
-    }
-
-    [Test]
-    public void Clear_should_reset_service_type_counts()
-    {
-        var adapter = CreateAdapter("ep");
-
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient));
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-
-        adapter.Clear();
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.False);
     }
 
     [Test]
@@ -515,78 +474,79 @@ public class KeyedServiceCollectionAdapterTests
     }
 
     [Test]
-    public void ContainsService_should_return_true_for_registered_type()
+    public void ContainsLocalService_should_distinguish_keyed_and_non_keyed_registrations()
     {
         var adapter = CreateAdapter();
         adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient));
+        adapter.Add(new ServiceDescriptor(typeof(IFoo), "sub", typeof(Foo2), ServiceLifetime.Transient));
 
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-    }
-
-    [Test]
-    public void ContainsService_should_return_false_for_unregistered_type()
-    {
-        var adapter = CreateAdapter();
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.False);
-    }
-
-    [Test]
-    public void ContainsService_should_return_true_for_open_generic_when_closed_registered()
-    {
-        var adapter = CreateAdapter();
-        adapter.Add(new ServiceDescriptor(typeof(IGeneric<>), typeof(GenericFoo<>), ServiceLifetime.Transient));
-
-        Assert.That(adapter.ContainsService(typeof(IGeneric<Foo>)), Is.True);
-    }
-
-    [Test]
-    public void ContainsService_should_return_false_for_closed_when_only_other_closed_registered()
-    {
-        var adapter = CreateAdapter();
-        adapter.Add(new ServiceDescriptor(typeof(IGeneric<Foo>), typeof(GenericFoo<Foo>), ServiceLifetime.Transient));
-
-        Assert.That(adapter.ContainsService(typeof(IGeneric<Bar>)), Is.False);
-    }
-
-    [Test]
-    public void ContainsService_should_throw_on_null()
-    {
-        var adapter = CreateAdapter();
-        Assert.Throws<ArgumentNullException>(() => adapter.ContainsService(null!));
-    }
-
-    [Test]
-    public void Multiple_same_type_should_increment_count()
-    {
-        var adapter = CreateAdapter();
-
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient));
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo2), ServiceLifetime.Transient));
-
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-    }
-
-    [Test]
-    public void Removing_all_of_same_type_should_remove_service_type()
-    {
-        var inner = new ServiceCollection();
-        var adapter = new KeyedServiceCollectionAdapter(inner, "ep");
-
-        var d1 = new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient);
-        var d2 = new ServiceDescriptor(typeof(IFoo), typeof(Foo2), ServiceLifetime.Transient);
-        adapter.Add(d1);
-        adapter.Add(d2);
-
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-
-        adapter.Remove(d1);
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-
-        adapter.Remove(d2);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(adapter.ContainsService(typeof(IFoo)), Is.False);
-            Assert.That(inner, Is.Empty);
+            Assert.That(adapter.ContainsLocalService(typeof(IFoo), null), Is.True);
+            Assert.That(adapter.ContainsLocalService(typeof(IFoo), "sub"), Is.True);
+            Assert.That(adapter.ContainsLocalService(typeof(IFoo), "other"), Is.False);
+        }
+    }
+
+    [Test]
+    public void ContainsLocalService_should_match_closed_generic_request_for_open_generic_registration()
+    {
+        var adapter = CreateAdapter();
+        adapter.Add(new ServiceDescriptor(typeof(IGeneric<>), "sub", typeof(GenericFoo<>), ServiceLifetime.Transient));
+
+        Assert.That(adapter.ContainsLocalService(typeof(IGeneric<Foo>), "sub"), Is.True);
+    }
+
+    [Test]
+    public void ContainsLocalService_should_return_false_after_remove()
+    {
+        var adapter = CreateAdapter();
+        var descriptor = new ServiceDescriptor(typeof(IFoo), "sub", typeof(Foo), ServiceLifetime.Transient);
+        adapter.Add(descriptor);
+
+        adapter.Remove(descriptor);
+
+        Assert.That(adapter.ContainsLocalService(typeof(IFoo), "sub"), Is.False);
+    }
+
+    [Test]
+    public void ContainsLocalService_should_return_false_after_remove_at()
+    {
+        var adapter = CreateAdapter();
+        adapter.Add(new ServiceDescriptor(typeof(IFoo), "sub", typeof(Foo), ServiceLifetime.Transient));
+
+        adapter.RemoveAt(0);
+
+        Assert.That(adapter.ContainsLocalService(typeof(IFoo), "sub"), Is.False);
+    }
+
+    [Test]
+    public void ContainsLocalService_should_return_false_after_clear()
+    {
+        var adapter = CreateAdapter();
+        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient));
+        adapter.Add(new ServiceDescriptor(typeof(IFoo), "sub", typeof(Foo2), ServiceLifetime.Transient));
+
+        adapter.Clear();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(adapter.ContainsLocalService(typeof(IFoo), null), Is.False);
+            Assert.That(adapter.ContainsLocalService(typeof(IFoo), "sub"), Is.False);
+        }
+    }
+
+    [Test]
+    public void GetLocalServiceKey_should_project_to_endpoint_composite_key()
+    {
+        var adapter = CreateAdapter("ep");
+
+        var key = adapter.GetLocalServiceKey("sub");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(key.BaseKey, Is.EqualTo("ep"));
+            Assert.That(key.ServiceKey, Is.EqualTo("sub"));
         }
     }
 
@@ -594,9 +554,11 @@ public class KeyedServiceCollectionAdapterTests
     public void Add_should_augment_non_keyed_descriptor_to_keyed_in_inner()
     {
         var inner = new ServiceCollection();
-        var adapter = new KeyedServiceCollectionAdapter(inner, "ep");
 
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Singleton));
+        _ = new KeyedServiceCollectionAdapter(inner, "ep")
+        {
+            new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Singleton)
+        };
 
         Assert.That(inner[0].ServiceKey, Is.InstanceOf<KeyedServiceKey>());
         var key = (KeyedServiceKey)inner[0].ServiceKey!;
@@ -611,9 +573,11 @@ public class KeyedServiceCollectionAdapterTests
     public void Add_should_augment_keyed_descriptor_with_composite_key_in_inner()
     {
         var inner = new ServiceCollection();
-        var adapter = new KeyedServiceCollectionAdapter(inner, "ep");
 
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), "sub", typeof(Foo), ServiceLifetime.Singleton));
+        _ = new KeyedServiceCollectionAdapter(inner, "ep")
+        {
+            new ServiceDescriptor(typeof(IFoo), "sub", typeof(Foo), ServiceLifetime.Singleton)
+        };
 
         Assert.That(inner[0].ServiceKey, Is.InstanceOf<KeyedServiceKey>());
         var key = (KeyedServiceKey)inner[0].ServiceKey!;
@@ -667,10 +631,11 @@ public class KeyedServiceCollectionAdapterTests
     public void Clear_should_remove_all_from_inner()
     {
         var inner = new ServiceCollection();
-        var adapter = new KeyedServiceCollectionAdapter(inner, "ep");
-
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Singleton));
-        adapter.Add(new ServiceDescriptor(typeof(IBar), typeof(Bar), ServiceLifetime.Scoped));
+        var adapter = new KeyedServiceCollectionAdapter(inner, "ep")
+        {
+            new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Singleton),
+            new ServiceDescriptor(typeof(IBar), typeof(Bar), ServiceLifetime.Scoped)
+        };
 
         adapter.Clear();
 
@@ -823,36 +788,6 @@ public class KeyedServiceCollectionAdapterTests
         Assert.That(adapter[0].ImplementationInstance, Is.SameAs(instance));
     }
 
-    [Test]
-    public void Service_type_counts_should_track_multiple_registrations()
-    {
-        var inner = new ServiceCollection();
-        var adapter = new KeyedServiceCollectionAdapter(inner, "ep");
-
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo), ServiceLifetime.Transient));
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo2), ServiceLifetime.Transient));
-        adapter.Add(new ServiceDescriptor(typeof(IFoo), typeof(Foo3), ServiceLifetime.Transient));
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-            Assert.That(inner, Has.Count.EqualTo(3));
-        }
-
-        adapter.Remove(adapter[0]);
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-
-        adapter.Remove(adapter[0]);
-        Assert.That(adapter.ContainsService(typeof(IFoo)), Is.True);
-
-        adapter.Remove(adapter[0]);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(adapter.ContainsService(typeof(IFoo)), Is.False);
-            Assert.That(inner, Is.Empty);
-        }
-    }
-
     interface IFoo;
 
     interface IBar;
@@ -864,8 +799,6 @@ public class KeyedServiceCollectionAdapterTests
     class Foo : IFoo;
 
     class Foo2 : IFoo;
-
-    class Foo3 : IFoo;
 
     class Bar : IBar;
 

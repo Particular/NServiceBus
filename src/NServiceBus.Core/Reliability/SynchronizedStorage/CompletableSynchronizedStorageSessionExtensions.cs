@@ -1,11 +1,16 @@
+#nullable enable
+
 namespace NServiceBus.Persistence;
 
+using NServiceBus;
 using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
 using Outbox;
 using Pipeline;
 using Transport;
+
+// TODO(nullable-major-release): Investigate if these should even be public. If they should, then they need to have argument validtion added.
 
 /// <summary>
 /// Extension methods for <see cref="ICompletableSynchronizedStorageSession"/>.
@@ -19,7 +24,14 @@ public static class CompletableSynchronizedStorageSessionExtensions
     /// <param name="context">The context information.</param>
     public static ValueTask Open(this ICompletableSynchronizedStorageSession session, IIncomingLogicalMessageContext context)
     {
-        var outboxTransaction = context.Extensions.Get<IOutboxTransaction>();
+        // An outbox transaction is only in the context when an outbox is configured. Substituting the no-op
+        // transaction keeps this contract non-nullable without the receive pipeline having to park a
+        // placeholder in the context on every message.
+        if (!context.Extensions.TryGet<IOutboxTransaction>(out var outboxTransaction))
+        {
+            outboxTransaction = NoOpOutboxTransaction.Instance;
+        }
+
         var transportTransaction = context.Extensions.Get<TransportTransaction>();
         return session.Open(outboxTransaction, transportTransaction, context.Extensions, context.CancellationToken);
     }

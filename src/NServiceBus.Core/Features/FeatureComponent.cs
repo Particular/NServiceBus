@@ -17,7 +17,7 @@ class FeatureComponent(FeatureComponent.Settings settings)
     {
         var featureStats = SetupFeatures(featureConfigurationContext, settings);
 
-        settings.AddStartupDiagnosticsSection("Features", featureStats);
+        settings.AddStartupDiagnosticsSection("Features", featureStats, StartupDiagnosticsJsonContext.Default.FeatureDiagnosticDataArray);
     }
 
     public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext, SettingsHolder settings)

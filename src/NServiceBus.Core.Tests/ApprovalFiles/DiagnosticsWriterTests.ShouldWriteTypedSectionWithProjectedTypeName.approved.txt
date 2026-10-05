@@ -1,0 +1,1 @@
+{"WithType":{"Type":"NServiceBus.Core.Tests.OpenTelemetry.DiagnosticsWriterTests"}}

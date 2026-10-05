@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Utils.Reflection;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Utils.Reflection;
 
 using System;
 using NUnit.Framework;
@@ -19,7 +21,7 @@ public class InspectTests
 
         public class Target
         {
-            public string Property { get; set; }
+            public required string Property { get; set; }
         }
     }
 
@@ -36,7 +38,7 @@ public class InspectTests
 
         public class Target
         {
-            public string Field;
+            public required string Field;
         }
     }
 
@@ -61,12 +63,12 @@ public class InspectTests
 
         public class Target1
         {
-            public Target2 Property1 { get; set; }
+            public required Target2 Property1 { get; set; }
         }
 
         public class Target2
         {
-            public string Property2 { get; set; }
+            public required string Property2 { get; set; }
         }
     }
 }

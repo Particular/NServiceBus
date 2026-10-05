@@ -4,6 +4,8 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Pipeline;
 
@@ -25,32 +27,68 @@ abstract class IncomingContext : BehaviorContext, IIncomingContext
 
     public IReadOnlyDictionary<string, string> MessageHeaders { get; }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Send(object message, SendOptions options)
     {
         return MessageOperations.Send(this, message, options);
     }
 
-    public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+    [OverloadResolutionPriority(-1)]
+    public Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, SendOptions options)
+    {
+        return MessageOperations.Send(this, message, options);
+    }
+
+    public Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions options)
+    {
+        return MessageOperations.Send(this, message, messageType, options);
+    }
+
+    public Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions options)
     {
         return MessageOperations.Send(this, messageConstructor, options);
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Publish(object message, PublishOptions options)
     {
         return MessageOperations.Publish(this, message, options);
     }
 
-    public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+    [OverloadResolutionPriority(-1)]
+    public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, PublishOptions options)
+    {
+        return MessageOperations.Publish(this, message, options);
+    }
+
+    public Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions options)
+    {
+        return MessageOperations.Publish(this, message, messageType, options);
+    }
+
+    public Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions)
     {
         return MessageOperations.Publish(this, messageConstructor, publishOptions);
     }
 
+    [RequiresUnreferencedCode(MessageOperations.RuntimeTypeRoutingTrimmingMessage)]
     public Task Reply(object message, ReplyOptions options)
     {
         return MessageOperations.Reply(this, message, options);
     }
 
-    public Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
+    [OverloadResolutionPriority(-1)]
+    public Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(T message, ReplyOptions options)
+    {
+        return MessageOperations.Reply(this, message, options);
+    }
+
+    public Task Reply(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, ReplyOptions options)
+    {
+        return MessageOperations.Reply(this, message, messageType, options);
+    }
+
+    public Task Reply<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, ReplyOptions options)
     {
         return MessageOperations.Reply(this, messageConstructor, options);
     }

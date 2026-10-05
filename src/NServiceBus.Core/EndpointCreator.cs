@@ -7,7 +7,6 @@ using System.Linq;
 using Features;
 using Logging;
 using MessageInterfaces;
-using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
@@ -34,6 +33,9 @@ class EndpointCreator
         var assemblyScanningComponent = AssemblyScanningComponent.Initialize(assemblyScanningConfiguration, settings);
 
         assemblyScanningConfiguration.SetDefaultAvailableTypes(assemblyScanningComponent.AvailableTypes);
+        // The component is the authority on strict registered-only mode: it is only enabled when scanning is disabled
+        // AND the application is trimmed or dynamic code is unavailable.
+        assemblyScanningConfiguration.StrictRegisteredOnlyMode = assemblyScanningComponent.IsStrictRegisteredOnlyMode;
 
         endpointConfiguration.FinalizeConfiguration(assemblyScanningComponent.AvailableTypes);
 
@@ -59,7 +61,7 @@ class EndpointCreator
 
         return endpointCreator;
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
         static void DiscoverInstallers(InstallerComponent.Settings installerSettings, List<Type> availableTypes) => installerSettings.AddScannedInstallers(availableTypes);
     }
 
@@ -116,9 +118,6 @@ class EndpointCreator
 
         var routingConfiguration = RoutingComponent.Configure(settings.Get<RoutingComponent.Settings>());
 
-        var messageMapper = new MessageMapper();
-        settings.Set<IMessageMapper>(messageMapper);
-
         recoverabilityComponent = new RecoverabilityComponent(settings);
 
         var sagaSettings = settings.Get<SagaComponent.Settings>();
@@ -146,7 +145,7 @@ class EndpointCreator
             pipelineSettings,
             hostingConfiguration);
 
-        sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, messageMapper);
+        sendComponent = SendComponent.Initialize(pipelineSettings, hostingConfiguration, routingComponent, settings.Get<IMessageMapper>());
 
         envelopeComponent = new EnvelopeComponent(settings.Get<EnvelopeComponent.Settings>());
 
@@ -167,12 +166,13 @@ class EndpointCreator
         pipelineSettings.PreventChanges();
 
         settings.AddStartupDiagnosticsSection("Endpoint",
-            new
+            new EndpointDiagnostics
             {
                 Name = settings.EndpointName(),
                 SendOnly = settings.Get<bool>("Endpoint.SendOnly"),
                 NServiceBusVersion = VersionInformation.MajorMinorPatch
-            }
+            },
+            StartupDiagnosticsJsonContext.Default.EndpointDiagnostics
         );
 
         // Make Metrics a first class citizen in Core by enabling once and for all them when creating the endpoint
@@ -181,20 +181,27 @@ class EndpointCreator
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
         MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = SuppressJustification)]
         static void DiscoverHandlers(ReceiveComponent.Settings receiveSettings, ICollection<Type> availableTypes) => receiveSettings.MessageHandlerRegistry.AddScannedHandlers(availableTypes);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = SuppressJustification)]
         static void DiscoverSagas(SagaComponent.Settings sagaSettings, ICollection<Type> availableTypes) => sagaSettings.AddDiscoveredSagas(availableTypes);
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingSuppressJustification)]
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
         static void DiscoverFeatures(ICollection<Type> availableTypes, FeatureComponent.Settings featureSettings) => featureSettings.AddScannedTypes(availableTypes);
     }
 
     void ConfigureMessageTypes(IEnumerable<Type> messageTypesHandled)
     {
-        var allowDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
+        var configuredDynamicTypeLoading = settings.IsDynamicTypeLoadingEnabled();
+        var strictMode = settings.Get<AssemblyScanningComponent.Configuration>().StrictRegisteredOnlyMode;
         var messageMetadataRegistry = settings.GetOrCreate<MessageMetadataRegistry>();
+        // Strict mode is the stronger non-overridable policy: it must be in effect before Initialize so
+        // pre-initialization registrations are enforced against it, and it disables dynamic type loading.
+        var allowDynamicTypeLoading = configuredDynamicTypeLoading && !strictMode;
+        messageMetadataRegistry.StrictRegisteredOnlyMode = strictMode;
         messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
 
         messageMetadataRegistry.RegisterMessageTypes(hostingConfiguration.AvailableTypes);
@@ -202,14 +209,14 @@ class EndpointCreator
 
         var foundMessages = messageMetadataRegistry.GetAllMessages();
 
-        settings.AddStartupDiagnosticsSection("Messages", new
+        settings.AddStartupDiagnosticsSection("Messages", new MessagesDiagnostics
         {
             CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
             MessageConventions = conventions.RegisteredConventions,
             NumberOfMessagesFoundAtStartup = foundMessages.Length,
-            Messages = foundMessages.Select(m => m.MessageType.FullName),
+            Messages = foundMessages.Select(m => m.MessageType.FullName).ToArray(),
             AllowDynamicTypeLoading = allowDynamicTypeLoading
-        });
+        }, StartupDiagnosticsJsonContext.Default.MessagesDiagnostics);
     }
 
     internal StartableEndpoint CreateStartableEndpoint(IServiceProvider serviceProvider, string containerType, IAsyncDisposable serviceProviderLease)
@@ -218,7 +225,7 @@ class EndpointCreator
         ArgumentNullException.ThrowIfNull(containerType);
         ArgumentNullException.ThrowIfNull(serviceProviderLease);
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Container", new { Type = containerType });
+        hostingConfiguration.AddStartupDiagnosticsSection("Container", new ContainerDiagnostics { Type = containerType }, StartupDiagnosticsJsonContext.Default.ContainerDiagnostics);
 
         return new StartableEndpoint(settings,
             featureComponent,
@@ -250,5 +257,5 @@ class EndpointCreator
     readonly HostingComponent.Configuration hostingConfiguration;
     readonly Conventions conventions;
 
-    internal const string TrimmingSuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
+    internal const string SuppressJustification = "The assembly scanning component has a guard that prevents it from being used when dynamic code is not available so we can safely call this.";
 }

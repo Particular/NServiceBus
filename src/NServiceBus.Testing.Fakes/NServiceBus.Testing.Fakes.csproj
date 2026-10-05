@@ -11,4 +11,8 @@
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Shared\MessageTypeValidator.cs" Link="MessageTypeValidator.cs" />
+  </ItemGroup>
+
 </Project>

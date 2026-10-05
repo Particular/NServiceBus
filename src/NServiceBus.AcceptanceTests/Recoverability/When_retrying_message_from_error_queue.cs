@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using AcceptanceTesting.Customization;
@@ -100,7 +101,7 @@ public class When_retrying_message_from_error_queue : NServiceBusAcceptanceTest
         {
             public Task Handle(FailedMessage message, IMessageHandlerContext context)
             {
-                testContext.AuditHeaders = context.MessageHeaders;
+                testContext.AuditHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                 testContext.MaybeCompleted();
                 return Task.CompletedTask;
             }
