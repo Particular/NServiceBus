@@ -628,6 +628,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
 
     // =============================================================================
     // OPENTELEMETRY V11 BEHAVIOR OPT-IN. EVERYTHING IN THIS BLOCK IS REMOVED IN v11.
@@ -844,6 +846,22 @@ namespace NServiceBus
                 tags.Add(MeterTags.ExecutionResult, error is null ? "success" : "failure");
             }
         }
+    }
+
+    // The pre-v11 "Start dispatching"/"Finished dispatching" events on the incoming span.
+    // TransportReceiveToPhysicalMessageConnector dispatches through here while V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyDispatchEvents
+    {
+        public static async Task DispatchWithEvents(TransportReceiveToPhysicalMessageConnector connector, IBatchDispatchContext batchDispatchContext, Activity activity)
+        {
+            activity.AddEvent(new(StartDispatching, tags: new() { { MessageCount, batchDispatchContext.Operations.Count } }));
+            await connector.Fork(batchDispatchContext).ConfigureAwait(false);
+            activity.AddEvent(new(FinishedDispatching));
+        }
+
+        const string StartDispatching = "Start dispatching";
+        const string FinishedDispatching = "Finished dispatching";
+        const string MessageCount = "message-count";
     }
 
     public partial class InstrumentationOptions

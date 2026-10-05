@@ -136,17 +136,10 @@ partial class TransportReceiveToPhysicalMessageConnector(
         if (!V11BehaviorSwitch.UseV11Behavior && // removed in v11 together with the events, see obsoletes-v10.cs
             batchDispatchContext.Extensions.TryGetIncomingPipelineActivity(out var activity))
         {
-            return DispatchWithEvents(batchDispatchContext, activity);
+            return LegacyDispatchEvents.DispatchWithEvents(this, batchDispatchContext, activity);
         }
 
         return this.Fork(batchDispatchContext);
-    }
-
-    async Task DispatchWithEvents(IBatchDispatchContext batchDispatchContext, Activity activity)
-    {
-        activity.AddEvent(new("Start dispatching", tags: new() { { "message-count", batchDispatchContext.Operations.Count } }));
-        await this.Fork(batchDispatchContext).ConfigureAwait(false);
-        activity.AddEvent(new("Finished dispatching"));
     }
 
     static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
