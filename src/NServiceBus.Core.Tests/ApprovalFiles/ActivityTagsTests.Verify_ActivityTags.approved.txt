@@ -41,18 +41,8 @@
     "ErrorType => error.type",
     "RecoverabilityAction => nservicebus.recoverability_action"
   ],
-  "ActivitySourceVersions": [
-    {
-      "Name": "Main",
-      "Version": "0.1.0"
-    },
-    {
-      "Name": "Handler",
-      "Version": "0.1.0"
-    },
-    {
-      "Name": "Recoverability",
-      "Version": "0.1.0"
-    }
-  ]
+  "ActivitySourceVersion": {
+    "PreV11Version": "0.1.0",
+    "Version": "1.0.0"
+  }
 }

@@ -665,9 +665,11 @@ namespace NServiceBus
     // - The legacy `otel.status_code`/`otel.status_description` tags (redundant with Activity.Status) and
     //   the deprecated `exception.escaped` exception event attribute are no longer set on failures.
     //   https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
+    // - The ActivitySources report version 1.0.0 instead of 0.1.0, so a consumer can tell the two tag and
+    //   span-name sets apart.
     //
     // In v11: delete this entire namespace block, search the code base for `V11BehaviorSwitch` and keep
-    // only the branch each check guards for the enabled case. ActivityFactory, ContextPropagation,
+    // only the branch each check guards for the enabled case. ActivityFactory, ActivitySources, ContextPropagation,
     // MessageOperations, RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector and
     // PipelineMetrics are the production call sites. Delete the pre-v11 default tests
     // (ContextPropagationDefaultBehaviorTests, LegacyContextPropagationTests, TransportParentSpanDefaultBehaviorTests,
