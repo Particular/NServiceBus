@@ -35,8 +35,8 @@ A pull request is listed here only when it is the canonical record for a decisio
 - Out-of-slot logging is routed through a DI-registered ambient `AsyncLocal` factory instead of mutating `LogManager` global state — [#7758](https://github.com/Particular/NServiceBus/pull/7758)
 - `ContextBag`/`BehaviorContext` store pipeline context values in a fixed-size inline array instead of a lazily allocated dictionary — [#7823](https://github.com/Particular/NServiceBus/pull/7823)
 - `DispatchProperties`/`ReceiveProperties` keep well-known keys in dedicated fields instead of a plain `Dictionary<string,string>` — [#7843](https://github.com/Particular/NServiceBus/pull/7843)
+- Metric tags are customized per instrument from inside the pipeline through `IMetricsTags`; deriving tags from the ambient `Activity` was rejected — [#7912](https://github.com/Particular/NServiceBus/pull/7912)
+- Queue and discriminator metric tags are omitted for send-only endpoints, and the endpoint name belongs on the OpenTelemetry resource, not on a tag — [#7936](https://github.com/Particular/NServiceBus/pull/7936)
 - Host id generation and the learning saga persister use an XxHash128-based `DeterministicGuid`, with the legacy MD5 path kept behind an `AppContext` switch until removal in v12 — [#7723](https://github.com/Particular/NServiceBus/pull/7723)
-- OpenTelemetry baggage propagation through `DistributedContextPropagator` is gated behind an `AppContext` switch until v11 to keep rolling upgrades compatible — [#7825](https://github.com/Particular/NServiceBus/pull/7825)
-- Trace-continuation behavior for delayed messages is configurable rather than fixed — [#7845](https://github.com/Particular/NServiceBus/pull/7845)
 
 Keep this index current when a canonical source is added, replaced, or retired; link, do not copy.
