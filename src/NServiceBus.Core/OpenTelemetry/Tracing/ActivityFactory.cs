@@ -209,7 +209,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
     {
         if (recoverabilityAction is ImmediateRetry)
         {
-            activity.AddTag(ActivityTags.RecoverabilityAction, "immediate_retry");
+            activity.AddTag(ActivityTags.RecoverabilityAction, ActivityTagValues.ImmediateRetry);
             activity.DisplayName = ActivityDisplayNames.ImmediateRetryOperation;
 
             if (V11BehaviorSwitch.UseV11Behavior)
@@ -219,7 +219,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
         else if (recoverabilityAction is DelayedRetry)
         {
-            activity.AddTag(ActivityTags.RecoverabilityAction, "delayed_retry");
+            activity.AddTag(ActivityTags.RecoverabilityAction, ActivityTagValues.DelayedRetry);
             activity.DisplayName = ActivityDisplayNames.DelayedRetryOperation;
 
             if (V11BehaviorSwitch.UseV11Behavior)
@@ -229,15 +229,15 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
         else if (recoverabilityAction is MoveToError moveToError)
         {
-            activity.AddTag(ActivityTags.RecoverabilityAction, "move_to_error");
+            activity.AddTag(ActivityTags.RecoverabilityAction, ActivityTagValues.MoveToError);
 
             activity.DisplayName = V11BehaviorSwitch.UseV11Behavior
                 ? $"{ActivityDisplayNames.MoveToErrorOperation} {moveToError.ErrorQueue}"
-                : $"{ActivityDisplayNames.MoveToErrorOperation} error";
+                : ActivityDisplayNames.MoveToError;
         }
         else if (recoverabilityAction is Discard)
         {
-            activity.AddTag(ActivityTags.RecoverabilityAction, "discard");
+            activity.AddTag(ActivityTags.RecoverabilityAction, ActivityTagValues.Discard);
             activity.DisplayName = ActivityDisplayNames.DiscardOperation;
         }
     }
