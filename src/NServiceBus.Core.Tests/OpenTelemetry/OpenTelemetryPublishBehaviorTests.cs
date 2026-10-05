@@ -26,7 +26,7 @@ public class OpenTelemetryPublishBehaviorTests
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
-        Assert.That(context.Headers[Headers.StartNewTrace], Is.EqualTo(bool.FalseString));
+        Assert.That(context.Headers, Does.Not.ContainKey(Headers.StartNewTrace));
     }
 
     [Test]
@@ -38,7 +38,7 @@ public class OpenTelemetryPublishBehaviorTests
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
-        Assert.That(context.Headers[Headers.StartNewTrace], Is.EqualTo(bool.FalseString));
+        Assert.That(context.Headers, Does.Not.ContainKey(Headers.StartNewTrace));
     }
 
     [Test]
