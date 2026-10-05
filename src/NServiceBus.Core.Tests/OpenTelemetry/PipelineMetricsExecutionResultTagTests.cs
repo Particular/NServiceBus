@@ -35,7 +35,7 @@ public class PipelineMetricsExecutionResultTagTests
         using var listener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
         var metrics = new PipelineMetrics(meterFactory, "queue", "disc");
-        metrics.RecordMessageProcessingFailure(new PipelineMetricTags(), new InvalidOperationException("boom"));
+        metrics.RecordMessageProcessingFailure(new PipelineTelemetry(), new InvalidOperationException("boom"));
 
         Assert.That(listener.Tags, Has.Count.EqualTo(1), "exactly one metric is expected to be recorded");
         return listener.Tags.Values.Single();

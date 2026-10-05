@@ -300,9 +300,17 @@ public class ContextBag : IReadOnlyContextBag
 
     internal Func<IBehaviorContext, Task> Invoker { get; set; }
 
+    /// <summary>
+    /// The tracing and metrics state of the message this bag belongs to. Held once on the root bag and reached
+    /// from every child bag without a key lookup or a walk up the parent chain. Created on first access.
+    /// </summary>
+    internal PipelineTelemetry Telemetry => root.telemetry ??= new PipelineTelemetry();
+
     internal ContextBag? parentBag;
 
     private protected ContextBag root;
+
+    PipelineTelemetry? telemetry;
 
     SlotArray slots;
     int count;

@@ -47,7 +47,7 @@ class DeserializeMessageConnector(
         {
             if (first) // ignore the legacy case in which a single message payload contained multiple messages
             {
-                context.PipelineMetricTags.Add(MeterTags.MessageType, message.MessageType.FullName!);
+                context.Telemetry.Add(MeterTags.MessageType, message.MessageType.FullName!);
                 first = false;
             }
             await stage(this.CreateIncomingLogicalMessageContext(message, context)).ConfigureAwait(false);

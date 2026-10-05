@@ -7,13 +7,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 /// <summary>
-/// Captures possible metric tags that can be applied to a metric throughout the incoming processing pipeline.
+/// The tracing and metrics state of the message currently being processed: the incoming pipeline activity and the
+/// metric tags that can be applied to a metric throughout the incoming processing pipeline.
 /// </summary>
-sealed class PipelineMetricTags : IMetricsTags
+/// <remarks>
+/// One instance lives on the root <see cref="Extensibility.ContextBag"/> of a message and is reached through
+/// <see cref="Extensibility.ContextBag.Telemetry"/> as a typed field, so no key lookup or parent walk is involved.
+/// It is created for every incoming message, whether or not any listener or instrument is enabled. The two tags the
+/// pipeline itself always adds get dedicated fields so that the common path allocates nothing beyond this object.
+/// Everything else goes into dictionaries that are only allocated on first use.
+/// </remarks>
+sealed class PipelineTelemetry : IMetricsTags
 {
-    // One instance is created for every incoming message, whether or not any instrument is enabled. The two tags
-    // the pipeline itself always adds get dedicated fields so that the common path allocates nothing beyond this
-    // object. Everything else goes into dictionaries that are only allocated on first use.
+    /// <summary>
+    /// The activity of the incoming pipeline, when one was started. Per message, so it lives here; the outgoing
+    /// pipeline activity is per operation and stays on the outgoing context, see <see cref="ActivityExtensions"/>.
+    /// </summary>
+    public Activity? IncomingActivity { get; set; }
+
     string? messageType;
     string? messageHandlerTypes;
     Dictionary<string, KeyValuePair<string, object?>>? tags;

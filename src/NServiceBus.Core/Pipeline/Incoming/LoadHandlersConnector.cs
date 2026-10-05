@@ -45,7 +45,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
 
             // capture the message handler types to add them as tags to applicable metrics. The set of handlers for a
             // message type is fixed after startup, so the joined string is computed once per message type.
-            context.PipelineMetricTags.Add(MeterTags.MessageHandlerTypes, handlerTypesTags.GetOrAdd(
+            context.Telemetry.Add(MeterTags.MessageHandlerTypes, handlerTypesTags.GetOrAdd(
                 context.Message.MessageType,
                 static (_, handlers) => string.Join(';', handlers.Select(x => x.HandlerType.FullName)),
                 handlersToInvoke));

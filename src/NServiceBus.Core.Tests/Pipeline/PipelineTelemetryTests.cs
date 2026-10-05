@@ -14,7 +14,7 @@ using Transport;
 using Unicast.Messages;
 
 [TestFixture]
-public class PipelineMetricTagsTests
+public class PipelineTelemetryTests
 {
     [Test]
     public void Should_not_fail_when_handling_more_than_one_logical_message()
@@ -40,7 +40,7 @@ public class PipelineMetricTagsTests
 
         Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
         {
-            c.PipelineMetricTags.Add("Same", "Same");
+            c.Telemetry.Add("Same", "Same");
             return Task.CompletedTask;
         }));
     }

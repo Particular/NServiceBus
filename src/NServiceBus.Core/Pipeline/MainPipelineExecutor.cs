@@ -33,10 +33,10 @@ class MainPipelineExecutor(
             using var incomingMessageHandle = envelopeUnwrapper.UnwrapEnvelope(messageContext);
             IncomingMessage message = incomingMessageHandle;
 
-            var metricTags = messageContext.MetricTags;
+            var telemetry = messageContext.Extensions.Telemetry;
 
             //This needs to happen after envelope unwrapping to ensure the proper value of the EnclosedMessageTypes header
-            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(metricTags, message);
+            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(telemetry, message);
 
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
@@ -49,7 +49,7 @@ class MainPipelineExecutor(
 
             if (activity != null)
             {
-                transportReceiveContext.SetIncomingPipelineActivity(activity);
+                telemetry.IncomingActivity = activity;
             }
 
             try
@@ -74,13 +74,13 @@ class MainPipelineExecutor(
 
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
-                    pipelineMetrics.RecordMessageProcessingFailure(metricTags, ex);
+                    pipelineMetrics.RecordMessageProcessingFailure(telemetry, ex);
                 }
                 throw;
             }
             finally
             {
-                pipelineMetrics.RecordFetchedMessage(metricTags);
+                pipelineMetrics.RecordFetchedMessage(telemetry);
             }
 
             var completedAt = DateTimeOffset.UtcNow;

@@ -81,7 +81,7 @@ public class MainPipelineExecutorTests
             {
                 Assert.That(receivePipeline.PipelineAcitivty.OperationName, Is.EqualTo(ActivityNames.IncomingMessageActivityName));
                 Assert.That(receivePipeline.PipelineAcitivty.DisplayName, Is.EqualTo("process message"));
-                Assert.That(receivePipeline.TransportReceiveContext.Extensions.Get<Activity>(ActivityExtensions.IncomingActivityKey), Is.EqualTo(receivePipeline.PipelineAcitivty));
+                Assert.That(receivePipeline.TransportReceiveContext.Extensions.Telemetry.IncomingActivity, Is.EqualTo(receivePipeline.PipelineAcitivty));
             }
         }
 
