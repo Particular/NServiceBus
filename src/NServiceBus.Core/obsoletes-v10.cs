@@ -668,7 +668,7 @@ namespace NServiceBus
     //
     // In v11: delete this entire namespace block, search the code base for `V11BehaviorSwitch` and keep
     // only the branch each check guards for the enabled case. ActivityFactory, ContextPropagation,
-    // MessageOperations, RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector and
+    // RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector and
     // PipelineMetrics are the production call sites. Delete the pre-v11 default tests
     // (ContextPropagationDefaultBehaviorTests, LegacyContextPropagationTests, TransportParentSpanDefaultBehaviorTests,
     // the "Default_..." tests in HandlerActivitySourceTests) and the switch SetUp/TearDown pairs in the

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
@@ -25,8 +24,6 @@ class MessageOperations(
     protected readonly IPipeline<IOutgoingReplyContext> replyPipeline = replyPipeline;
     protected readonly IPipeline<ISubscribeContext> subscribePipeline = subscribePipeline;
     protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline = unsubscribePipeline;
-    readonly bool useMessageTypeNamesInSpanNames = V11BehaviorSwitch.UseV11Behavior; // removed in v11, see obsoletes-v10.cs
-
 
     public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, PublishOptions options)
     {
@@ -69,11 +66,7 @@ class MessageOperations(
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        var displayName = useMessageTypeNamesInSpanNames
-            ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
-            : ActivityDisplayNames.PublishEvent;
-
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, displayName, publishContext);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, ActivityDisplayNames.PublishEvent, ActivityDisplayNames.PublishOperation, messageType, publishContext);
 
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
         try
@@ -103,11 +96,7 @@ class MessageOperations(
 
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-        var displayName = useMessageTypeNamesInSpanNames
-            ? $"{ActivityDisplayNames.SubscribeEvent} {string.Join(' ', eventTypes.Select(x => x.Name))}"
-            : ActivityDisplayNames.SubscribeEvent;
-
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, displayName, context);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, ActivityDisplayNames.SubscribeEvent, eventTypes, context);
 
         try
         {
@@ -132,11 +121,7 @@ class MessageOperations(
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-        var displayName = useMessageTypeNamesInSpanNames
-            ? $"{ActivityDisplayNames.UnsubscribeEvent} {eventType.Name}"
-            : ActivityDisplayNames.UnsubscribeEvent;
-
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, displayName, context);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, ActivityDisplayNames.UnsubscribeEvent, eventType, context);
 
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
         try
@@ -193,11 +178,7 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        var displayName = useMessageTypeNamesInSpanNames
-            ? $"{ActivityDisplayNames.SendMessage} {messageType.Name}"
-            : ActivityDisplayNames.SendMessage;
-
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, displayName, outgoingContext);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, ActivityDisplayNames.SendMessage, messageType, outgoingContext);
 
         try
         {
@@ -253,11 +234,7 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        var displayName = useMessageTypeNamesInSpanNames
-            ? $"{ActivityDisplayNames.ReplyMessage} {messageType.Name}"
-            : ActivityDisplayNames.ReplyMessage;
-
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, displayName, context);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, ActivityDisplayNames.ReplyMessage, messageType, context);
 
         try
         {
