@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -158,6 +159,44 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
+        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+    }
+
+    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type messageType, IBehaviorContext outgoingContext)
+    {
+        var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
+        if (activity == null)
+        {
+            return activity;
+        }
+
+        // Span names follow the OTel messaging convention "{operation} {message type}" with the v11 behavior.
+        // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
+        var displayName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{operation} {messageType.Name}"
+            : legacyDisplayName;
+
+        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+    }
+
+    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type[] messageTypes, IBehaviorContext outgoingContext)
+    {
+        var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
+        if (activity == null)
+        {
+            return activity;
+        }
+
+        // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
+        var displayName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{operation} {string.Join(' ', messageTypes.Select(x => x.Name))}"
+            : legacyDisplayName;
+
+        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+    }
+
+    static Activity StartOutgoingPipelineActivity(Activity activity, string displayName, IBehaviorContext outgoingContext)
+    {
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.DisplayName = displayName;
         activity.Start();
