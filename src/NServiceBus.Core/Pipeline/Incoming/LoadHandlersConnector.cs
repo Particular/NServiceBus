@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -42,8 +43,12 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
                 LogHandlersInvocation(context, handlersToInvoke);
             }
 
-            // capture the message handler types to add them as tags to applicable metrics
-            context.PipelineMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
+            // capture the message handler types to add them as tags to applicable metrics. The set of handlers for a
+            // message type is fixed after startup, so the joined string is computed once per message type.
+            context.PipelineMetricTags.Add(MeterTags.MessageHandlerTypes, handlerTypesTags.GetOrAdd(
+                context.Message.MessageType,
+                static (_, handlers) => string.Join(';', handlers.Select(x => x.HandlerType.FullName)),
+                handlersToInvoke));
 
             foreach (var messageHandler in handlersToInvoke)
             {
@@ -121,6 +126,8 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
 
         logger.Debug(builder.ToString());
     }
+
+    readonly ConcurrentDictionary<Type, string> handlerTypesTags = new();
 
     static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
     static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
