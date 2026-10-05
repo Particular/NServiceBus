@@ -21,7 +21,6 @@ static class ContextPropagation
             headers[Headers.NServiceBusDiagnosticsTraceParent] = activity.Id;
         }
 
-        // TODO: investigate if we need to improve the switch check for better performance
         // Removed in v11, see obsoletes-v10.cs
         if (!V11BehaviorSwitch.UseV11Behavior)
         {
