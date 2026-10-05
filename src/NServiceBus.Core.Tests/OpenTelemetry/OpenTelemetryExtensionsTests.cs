@@ -14,7 +14,7 @@ public class OpenTelemetryExtensionsTests
 
         options.StartNewTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(options.Context.TryGetTraceModeOverride(out var connector), Is.True);
         Assert.That(connector, Is.EqualTo(TraceMode.StartNew));
     }
 
@@ -25,7 +25,7 @@ public class OpenTelemetryExtensionsTests
 
         options.ContinueExistingTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(options.Context.TryGetTraceModeOverride(out var connector), Is.True);
         Assert.That(connector, Is.EqualTo(TraceMode.ContinueExisting));
     }
 
@@ -36,7 +36,7 @@ public class OpenTelemetryExtensionsTests
 
         options.StartNewTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(options.Context.TryGetTraceModeOverride(out var connector), Is.True);
         Assert.That(connector, Is.EqualTo(TraceMode.StartNew));
     }
 
@@ -47,7 +47,7 @@ public class OpenTelemetryExtensionsTests
 
         options.ContinueExistingTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(options.Context.TryGetTraceModeOverride(out var connector), Is.True);
         Assert.That(connector, Is.EqualTo(TraceMode.ContinueExisting));
     }
 
@@ -59,7 +59,7 @@ public class OpenTelemetryExtensionsTests
         options.ContinueExistingTraceOnReceive();
         options.StartNewTraceOnReceive();
 
-        Assert.That(options.Context.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode connector), Is.True);
+        Assert.That(options.Context.TryGetTraceModeOverride(out var connector), Is.True);
         Assert.That(connector, Is.EqualTo(TraceMode.StartNew));
     }
 

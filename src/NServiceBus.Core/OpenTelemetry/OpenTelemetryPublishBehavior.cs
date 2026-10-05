@@ -11,7 +11,7 @@ class OpenTelemetryPublishBehavior(InstrumentationOptions instrumentationOptions
     public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, Task> next)
     {
         // the per-message override wins over the endpoint-level default
-        var connector = context.Extensions.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode requestedConnector)
+        var connector = context.Extensions.TryGetTraceModeOverride(out var requestedConnector)
             ? requestedConnector
             : instrumentationOptions.PublishTraceMode;
 

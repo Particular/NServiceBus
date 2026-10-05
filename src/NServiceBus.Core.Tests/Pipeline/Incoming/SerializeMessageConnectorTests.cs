@@ -34,7 +34,7 @@ public class SerializeMessageConnectorTests
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
         var context = CreateContext();
-        var incomingTags = context.Extensions.GetOrCreate<PipelineMetricTags>();
+        var incomingTags = context.PipelineMetricTags;
         incomingTags.Add("nservicebus.queue", "queue-from-incoming-pipeline");
         incomingTags.Add("nservicebus.discriminator", "disc-from-incoming-pipeline");
 
