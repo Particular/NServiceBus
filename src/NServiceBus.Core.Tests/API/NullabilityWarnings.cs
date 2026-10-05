@@ -33,18 +33,19 @@ public partial class NullabilityWarnings
     [CancelAfter(30_000)]
     public async Task ApproveNullabilityWarnings(CancellationToken cancellationToken = default)
     {
-        var projectPath = Path.GetFullPath(Path.Combine(
+        var sourceDirectory = Path.GetFullPath(Path.Combine(
             TestContext.CurrentContext.TestDirectory,
-            "..", "..", "..", "..",
-            "NServiceBus.Core",
-            "NServiceBus.Core.csproj"));
+            "..", "..", "..", ".."));
 
-        var warnings = await BuildWithNullableEnabled(projectPath, cancellationToken);
+        var projectPath = Path.Combine(sourceDirectory, "NServiceBus.Core", "NServiceBus.Core.csproj");
+        var repositoryRoot = Path.GetDirectoryName(sourceDirectory)!;
+
+        var warnings = await BuildWithNullableEnabled(projectPath, repositoryRoot, cancellationToken);
 
         Approver.Verify(warnings);
     }
 
-    static async Task<string> BuildWithNullableEnabled(string projectPath, CancellationToken cancellationToken = default)
+    static async Task<string> BuildWithNullableEnabled(string projectPath, string repositoryRoot, CancellationToken cancellationToken = default)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -78,7 +79,7 @@ public partial class NullabilityWarnings
         Assert.That(process.ExitCode, Is.Zero, $"Build failed:{Environment.NewLine}{error}{Environment.NewLine}{output}");
 
         var warnings = NullableWarningRegex().Matches(output)
-            .Select(m => ScrubLine(m.Value.Trim()))
+            .Select(m => ScrubLine(m.Value.Trim(), repositoryRoot))
             .Distinct()
             .OrderBy(w => w, StringComparer.Ordinal)
             .ToList();
@@ -104,17 +105,24 @@ public partial class NullabilityWarnings
         return result.ToString();
     }
 
-    static string ScrubLine(string line)
+    // Build warnings contain absolute paths. They are made relative to the repository root so the
+    // approved file does not depend on where the repository is cloned. Stripping everything before
+    // the first "src/" is not enough, because the clone itself can sit in a directory called "src".
+    static string ScrubLine(string line, string repositoryRoot)
     {
-        line = PathPrefixRegex().Replace(line, "", 1);
         line = line.Replace('\\', '/');
+
+        var prefix = repositoryRoot.Replace('\\', '/').TrimEnd('/') + "/";
+        var index = line.IndexOf(prefix, StringComparison.OrdinalIgnoreCase);
+        if (index >= 0)
+        {
+            line = line.Remove(index, prefix.Length);
+        }
+
         line = LineNumbersRegex().Replace(line, "");
         line = ProjectPathSuffixRegex().Replace(line, "");
         return line;
     }
-
-    [GeneratedRegex(@"^.+?(?=src[\\/])", RegexOptions.IgnoreCase)]
-    private static partial Regex PathPrefixRegex();
 
     [GeneratedRegex(@"\(\d+,\d+\)")]
     private static partial Regex LineNumbersRegex();
