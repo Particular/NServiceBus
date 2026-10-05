@@ -3,8 +3,10 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -72,7 +74,14 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         // so an ambient hierarchical activity does not leak its format into the trace headers.
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
-        ActivityDecorator.PromoteHeadersToTags(activity, headers);
+
+        // IsAllDataRequested is false when a listener sampled this as PropagationData-only: it wants the
+        // activity to exist for context propagation but won't read anything beyond that, so skip the tag work.
+        // The trace state and baggage propagation after Start() is correctness, not enrichment, and runs regardless.
+        if (activity.IsAllDataRequested)
+        {
+            ActivityDecorator.PromoteHeadersToTags(activity, headers);
+        }
 
         // Start before reading the headers: Activity.Parent is only assigned by Start(), and the
         // baggage propagation below skips keys the parent chain already carries.
@@ -136,8 +145,10 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
+        // An endpoint has a handful of receive addresses (main, instance-specific, satellites), so the name is
+        // built once per address instead of once per message. Remove the switch check in v11, see obsoletes-v10.cs.
         activity.DisplayName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
+            ? processDisplayNames.GetOrAdd(context.ReceiveAddress, static address => $"{ActivityDisplayNames.ProcessOperation} {address}")
             : ActivityDisplayNames.ProcessMessage;
 
         return activity;
@@ -151,6 +162,44 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
+        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+    }
+
+    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type messageType, IBehaviorContext outgoingContext)
+    {
+        var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
+        if (activity == null)
+        {
+            return activity;
+        }
+
+        // Span names follow the OTel messaging convention "{operation} {message type}" with the v11 behavior.
+        // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
+        var displayName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{operation} {messageType.Name}"
+            : legacyDisplayName;
+
+        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+    }
+
+    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type[] messageTypes, IBehaviorContext outgoingContext)
+    {
+        var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
+        if (activity == null)
+        {
+            return activity;
+        }
+
+        // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
+        var displayName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{operation} {string.Join(' ', messageTypes.Select(x => x.Name))}"
+            : legacyDisplayName;
+
+        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+    }
+
+    static Activity StartOutgoingPipelineActivity(Activity activity, string displayName, IBehaviorContext outgoingContext)
+    {
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.DisplayName = displayName;
         activity.Start();
@@ -207,6 +256,13 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
     public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
     {
+        // Nothing below is read unless a listener asked for full data (IsAllDataRequested), so bail out early
+        // rather than building tags and DisplayName strings for an activity nobody will inspect.
+        if (!activity.IsAllDataRequested)
+        {
+            return;
+        }
+
         if (recoverabilityAction is ImmediateRetry)
         {
             activity.AddTag(ActivityTags.RecoverabilityAction, "immediate_retry");
@@ -252,8 +308,10 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
-        // Removed in v11, see obsoletes-v10.cs
-        if (!V11BehaviorSwitch.UseV11Behavior)
+        // Legacy tags apply per-activity (each activity on the way up the pipeline gets its own),
+        // unlike the exception event below which is deduped once per exception via ExceptionRecordedFlag.
+        // Only the "is this worth computing" part is guarded by IsAllDataRequested.
+        if (activity.IsAllDataRequested && !V11BehaviorSwitch.UseV11Behavior) // Removed in v11, see obsoletes-v10.cs
         {
             LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
         }
@@ -266,8 +324,9 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
                 logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
                 LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
             }
-            else
+            else if (activity.IsAllDataRequested)
             {
+                // Building the exception event (stack trace) is wasted work when nothing downstream will read it.
                 activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
             }
 
@@ -281,6 +340,8 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
     }
 
     const string ExceptionRecordedFlag = "otel.exception.recorded";
+
+    readonly ConcurrentDictionary<string, string> processDisplayNames = new();
 
     ILogger? logger;
 

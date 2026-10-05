@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using Extensibility;
 
 /// <summary>
 /// Gives users control over the depth of an OpenTelemetry trace.
@@ -28,7 +29,7 @@ public static class OpenTelemetryExtensions
     public static void StartNewTraceOnReceive(this SendOptions sendOptions)
     {
         ArgumentNullException.ThrowIfNull(sendOptions);
-        sendOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.StartNew);
+        sendOptions.Context.SetTraceModeOverride(TraceMode.StartNew);
     }
 
     /// <summary>
@@ -39,7 +40,7 @@ public static class OpenTelemetryExtensions
     public static void ContinueExistingTraceOnReceive(this SendOptions sendOptions)
     {
         ArgumentNullException.ThrowIfNull(sendOptions);
-        sendOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.ContinueExisting);
+        sendOptions.Context.SetTraceModeOverride(TraceMode.ContinueExisting);
     }
 
     /// <summary>
@@ -50,7 +51,7 @@ public static class OpenTelemetryExtensions
     public static void StartNewTraceOnReceive(this PublishOptions publishOptions)
     {
         ArgumentNullException.ThrowIfNull(publishOptions);
-        publishOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.StartNew);
+        publishOptions.Context.SetTraceModeOverride(TraceMode.StartNew);
     }
 
     /// <summary>
@@ -61,8 +62,14 @@ public static class OpenTelemetryExtensions
     public static void ContinueExistingTraceOnReceive(this PublishOptions publishOptions)
     {
         ArgumentNullException.ThrowIfNull(publishOptions);
-        publishOptions.Context.Set(TraceConnectorOverrideKey, TraceMode.ContinueExisting);
+        publishOptions.Context.SetTraceModeOverride(TraceMode.ContinueExisting);
     }
 
-    internal const string TraceConnectorOverrideKey = "NServiceBus.OpenTelemetry.TraceConnectorOverride";
+    // All reads and writes of the per-message trace mode override go through these two helpers, so a change to
+    // the key or the stored type is a compile error at every call site instead of a silent miss at runtime.
+    internal static void SetTraceModeOverride(this ContextBag context, TraceMode traceMode) => context.Set(TraceConnectorOverrideKey, traceMode);
+
+    internal static bool TryGetTraceModeOverride(this ContextBag context, out TraceMode traceMode) => context.TryGet(TraceConnectorOverrideKey, out traceMode);
+
+    const string TraceConnectorOverrideKey = "NServiceBus.OpenTelemetry.TraceConnectorOverride";
 }

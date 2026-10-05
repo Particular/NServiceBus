@@ -33,8 +33,10 @@ class MainPipelineExecutor(
             using var incomingMessageHandle = envelopeUnwrapper.UnwrapEnvelope(messageContext);
             IncomingMessage message = incomingMessageHandle;
 
+            var metricTags = messageContext.MetricTags;
+
             //This needs to happen after envelope unwrapping to ensure the proper value of the EnclosedMessageTypes header
-            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(messageContext.MetricTags, message);
+            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(metricTags, message);
 
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
@@ -72,13 +74,13 @@ class MainPipelineExecutor(
 
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
-                    pipelineMetrics.RecordMessageProcessingFailure(messageContext.MetricTags, ex);
+                    pipelineMetrics.RecordMessageProcessingFailure(metricTags, ex);
                 }
                 throw;
             }
             finally
             {
-                pipelineMetrics.RecordFetchedMessage(messageContext.MetricTags);
+                pipelineMetrics.RecordFetchedMessage(metricTags);
             }
 
             var completedAt = DateTimeOffset.UtcNow;
