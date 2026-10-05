@@ -84,7 +84,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            activityFactory.RecordError(activity, ex, context.Builder);
             throw;
         }
     }
@@ -117,7 +117,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            activityFactory.RecordError(activity, ex, context.Builder);
             throw;
         }
     }
@@ -147,7 +147,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            activityFactory.RecordError(activity, ex, context.Builder);
             throw;
         }
     }
@@ -207,7 +207,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            activityFactory.RecordError(activity, ex, context.Builder);
             throw;
         }
     }
@@ -267,7 +267,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            activityFactory.RecordError(activity, ex, context.Builder);
             throw;
         }
     }

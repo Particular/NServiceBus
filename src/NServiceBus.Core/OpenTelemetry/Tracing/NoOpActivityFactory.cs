@@ -4,7 +4,6 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
-using Extensibility;
 using Pipeline;
 using Transport;
 
@@ -24,7 +23,7 @@ sealed class NoOpActivityFactory : IActivityFactory
     {
     }
 
-    public void RecordError(Activity? activity, Exception exception, ContextBag context)
+    public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider)
     {
     }
 }
