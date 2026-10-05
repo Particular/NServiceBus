@@ -232,7 +232,6 @@ public partial class TransportReceiveToPhysicalMessageConnectorTests
         };
 
         context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
-        context.Extensions.Set(new PipelineMetricTags());
 
         return context;
     }

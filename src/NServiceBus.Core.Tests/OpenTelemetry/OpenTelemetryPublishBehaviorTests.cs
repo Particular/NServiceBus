@@ -34,7 +34,7 @@ public class OpenTelemetryPublishBehaviorTests
     {
         var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishTraceMode = TraceMode.StartNew });
         var context = new TestableOutgoingPublishContext();
-        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceMode.ContinueExisting);
+        context.Extensions.SetTraceModeOverride(TraceMode.ContinueExisting);
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
@@ -46,7 +46,7 @@ public class OpenTelemetryPublishBehaviorTests
     {
         var behavior = new OpenTelemetryPublishBehavior(new InstrumentationOptions { PublishTraceMode = TraceMode.ContinueExisting });
         var context = new TestableOutgoingPublishContext();
-        context.Extensions.Set(OpenTelemetryExtensions.TraceConnectorOverrideKey, TraceMode.StartNew);
+        context.Extensions.SetTraceModeOverride(TraceMode.StartNew);
 
         await behavior.Invoke(context, _ => Task.CompletedTask);
 
