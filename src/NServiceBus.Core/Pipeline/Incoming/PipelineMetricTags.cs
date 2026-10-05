@@ -11,8 +11,13 @@ using System.Diagnostics;
 /// </summary>
 sealed class PipelineMetricTags : IMetricsTags
 {
-    readonly Dictionary<string, KeyValuePair<string, object?>> tags = [];
-    readonly Dictionary<string, Dictionary<string, KeyValuePair<string, object?>>> instrumentTags = [];
+    // One instance is created for every incoming message, whether or not any instrument is enabled. The two tags
+    // the pipeline itself always adds get dedicated fields so that the common path allocates nothing beyond this
+    // object. Everything else goes into dictionaries that are only allocated on first use.
+    string? messageType;
+    string? messageHandlerTypes;
+    Dictionary<string, KeyValuePair<string, object?>>? tags;
+    Dictionary<string, Dictionary<string, KeyValuePair<string, object?>>>? instrumentTags;
 
     /// <inheritdoc />
     /// <remarks>
@@ -21,6 +26,8 @@ sealed class PipelineMetricTags : IMetricsTags
     /// </remarks>
     public void AddOrOverride(string tagKey, object value, string instrumentName)
     {
+        instrumentTags ??= [];
+
         if (!instrumentTags.TryGetValue(instrumentName, out var perInstrumentTags))
         {
             perInstrumentTags = [];
@@ -36,7 +43,22 @@ sealed class PipelineMetricTags : IMetricsTags
     /// <param name="tagKey">The tag to add.</param>
     /// <param name="value">The value assigned to the tag.</param>
     public void Add(string tagKey, object value)
-        => tags.TryAdd(tagKey, new KeyValuePair<string, object?>(tagKey, value));
+    {
+        switch (tagKey)
+        {
+            case MeterTags.MessageType when value is string stringValue:
+                messageType ??= stringValue;
+                return;
+            case MeterTags.MessageHandlerTypes when value is string stringValue:
+                messageHandlerTypes ??= stringValue;
+                return;
+            default:
+                break;
+        }
+
+        tags ??= [];
+        tags.TryAdd(tagKey, new KeyValuePair<string, object?>(tagKey, value));
+    }
 
     /// <summary>
     /// Applies the specified tags to the <paramref name="tagList"/>, replacing any tag already in
@@ -56,13 +78,25 @@ sealed class PipelineMetricTags : IMetricsTags
     {
         foreach (var tagKey in tagKeys)
         {
-            if (tags.TryGetValue(tagKey, out var keyValuePair))
+            switch (tagKey)
             {
-                SetOrAdd(ref tagList, keyValuePair);
+                case MeterTags.MessageType when messageType is not null:
+                    SetOrAdd(ref tagList, new KeyValuePair<string, object?>(tagKey, messageType));
+                    break;
+                case MeterTags.MessageHandlerTypes when messageHandlerTypes is not null:
+                    SetOrAdd(ref tagList, new KeyValuePair<string, object?>(tagKey, messageHandlerTypes));
+                    break;
+                default:
+                    if (tags is not null && tags.TryGetValue(tagKey, out var keyValuePair))
+                    {
+                        SetOrAdd(ref tagList, keyValuePair);
+                    }
+
+                    break;
             }
         }
 
-        if (instrumentName != null && instrumentTags.TryGetValue(instrumentName, out var perInstrumentTags))
+        if (instrumentName != null && instrumentTags is not null && instrumentTags.TryGetValue(instrumentName, out var perInstrumentTags))
         {
             foreach (var (_, keyValuePair) in perInstrumentTags)
             {
