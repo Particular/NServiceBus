@@ -15,7 +15,16 @@ class OpenTelemetryPublishBehavior(InstrumentationOptions instrumentationOptions
             ? requestedConnector
             : instrumentationOptions.PublishTraceMode;
 
-        context.Headers[Headers.StartNewTrace] = connector == TraceMode.StartNew ? bool.TrueString : bool.FalseString;
+        // An absent header means "continue the trace" on receive, so the header is only put on the wire when a
+        // new trace is requested. Remove rather than skip: a caller may have copied it from an incoming message.
+        if (connector == TraceMode.StartNew)
+        {
+            context.Headers[Headers.StartNewTrace] = bool.TrueString;
+        }
+        else
+        {
+            context.Headers.Remove(Headers.StartNewTrace);
+        }
 
         return next(context);
     }
