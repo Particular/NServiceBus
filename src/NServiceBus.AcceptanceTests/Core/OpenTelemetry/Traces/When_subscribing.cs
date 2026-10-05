@@ -64,6 +64,25 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
         Assert.That(subscriptionReceiveActivity, Is.Empty, "native pubsub should not produce a message");
     }
 
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_tag_event_types_as_array()
+    {
+        Requires.MessageDrivenPubSub();
+
+        await Scenario.Define<Context>()
+            .WithEndpoint<SubscribingEndpoint>(e => e
+                .When(s => s.Subscribe<DemoEvent>()))
+            .WithEndpoint<PublishingEndpoint>()
+            .Run();
+
+        var subscribeActivity = NServiceBusActivityListener.CompletedActivities.Single(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe");
+
+        // Array-valued tags are only visible through TagObjects, not Tags.
+        var eventTypes = subscribeActivity.TagObjects.ToImmutableDictionary()["nservicebus.event_types"];
+        Assert.That(eventTypes, Is.EqualTo(new[] { typeof(DemoEvent).FullName }));
+    }
+
     class Context : ScenarioContext;
 
     class SubscribingEndpoint : EndpointConfigurationBuilder

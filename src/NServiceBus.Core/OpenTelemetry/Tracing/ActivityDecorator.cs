@@ -13,10 +13,19 @@ static class ActivityDecorator
         {
             if (HeaderMapping.TryGetValue(header.Key, out var tagName))
             {
-                activity.AddTag(tagName, header.Value);
+                activity.AddTag(tagName, TagValue(header.Key, header.Value));
             }
         }
     }
+
+    // The enclosed message types header is a list, and the OpenTelemetry naming rules ask for an array when an
+    // attribute holds several values. Keep only the array branch in v11, see obsoletes-v10.cs.
+    static object TagValue(string headerKey, string headerValue) =>
+        V11BehaviorSwitch.UseV11Behavior && headerKey == Headers.EnclosedMessageTypes
+            ? headerValue.Split(EnclosedMessageTypesSeparator)
+            : headerValue;
+
+    const char EnclosedMessageTypesSeparator = ';';
 
     internal static readonly Dictionary<string, string> HeaderMapping = new()
     {

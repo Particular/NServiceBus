@@ -671,6 +671,10 @@ namespace NServiceBus
     //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
     //   (snake_case within a dot-delimited component, no hyphens).
     //   https://opentelemetry.io/docs/specs/semconv/general/naming/
+    // - The `nservicebus.event_types` tag on subscribe and unsubscribe spans and the
+    //   `nservicebus.enclosed_message_types` tag on message spans are arrays of full type names instead of
+    //   delimited strings. The OpenTelemetry naming rules ask for an array when an attribute holds several
+    //   values. Array-valued tags are only visible through Activity.TagObjects, not Activity.Tags.
     //
     // In v11: delete this entire namespace block, search the code base for `V11BehaviorSwitch` and keep
     // only the branch each check guards for the enabled case. ActivityFactory, ActivitySources, ContextPropagation,
