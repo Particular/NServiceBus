@@ -12,7 +12,7 @@ class OpenTelemetrySendBehavior(InstrumentationOptions instrumentationOptions) :
     public Task Invoke(IOutgoingSendContext context, Func<IOutgoingSendContext, Task> next)
     {
         // the per-message override wins over the endpoint-level default
-        var operationTraceMode = context.Extensions.TryGet(OpenTelemetryExtensions.TraceConnectorOverrideKey, out TraceMode requestedConnector)
+        var operationTraceMode = context.Extensions.TryGetTraceModeOverride(out var requestedConnector)
             ? requestedConnector
             : instrumentationOptions.SendTraceMode;
 
