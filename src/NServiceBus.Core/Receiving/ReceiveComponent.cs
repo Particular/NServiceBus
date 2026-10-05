@@ -69,7 +69,12 @@ partial class ReceiveComponent
         pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
         {
             var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
-            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<PipelineMetrics>(), hostingConfiguration.ActivityFactory.Options, b.GetRequiredService<ILogger<TransportReceiveToPhysicalMessageConnector>>());
+            return new TransportReceiveToPhysicalMessageConnector(
+                storage,
+                b.GetRequiredService<PipelineMetrics>(),
+                hostingConfiguration.ActivityFactory.Options,
+                b.GetRequiredService<ILogger<TransportReceiveToPhysicalMessageConnector>>()
+            );
         }, "Allows to abort processing the message");
 
         pipelineSettings.Register("LoadHandlersConnector", sp => new LoadHandlersConnector(sp.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory, sp.GetRequiredService<PipelineMetrics>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
@@ -195,7 +200,7 @@ partial class ReceiveComponent
             pipelineComponent,
             messageOperations,
             activityFactory
-            );
+        );
 
         await mainPump.Initialize(
             configuration.PushRuntimeSettings,
