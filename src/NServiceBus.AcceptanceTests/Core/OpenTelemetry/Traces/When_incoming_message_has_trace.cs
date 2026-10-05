@@ -9,6 +9,8 @@ using NUnit.Framework;
 
 public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // assuming W3C trace!
 {
+    const string MessageIdTag = "nservicebus.message_id";
+
     [Test]
     public async Task Should_correlate_trace_from_send()
     {
@@ -40,10 +42,10 @@ public class When_incoming_message_has_trace : OpenTelemetryAcceptanceTest // as
             Assert.That(receiveReply.ParentId, Is.EqualTo(sendReply.Id), "second incoming message is correlated to the second send operation");
             Assert.That(receiveReply.RootId, Is.EqualTo(sendRequest.RootId), "first send operation is the root activity");
 
-            Assert.That(sendRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.IncomingMessageId));
-            Assert.That(receiveRequest.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.IncomingMessageId));
-            Assert.That(sendReply.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.ReplyMessageId));
-            Assert.That(receiveReply.Tags.ToImmutableDictionary()["nservicebus.message_id"], Is.EqualTo(context.ReplyMessageId));
+            Assert.That(sendRequest.Tags.ToImmutableDictionary()[MessageIdTag], Is.EqualTo(context.IncomingMessageId));
+            Assert.That(receiveRequest.Tags.ToImmutableDictionary()[MessageIdTag], Is.EqualTo(context.IncomingMessageId));
+            Assert.That(sendReply.Tags.ToImmutableDictionary()[MessageIdTag], Is.EqualTo(context.ReplyMessageId));
+            Assert.That(receiveReply.Tags.ToImmutableDictionary()[MessageIdTag], Is.EqualTo(context.ReplyMessageId));
         }
     }
 

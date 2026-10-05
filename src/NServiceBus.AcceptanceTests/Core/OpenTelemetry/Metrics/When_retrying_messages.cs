@@ -8,6 +8,10 @@ using NUnit.Framework;
 
 public class When_retrying_messages : OpenTelemetryAcceptanceTest
 {
+    const string ImmediateRetriesMetric = "nservicebus.recoverability.immediate";
+    const string DelayedRetriesMetric = "nservicebus.recoverability.delayed";
+    const string ErrorQueueMetric = "nservicebus.recoverability.error";
+
     [Test]
     public async Task Should_increment_immediate_meter()
     {
@@ -20,9 +24,9 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                 .When(s => s.SendLocal(new FailingMessage())))
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.recoverability.immediate", 1);
-        metricsListener.AssertMetric("nservicebus.recoverability.delayed", 0);
-        metricsListener.AssertMetric("nservicebus.recoverability.error", 0);
+        metricsListener.AssertMetric(ImmediateRetriesMetric, 1);
+        metricsListener.AssertMetric(DelayedRetriesMetric, 0);
+        metricsListener.AssertMetric(ErrorQueueMetric, 0);
     }
 
     [Test]
@@ -43,9 +47,9 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                 .When(s => s.SendLocal(new FailingMessage())))
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.recoverability.immediate", 0);
-        metricsListener.AssertMetric("nservicebus.recoverability.delayed", 1);
-        metricsListener.AssertMetric("nservicebus.recoverability.error", 0);
+        metricsListener.AssertMetric(ImmediateRetriesMetric, 0);
+        metricsListener.AssertMetric(DelayedRetriesMetric, 1);
+        metricsListener.AssertMetric(ErrorQueueMetric, 0);
     }
 
     [Test]
@@ -66,9 +70,9 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
                 .Run();
         }, Throws.Exception);
 
-        metricsListener.AssertMetric("nservicebus.recoverability.immediate", 0);
-        metricsListener.AssertMetric("nservicebus.recoverability.delayed", 0);
-        metricsListener.AssertMetric("nservicebus.recoverability.error", 1);
+        metricsListener.AssertMetric(ImmediateRetriesMetric, 0);
+        metricsListener.AssertMetric(DelayedRetriesMetric, 0);
+        metricsListener.AssertMetric(ErrorQueueMetric, 1);
     }
 
     public class Context : ScenarioContext

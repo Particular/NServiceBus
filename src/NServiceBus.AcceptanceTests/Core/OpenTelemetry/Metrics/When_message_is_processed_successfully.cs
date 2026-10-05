@@ -11,6 +11,15 @@ using Conventions = AcceptanceTesting.Customization.Conventions;
 
 public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTest
 {
+    const string SuccessesMetric = "nservicebus.messaging.successes";
+    const string FetchesMetric = "nservicebus.messaging.fetches";
+    const string CriticalTimeMetric = "nservicebus.messaging.critical_time";
+    const string ProcessingTimeMetric = "nservicebus.messaging.processing_time";
+    const string HandlerTimeMetric = "nservicebus.messaging.handler_time";
+    const string QueueTag = "nservicebus.queue";
+    const string DiscriminatorTag = "nservicebus.discriminator";
+    const string MessageTypeTag = "nservicebus.message_type";
+
     [Test]
     public async Task Should_report_successful_message_metric()
     {
@@ -27,51 +36,51 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
                 }))
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.messaging.successes", 5);
-        metricsListener.AssertMetric("nservicebus.messaging.fetches", 5);
+        metricsListener.AssertMetric(SuccessesMetric, 5);
+        metricsListener.AssertMetric(FetchesMetric, 5);
         metricsListener.AssertMetric("nservicebus.messaging.failures", 0);
-        metricsListener.AssertMetric("nservicebus.messaging.critical_time", 5);
-        metricsListener.AssertMetric("nservicebus.messaging.processing_time", 5);
-        metricsListener.AssertMetric("nservicebus.messaging.handler_time", 5);
+        metricsListener.AssertMetric(CriticalTimeMetric, 5);
+        metricsListener.AssertMetric(ProcessingTimeMetric, 5);
+        metricsListener.AssertMetric(HandlerTimeMetric, 5);
 
-        metricsListener.AssertTags("nservicebus.messaging.fetches",
+        metricsListener.AssertTags(FetchesMetric,
             new Dictionary<string, object>
             {
-                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
-                ["nservicebus.discriminator"] = "disc",
-                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
+                [QueueTag] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                [DiscriminatorTag] = "disc",
+                [MessageTypeTag] = typeof(OutgoingMessage).FullName
             });
 
-        metricsListener.AssertTags("nservicebus.messaging.successes",
+        metricsListener.AssertTags(SuccessesMetric,
             new Dictionary<string, object>
             {
-                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
-                ["nservicebus.discriminator"] = "disc",
-                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
+                [QueueTag] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                [DiscriminatorTag] = "disc",
+                [MessageTypeTag] = typeof(OutgoingMessage).FullName
             });
 
-        metricsListener.AssertTags("nservicebus.messaging.critical_time",
+        metricsListener.AssertTags(CriticalTimeMetric,
             new Dictionary<string, object>
             {
-                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
-                ["nservicebus.discriminator"] = "disc",
-                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
+                [QueueTag] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                [DiscriminatorTag] = "disc",
+                [MessageTypeTag] = typeof(OutgoingMessage).FullName
             });
 
-        metricsListener.AssertTags("nservicebus.messaging.processing_time",
+        metricsListener.AssertTags(ProcessingTimeMetric,
             new Dictionary<string, object>
             {
-                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
-                ["nservicebus.discriminator"] = "disc",
-                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName
+                [QueueTag] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                [DiscriminatorTag] = "disc",
+                [MessageTypeTag] = typeof(OutgoingMessage).FullName
             });
 
-        metricsListener.AssertTags("nservicebus.messaging.handler_time",
+        metricsListener.AssertTags(HandlerTimeMetric,
             new Dictionary<string, object>
             {
-                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
-                ["nservicebus.discriminator"] = "disc",
-                ["nservicebus.message_type"] = typeof(OutgoingMessage).FullName,
+                [QueueTag] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                [DiscriminatorTag] = "disc",
+                [MessageTypeTag] = typeof(OutgoingMessage).FullName,
                 ["nservicebus.message_handler_type"] = typeof(EndpointWithMetrics.MessageHandler).FullName,
                 ["execution.result"] = "success"
             });
@@ -93,18 +102,18 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
                 }))
             .Run();
 
-        metricsListener.AssertMetric("nservicebus.messaging.successes", 5);
-        metricsListener.AssertMetric("nservicebus.messaging.fetches", 5);
+        metricsListener.AssertMetric(SuccessesMetric, 5);
+        metricsListener.AssertMetric(FetchesMetric, 5);
         metricsListener.AssertMetric("nservicebus.messaging.failures", 0);
 
         var successEndpoint =
-            metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.queue");
+            metricsListener.AssertTagKeyExists(SuccessesMetric, QueueTag);
         var successType =
-            metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_type");
+            metricsListener.AssertTagKeyExists(SuccessesMetric, MessageTypeTag);
         var successHandlerType =
-            metricsListener.AssertTagKeyExists("nservicebus.messaging.successes", "nservicebus.message_handler_types");
+            metricsListener.AssertTagKeyExists(SuccessesMetric, "nservicebus.message_handler_types");
 
-        var fetchedEndpoint = metricsListener.AssertTagKeyExists("nservicebus.messaging.fetches", "nservicebus.queue");
+        var fetchedEndpoint = metricsListener.AssertTagKeyExists(FetchesMetric, QueueTag);
 
         using (Assert.EnterMultipleScope())
         {
