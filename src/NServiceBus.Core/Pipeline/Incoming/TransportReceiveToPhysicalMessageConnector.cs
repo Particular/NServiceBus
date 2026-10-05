@@ -76,8 +76,8 @@ partial class TransportReceiveToPhysicalMessageConnector(
         else
         {
             LogOutboxDuplicateDetectedForMessageMessageIdSkippingHandlerExecution(messageId);
-            context.Extensions.TryGetRecordingIncomingPipelineActivity(out var deduplicationActivity);
-            deduplicationActivity?.AddTag("nservicebus.outbox.deduplicate-message", true);
+            context.Extensions.TryGetIncomingPipelineActivity(out var activity);
+            activity?.AddTag("nservicebus.outbox.deduplicate-message", true);
             pipelineMetrics.RecordDeduplicatedMessage(context);
             ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             operations = pendingTransportOperations.Operations;
@@ -86,8 +86,17 @@ partial class TransportReceiveToPhysicalMessageConnector(
         if (operations.Length > 0)
         {
             var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
-            var dispatchActivity = WriteStartDispatchingEvent(physicalMessageContext, operations.Length);
+
+            Activity? dispatchActivity = null;
+            if (!instrumentationOptions.EmitMessageDispatchingEvents)
+            {
+                physicalMessageContext.Extensions.TryGetIncomingPipelineActivity(out dispatchActivity);
+            }
+
+            dispatchActivity?.AddEvent(new("Start dispatching", tags: new() { { "message-count", operations.Length } }));
+
             await this.Fork(batchDispatchContext).ConfigureAwait(false);
+
             dispatchActivity?.AddEvent(new("Finished dispatching"));
         }
 
@@ -140,7 +149,7 @@ partial class TransportReceiveToPhysicalMessageConnector(
     Activity? WriteStartDispatchingEvent(IIncomingPhysicalMessageContext physicalMessageContext, int operationCount)
     {
         if (!instrumentationOptions.EmitMessageDispatchingEvents ||
-            !physicalMessageContext.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
+            !physicalMessageContext.Extensions.TryGetIncomingPipelineActivity(out var activity))
         {
             return null;
         }
