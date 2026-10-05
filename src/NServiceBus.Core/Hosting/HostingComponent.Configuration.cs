@@ -1,8 +1,10 @@
 ﻿#nullable enable
+
 namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Hosting;
@@ -89,7 +91,9 @@ partial class HostingComponent
 
         public string? DiagnosticsPath { get; }
 
-        public void AddStartupDiagnosticsSection(string sectionName, object section) => StartupDiagnostics.Add(sectionName, section);
+        public void AddStartupDiagnosticsSection<T>(string sectionName, T section, JsonTypeInfo<T> typeInfo) => StartupDiagnostics.Add(sectionName, section, typeInfo);
+
+        public void AddStartupDiagnosticsSectionFactory<T>(string sectionName, Func<T> sectionFactory, JsonTypeInfo<T> typeInfo) => StartupDiagnostics.AddFactory(sectionName, sectionFactory, typeInfo);
 
         public HostInformation HostInformation { get; }
 

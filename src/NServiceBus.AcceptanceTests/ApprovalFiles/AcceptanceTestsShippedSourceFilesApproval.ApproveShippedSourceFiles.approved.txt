@@ -89,6 +89,7 @@ Routing/When_making_endpoint_uniquely_addressable.cs
 Routing/When_multiple_mappings_exists.cs
 Routing/When_overriding_local_address.cs
 Routing/When_publishing.cs
+Routing/When_publishing_a_concrete_event_with_trimming_safe_mapper.cs
 Routing/When_publishing_an_event_implementing_two_unrelated_interfaces.cs
 Routing/When_publishing_an_interface.cs
 Routing/When_publishing_an_interface_with_unobtrusive.cs

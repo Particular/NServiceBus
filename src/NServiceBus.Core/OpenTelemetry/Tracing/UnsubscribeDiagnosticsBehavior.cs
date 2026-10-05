@@ -10,7 +10,7 @@ class UnsubscribeDiagnosticsBehavior : IBehavior<IUnsubscribeContext, IUnsubscri
 {
     public Task Invoke(IUnsubscribeContext context, Func<IUnsubscribeContext, Task> next)
     {
-        if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
+        if (context.Extensions.TryGetOutgoingPipelineActivity(out var activity))
         {
             activity.SetTag(ActivityTags.EventTypes, context.EventType.FullName);
         }

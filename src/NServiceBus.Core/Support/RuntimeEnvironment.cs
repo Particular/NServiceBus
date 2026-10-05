@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Support;
+﻿#nullable enable
+
+namespace NServiceBus.Support;
 
 using System;
 

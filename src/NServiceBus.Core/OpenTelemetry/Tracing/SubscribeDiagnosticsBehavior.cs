@@ -10,7 +10,7 @@ class SubscribeDiagnosticsBehavior : IBehavior<ISubscribeContext, ISubscribeCont
 {
     public Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
     {
-        if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
+        if (context.Extensions.TryGetOutgoingPipelineActivity(out var activity))
         {
             activity.SetTag(ActivityTags.EventTypes, string.Join(",", (object[])context.EventTypes));
         }

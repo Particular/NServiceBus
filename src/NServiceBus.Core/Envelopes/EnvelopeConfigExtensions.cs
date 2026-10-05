@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Features;
 
 /// <summary>
@@ -15,7 +16,7 @@ public static class EnvelopeConfigExtensions
         /// <summary>
         /// Adds the envelope handler type.
         /// </summary>
-        public void AddEnvelopeHandler<THandler>() where THandler : class, IEnvelopeHandler
+        public void AddEnvelopeHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler>() where THandler : class, IEnvelopeHandler
         {
             ArgumentNullException.ThrowIfNull(context);
 

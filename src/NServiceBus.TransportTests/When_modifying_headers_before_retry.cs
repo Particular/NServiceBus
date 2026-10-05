@@ -22,7 +22,13 @@ public class When_modifying_headers_before_retry : NServiceBusTransportTest
             {
                 if (retrying)
                 {
-                    return retried.SetCompleted(context);
+                    return retried.SetCompleted(new MessageContext(
+                        context.NativeMessageId,
+                        new Dictionary<string, string>(context.Headers),
+                        context.Body.ToArray(),
+                        context.TransportTransaction,
+                        context.ReceiveAddress,
+                        context.Extensions));
                 }
 
                 context.Headers["test-header"] = "modified";

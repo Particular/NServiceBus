@@ -38,7 +38,9 @@ public class When_outgoing_mutator_replaces_instance : NServiceBusAcceptanceTest
             {
                 if (context.OutgoingMessage is V1Message)
                 {
+#pragma warning disable CS0618 // Deliberate coverage of the legacy runtime-type-routing setter until its removal
                     context.OutgoingMessage = new V2Message();
+#pragma warning restore CS0618
                 }
                 return Task.CompletedTask;
             }

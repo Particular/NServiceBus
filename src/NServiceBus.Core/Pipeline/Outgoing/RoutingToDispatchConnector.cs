@@ -59,7 +59,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         }
 
         // HINT: These tags get applied to the outgoing message activity, if present.
-        if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
+        if (context.Extensions.TryGetOutgoingPipelineActivity(out var activity))
         {
             ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
 

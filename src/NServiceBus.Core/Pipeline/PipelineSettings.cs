@@ -3,6 +3,7 @@
 namespace NServiceBus.Pipeline;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Configuration.AdvancedExtensibility;
 using Settings;
 
@@ -25,7 +26,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
     /// <param name="description">The description of the new behavior.</param>
     /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
-    public void Replace(string stepId, Type newBehavior, string? description = null)
+    public void Replace(string stepId, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] Type newBehavior, string? description = null)
     {
         BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
@@ -43,7 +44,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
     /// <param name="description">The description of the new behavior.</param>
     /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
-    public void Replace<T>(string stepId, T newBehavior, string? description = null)
+    public void Replace<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] T>(string stepId, T newBehavior, string? description = null)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
@@ -62,7 +63,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
     /// <param name="description">The description of the new behavior.</param>
     /// <exception cref="Exception">Throws an exception when the stepId cannot be found in the pipeline.</exception>
-    public void Replace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string? description = null)
+    public void Replace<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] T>(string stepId, Func<IServiceProvider, T> factoryMethod, string? description = null)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
@@ -80,7 +81,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="stepId">The identifier of the step to replace its implementation.</param>
     /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
     /// <param name="description">The description of the new behavior.</param>
-    public void RegisterOrReplace(string stepId, Type behavior, string? description = null)
+    public void RegisterOrReplace(string stepId, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] Type behavior, string? description = null)
     {
         BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
         ArgumentException.ThrowIfNullOrWhiteSpace(stepId);
@@ -98,7 +99,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="stepId">The identifier of the step to replace its implementation.</param>
     /// <param name="behavior">The new <see cref="Behavior{TContext}" /> to use.</param>
     /// <param name="description">The description of the new behavior.</param>
-    public void RegisterOrReplace<T>(string stepId, T behavior, string? description = null)
+    public void RegisterOrReplace<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] T>(string stepId, T behavior, string? description = null)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
@@ -117,7 +118,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="stepId">The identifier of the step to replace its implementation.</param>
     /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
     /// <param name="description">The description of the new behavior.</param>
-    public void RegisterOrReplace<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string? description = null)
+    public void RegisterOrReplace<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] T>(string stepId, Func<IServiceProvider, T> factoryMethod, string? description = null)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
@@ -135,7 +136,7 @@ public class PipelineSettings : ExposeSettings
     /// </summary>
     /// <param name="description">The description of the behavior.</param>
     /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
-    public void Register<TBehavior>(string description) => Register(typeof(TBehavior), description);
+    public void Register<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] TBehavior>(string description) => Register(typeof(TBehavior), description);
 
     /// <summary>
     /// Register a new step into the pipeline.
@@ -143,7 +144,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
     /// <param name="description">The description of the behavior.</param>
     /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
-    public void Register(Type behavior, string description)
+    public void Register([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] Type behavior, string description)
     {
         BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
 
@@ -157,7 +158,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
     /// <param name="description">The description of the behavior.</param>
     /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
-    public void Register(string stepId, Type behavior, string description)
+    public void Register(string stepId, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] Type behavior, string description)
     {
         BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
         EnsureWriteEnabled(stepId, nameof(Register));
@@ -176,7 +177,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
     /// <param name="description">The description of the behavior.</param>
     /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
-    public void Register<T>(Func<IServiceProvider, T> factoryMethod, string description)
+    public void Register<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] T>(Func<IServiceProvider, T> factoryMethod, string description)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
@@ -191,7 +192,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
     /// <param name="description">The description of the behavior.</param>
     /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
-    public void Register<T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description)
+    public void Register<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] T>(string stepId, Func<IServiceProvider, T> factoryMethod, string description)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
@@ -211,7 +212,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="behavior">The behavior instance.</param>
     /// <param name="description">The description of the behavior.</param>
     /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
-    public void Register<T>(T behavior, string description)
+    public void Register<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] T>(T behavior, string description)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
@@ -226,7 +227,7 @@ public class PipelineSettings : ExposeSettings
     /// <param name="behavior">The behavior instance.</param>
     /// <param name="description">The description of the behavior.</param>
     /// <exception cref="Exception">Throws an exception when this behavior is already present in the pipeline.</exception>
-    public void Register<T>(string stepId, T behavior, string description)
+    public void Register<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.Interfaces)] T>(string stepId, T behavior, string description)
         where T : IBehavior
     {
         BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));

@@ -97,6 +97,108 @@ public class RollingLoggerTests
     }
 
     [Test]
+    public void When_file_is_deleted_underneath_immediately_before_size_lookup()
+    {
+        using var tempPath = new TempPath("RollingLoggerTests");
+        var logger = new RollingLoggerThatDeletesBeforeSizeLookup(tempPath.TempDirectory, maxFileSize: 2)
+        {
+            GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
+        };
+        logger.WriteLine("Foo");
+
+        // Second write exceeds maxFileSize, so the synchronization enumerates today's file;
+        // the override removes it between enumeration and the metadata read
+        logger.WriteLine("Bar");
+
+        // The name proves the sequence number was reused (vanished file counts as empty)
+        // instead of rolling to a new sequence
+        var file = tempPath.GetSingle();
+        Assert.That(Path.GetFileName(file), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
+    }
+
+    class RollingLoggerThatDeletesBeforeSizeLookup(string targetDirectory, long maxFileSize) :
+        RollingLogger(targetDirectory, maxFileSize: maxFileSize)
+    {
+        protected override long GetFileSizeOrZero(string path)
+        {
+            File.Delete(path);
+            return base.GetFileSizeOrZero(path);
+        }
+    }
+
+    [Test]
+    public void When_size_lookup_fails_with_io_error_sync_is_aborted_and_retried()
+    {
+        using var tempPath = new TempPath("RollingLoggerTests");
+        var logger = new RollingLoggerThatFailsSizeLookup(tempPath.TempDirectory, maxFileSize: 10)
+        {
+            GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
+        };
+        logger.WriteLine("Foo");
+        logger.WriteLine("Bar");
+        logger.WriteLine("Baz");
+
+        // The metadata read fails with a transient I/O error, which must abort the synchronization
+        // instead of treating the file as empty and reusing it
+        logger.FailSizeLookup = true;
+        logger.WriteLine("Qux");
+        logger.FailSizeLookup = false;
+
+        // The next write retries the synchronization and rolls to a new sequence
+        logger.WriteLine("Foo2");
+
+        var files = tempPath.GetFiles();
+        Assert.That(files, Has.Count.EqualTo(2));
+        Assert.That(Path.GetFileName(files[1]), Is.EqualTo("nsb_log_2010-10-01_1.txt"));
+    }
+
+    [Test]
+    public void When_sync_fails_during_filename_calculation_state_is_not_committed_and_next_write_retries()
+    {
+        using var tempPath = new TempPath("RollingLoggerTests");
+        var logger = new RollingLoggerThatFailsSizeLookup(tempPath.TempDirectory, maxFileSize: 20)
+        {
+            GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
+        };
+        logger.WriteLine("LongMessage");
+        logger.WriteLine("LongMessage");
+
+        logger.GetDate = () => new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
+        logger.WriteLine("Baz");
+
+        // The clock moves back to a date that already has an oversized file while the stale current file
+        // remains below the size limit. The metadata read fails, so the synchronization must abort without
+        // committing the new date; otherwise the next write would stay on the stale file and not retry.
+        logger.GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero);
+        logger.FailSizeLookup = true;
+        logger.WriteLine("Qux");
+        logger.FailSizeLookup = false;
+
+        // The next write retries the synchronization and rolls the oversized day one file
+        logger.WriteLine("Foo2");
+
+        var files = tempPath.GetFiles();
+        Assert.That(files, Has.Count.EqualTo(3));
+        Assert.That(Path.GetFileName(files[1]), Is.EqualTo("nsb_log_2010-10-01_1.txt"));
+    }
+
+    class RollingLoggerThatFailsSizeLookup(string targetDirectory, long maxFileSize) :
+        RollingLogger(targetDirectory, maxFileSize: maxFileSize)
+    {
+        public bool FailSizeLookup { get; set; }
+
+        protected override long GetFileSizeOrZero(string path)
+        {
+            if (FailSizeLookup)
+            {
+                // An overlong path component makes the metadata read throw a PathTooLongException
+                return base.GetFileSizeOrZero(Path.Combine(Path.GetDirectoryName(path)!, new string('x', 300)));
+            }
+            return base.GetFileSizeOrZero(path);
+        }
+    }
+
+    [Test]
     public void When_file_already_exists_and_is_too_large_a_new_sequence_file_is_written()
     {
         using var tempPath = new TempPath("RollingLoggerTests");
@@ -395,5 +497,30 @@ public class RollingLoggerTests
         logger.WriteLine("Foo");
         var singleFile = tempPath.GetSingle();
         Assert.That(Path.GetFileName(singleFile), Is.EqualTo("nsb_log_2010-10-01_0.txt"));
+    }
+
+    [Test]
+    public void When_log_directory_is_deleted_underneath_write_does_not_throw_and_recovers()
+    {
+        using var tempPath = new TempPath("RollingLoggerTests");
+        var logger = new RollingLogger(tempPath.TempDirectory)
+        {
+            GetDate = () => new DateTimeOffset(2010, 10, 1, 0, 0, 0, TimeSpan.Zero)
+        };
+        logger.WriteLine("Foo");
+
+        Directory.Delete(tempPath.TempDirectory, true);
+        logger.GetDate = () => new DateTimeOffset(2010, 10, 2, 0, 0, 0, TimeSpan.Zero);
+
+        // Simulates e.g. a deployment or slot swap removing the whole log directory: the synchronization
+        // and the write must degrade to tracing instead of throwing out of WriteLine
+        Assert.That(() => logger.WriteLine("Bar"), Throws.Nothing);
+
+        Directory.CreateDirectory(tempPath.TempDirectory);
+        logger.WriteLine("Baz");
+
+        // GetSingle also verifies the day one file is not resurrected after the directory came back
+        var singleFile = tempPath.GetSingle();
+        Assert.That(Path.GetFileName(singleFile), Is.EqualTo("nsb_log_2010-10-02_0.txt"));
     }
 }

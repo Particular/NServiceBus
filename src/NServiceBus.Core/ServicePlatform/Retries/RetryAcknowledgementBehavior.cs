@@ -1,8 +1,11 @@
-﻿namespace NServiceBus;
+﻿#nullable enable
+
+namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Pipeline;
 using Routing;
@@ -15,23 +18,13 @@ class RetryAcknowledgementBehavior : IForkConnector<ITransportReceiveContext, IT
 
     public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
     {
-        var useRetryAcknowledgement = IsRetriedMessage(context, out var id, out var acknowledgementQueue);
+        RoutingContext? routingContext = null;
 
-        if (useRetryAcknowledgement)
+        if (IsRetriedMessage(context, out var id, out var acknowledgementQueue))
         {
             // notify the ServiceControl audit instance that the retry has already been acknowledged by the endpoint
             context.Extensions.Set(MarkAsAcknowledgedBehavior.State.Instance);
-        }
 
-        await next(context).ConfigureAwait(false);
-
-        if (useRetryAcknowledgement)
-        {
-            await ConfirmSuccessfulRetry().ConfigureAwait(false);
-        }
-
-        async Task ConfirmSuccessfulRetry()
-        {
             var messageToDispatch = new OutgoingMessage(
                 CombGuid.Generate().ToString(),
                 new Dictionary<string, string>
@@ -46,12 +39,18 @@ class RetryAcknowledgementBehavior : IForkConnector<ITransportReceiveContext, IT
             // context explicitly so it stays correlated to the processing of the retried message.
             ContextPropagation.PropagateContextToHeaders(Activity.Current, messageToDispatch.Headers);
 
-            var routingContext = new RoutingContext(messageToDispatch, new UnicastRoutingStrategy(acknowledgementQueue), context);
+            routingContext = new RoutingContext(messageToDispatch, new UnicastRoutingStrategy(acknowledgementQueue), context);
+        }
+
+        await next(context).ConfigureAwait(false);
+
+        if (routingContext is not null)
+        {
             await this.Fork(routingContext).ConfigureAwait(false);
         }
     }
 
-    static bool IsRetriedMessage(ITransportReceiveContext context, out string retryUniqueMessageId, out string retryAcknowledgementQueue)
+    static bool IsRetriedMessage(ITransportReceiveContext context, [NotNullWhen(true)] out string? retryUniqueMessageId, [NotNullWhen(true)] out string? retryAcknowledgementQueue)
     {
         // check if the message is coming from a manual retry attempt
         if (context.Message.Headers.TryGetValue(RetryUniqueMessageIdHeaderKey, out var uniqueMessageId) &&

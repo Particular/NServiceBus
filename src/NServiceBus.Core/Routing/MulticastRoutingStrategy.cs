@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
 /// A routing strategy for multicast routing.
@@ -11,7 +12,7 @@ public class MulticastRoutingStrategy : RoutingStrategy
     /// <summary>
     /// Creates new routing strategy.
     /// </summary>
-    public MulticastRoutingStrategy(Type messageType)
+    public MulticastRoutingStrategy([DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType)
     {
         this.messageType = messageType;
     }
@@ -26,5 +27,6 @@ public class MulticastRoutingStrategy : RoutingStrategy
         return new MulticastAddressTag(messageType);
     }
 
+    [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)]
     readonly Type messageType;
 }

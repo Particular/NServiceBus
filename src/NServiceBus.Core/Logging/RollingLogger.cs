@@ -44,15 +44,27 @@ class RollingLogger(
 
     void SyncFileSystem()
     {
-        if (!HasCurrentDateChanged() && !IsCurrentFileTooLarge())
+        try
         {
-            return;
+            if (!HasCurrentDateChanged() && !IsCurrentFileTooLarge())
+            {
+                return;
+            }
+            var today = GetDate();
+            var nsbLogFiles = GetNsbLogFiles(targetDirectory).ToList();
+            CalculateNewFileName(nsbLogFiles, today);
+            lastWriteDate = today;
+            PurgeOldFiles(nsbLogFiles);
         }
-        var today = GetDate();
-        lastWriteDate = today;
-        var nsbLogFiles = GetNsbLogFiles(targetDirectory).ToList();
-        CalculateNewFileName(nsbLogFiles, today);
-        PurgeOldFiles(nsbLogFiles);
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            // Tolerate environmental file system failures like the log directory or its files being removed
+            // by overlapping processes, deployments, slot swaps or cleanups. Anything else is a bug and propagates.
+            // The synchronization state is only committed once the filename calculation succeeded so a failed
+            // attempt is retried on the next write.
+            var errorMessage = $"NServiceBus.RollingLogger Could not synchronize log files in directory '{targetDirectory}'. Exception: {exception}";
+            Trace.WriteLine(errorMessage);
+        }
     }
 
     bool HasCurrentDateChanged() => GetDate() != lastWriteDate;
@@ -126,6 +138,23 @@ class RollingLogger(
 
     static bool TryParseDate(string datePart, out DateTimeOffset dateTime) => DateTimeOffset.TryParseExact(datePart, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime);
 
+    protected virtual long GetFileSizeOrZero(string path)
+    {
+        try
+        {
+            return new FileInfo(path).Length;
+        }
+        catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
+        {
+            // The file can vanish between enumerating it and reading its metadata, e.g. removed by
+            // overlapping processes, deployments or external cleanup. Treat it as empty so the
+            // sequence number is reused and the file is recreated by the next append. Any other
+            // failure, like a transient I/O error or an ACL that denies metadata reads, aborts the
+            // synchronization instead of resetting the tracked size and reusing the oversized file.
+            return 0;
+        }
+    }
+
     void CalculateNewFileName(List<LogFile> logFiles, DateTimeOffset today)
     {
         var logFile = GetTodaysNewest(logFiles, today);
@@ -137,7 +166,7 @@ class RollingLogger(
         }
         else
         {
-            var existingFileSize = new FileInfo(logFile.Path).Length;
+            var existingFileSize = GetFileSizeOrZero(logFile.Path);
             if (existingFileSize > maxFileSize)
             {
                 sequenceNumber = logFile.SequenceNumber + 1;

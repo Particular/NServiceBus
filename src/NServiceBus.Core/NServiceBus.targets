@@ -1,0 +1,21 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    NServiceBus strict registered-only message metadata mode is activated for executable applications that are
+    published with trimming or AOT enabled. The switch is emitted into the runtime configuration so the runtime
+    can read it via AppContext, and marked Trim="true" so ILLink can constant-fold the feature switch.
+
+    The property is only defaulted for executables so the runtime configuration never leaks into referenced
+    library projects, even when PublishTrimmed/PublishAot flow as MSBuild global properties. Users can override
+    the automatic default by setting NServiceBusEnableStrictRegisteredOnlyMessageMetadata explicitly; explicit
+    values always win over the automatic default.
+  -->
+  <PropertyGroup Condition="('$(OutputType)' == 'Exe' Or '$(OutputType)' == 'WinExe') And ('$(PublishTrimmed)' == 'true' Or '$(PublishAot)' == 'true')">
+    <NServiceBusEnableStrictRegisteredOnlyMessageMetadata Condition="'$(NServiceBusEnableStrictRegisteredOnlyMessageMetadata)' == ''">true</NServiceBusEnableStrictRegisteredOnlyMessageMetadata>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(NServiceBusEnableStrictRegisteredOnlyMessageMetadata)' != ''">
+    <RuntimeHostConfigurationOption Include="NServiceBus.EnableStrictRegisteredOnlyMessageMetadata" Value="$(NServiceBusEnableStrictRegisteredOnlyMessageMetadata)" Trim="true" />
+  </ItemGroup>
+
+</Project>

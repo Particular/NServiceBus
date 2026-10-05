@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Utility;
 using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
@@ -41,7 +42,13 @@ public static partial class Handlers
 
     public readonly record struct RegistrationSpec(RegistrationType RegistrationType, string MessageType, ImmutableEquatableArray<string> MessageHierarchy, string HandlerType);
 
-    public readonly record struct InjectedParamSpec(string ParameterName, string FullyQualifiedType, bool IsCancellationToken);
+    // KeyedServiceKey carries the [FromKeyedServices(...)] key folded to its compile-time constant
+    // value, rendered as a valid C# expression for re-application in the generated adapter ctor.
+    // Sentinel semantics:
+    //  - null          : no [FromKeyedServices] attribute present
+    //  - "" (empty)    : attribute present with no argument (bare [FromKeyedServices])
+    //  - any other value: the folded key (e.g. "\"MyKey\"", "null", "typeof(global::T)", "(global::E)1")
+    public readonly record struct InjectedParamSpec(string ParameterName, string FullyQualifiedType, bool IsCancellationToken, string? KeyedServiceKey);
 
     public readonly record struct ConventionBasedMethodSpec(
         string MessageType,
@@ -109,12 +116,12 @@ public static partial class Handlers
                 .ToList();
 
             // Collect message types already handled by IHandleMessages<T> interface implementations
-            var interfaceMessageTypes = new HashSet<string>(StringComparer.Ordinal);
+            var interfaceMessageTypes = new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
             foreach (var @interface in handlerType.AllInterfaces.Where(IsHandlerInterface))
             {
                 if (@interface.TypeArguments[0] is INamedTypeSymbol msgType)
                 {
-                    interfaceMessageTypes.Add(msgType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                    interfaceMessageTypes.Add(msgType);
                 }
             }
 
@@ -137,7 +144,7 @@ public static partial class Handlers
         static List<ConventionBasedMethodSpec> ParseConventionBasedMethods(
             INamedTypeSymbol handlerType,
             HandlerKnownTypes knownTypes,
-            HashSet<string> interfaceMessageTypes,
+            HashSet<ITypeSymbol> interfaceMessageTypes,
             bool includeInheritedMethods,
             CancellationToken cancellationToken)
         {
@@ -146,7 +153,7 @@ public static partial class Handlers
 
             // Ctor params of the handler type (for instance methods)
             var selectedConstructor = SelectConstructor(handlerType, knownTypes.ActivatorUtilitiesConstructorAttributeType);
-            var ctorParams = GetCtorParams(selectedConstructor, knownTypes.CancellationTokenType);
+            var ctorParams = GetCtorParams(selectedConstructor, knownTypes.CancellationTokenType, knownTypes.FromKeyedServicesAttributeType);
 
             foreach (var method in GetHandleMethods(handlerType, includeInheritedMethods))
             {
@@ -174,10 +181,12 @@ public static partial class Handlers
                     var param = method.Parameters[i];
                     bool isCt = knownTypes.CancellationTokenType is not null &&
                                 SymbolEqualityComparer.Default.Equals(param.Type, knownTypes.CancellationTokenType);
+                    var keyedServiceKey = TryGetKeyedServiceKey(param, knownTypes.FromKeyedServicesAttributeType);
                     methodParams.Add(new InjectedParamSpec(
                         param.Name,
                         param.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-                        isCt));
+                        isCt,
+                        keyedServiceKey));
                 }
 
                 var hierarchy = new ImmutableEquatableArray<string>(
@@ -234,7 +243,8 @@ public static partial class Handlers
 
         static ImmutableEquatableArray<InjectedParamSpec> GetCtorParams(
             IMethodSymbol? constructor,
-            INamedTypeSymbol? cancellationTokenType)
+            INamedTypeSymbol? cancellationTokenType,
+            INamedTypeSymbol? fromKeyedServicesAttributeType)
         {
             if (constructor is null || constructor.Parameters.Length == 0)
             {
@@ -247,10 +257,69 @@ public static partial class Handlers
                 var p = constructor.Parameters[i];
                 bool isCt = cancellationTokenType is not null &&
                             SymbolEqualityComparer.Default.Equals(p.Type, cancellationTokenType);
-                specs[i] = new InjectedParamSpec(p.Name, p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), isCt);
+                var keyedServiceKey = TryGetKeyedServiceKey(p, fromKeyedServicesAttributeType);
+                specs[i] = new InjectedParamSpec(p.Name, p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), isCt, keyedServiceKey);
             }
 
             return specs.ToImmutableEquatableArray();
+        }
+
+        // Extracts the [FromKeyedServices(...)] key for a parameter, folded to its compile-time
+        // constant value. Folding guarantees the value resolves in the generated adapter,
+        // which lives at global scope. Covers every valid attribute-argument
+        // form uniformly: string literals, const fields, nameof, typeof, named arguments, and null.
+        // Sentinel: null = no FromKeyedServices attribute; "" (empty) = bare attribute with no key;
+        // otherwise the folded key rendered as a valid C# expression.
+        static string? TryGetKeyedServiceKey(IParameterSymbol param, INamedTypeSymbol? fromKeyedServicesAttributeType)
+        {
+            if (fromKeyedServicesAttributeType is null)
+            {
+                return null;
+            }
+
+            foreach (var attribute in param.GetAttributes())
+            {
+                if (attribute.AttributeClass is null)
+                {
+                    continue;
+                }
+
+                if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, fromKeyedServicesAttributeType) &&
+                    !SymbolEqualityComparer.Default.Equals(attribute.AttributeClass.OriginalDefinition, fromKeyedServicesAttributeType))
+                {
+                    continue;
+                }
+
+                return FormatKeyedServiceKey(attribute);
+            }
+
+            return null;
+        }
+
+        static string FormatKeyedServiceKey(AttributeData attribute)
+        {
+            if (attribute.ConstructorArguments.Length == 0)
+            {
+                // Bare attribute with no key argument.
+                return string.Empty;
+            }
+
+            var arg = attribute.ConstructorArguments[0];
+
+            // typeof(T) -> typeof(global::T) so it resolves at the adapter's global scope.
+            if (arg is { Kind: TypedConstantKind.Type, Value: ITypeSymbol typeSymbol })
+            {
+                return $"typeof({typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)})";
+            }
+
+            // Enum constant -> cast the underlying integral value to the fully-qualified enum type.
+            if (arg is { Kind: TypedConstantKind.Enum, Type: INamedTypeSymbol enumType })
+            {
+                return $"({enumType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}){arg.Value}";
+            }
+
+            // Primitives (string/int/bool/...) and null -> C# literal form via the shared formatter.
+            return SymbolDisplay.FormatPrimitive(arg.Value, quoteStrings: true, useHexadecimalNumbers: false) ?? "null";
         }
 
         static IMethodSymbol? SelectConstructor(INamedTypeSymbol handlerType, INamedTypeSymbol? activatorUtilitiesConstructorAttributeType)
@@ -375,55 +444,6 @@ public static partial class Handlers
         static bool IsHandlerInterface(INamedTypeSymbol type) => HandlerConventions.IsHandlerInterface(type);
 
         static IEnumerable<INamedTypeSymbol> GetTypeHierarchy(INamedTypeSymbol type, MarkerTypes markers) =>
-            // This matches the behavior of the reflection-based code, but it's unclear why this ordering is needed.
-            // It would be more efficient to yield the base types (except where type.SpecialType is not SpecialType.System_Object)
-            // and then to yield the interfaces from type.AllInterfaces except those in the MarkerTypes.
-            // We're hesitant to change the implementation, however, due to wire compatibility concerns of outputting
-            // an EnclosedMessageTypes header with a different ordering.
-            GetParentTypes(type)
-                .Where(t => !markers.IsMarkerInterface(t))
-                .Select(t => new { Type = t, Rank = PlaceInMessageHierarchy(t) })
-                .OrderByDescending(item => item.Rank)
-                .Select(item => item.Type);
-
-        static IEnumerable<INamedTypeSymbol> GetParentTypes(INamedTypeSymbol type)
-        {
-            // All interfaces implemented by the type (includes inherited interfaces)
-            foreach (var iface in type.AllInterfaces)
-            {
-                yield return iface;
-            }
-
-            // All base types up to but excluding System.Object
-            var currentBase = type.BaseType;
-            while (currentBase is { SpecialType: not SpecialType.System_Object })
-            {
-                if (currentBase is { } named)
-                {
-                    yield return named;
-                }
-
-                currentBase = currentBase.BaseType;
-            }
-        }
-
-        static int PlaceInMessageHierarchy(INamedTypeSymbol type)
-        {
-            if (type.TypeKind == TypeKind.Interface)
-            {
-                // Approximate: number of interfaces implemented by this interface
-                return type.AllInterfaces.Length;
-            }
-
-            var result = 0;
-            var current = type.BaseType;
-            while (current is not null)
-            {
-                result++;
-                current = current.BaseType;
-            }
-
-            return result;
-        }
+            MessageHierarchyBuilder.GetTypeHierarchy(type, markers);
     }
 }

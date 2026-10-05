@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Core.Utils.Reflection;
+﻿#nullable enable
+
+namespace NServiceBus.Core.Utils.Reflection;
 
 using System;
 using System.Collections.Generic;

@@ -6,12 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Extensibility;
-using Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Transport;
 
-sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
+sealed partial class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 {
     public InstrumentationOptions Options { get; } = options;
 
@@ -223,7 +223,7 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         }
     }
 
-    public void RecordError(Activity? activity, Exception exception, ContextBag context)
+    public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider)
     {
         if (activity == null)
         {
@@ -239,7 +239,9 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         {
             if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
             {
-                Logger.Error($"An exception occurred while executing '{activity.DisplayName}'.", exception);
+                // The factory is created before the container exists, so the logger is resolved on first use.
+                logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
+                LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
             }
             else
             {
@@ -257,5 +259,8 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
     const string ExceptionRecordedFlag = "otel.exception.recorded";
 
-    static readonly ILog Logger = LogManager.GetLogger<ActivityFactory>();
+    ILogger? logger;
+
+    [LoggerMessage(LogLevel.Error, "An exception occurred while executing '{DisplayName}'.")]
+    static partial void LogExceptionWhileExecuting(ILogger logger, Exception exception, string displayName);
 }

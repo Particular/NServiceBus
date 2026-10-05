@@ -20,7 +20,9 @@ public class When_publishing_using_base_type : NServiceBusAcceptanceTest
                 {
                     IMyEvent message = new EventMessage();
 
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                     return session.Publish(message);
+#pragma warning restore NSB0040
                 }))
             .WithEndpoint<Subscriber1>(b => b.When(async (session, ctx) =>
             {

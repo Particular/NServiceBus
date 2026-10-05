@@ -1,5 +1,8 @@
-﻿namespace NServiceBus.Serialization;
+﻿#nullable enable
 
+namespace NServiceBus.Serialization;
+
+using System;
 using Configuration.AdvancedExtensibility;
 using Settings;
 
@@ -13,7 +16,10 @@ public class SerializationExtensions<T> : ExposeSettings where T : Serialization
     /// Initializes a new instance of <see cref="SerializationExtensions{T}" />.
     /// </summary>
     public SerializationExtensions(SettingsHolder serializerSettings, SettingsHolder endpointConfigurationSettings) : base(serializerSettings)
-        => EndpointConfigurationSettings = endpointConfigurationSettings;
+    {
+        ArgumentNullException.ThrowIfNull(endpointConfigurationSettings);
+        EndpointConfigurationSettings = endpointConfigurationSettings;
+    }
 
     // provides access to the settings backing EndpointConfiguration. The settings provided by the 'Settings' property are isolated settings for the serializer.
     internal readonly SettingsHolder EndpointConfigurationSettings;

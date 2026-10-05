@@ -43,7 +43,7 @@ public class When_using_ReplyToOriginator_with_headers : NServiceBusAcceptanceTe
             public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
             {
                 var customHeaders = new Dictionary<string, string> { { "CustomHeader", Data.CustomHeaderValue.ToString() } };
-                return ReplyToOriginator(context, new MyReplyToOriginator(), customHeaders);
+                return ReplyToOriginator<MyReplyToOriginator>(context, new MyReplyToOriginator(), customHeaders);
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyingSagaData> mapper) =>

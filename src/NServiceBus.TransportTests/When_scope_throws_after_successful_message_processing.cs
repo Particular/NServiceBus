@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.TransportTests;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using NUnit.Framework;
@@ -30,7 +31,15 @@ public class When_scope_throws_after_successful_message_processing : NServiceBus
                     return Task.FromResult(ErrorHandleResult.RetryRequired);
                 }
 
-                secondFailure.SetResult(context);
+                secondFailure.SetResult(new ErrorContext(
+                    context.Exception,
+                    new Dictionary<string, string>(context.Headers),
+                    context.NativeMessageId,
+                    context.Body.ToArray(),
+                    context.TransportTransaction,
+                    context.ImmediateProcessingFailures,
+                    context.ReceiveAddress,
+                    context.Extensions));
 
                 return Task.FromResult(ErrorHandleResult.Handled);
             },

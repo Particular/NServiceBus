@@ -1,0 +1,1 @@
+{"Section":{"Name":"First","SendOnly":false,"NServiceBusVersion":"1.0.0"},"Section-2":{"Name":"Second","SendOnly":false,"NServiceBusVersion":"2.0.0"}}

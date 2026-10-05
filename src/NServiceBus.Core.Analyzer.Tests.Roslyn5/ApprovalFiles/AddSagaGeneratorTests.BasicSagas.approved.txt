@@ -39,7 +39,7 @@ namespace NServiceBus
                             OrderBilledOrderIdAccessor_f7dc3394c771851e.Instance,
                             OrderPlacedOrderIdAccessor_ae6ad694572b9fcb.Instance,
                         ];
-                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Billing.OrderBillingPolicy, global::Orders.Billing.OrderBillingPolicyData>(associatedMessages, OrderIdAsStringAccessor_4a76700cf8410b3a.Instance, propertyAccessors);
+                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Billing.OrderBillingPolicy, global::Orders.Billing.OrderBillingPolicyData>(associatedMessages, OrderIdAsStringAccessor_5b84242b5a03d625.Instance, propertyAccessors);
                         sagaMetadataCollection.Add(metadata);
 
                         var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
@@ -77,7 +77,7 @@ namespace NServiceBus
                             OrderBilledOrderIdAccessor_08b7b00354e1d041.Instance,
                             OrderPlacedOrderIdAccessor_13dea9c2dc628538.Instance,
                         ];
-                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.OrderShippingPolicy, global::Orders.Shipping.OrderShippingPolicyData>(associatedMessages, OrderIdAsStringAccessor_4a76700cf8410b3a.Instance, propertyAccessors);
+                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.OrderShippingPolicy, global::Orders.Shipping.OrderShippingPolicyData>(associatedMessages, OrderIdAsStringAccessor_1073497622a938fb.Instance, propertyAccessors);
                         sagaMetadataCollection.Add(metadata);
 
                         var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
@@ -115,7 +115,7 @@ namespace NServiceBus
                         OrderBilledOrderIdAccessor_2fd27f5436ef20b9.Instance,
                         OrderPlacedOrderIdAccessor_c561311f0fcc5cf0.Instance,
                     ];
-                    var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Payments.PaymentsPolicy, global::Payments.PaymentsPolicyData>(associatedMessages, OrderIdAsStringAccessor_4a76700cf8410b3a.Instance, propertyAccessors);
+                    var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Payments.PaymentsPolicy, global::Payments.PaymentsPolicyData>(associatedMessages, OrderIdAsStringAccessor_6d931b1825e0c4ca.Instance, propertyAccessors);
                     sagaMetadataCollection.Add(metadata);
 
                     var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
@@ -216,21 +216,59 @@ namespace NServiceBus
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderIdAsStringAccessor_4a76700cf8410b3a : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class OrderIdAsStringAccessor_5b84242b5a03d625 : NServiceBus.Sagas.CorrelationPropertyAccessor
     {
-        OrderIdAsStringAccessor_4a76700cf8410b3a() { }
+        OrderIdAsStringAccessor_5b84242b5a03d625() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property(sagaData);
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property((global::Orders.Billing.OrderBillingPolicyData)sagaData);
 
         [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern string AccessFrom_Property(NServiceBus.IContainSagaData sagaData);
+        static extern string AccessFrom_Property(global::Orders.Billing.OrderBillingPolicyData sagaData);
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property(sagaData, ((string)value));
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property((global::Orders.Billing.OrderBillingPolicyData)sagaData, ((string)value));
 
         [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
-        static extern string WriteTo_Property(NServiceBus.IContainSagaData sagaData, string value);
+        static extern void WriteTo_Property(global::Orders.Billing.OrderBillingPolicyData sagaData, string value);
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_4a76700cf8410b3a();
+        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_5b84242b5a03d625();
+    }
+
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
+    file sealed class OrderIdAsStringAccessor_1073497622a938fb : NServiceBus.Sagas.CorrelationPropertyAccessor
+    {
+        OrderIdAsStringAccessor_1073497622a938fb() { }
+
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property((global::Orders.Shipping.OrderShippingPolicyData)sagaData);
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+        static extern string AccessFrom_Property(global::Orders.Shipping.OrderShippingPolicyData sagaData);
+
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property((global::Orders.Shipping.OrderShippingPolicyData)sagaData, ((string)value));
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
+        static extern void WriteTo_Property(global::Orders.Shipping.OrderShippingPolicyData sagaData, string value);
+
+        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_1073497622a938fb();
+    }
+
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
+    file sealed class OrderIdAsStringAccessor_6d931b1825e0c4ca : NServiceBus.Sagas.CorrelationPropertyAccessor
+    {
+        OrderIdAsStringAccessor_6d931b1825e0c4ca() { }
+
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property((global::Payments.PaymentsPolicyData)sagaData);
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
+        static extern string AccessFrom_Property(global::Payments.PaymentsPolicyData sagaData);
+
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property((global::Payments.PaymentsPolicyData)sagaData, ((string)value));
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
+        static extern void WriteTo_Property(global::Payments.PaymentsPolicyData sagaData, string value);
+
+        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_6d931b1825e0c4ca();
     }
 }
 

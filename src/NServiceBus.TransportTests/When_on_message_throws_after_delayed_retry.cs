@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.TransportTests;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Transport;
@@ -27,7 +28,15 @@ public class When_on_message_throws_after_delayed_retry : NServiceBusTransportTe
                 }
                 else
                 {
-                    sentDelayedMessage.SetResult(context);
+                    sentDelayedMessage.SetResult(new ErrorContext(
+                        context.Exception,
+                        new Dictionary<string, string>(context.Headers),
+                        context.NativeMessageId,
+                        context.Body.ToArray(),
+                        context.TransportTransaction,
+                        context.ImmediateProcessingFailures,
+                        context.ReceiveAddress,
+                        context.Extensions));
                 }
 
                 return ErrorHandleResult.Handled;

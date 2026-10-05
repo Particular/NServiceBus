@@ -53,7 +53,29 @@ public class OutgoingLogicalMessageContextTests
         Assert.That(context.Message.MessageType, Is.EqualTo(typeof(MyDifferentMessage)));
     }
 
-    class MyDifferentMessage
+    [Test]
+    public void Updating_the_message_with_an_explicit_type_should_use_that_type()
+    {
+        var context = new OutgoingLogicalMessageContext("message1234", [], new OutgoingLogicalMessage(typeof(MyDifferentMessage), new MyDifferentMessage()), null, new FakeRootContext());
+        var replacement = new MyDifferentMessage();
+
+        context.UpdateMessage<IMyMessage>(replacement);
+
+        Assert.That(context.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+    }
+
+    [Test]
+    public void Updating_the_existing_instance_with_an_explicit_type_should_use_that_type()
+    {
+        var message = new MyDifferentMessage();
+        var context = new OutgoingLogicalMessageContext("message1234", [], new OutgoingLogicalMessage(typeof(MyDifferentMessage), message), null, new FakeRootContext());
+
+        context.UpdateMessage<IMyMessage>(message);
+
+        Assert.That(context.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+    }
+
+    class MyDifferentMessage : IMyMessage
     {
         public Guid Id { get; set; }
     }

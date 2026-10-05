@@ -77,6 +77,47 @@ public class MessageOperationsTests
     }
 
     [Test]
+    public async Task When_sending_typed_instance_should_preserve_declared_type_and_instance()
+    {
+        var messageOperations = new TestableMessageOperations();
+        var message = new MyMessage();
+
+        await messageOperations.Send<IMyMessage>(new FakeRootContext(), message, new SendOptions());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messageOperations.SendPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+            Assert.That(messageOperations.SendPipeline.LastContext.Message.Instance, Is.SameAs(message));
+        }
+    }
+
+    [Test]
+    public async Task When_sending_instance_with_explicit_type_should_preserve_declared_type_and_instance()
+    {
+        var messageOperations = new TestableMessageOperations();
+        object message = new MyMessage();
+
+        await messageOperations.Send(new FakeRootContext(), message, typeof(IMyMessage), new SendOptions());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messageOperations.SendPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+            Assert.That(messageOperations.SendPipeline.LastContext.Message.Instance, Is.SameAs(message));
+        }
+    }
+
+    [Test]
+    public async Task When_sending_instance_without_declared_type_should_use_runtime_type()
+    {
+        var messageOperations = new TestableMessageOperations();
+        object message = new MyMessage();
+
+        await messageOperations.Send(new FakeRootContext(), message, new SendOptions());
+
+        Assert.That(messageOperations.SendPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
+    }
+
+    [Test]
     public async Task When_replying_message_interface_should_set_interface_as_message_typeAsync()
     {
         var messageOperations = new TestableMessageOperations();
@@ -143,6 +184,47 @@ public class MessageOperationsTests
         var optionsHeaders = replyOptions.GetHeaders();
         Assert.That(optionsHeaders.Count, Is.EqualTo(1));
         Assert.That(optionsHeaders["header1"], Is.EqualTo("header1 value"));
+    }
+
+    [Test]
+    public async Task When_replying_typed_instance_should_preserve_declared_type_and_instance()
+    {
+        var messageOperations = new TestableMessageOperations();
+        var message = new MyMessage();
+
+        await messageOperations.Reply<IMyMessage>(new FakeRootContext(), message, new ReplyOptions());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messageOperations.ReplyPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+            Assert.That(messageOperations.ReplyPipeline.LastContext.Message.Instance, Is.SameAs(message));
+        }
+    }
+
+    [Test]
+    public async Task When_replying_instance_with_explicit_type_should_preserve_declared_type_and_instance()
+    {
+        var messageOperations = new TestableMessageOperations();
+        object message = new MyMessage();
+
+        await messageOperations.Reply(new FakeRootContext(), message, typeof(IMyMessage), new ReplyOptions());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messageOperations.ReplyPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+            Assert.That(messageOperations.ReplyPipeline.LastContext.Message.Instance, Is.SameAs(message));
+        }
+    }
+
+    [Test]
+    public async Task When_replying_instance_without_declared_type_should_use_runtime_type()
+    {
+        var messageOperations = new TestableMessageOperations();
+        object message = new MyMessage();
+
+        await messageOperations.Reply(new FakeRootContext(), message, new ReplyOptions());
+
+        Assert.That(messageOperations.ReplyPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
     }
 
     [Test]
@@ -214,11 +296,52 @@ public class MessageOperationsTests
         Assert.That(optionsHeaders["header1"], Is.EqualTo("header1 value"));
     }
 
+    [Test]
+    public async Task When_publishing_typed_instance_should_preserve_declared_type_and_instance()
+    {
+        var messageOperations = new TestableMessageOperations();
+        var message = new MyMessage();
+
+        await messageOperations.Publish<IMyMessage>(new FakeRootContext(), message, new PublishOptions());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messageOperations.PublishPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+            Assert.That(messageOperations.PublishPipeline.LastContext.Message.Instance, Is.SameAs(message));
+        }
+    }
+
+    [Test]
+    public async Task When_publishing_instance_with_explicit_type_should_preserve_declared_type_and_instance()
+    {
+        var messageOperations = new TestableMessageOperations();
+        object message = new MyMessage();
+
+        await messageOperations.Publish(new FakeRootContext(), message, typeof(IMyMessage), new PublishOptions());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messageOperations.PublishPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
+            Assert.That(messageOperations.PublishPipeline.LastContext.Message.Instance, Is.SameAs(message));
+        }
+    }
+
+    [Test]
+    public async Task When_publishing_instance_without_declared_type_should_use_runtime_type()
+    {
+        var messageOperations = new TestableMessageOperations();
+        object message = new MyMessage();
+
+        await messageOperations.Publish(new FakeRootContext(), message, new PublishOptions());
+
+        Assert.That(messageOperations.PublishPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
+    }
+
     public interface IMyMessage
     {
     }
 
-    class MyMessage
+    class MyMessage : IMyMessage
     {
     }
 }

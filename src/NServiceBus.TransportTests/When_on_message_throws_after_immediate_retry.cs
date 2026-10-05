@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.TransportTests;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Transport;
@@ -23,7 +24,15 @@ public class When_on_message_throws_after_immediate_retry : NServiceBusTransport
             {
                 if (attempts == maxAttempts)
                 {
-                    maxAttemptsReached.SetResult(context);
+                    maxAttemptsReached.SetResult(new ErrorContext(
+                        context.Exception,
+                        new Dictionary<string, string>(context.Headers),
+                        context.NativeMessageId,
+                        context.Body.ToArray(),
+                        context.TransportTransaction,
+                        context.ImmediateProcessingFailures,
+                        context.ReceiveAddress,
+                        context.Extensions));
                     return Task.FromResult(ErrorHandleResult.Handled);
                 }
 

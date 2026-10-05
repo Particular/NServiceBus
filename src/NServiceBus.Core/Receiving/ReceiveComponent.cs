@@ -9,15 +9,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using Outbox;
 using Pipeline;
 using Transport;
 using Unicast;
+using ILoggerFactory = Logging.ILoggerFactory;
 
 partial class ReceiveComponent
 {
-    ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, EndpointLogSlot endpointLogSlot)
+    internal ReceiveComponent(Configuration configuration, IActivityFactory activityFactory, EndpointLogSlot endpointLogSlot)
     {
         this.configuration = configuration;
         this.activityFactory = activityFactory;
@@ -67,12 +69,17 @@ partial class ReceiveComponent
         pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
         {
             var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
-            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<PipelineMetrics>(), hostingConfiguration.ActivityFactory.Options);
+            return new TransportReceiveToPhysicalMessageConnector(
+                storage,
+                b.GetRequiredService<PipelineMetrics>(),
+                hostingConfiguration.ActivityFactory.Options,
+                b.GetRequiredService<ILogger<TransportReceiveToPhysicalMessageConnector>>()
+            );
         }, "Allows to abort processing the message");
 
-        pipelineSettings.Register("LoadHandlersConnector", b => new LoadHandlersConnector(b.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory, b.GetRequiredService<PipelineMetrics>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+        pipelineSettings.Register("LoadHandlersConnector", sp => new LoadHandlersConnector(sp.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory, sp.GetRequiredService<PipelineMetrics>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-        pipelineSettings.Register("InvokeHandlers", sp => new InvokeHandlerTerminator(sp.GetRequiredService<PipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
+        pipelineSettings.Register("InvokeHandlers", static sp => new InvokeHandlerTerminator(sp.GetRequiredService<PipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
 
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
@@ -113,24 +120,35 @@ partial class ReceiveComponent
 
         configuration.TransportSeam.Configure([.. receiveSettings]);
 
-        hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new
+        hostingConfiguration.AddStartupDiagnosticsSection("Receiving", new ReceivingDiagnostics
         {
-            configuration.LocalQueueAddress,
-            configuration.InstanceSpecificQueueAddress,
-            configuration.PurgeOnStartup,
+            LocalQueueAddress = ToQueueAddressDiagnostics(configuration.LocalQueueAddress),
+            InstanceSpecificQueueAddress = configuration.InstanceSpecificQueueAddress != null
+                ? ToQueueAddressDiagnostics(configuration.InstanceSpecificQueueAddress)
+                : null,
+            PurgeOnStartup = configuration.PurgeOnStartup,
             TransactionMode = configuration.TransportSeam.TransportDefinition.TransportTransactionMode.ToString("G"),
-            configuration.PushRuntimeSettings.MaxConcurrency,
-            Satellites = configuration.SatelliteDefinitions.Select(s => new
+            MaxConcurrency = configuration.PushRuntimeSettings.MaxConcurrency,
+            Satellites = configuration.SatelliteDefinitions.Select(s => new SatelliteDiagnostics
             {
-                s.Name,
-                s.ReceiveAddress,
-                s.RuntimeSettings.MaxConcurrency
+                Name = s.Name,
+                ReceiveAddress = ToQueueAddressDiagnostics(s.ReceiveAddress),
+                MaxConcurrency = s.RuntimeSettings.MaxConcurrency
             }).ToArray(),
             MessageHandlers = handlerDiagnostics
-        });
+        }, StartupDiagnosticsJsonContext.Default.ReceivingDiagnostics);
 
         return receiveComponent;
     }
+
+    static QueueAddressDiagnostics ToQueueAddressDiagnostics(QueueAddress address) =>
+        new QueueAddressDiagnostics
+        {
+            BaseAddress = address.BaseAddress,
+            Discriminator = address.Discriminator,
+            Properties = new Dictionary<string, string>(address.Properties),
+            Qualifier = address.Qualifier
+        };
 
     public async Task Initialize(
         IServiceProvider builder,
@@ -182,7 +200,7 @@ partial class ReceiveComponent
             pipelineComponent,
             messageOperations,
             activityFactory
-            );
+        );
 
         await mainPump.Initialize(
             configuration.PushRuntimeSettings,

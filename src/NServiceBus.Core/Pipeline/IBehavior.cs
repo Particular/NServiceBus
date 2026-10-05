@@ -32,6 +32,7 @@ public interface IBehavior<in TInContext, out TOutContext> : IBehavior
         else
         {
             Func<IBehaviorContext, Task> fn = next.Invoke;
+            // SAFETY: Pipeline wiring guarantees next is invoked only with TOutContext (a reference type); the delegate retype is representation-preserving.
             nextFunc = Unsafe.As<Func<IBehaviorContext, Task>, Func<TOutContext, Task>>(ref fn);
         }
 

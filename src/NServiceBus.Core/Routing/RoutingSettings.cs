@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Configuration.AdvancedExtensibility;
 using Routing;
@@ -39,6 +40,7 @@ public class RoutingSettings : ExposeSettings
     /// </summary>
     /// <param name="assembly">The assembly whose messages should be routed.</param>
     /// <param name="destination">Destination endpoint.</param>
+    [RequiresUnreferencedCode(AssemblyRouteSource.TrimmingMessage)]
     public void RouteToEndpoint(Assembly assembly, string destination)
     {
         ArgumentNullException.ThrowIfNull(assembly);
@@ -55,6 +57,7 @@ public class RoutingSettings : ExposeSettings
     /// <param name="assembly">The assembly whose messages should be routed.</param>
     /// <param name="namespace">The namespace of the messages which should be routed. The given value must exactly match the target namespace.</param>
     /// <param name="destination">Destination endpoint.</param>
+    [RequiresUnreferencedCode(AssemblyRouteSource.TrimmingMessage)]
     public void RouteToEndpoint(Assembly assembly, string @namespace, string destination)
     {
         ArgumentNullException.ThrowIfNull(assembly);

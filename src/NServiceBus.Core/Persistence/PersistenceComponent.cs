@@ -21,7 +21,7 @@ sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSetti
         }
 
         var resultingSupportedStorages = new List<(StorageType Storage, StorageType.Options Options)>();
-        var diagnostics = new Dictionary<string, object>();
+        var diagnostics = new Dictionary<string, PersistenceDiagnosticsEntry>();
 
         foreach (var enabledPersistence in persistenceSettings.Enabled)
         {
@@ -34,15 +34,15 @@ sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSetti
                 persistenceDefinition.Apply(storageType.Storage, settings.Get<FeatureComponent.Settings>());
                 resultingSupportedStorages.Add(storageType);
 
-                diagnostics.Add(storageType.Storage.ToString(), new
+                diagnostics.Add(storageType.Storage.ToString(), new PersistenceDiagnosticsEntry
                 {
-                    Type = persistenceDefinition.FullName,
+                    Type = persistenceDefinition.FullName!,
                     Version = FileVersionRetriever.GetFileVersion(persistenceDefinition.GetType())
                 });
             }
         }
 
-        settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
+        settings.AddStartupDiagnosticsSection("Persistence", diagnostics, StartupDiagnosticsJsonContext.Default.DictionaryStringPersistenceDiagnosticsEntry);
 
         return new Configuration(settings, persistenceSettings.Enabled, resultingSupportedStorages);
     }

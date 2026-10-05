@@ -5,12 +5,14 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Sagas;
 
 class SagaManifestCollection
 {
-    public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter)
+    public SagaManifestCollection(SagaMetadataCollection sagas, string storageLocation, Func<string, string> sagaNameConverter, JsonSerializerOptions? serializerOptions = null)
     {
+        serializerOptions ??= new JsonSerializerOptions();
         foreach (var metadata in sagas)
         {
             var sagaStorageDir = Path.Combine(storageLocation, sagaNameConverter(metadata.SagaType.FullName!));
@@ -23,7 +25,8 @@ class SagaManifestCollection
             var manifest = new SagaManifest
             {
                 StorageDirectory = sagaStorageDir,
-                SagaEntityType = metadata.SagaEntityType
+                SagaEntityType = metadata.SagaEntityType,
+                SerializerOptions = serializerOptions
             };
 
             sagaManifests[metadata.SagaEntityType] = manifest;

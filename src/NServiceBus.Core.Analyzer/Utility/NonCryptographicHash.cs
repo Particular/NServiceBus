@@ -1,8 +1,6 @@
 namespace NServiceBus.Core.Analyzer.Utility;
 
 using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 /// <summary>
 /// 64-bit FNV-1a over chars, https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
@@ -21,34 +19,28 @@ public static class NonCryptographicHash
         {
             string part = parts[index];
             ReadOnlySpan<char> span = part.AsSpan();
-            ref char first = ref MemoryMarshal.GetReference(span);
             int length = span.Length;
             int i = 0;
             // Process 4 chars at a time
             for (; i + 3 < length; i += 4)
             {
-                char c0 = Unsafe.Add(ref first, i);
-                hash ^= c0;
+                hash ^= span[i];
                 hash *= prime;
 
-                char c1 = Unsafe.Add(ref first, i + 1);
-                hash ^= c1;
+                hash ^= span[i + 1];
                 hash *= prime;
 
-                char c2 = Unsafe.Add(ref first, i + 2);
-                hash ^= c2;
+                hash ^= span[i + 2];
                 hash *= prime;
 
-                char c3 = Unsafe.Add(ref first, i + 3);
-                hash ^= c3;
+                hash ^= span[i + 3];
                 hash *= prime;
             }
 
             // Handle remainder (0–3 chars)
             for (; i < length; i++)
             {
-                char c = Unsafe.Add(ref first, i);
-                hash ^= c;
+                hash ^= span[i];
                 hash *= prime;
             }
         }

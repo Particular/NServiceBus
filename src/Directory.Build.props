@@ -31,4 +31,8 @@
     <SourceRoot Include="$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory)..\))" />
   </ItemGroup>
 
+  <ItemGroup>
+   <ProjectCapability Include="DynamicFileNestingEnabled" />
+  </ItemGroup>
+
 </Project>

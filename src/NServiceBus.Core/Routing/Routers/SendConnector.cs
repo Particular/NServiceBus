@@ -15,7 +15,7 @@ class SendConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessa
     public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
     {
         var routingStrategy = unicastSendRouter.Route(context);
-        context.Headers[Headers.MessageIntent] = MessageIntent.Send.ToString();
+        context.Headers[Headers.MessageIntent] = nameof(MessageIntent.Send);
         var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, new[] { routingStrategy }, context);
 
         try

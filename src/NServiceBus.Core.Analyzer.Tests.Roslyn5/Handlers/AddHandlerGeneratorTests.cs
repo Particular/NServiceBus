@@ -459,6 +459,80 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void ConventionBasedHandlerWithKeyedServices()
+    {
+        var source = """
+                     using System.Threading;
+                     using System.Threading.Tasks;
+                     using Microsoft.Extensions.DependencyInjection;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.ConventionBasedHandlerWithKeyedServicesAssembly.AddAll();
+                         }
+                     }
+
+                     [Handler]
+                     public class OrderShippedHandler
+                     {
+                         public OrderShippedHandler([FromKeyedServices("CtorKey")] IMyService ctorService) {}
+
+                         public Task Handle(Cmd1 message, IMessageHandlerContext context, [FromKeyedServices(Keys.HandlerKey)] IMyService methodService, [FromKeyedServices("MethodKey")] IMyService methodService2, [FromKeyedServices(key: "NamedKey")] IMyService methodService3, [FromKeyedServices(nameof(Cmd1))] IMyService methodService4, [FromKeyedServices(typeof(Cmd1))] IMyService methodService5, [FromKeyedServices(null)] IMyService methodService6, [FromKeyedServices(ServiceKey.First)] IMyService methodService7, CancellationToken cancellationToken = default) => Task.CompletedTask;
+                     }
+
+                     public interface IMyService {}
+                     public class Cmd1 : ICommand {}
+                     public static class Keys { public const string HandlerKey = "ConstKey"; }
+                     public enum ServiceKey { None = 0, First = 1, Second = 2 }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Run()
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
+    public void ConventionBasedHandlerWithKeyedServicesInAnotherNamespace()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using Microsoft.Extensions.DependencyInjection;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.ConventionBasedHandlerWithKeyedServicesInAnotherNamespaceAssembly.AddAll();
+                         }
+                     }
+
+                     [Handler]
+                     public class OrderShippedHandler
+                     {
+                         public Task Handle(Cmd1 message, IMessageHandlerContext context, [FromKeyedServices(Security.KeyVault.HandlerKey)] IMyService service) => Task.CompletedTask;
+                     }
+
+                     public interface IMyService {}
+                     public class Cmd1 : ICommand {}
+                     namespace Security { public static class KeyVault { public const string HandlerKey = "SecretKey"; } }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Run()
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void ConventionBasedHandlerCtorAndMethodInjectionWithSameParameterName()
     {
         var source = """

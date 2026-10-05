@@ -52,7 +52,7 @@ public class When_incoming_message_moved_to_error_queue : OpenTelemetryAcceptanc
         {
             public override Task Invoke(ITransportReceiveContext context, Func<Task> next)
             {
-                testContext.ErrorMessageHeaders = context.Message.Headers;
+                testContext.ErrorMessageHeaders = context.Message.Headers.ToDictionary(x => x.Key, x => x.Value);
                 testContext.MarkAsCompleted();
                 return next();
             }

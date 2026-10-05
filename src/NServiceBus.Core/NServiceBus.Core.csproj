@@ -6,21 +6,26 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Shared\MessageTypeValidator.cs" Link="MessageTypeValidator.cs" />
+  </ItemGroup>
+
   <ItemGroup Label="Public dependencies">
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.8" AutomaticVersionRange="false" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.11" AutomaticVersionRange="false" />
     <PackageReference Include="NServiceBus.MessageInterfaces" Version="1.0.0" />
-    <PackageReference Include="System.IO.Hashing" Version="10.0.8" AutomaticVersionRange="false" />
+    <PackageReference Include="System.IO.Hashing" Version="10.0.11" AutomaticVersionRange="false" />
   </ItemGroup>
 
   <ItemGroup Label="Private dependencies">
     <PackageReference Include="FastExpressionCompiler.Internal.src" Version="5.4.1" PrivateAssets="All" GeneratePathProperty="true" />
-    <PackageReference Include="Particular.Licensing.Sources" Version="7.0.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Licensing.Sources" Version="7.4.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Obsoletes" Version="1.1.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Particular.Packaging" Version="4.5.0" PrivateAssets="All" />
   </ItemGroup>
@@ -28,7 +33,7 @@
   <PropertyGroup>
     <PackageId>NServiceBus</PackageId>
     <Description>Build, version, and monitor better microservices with the most powerful service platform for .NET</Description>
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPropsFileToPackage</TargetsForTfmSpecificContentInPackage>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddPropsAndTargetsFilesToPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
   <ItemGroup Label="Remove this ItemGroup when FastExpressionCompiler stops included test code in the package">
@@ -40,15 +45,15 @@
     <None Include="..\NServiceBus.Core.Analyzer.Fixes\bin\$(Configuration)\$(AnalyzerTargetFramework)\NServiceBus.Core.Analyzer.Fixes.dll" Pack="true" PackagePath="analyzers/dotnet/roslyn$(RoslynPackagePathVersion)/cs/NServiceBus.Core.Analyzer.Fixes.dll" Visible="false" />
   </ItemGroup>
 
-  <Target Name="AddPropsFileToPackage">
+  <Target Name="AddPropsAndTargetsFilesToPackage">
     <ItemGroup>
       <TfmSpecificPackageFile Include="NServiceBus.props" PackagePath="build/$(TargetFramework);buildTransitive/$(TargetFramework)" />
+      <TfmSpecificPackageFile Include="NServiceBus.targets" PackagePath="build/$(TargetFramework);buildTransitive/$(TargetFramework)" />
     </ItemGroup>
   </Target>
 
   <ItemGroup>
     <InternalsVisibleTo Include="NServiceBus.AcceptanceTesting" Key="$(NServiceBusKey)" />
-    <InternalsVisibleTo Include="NServiceBus.ContainerTests" Key="$(NServiceBusTestsKey)" />
     <InternalsVisibleTo Include="NServiceBus.Core.Tests" Key="$(NServiceBusTestsKey)" />
     <InternalsVisibleTo Include="NServiceBus.PersistenceTests" Key="$(NServiceBusTestsKey)" />
   </ItemGroup>

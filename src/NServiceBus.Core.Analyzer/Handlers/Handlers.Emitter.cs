@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Core.Analyzer.Handlers;
+﻿#nullable enable
+namespace NServiceBus.Core.Analyzer.Handlers;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +77,7 @@ public static partial class Handlers
             if (adapterParams.AllParams.Count > 0)
             {
                 sourceWriter.WriteLine();
-                var ctorArgs = string.Join(", ", adapterParams.AllParams.Select(p => $"{p.FullyQualifiedType} {p.ConstructorParameterName}"));
+                var ctorArgs = string.Join(", ", adapterParams.AllParams.Select(p => $"{FormatKeyedServiceAttribute(p.KeyedServiceKey)}{p.FullyQualifiedType} {p.ConstructorParameterName}"));
                 sourceWriter.WriteLine($"public {method.AdapterName}({ctorArgs})");
                 sourceWriter.WriteLine("{");
                 sourceWriter.Indentation++;
@@ -137,7 +138,7 @@ public static partial class Handlers
             {
                 var memberName = CreateUniqueName(p.ParameterName, "FromCtor", usedMemberNames);
                 var constructorParameterName = CreateUniqueName(memberName, "FromCtor", usedCtorParameterNames);
-                all.Add(new AdapterParamSpec(memberName, constructorParameterName, p.FullyQualifiedType));
+                all.Add(new AdapterParamSpec(memberName, constructorParameterName, p.FullyQualifiedType, p.KeyedServiceKey));
                 ctorFieldReferences.Add($"_{memberName}");
             }
             // Method params (excluding CancellationToken — those come from context)
@@ -150,7 +151,7 @@ public static partial class Handlers
 
                 var memberName = CreateUniqueName(p.ParameterName, "FromMethod", usedMemberNames);
                 var constructorParameterName = CreateUniqueName(memberName, "FromMethod", usedCtorParameterNames);
-                all.Add(new AdapterParamSpec(memberName, constructorParameterName, p.FullyQualifiedType));
+                all.Add(new AdapterParamSpec(memberName, constructorParameterName, p.FullyQualifiedType, p.KeyedServiceKey));
                 methodFieldReferences.Add($"_{memberName}");
             }
 
@@ -174,7 +175,18 @@ public static partial class Handlers
             return candidate;
         }
 
-        readonly record struct AdapterParamSpec(string MemberName, string ConstructorParameterName, string FullyQualifiedType);
+        readonly record struct AdapterParamSpec(string MemberName, string ConstructorParameterName, string FullyQualifiedType, string? KeyedServiceKey);
+
+        static string FormatKeyedServiceAttribute(string? keyedServiceKey) =>
+            keyedServiceKey switch
+            {
+                // null => no [FromKeyedServices] attribute on the original parameter
+                null => string.Empty,
+                // "" => bare [FromKeyedServices] with no argument
+                "" => "[global::Microsoft.Extensions.DependencyInjection.FromKeyedServices] ",
+                // verbatim expression text from the original source
+                _ => $"[global::Microsoft.Extensions.DependencyInjection.FromKeyedServices({keyedServiceKey})] "
+            };
 
         readonly record struct AdapterParamSpecs(List<AdapterParamSpec> AllParams, List<string> CtorFieldReferences, List<string> MethodFieldReferences);
     }

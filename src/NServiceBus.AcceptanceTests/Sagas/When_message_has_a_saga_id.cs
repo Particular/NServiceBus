@@ -20,7 +20,9 @@ public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
                 options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
                 options.SetHeader(Headers.SagaType, typeof(SagaEndpoint.MessageWithSagaIdSaga).AssemblyQualifiedName);
                 options.RouteToThisEndpoint();
+#pragma warning disable NSB0040 // Intentional runtime-type routing
                 return session.Send(message, options);
+#pragma warning restore NSB0040
             }))
             .Run();
 

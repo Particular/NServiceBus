@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Routing;
@@ -11,15 +12,19 @@ class AssemblyRouteSource : IRouteSource
     readonly Assembly messageAssembly;
     readonly UnicastRoute route;
 
+    [RequiresUnreferencedCode(TrimmingMessage)]
     public AssemblyRouteSource(Assembly messageAssembly, UnicastRoute route)
     {
         this.messageAssembly = messageAssembly;
         this.route = route;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Scanning the configured assembly is intentional. Construction is gated by the constructor's RequiresUnreferencedCode annotation, and the scanning members cannot be annotated because they implement an unannotated interface (IL2046).")]
+    static Type[] ScanAssemblyTypes(Assembly assembly) => assembly.GetTypes();
+
     public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
     {
-        var routes = messageAssembly.GetTypes()
+        var routes = ScanAssemblyTypes(messageAssembly)
             .Where(t => conventions.IsMessageType(t))
             .Select(t => new RouteTableEntry(t, route))
             .ToArray();
@@ -33,4 +38,6 @@ class AssemblyRouteSource : IRouteSource
     }
 
     public RouteSourcePriority Priority => RouteSourcePriority.Assembly;
+
+    internal const string TrimmingMessage = "Routing messages by assembly or namespace requires assembly scanning and is not supported in trimming scenarios. Register routes by message type instead.";
 }
