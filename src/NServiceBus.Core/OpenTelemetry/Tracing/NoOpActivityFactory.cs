@@ -17,6 +17,10 @@ sealed class NoOpActivityFactory : IActivityFactory
 
     public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext) => null;
 
+    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type messageType, IBehaviorContext outgoingContext) => null;
+
+    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type[] messageTypes, IBehaviorContext outgoingContext) => null;
+
     public Activity? StartHandlerActivity(MessageHandler messageHandler) => null;
     public Activity? StartRecoverabilityActivity(ErrorContext context) => null;
     public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
