@@ -832,6 +832,20 @@ namespace NServiceBus
         public const string OutboxDeduplicateMessage = "nservicebus.outbox.deduplicate-message";
     }
 
+    // The pre-v11 execution.result metric tag. PipelineMetrics applies it while
+    // V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyExecutionResultTag
+    {
+        // The tag is going away, so a user cannot override it through IMetricsTags.
+        public static void Add(ref TagList tags, Exception? error = null)
+        {
+            if (!V11BehaviorSwitch.UseV11Behavior)
+            {
+                tags.Add(MeterTags.ExecutionResult, error is null ? "success" : "failure");
+            }
+        }
+    }
+
     public partial class InstrumentationOptions
     {
         // Publishes start a new linked trace by default in v10 for backward compatibility. This one keeps a
