@@ -52,15 +52,12 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_include_destination_in_display_name_when_opted_in()
+    [OpenTelemetryV11Defaults]
+    public async Task Should_include_destination_in_display_name()
     {
         await Scenario.Define<Context>()
             .WithEndpoint<RecoverabilityEndpoint>(b => b
-                .CustomConfig(c =>
-                {
-                    c.Recoverability().Immediate(i => i.NumberOfRetries(1)).Delayed(i => i.NumberOfRetries(0));
-                    c.Tracing().UseMessageTypeNamesInSpanNames = true;
-                })
+                .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)).Delayed(i => i.NumberOfRetries(0)))
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
             .Done(_ => ActionTags().Contains("move_to_error"))

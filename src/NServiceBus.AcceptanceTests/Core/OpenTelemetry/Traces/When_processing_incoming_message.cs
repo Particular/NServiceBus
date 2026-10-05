@@ -81,10 +81,11 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_use_receive_address_in_span_name_when_opted_in()
+    [OpenTelemetryV11Defaults]
+    public async Task Should_include_receive_address_in_span_name()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<ReceivingEndpointWithDestinationNaming>(e => e
+            .WithEndpoint<ReceivingEndpoint>(e => e
                 .When(s => s.SendLocal(new IncomingMessage())))
             .Run();
 
@@ -94,22 +95,6 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
         var incomingActivity = incomingMessageActivities.Single();
         Assert.That(incomingActivity.DisplayName, Does.StartWith("process "));
         Assert.That(incomingActivity.DisplayName, Is.Not.EqualTo("process message"));
-    }
-
-    public class ReceivingEndpointWithDestinationNaming : EndpointConfigurationBuilder
-    {
-        public ReceivingEndpointWithDestinationNaming() =>
-            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageTypeNamesInSpanNames = true);
-
-        [Handler]
-        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
-        {
-            public Task Handle(IncomingMessage message, IMessageHandlerContext context)
-            {
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
     }
 
     public class IncomingMessage : IMessage;

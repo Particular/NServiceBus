@@ -112,7 +112,7 @@ context by hand again.
 Mechanically, `ActivityFactory` creates the incoming activity, forces the W3C id format, adds the tags and
 starts it. Only then does it read the headers. `ContextPropagation.PropagateContextFromHeaders` is split
 into `PropagateTraceStateFromHeaders(activity, headers)` and `PropagateBaggageFromHeaders(activity,
-headers)`. The split applies to both propagator paths, including the legacy path in `obsolete_v11.cs`.
+headers)`. The split applies to both propagator paths, including the legacy path in `obsoletes-v10.cs`.
 Both methods expect a started activity. The combined method stays for callers that need both.
 
 ## Consequences

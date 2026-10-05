@@ -66,13 +66,12 @@ partial class ReceiveComponent
             return transport.Receivers[MainReceiverId].Subscriptions;
         });
 
-        pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
+        pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", static b =>
         {
             var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
             return new TransportReceiveToPhysicalMessageConnector(
                 storage,
                 b.GetRequiredService<PipelineMetrics>(),
-                hostingConfiguration.ActivityFactory.Options,
                 b.GetRequiredService<ILogger<TransportReceiveToPhysicalMessageConnector>>()
             );
         }, "Allows to abort processing the message");

@@ -65,7 +65,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
 
             // Append destination to span name per OTel messaging spec: {operation} {destination}
             // Only for send/reply (unicast); publish destination is already set at span creation.
-            if (activityFactory.Options.UseMessageTypeNamesInSpanNames
+            if (V11BehaviorSwitch.UseV11Behavior // removed in v11, see obsoletes-v10.cs
                 && operations.Length > 0
                 && operations[0].AddressTag is UnicastAddressTag unicastTag
                 && outgoingMessage.Headers.TryGetValue(Headers.MessageIntent, out var intentStr)

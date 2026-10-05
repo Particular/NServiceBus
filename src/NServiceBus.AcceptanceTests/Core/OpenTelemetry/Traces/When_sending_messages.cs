@@ -132,10 +132,11 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_use_destination_in_send_span_name_when_opted_in()
+    [OpenTelemetryV11Defaults]
+    public async Task Should_include_destination_in_send_span_name()
     {
         await Scenario.Define<Context>()
-            .WithEndpoint<TestEndpointWithDestinationNaming>(b => b
+            .WithEndpoint<TestEndpoint>(b => b
                 .When(s => s.SendLocal(new OutgoingMessage())))
             .Run();
 
@@ -145,22 +146,6 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         var sentMessage = outgoingMessageActivities.Single();
         Assert.That(sentMessage.DisplayName, Does.StartWith("send "));
         Assert.That(sentMessage.DisplayName, Is.Not.EqualTo("send message"));
-    }
-
-    public class TestEndpointWithDestinationNaming : EndpointConfigurationBuilder
-    {
-        public TestEndpointWithDestinationNaming() =>
-            EndpointSetup<DefaultServer>(b => b.Tracing().UseMessageTypeNamesInSpanNames = true);
-
-        [Handler]
-        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
-        {
-            public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
-            {
-                testContext.MarkAsCompleted();
-                return Task.CompletedTask;
-            }
-        }
     }
 
     [Test]

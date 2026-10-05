@@ -21,21 +21,10 @@ public class HandlerActivitySourceTests
     public void SetUp() => mainListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
 
     [TearDown]
-    public void TearDown()
-    {
-        mainListener.Dispose();
-        AppContext.SetSwitch(HandlerActivitySourceSwitch.UseHandlerActivitySourceSwitchName, false);
-        HandlerActivitySourceSwitch.ResetUseHandlerActivitySource();
-    }
-
-    static void OptIn()
-    {
-        AppContext.SetSwitch(HandlerActivitySourceSwitch.UseHandlerActivitySourceSwitchName, true);
-        HandlerActivitySourceSwitch.ResetUseHandlerActivitySource();
-    }
+    public void TearDown() => mainListener.Dispose();
 
     [Test]
-    public void Default_emits_handler_activity_from_main_source()
+    public void Should_emit_handler_activity_from_main_source()
     {
         using var ambientActivity = new Activity("ambient activity");
         ambientActivity.Start();
@@ -47,9 +36,9 @@ public class HandlerActivitySourceTests
     }
 
     [Test]
-    public void Opt_in_emits_handler_activity_from_handler_source()
+    [OpenTelemetryV11Defaults]
+    public void Should_emit_handler_activity_from_handler_source()
     {
-        OptIn();
         using var handlerListener = TestingActivityListener.SetupDiagnosticListener("NServiceBus.Core.Handler");
 
         using var ambientActivity = new Activity("ambient activity");
@@ -62,9 +51,9 @@ public class HandlerActivitySourceTests
     }
 
     [Test]
-    public void Opt_in_preserves_display_name_and_handler_type_tag()
+    [OpenTelemetryV11Defaults]
+    public void Should_preserve_display_name_and_handler_type_tag()
     {
-        OptIn();
         using var handlerListener = TestingActivityListener.SetupDiagnosticListener("NServiceBus.Core.Handler");
 
         using var ambientActivity = new Activity("ambient activity");
@@ -80,9 +69,9 @@ public class HandlerActivitySourceTests
     }
 
     [Test]
-    public void Opt_in_without_handler_source_listener_does_not_create_handler_activity()
+    [OpenTelemetryV11Defaults]
+    public void Should_not_create_handler_activity_without_handler_source_listener()
     {
-        OptIn();
 
         using var ambientActivity = new Activity("ambient activity");
         ambientActivity.Start();
