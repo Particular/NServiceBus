@@ -15,7 +15,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 {
     public InstrumentationOptions Options { get; } = options;
 
-    static Activity? CreateActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, string nativeMessageId)
+    static Activity? StartActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, string nativeMessageId)
     {
         // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
         // here nonetheless to avoid having to parse headers, access the extension bag, etc.
@@ -25,13 +25,14 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
 
         var senderContextExists = TryParseSenderContext(headers, out ActivityContext senderContext);
+        var startNewTrace = false;
 
         Activity? activity;
 
         if (senderContextExists) // create a child from a logical send
         {
-            var startNewTrace = headers.TryGetValue(Headers.StartNewTrace, out var startNewTraceHeaderValue)
-                                && string.Equals(startNewTraceHeaderValue, bool.TrueString, StringComparison.OrdinalIgnoreCase);
+            startNewTrace = headers.TryGetValue(Headers.StartNewTrace, out var startNewTraceHeaderValue)
+                            && string.Equals(startNewTraceHeaderValue, bool.TrueString, StringComparison.OrdinalIgnoreCase);
 
             if (startNewTrace)
             {
@@ -41,7 +42,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
                 Activity.Current = null;
                 activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
             }
-            else if (TransportParentSpanSwitch.UseTransportSpanAsParent && Activity.Current != null) // remove the switch check in v11, see obsolete_v11.cs
+            else if (TransportParentActivitySwitch.UseTransportActivityAsParent && Activity.Current != null) // remove the switch check in v11, see obsolete_v11.cs
             {
                 // A transport SDK receive span is ambient: make it the parent (an activity without
                 // a parent context adopts Activity.Current when it starts) and link to the NSB sender span.
@@ -55,21 +56,42 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
         else
         {
-            // Create a span that will be a child of Activity.Current if available
+            // No NServiceBus trace context on the message, so there is nothing for NServiceBus to
+            // propagate from the headers: trace state and baggage are only meaningful together with
+            // a trace parent. The span adopts Activity.Current as parent, if available, and inherits
+            // whatever trace state and baggage that activity carries through the parent chain.
             activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default);
         }
 
         if (activity is null)
         {
-            return activity;
+            return null;
         }
 
-        ContextPropagation.PropagateContextFromHeaders(activity, headers);
-
+        // The id format can only be set on an activity that has not started yet. It is forced to W3C
+        // so an ambient hierarchical activity does not leak its format into the trace headers.
         activity.SetIdFormat(ActivityIdFormat.W3C);
-
         activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
         ActivityDecorator.PromoteHeadersToTags(activity, headers);
+
+        // Start before reading the headers: Activity.Parent is only assigned by Start(), and the
+        // baggage propagation below skips keys the parent chain already carries.
+        activity.Start();
+
+        if (senderContextExists)
+        {
+            // The message carries NServiceBus trace context, so the trace state and baggage headers
+            // that travel with it are NServiceBus' responsibility.
+            if (!startNewTrace)
+            {
+                // Trace state belongs to the trace it was recorded in, so it is not carried into a new trace.
+                ContextPropagation.PropagateTraceStateFromHeaders(activity, headers);
+            }
+
+            // Baggage is always propagated, also when a transport SDK span is the parent: none of the
+            // supported SDKs propagate baggage yet.
+            ContextPropagation.PropagateBaggageFromHeaders(activity, headers);
+        }
 
         return activity;
     }
@@ -103,7 +125,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
     public Activity? StartIncomingPipelineActivity(MessageContext context)
     {
-        var activity = CreateActivityFromIncomingMessage(
+        var activity = StartActivityFromIncomingMessage(
             ActivitySources.Main,
             ActivityNames.IncomingMessageActivityName,
             context.Headers,
@@ -117,8 +139,6 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         activity.DisplayName = Options.UseMessageTypeNamesInSpanNames
             ? $"{ActivityDisplayNames.ProcessOperation} {context.ReceiveAddress}"
             : ActivityDisplayNames.ProcessMessage;
-
-        activity.Start();
 
         return activity;
     }
@@ -168,7 +188,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
     public Activity? StartRecoverabilityActivity(ErrorContext context)
     {
-        var activity = CreateActivityFromIncomingMessage(
+        var activity = StartActivityFromIncomingMessage(
             ActivitySources.Recoverability,
             ActivityNames.RecoverabilityActivityName,
             context.Headers,
@@ -180,8 +200,6 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
 
         activity.DisplayName = ActivityDisplayNames.Recoverability;
-
-        activity.Start();
 
         return activity;
     }

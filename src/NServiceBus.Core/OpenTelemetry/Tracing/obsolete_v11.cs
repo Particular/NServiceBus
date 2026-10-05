@@ -18,8 +18,8 @@ using Particular.Obsoletes;
 // switch and the legacy propagator below remains the default.
 //
 // In v11 the new propagator becomes the default: delete this entire file and
-// remove the two `if (!ObsoleteV11.UseDistributedContextPropagator)` delegation
-// blocks in ContextPropagation.cs.
+// remove the `if (!LegacyContextPropagation.UseDistributedContextPropagator)`
+// delegation blocks in ContextPropagation.cs.
 // =============================================================================
 static class LegacyContextPropagation
 {
@@ -92,41 +92,59 @@ static class LegacyContextPropagation
             return;
         }
 
+        PropagateTraceStateFromHeaders(activity, headers);
+        PropagateBaggageFromHeaders(activity, headers);
+    }
+
+    public static void PropagateTraceStateFromHeaders(Activity activity, IDictionary<string, string> headers)
+    {
         if (headers.TryGetValue(Headers.DiagnosticsTraceState, out var traceState))
         {
             activity.TraceStateString = traceState;
         }
+    }
 
-        if (headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))
+    // parent: the activity whose baggage chain is checked so keys it already carries are not added again,
+    // see ContextPropagation.PropagateBaggageFromHeaders.
+    public static void PropagateBaggageFromHeaders(Activity activity, IDictionary<string, string> headers, Activity? parent = null)
+    {
+        if (!headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))
         {
-            var baggageSpan = baggageValue.AsSpan();
-            // HINT: Iterate in reverse order because Activity baggage is LIFO
-            while (!baggageSpan.IsEmpty)
+            return;
+        }
+
+        var baggageSpan = baggageValue.AsSpan();
+        // HINT: Iterate in reverse order because Activity baggage is LIFO
+        while (!baggageSpan.IsEmpty)
+        {
+            var lastComma = baggageSpan.LastIndexOf(',');
+            ReadOnlySpan<char> baggageItem;
+
+            if (lastComma >= 0)
             {
-                var lastComma = baggageSpan.LastIndexOf(',');
-                ReadOnlySpan<char> baggageItem;
-
-                if (lastComma >= 0)
-                {
-                    baggageItem = baggageSpan[(lastComma + 1)..];
-                    baggageSpan = baggageSpan[..lastComma];
-                }
-                else
-                {
-                    baggageItem = baggageSpan;
-                    baggageSpan = [];
-                }
-
-                var firstEquals = baggageItem.IndexOf('=');
-                if (firstEquals < 0 || firstEquals >= baggageItem.Length)
-                {
-                    continue;
-                }
-
-                var key = baggageItem[..firstEquals].Trim();
-                var value = baggageItem[(firstEquals + 1)..];
-                activity.AddBaggage(key.ToString(), Uri.UnescapeDataString(value));
+                baggageItem = baggageSpan[(lastComma + 1)..];
+                baggageSpan = baggageSpan[..lastComma];
             }
+            else
+            {
+                baggageItem = baggageSpan;
+                baggageSpan = [];
+            }
+
+            var firstEquals = baggageItem.IndexOf('=');
+            if (firstEquals < 0 || firstEquals >= baggageItem.Length)
+            {
+                continue;
+            }
+
+            var key = baggageItem[..firstEquals].Trim().ToString();
+            if (parent?.GetBaggageItem(key) is not null)
+            {
+                continue;
+            }
+
+            var value = baggageItem[(firstEquals + 1)..];
+            activity.AddBaggage(key, Uri.UnescapeDataString(value));
         }
     }
 }
@@ -190,11 +208,11 @@ static class HandlerActivitySourceSwitch
 // AppContext switch.
 //
 // In v11 the SDK span becomes the parent unconditionally: delete this class, remove the
-// `TransportParentSpanSwitch.UseTransportSpanAsParent` check in
+// `TransportParentActivitySwitch.UseTransportSpanAsParent` check in
 // ActivityFactory.CreateActivityFromIncomingMessage (keeping only the branch that links to the
 // sender span), delete TransportParentSpanDefaultBehaviorTests.cs and remove the opt-in
 // SetUp/TearDown pair in ActivityFactoryTests.StartIncomingActivity.
-static class TransportParentSpanSwitch
+static class TransportParentActivitySwitch
 {
     enum SwitchState : byte
     {
@@ -203,30 +221,30 @@ static class TransportParentSpanSwitch
         Disabled = 2
     }
 
-    static SwitchState cachedUseTransportSpanAsParent;
+    static SwitchState cachedUseTransportActivityAsParent;
 
-    public const string UseTransportSpanAsParentSwitchName = "NServiceBus.Core.OpenTelemetry.UseTransportSpanAsParent";
+    public const string UseTransportActivityAsParentSwitchName = "NServiceBus.Core.OpenTelemetry.UseTransportActivityAsParent";
 
-    public static bool UseTransportSpanAsParent
+    public static bool UseTransportActivityAsParent
     {
         get
         {
-            var state = cachedUseTransportSpanAsParent;
+            var state = cachedUseTransportActivityAsParent;
             if (state != SwitchState.Unchecked)
             {
                 return state == SwitchState.Enabled;
             }
 
-            state = AppContext.TryGetSwitch(UseTransportSpanAsParentSwitchName, out var isEnabled) && isEnabled
+            state = AppContext.TryGetSwitch(UseTransportActivityAsParentSwitchName, out var isEnabled) && isEnabled
                 ? SwitchState.Enabled
                 : SwitchState.Disabled;
-            cachedUseTransportSpanAsParent = state;
+            cachedUseTransportActivityAsParent = state;
 
             return state == SwitchState.Enabled;
         }
     }
 
-    internal static void ResetUseTransportSpanAsParent() => cachedUseTransportSpanAsParent = SwitchState.Unchecked;
+    internal static void ResetUseTransportActivityAsParent() => cachedUseTransportActivityAsParent = SwitchState.Unchecked;
 }
 
 // This class bridges two independent legacy exception-tagging behaviors, both
