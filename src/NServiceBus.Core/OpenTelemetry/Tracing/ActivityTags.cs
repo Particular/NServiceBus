@@ -43,4 +43,5 @@ static class ActivityTags
     public const string CancelledTask = "nservicebus.cancelled";
     public const string ErrorType = "error.type";
     public const string RecoverabilityAction = "nservicebus.recoverability_action";
+    public const string OutboxDeduplicatedMessage = "nservicebus.outbox.deduplicated_message";
 }

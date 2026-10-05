@@ -39,7 +39,8 @@
     "EventTypes => nservicebus.event_types",
     "CancelledTask => nservicebus.cancelled",
     "ErrorType => error.type",
-    "RecoverabilityAction => nservicebus.recoverability_action"
+    "RecoverabilityAction => nservicebus.recoverability_action",
+    "OutboxDeduplicatedMessage => nservicebus.outbox.deduplicated_message"
   ],
   "ActivitySourceVersion": {
     "PreV11Version": "0.1.0",

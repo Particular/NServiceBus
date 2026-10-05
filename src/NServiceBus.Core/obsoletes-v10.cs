@@ -667,6 +667,10 @@ namespace NServiceBus
     //   https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
     // - The ActivitySources report version 1.0.0 instead of 0.1.0, so a consumer can tell the two tag and
     //   span-name sets apart.
+    // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
+    //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
+    //   (snake_case within a dot-delimited component, no hyphens).
+    //   https://opentelemetry.io/docs/specs/semconv/general/naming/
     //
     // In v11: delete this entire namespace block, search the code base for `V11BehaviorSwitch` and keep
     // only the branch each check guards for the enabled case. ActivityFactory, ActivitySources, ContextPropagation,
@@ -815,6 +819,13 @@ namespace NServiceBus
         }
 
         public static TagList EscapedTagList { get; } = new() { { "exception.escaped", true } };
+    }
+
+    // The pre-v11 names of span tags that were renamed to follow the OpenTelemetry naming rules.
+    // TransportReceiveToPhysicalMessageConnector writes these while V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyActivityTags
+    {
+        public const string OutboxDeduplicateMessage = "nservicebus.outbox.deduplicate-message";
     }
 
     public partial class InstrumentationOptions

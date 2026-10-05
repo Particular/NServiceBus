@@ -132,6 +132,24 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         Assert.That(pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicate-message"], Is.EqualTo(true));
     }
 
+    // In v11 the snake_case name is the only one: delete the test above and the attribute on this one.
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_add_snake_case_outbox_span_tag_when_deduplicating()
+    {
+        string messageId = Guid.NewGuid().ToString();
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, Array.Empty<NServiceBus.Outbox.TransportOperation>());
+        var context = CreateContext(fakeBatchPipeline, messageId);
+
+        using var pipelineActivity = new Activity("test activity");
+        pipelineActivity.Start();
+        context.Extensions.SetIncomingPipelineActivity(pipelineActivity);
+
+        await Invoke(context);
+
+        Assert.That(pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicated_message"], Is.EqualTo(true));
+    }
+
     [Test]
     public async Task Should_report_deduplicated_message_metric_when_deduplicating()
     {

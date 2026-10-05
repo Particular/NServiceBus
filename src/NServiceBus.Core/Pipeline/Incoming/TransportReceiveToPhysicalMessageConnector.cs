@@ -76,7 +76,7 @@ partial class TransportReceiveToPhysicalMessageConnector(
         {
             LogOutboxDuplicateDetectedForMessageMessageIdSkippingHandlerExecution(messageId);
             context.Extensions.TryGetIncomingPipelineActivity(out var activity);
-            activity?.AddTag("nservicebus.outbox.deduplicate-message", true);
+            activity?.AddTag(V11BehaviorSwitch.UseV11Behavior ? ActivityTags.OutboxDeduplicatedMessage : LegacyActivityTags.OutboxDeduplicateMessage, true); // keep only the v11 name in v11, see obsoletes-v10.cs
             pipelineMetrics.RecordDeduplicatedMessage(context);
             ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             operations = pendingTransportOperations.Operations;
