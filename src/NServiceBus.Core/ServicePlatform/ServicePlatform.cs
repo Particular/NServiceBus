@@ -1,17 +1,25 @@
 ﻿#nullable enable
 
-namespace NServiceBus;
+namespace NServiceBus.Features;
 
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Features;
 using NServiceBus.ServicePlatform;
 using NServiceBus.Transport;
 
-class ServicePlatformFeature : Feature
+/// <summary>
+/// Used to configure the service platform feature.
+/// </summary>
+public sealed class ServicePlatform : Feature
 {
-    public ServicePlatformFeature()
+    /// <summary>
+    /// Create a new instance of the service platform feature.
+    /// </summary>
+    public ServicePlatform()
         => Defaults(MessagingBasedServicePlatformConnection.Defaults);
 
+    /// <summary>
+    /// See <see cref="Feature.Setup" />.
+    /// </summary>
     protected override void Setup(FeatureConfigurationContext context)
         => context.Services.AddSingleton(
                 serviceProvider => (ServicePlatformConnection)new MessagingBasedServicePlatformConnection(

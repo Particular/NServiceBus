@@ -84,7 +84,7 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
     {
         public SendMessageToPlatformFeature()
         {
-            DependsOn("NServiceBus.ServicePlatformFeature");
+            DependsOn<ServicePlatform>();
         }
 
         protected override void Setup(FeatureConfigurationContext context)

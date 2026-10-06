@@ -1677,6 +1677,11 @@ namespace NServiceBus.Features
         public Sagas() { }
         protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public sealed class ServicePlatform : NServiceBus.Features.Feature
+    {
+        public ServicePlatform() { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     public static class SettingsExtensions
     {
         public static void EnableFeature<TFeature>(this NServiceBus.Settings.SettingsHolder settings)
