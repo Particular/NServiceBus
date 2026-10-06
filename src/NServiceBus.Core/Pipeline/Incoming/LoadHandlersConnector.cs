@@ -57,7 +57,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
                     {
                         await stage(handlingContext).ConfigureAwait(false);
 
-                        activity?.SetStatus(ActivityStatusCode.Ok);
+                        LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
                     }
 #pragma warning disable PS0019
                     catch (Exception ex)

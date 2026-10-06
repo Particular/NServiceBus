@@ -12,7 +12,7 @@ using OpenTelemetry.Helpers;
 using Transport;
 
 [TestFixture]
-public class MainPipelineExecutorTests
+public partial class MainPipelineExecutorTests
 {
     [Test]
     public async Task Should_share_message_context_extension_values()
@@ -49,7 +49,7 @@ public class MainPipelineExecutorTests
         Assert.That(messageContext.Extensions.Get<Guid>("new value"), Is.EqualTo(newValue));
     }
 
-    class When_activity_listener_registered
+    partial class When_activity_listener_registered
     {
         TestingActivityListener nsbActivityListener;
 
@@ -85,8 +85,11 @@ public class MainPipelineExecutorTests
             }
         }
 
+        // In v11 the status is left unset on success: delete Should_set_ok_status_on_activity_when_pipeline_successful
+        // in obsoletes-v10.cs and the attribute on this one.
         [Test]
-        public async Task Should_set_ok_status_on_activity_when_pipeline_successful()
+        [OpenTelemetryV11Defaults]
+        public async Task Should_leave_status_unset_on_activity_when_pipeline_successful()
         {
             var receivePipeline = new ActivityTrackingReceivePipeline();
             var serviceCollection = new ServiceCollection();
@@ -94,7 +97,7 @@ public class MainPipelineExecutorTests
             var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
             await executor.Invoke(CreateMessageContext());
 
-            Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Ok));
+            Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Unset));
         }
 
         [Test]
