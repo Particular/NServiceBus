@@ -32,7 +32,6 @@ class PipelineMetrics
     // queueName and discriminator are null for send-only endpoints, which have no receive queue to report.
     public PipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator)
     {
-        emitExecutionResultTags = !V11BehaviorSwitch.UseV11Behavior; // removed in v11 together with the tag, see obsoletes-v10.cs
         var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
@@ -93,11 +92,7 @@ class PipelineMetrics
 
         var tags = DefaultMetricTags;
 
-        if (emitExecutionResultTags)
-        {
-            // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(MeterTags.ExecutionResult, "success");
-        }
+        LegacyExecutionResultTag.Add(ref tags); // removed in v11, see obsoletes-v10.cs
 
         context.PipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -117,11 +112,7 @@ class PipelineMetrics
         }
 
         var tags = DefaultMetricTags;
-        if (emitExecutionResultTags)
-        {
-            // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(MeterTags.ExecutionResult, "success");
-        }
+        LegacyExecutionResultTag.Add(ref tags); // removed in v11, see obsoletes-v10.cs
 
         // totalProcessedSuccessfully and criticalTime always share the same tags in this method, so overrides are
         // looked up under criticalTime's instrument name.
@@ -157,11 +148,7 @@ class PipelineMetrics
         }
 
         var tags = DefaultMetricTags;
-        if (emitExecutionResultTags)
-        {
-            // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(MeterTags.ExecutionResult, "failure");
-        }
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
 
         tags.Add(MeterTags.ErrorType, error.GetType().FullName);
 
@@ -219,11 +206,7 @@ class PipelineMetrics
         }
 
         var tags = DefaultMetricTags;
-        if (emitExecutionResultTags)
-        {
-            // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(MeterTags.ExecutionResult, "success");
-        }
+        LegacyExecutionResultTag.Add(ref tags); // removed in v11, see obsoletes-v10.cs
 
         tags.Add(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName);
 
@@ -244,11 +227,7 @@ class PipelineMetrics
         }
 
         var tags = DefaultMetricTags;
-        if (emitExecutionResultTags)
-        {
-            // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(MeterTags.ExecutionResult, "failure");
-        }
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
 
         tags.Add(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName);
         tags.Add(MeterTags.ErrorType, error.GetType().FullName);
@@ -354,11 +333,7 @@ class PipelineMetrics
         }
 
         var tags = DefaultMetricTags;
-        if (emitExecutionResultTags)
-        {
-            // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(MeterTags.ExecutionResult, error != null ? "failure" : "success");
-        }
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
         tags.Add(MeterTags.SagaType, sagaType);
         if (error != null)
         {
@@ -391,11 +366,7 @@ class PipelineMetrics
         {
             tags.Add(MeterTags.ErrorType, error.GetType().FullName);
         }
-        if (emitExecutionResultTags)
-        {
-            // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(MeterTags.ExecutionResult, error != null ? "failure" : "success");
-        }
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
 
         context.PipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -423,11 +394,7 @@ class PipelineMetrics
         {
             tags.Add(MeterTags.ErrorType, error.GetType().FullName);
         }
-        if (emitExecutionResultTags)
-        {
-            // Execution result is to be removed so we don't support overriding it by the user
-            tags.Add(MeterTags.ExecutionResult, error != null ? "failure" : "success");
-        }
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
 
         context.PipelineMetricTags.ApplyTags(ref tags, [
                 MeterTags.QueueName,
@@ -541,5 +508,4 @@ class PipelineMetrics
     readonly Histogram<double> persistenceTime;
 
     readonly TagList DefaultMetricTags;
-    readonly bool emitExecutionResultTags;
 }

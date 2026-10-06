@@ -20,7 +20,7 @@ using Transport;
 using TransportOperation = Transport.TransportOperation;
 
 [TestFixture]
-public class TransportReceiveToPhysicalMessageConnectorTests
+public partial class TransportReceiveToPhysicalMessageConnectorTests
 {
     [Test]
     public async Task Should_honor_stored_delivery_constraints()
@@ -116,8 +116,11 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         }
     }
 
+    // In v11 the snake_case name is the only one: delete Should_add_outbox_span_tag_when_deduplicating in
+    // obsoletes-v10.cs and the attribute on this one.
     [Test]
-    public async Task Should_add_outbox_span_tag_when_deduplicating()
+    [OpenTelemetryV11Defaults]
+    public async Task Should_add_snake_case_outbox_span_tag_when_deduplicating()
     {
         string messageId = Guid.NewGuid().ToString();
         fakeOutbox.ExistingMessage = new OutboxMessage(messageId, Array.Empty<NServiceBus.Outbox.TransportOperation>());
@@ -129,7 +132,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        Assert.That(pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicate-message"], Is.EqualTo(true));
+        Assert.That(pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicated_message"], Is.EqualTo(true));
     }
 
     [Test]
@@ -144,55 +147,6 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         await Invoke(context);
 
         metricsListener.AssertMetric("nservicebus.outbox.duplicates", 1);
-    }
-
-    [Test]
-    public async Task Should_add_batch_dispatch_events_when_sending_batched_messages()
-    {
-        var context = CreateContext(fakeBatchPipeline, Guid.NewGuid().ToString());
-
-        using var pipelineActivity = new Activity("test activity");
-        pipelineActivity.Start();
-        context.Extensions.SetIncomingPipelineActivity(pipelineActivity);
-
-        await Invoke(context, c =>
-        {
-            var batchedSends = c.Extensions.Get<PendingTransportOperations>();
-            batchedSends.AddRange([
-                new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
-                new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
-                new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination"))
-            ]);
-            return Task.CompletedTask;
-        });
-
-        var startDispatcherActivityEvents = pipelineActivity.Events.Where(e => e.Name == "Start dispatching").ToArray();
-        Assert.That(startDispatcherActivityEvents, Has.Length.EqualTo(1));
-        Assert.That(startDispatcherActivityEvents.Single().Tags.ToImmutableDictionary()["message-count"], Is.EqualTo(3));
-        Assert.That(pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(1));
-    }
-
-    // In v11 the dispatching events are gone: delete this test and
-    // Should_add_batch_dispatch_events_when_sending_batched_messages together with the
-    // V11BehaviorSwitch block in obsoletes-v10.cs.
-    [Test]
-    [OpenTelemetryV11Defaults]
-    public async Task Should_not_add_batch_dispatch_events_when_sending_batched_messages()
-    {
-        var context = CreateContext(fakeBatchPipeline, Guid.NewGuid().ToString());
-
-        using var pipelineActivity = new Activity("test activity");
-        pipelineActivity.Start();
-        context.Extensions.SetIncomingPipelineActivity(pipelineActivity);
-
-        await Invoke(context, c =>
-        {
-            var batchedSends = c.Extensions.Get<PendingTransportOperations>();
-            batchedSends.Add(new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")));
-            return Task.CompletedTask;
-        });
-
-        Assert.That(pipelineActivity.Events, Is.Empty);
     }
 
     [Test]

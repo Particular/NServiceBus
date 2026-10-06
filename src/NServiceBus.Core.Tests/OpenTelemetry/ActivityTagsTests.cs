@@ -20,11 +20,12 @@ public class ActivityTagsTests
         {
             Note = "Changes to activity tags should result in ActivitySource version updates",
             Tags = activityTags,
-            ActivitySourceVersions = new[]
+            // All sources share one version. The constants are listed instead of ActivitySource.Version because the
+            // sources pick their version from the V11 switch once per process, see ActivitySources.cs.
+            ActivitySourceVersion = new
             {
-                new { Name = nameof(ActivitySources.Main), ActivitySources.Main.Version },
-                new { Name = nameof(ActivitySources.Handler), ActivitySources.Handler.Version },
-                new { Name = nameof(ActivitySources.Recoverability), ActivitySources.Recoverability.Version }
+                ActivitySources.PreV11Version,
+                ActivitySources.Version
             }
         });
     }

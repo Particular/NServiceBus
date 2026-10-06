@@ -628,6 +628,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
 
     // =============================================================================
     // OPENTELEMETRY V11 BEHAVIOR OPT-IN. EVERYTHING IN THIS BLOCK IS REMOVED IN v11.
@@ -665,9 +667,19 @@ namespace NServiceBus
     // - The legacy `otel.status_code`/`otel.status_description` tags (redundant with Activity.Status) and
     //   the deprecated `exception.escaped` exception event attribute are no longer set on failures.
     //   https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
+    // - The ActivitySources report version 1.0.0 instead of 0.1.0, so a consumer can tell the two tag and
+    //   span-name sets apart.
+    // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
+    //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
+    //   (snake_case within a dot-delimited component, no hyphens).
+    //   https://opentelemetry.io/docs/specs/semconv/general/naming/
+    // - The `nservicebus.event_types` tag on subscribe and unsubscribe spans and the
+    //   `nservicebus.enclosed_message_types` tag on message spans are arrays of full type names instead of
+    //   delimited strings. The OpenTelemetry naming rules ask for an array when an attribute holds several
+    //   values. Array-valued tags are only visible through Activity.TagObjects, not Activity.Tags.
     //
     // In v11: delete this entire namespace block, search the code base for `V11BehaviorSwitch` and keep
-    // only the branch each check guards for the enabled case. ActivityFactory, ContextPropagation,
+    // only the branch each check guards for the enabled case. ActivityFactory, ActivitySources, ContextPropagation,
     // MessageOperations, RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector and
     // PipelineMetrics are the production call sites. Delete the pre-v11 default tests
     // (ContextPropagationDefaultBehaviorTests, LegacyContextPropagationTests, TransportParentSpanDefaultBehaviorTests,
@@ -813,6 +825,43 @@ namespace NServiceBus
         }
 
         public static TagList EscapedTagList { get; } = new() { { "exception.escaped", true } };
+    }
+
+    // The pre-v11 names of span tags that were renamed to follow the OpenTelemetry naming rules.
+    // TransportReceiveToPhysicalMessageConnector writes these while V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyActivityTags
+    {
+        public const string OutboxDeduplicateMessage = "nservicebus.outbox.deduplicate-message";
+    }
+
+    // The pre-v11 execution.result metric tag. PipelineMetrics applies it while
+    // V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyExecutionResultTag
+    {
+        // The tag is going away, so a user cannot override it through IMetricsTags.
+        public static void Add(ref TagList tags, Exception? error = null)
+        {
+            if (!V11BehaviorSwitch.UseV11Behavior)
+            {
+                tags.Add(MeterTags.ExecutionResult, error is null ? "success" : "failure");
+            }
+        }
+    }
+
+    // The pre-v11 "Start dispatching"/"Finished dispatching" events on the incoming span.
+    // TransportReceiveToPhysicalMessageConnector dispatches through here while V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyDispatchEvents
+    {
+        public static async Task DispatchWithEvents(TransportReceiveToPhysicalMessageConnector connector, IBatchDispatchContext batchDispatchContext, Activity activity)
+        {
+            activity.AddEvent(new(StartDispatching, tags: new() { { MessageCount, batchDispatchContext.Operations.Count } }));
+            await connector.Fork(batchDispatchContext).ConfigureAwait(false);
+            activity.AddEvent(new(FinishedDispatching));
+        }
+
+        const string StartDispatching = "Start dispatching";
+        const string FinishedDispatching = "Finished dispatching";
+        const string MessageCount = "message-count";
     }
 
     public partial class InstrumentationOptions
