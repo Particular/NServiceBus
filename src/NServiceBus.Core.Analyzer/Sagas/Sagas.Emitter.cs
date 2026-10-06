@@ -120,7 +120,7 @@ public static partial class Sagas
                 var getterReceiverType = mapping.ExternGetterReceiverType;
                 var directReceiver = mapping.InterfaceGetterReceiverType is { } interfaceType ? $"(({interfaceType})message)" : "message";
                 var read = getterReceiverType is null ? $"{directReceiver}.{MemberName(mapping.MessagePropertyName)}" : "AccessFrom_Property(message)";
-                sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => {read};");
+                WriteSuppressingDiagnostics(sourceWriter, $"protected override object? AccessFrom({mapping.MessageType} message) => {read};", mapping.SuppressedDiagnosticIds);
                 if (getterReceiverType is not null)
                 {
                     WriteExternAccessor(sourceWriter, "AccessFrom_Property", mapping.ExternGetterMethodName!, mapping.MessagePropertyType, $"{getterReceiverType} message", mapping.UsesUpdatedMemorySafetyRules);
@@ -144,6 +144,20 @@ public static partial class Sagas
             sourceWriter.WriteLine();
             sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"{accessorName}\")]");
             sourceWriter.WriteLine($"static {safetyModifier}extern {returnType} {methodName}({parameters});");
+        }
+
+        static void WriteSuppressingDiagnostics(SourceWriter sourceWriter, string member, ImmutableEquatableArray<string> diagnosticIds)
+        {
+            if (diagnosticIds.Count == 0)
+            {
+                sourceWriter.WriteLine(member);
+                return;
+            }
+
+            var joinedDiagnosticIds = string.Join(", ", diagnosticIds);
+            sourceWriter.WriteLine($"#pragma warning disable {joinedDiagnosticIds}");
+            sourceWriter.WriteLine(member);
+            sourceWriter.WriteLine($"#pragma warning restore {joinedDiagnosticIds}");
         }
 
         static string MemberName(string name) => SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None ? $"@{name}" : name;
@@ -213,14 +227,14 @@ public static partial class Sagas
                 var read = getterReceiverType is null ? $"(({sagaDataType})sagaData).{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
                 var write = setterReceiverType is null ? $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
 
-                sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};");
+                WriteSuppressingDiagnostics(sourceWriter, $"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};", mapping.SuppressedGetterDiagnosticIds);
                 if (getterReceiverType is not null)
                 {
                     WriteExternAccessor(sourceWriter, "AccessFrom_Property", $"get_{mapping.PropertyName}", mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
                 }
 
                 sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};");
+                WriteSuppressingDiagnostics(sourceWriter, $"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};", mapping.SuppressedSetterDiagnosticIds);
                 if (setterReceiverType is not null)
                 {
                     WriteExternAccessor(sourceWriter, "WriteTo_Property", $"set_{mapping.PropertyName}", "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);

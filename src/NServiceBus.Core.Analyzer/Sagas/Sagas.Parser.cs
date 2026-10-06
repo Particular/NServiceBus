@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Core.Analyzer.Sagas;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -34,8 +35,8 @@ public static partial class Sagas
         public HandlerSpec Handler { get; }
     }
 
-    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? InterfaceGetterReceiverType, string? ExternGetterReceiverType, string? ExternGetterMethodName, bool UsesUpdatedMemorySafetyRules, string? AccessedMember);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules);
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? InterfaceGetterReceiverType, string? ExternGetterReceiverType, string? ExternGetterMethodName, bool UsesUpdatedMemorySafetyRules, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules, ImmutableEquatableArray<string> SuppressedGetterDiagnosticIds, ImmutableEquatableArray<string> SuppressedSetterDiagnosticIds);
 
     public static class Parser
     {
@@ -199,10 +200,11 @@ public static partial class Sagas
                 // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
-                var externGetter = NeedsExtern(propertySymbol.GetMethod, false) ? propertySymbol.GetMethod : null;
-                var externSetter = NeedsExtern(propertySymbol.SetMethod, true) ? propertySymbol.SetMethod : null;
+                var (externGetter, suppressedGetterDiagnosticIds) = ResolveAccessor(propertySymbol, false);
+                var (externSetter, suppressedSetterDiagnosticIds) = ResolveAccessor(propertySymbol, true);
                 var needsExtern = externGetter is not null || externSetter is not null;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, ExternReceiverType(externGetter), ExternReceiverType(externSetter), needsExtern && semanticModel.UsesUpdatedMemorySafetyRules);
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, ExternReceiverType(externGetter), ExternReceiverType(externSetter), needsExtern && semanticModel.UsesUpdatedMemorySafetyRules,
+                    suppressedGetterDiagnosticIds, suppressedSetterDiagnosticIds);
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -258,21 +260,21 @@ public static partial class Sagas
                 }
 
                 Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, read.InterfaceReceiverType, ExternReceiverType(read.ExternGetter), read.ExternGetter?.MetadataName,
-                    read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules, read.AccessedMember));
+                    read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules, read.AccessedMember, read.SuppressedDiagnosticIds));
             }
 
-            // Reading through the interface dispatches like the mapping expression; an inaccessible interface falls back to the implementation on the receiver type.
+            // Reading through the interface dispatches like the mapping expression; when generated code can't call the interface getter, it falls back to the implementation on the receiver type.
             ReadAccess? ResolveRead(IPropertySymbol property, ExpressionSyntax receiverExpression)
             {
                 if (property.ContainingType is not { TypeKind: TypeKind.Interface } declaringInterface)
                 {
-                    return new ReadAccess(null, NeedsExtern(property.GetMethod, false) ? property.GetMethod : null, null);
+                    return DirectOrExternRead(property);
                 }
 
-                if (property.GetMethod is { } getter && IsAccessible(getter))
+                if (property.GetMethod is { } getter && IsAccessible(getter) && SuppressibleDiagnosticIds(property, false) is { } suppressedDiagnosticIds)
                 {
                     var interfaceType = declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    return new ReadAccess(interfaceType, null, $"{interfaceType}.{property.MetadataName}");
+                    return new ReadAccess(interfaceType, null, $"{interfaceType}.{property.MetadataName}", suppressedDiagnosticIds);
                 }
 
                 if (ResolveImplementation(property, receiverExpression) is not ({ GetMethod: { } implementationGetter } implementation, var reachableByName))
@@ -281,8 +283,14 @@ public static partial class Sagas
                 }
 
                 return reachableByName
-                    ? new ReadAccess(null, NeedsExtern(implementationGetter, false) ? implementationGetter : null, null)
-                    : new ReadAccess(null, implementationGetter, AccessedMember(implementation));
+                    ? DirectOrExternRead(implementation)
+                    : new ReadAccess(null, implementationGetter, AccessedMember(implementation), ImmutableEquatableArray<string>.Empty);
+            }
+
+            ReadAccess DirectOrExternRead(IPropertySymbol property)
+            {
+                var (externGetter, suppressedDiagnosticIds) = ResolveAccessor(property, false);
+                return new ReadAccess(null, externGetter, null, suppressedDiagnosticIds);
             }
 
             (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression)
@@ -301,6 +309,96 @@ public static partial class Sagas
             static string AccessedMember(IPropertySymbol implementation) =>
                 $"{implementation.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{implementation.MetadataName}";
 
+            // Generated code doesn't see the mapping's suppressions, so it suppresses what the compiler reports for the accessor, or calls it through an extern when a pragma can't.
+            (IMethodSymbol? ExternAccessor, ImmutableEquatableArray<string> SuppressedDiagnosticIds) ResolveAccessor(IPropertySymbol property, bool setter)
+            {
+                var accessor = OwnOrInheritedAccessor(property, setter);
+                if (NeedsExtern(accessor, setter))
+                {
+                    return (accessor, ImmutableEquatableArray<string>.Empty);
+                }
+
+                return SuppressibleDiagnosticIds(property, setter) is { } suppressedDiagnosticIds
+                    ? (null, suppressedDiagnosticIds)
+                    : (accessor, ImmutableEquatableArray<string>.Empty);
+            }
+
+            static IMethodSymbol? OwnOrInheritedAccessor(IPropertySymbol? property, bool setter)
+            {
+                for (; property is not null; property = property.OverriddenProperty)
+                {
+                    if ((setter ? property.SetMethod : property.GetMethod) is { } accessor)
+                    {
+                        return accessor;
+                    }
+                }
+
+                return null;
+            }
+
+            // Like the compiler, use the attributes of the member an override overrides, on both the property and the accessor. Null when a pragma can't suppress them.
+            static ImmutableEquatableArray<string>? SuppressibleDiagnosticIds(IPropertySymbol property, bool setter)
+            {
+                while (property.OverriddenProperty is { } overridden)
+                {
+                    property = overridden;
+                }
+
+                SortedSet<string>? diagnosticIds = null;
+                if (!TryAddSuppressibleDiagnosticIds(property, ref diagnosticIds)
+                    || ((setter ? property.SetMethod : property.GetMethod) is { } accessor && !TryAddSuppressibleDiagnosticIds(accessor, ref diagnosticIds)))
+                {
+                    return null;
+                }
+
+                return diagnosticIds is null ? ImmutableEquatableArray<string>.Empty : diagnosticIds.ToImmutableEquatableArray();
+            }
+
+            static bool TryAddSuppressibleDiagnosticIds(ISymbol symbol, ref SortedSet<string>? diagnosticIds)
+            {
+                foreach (var attribute in symbol.GetAttributes())
+                {
+                    string? diagnosticId;
+                    if (attribute.AttributeClass is { Name: "ObsoleteAttribute", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } })
+                    {
+                        if (attribute.ConstructorArguments is [_, { Value: true }])
+                        {
+                            return false;
+                        }
+
+                        diagnosticId = attribute.NamedArguments.FirstOrDefault(static argument => argument.Key == "DiagnosticId").Value.Value as string;
+                        // Without a custom ID the compiler reports CS0612 or CS0618, which generated files already suppress.
+                        if (string.IsNullOrEmpty(diagnosticId))
+                        {
+                            continue;
+                        }
+                    }
+                    else if (attribute.AttributeClass is { Name: "ExperimentalAttribute" } experimental && experimental.ContainingNamespace.ToDisplayString() == "System.Diagnostics.CodeAnalysis")
+                    {
+                        diagnosticId = attribute.ConstructorArguments is [{ Value: string experimentalId }] ? experimentalId : null;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    if (diagnosticId is null || !IsPragmaIdentifier(diagnosticId))
+                    {
+                        return false;
+                    }
+
+                    (diagnosticIds ??= new SortedSet<string>(StringComparer.Ordinal)).Add(diagnosticId);
+                }
+
+                return true;
+            }
+
+            // A pragma matches by the identifier's value text, which drops formatting characters, and keywords like true don't parse as pragma codes.
+            static bool IsPragmaIdentifier(string diagnosticId) =>
+                SyntaxFactory.ParseLeadingTrivia($"#pragma warning disable {diagnosticId}") is [var trivia]
+                && trivia.GetStructure() is PragmaWarningDirectiveTriviaSyntax { ErrorCodes: [IdentifierNameSyntax { Identifier.ValueText: var parsedId }], ContainsDiagnostics: false }
+                && parsedId == diagnosticId;
+
             // Generated code can't call init-only or inaccessible accessors directly, so they go through an extern accessor on the declaring type.
             bool NeedsExtern(IMethodSymbol? accessor, bool initOnlyNeedsExtern) =>
                 accessor is not null
@@ -310,7 +408,7 @@ public static partial class Sagas
 
             static string? ExternReceiverType(IMethodSymbol? accessor) => accessor?.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            readonly record struct ReadAccess(string? InterfaceReceiverType, IMethodSymbol? ExternGetter, string? AccessedMember);
+            readonly record struct ReadAccess(string? InterfaceReceiverType, IMethodSymbol? ExternGetter, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
 
             static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
                 node is ExpressionSyntax expression

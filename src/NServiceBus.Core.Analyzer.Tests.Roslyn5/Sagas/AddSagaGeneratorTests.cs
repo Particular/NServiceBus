@@ -636,6 +636,59 @@ public class AddSagaGeneratorTests
     }
 
     [Test]
+    public void MappedPropertiesWithCustomDiagnostics()
+    {
+        var source = """
+                     using System;
+                     using System.Diagnostics.CodeAnalysis;
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.MappedPropertiesWithCustomDiagnosticsAssembly.AddAll();
+                         }
+                     }
+
+                     [Saga]
+                     public class OrderShippingPolicy : Saga<OrderShippingPolicyData>,
+                         IAmStartedByMessages<OrderPlaced>
+                     {
+                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
+                         {
+                     #pragma warning disable LEGACY001, EXP001
+                             mapper.MapSaga(saga => saga.OrderId)
+                                   .ToMessage<OrderPlaced>(msg => msg.OrderId);
+                     #pragma warning restore LEGACY001, EXP001
+                         }
+
+                         public Task Handle(OrderPlaced evt, IMessageHandlerContext context) => Task.CompletedTask;
+                     }
+
+                     public class OrderShippingPolicyData : ContainSagaData
+                     {
+                         public string OrderId { [Experimental("EXP001")] get; [Obsolete("Use something else", true)] set; }
+                     }
+
+                     public class OrderPlaced : IEvent
+                     {
+                         [Obsolete("Use something else", DiagnosticId = "LEGACY001")]
+                         [Experimental("EXP001")]
+                         public string OrderId { get; set; }
+                     }
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .Run()
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void InvalidMappingWithCompilationErrors()
     {
         var source = """
