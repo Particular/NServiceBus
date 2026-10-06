@@ -25,6 +25,25 @@ public class MessageOperationsTests
         listener?.Dispose();
     }
 
+    // In v11 the status is left unset on success: delete the ActivityStatusCode.Ok assertions in the other tests of
+    // this fixture and the attribute on this one.
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Send_should_leave_status_unset_on_success()
+    {
+        var operations = new TestableMessageOperations();
+        Activity activity = null;
+        operations.SendPipeline.OnInvoke = _ =>
+        {
+            activity = Activity.Current;
+        };
+
+        await operations.Send(new FakeRootContext(), new object(), new SendOptions());
+
+        Assert.That(activity, Is.Not.Null);
+        Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Unset));
+    }
+
     [Test]
     public async Task Send_should_create_span()
     {

@@ -827,6 +827,23 @@ namespace NServiceBus
         public static TagList EscapedTagList { get; } = new() { { "exception.escaped", true } };
     }
 
+    // The pre-v11 success status. The pipeline calls this after a successful invocation while
+    // V11BehaviorSwitch.UseV11Behavior is off. The OpenTelemetry trace API asks instrumentation libraries to leave
+    // the status unset on success (https://opentelemetry.io/docs/specs/otel/trace/api/#set-status), so in v11
+    // nothing is written: delete this class and the calls to it.
+    static class LegacyStatus
+    {
+        public static void SetOk(Activity? activity)
+        {
+            if (activity is null || V11BehaviorSwitch.UseV11Behavior)
+            {
+                return;
+            }
+
+            activity.SetStatus(ActivityStatusCode.Ok);
+        }
+    }
+
     // The pre-v11 names of span tags that were renamed to follow the OpenTelemetry naming rules.
     // TransportReceiveToPhysicalMessageConnector writes these while V11BehaviorSwitch.UseV11Behavior is off.
     static class LegacyActivityTags
