@@ -16,7 +16,7 @@ public static class ServicePlatformConfigExtensions
         /// </summary>
         public ServicePlatformSettings EnableServicePlatform()
         {
-            endpointConfiguration.EnableFeature<ServicePlatformFeature>();
+            endpointConfiguration.EnableFeature<Features.ServicePlatform>();
 
             return new ServicePlatformSettings(endpointConfiguration.GetSettings());
         }
