@@ -12,7 +12,7 @@ class SendUsageInfoToPlatform : Feature
 {
     public SendUsageInfoToPlatform()
     {
-        DependsOn<ServicePlatformFeature>();
+        DependsOn<Features.ServicePlatform>();
         Defaults(settings => settings.SetDefault(ReportingIntervalSettingKey, TimeSpan.FromMinutes(10)));
     }
 
