@@ -40,7 +40,15 @@ partial class UsageReporter(
             await reporterTask.ConfigureAwait(false);
         }
 
-        await SnapshotAndSendUsageReport(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await SnapshotAndSendUsageReportAndSwallowExceptions(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+        {
+            LogOperationCancelled(logger, ex);
+        }
+
     }
 
     public void Dispose()
@@ -86,18 +94,7 @@ partial class UsageReporter(
         {
             while (await periodicTimer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
             {
-                try
-                {
-                    await SnapshotAndSendUsageReport(cancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
-                {
-                    LogErrorWhileReportingUsage(logger, ex);
-                }
+                await SnapshotAndSendUsageReportAndSwallowExceptions(cancellationToken).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
@@ -113,21 +110,33 @@ partial class UsageReporter(
     [LoggerMessage(Level = LogLevel.Debug, Message = "Operation cancelled while reporting usage information. This is expected when the endpoint is shutting down")]
     static partial void LogOperationCancelled(ILogger logger, Exception ex);
 
-    async Task SnapshotAndSendUsageReport(CancellationToken cancellationToken)
+    async Task SnapshotAndSendUsageReportAndSwallowExceptions(CancellationToken cancellationToken)
     {
-        var currentSnapshot = Interlocked.Read(ref messagesSuccessfullyProcessed);
+        try
+        { 
+            var currentSnapshot = Interlocked.Read(ref messagesSuccessfullyProcessed);
 
-        // TODO: Send scope if we're able to determine it (i.e. vhost for RabbitMQ, Catalog/Schema for SQL)
-        var message = new EndpointUsageReport
+            // TODO: Send scope if we're able to determine it (i.e. vhost for RabbitMQ, Catalog/Schema for SQL)
+            var message = new EndpointUsageReport
+            {
+                EndpointName = settings.EndpointName,
+                TimeStamp = timeProvider.GetUtcNow(),
+                MessagesSuccessfullyProcessed = currentSnapshot - previousSnapshot
+            };
+
+            await usageReportSender.Send(message, cancellationToken).ConfigureAwait(false);
+
+            previousSnapshot = currentSnapshot;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            EndpointName = settings.EndpointName,
-            TimeStamp = timeProvider.GetUtcNow(),
-            MessagesSuccessfullyProcessed = currentSnapshot - previousSnapshot
-        };
+            throw;
+        }
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            LogErrorWhileReportingUsage(logger, ex);
+        }
 
-        await usageReportSender.Send(message, cancellationToken).ConfigureAwait(false);
-
-        previousSnapshot = currentSnapshot;
     }
 
     long previousSnapshot = 0;
