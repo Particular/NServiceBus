@@ -32,4 +32,19 @@ static class ActivityExtensions
 
     public static void SetOutgoingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(OutgoingActivityKey, activity);
     public static void SetIncomingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(IncomingActivityKey, activity);
+
+    // Activity.Stop() makes the activity that was current when Start() ran current again. To start a new trace,
+    // ActivityFactory clears Activity.Current before starting the activity, so stopping that activity leaves
+    // Activity.Current null instead of the activity that was current before, for example the transport's receive span.
+    // Callers capture Activity.Current before starting the activity and pass it here once the activity is disposed.
+    public static void RestoreAmbientActivity(Activity? ambientActivity)
+    {
+        // The runtime rejects a stopped activity as current, so Activity.Current is left as it is in that case.
+        if (ambientActivity is { IsStopped: true })
+        {
+            return;
+        }
+
+        Activity.Current = ambientActivity;
+    }
 }
