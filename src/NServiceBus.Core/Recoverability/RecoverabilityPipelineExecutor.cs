@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,8 +28,14 @@ class RecoverabilityPipelineExecutor<TState>(
         {
             RecoverabilityAction? recoverabilityAction;
 
-            using (var activity = activityFactory.StartRecoverabilityActivity(errorContext))
+            // Disposing the recoverability activity does not bring the ambient activity back when it started a new
+            // trace, see ActivityExtensions.RestoreAmbientActivity. The recoverability pipeline below runs under the
+            // ambient activity either way.
+            var ambientActivity = Activity.Current;
+            try
             {
+                using var activity = activityFactory.StartRecoverabilityActivity(errorContext);
+
                 recoverabilityAction = recoverabilityPolicy(errorContext, state);
 
                 if (activity is not null)
@@ -37,6 +44,10 @@ class RecoverabilityPipelineExecutor<TState>(
                 }
 
                 recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext, activityFactory.Options.ExceptionRecordingMode);
+            }
+            finally
+            {
+                ActivityExtensions.RestoreAmbientActivity(ambientActivity);
             }
 
             var metadata = faultMetadataExtractor.Extract(errorContext);

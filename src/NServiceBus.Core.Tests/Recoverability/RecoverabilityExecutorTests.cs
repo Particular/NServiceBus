@@ -1,11 +1,14 @@
 ﻿namespace NServiceBus.Core.Tests.Recoverability;
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Extensibility;
 using NServiceBus.Pipeline;
+using OpenTelemetry.Helpers;
 using Transport;
 using NUnit.Framework;
 
@@ -60,7 +63,37 @@ public class RecoverabilityExecutorTests
         Assert.That(errorContext.Extensions.Get<Guid>("new value"), Is.EqualTo(newValue));
     }
 
-    static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline)
+    [Test]
+    public async Task Should_run_recoverability_pipeline_under_the_ambient_activity()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+        using var ambientActivity = new Activity("transport receive").Start();
+
+        Activity pipelineActivity = null;
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = _ =>
+            {
+                pipelineActivity = Activity.Current;
+            }
+        };
+
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()));
+
+        // Starting a new trace clears Activity.Current before the recoverability activity starts, so stopping that
+        // activity does not make the ambient activity current again on its own.
+        var errorContext = CreateErrorContext(new Dictionary<string, string>
+        {
+            { Headers.DiagnosticsTraceParent, "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01" },
+            { Headers.StartNewTrace, bool.TrueString }
+        });
+
+        await executor.Invoke(errorContext);
+
+        Assert.That(pipelineActivity, Is.SameAs(ambientActivity));
+    }
+
+    static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline, IActivityFactory activityFactory = null)
     {
         var executor = new RecoverabilityPipelineExecutor<object>(
             new ServiceCollection().AddLogging().BuildServiceProvider(), // TODO: Does not get disposed
@@ -71,10 +104,10 @@ public class RecoverabilityExecutorTests
             recoverabilityPipeline,
             new FaultMetadataExtractor([], _ => { }),
             null,
-            NoOpActivityFactory.Instance
+            activityFactory ?? NoOpActivityFactory.Instance
             );
         return executor;
     }
 
-    static ErrorContext CreateErrorContext() => new(new Exception("test"), [], Guid.NewGuid().ToString(), Array.Empty<byte>(), new TransportTransaction(), 10, "receive address", new ContextBag());
+    static ErrorContext CreateErrorContext(Dictionary<string, string> headers = null) => new(new Exception("test"), headers ?? [], Guid.NewGuid().ToString(), Array.Empty<byte>(), new TransportTransaction(), 10, "receive address", new ContextBag());
 }
