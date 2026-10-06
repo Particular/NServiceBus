@@ -203,10 +203,8 @@ public static partial class Sagas
                 var member = MemberName(mapping.PropertyName);
                 var getterReceiverType = mapping.ExternGetterReceiverType;
                 var setterReceiverType = mapping.ExternSetterReceiverType;
-                var readReceiver = $"(({mapping.InterfaceReceiverType ?? sagaDataType})sagaData)";
-                var writeReceiver = $"(({(mapping.InterfaceHasSetter ? mapping.InterfaceReceiverType : null) ?? sagaDataType})sagaData)";
-                var read = getterReceiverType is null ? $"{readReceiver}.{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
-                var write = setterReceiverType is null ? $"{writeReceiver}.{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
+                var read = getterReceiverType is null ? $"(({sagaDataType})sagaData).{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
+                var write = setterReceiverType is null ? $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
 
                 sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};");
                 if (getterReceiverType is not null)

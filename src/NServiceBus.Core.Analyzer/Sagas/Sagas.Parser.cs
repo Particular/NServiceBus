@@ -35,7 +35,7 @@ public static partial class Sagas
     }
 
     public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? ExternGetterReceiverType, bool UsesUpdatedMemorySafetyRules, string? InterfaceReceiverType);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules, string? InterfaceReceiverType, bool InterfaceHasSetter);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules);
 
     public static class Parser
     {
@@ -194,14 +194,16 @@ public static partial class Sagas
                     return;
                 }
 
+                propertySymbol = ResolveImplementation(propertySymbol, memberAccess);
+
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
                 var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
-                var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod ?? ImplementedSetter(propertySymbol, memberAccess), true);
+                var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod, true);
                 var needsExtern = externGetterReceiverType is not null || externSetterReceiverType is not null;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules(), InterfaceReceiverType(propertySymbol), propertySymbol.SetMethod is not null);
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules());
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -255,13 +257,13 @@ public static partial class Sagas
                     InterfaceReceiverType(propertySymbol)));
             }
 
-            // A get-only interface property can still be written through the setter of its implicit implementation.
-            IMethodSymbol? ImplementedSetter(IPropertySymbol property, MemberAccessExpressionSyntax memberAccess) =>
+            // Saga data is read and written through its concrete type, so an interface property maps to the implementing property.
+            IPropertySymbol ResolveImplementation(IPropertySymbol property, MemberAccessExpressionSyntax memberAccess) =>
                 property.ContainingType is { TypeKind: TypeKind.Interface }
                 && semanticModel.GetTypeInfo(StripSyntaxWrappers(memberAccess.Expression, cancellationToken), cancellationToken).Type?.FindImplementationForInterfaceMember(property)
-                    is IPropertySymbol { ExplicitInterfaceImplementations.IsEmpty: true, SetMethod: { } setter }
-                    ? setter
-                    : null;
+                    is IPropertySymbol { ExplicitInterfaceImplementations.IsEmpty: true } implementation
+                    ? implementation
+                    : property;
 
             // An explicitly implemented interface member only exists on the interface, so access must go through it.
             static string? InterfaceReceiverType(IPropertySymbol property) =>

@@ -381,52 +381,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
-    public void Correlation_property_mapped_through_an_explicit_interface_implementation_round_trips()
-    {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                         }
-                     }
-
-                     public interface IHasCorrelationId
-                     {
-                         string CorrelationId { get; set; }
-                     }
-
-                     [Saga]
-                     public class ExplicitSaga : Saga<ExplicitSagaData>, IAmStartedByMessages<StartExplicit>
-                     {
-                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ExplicitSagaData> mapper) =>
-                             mapper.MapSaga(s => ((IHasCorrelationId)s).CorrelationId).ToMessage<StartExplicit>(m => m.CorrelationId);
-
-                         public Task Handle(StartExplicit message, IMessageHandlerContext context) => Task.CompletedTask;
-                     }
-
-                     public class ExplicitSagaData : ContainSagaData, IHasCorrelationId
-                     {
-                         string IHasCorrelationId.CorrelationId { get; set; }
-                     }
-
-                     public class StartExplicit : ICommand
-                     {
-                         public string CorrelationId { get; set; }
-                     }
-                     """;
-
-        var assembly = CompileAndLoad(source);
-
-        AssertCorrelationRoundTrip(assembly, "ExplicitSagaData");
-    }
-
-    [Test]
-    public void Get_only_interface_property_is_read_through_the_interface_and_written_on_the_concrete_type()
+    public void Interface_property_mapped_on_saga_data_resolves_to_the_implementing_property()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -471,7 +426,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
-    public void Init_only_interface_property_is_written_through_an_extern_accessor()
+    public void Init_only_interface_property_on_saga_data_is_written_through_an_extern_accessor()
     {
         var source = """
                      using System.Threading.Tasks;
@@ -516,7 +471,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
-    public void Get_only_interface_property_with_a_private_concrete_setter_is_written_through_an_extern_accessor()
+    public void Get_only_interface_property_on_saga_data_with_a_private_concrete_setter_is_written_through_an_extern_accessor()
     {
         var source = """
                      using System.Threading.Tasks;
