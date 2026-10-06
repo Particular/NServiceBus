@@ -26,5 +26,22 @@ sealed class OpenTelemetryFeature : Feature
             new PopulateRecoverabilityTraceMetadataBehavior(instrumentationOptions),
             "Populates the recoverability metadata"
         );
+
+        context.Settings.AddStartupDiagnosticsSection("OpenTelemetry", new OpenTelemetryDiagnostics
+        {
+            SendTraceMode = instrumentationOptions.SendTraceMode.ToString(),
+            PublishTraceMode = instrumentationOptions.PublishTraceMode.ToString(),
+            ExceptionRecordingMode = instrumentationOptions.ExceptionRecordingMode.ToString(),
+            Recoverability = new RecoverabilityInstrumentationDiagnostics
+            {
+                DelayedRetryTraceMode = instrumentationOptions.Recoverability.DelayedRetryTraceMode.ToString()
+            },
+            DelayedDelivery = new DelayedDeliveryInstrumentationDiagnostics
+            {
+                SendOperationTraceMode = instrumentationOptions.DelayedDelivery.SendOperationTraceMode.ToString(),
+                SagaTimeoutTraceMode = instrumentationOptions.DelayedDelivery.SagaTimeoutTraceMode.ToString()
+            },
+            UseV11Behavior = V11BehaviorSwitch.UseV11Behavior
+        }, StartupDiagnosticsJsonContext.Default.OpenTelemetryDiagnostics);
     }
 }
