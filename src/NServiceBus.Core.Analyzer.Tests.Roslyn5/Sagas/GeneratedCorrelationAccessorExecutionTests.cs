@@ -1251,6 +1251,22 @@ public class GeneratedCorrelationAccessorExecutionTests
         AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
     }
 
+    [TestCase("CS0618", "[System.Obsolete(\"Use something else\")]")]
+    [TestCase("CS0612", "[System.Obsolete]")]
+    public void Generated_accessors_leave_diagnostic_ids_suppressed_file_wide_out_of_their_pragmas(string customDiagnosticId, string ordinaryObsolete)
+    {
+        var source = AttributedPropertySaga(
+            $"{ordinaryObsolete} public string CorrelationId {{ get; set; }} = \"\";",
+            $"public class Start : ICommand {{ [System.Obsolete(\"Use something else\", DiagnosticId = \"{customDiagnosticId}\")] public string CorrelationId {{ get; set; }} = \"correlation-value\"; }}",
+            sagaAttribute: "[System.Obsolete]");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(GeneratedSource(source), Does.Not.Contain($"#pragma warning restore {customDiagnosticId}"));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+        Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
     [Test]
     public void Setter_that_reports_an_obsolete_error_is_written_through_an_extern_accessor()
     {

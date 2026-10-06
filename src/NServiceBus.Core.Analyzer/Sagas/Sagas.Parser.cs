@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NServiceBus.Core.Analyzer.Handlers;
+using NServiceBus.Core.Analyzer.Utility;
 using static NServiceBus.Core.Analyzer.Handlers.Handlers;
 using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
@@ -407,7 +408,11 @@ public static partial class Sagas
                         return false;
                     }
 
-                    (diagnosticIds ??= new SortedSet<string>(StringComparer.Ordinal)).Add(diagnosticId);
+                    // Restoring an ID that generated files suppress file-wide would end that suppression for the rest of the file.
+                    if (!SourceWriterExtensions.FileWideSuppressedDiagnosticIds.Contains(diagnosticId))
+                    {
+                        (diagnosticIds ??= new SortedSet<string>(StringComparer.Ordinal)).Add(diagnosticId);
+                    }
                 }
 
                 return true;
