@@ -112,7 +112,7 @@ public static partial class Sagas
             var walker = new ConfigureMappingWalker(semanticModel, cancellationToken);
             walker.Visit(methodBody);
 
-            if (walker.CorrelationPropertyMapping is null)
+            if (!walker.MapsCorrelationProperty)
             {
                 return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
             }
@@ -144,6 +144,7 @@ public static partial class Sagas
         {
             public List<PropertyMappingSpec> Mappings { get; } = [];
             public CorrelationPropertyMappingSpec? CorrelationPropertyMapping { get; private set; }
+            public bool MapsCorrelationProperty { get; private set; }
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
@@ -197,12 +198,20 @@ public static partial class Sagas
                     return;
                 }
 
+                MapsCorrelationProperty = true;
+
+                var (externGetter, suppressedGetterDiagnosticIds) = ResolveAccessor(propertySymbol, false);
+                var (externSetter, suppressedSetterDiagnosticIds) = ResolveAccessor(propertySymbol, true);
+                if (TargetsGenericType(externGetter) || TargetsGenericType(externSetter))
+                {
+                    CorrelationPropertyMapping = null;
+                    return;
+                }
+
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
-                var (externGetter, suppressedGetterDiagnosticIds) = ResolveAccessor(propertySymbol, false);
-                var (externSetter, suppressedSetterDiagnosticIds) = ResolveAccessor(propertySymbol, true);
                 var needsExtern = externGetter is not null || externSetter is not null;
                 CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, ExternReceiverType(externGetter), ExternReceiverType(externSetter), needsExtern && semanticModel.UsesUpdatedMemorySafetyRules,
                     suppressedGetterDiagnosticIds, suppressedSetterDiagnosticIds);
@@ -255,7 +264,7 @@ public static partial class Sagas
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 // Without a member generated code can call, the runtime accessor compiled from the mapping expression is used.
-                if (ResolveRead(propertySymbol, messageExpression) is not { } read)
+                if (ResolveRead(propertySymbol, messageExpression) is not { } read || TargetsGenericType(read.ExternGetter))
                 {
                     return;
                 }
@@ -442,6 +451,20 @@ public static partial class Sagas
             bool IsAccessible(ISymbol symbol) => semanticModel.Compilation.IsSymbolAccessibleWithin(symbol, semanticModel.Compilation.Assembly);
 
             static string? ExternReceiverType(IMethodSymbol? accessor) => accessor?.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            // UnsafeAccessor rejects closed generic target types, so such an extern can't be called.
+            static bool TargetsGenericType(IMethodSymbol? externAccessor)
+            {
+                for (var type = externAccessor?.ContainingType; type is not null; type = type.ContainingType)
+                {
+                    if (type.IsGenericType)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
 
             readonly record struct ReadAccess(string? ReceiverCastType, IMethodSymbol? ExternGetter, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
 

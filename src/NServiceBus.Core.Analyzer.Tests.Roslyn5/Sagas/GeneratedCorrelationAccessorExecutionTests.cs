@@ -1157,6 +1157,182 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(exception.InnerException, Is.TypeOf<ArgumentException>().With.Message.Contains("more than a single dot"));
     }
 
+    [TestCase("get; init;")]
+    [TestCase("get; private set;")]
+    public void Correlation_property_whose_extern_accessor_would_target_a_generic_base_type_is_accessed_by_the_runtime_accessor(string accessors)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class SagaDataBase<T> : ContainSagaData
+                       {
+                           public string CorrelationId { {{accessors}} }
+                       }
+
+                       public class GenericBaseSagaData : SagaDataBase<int>
+                       {
+                       }
+
+                       [Saga]
+                       public class GenericBaseSaga : Saga<GenericBaseSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GenericBaseSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => m.CorrelationId);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class Start : ICommand
+                       {
+                           public string CorrelationId { get; set; } = "correlation-value";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source);
+
+        AssertNoGeneratedCorrelationAccessor(source, assembly);
+        AssertRuntimeCorrelationRoundTrip(assembly, "GenericBaseSaga", assembly.GetType("GenericBaseSagaData")!);
+        Assert.That(ReadWithGeneratedAccessor(assembly, "GenericBaseSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
+    [TestCase("get; init;")]
+    [TestCase("get; private set;")]
+    public void Correlation_property_of_a_closed_generic_saga_data_type_needing_an_extern_accessor_is_accessed_by_the_runtime_accessor(string accessors)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class GenericSagaData<T> : ContainSagaData
+                       {
+                           public string CorrelationId { {{accessors}} }
+                       }
+
+                       [Saga]
+                       public class GenericDataSaga : Saga<GenericSagaData<int>>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<GenericSagaData<int>> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => m.CorrelationId);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class Start : ICommand
+                       {
+                           public string CorrelationId { get; set; } = "correlation-value";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source);
+
+        AssertNoGeneratedCorrelationAccessor(source, assembly);
+        AssertRuntimeCorrelationRoundTrip(assembly, "GenericDataSaga", assembly.GetType("GenericSagaData`1")!.MakeGenericType(typeof(int)));
+        Assert.That(ReadWithGeneratedAccessor(assembly, "GenericDataSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
+    [Test]
+    public void Message_property_whose_extern_accessor_would_target_a_generic_base_type_is_read_by_the_runtime_accessor()
+    {
+        var source = AttributedPropertySaga(
+            "public string CorrelationId { get; set; } = \"\";",
+            "public class MessageBase<T> : ICommand { [System.Obsolete(\"Use something else\", true)] public string CorrelationId { get; set; } = \"correlation-value\"; } public class Start : MessageBase<int> { }",
+            sagaAttribute: "[System.Obsolete]");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var accessor = RegisteredMessageAccessor(assembly, "AttributedSaga", assembly.GetType("Start")!);
+
+        Assert.That(GeneratedSource(source), Does.Not.Contain("extern"));
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.That(accessor.GetType().Assembly, Is.SameAs(typeof(MessagePropertyAccessor).Assembly));
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+    }
+
+    [Test]
+    public void Message_property_explicitly_implementing_an_inaccessible_interface_on_a_generic_message_is_read_by_the_runtime_accessor()
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class Outer
+                       {
+                           interface IHasId
+                           {
+                               string Id { get; }
+                           }
+
+                           public class Envelope<T> : ICommand, IHasId
+                           {
+                               string IHasId.Id => "correlation-value";
+                           }
+
+                           [Saga]
+                           public class EnvelopeSaga : Saga<EnvelopeSagaData>, IAmStartedByMessages<Envelope<int>>
+                           {
+                               protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EnvelopeSagaData> mapper) =>
+                                   mapper.MapSaga(s => s.CorrelationId).ToMessage<Envelope<int>>(m => ((IHasId)m).Id);
+
+                               public Task Handle(Envelope<int> message, IMessageHandlerContext context) => Task.CompletedTask;
+                           }
+
+                           public class EnvelopeSagaData : ContainSagaData
+                           {
+                               public string CorrelationId { get; set; }
+                           }
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, dropMessageHierarchies: true);
+
+        var messageType = assembly.GetType("Outer+Envelope`1")!.MakeGenericType(typeof(int));
+        var accessor = RegisteredMessageAccessor(assembly, "Outer+EnvelopeSaga", messageType);
+
+        Assert.That(GeneratedSource(source), Does.Not.Contain("extern"));
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.That(accessor.GetType().Assembly, Is.SameAs(typeof(MessagePropertyAccessor).Assembly));
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(messageType)!), Is.EqualTo("correlation-value"));
+    }
+
+    [Test]
+    public void Message_property_of_a_generic_message_read_directly_keeps_its_generated_accessor()
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class Order
+                       {
+                       }
+
+                       public class Envelope<T> : ICommand
+                       {
+                           public string Id { get; set; } = "correlation-value";
+                       }
+
+                       [Saga]
+                       public class EnvelopeSaga : Saga<EnvelopeSagaData>, IAmStartedByMessages<Envelope<Order>>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EnvelopeSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Envelope<Order>>(m => m.Id);
+
+                           public Task Handle(Envelope<Order> message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class EnvelopeSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; }
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source);
+
+        var messageType = assembly.GetType("Envelope`1")!.MakeGenericType(assembly.GetType("Order")!);
+        var accessor = RegisteredMessageAccessor(assembly, "EnvelopeSaga", messageType);
+
+        Assert.That(GeneratedSource(source), Does.Contain("protected override object? AccessFrom(global::Envelope<global::Order> message) => message.Id;"));
+        Assert.That(accessor.GetType().Assembly, Is.SameAs(assembly));
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(messageType)!), Is.EqualTo("correlation-value"));
+    }
+
     const string LegacyObsolete = "[System.Obsolete(\"Use something else\", DiagnosticId = \"LEGACY001\")]";
     const string Experimental = "[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")]";
 
@@ -1379,10 +1555,13 @@ public class GeneratedCorrelationAccessorExecutionTests
         return configuration.GetSettings().Get<SagaMetadataCollection>().Find(assembly.GetType(sagaTypeName)!);
     }
 
-    static MessagePropertyAccessor RegisteredMessageAccessor(Assembly assembly, string sagaTypeName, string messageTypeName)
+    static MessagePropertyAccessor RegisteredMessageAccessor(Assembly assembly, string sagaTypeName, string messageTypeName) =>
+        RegisteredMessageAccessor(assembly, sagaTypeName, assembly.GetType(messageTypeName)!);
+
+    static MessagePropertyAccessor RegisteredMessageAccessor(Assembly assembly, string sagaTypeName, Type messageType)
     {
         var metadata = RegisteredSagaMetadata(assembly, sagaTypeName);
-        Assert.That(metadata.TryGetFinder(assembly.GetType(messageTypeName)!.FullName!, out var finderDefinition), Is.True);
+        Assert.That(metadata.TryGetFinder(messageType.FullName!, out var finderDefinition), Is.True);
 
         // The property finder holds the accessor the saga was registered with, generated or compiled from the mapping expression.
         var finder = typeof(SagaFinderDefinition).GetProperty("SagaFinder", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(finderDefinition)!;
@@ -1397,6 +1576,27 @@ public class GeneratedCorrelationAccessorExecutionTests
         accessor.WriteTo(sagaData, "correlation-value");
 
         Assert.That(accessor.AccessFrom(sagaData), Is.EqualTo("correlation-value"));
+    }
+
+    static void AssertNoGeneratedCorrelationAccessor(string source, Assembly assembly)
+    {
+        var generated = GeneratedSource(source);
+        Assert.That(generated, Does.Not.Contain("extern"));
+        Assert.That(generated, Does.Contain("(associatedMessages, null, propertyAccessors)"));
+        Assert.That(GetAccessors<CorrelationPropertyAccessor>(assembly), Is.Empty);
+    }
+
+    static void AssertRuntimeCorrelationRoundTrip(Assembly assembly, string sagaTypeName, Type sagaDataType)
+    {
+        Assert.That(RegisteredSagaMetadata(assembly, sagaTypeName).TryGetCorrelationProperty(out var correlationProperty), Is.True);
+        var accessor = correlationProperty!.Accessor;
+        var sagaData = (IContainSagaData)Activator.CreateInstance(sagaDataType)!;
+
+        accessor.WriteTo(sagaData, "correlation-value");
+
+        Assert.That(accessor.GetType().Assembly, Is.SameAs(typeof(CorrelationPropertyAccessor).Assembly));
+        Assert.That(accessor.AccessFrom(sagaData), Is.EqualTo("correlation-value"));
+        Assert.That(sagaDataType.GetProperty("CorrelationId")!.GetValue(sagaData), Is.EqualTo("correlation-value"));
     }
 
     static Assembly CompileAndLoad(string source, bool dropMessageHierarchies = false, bool warningsAsErrors = false)
