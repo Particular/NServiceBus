@@ -48,7 +48,7 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
                 var servicePlatform = endpointConfig.EnableServicePlatform();
                 if (customServiceControlName)
                 {
-                    _ = servicePlatform.PrimaryInstanceQueue(CustomServiceControlName);
+                    _ = servicePlatform.ServiceControlErrorInstanceQueue(CustomServiceControlName);
                 }
             }))
             .Done(ctx => ctx.Done)
