@@ -17,13 +17,16 @@ static class SemanticModelExtensions
     extension(SemanticModel semanticModel)
     {
         // Under the updated memory safety rules every extern member must be marked either safe or unsafe.
-        public bool UsesUpdatedMemorySafetyRules()
+        public bool UsesUpdatedMemorySafetyRules
         {
-            const int UpdatedMemorySafetyRulesVersion = 2;
+            get
+            {
+                const int UpdatedMemorySafetyRulesVersion = 2;
 
-            return MemorySafetyRulesVersionAccessor is { } getVersion
-                ? getVersion(semanticModel.Compilation.SourceModule) >= UpdatedMemorySafetyRulesVersion
-                : semanticModel.SyntaxTree.Options.Features.ContainsKey("updated-memory-safety-rules");
+                return MemorySafetyRulesVersionAccessor is { } getVersion
+                    ? getVersion(semanticModel.Compilation.SourceModule) >= UpdatedMemorySafetyRulesVersion
+                    : semanticModel.SyntaxTree.Options.Features.ContainsKey("updated-memory-safety-rules");
+            }
         }
 
         // Mirrors Inspect.GetMemberInfo with checkForSingleDot in Core, which SagaMapper uses for the saga data expression.

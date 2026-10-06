@@ -202,7 +202,7 @@ public static partial class Sagas
                 var externGetter = NeedsExtern(propertySymbol.GetMethod, false) ? propertySymbol.GetMethod : null;
                 var externSetter = NeedsExtern(propertySymbol.SetMethod, true) ? propertySymbol.SetMethod : null;
                 var needsExtern = externGetter is not null || externSetter is not null;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, ExternReceiverType(externGetter), ExternReceiverType(externSetter), needsExtern && semanticModel.UsesUpdatedMemorySafetyRules());
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, ExternReceiverType(externGetter), ExternReceiverType(externSetter), needsExtern && semanticModel.UsesUpdatedMemorySafetyRules);
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -258,7 +258,7 @@ public static partial class Sagas
                 }
 
                 Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, read.InterfaceReceiverType, ExternReceiverType(read.ExternGetter), read.ExternGetter?.MetadataName,
-                    read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules(), read.AccessedMember));
+                    read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules, read.AccessedMember));
             }
 
             // Reading through the interface dispatches like the mapping expression; an inaccessible interface falls back to the implementation on the receiver type.
