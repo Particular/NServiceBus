@@ -159,7 +159,7 @@ public static partial class Sagas
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Keyed by saga-data type too because the generated cast targets the concrete type.
-            var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName, string? AccessedMember), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
+            var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
             foreach (var saga in sagas)
             {
                 if (saga.CorrelationPropertyMapping is not { } mapping)
@@ -167,7 +167,7 @@ public static partial class Sagas
                     continue;
                 }
 
-                var key = (saga.SagaDataFullyQualifiedName, mapping.PropertyType, mapping.PropertyName, mapping.AccessedMember);
+                var key = (saga.SagaDataFullyQualifiedName, mapping.PropertyType, mapping.PropertyName);
                 if (!uniqueMappings.ContainsKey(key))
                 {
                     uniqueMappings.Add(key, (mapping, saga.SagaDataFullyQualifiedName));
@@ -189,13 +189,7 @@ public static partial class Sagas
                 }
 
                 var typeComparison = string.CompareOrdinal(a.Mapping.PropertyType, b.Mapping.PropertyType);
-                if (typeComparison != 0)
-                {
-                    return typeComparison;
-                }
-
-                var propertyNameComparison = string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
-                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(a.Mapping.AccessedMember, b.Mapping.AccessedMember);
+                return typeComparison != 0 ? typeComparison : string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
             });
 
             sourceWriter.WriteLine();
@@ -216,20 +210,20 @@ public static partial class Sagas
                 var member = MemberName(mapping.PropertyName);
                 var getterReceiverType = mapping.ExternGetterReceiverType;
                 var setterReceiverType = mapping.ExternSetterReceiverType;
-                var read = getterReceiverType is null ? $"(({mapping.InterfaceGetterReceiverType ?? sagaDataType})sagaData).{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
-                var write = setterReceiverType is null ? $"(({mapping.InterfaceSetterReceiverType ?? sagaDataType})sagaData).{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
+                var read = getterReceiverType is null ? $"(({sagaDataType})sagaData).{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
+                var write = setterReceiverType is null ? $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
 
                 sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};");
                 if (getterReceiverType is not null)
                 {
-                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", mapping.ExternGetterMethodName!, mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", $"get_{mapping.PropertyName}", mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
                 }
 
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};");
                 if (setterReceiverType is not null)
                 {
-                    WriteExternAccessor(sourceWriter, "WriteTo_Property", mapping.ExternSetterMethodName!, "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "WriteTo_Property", $"set_{mapping.PropertyName}", "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);
                 }
 
                 sourceWriter.WriteLine();
@@ -246,9 +240,7 @@ public static partial class Sagas
 
         static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping)
         {
-            var hash = mapping.AccessedMember is { } accessedMember
-                ? NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName, "_", accessedMember)
-                : NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName);
+            var hash = NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName);
             return $"{mapping.PropertyName}As{mapping.PropertyTypeMetadataName}Accessor_{hash:x16}";
         }
     }

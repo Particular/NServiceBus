@@ -4,7 +4,10 @@ namespace NServiceBus.Core.Analyzer;
 
 using System;
 using System.Reflection;
+using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 static class SemanticModelExtensions
 {
@@ -22,7 +25,22 @@ static class SemanticModelExtensions
                 ? getVersion(semanticModel.Compilation.SourceModule) >= UpdatedMemorySafetyRulesVersion
                 : semanticModel.SyntaxTree.Options.Features.ContainsKey("updated-memory-safety-rules");
         }
+
+        // Mirrors Inspect.GetMemberInfo with checkForSingleDot in Core, which SagaMapper uses for the saga data expression.
+        public bool IsMemberAccessOnLambdaParameter(ExpressionSyntax expression, LambdaExpressionSyntax lambda, CancellationToken cancellationToken = default) =>
+            WithoutParenthesesOrSuppressions(expression) is MemberAccessExpressionSyntax memberAccess
+            && semanticModel.GetSymbolInfo(WithoutParenthesesOrSuppressions(memberAccess.Expression), cancellationToken).Symbol is IParameterSymbol parameter
+            && SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, semanticModel.GetSymbolInfo(lambda, cancellationToken).Symbol);
     }
+
+    // Parentheses and the null-forgiving operator leave no trace in an expression tree, but a cast does.
+    static ExpressionSyntax WithoutParenthesesOrSuppressions(ExpressionSyntax expression) =>
+        expression switch
+        {
+            ParenthesizedExpressionSyntax parenthesized => WithoutParenthesesOrSuppressions(parenthesized.Expression),
+            PostfixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.SuppressNullableWarningExpression } suppression => WithoutParenthesesOrSuppressions(suppression.Operand),
+            _ => expression
+        };
 
     static Func<IModuleSymbol, int>? CreateMemorySafetyRulesVersionAccessor()
     {

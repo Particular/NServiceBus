@@ -35,7 +35,7 @@ public static partial class Sagas
     }
 
     public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? InterfaceGetterReceiverType, string? ExternGetterReceiverType, string? ExternGetterMethodName, bool UsesUpdatedMemorySafetyRules, string? AccessedMember);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? InterfaceGetterReceiverType, string? ExternGetterReceiverType, string? ExternGetterMethodName, string? InterfaceSetterReceiverType, string? ExternSetterReceiverType, string? ExternSetterMethodName, bool UsesUpdatedMemorySafetyRules, string? AccessedMember);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules);
 
     public static class Parser
     {
@@ -110,7 +110,7 @@ public static partial class Sagas
             var walker = new ConfigureMappingWalker(semanticModel, cancellationToken);
             walker.Visit(methodBody);
 
-            if (!walker.MapsCorrelationProperty)
+            if (walker.CorrelationPropertyMapping is null)
             {
                 return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
             }
@@ -142,7 +142,6 @@ public static partial class Sagas
         {
             public List<PropertyMappingSpec> Mappings { get; } = [];
             public CorrelationPropertyMappingSpec? CorrelationPropertyMapping { get; private set; }
-            public bool MapsCorrelationProperty { get; private set; }
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
@@ -177,7 +176,8 @@ public static partial class Sagas
                 }
 
                 var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
-                if (memberAccess is null)
+                // SagaMapper rejects saga data mappings that don't access a property on the lambda parameter, so there's nothing to generate.
+                if (memberAccess is null || !semanticModel.IsMemberAccessOnLambdaParameter(memberAccess, lambda, cancellationToken))
                 {
                     return;
                 }
@@ -195,25 +195,14 @@ public static partial class Sagas
                     return;
                 }
 
-                MapsCorrelationProperty = true;
-
-                var receiverExpression = StripSyntaxWrappers(memberAccess.Expression, cancellationToken);
-                if (ResolveRead(propertySymbol, receiverExpression) is not { } read)
-                {
-                    return;
-                }
-
-                var write = ResolveWrite(propertySymbol, receiverExpression);
-
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
-                var needsExtern = read.ExternGetter is not null || write.ExternSetter is not null;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName,
-                    read.InterfaceReceiverType, ExternReceiverType(read.ExternGetter), read.ExternGetter?.MetadataName,
-                    write.InterfaceReceiverType, ExternReceiverType(write.ExternSetter), write.ExternSetter?.MetadataName,
-                    needsExtern && semanticModel.UsesUpdatedMemorySafetyRules(), read.AccessedMember);
+                var externGetter = NeedsExtern(propertySymbol.GetMethod, false) ? propertySymbol.GetMethod : null;
+                var externSetter = NeedsExtern(propertySymbol.SetMethod, true) ? propertySymbol.SetMethod : null;
+                var needsExtern = externGetter is not null || externSetter is not null;
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, ExternReceiverType(externGetter), ExternReceiverType(externSetter), needsExtern && semanticModel.UsesUpdatedMemorySafetyRules());
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -296,28 +285,6 @@ public static partial class Sagas
                     : new ReadAccess(null, implementationGetter, AccessedMember(implementation));
             }
 
-            WriteAccess ResolveWrite(IPropertySymbol property, ExpressionSyntax receiverExpression)
-            {
-                if (property.ContainingType is not { TypeKind: TypeKind.Interface } declaringInterface)
-                {
-                    return new WriteAccess(null, NeedsExtern(property.SetMethod, true) ? property.SetMethod : null);
-                }
-
-                var interfaceType = declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                if (property.SetMethod is { IsInitOnly: false } setter && IsAccessible(setter))
-                {
-                    return new WriteAccess(interfaceType, null);
-                }
-
-                if (ResolveImplementation(property, receiverExpression) is ({ SetMethod: { } implementationSetter }, var reachableByName))
-                {
-                    return new WriteAccess(null, reachableByName && !NeedsExtern(implementationSetter, true) ? null : implementationSetter);
-                }
-
-                // Without an implementing setter the write stays on the interface, so it fails to compile instead of binding to another member.
-                return new WriteAccess(interfaceType, null);
-            }
-
             (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression)
             {
                 if (semanticModel.GetTypeInfo(receiverExpression, cancellationToken).Type is not { TypeKind: not TypeKind.Interface } receiver
@@ -344,8 +311,6 @@ public static partial class Sagas
             static string? ExternReceiverType(IMethodSymbol? accessor) => accessor?.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             readonly record struct ReadAccess(string? InterfaceReceiverType, IMethodSymbol? ExternGetter, string? AccessedMember);
-
-            readonly record struct WriteAccess(string? InterfaceReceiverType, IMethodSymbol? ExternSetter);
 
             static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
                 node is ExpressionSyntax expression
