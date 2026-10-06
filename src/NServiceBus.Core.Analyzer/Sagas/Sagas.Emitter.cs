@@ -70,12 +70,12 @@ public static partial class Sagas
         static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Use Dictionary for O(1) deduplication instead of GroupBy
-            var uniqueMappings = new Dictionary<(string MessageType, string MessagePropertyName, string? ResolvedMember), PropertyMappingSpec>();
+            var uniqueMappings = new Dictionary<(string MessageType, string MessagePropertyName, string? AccessedMember), PropertyMappingSpec>();
             foreach (var saga in sagas)
             {
                 foreach (var mapping in saga.PropertyMappings)
                 {
-                    var key = (mapping.MessageType, mapping.MessagePropertyName, mapping.ResolvedMember);
+                    var key = (mapping.MessageType, mapping.MessagePropertyName, mapping.AccessedMember);
                     if (!uniqueMappings.ContainsKey(key))
                     {
                         uniqueMappings.Add(key, mapping);
@@ -99,7 +99,7 @@ public static partial class Sagas
                 }
 
                 var propertyNameComparison = string.CompareOrdinal(a.MessagePropertyName, b.MessagePropertyName);
-                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(a.ResolvedMember, b.ResolvedMember);
+                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(a.AccessedMember, b.AccessedMember);
             });
 
             sourceWriter.WriteLine();
@@ -118,7 +118,7 @@ public static partial class Sagas
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
                 var getterReceiverType = mapping.ExternGetterReceiverType;
-                var directReceiver = mapping.InterfaceReceiverType is { } interfaceType ? $"(({interfaceType})message)" : "message";
+                var directReceiver = mapping.InterfaceGetterReceiverType is { } interfaceType ? $"(({interfaceType})message)" : "message";
                 var read = getterReceiverType is null ? $"{directReceiver}.{MemberName(mapping.MessagePropertyName)}" : "AccessFrom_Property(message)";
                 sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => {read};");
                 if (getterReceiverType is not null)
@@ -150,8 +150,8 @@ public static partial class Sagas
 
         static string MessagePropertyAccessorName(PropertyMappingSpec mapping)
         {
-            var hash = mapping.ResolvedMember is { } resolvedMember
-                ? NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName, "_", resolvedMember)
+            var hash = mapping.AccessedMember is { } accessedMember
+                ? NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName, "_", accessedMember)
                 : NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName);
             return $"{mapping.MessageName}{mapping.MessagePropertyName}Accessor_{hash:x16}";
         }
@@ -159,7 +159,7 @@ public static partial class Sagas
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Keyed by saga-data type too because the generated cast targets the concrete type.
-            var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName, string? ResolvedMember), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
+            var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName, string? AccessedMember), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
             foreach (var saga in sagas)
             {
                 if (saga.CorrelationPropertyMapping is not { } mapping)
@@ -167,7 +167,7 @@ public static partial class Sagas
                     continue;
                 }
 
-                var key = (saga.SagaDataFullyQualifiedName, mapping.PropertyType, mapping.PropertyName, mapping.ResolvedMember);
+                var key = (saga.SagaDataFullyQualifiedName, mapping.PropertyType, mapping.PropertyName, mapping.AccessedMember);
                 if (!uniqueMappings.ContainsKey(key))
                 {
                     uniqueMappings.Add(key, (mapping, saga.SagaDataFullyQualifiedName));
@@ -195,7 +195,7 @@ public static partial class Sagas
                 }
 
                 var propertyNameComparison = string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
-                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(a.Mapping.ResolvedMember, b.Mapping.ResolvedMember);
+                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(a.Mapping.AccessedMember, b.Mapping.AccessedMember);
             });
 
             sourceWriter.WriteLine();
@@ -216,20 +216,20 @@ public static partial class Sagas
                 var member = MemberName(mapping.PropertyName);
                 var getterReceiverType = mapping.ExternGetterReceiverType;
                 var setterReceiverType = mapping.ExternSetterReceiverType;
-                var read = getterReceiverType is null ? $"(({sagaDataType})sagaData).{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
-                var write = setterReceiverType is null ? $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
+                var read = getterReceiverType is null ? $"(({mapping.InterfaceGetterReceiverType ?? sagaDataType})sagaData).{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
+                var write = setterReceiverType is null ? $"(({mapping.InterfaceSetterReceiverType ?? sagaDataType})sagaData).{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
 
                 sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};");
                 if (getterReceiverType is not null)
                 {
-                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", $"get_{mapping.PropertyName}", mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", mapping.ExternGetterMethodName!, mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
                 }
 
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};");
                 if (setterReceiverType is not null)
                 {
-                    WriteExternAccessor(sourceWriter, "WriteTo_Property", $"set_{mapping.PropertyName}", "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "WriteTo_Property", mapping.ExternSetterMethodName!, "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);
                 }
 
                 sourceWriter.WriteLine();
@@ -246,8 +246,8 @@ public static partial class Sagas
 
         static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping)
         {
-            var hash = mapping.ResolvedMember is { } resolvedMember
-                ? NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName, "_", resolvedMember)
+            var hash = mapping.AccessedMember is { } accessedMember
+                ? NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName, "_", accessedMember)
                 : NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName);
             return $"{mapping.PropertyName}As{mapping.PropertyTypeMetadataName}Accessor_{hash:x16}";
         }
