@@ -298,13 +298,24 @@ public static partial class Sagas
 
             WriteAccess ResolveWrite(IPropertySymbol property, ExpressionSyntax receiverExpression)
             {
-                if (property.ContainingType is { TypeKind: TypeKind.Interface }
-                    && ResolveImplementation(property, receiverExpression) is ({ ExplicitInterfaceImplementations.IsEmpty: true } implementation, var reachableByName))
+                if (property.ContainingType is not { TypeKind: TypeKind.Interface } declaringInterface)
                 {
-                    return new WriteAccess(null, !reachableByName || NeedsExtern(implementation.SetMethod, true) ? implementation.SetMethod : null);
+                    return new WriteAccess(null, NeedsExtern(property.SetMethod, true) ? property.SetMethod : null);
                 }
 
-                return new WriteAccess(null, NeedsExtern(property.SetMethod, true) ? property.SetMethod : null);
+                var interfaceType = declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                if (property.SetMethod is { IsInitOnly: false } setter && IsAccessible(setter))
+                {
+                    return new WriteAccess(interfaceType, null);
+                }
+
+                if (ResolveImplementation(property, receiverExpression) is ({ SetMethod: { } implementationSetter }, var reachableByName))
+                {
+                    return new WriteAccess(null, reachableByName && !NeedsExtern(implementationSetter, true) ? null : implementationSetter);
+                }
+
+                // Without an implementing setter the write stays on the interface, so it fails to compile instead of binding to another member.
+                return new WriteAccess(interfaceType, null);
             }
 
             (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression)
