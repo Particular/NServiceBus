@@ -70,12 +70,12 @@ public static partial class Sagas
         static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Use Dictionary for O(1) deduplication instead of GroupBy
-            var uniqueMappings = new Dictionary<(string MessageType, string MessagePropertyName), PropertyMappingSpec>();
+            var uniqueMappings = new Dictionary<(string MessageType, string MessagePropertyName, string? ResolvedMember), PropertyMappingSpec>();
             foreach (var saga in sagas)
             {
                 foreach (var mapping in saga.PropertyMappings)
                 {
-                    var key = (mapping.MessageType, mapping.MessagePropertyName);
+                    var key = (mapping.MessageType, mapping.MessagePropertyName, mapping.ResolvedMember);
                     if (!uniqueMappings.ContainsKey(key))
                     {
                         uniqueMappings.Add(key, mapping);
@@ -93,7 +93,13 @@ public static partial class Sagas
             allPropertyMappings.Sort(static (a, b) =>
             {
                 var messageTypeComparison = string.CompareOrdinal(a.MessageType, b.MessageType);
-                return messageTypeComparison != 0 ? messageTypeComparison : string.CompareOrdinal(a.MessagePropertyName, b.MessagePropertyName);
+                if (messageTypeComparison != 0)
+                {
+                    return messageTypeComparison;
+                }
+
+                var propertyNameComparison = string.CompareOrdinal(a.MessagePropertyName, b.MessagePropertyName);
+                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(a.ResolvedMember, b.ResolvedMember);
             });
 
             sourceWriter.WriteLine();
@@ -117,7 +123,7 @@ public static partial class Sagas
                 sourceWriter.WriteLine($"protected override object? AccessFrom({mapping.MessageType} message) => {read};");
                 if (getterReceiverType is not null)
                 {
-                    WriteExternAccessor(sourceWriter, "get", mapping.MessagePropertyName, mapping.MessagePropertyType, $"{getterReceiverType} message", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", mapping.ExternGetterMethodName!, mapping.MessagePropertyType, $"{getterReceiverType} message", mapping.UsesUpdatedMemorySafetyRules);
                 }
 
                 sourceWriter.WriteLine();
@@ -132,12 +138,11 @@ public static partial class Sagas
             }
         }
 
-        static void WriteExternAccessor(SourceWriter sourceWriter, string accessorKind, string propertyName, string returnType, string parameters, bool usesUpdatedMemorySafetyRules)
+        static void WriteExternAccessor(SourceWriter sourceWriter, string methodName, string accessorName, string returnType, string parameters, bool usesUpdatedMemorySafetyRules)
         {
-            var methodName = accessorKind == "get" ? "AccessFrom_Property" : "WriteTo_Property";
             var safetyModifier = usesUpdatedMemorySafetyRules ? "safe " : "";
             sourceWriter.WriteLine();
-            sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"{accessorKind}_{propertyName}\")]");
+            sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"{accessorName}\")]");
             sourceWriter.WriteLine($"static {safetyModifier}extern {returnType} {methodName}({parameters});");
         }
 
@@ -145,14 +150,16 @@ public static partial class Sagas
 
         static string MessagePropertyAccessorName(PropertyMappingSpec mapping)
         {
-            var hash = NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName);
+            var hash = mapping.ResolvedMember is { } resolvedMember
+                ? NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName, "_", resolvedMember)
+                : NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName);
             return $"{mapping.MessageName}{mapping.MessagePropertyName}Accessor_{hash:x16}";
         }
 
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Keyed by saga-data type too because the generated cast targets the concrete type.
-            var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
+            var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName, string? ResolvedMember), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
             foreach (var saga in sagas)
             {
                 if (saga.CorrelationPropertyMapping is not { } mapping)
@@ -160,7 +167,7 @@ public static partial class Sagas
                     continue;
                 }
 
-                var key = (saga.SagaDataFullyQualifiedName, mapping.PropertyType, mapping.PropertyName);
+                var key = (saga.SagaDataFullyQualifiedName, mapping.PropertyType, mapping.PropertyName, mapping.ResolvedMember);
                 if (!uniqueMappings.ContainsKey(key))
                 {
                     uniqueMappings.Add(key, (mapping, saga.SagaDataFullyQualifiedName));
@@ -182,7 +189,13 @@ public static partial class Sagas
                 }
 
                 var typeComparison = string.CompareOrdinal(a.Mapping.PropertyType, b.Mapping.PropertyType);
-                return typeComparison != 0 ? typeComparison : string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
+                if (typeComparison != 0)
+                {
+                    return typeComparison;
+                }
+
+                var propertyNameComparison = string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
+                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(a.Mapping.ResolvedMember, b.Mapping.ResolvedMember);
             });
 
             sourceWriter.WriteLine();
@@ -209,14 +222,14 @@ public static partial class Sagas
                 sourceWriter.WriteLine($"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};");
                 if (getterReceiverType is not null)
                 {
-                    WriteExternAccessor(sourceWriter, "get", mapping.PropertyName, mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", $"get_{mapping.PropertyName}", mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
                 }
 
                 sourceWriter.WriteLine();
                 sourceWriter.WriteLine($"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};");
                 if (setterReceiverType is not null)
                 {
-                    WriteExternAccessor(sourceWriter, "set", mapping.PropertyName, "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "WriteTo_Property", $"set_{mapping.PropertyName}", "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);
                 }
 
                 sourceWriter.WriteLine();
@@ -233,7 +246,9 @@ public static partial class Sagas
 
         static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping)
         {
-            var hash = NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName);
+            var hash = mapping.ResolvedMember is { } resolvedMember
+                ? NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName, "_", resolvedMember)
+                : NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName);
             return $"{mapping.PropertyName}As{mapping.PropertyTypeMetadataName}Accessor_{hash:x16}";
         }
     }

@@ -34,8 +34,8 @@ public static partial class Sagas
         public HandlerSpec Handler { get; }
     }
 
-    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? ExternGetterReceiverType, bool UsesUpdatedMemorySafetyRules, string? InterfaceReceiverType);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules);
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? ExternGetterReceiverType, string? ExternGetterMethodName, bool UsesUpdatedMemorySafetyRules, string? InterfaceReceiverType, string? ResolvedMember);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules, string? ResolvedMember);
 
     public static class Parser
     {
@@ -194,16 +194,24 @@ public static partial class Sagas
                     return;
                 }
 
-                propertySymbol = ResolveImplementation(propertySymbol, memberAccess);
+                var (implementation, resolvedMember) = ResolveImplementation(propertySymbol, StripSyntaxWrappers(memberAccess.Expression, cancellationToken));
+                var isExplicit = !implementation.ExplicitInterfaceImplementations.IsEmpty;
+                if (!isExplicit)
+                {
+                    // An explicit implementation keeps the interface property so the concrete access fails to compile instead of reading another member.
+                    propertySymbol = implementation;
+                }
+
+                var hiddenFromReceiver = resolvedMember is not null && !isExplicit;
 
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
                 // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
                 string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
-                var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
-                var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod, true);
+                var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false, hiddenFromReceiver);
+                var externSetterReceiverType = ExternReceiverType(propertySymbol.SetMethod, true, hiddenFromReceiver);
                 var needsExtern = externGetterReceiverType is not null || externSetterReceiverType is not null;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules());
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName, externGetterReceiverType, externSetterReceiverType, needsExtern && semanticModel.UsesUpdatedMemorySafetyRules(), resolvedMember);
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -252,27 +260,36 @@ public static partial class Sagas
 
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-                var externGetterReceiverType = ExternReceiverType(propertySymbol.GetMethod, false);
-                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, externGetterReceiverType, externGetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules(),
-                    InterfaceReceiverType(propertySymbol)));
+                var (implementation, resolvedMember) = ResolveImplementation(propertySymbol, messageExpression);
+                var interfaceReceiverType = resolvedMember is not null && semanticModel.Compilation.IsSymbolAccessibleWithin(propertySymbol.ContainingType, semanticModel.Compilation.Assembly)
+                    ? propertySymbol.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
+                    : null;
+                var externGetter = interfaceReceiverType is null ? implementation.GetMethod : null;
+                var externGetterReceiverType = ExternReceiverType(externGetter, false, resolvedMember is not null);
+                var externGetterMethodName = externGetterReceiverType is null ? null : externGetter!.MetadataName;
+                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, externGetterReceiverType, externGetterMethodName,
+                    externGetterReceiverType is not null && semanticModel.UsesUpdatedMemorySafetyRules(), interfaceReceiverType, resolvedMember));
             }
 
-            // Saga data is read and written through its concrete type, so an interface property maps to the implementing property.
-            IPropertySymbol ResolveImplementation(IPropertySymbol property, MemberAccessExpressionSyntax memberAccess) =>
-                property.ContainingType is { TypeKind: TypeKind.Interface }
-                && semanticModel.GetTypeInfo(StripSyntaxWrappers(memberAccess.Expression, cancellationToken), cancellationToken).Type?.FindImplementationForInterfaceMember(property)
-                    is IPropertySymbol { ExplicitInterfaceImplementations.IsEmpty: true } implementation
-                    ? implementation
-                    : property;
+            // Interface properties resolve to the member that runs on the concrete receiver; the second value identifies members that name lookup on it can't reach.
+            (IPropertySymbol Implementation, string? ResolvedMember) ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression)
+            {
+                if (property.ContainingType is not { TypeKind: TypeKind.Interface }
+                    || semanticModel.GetTypeInfo(receiverExpression, cancellationToken).Type is not { TypeKind: not TypeKind.Interface } receiver
+                    || receiver.FindImplementationForInterfaceMember(property) is not IPropertySymbol implementation)
+                {
+                    return (property, null);
+                }
 
-            // An explicitly implemented interface member only exists on the interface, so access must go through it.
-            static string? InterfaceReceiverType(IPropertySymbol property) =>
-                property.ContainingType is { TypeKind: TypeKind.Interface } declaringInterface ? declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : null;
+                var reachableByName = implementation.ExplicitInterfaceImplementations.IsEmpty
+                    && semanticModel.LookupSymbols(receiverExpression.SpanStart, receiver, implementation.Name).Contains(implementation, SymbolEqualityComparer.Default);
+                return (implementation, reachableByName ? null : $"{implementation.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{implementation.MetadataName}");
+            }
 
             // Generated code can't call init-only or inaccessible accessors directly, so they go through an extern accessor on the declaring type.
-            string? ExternReceiverType(IMethodSymbol? accessor, bool initOnlyNeedsExtern) =>
+            string? ExternReceiverType(IMethodSymbol? accessor, bool initOnlyNeedsExtern, bool force = false) =>
                 accessor is not null
-                && ((initOnlyNeedsExtern && accessor.IsInitOnly)
+                && (force || (initOnlyNeedsExtern && accessor.IsInitOnly)
                     || (accessor.DeclaredAccessibility != Accessibility.Public && !semanticModel.Compilation.IsSymbolAccessibleWithin(accessor, semanticModel.Compilation.Assembly)))
                     ? accessor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)
                     : null;
