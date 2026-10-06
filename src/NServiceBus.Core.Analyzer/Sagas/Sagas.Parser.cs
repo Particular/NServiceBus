@@ -267,20 +267,30 @@ public static partial class Sagas
             // Reading through the interface dispatches like the mapping expression; when generated code can't call the interface getter, it falls back to the implementation on the receiver type.
             ReadAccess? ResolveRead(IPropertySymbol property, ExpressionSyntax receiverExpression)
             {
+                var receiver = semanticModel.GetTypeInfo(receiverExpression, cancellationToken).Type;
                 if (property.ContainingType is not { TypeKind: TypeKind.Interface } declaringInterface)
                 {
-                    return semanticModel.GetTypeInfo(receiverExpression, cancellationToken).Type is not { } receiver || ReachableByName(property, receiverExpression, receiver)
+                    return receiver is null || ReachableByName(property, receiverExpression, receiver)
                         ? DirectOrExternRead(property)
                         : CastOrExternRead(property);
                 }
 
-                if (property.GetMethod is { } getter && IsAccessible(getter) && SuppressibleDiagnosticIds(property, false) is { } suppressedDiagnosticIds)
+                if (property.GetMethod is { } getter && IsAccessible(getter))
                 {
-                    var interfaceType = declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                    return new ReadAccess(interfaceType, null, $"{interfaceType}.{property.MetadataName}", suppressedDiagnosticIds);
+                    if (SuppressibleDiagnosticIds(property, false) is { } suppressedDiagnosticIds)
+                    {
+                        var interfaceType = declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                        return new ReadAccess(interfaceType, null, $"{interfaceType}.{property.MetadataName}", suppressedDiagnosticIds);
+                    }
+
+                    // The implementation only dispatches like the interface when no derived message can re-implement it.
+                    if (receiver is not { IsSealed: true })
+                    {
+                        return null;
+                    }
                 }
 
-                if (ResolveImplementation(property, receiverExpression) is not ({ GetMethod: { } implementationGetter } implementation, var reachableByName))
+                if (ResolveImplementation(property, receiverExpression, receiver) is not ({ GetMethod: { } implementationGetter } implementation, var reachableByName))
                 {
                     return null;
                 }
@@ -304,9 +314,9 @@ public static partial class Sagas
                 return new ReadAccess(castType, externGetter, AccessedMember(property), suppressedDiagnosticIds);
             }
 
-            (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression)
+            (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression, ITypeSymbol? receiver)
             {
-                if (semanticModel.GetTypeInfo(receiverExpression, cancellationToken).Type is not { TypeKind: not TypeKind.Interface } receiver
+                if (receiver is not { TypeKind: not TypeKind.Interface }
                     || receiver.FindImplementationForInterfaceMember(property) is not IPropertySymbol { ContainingType.TypeKind: not TypeKind.Interface } implementation)
                 {
                     return null;

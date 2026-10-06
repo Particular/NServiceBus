@@ -897,16 +897,19 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(GeneratedSource(source), Does.Contain("=> message.Id;"));
     }
 
-    [TestCase("string IHasId.Id => \"derived-value\";")]
-    [TestCase("public new string Id => \"derived-value\";")]
-    public void Derived_message_re_implementing_the_interface_is_read_through_the_interface(string derivedImplementation)
+    [TestCase("string IHasId.Id => \"derived-value\";", false)]
+    [TestCase("public new string Id => \"derived-value\";", false)]
+    [TestCase("string IHasId.Id => \"derived-value\";", true)]
+    [TestCase("public new string Id => \"derived-value\";", true)]
+    public void Derived_message_re_implementing_the_interface_is_read_through_the_interface(string derivedImplementation, bool obsoleteError)
     {
+        var (interfaceAttribute, sagaAttribute) = obsoleteError ? ("[System.Obsolete(\"Use something else\", true)]", "[System.Obsolete]") : ("", "");
         var source = $$"""
                        {{AddAllPreamble}}
 
                        public interface IHasId
                        {
-                           string Id { get; }
+                           {{interfaceAttribute}} string Id { get; }
                        }
 
                        public class Start : ICommand, IHasId
@@ -920,6 +923,7 @@ public class GeneratedCorrelationAccessorExecutionTests
                        }
 
                        [Saga]
+                       {{sagaAttribute}}
                        public class InterfaceSaga : Saga<InterfaceSagaData>, IAmStartedByMessages<Start>
                        {
                            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<InterfaceSagaData> mapper) =>
@@ -938,10 +942,12 @@ public class GeneratedCorrelationAccessorExecutionTests
 
         var derived = Activator.CreateInstance(assembly.GetType("DerivedStart")!)!;
         var mappedValue = assembly.GetType("IHasId")!.GetProperty("Id")!.GetValue(derived);
+        var accessor = RegisteredMessageAccessor(assembly, "InterfaceSaga", "Start");
 
         Assert.That(mappedValue, Is.EqualTo("derived-value"));
-        Assert.That(ReadWithGeneratedAccessor(assembly, "InterfaceSaga", "Start", derived), Is.EqualTo(mappedValue));
-        Assert.That(ReadWithGeneratedAccessor(assembly, "InterfaceSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("start-value"));
+        Assert.That(accessor.AccessFrom(derived), Is.EqualTo(mappedValue));
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("start-value"));
+        Assert.That(accessor.GetType().Assembly, Is.SameAs(obsoleteError ? typeof(MessagePropertyAccessor).Assembly : assembly));
     }
 
     [TestCase("public interface IOther { string Id { get; } } public interface IStart : IEvent, IBase, IOther { } public class Impl : IStart { string IBase.Id => \"base-value\"; string IOther.Id => \"other-value\"; }")]
@@ -1326,11 +1332,11 @@ public class GeneratedCorrelationAccessorExecutionTests
 
     [TestCase("public string Id => \"correlation-value\";", "=> message.Id;")]
     [TestCase("string IHasId.Id => \"correlation-value\";", "=> AccessFrom_Property(message);")]
-    public void Message_property_mapped_through_an_interface_member_with_an_obsolete_error_is_read_through_the_implementation(string implementation, string expectedRead)
+    public void Message_property_mapped_through_an_interface_member_with_an_obsolete_error_is_read_through_the_implementation_of_a_sealed_message(string implementation, string expectedRead)
     {
         var source = AttributedPropertySaga(
             "public string CorrelationId { get; set; } = \"\";",
-            $"public interface IHasId {{ [System.Obsolete(\"Use something else\", true)] string Id {{ get; }} }} public class Start : ICommand, IHasId {{ {implementation} }}",
+            $"public interface IHasId {{ [System.Obsolete(\"Use something else\", true)] string Id {{ get; }} }} public sealed class Start : ICommand, IHasId {{ {implementation} }}",
             "((IHasId)m).Id",
             sagaAttribute: "[System.Obsolete]");
 
