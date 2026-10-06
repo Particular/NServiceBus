@@ -840,7 +840,7 @@ namespace NServiceBus
     {
         extension(NServiceBus.ServicePlatformSettings settings)
         {
-            public NServiceBus.ServicePlatformSettings PrimaryInstanceQueue(string queue) { }
+            public NServiceBus.ServicePlatformSettings ServiceControlErrorInstanceQueue(string queue) { }
         }
     }
     public class MoveToError : NServiceBus.RecoverabilityAction
