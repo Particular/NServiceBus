@@ -113,7 +113,7 @@ partial class UsageReporter(
     async Task SnapshotAndSendUsageReportAndSwallowExceptions(CancellationToken cancellationToken)
     {
         try
-        { 
+        {
             var currentSnapshot = Interlocked.Read(ref messagesSuccessfullyProcessed);
 
             // TODO: Send scope if we're able to determine it (i.e. vhost for RabbitMQ, Catalog/Schema for SQL)
