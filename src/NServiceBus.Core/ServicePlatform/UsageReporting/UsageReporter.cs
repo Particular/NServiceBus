@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ partial class UsageReporter(
 ) : FeatureStartupTask, IDisposable
 {
     readonly ServicePlatformSender<EndpointUsageReport> usageReportSender = servicePlatformChannel.CreateSender(UsageReportingMessagesJsonContext.Default.EndpointUsageReport);
+    readonly KeyValuePair<string, object?> queueNameTag = new(MeterTags.QueueName, settings.BaseQueueAddress);
 
     protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
     {
@@ -54,34 +56,24 @@ partial class UsageReporter(
         {
             if (IsSuccessfulMessageProcessingEvent(instrument))
             {
-                listener.EnableMeasurementEvents(instrument);
+                listener.EnableMeasurementEvents(instrument, this);
             }
         };
 
         meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
         {
-            if (IsSuccessfulMessageProcessingEvent(instrument))
+            if (IsSuccessfulMessageProcessingEvent(instrument) && tags.IndexOf(queueNameTag) >= 0)
             {
-                for (var i = 0; i < tags.Length; i++)
-                {
-                    var tag = tags[i];
-                    if (tag.Key == MeterTags.QueueName)
-                    {
-                        if (tag.Value?.ToString() == settings.BaseQueueAddress)
-                        {
-                            // Update the internal counter
-                            _ = Interlocked.Add(ref messagesSuccessfullyProcessed, measurement);
-                            return;
-                        }
-                    }
-                }
+                var usageReporterState = (UsageReporter)state!;
+                // Update the internal counter
+                _ = Interlocked.Add(ref usageReporterState.messagesSuccessfullyProcessed, measurement);
             }
         });
 
         meterListener.Start();
 
         static bool IsSuccessfulMessageProcessingEvent(Instrument instrument)
-            => instrument.Meter.Name == IncomingPipelineMetrics.MeterName && instrument.Name == IncomingPipelineMetrics.TotalProcessedSuccessfully;
+            => instrument is { Meter.Name: IncomingPipelineMetrics.MeterName, Name: IncomingPipelineMetrics.TotalProcessedSuccessfully };
     }
 
     async Task PeriodicallyReportUsageAndSwallowExceptions(CancellationToken cancellationToken)
@@ -125,6 +117,7 @@ partial class UsageReporter(
     {
         var currentSnapshot = Interlocked.Read(ref messagesSuccessfullyProcessed);
 
+        // TODO: Send scope if we're able to determine it (i.e. vhost for RabbitMQ, Catalog/Schema for SQL)
         var message = new EndpointUsageReport
         {
             EndpointName = settings.EndpointName,
