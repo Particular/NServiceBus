@@ -1005,6 +1005,185 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(exception.InnerException, Is.TypeOf<ArgumentException>().With.Message.Contains("more than a single dot"));
     }
 
+    const string LegacyObsolete = "[System.Obsolete(\"Use something else\", DiagnosticId = \"LEGACY001\")]";
+    const string Experimental = "[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")]";
+
+    const string MessageAccessFrom = "protected override object? AccessFrom(global::Start message)";
+    const string CorrelationAccessFrom = "public override object? AccessFrom(NServiceBus.IContainSagaData sagaData)";
+    const string CorrelationWriteTo = "public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value)";
+
+    static string AttributedPropertySaga(string sagaDataProperty, string messageDeclarations, string messageMapping = "m.CorrelationId", string mappingSuppression = null, string sagaAttribute = "") =>
+        $$"""
+          {{AddAllPreamble}}
+
+          {{messageDeclarations}}
+
+          [Saga]
+          {{sagaAttribute}}
+          public class AttributedSaga : Saga<AttributedSagaData>, IAmStartedByMessages<Start>
+          {
+              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AttributedSagaData> mapper)
+              {
+          {{(mappingSuppression is null ? "" : $"#pragma warning disable {mappingSuppression}")}}
+                  mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => {{messageMapping}});
+          {{(mappingSuppression is null ? "" : $"#pragma warning restore {mappingSuppression}")}}
+              }
+
+              public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+          }
+
+          public class AttributedSagaData : ContainSagaData
+          {
+              {{sagaDataProperty}}
+          }
+          """;
+
+    [TestCase(LegacyObsolete, "LEGACY001")]
+    [TestCase(Experimental, "EXP001")]
+    public void Generated_accessors_suppress_custom_diagnostics_of_locally_suppressed_mappings(string attribute, string diagnosticId)
+    {
+        var source = AttributedPropertySaga(
+            $"{attribute} public string CorrelationId {{ get; set; }} = \"\";",
+            $"public class Start : ICommand {{ {attribute} public string CorrelationId {{ get; set; }} = \"correlation-value\"; }}",
+            mappingSuppression: diagnosticId);
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(MembersSuppressing(GeneratedSource(source), diagnosticId), Is.EquivalentTo(new[] { MessageAccessFrom, CorrelationAccessFrom, CorrelationWriteTo }));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+        Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
+    [TestCase(LegacyObsolete, "{0} get; set;", "LEGACY001", new[] { MessageAccessFrom, CorrelationAccessFrom })]
+    [TestCase(LegacyObsolete, "get; {0} set;", null, new[] { CorrelationWriteTo })]
+    [TestCase(Experimental, "{0} get; set;", "EXP001", new[] { MessageAccessFrom, CorrelationAccessFrom })]
+    [TestCase(Experimental, "get; {0} set;", null, new[] { CorrelationWriteTo })]
+    public void Generated_accessors_suppress_accessor_diagnostics_only_around_the_member_that_calls_the_accessor(string attribute, string accessorsFormat, string mappingSuppression, string[] suppressedMembers)
+    {
+        var accessors = string.Format(accessorsFormat, attribute);
+        var diagnosticId = attribute == Experimental ? "EXP001" : "LEGACY001";
+        var source = AttributedPropertySaga(
+            $"public string CorrelationId {{ {accessors} }} = \"\";",
+            $"public class Start : ICommand {{ public string CorrelationId {{ {accessors} }} = \"correlation-value\"; }}",
+            mappingSuppression: mappingSuppression);
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(MembersSuppressing(GeneratedSource(source), diagnosticId), Is.EquivalentTo(suppressedMembers));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+        Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
+    [Test]
+    public void Generated_accessors_suppress_all_custom_diagnostics_of_a_property_in_one_pragma()
+    {
+        var attributes = $"{Experimental}{LegacyObsolete}";
+        var source = AttributedPropertySaga(
+            $"{attributes} public string CorrelationId {{ get; set; }} = \"\";",
+            $"public class Start : ICommand {{ {attributes} public string CorrelationId {{ get; set; }} = \"correlation-value\"; }}",
+            mappingSuppression: "LEGACY001, EXP001");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(MembersSuppressing(GeneratedSource(source), "EXP001, LEGACY001"), Is.EquivalentTo(new[] { MessageAccessFrom, CorrelationAccessFrom, CorrelationWriteTo }));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+    }
+
+    [TestCase("[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public virtual string CorrelationId { get; set; } = \"\";", "public override string CorrelationId { get; set; } = \"\";", "EXP001", true)]
+    [TestCase("public virtual string CorrelationId { get; set; } = \"\";", "[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public override string CorrelationId { get; set; } = \"\";", null, false)]
+    public void Generated_accessors_suppress_the_diagnostics_of_the_overridden_property(string baseProperty, string overridingProperty, string mappingSuppression, bool suppressed)
+    {
+        var source = AttributedPropertySaga(
+            overridingProperty,
+            "public class Start : ICommand { public string CorrelationId { get; set; } = \"correlation-value\"; }",
+            mappingSuppression: mappingSuppression)
+            .Replace("public class AttributedSagaData : ContainSagaData", $"public class AttributedSagaBase : ContainSagaData {{ {baseProperty} }} public class AttributedSagaData : AttributedSagaBase");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(MembersSuppressing(GeneratedSource(source), "EXP001"), Is.EquivalentTo(suppressed ? new[] { CorrelationAccessFrom, CorrelationWriteTo } : []));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+    }
+
+    [Test]
+    public void Setter_that_reports_an_obsolete_error_is_written_through_an_extern_accessor()
+    {
+        var source = AttributedPropertySaga(
+            "public string CorrelationId { get; [System.Obsolete(\"Use something else\", true)] set; } = \"\";",
+            "public class Start : ICommand { public string CorrelationId { get; set; } = \"correlation-value\"; }");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var generated = GeneratedSource(source);
+        Assert.That(generated, Does.Contain("WriteTo_Property((global::AttributedSagaData)sagaData, (string)value)"));
+        Assert.That(generated, Does.Contain("((global::AttributedSagaData)sagaData).CorrelationId;"));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+    }
+
+    // An obsolete context is the only place a mapping can read an obsolete error, and the only suppression a pragma can't name.
+    [TestCase("[System.Obsolete(\"Use something else\", true)]")]
+    [TestCase("[System.Obsolete(\"Use something else\", true, DiagnosticId = \"LEGACY001\")]")]
+    [TestCase("[System.Obsolete(\"Use something else\", DiagnosticId = \"LEGACY-001\")]")]
+    [TestCase("[System.Obsolete(\"Use something else\", DiagnosticId = \"true\")]")]
+    public void Properties_with_diagnostics_a_pragma_cannot_suppress_are_accessed_through_extern_accessors(string attribute)
+    {
+        var source = AttributedPropertySaga(
+            $"{attribute} public string CorrelationId {{ get; set; }} = \"\";",
+            $"public class Start : ICommand {{ {attribute} public string CorrelationId {{ get; set; }} = \"correlation-value\"; }}",
+            sagaAttribute: "[System.Obsolete]");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var generated = GeneratedSource(source);
+        Assert.That(generated, Does.Contain("=> AccessFrom_Property(message);"));
+        Assert.That(generated, Does.Contain("=> AccessFrom_Property((global::AttributedSagaData)sagaData);"));
+        Assert.That(generated, Does.Contain("=> WriteTo_Property((global::AttributedSagaData)sagaData, (string)value);"));
+        Assert.That(generated, Does.Not.Contain("#pragma warning disable LEGACY"));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+        Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
+    [TestCase("public interface IHasId { [System.Obsolete(\"Use something else\", DiagnosticId = \"LEGACY001\")] string Id { get; } }", "public string Id => \"correlation-value\";", "LEGACY001", true)]
+    [TestCase("public interface IHasId { string Id { [System.Diagnostics.CodeAnalysis.Experimental(\"LEGACY001\")] get; } }", "public string Id => \"correlation-value\";", "LEGACY001", true)]
+    [TestCase("public interface IHasId { string Id { get; } }", "[System.Obsolete(\"Use something else\", DiagnosticId = \"LEGACY001\")] public string Id => \"correlation-value\";", null, false)]
+    public void Message_property_mapped_through_an_interface_suppresses_the_diagnostics_of_the_interface_member(string interfaceDeclaration, string implementation, string mappingSuppression, bool suppressed)
+    {
+        var source = AttributedPropertySaga(
+            "public string CorrelationId { get; set; } = \"\";",
+            $"{interfaceDeclaration} public class Start : ICommand, IHasId {{ {implementation} }}",
+            "((IHasId)m).Id",
+            mappingSuppression);
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var generated = GeneratedSource(source);
+        Assert.That(generated, Does.Contain("=> ((global::IHasId)message).Id;"));
+        Assert.That(MembersSuppressing(generated, "LEGACY001"), Is.EquivalentTo(suppressed ? new[] { MessageAccessFrom } : []));
+        Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
+    [TestCase("public string Id => \"correlation-value\";", "=> message.Id;")]
+    [TestCase("string IHasId.Id => \"correlation-value\";", "=> AccessFrom_Property(message);")]
+    public void Message_property_mapped_through_an_interface_member_with_an_obsolete_error_is_read_through_the_implementation(string implementation, string expectedRead)
+    {
+        var source = AttributedPropertySaga(
+            "public string CorrelationId { get; set; } = \"\";",
+            $"public interface IHasId {{ [System.Obsolete(\"Use something else\", true)] string Id {{ get; }} }} public class Start : ICommand, IHasId {{ {implementation} }}",
+            "((IHasId)m).Id",
+            sagaAttribute: "[System.Obsolete]");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(GeneratedSource(source), Does.Contain(expectedRead));
+        Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
+    static string[] MembersSuppressing(string generated, string diagnosticIds) =>
+    [
+        .. Regex.Matches(generated, $@"#pragma warning disable {Regex.Escape(diagnosticIds)}\r?\n\s*(?<member>(protected|public) override [^\r\n]*?) =>[^\r\n]*\r?\n\s*#pragma warning restore {Regex.Escape(diagnosticIds)}\r?\n")
+            .Select(match => match.Groups["member"].Value)
+    ];
+
     static string GeneratedSource(string source) =>
         string.Join(Environment.NewLine, RunGenerators(source, new CSharpParseOptions(LanguageVersion.Preview)).SyntaxTrees.Select(t => t.ToString()));
 
@@ -1052,9 +1231,9 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(accessor.AccessFrom(sagaData), Is.EqualTo("correlation-value"));
     }
 
-    static Assembly CompileAndLoad(string source, bool dropMessageHierarchies = false)
+    static Assembly CompileAndLoad(string source, bool dropMessageHierarchies = false, bool warningsAsErrors = false)
     {
-        var outputCompilation = RunGenerators(source, new CSharpParseOptions(LanguageVersion.Preview));
+        var outputCompilation = RunGenerators(source, new CSharpParseOptions(LanguageVersion.Preview), warningsAsErrors);
 
         if (dropMessageHierarchies)
         {
@@ -1073,7 +1252,7 @@ public class GeneratedCorrelationAccessorExecutionTests
         return Assembly.Load(peStream.ToArray());
     }
 
-    static Compilation RunGenerators(string source, CSharpParseOptions parseOptions)
+    static Compilation RunGenerators(string source, CSharpParseOptions parseOptions, bool warningsAsErrors = false)
     {
         var sourceTree = CSharpSyntaxTree.ParseText(source, parseOptions);
 
@@ -1081,7 +1260,8 @@ public class GeneratedCorrelationAccessorExecutionTests
             "CollidingAccessors",
             [sourceTree],
             ReferenceAssemblyPaths(),
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable,
+                generalDiagnosticOption: warningsAsErrors ? ReportDiagnostic.Error : ReportDiagnostic.Default));
 
         var driver = CSharpGeneratorDriver.Create(
             [
