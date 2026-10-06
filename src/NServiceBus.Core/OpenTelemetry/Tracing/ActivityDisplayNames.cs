@@ -11,6 +11,7 @@ static class ActivityDisplayNames
     public const string SendMessage = "send message";
     public const string ReplyMessage = "reply";
     public const string Recoverability = "recover";
+    public const string MoveToError = "move to error";
 
     // Operation-only prefixes used when V11BehaviorSwitch.UseV11Behavior is enabled (the only naming in v11, see obsoletes-v10.cs)
     internal const string ProcessOperation = "process";

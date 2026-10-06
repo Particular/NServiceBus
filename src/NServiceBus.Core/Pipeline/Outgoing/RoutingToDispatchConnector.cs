@@ -68,8 +68,8 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
             if (V11BehaviorSwitch.UseV11Behavior // removed in v11, see obsoletes-v10.cs
                 && operations.Length > 0
                 && operations[0].AddressTag is UnicastAddressTag unicastTag
-                && outgoingMessage.Headers.TryGetValue(Headers.MessageIntent, out var intentStr)
-                && intentStr is "Send" or "Reply")
+                && outgoingMessage.Headers.TryGetValue(Headers.MessageIntent, out var intentString)
+                && intentString is nameof(MessageIntent.Send) or nameof(MessageIntent.Reply))
             {
                 activity.DisplayName = $"{activity.DisplayName} {unicastTag.Destination}";
             }

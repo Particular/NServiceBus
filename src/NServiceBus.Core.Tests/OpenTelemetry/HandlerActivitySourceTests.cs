@@ -13,6 +13,8 @@ using NUnit.Framework;
 [TestFixture]
 public class HandlerActivitySourceTests
 {
+    const string HandlerSourceName = "NServiceBus.Core.Handler";
+
     readonly ActivityFactory activityFactory = new(new InstrumentationOptions());
 
     TestingActivityListener mainListener;
@@ -39,7 +41,7 @@ public class HandlerActivitySourceTests
     [OpenTelemetryV11Defaults]
     public void Should_emit_handler_activity_from_handler_source()
     {
-        using var handlerListener = TestingActivityListener.SetupDiagnosticListener("NServiceBus.Core.Handler");
+        using var handlerListener = TestingActivityListener.SetupDiagnosticListener(HandlerSourceName);
 
         using var ambientActivity = new Activity("ambient activity");
         ambientActivity.Start();
@@ -47,14 +49,14 @@ public class HandlerActivitySourceTests
         var activity = activityFactory.StartHandlerActivity(new MessageHandler { HandlerType = typeof(HandlerActivitySourceTests) });
 
         Assert.That(activity, Is.Not.Null);
-        Assert.That(activity!.Source.Name, Is.EqualTo("NServiceBus.Core.Handler"));
+        Assert.That(activity!.Source.Name, Is.EqualTo(HandlerSourceName));
     }
 
     [Test]
     [OpenTelemetryV11Defaults]
     public void Should_preserve_display_name_and_handler_type_tag()
     {
-        using var handlerListener = TestingActivityListener.SetupDiagnosticListener("NServiceBus.Core.Handler");
+        using var handlerListener = TestingActivityListener.SetupDiagnosticListener(HandlerSourceName);
 
         using var ambientActivity = new Activity("ambient activity");
         ambientActivity.Start();

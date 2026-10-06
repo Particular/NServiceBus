@@ -33,6 +33,7 @@ public partial class InstrumentationOptions
         var environment = settings.Get<SystemEnvironment>();
         var variableValue = environment.GetEnvironmentVariable(ExceptionSignalOptInEnvironmentVariableKey);
 
+        // Recognized values per https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/#recording-an-exception
         options.ExceptionRecordingMode = variableValue switch
         {
             "logs" => ExceptionRecordingMode.Logs,
