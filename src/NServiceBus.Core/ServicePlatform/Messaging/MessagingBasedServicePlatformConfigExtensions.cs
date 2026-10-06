@@ -13,9 +13,9 @@ public static class MessagingBasedServicePlatformConfigExtensions
     extension(ServicePlatformSettings settings)
     {
         /// <summary>
-        /// Sets the primary ServiceControl input queue.
+        /// Sets the ServiceControl Error instance input queue.
         /// </summary>
-        public ServicePlatformSettings PrimaryInstanceQueue(string queue)
+        public ServicePlatformSettings ServiceControlErrorInstanceQueue(string queue)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(queue);
             settings.GetSettings().Set(MessagingBasedServicePlatformConnection.ServiceControlQueueSettingKey, queue);

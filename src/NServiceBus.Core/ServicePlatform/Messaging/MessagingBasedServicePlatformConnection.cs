@@ -8,7 +8,7 @@ using NServiceBus.Transport;
 
 class MessagingBasedServicePlatformConnection : ServicePlatformConnection
 {
-    const string DefaultPrimaryServiceControlQueue = "Particular.ServiceControl";
+    const string DefaultServiceControlErrorInstanceQueue = "Particular.ServiceControl";
 
     internal MessagingBasedServicePlatformConnection(
         Configuration platformConfiguration,
@@ -22,7 +22,7 @@ class MessagingBasedServicePlatformConnection : ServicePlatformConnection
     public override ServicePlatformChannel PrimaryInstance { get; }
 
     internal static void Defaults(SettingsHolder settings)
-        => settings.SetDefault(ServiceControlQueueSettingKey, DefaultPrimaryServiceControlQueue);
+        => settings.SetDefault(ServiceControlQueueSettingKey, DefaultServiceControlErrorInstanceQueue);
 
     internal static Configuration GetConfiguration(IReadOnlySettings settings) => new()
     {
