@@ -751,6 +751,152 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(ReadWithGeneratedAccessor(assembly, "Outer+DerivedSaga", "Outer+Start", message), Is.EqualTo("hidden-value"));
     }
 
+    [TestCase("string", "\"hidden-value\"", "hidden-value")]
+    [TestCase("int", "42", 42)]
+    public void Sagas_mapping_a_base_class_property_hidden_by_a_derived_message_property_each_read_their_own_member(string hiddenType, string hiddenValue, object expectedHiddenValue)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class BaseMessage
+                       {
+                           public string Id => "base-value";
+                       }
+
+                       public class Start : BaseMessage, ICommand
+                       {
+                           public new {{hiddenType}} Id => {{hiddenValue}};
+                       }
+
+                       [Saga]
+                       public class BaseSaga : Saga<BaseSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<BaseSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => ((BaseMessage)m).Id);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class BaseSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+
+                       [Saga]
+                       public class DerivedSaga : Saga<DerivedSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DerivedSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => m.Id);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class DerivedSagaData : ContainSagaData
+                       {
+                           public {{hiddenType}} CorrelationId { get; set; } = default!;
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var message = Activator.CreateInstance(assembly.GetType("Start")!)!;
+
+        Assert.That(ReadWithGeneratedAccessor(assembly, "BaseSaga", "Start", message), Is.EqualTo("base-value"));
+        Assert.That(ReadWithGeneratedAccessor(assembly, "DerivedSaga", "Start", message), Is.EqualTo(expectedHiddenValue));
+        Assert.That(GeneratedSource(source), Does.Contain("=> ((global::BaseMessage)message).Id;"));
+    }
+
+    [Test]
+    public void Message_property_cast_to_a_base_class_with_a_getter_only_reachable_from_a_nested_saga_is_read_through_an_extern_accessor()
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class BaseMessage
+                       {
+                           string Id { get; } = "base-value";
+
+                           [Saga]
+                           public class NestedSaga : Saga<NestedSagaData>, IAmStartedByMessages<Start>
+                           {
+                               protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NestedSagaData> mapper) =>
+                                   mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => ((BaseMessage)m).Id);
+
+                               public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                           }
+                       }
+
+                       public class Start : BaseMessage, ICommand
+                       {
+                           public int Id => 42;
+                       }
+
+                       public class NestedSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+
+                       [Saga]
+                       public class DerivedSaga : Saga<DerivedSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DerivedSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => m.Id);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class DerivedSagaData : ContainSagaData
+                       {
+                           public int CorrelationId { get; set; }
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var message = Activator.CreateInstance(assembly.GetType("Start")!)!;
+
+        Assert.That(ReadWithGeneratedAccessor(assembly, "BaseMessage+NestedSaga", "Start", message), Is.EqualTo("base-value"));
+        Assert.That(ReadWithGeneratedAccessor(assembly, "DerivedSaga", "Start", message), Is.EqualTo(42));
+        Assert.That(GeneratedSource(source), Does.Contain("static extern string AccessFrom_Property(global::BaseMessage message);"));
+    }
+
+    [Test]
+    public void Message_property_cast_to_a_base_class_whose_property_the_message_overrides_reads_the_override()
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class BaseMessage
+                       {
+                           public virtual string Id => "base-value";
+                       }
+
+                       public class Start : BaseMessage, ICommand
+                       {
+                           public override string Id => "override-value";
+                       }
+
+                       [Saga]
+                       public class OverrideSaga : Saga<OverrideSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OverrideSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => ((BaseMessage)m).Id);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class OverrideSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(ReadWithGeneratedAccessor(assembly, "OverrideSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("override-value"));
+        Assert.That(GeneratedSource(source), Does.Contain("=> message.Id;"));
+    }
+
     [TestCase("string IHasId.Id => \"derived-value\";")]
     [TestCase("public new string Id => \"derived-value\";")]
     public void Derived_message_re_implementing_the_interface_is_read_through_the_interface(string derivedImplementation)

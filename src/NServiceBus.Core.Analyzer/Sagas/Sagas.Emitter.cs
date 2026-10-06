@@ -118,7 +118,7 @@ public static partial class Sagas
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
                 var getterReceiverType = mapping.ExternGetterReceiverType;
-                var directReceiver = mapping.InterfaceGetterReceiverType is { } interfaceType ? $"(({interfaceType})message)" : "message";
+                var directReceiver = mapping.GetterReceiverCastType is { } castType ? $"(({castType})message)" : "message";
                 var read = getterReceiverType is null ? $"{directReceiver}.{MemberName(mapping.MessagePropertyName)}" : "AccessFrom_Property(message)";
                 WriteSuppressingDiagnostics(sourceWriter, $"protected override object? AccessFrom({mapping.MessageType} message) => {read};", mapping.SuppressedDiagnosticIds);
                 if (getterReceiverType is not null)

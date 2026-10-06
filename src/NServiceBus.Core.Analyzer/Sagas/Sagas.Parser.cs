@@ -35,7 +35,7 @@ public static partial class Sagas
         public HandlerSpec Handler { get; }
     }
 
-    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? InterfaceGetterReceiverType, string? ExternGetterReceiverType, string? ExternGetterMethodName, bool UsesUpdatedMemorySafetyRules, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? GetterReceiverCastType, string? ExternGetterReceiverType, string? ExternGetterMethodName, bool UsesUpdatedMemorySafetyRules, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
     public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules, ImmutableEquatableArray<string> SuppressedGetterDiagnosticIds, ImmutableEquatableArray<string> SuppressedSetterDiagnosticIds);
 
     public static class Parser
@@ -259,7 +259,7 @@ public static partial class Sagas
                     return;
                 }
 
-                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, read.InterfaceReceiverType, ExternReceiverType(read.ExternGetter), read.ExternGetter?.MetadataName,
+                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, read.ReceiverCastType, ExternReceiverType(read.ExternGetter), read.ExternGetter?.MetadataName,
                     read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules, read.AccessedMember, read.SuppressedDiagnosticIds));
             }
 
@@ -268,7 +268,9 @@ public static partial class Sagas
             {
                 if (property.ContainingType is not { TypeKind: TypeKind.Interface } declaringInterface)
                 {
-                    return DirectOrExternRead(property);
+                    return semanticModel.GetTypeInfo(receiverExpression, cancellationToken).Type is not { } receiver || ReachableByName(property, receiverExpression, receiver)
+                        ? DirectOrExternRead(property)
+                        : CastOrExternRead(property);
                 }
 
                 if (property.GetMethod is { } getter && IsAccessible(getter) && SuppressibleDiagnosticIds(property, false) is { } suppressedDiagnosticIds)
@@ -293,6 +295,14 @@ public static partial class Sagas
                 return new ReadAccess(null, externGetter, null, suppressedDiagnosticIds);
             }
 
+            // The mapping casts the message to read a member that the message type hides, so generated code casts the same way.
+            ReadAccess CastOrExternRead(IPropertySymbol property)
+            {
+                var (externGetter, suppressedDiagnosticIds) = ResolveAccessor(property, false);
+                var castType = externGetter is null ? property.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : null;
+                return new ReadAccess(castType, externGetter, AccessedMember(property), suppressedDiagnosticIds);
+            }
+
             (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression)
             {
                 if (semanticModel.GetTypeInfo(receiverExpression, cancellationToken).Type is not { TypeKind: not TypeKind.Interface } receiver
@@ -301,13 +311,26 @@ public static partial class Sagas
                     return null;
                 }
 
-                var reachableByName = implementation.ExplicitInterfaceImplementations.IsEmpty
-                    && semanticModel.LookupSymbols(receiverExpression.SpanStart, receiver, implementation.Name).Contains(implementation, SymbolEqualityComparer.Default);
-                return (implementation, reachableByName);
+                return (implementation, implementation.ExplicitInterfaceImplementations.IsEmpty && ReachableByName(implementation, receiverExpression, receiver));
             }
 
-            static string AccessedMember(IPropertySymbol implementation) =>
-                $"{implementation.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{implementation.MetadataName}";
+            // An override found by name dispatches to the same member as the property it overrides.
+            bool ReachableByName(IPropertySymbol property, ExpressionSyntax receiverExpression, ITypeSymbol receiver) =>
+                semanticModel.LookupSymbols(receiverExpression.SpanStart, receiver, property.Name)
+                    .Any(found => found is IPropertySymbol foundProperty && SymbolEqualityComparer.Default.Equals(LeastOverridden(foundProperty), LeastOverridden(property)));
+
+            static IPropertySymbol LeastOverridden(IPropertySymbol property)
+            {
+                while (property.OverriddenProperty is { } overridden)
+                {
+                    property = overridden;
+                }
+
+                return property;
+            }
+
+            static string AccessedMember(IPropertySymbol property) =>
+                $"{property.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{property.MetadataName}";
 
             // Generated code doesn't see the mapping's suppressions, so it suppresses what the compiler reports for the accessor, or calls it through an extern when a pragma can't.
             (IMethodSymbol? ExternAccessor, ImmutableEquatableArray<string> SuppressedDiagnosticIds) ResolveAccessor(IPropertySymbol property, bool setter)
@@ -339,10 +362,7 @@ public static partial class Sagas
             // Like the compiler, use the attributes of the member an override overrides, on both the property and the accessor. Null when a pragma can't suppress them.
             static ImmutableEquatableArray<string>? SuppressibleDiagnosticIds(IPropertySymbol property, bool setter)
             {
-                while (property.OverriddenProperty is { } overridden)
-                {
-                    property = overridden;
-                }
+                property = LeastOverridden(property);
 
                 SortedSet<string>? diagnosticIds = null;
                 if (!TryAddSuppressibleDiagnosticIds(property, ref diagnosticIds)
@@ -408,7 +428,7 @@ public static partial class Sagas
 
             static string? ExternReceiverType(IMethodSymbol? accessor) => accessor?.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            readonly record struct ReadAccess(string? InterfaceReceiverType, IMethodSymbol? ExternGetter, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
+            readonly record struct ReadAccess(string? ReceiverCastType, IMethodSymbol? ExternGetter, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
 
             static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
                 node is ExpressionSyntax expression
