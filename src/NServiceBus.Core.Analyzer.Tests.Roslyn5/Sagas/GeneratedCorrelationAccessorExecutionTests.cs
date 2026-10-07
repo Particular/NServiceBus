@@ -1246,6 +1246,41 @@ public class GeneratedCorrelationAccessorExecutionTests
         AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
     }
 
+    [TestCase(Experimental, "EXP001", "get; init;")]
+    [TestCase(LegacyObsolete, "LEGACY001", "get; init;")]
+    [TestCase(Experimental, "EXP001", "[System.Obsolete(\"Use something else\", true)] get; set;")]
+    public void Correlation_property_whose_extern_accessor_would_target_a_base_type_generated_code_cannot_name_is_accessed_by_the_runtime_accessor(string attribute, string diagnosticId, string accessors)
+    {
+        var source = $"#pragma warning disable {diagnosticId}\n" + AttributedPropertySaga(
+                "",
+                "public class Start : ICommand { public string CorrelationId { get; set; } = \"correlation-value\"; }",
+                sagaAttribute: "[System.Obsolete]")
+            .Replace("public class AttributedSagaData : ContainSagaData", $"{attribute} public class AttributedSagaBase : ContainSagaData {{ public string CorrelationId {{ {accessors} }} = \"\"; }} public class AttributedSagaData : AttributedSagaBase");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        AssertNoGeneratedCorrelationAccessor(source, assembly);
+        AssertRuntimeCorrelationRoundTrip(assembly, "AttributedSaga", assembly.GetType("AttributedSagaData")!);
+    }
+
+    [TestCase(Experimental, "EXP001")]
+    [TestCase(LegacyObsolete, "LEGACY001")]
+    public void Message_property_whose_extern_accessor_would_target_a_base_type_generated_code_cannot_name_is_read_by_the_runtime_accessor(string attribute, string diagnosticId)
+    {
+        var source = $"#pragma warning disable {diagnosticId}\n" + AttributedPropertySaga(
+            "public string CorrelationId { get; set; } = \"\";",
+            $"{attribute} public class MessageBase : ICommand {{ [System.Obsolete(\"Use something else\", true)] public string CorrelationId {{ get; set; }} = \"correlation-value\"; }} public class Start : MessageBase {{ }}",
+            sagaAttribute: "[System.Obsolete]");
+
+        // Registering the message hierarchy names the base type, which fails to compile without generated accessors too.
+        var assembly = CompileAndLoad(source, dropMessageHierarchies: true, warningsAsErrors: true);
+
+        var accessor = RegisteredMessageAccessor(assembly, "AttributedSaga", assembly.GetType("Start")!);
+
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
     [Test]
     public void Message_property_explicitly_implementing_an_inaccessible_interface_on_a_generic_message_is_read_by_the_runtime_accessor()
     {

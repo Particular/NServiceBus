@@ -293,7 +293,6 @@ public static partial class Sagas
                 var castTypeName = castType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 return IsAccessible(castType) && CanBeNamedWithoutDiagnostics(castType)
                     && ResolveRead(property, position, castType) is { } read && (read.ReceiverCastType is null || read.ReceiverCastType == castTypeName)
-                    && (read.ExternGetter is null || CanBeNamedWithoutDiagnostics(read.ExternGetter.ContainingType))
                     ? read with { ReceiverCastType = castTypeName }
                     : null;
             }
@@ -508,15 +507,20 @@ public static partial class Sagas
 
             static string? ExternReceiverType(IMethodSymbol? accessor) => accessor?.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            // UnsafeAccessor rejects closed generic target types, and a value type target would need the receiver by ref.
-            static bool TargetsUnsupportedType(IMethodSymbol? externAccessor)
+            // UnsafeAccessor rejects closed generic target types, a value type target would need the receiver by ref, and the extern names its target.
+            bool TargetsUnsupportedType(IMethodSymbol? externAccessor)
             {
-                if (externAccessor?.ContainingType is { IsValueType: true })
+                if (externAccessor?.ContainingType is not { } targetType)
+                {
+                    return false;
+                }
+
+                if (targetType.IsValueType || !CanBeNamedWithoutDiagnostics(targetType))
                 {
                     return true;
                 }
 
-                for (var type = externAccessor?.ContainingType; type is not null; type = type.ContainingType)
+                for (var type = targetType; type is not null; type = type.ContainingType)
                 {
                     if (type.IsGenericType)
                     {

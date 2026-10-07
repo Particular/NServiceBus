@@ -528,9 +528,18 @@ public class GeneratedAccessorDifferentialTests
         }
 
         yield return CorrelationCase(SagaDataDeclaration.OnSagaData, SagaDataAccessors.GetSet, MemberAttribute.None, AttributeTarget.Property, new Property(PropertyType.NullableInt, "OrderId"));
+
+        // An extern names the base type it targets, where the user's suppressions don't apply.
+        foreach (var baseTypeAttribute in new[] { MemberAttribute.Experimental, MemberAttribute.ObsoleteCustomId })
+        {
+            foreach (var (accessors, attribute, target) in new[] { (SagaDataAccessors.GetSet, MemberAttribute.None, AttributeTarget.Property), (SagaDataAccessors.GetInit, MemberAttribute.None, AttributeTarget.Property), (SagaDataAccessors.GetSet, MemberAttribute.ObsoleteError, AttributeTarget.Getter) })
+            {
+                yield return CorrelationCase(SagaDataDeclaration.OnBaseClass, accessors, attribute, target, new Property(RotatingTypes[variant++ % RotatingTypes.Length], "OrderId"), baseTypeAttribute);
+            }
+        }
     }
 
-    static (string, string[], string, string[]) CorrelationCase(SagaDataDeclaration declaration, SagaDataAccessors accessors, MemberAttribute attribute, AttributeTarget target, Property property)
+    static (string, string[], string, string[]) CorrelationCase(SagaDataDeclaration declaration, SagaDataAccessors accessors, MemberAttribute attribute, AttributeTarget target, Property property, MemberAttribute baseTypeAttribute = MemberAttribute.None)
     {
         var attributeText = AttributeText(attribute);
         var getterModifier = accessors == SagaDataAccessors.PrivateGetSet ? "private " : "";
@@ -547,7 +556,7 @@ public class GeneratedAccessorDifferentialTests
         var (sagaData, sagaHost) = declaration switch
         {
             SagaDataDeclaration.OnSagaData => ($"public class TheSagaData : ContainSagaData {{ {Declare("", property.Type, property.Literal("Data"))} {(nestSaga ? saga : "")} }}", "TheSagaData"),
-            SagaDataDeclaration.OnBaseClass => ($"public class DataBase : ContainSagaData {{ {Declare("", property.Type, property.Literal("Data"))} {(nestSaga ? saga : "")} }} public class TheSagaData : DataBase {{ }}", "DataBase"),
+            SagaDataDeclaration.OnBaseClass => ($"{AttributeText(baseTypeAttribute)} public class DataBase : ContainSagaData {{ {Declare("", property.Type, property.Literal("Data"))} {(nestSaga ? saga : "")} }} public class TheSagaData : DataBase {{ }}", "DataBase"),
             SagaDataDeclaration.OnGenericBaseClass => ($"public class DataBase<TValue> : ContainSagaData {{ {Declare("", "TValue", $"(TValue)(object){property.Literal("Data")}")} }} public class TheSagaData : DataBase<{property.Type}> {{ }}", null),
             SagaDataDeclaration.OverriddenOnSagaData => ($"public class DataBase : ContainSagaData {{ {Declare("virtual", property.Type, property.Literal("Base"))} }} public class TheSagaData : DataBase {{ {Declare("override", property.Type, property.Literal("Data"))} }}", null),
             _ => throw new ArgumentOutOfRangeException(nameof(declaration))
@@ -565,6 +574,12 @@ public class GeneratedAccessorDifferentialTests
 
         var name = $"Correlation_{declaration}_{accessors}_{AttributeName(attribute, target)}_{property}";
         string[] dimensions = [declaration.ToString(), accessors.ToString(), attribute.ToString(), $"{attribute}On{target}", property.TypeDimension, property.NameDimension];
+        if (baseTypeAttribute != MemberAttribute.None)
+        {
+            name += $"_{baseTypeAttribute}BaseType";
+            dimensions = [.. dimensions, $"{baseTypeAttribute}BaseType"];
+        }
+
         return (name, dimensions, body, [nestSaga ? $"{sagaHost}+TheSaga" : "TheSaga"]);
     }
 
