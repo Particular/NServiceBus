@@ -9,6 +9,7 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using NServiceBus.Core.Analyzer.Handlers;
 using NServiceBus.Core.Analyzer.Utility;
 using static NServiceBus.Core.Analyzer.Handlers.Handlers;
@@ -228,7 +229,7 @@ public static partial class Sagas
                     return;
                 }
 
-                var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
+                var memberAccess = TryGetValuePreservingMemberAccess(lambda.Body);
                 if (memberAccess is null)
                 {
                     return;
@@ -508,6 +509,33 @@ public static partial class Sagas
             }
 
             readonly record struct ReadAccess(string? ReceiverCastType, IMethodSymbol? ExternGetter, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
+
+            // The runtime accessor returns the converted value, so generated code can only leave out conversions that box or keep the same value.
+            MemberAccessExpressionSyntax? TryGetValuePreservingMemberAccess(SyntaxNode node)
+            {
+                if (node is not ExpressionSyntax expression)
+                {
+                    return null;
+                }
+
+                while (StripSyntaxWrappers(expression, cancellationToken, stripCasts: false) is CastExpressionSyntax cast)
+                {
+                    if (semanticModel.GetOperation(cast, cancellationToken) is not IConversionOperation conversion || !PreservesValue(conversion))
+                    {
+                        return null;
+                    }
+
+                    expression = cast.Expression;
+                }
+
+                return StripSyntaxWrappers(expression, cancellationToken) as MemberAccessExpressionSyntax;
+            }
+
+            static bool PreservesValue(IConversionOperation conversion) =>
+                conversion.GetConversion() is { IsImplicit: true, IsUserDefined: false } csharpConversion
+                && (csharpConversion.IsIdentity || csharpConversion.IsReference || csharpConversion.IsBoxing
+                    || (csharpConversion.IsNullable && conversion.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T, TypeArguments: [var underlyingType] }
+                        && SymbolEqualityComparer.Default.Equals(underlyingType, conversion.Operand.Type)));
 
             static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
                 node is ExpressionSyntax expression

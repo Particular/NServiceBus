@@ -1849,6 +1849,52 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(RegisteredMessageAccessor(assembly, "CastSaga", "IStart").AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("start-value"));
     }
 
+    [TestCase("int", "(long)m.Id", "long", false)]
+    [TestCase("long", "(int)m.Id", "int", false)]
+    [TestCase("int", "(uint)m.Id", "uint", false)]
+    [TestCase("int", "(object)m.Id", "int", true)]
+    [TestCase("int", "(int)m.Id", "int", true)]
+    [TestCase("int", "(int?)m.Id", "int", true)]
+    [TestCase("int", "(System.IComparable)m.Id", "int", true)]
+    [TestCase("string", "(object)(string)m.Id", "string", true)]
+    public void Message_mapping_converting_the_property_returns_the_converted_value_like_the_mapping(string messagePropertyType, string mapping, string correlationPropertyType, bool generated)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class Start : ICommand
+                       {
+                           public {{messagePropertyType}} Id { get; set; } = ({{messagePropertyType}})(object)({{(messagePropertyType == "string" ? "\"42\"" : messagePropertyType == "long" ? "42L" : "42")}});
+                       }
+
+                       [Saga]
+                       public class ConversionSaga : Saga<ConversionSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConversionSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => {{mapping}});
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class ConversionSagaData : ContainSagaData
+                       {
+                           public {{correlationPropertyType}} CorrelationId { get; set; }{{(correlationPropertyType == "string" ? " = \"\";" : "")}}
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var accessor = RegisteredMessageAccessor(assembly, "ConversionSaga", "Start");
+        Assert.That(SagaAccessorCompilation.ExpressionBasedMetadata(assembly.GetType("ConversionSaga")!).TryGetFinder(assembly.GetType("Start")!.FullName!, out var finderDefinition), Is.True);
+        var message = Activator.CreateInstance(assembly.GetType("Start")!)!;
+        var value = accessor.AccessFrom(message);
+        var expectedValue = SagaAccessorCompilation.MessageAccessor(finderDefinition).AccessFrom(message);
+
+        Assert.That(accessor.GetType().Assembly == assembly, Is.EqualTo(generated));
+        Assert.That(value, Is.EqualTo(expectedValue));
+        Assert.That(value!.GetType(), Is.EqualTo(expectedValue!.GetType()));
+    }
+
     [TestCase("m.Inner.Id", "a-inner", "b-inner")]
     [TestCase("(m as IHasId).Id", "a", "b")]
     public void Messages_mapped_through_something_other_than_the_message_are_read_by_runtime_accessors(string mapping, string expectedA, string expectedB)
