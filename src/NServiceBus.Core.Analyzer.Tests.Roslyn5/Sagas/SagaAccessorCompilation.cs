@@ -62,6 +62,12 @@ static class SagaAccessorCompilation
         return configuration.GetSettings().Get<SagaMetadataCollection>();
     }
 
+    static readonly MethodInfo CreateWithExpressionAccessors = typeof(SagaMetadata).GetMethods(BindingFlags.Public | BindingFlags.Static)
+        .Single(method => method is { Name: nameof(SagaMetadata.Create), IsGenericMethodDefinition: true } && method.GetGenericArguments().Length == 1 && method.GetParameters().Length == 0);
+
+    // The metadata the runtime creates without generated accessors, compiling them from the mapping expressions.
+    public static SagaMetadata ExpressionBasedMetadata(Type sagaType) => (SagaMetadata)CreateWithExpressionAccessors.MakeGenericMethod(sagaType).Invoke(null, null)!;
+
     // The property finder holds the accessor the saga was registered with, generated or compiled from the mapping expression.
     public static MessagePropertyAccessor MessageAccessor(SagaFinderDefinition finderDefinition)
     {

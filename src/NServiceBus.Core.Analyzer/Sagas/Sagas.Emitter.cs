@@ -70,12 +70,12 @@ public static partial class Sagas
         static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Use Dictionary for O(1) deduplication instead of GroupBy
-            var uniqueMappings = new Dictionary<(string MessageType, string MessagePropertyName, string? AccessedMember), PropertyMappingSpec>();
+            var uniqueMappings = new Dictionary<string, PropertyMappingSpec>();
             foreach (var saga in sagas)
             {
                 foreach (var mapping in saga.PropertyMappings)
                 {
-                    var key = (mapping.MessageType, mapping.MessagePropertyName, mapping.AccessedMember);
+                    var key = MessagePropertyAccessorIdentity(mapping);
                     if (!uniqueMappings.ContainsKey(key))
                     {
                         uniqueMappings.Add(key, mapping);
@@ -99,7 +99,7 @@ public static partial class Sagas
                 }
 
                 var propertyNameComparison = string.CompareOrdinal(a.MessagePropertyName, b.MessagePropertyName);
-                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(a.AccessedMember, b.AccessedMember);
+                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(MessagePropertyAccessorIdentity(a), MessagePropertyAccessorIdentity(b));
             });
 
             sourceWriter.WriteLine();
@@ -170,16 +170,22 @@ public static partial class Sagas
 
         static string MessagePropertyAccessorName(PropertyMappingSpec mapping)
         {
-            var hash = mapping.AccessedMember is { } accessedMember
-                ? NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName, "_", accessedMember)
-                : NonCryptographicHash.GetHash(mapping.MessageType, "_", mapping.MessagePropertyName);
+            var hash = NonCryptographicHash.GetHash(MessagePropertyAccessorIdentity(mapping));
             return $"{mapping.MessageName}{mapping.MessagePropertyName}Accessor_{hash:x16}";
         }
+
+        // Mappings only share an accessor when they read the same way; parts that are null leave the names of plain reads unchanged.
+        static string MessagePropertyAccessorIdentity(PropertyMappingSpec mapping) =>
+            string.Concat(
+                mapping.MessageType, "_", mapping.MessagePropertyName,
+                mapping.AccessedMember is { } accessedMember ? $"_{accessedMember}" : "",
+                mapping.GetterReceiverCastType is { } castType ? $"|cast={castType}" : "",
+                mapping.ExternGetterReceiverType is { } externReceiverType ? $"|extern={externReceiverType}.{mapping.ExternGetterMethodName}" : "");
 
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Keyed by saga-data type too because the generated cast targets the concrete type.
-            var uniqueMappings = new Dictionary<(string SagaDataType, string PropertyType, string PropertyName), (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
+            var uniqueMappings = new Dictionary<string, (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
             foreach (var saga in sagas)
             {
                 if (saga.CorrelationPropertyMapping is not { } mapping)
@@ -187,7 +193,7 @@ public static partial class Sagas
                     continue;
                 }
 
-                var key = (saga.SagaDataFullyQualifiedName, mapping.PropertyType, mapping.PropertyName);
+                var key = CorrelationPropertyAccessorIdentity(saga.SagaDataFullyQualifiedName, mapping);
                 if (!uniqueMappings.ContainsKey(key))
                 {
                     uniqueMappings.Add(key, (mapping, saga.SagaDataFullyQualifiedName));
@@ -209,7 +215,13 @@ public static partial class Sagas
                 }
 
                 var typeComparison = string.CompareOrdinal(a.Mapping.PropertyType, b.Mapping.PropertyType);
-                return typeComparison != 0 ? typeComparison : string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
+                if (typeComparison != 0)
+                {
+                    return typeComparison;
+                }
+
+                var nameComparison = string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
+                return nameComparison != 0 ? nameComparison : string.CompareOrdinal(CorrelationPropertyAccessorIdentity(a.SagaDataType, a.Mapping), CorrelationPropertyAccessorIdentity(b.SagaDataType, b.Mapping));
             });
 
             sourceWriter.WriteLine();
@@ -260,8 +272,14 @@ public static partial class Sagas
 
         static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping)
         {
-            var hash = NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName);
+            var hash = NonCryptographicHash.GetHash(CorrelationPropertyAccessorIdentity(sagaDataType, mapping));
             return $"{mapping.PropertyName}As{mapping.PropertyTypeName}Accessor_{hash:x16}";
         }
+
+        // A saga nested in the saga data type can map a hiding member other sagas can't see, whose getter is only reachable through an extern on that type.
+        static string CorrelationPropertyAccessorIdentity(string sagaDataType, CorrelationPropertyMappingSpec mapping) =>
+            string.Concat(
+                sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName,
+                mapping.ExternGetterReceiverType is { } getterReceiverType ? $"|extern={getterReceiverType}" : "");
     }
 }

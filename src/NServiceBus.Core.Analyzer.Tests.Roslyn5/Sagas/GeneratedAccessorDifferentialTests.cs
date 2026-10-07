@@ -656,9 +656,6 @@ public class GeneratedAccessorDifferentialTests
             .Where(type => type.Modifiers.Any(SyntaxKind.FileKeyword) && type.ToString().Contains($"{differentialCase.Namespace}."))
             .Select(type => type.ToString()));
 
-    static readonly MethodInfo CreateWithExpressionAccessors = typeof(SagaMetadata).GetMethods(BindingFlags.Public | BindingFlags.Static)
-        .Single(method => method is { Name: nameof(SagaMetadata.Create), IsGenericMethodDefinition: true } && method.GetGenericArguments().Length == 1 && method.GetParameters().Length == 0);
-
     static Outcome Execute(Assembly assembly, EndpointConfiguration configuration, DifferentialCase differentialCase)
     {
         var failures = new List<string>();
@@ -669,7 +666,7 @@ public class GeneratedAccessorDifferentialTests
             var probe = assembly.GetType($"{differentialCase.Namespace}.Probe", throwOnError: true)!;
 
             var registered = Describe(() => Register(assembly, configuration, differentialCase, sagaType));
-            var expected = Describe(() => CreateWithExpressionAccessors.MakeGenericMethod(sagaType).Invoke(null, null));
+            var expected = Describe(() => SagaAccessorCompilation.ExpressionBasedMetadata(sagaType));
             if (registered.Value is not SagaMetadata registeredMetadata || expected.Value is not SagaMetadata expectedMetadata)
             {
                 if (registered.Description != expected.Description)
