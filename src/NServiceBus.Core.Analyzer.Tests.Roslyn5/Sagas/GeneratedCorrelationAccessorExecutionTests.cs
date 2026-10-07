@@ -1520,6 +1520,19 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
+    public void Nullable_correlation_property_compiles_and_is_rejected_when_registered_like_the_runtime_mapping()
+    {
+        var source = AttributedPropertySaga(
+            "public int? CorrelationId { get; set; }",
+            "public class Start : ICommand { public int? CorrelationId { get; set; } = 42; }");
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var exception = Assert.Throws<TargetInvocationException>(() => RegisteredSagaMetadata(assembly, "AttributedSaga"));
+        Assert.That(exception!.InnerException!.Message, Does.StartWith("Nullable`1 is not supported for correlated properties."));
+    }
+
+    [Test]
     public void Interface_message_cast_to_a_class_whose_property_reports_an_obsolete_error_is_read_through_an_extern_accessor_on_the_class()
     {
         var source = $$"""

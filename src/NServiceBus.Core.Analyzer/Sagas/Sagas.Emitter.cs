@@ -261,7 +261,7 @@ public static partial class Sagas
         static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping)
         {
             var hash = NonCryptographicHash.GetHash(sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName);
-            return $"{mapping.PropertyName}As{mapping.PropertyTypeMetadataName}Accessor_{hash:x16}";
+            return $"{mapping.PropertyName}As{mapping.PropertyTypeName}Accessor_{hash:x16}";
         }
     }
 }
