@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Core.Analyzer.Sagas;
 
+using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp;
 using Handlers;
@@ -70,12 +71,12 @@ public static partial class Sagas
         static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Use Dictionary for O(1) deduplication instead of GroupBy
-            var uniqueMappings = new Dictionary<string, PropertyMappingSpec>();
+            var uniqueMappings = new Dictionary<MessagePropertyAccessorIdentity, PropertyMappingSpec>();
             foreach (var saga in sagas)
             {
                 foreach (var mapping in saga.PropertyMappings)
                 {
-                    var key = MessagePropertyAccessorIdentity(mapping);
+                    var key = MessagePropertyAccessorIdentity.Of(mapping);
                     if (!uniqueMappings.ContainsKey(key))
                     {
                         uniqueMappings.Add(key, mapping);
@@ -90,17 +91,7 @@ public static partial class Sagas
 
             // Convert to list and sort once
             var allPropertyMappings = new List<PropertyMappingSpec>(uniqueMappings.Values);
-            allPropertyMappings.Sort(static (a, b) =>
-            {
-                var messageTypeComparison = string.CompareOrdinal(a.MessageType, b.MessageType);
-                if (messageTypeComparison != 0)
-                {
-                    return messageTypeComparison;
-                }
-
-                var propertyNameComparison = string.CompareOrdinal(a.MessagePropertyName, b.MessagePropertyName);
-                return propertyNameComparison != 0 ? propertyNameComparison : string.CompareOrdinal(MessagePropertyAccessorIdentity(a), MessagePropertyAccessorIdentity(b));
-            });
+            allPropertyMappings.Sort(static (a, b) => MessagePropertyAccessorIdentity.Of(a).CompareTo(MessagePropertyAccessorIdentity.Of(b)));
 
             sourceWriter.WriteLine();
 
@@ -168,24 +159,42 @@ public static partial class Sagas
 
         static string MemberName(string name) => SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None ? $"@{name}" : name;
 
-        static string MessagePropertyAccessorName(PropertyMappingSpec mapping)
+        public static string MessagePropertyAccessorName(PropertyMappingSpec mapping) =>
+            $"{mapping.MessageName}{mapping.MessagePropertyName}Accessor_{MessagePropertyAccessorIdentity.Of(mapping).Hash():x16}";
+
+        // Mappings only share an accessor when they read the same way.
+        public readonly record struct MessagePropertyAccessorIdentity(string MessageType, string PropertyName, string? AccessedMember, string? ReceiverCastType, string? ExternReceiverType, string? ExternMethodName)
+            : IComparable<MessagePropertyAccessorIdentity>
         {
-            var hash = NonCryptographicHash.GetHash(MessagePropertyAccessorIdentity(mapping));
-            return $"{mapping.MessageName}{mapping.MessagePropertyName}Accessor_{hash:x16}";
+            public static MessagePropertyAccessorIdentity Of(PropertyMappingSpec mapping) =>
+                new(mapping.MessageType, mapping.MessagePropertyName, mapping.AccessedMember, mapping.GetterReceiverCastType, mapping.ExternGetterReceiverType, mapping.ExternGetterMethodName);
+
+            // Parts that are null leave the names of plain reads unchanged.
+            public ulong Hash() =>
+                NonCryptographicHash.GetHash(
+                    Escape(MessageType), "_", Escape(PropertyName),
+                    AccessedMember is null ? "" : $"_{Escape(AccessedMember)}",
+                    ReceiverCastType is null ? "" : $"|cast={Escape(ReceiverCastType)}",
+                    ExternReceiverType is null ? "" : $"|extern={Escape(ExternReceiverType)}|{Escape(ExternMethodName)}");
+
+            public int CompareTo(MessagePropertyAccessorIdentity other)
+            {
+                var comparison = string.CompareOrdinal(MessageType, other.MessageType);
+                comparison = comparison != 0 ? comparison : string.CompareOrdinal(PropertyName, other.PropertyName);
+                comparison = comparison != 0 ? comparison : string.CompareOrdinal(AccessedMember, other.AccessedMember);
+                comparison = comparison != 0 ? comparison : string.CompareOrdinal(ReceiverCastType, other.ReceiverCastType);
+                comparison = comparison != 0 ? comparison : string.CompareOrdinal(ExternReceiverType, other.ExternReceiverType);
+                return comparison != 0 ? comparison : string.CompareOrdinal(ExternMethodName, other.ExternMethodName);
+            }
         }
 
-        // Mappings only share an accessor when they read the same way; parts that are null leave the names of plain reads unchanged.
-        static string MessagePropertyAccessorIdentity(PropertyMappingSpec mapping) =>
-            string.Concat(
-                mapping.MessageType, "_", mapping.MessagePropertyName,
-                mapping.AccessedMember is { } accessedMember ? $"_{accessedMember}" : "",
-                mapping.GetterReceiverCastType is { } castType ? $"|cast={castType}" : "",
-                mapping.ExternGetterReceiverType is { } externReceiverType ? $"|extern={externReceiverType}.{mapping.ExternGetterMethodName}" : "");
+        // Separators are escaped inside a part so one part can't run into the next; parts without them hash as written.
+        static string Escape(string? part) => part?.Replace("\\", "\\\\").Replace("_", "\\_").Replace("|", "\\|") ?? "";
 
         static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
             // Keyed by saga-data type too because the generated cast targets the concrete type.
-            var uniqueMappings = new Dictionary<string, (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
+            var uniqueMappings = new Dictionary<CorrelationPropertyAccessorIdentity, (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
             foreach (var saga in sagas)
             {
                 if (saga.CorrelationPropertyMapping is not { } mapping)
@@ -193,7 +202,7 @@ public static partial class Sagas
                     continue;
                 }
 
-                var key = CorrelationPropertyAccessorIdentity(saga.SagaDataFullyQualifiedName, mapping);
+                var key = CorrelationPropertyAccessorIdentity.Of(saga.SagaDataFullyQualifiedName, mapping);
                 if (!uniqueMappings.ContainsKey(key))
                 {
                     uniqueMappings.Add(key, (mapping, saga.SagaDataFullyQualifiedName));
@@ -206,23 +215,7 @@ public static partial class Sagas
             }
 
             var allPropertyMappings = new List<(CorrelationPropertyMappingSpec Mapping, string SagaDataType)>(uniqueMappings.Values);
-            allPropertyMappings.Sort(static (a, b) =>
-            {
-                var sagaTypeComparison = string.CompareOrdinal(a.SagaDataType, b.SagaDataType);
-                if (sagaTypeComparison != 0)
-                {
-                    return sagaTypeComparison;
-                }
-
-                var typeComparison = string.CompareOrdinal(a.Mapping.PropertyType, b.Mapping.PropertyType);
-                if (typeComparison != 0)
-                {
-                    return typeComparison;
-                }
-
-                var nameComparison = string.CompareOrdinal(a.Mapping.PropertyName, b.Mapping.PropertyName);
-                return nameComparison != 0 ? nameComparison : string.CompareOrdinal(CorrelationPropertyAccessorIdentity(a.SagaDataType, a.Mapping), CorrelationPropertyAccessorIdentity(b.SagaDataType, b.Mapping));
-            });
+            allPropertyMappings.Sort(static (a, b) => CorrelationPropertyAccessorIdentity.Of(a.SagaDataType, a.Mapping).CompareTo(CorrelationPropertyAccessorIdentity.Of(b.SagaDataType, b.Mapping)));
 
             sourceWriter.WriteLine();
 
@@ -270,16 +263,28 @@ public static partial class Sagas
             }
         }
 
-        static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping)
-        {
-            var hash = NonCryptographicHash.GetHash(CorrelationPropertyAccessorIdentity(sagaDataType, mapping));
-            return $"{mapping.PropertyName}As{mapping.PropertyTypeName}Accessor_{hash:x16}";
-        }
+        public static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping) =>
+            $"{mapping.PropertyName}As{mapping.PropertyTypeName}Accessor_{CorrelationPropertyAccessorIdentity.Of(sagaDataType, mapping).Hash():x16}";
 
         // A saga nested in the saga data type can map a hiding member other sagas can't see, whose getter is only reachable through an extern on that type.
-        static string CorrelationPropertyAccessorIdentity(string sagaDataType, CorrelationPropertyMappingSpec mapping) =>
-            string.Concat(
-                sagaDataType, "_", mapping.PropertyType, "_", mapping.PropertyName,
-                mapping.ExternGetterReceiverType is { } getterReceiverType ? $"|extern={getterReceiverType}" : "");
+        public readonly record struct CorrelationPropertyAccessorIdentity(string SagaDataType, string PropertyType, string PropertyName, string? ExternGetterReceiverType)
+            : IComparable<CorrelationPropertyAccessorIdentity>
+        {
+            public static CorrelationPropertyAccessorIdentity Of(string sagaDataType, CorrelationPropertyMappingSpec mapping) =>
+                new(sagaDataType, mapping.PropertyType, mapping.PropertyName, mapping.ExternGetterReceiverType);
+
+            public ulong Hash() =>
+                NonCryptographicHash.GetHash(
+                    Escape(SagaDataType), "_", Escape(PropertyType), "_", Escape(PropertyName),
+                    ExternGetterReceiverType is null ? "" : $"|extern={Escape(ExternGetterReceiverType)}");
+
+            public int CompareTo(CorrelationPropertyAccessorIdentity other)
+            {
+                var comparison = string.CompareOrdinal(SagaDataType, other.SagaDataType);
+                comparison = comparison != 0 ? comparison : string.CompareOrdinal(PropertyType, other.PropertyType);
+                comparison = comparison != 0 ? comparison : string.CompareOrdinal(PropertyName, other.PropertyName);
+                return comparison != 0 ? comparison : string.CompareOrdinal(ExternGetterReceiverType, other.ExternGetterReceiverType);
+            }
+        }
     }
 }

@@ -1825,6 +1825,117 @@ public class GeneratedCorrelationAccessorExecutionTests
         });
     }
 
+    [TestCase("Order_Id", "Id", "Order", "Id_Id")]
+    [TestCase("Order_", "Id", "Order", "_Id")]
+    public void Sagas_mapping_message_types_and_properties_whose_names_join_the_same_way_each_read_their_own_member(string firstType, string firstProperty, string secondType, string secondProperty)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class {{firstType}} : ICommand
+                       {
+                           public string {{firstProperty}} { get; set; } = "first-value";
+                       }
+
+                       public class {{secondType}} : ICommand
+                       {
+                           public string {{secondProperty}} { get; set; } = "second-value";
+                       }
+
+                       [Saga]
+                       public class FirstSaga : Saga<FirstSagaData>, IAmStartedByMessages<{{firstType}}>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<FirstSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<{{firstType}}>(m => m.{{firstProperty}});
+
+                           public Task Handle({{firstType}} message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class FirstSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+
+                       [Saga]
+                       public class SecondSaga : Saga<SecondSagaData>, IAmStartedByMessages<{{secondType}}>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SecondSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<{{secondType}}>(m => m.{{secondProperty}});
+
+                           public Task Handle({{secondType}} message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class SecondSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(ReadWithGeneratedAccessor(assembly, "FirstSaga", firstType, Activator.CreateInstance(assembly.GetType(firstType)!)!), Is.EqualTo("first-value"));
+        Assert.That(ReadWithGeneratedAccessor(assembly, "SecondSaga", secondType, Activator.CreateInstance(assembly.GetType(secondType)!)!), Is.EqualTo("second-value"));
+    }
+
+    [Test]
+    public void Sagas_mapping_saga_data_types_and_properties_whose_names_join_the_same_way_each_access_their_own_member()
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class Start : ICommand
+                       {
+                           public string Id { get; set; } = "";
+                       }
+
+                       [Saga]
+                       public class FirstSaga : Saga<Data_string>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Data_string> mapper) =>
+                               mapper.MapSaga(s => s.Prop).ToMessage<Start>(m => m.Id);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class Data_string : ContainSagaData
+                       {
+                           public string Prop { get; set; } = "";
+                       }
+
+                       [Saga]
+                       public class SecondSaga : Saga<Data>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<Data> mapper) =>
+                               mapper.MapSaga(s => s.string_Prop).ToMessage<Start>(m => m.Id);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class Data : ContainSagaData
+                       {
+                           public string string_Prop { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.Multiple(() =>
+        {
+            foreach (var (sagaTypeName, sagaDataTypeName, propertyName) in new[] { ("FirstSaga", "Data_string", "Prop"), ("SecondSaga", "Data", "string_Prop") })
+            {
+                Assert.That(RegisteredSagaMetadata(assembly, sagaTypeName).TryGetCorrelationProperty(out var correlationProperty), Is.True);
+                var accessor = correlationProperty!.Accessor;
+                var sagaData = (IContainSagaData)Activator.CreateInstance(assembly.GetType(sagaDataTypeName)!)!;
+
+                accessor.WriteTo(sagaData, "correlation-value");
+
+                Assert.That(accessor.GetType().Assembly, Is.SameAs(assembly), $"{sagaTypeName} is not registered with a generated correlation accessor.");
+                Assert.That(accessor.AccessFrom(sagaData), Is.EqualTo("correlation-value"), sagaTypeName);
+                Assert.That(sagaData.GetType().GetProperty(propertyName)!.GetValue(sagaData), Is.EqualTo("correlation-value"), sagaTypeName);
+            }
+        });
+    }
+
     [TestCase("public static implicit operator Wrapper(Start start) => new OtherWrapper { Id = \"wrapper-value\" };", "public static explicit operator OtherWrapper(Start start) => new() { Id = \"other-value\" };", "((OtherWrapper)(Wrapper)m).Id", "wrapper-value")]
     [TestCase("", "public static implicit operator OtherWrapper(Start start) => new() { Id = \"other-value\" };", "((OtherWrapper)m).Id", "other-value")]
     public void Message_converted_by_a_user_defined_conversion_is_read_like_the_mapping(string wrapperOperator, string otherWrapperOperator, string mapping, string expectedValue)
