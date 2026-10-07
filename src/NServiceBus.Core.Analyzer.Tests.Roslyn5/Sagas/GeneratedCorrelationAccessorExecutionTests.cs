@@ -1895,6 +1895,45 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(value!.GetType(), Is.EqualTo(expectedValue!.GetType()));
     }
 
+    [TestCase("", "", true)]
+    [TestCase("[System.Obsolete(\"Use something else\", true)]", "[System.Obsolete]", false)]
+    [TestCase("[System.Obsolete(\"Use something else\", DiagnosticId = \"LEGACY-001\")]", "[System.Obsolete]", false)]
+    public void Message_property_of_a_struct_message_is_only_read_by_a_generated_accessor_without_an_extern(string attribute, string sagaAttribute, bool generated)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public struct Start : ICommand
+                       {
+                           public Start() { }
+
+                           {{attribute}}
+                           public string Id { get; set; } = "start-value";
+                       }
+
+                       [Saga]
+                       {{sagaAttribute}}
+                       public class StructSaga : Saga<StructSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<StructSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => m.Id);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class StructSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var accessor = RegisteredMessageAccessor(assembly, "StructSaga", "Start");
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("start-value"));
+        Assert.That(accessor.GetType().Assembly == assembly, Is.EqualTo(generated));
+    }
+
     [TestCase("m.Inner.Id", "a-inner", "b-inner")]
     [TestCase("(m as IHasId).Id", "a", "b")]
     public void Messages_mapped_through_something_other_than_the_message_are_read_by_runtime_accessors(string mapping, string expectedA, string expectedB)

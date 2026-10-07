@@ -203,7 +203,7 @@ public static partial class Sagas
 
                 var (externGetter, suppressedGetterDiagnosticIds) = ResolveAccessor(propertySymbol, false);
                 var (externSetter, suppressedSetterDiagnosticIds) = ResolveAccessor(propertySymbol, true);
-                if (TargetsGenericType(externGetter) || TargetsGenericType(externSetter))
+                if (TargetsUnsupportedType(externGetter) || TargetsUnsupportedType(externSetter))
                 {
                     CorrelationPropertyMapping = null;
                     return;
@@ -261,7 +261,7 @@ public static partial class Sagas
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 // Without a member generated code can call, the runtime accessor compiled from the mapping expression is used.
-                if (ResolveMappedRead(propertySymbol, memberAccess.Expression, messageTypeSymbol) is not { } read || TargetsGenericType(read.ExternGetter))
+                if (ResolveMappedRead(propertySymbol, memberAccess.Expression, messageTypeSymbol) is not { } read || TargetsUnsupportedType(read.ExternGetter))
                 {
                     return;
                 }
@@ -494,9 +494,14 @@ public static partial class Sagas
 
             static string? ExternReceiverType(IMethodSymbol? accessor) => accessor?.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-            // UnsafeAccessor rejects closed generic target types, so such an extern can't be called.
-            static bool TargetsGenericType(IMethodSymbol? externAccessor)
+            // UnsafeAccessor rejects closed generic target types, and a value type target would need the receiver by ref.
+            static bool TargetsUnsupportedType(IMethodSymbol? externAccessor)
             {
+                if (externAccessor?.ContainingType is { IsValueType: true })
+                {
+                    return true;
+                }
+
                 for (var type = externAccessor?.ContainingType; type is not null; type = type.ContainingType)
                 {
                     if (type.IsGenericType)
