@@ -319,8 +319,7 @@ public static partial class Sagas
             ReadAccess CastOrExternRead(IPropertySymbol property)
             {
                 var (externGetter, suppressedDiagnosticIds) = ResolveAccessor(property, false);
-                var castType = externGetter is null ? property.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : null;
-                return new ReadAccess(castType, externGetter, AccessedMember(property), suppressedDiagnosticIds);
+                return new ReadAccess(property.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), externGetter, AccessedMember(property), suppressedDiagnosticIds);
             }
 
             (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression, ITypeSymbol? receiver)

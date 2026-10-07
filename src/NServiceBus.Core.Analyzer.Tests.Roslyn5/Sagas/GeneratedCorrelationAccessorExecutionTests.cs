@@ -1522,6 +1522,42 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
     }
 
+    [Test]
+    public void Interface_message_cast_to_a_class_whose_property_reports_an_obsolete_error_is_read_through_an_extern_accessor_on_the_class()
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public interface IStart : ICommand { }
+
+                       public class Start : IStart
+                       {
+                           [System.Obsolete("Use something else", true)]
+                           public string Id { get; set; } = "correlation-value";
+                       }
+
+                       [Saga]
+                       [System.Obsolete]
+                       public class CastSaga : Saga<CastSagaData>, IAmStartedByMessages<IStart>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CastSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<IStart>(m => ((Start)m).Id);
+
+                           public Task Handle(IStart message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class CastSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(GeneratedSource(source), Does.Contain("=> AccessFrom_Property((global::Start)message);"));
+        Assert.That(ReadWithGeneratedAccessor(assembly, "CastSaga", "IStart", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
     static string[] MembersSuppressing(string generated, string diagnosticIds) =>
     [
         .. Regex.Matches(generated, $@"#pragma warning disable {Regex.Escape(diagnosticIds)}\r?\n\s*(?<member>(protected|public) override [^\r\n]*?) =>[^\r\n]*\r?\n\s*#pragma warning restore {Regex.Escape(diagnosticIds)}\r?\n")
