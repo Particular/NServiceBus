@@ -1757,6 +1757,98 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(RegisteredMessageAccessor(assembly, "ConversionSaga", "Start").AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo(expectedValue));
     }
 
+    [TestCase("file class DerivedStart : Start { }", "((DerivedStart)m).Id", null, "")]
+    [TestCase("file class Outer { public class DerivedStart : Start { } }", "((Outer.DerivedStart)m).Id", null, "")]
+    [TestCase("[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public class DerivedStart : Start { }", "((DerivedStart)m).Id", "EXP001", "")]
+    [TestCase("[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public class Outer { public class DerivedStart : Start { } }", "((Outer.DerivedStart)m).Id", "EXP001", "")]
+    [TestCase("[System.Obsolete(\"Use something else\", true)] public class DerivedStart : Start { }", "((DerivedStart)m).Id", null, "[System.Obsolete]")]
+    [TestCase("[System.Obsolete(\"Use something else\", DiagnosticId = \"LEGACY001\")] public class DerivedStart : Start { }", "((DerivedStart)m).Id", "LEGACY001", "")]
+    [TestCase("[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public interface IHasId { string Id { get; } }", "((IHasId)m).Id", "EXP001", "")]
+    [TestCase("file interface IHasId { string Id { get; } }", "((IHasId)m).Id", null, "")]
+    public void Message_cast_that_can_fail_to_a_type_generated_code_cannot_name_is_read_by_the_runtime_accessor(string declarations, string mapping, string mappingSuppression, string sagaAttribute)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class Start : ICommand
+                       {
+                           public string Id { get; set; } = "start-value";
+                       }
+
+                       {{declarations}}
+
+                       [Saga]
+                       {{sagaAttribute}}
+                       public class CastSaga : Saga<CastSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CastSagaData> mapper)
+                           {
+                       {{(mappingSuppression is null ? "" : $"#pragma warning disable {mappingSuppression}")}}
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => {{mapping}});
+                       {{(mappingSuppression is null ? "" : $"#pragma warning restore {mappingSuppression}")}}
+                           }
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class CastSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var accessor = RegisteredMessageAccessor(assembly, "CastSaga", "Start");
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.Throws<InvalidCastException>(() => accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!));
+    }
+
+    [Test]
+    public void Message_cast_that_can_fail_to_a_type_whose_extern_targets_an_experimental_base_class_is_read_by_the_runtime_accessor()
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public interface IStart : ICommand { }
+
+                       [System.Diagnostics.CodeAnalysis.Experimental("EXP001")]
+                       public class StartBase : IStart
+                       {
+                           [System.Obsolete("Use something else", true)]
+                           public string Id { get; set; } = "start-value";
+                       }
+
+                       #pragma warning disable EXP001
+                       public class Start : StartBase { }
+                       #pragma warning restore EXP001
+
+                       [Saga]
+                       [System.Obsolete]
+                       public class CastSaga : Saga<CastSagaData>, IAmStartedByMessages<IStart>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CastSagaData> mapper)
+                           {
+                       #pragma warning disable EXP001
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<IStart>(m => ((Start)m).Id);
+                       #pragma warning restore EXP001
+                           }
+
+                           public Task Handle(IStart message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class CastSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.That(RegisteredMessageAccessor(assembly, "CastSaga", "IStart").AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("start-value"));
+    }
+
     [TestCase("m.Inner.Id", "a-inner", "b-inner")]
     [TestCase("(m as IHasId).Id", "a", "b")]
     public void Messages_mapped_through_something_other_than_the_message_are_read_by_runtime_accessors(string mapping, string expectedA, string expectedB)

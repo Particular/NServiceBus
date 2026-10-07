@@ -289,9 +289,27 @@ public static partial class Sagas
                 }
 
                 var castTypeName = castType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                return IsAccessible(castType) && ResolveRead(property, position, castType) is { } read && (read.ReceiverCastType is null || read.ReceiverCastType == castTypeName)
+                return IsAccessible(castType) && CanBeNamedWithoutDiagnostics(castType)
+                    && ResolveRead(property, position, castType) is { } read && (read.ReceiverCastType is null || read.ReceiverCastType == castTypeName)
+                    && (read.ExternGetter is null || CanBeNamedWithoutDiagnostics(read.ExternGetter.ContainingType))
                     ? read with { ReceiverCastType = castTypeName }
                     : null;
+            }
+
+            // Generated code can't name a file-local type, and naming an obsolete or experimental one reports what the mapping's suppressions covered.
+            static bool CanBeNamedWithoutDiagnostics(ITypeSymbol type)
+            {
+                SortedSet<string>? diagnosticIds = null;
+                for (var namedType = type as INamedTypeSymbol; namedType is not null; namedType = namedType.ContainingType)
+                {
+                    if (namedType.IsFileLocal || !TryAddSuppressibleDiagnosticIds(namedType, ref diagnosticIds) || !namedType.TypeArguments.All(CanBeNamedWithoutDiagnostics))
+                    {
+                        return false;
+                    }
+                }
+
+                // Only what the generated files already suppress, such as a plain obsolete type.
+                return diagnosticIds is null;
             }
 
             // A user-defined conversion has to be repeated, because the operator a cast picks depends on the types it converts between.
