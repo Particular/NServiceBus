@@ -26,6 +26,7 @@ public class When_satellite_and_receiver_slot_registration : NServiceBusAcceptan
             .Run();
 
         Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
+            l is not null &&
             l.LoggerName == "SatelliteHandler" &&
             (l.Message ?? string.Empty).Contains("Satellite processed") &&
             (l.Message ?? string.Empty).Contains("Endpoint = SatelliteAndReceiverSlotRegistration.EndpointWithSatellite, EndpointIdentifier = SatelliteAndReceiverSlotRegistration.EndpointWithSatellite0") &&

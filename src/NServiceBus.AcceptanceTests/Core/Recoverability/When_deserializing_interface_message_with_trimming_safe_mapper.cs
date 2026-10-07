@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -15,11 +15,11 @@ using Conventions = AcceptanceTesting.Customization.Conventions;
 public class When_deserializing_interface_message_with_trimming_safe_mapper : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_move_to_error_queue_with_actionable_exception()
+    public async Task Should_move_to_error_queue_with_actionable_exception()
     {
         Context context = null;
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () =>
         {
             await Scenario.Define<Context>(ctx => context = ctx)
                 .WithEndpoint<Publisher>(b =>

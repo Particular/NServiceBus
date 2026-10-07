@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
+namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
 using System.Collections.Immutable;
@@ -156,7 +156,7 @@ public class MessageOperationsTests
     }
 
     [Test]
-    public void Should_set_span_error_state_on_failure()
+    public async Task Should_set_span_error_state_on_failure()
     {
         var operations = new TestableMessageOperations();
         Activity activity = null;
@@ -166,7 +166,7 @@ public class MessageOperationsTests
             throw new Exception("processing exception");
         };
 
-        var ex = Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
+        var ex = await Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
         var tags = activity.Tags.ToImmutableDictionary();

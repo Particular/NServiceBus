@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability;
+namespace NServiceBus.AcceptanceTests.Recoverability;
 
 using System;
 using System.Linq;
@@ -15,7 +15,7 @@ public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTes
     {
         var messageId = Guid.NewGuid().ToString();
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b
                 .When(bus =>
                 {

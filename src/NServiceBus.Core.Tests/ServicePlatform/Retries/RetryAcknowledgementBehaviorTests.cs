@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus.Core.Tests.ServicePlatform.Retries;
 
@@ -54,7 +54,7 @@ public class RetryAcknowledgementBehaviorTests
     }
 
     [Test]
-    public void Should_not_confirm_when_processing_fails()
+    public async Task Should_not_confirm_when_processing_fails()
     {
         var routingPipeline = new RoutingPipeline();
         var behavior = new RetryAcknowledgementBehavior();
@@ -65,7 +65,7 @@ public class RetryAcknowledgementBehaviorTests
         context.Message.Headers[RetryAcknowledgementBehavior.RetryConfirmationQueueHeaderKey] = "SomeQueue";
 
         var exception = new Exception("some pipeline failure");
-        var thrownException = Assert.ThrowsAsync<Exception>(async () => await behavior.Invoke(context, _ => Task.FromException(exception)));
+        var thrownException = await Assert.ThrowsAsync<Exception>(async () => await behavior.Invoke(context, _ => Task.FromException(exception)));
 
         using (Assert.EnterMultipleScope())
         {

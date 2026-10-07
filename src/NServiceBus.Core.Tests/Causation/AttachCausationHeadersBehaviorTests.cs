@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Causation;
+namespace NServiceBus.Core.Tests.Causation;
 
 using System;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ public class AttachCausationHeadersBehaviorTests
     }
 
     [Test]
-    public void When_user_defined_conversation_id_would_overwrite_incoming_conversation_id_should_throw()
+    public async Task When_user_defined_conversation_id_would_overwrite_incoming_conversation_id_should_throw()
     {
         var incomingConversationId = Guid.NewGuid().ToString();
         var userDefinedConversationId = Guid.NewGuid().ToString();
@@ -81,7 +81,7 @@ public class AttachCausationHeadersBehaviorTests
         }, Array.Empty<byte>());
         context.Extensions.Set(transportMessage);
 
-        var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => Task.CompletedTask));
+        var exception = await Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => Task.CompletedTask));
 
         Assert.That(exception.Message, Is.EqualTo($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{incomingConversationId}'). To start a new conversation use sendOptions.StartNewConversation()."));
     }

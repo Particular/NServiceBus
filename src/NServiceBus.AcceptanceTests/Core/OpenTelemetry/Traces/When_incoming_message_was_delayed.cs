@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
+namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System;
 using System.Diagnostics;
@@ -72,9 +72,9 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
     }
 
     [Test]
-    public void By_retry_Should_create_new_trace_and_link_to_send()
+    public async Task By_retry_Should_create_new_trace_and_link_to_send()
     {
-        _ = Assert.CatchAsync(async () =>
+        await Assert.CatchAsync(async () =>
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b

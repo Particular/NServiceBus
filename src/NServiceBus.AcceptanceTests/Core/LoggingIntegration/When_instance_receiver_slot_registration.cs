@@ -33,6 +33,7 @@ public class When_instance_receiver_slot_registration : NServiceBusAcceptanceTes
             .Run();
 
         Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
+            l is not null &&
             l.LoggerName.EndsWith("InstanceHandler") &&
             (l.Message ?? string.Empty).Contains("Instance processed") &&
             (l.Message ?? string.Empty).Contains("Endpoint = InstanceReceiverSlotRegistration.EndpointWithInstance, EndpointIdentifier = InstanceReceiverSlotRegistration.EndpointWithInstance0") &&

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Transports.Learning;
+namespace NServiceBus.Core.Tests.Transports.Learning;
 
 using System;
 using System.Collections.Generic;
@@ -122,7 +122,7 @@ public class LearningTransportDispatcherTests
         var messageAboveThreshold = new OutgoingMessage("id", headers, new byte[MessageSizeLimit + 1]);
 
         await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAtThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction());
-        var ex = Assert.ThrowsAsync<Exception>(async () => await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAboveThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction()));
+        var ex = await Assert.ThrowsAsync<Exception>(async () => await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAboveThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction()));
 
         Assert.That(ex.Message, Does.Contain("The total size of the 'TestMessage' message"));
     }

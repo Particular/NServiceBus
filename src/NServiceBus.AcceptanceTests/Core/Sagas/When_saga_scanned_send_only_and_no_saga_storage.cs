@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Sagas;
+namespace NServiceBus.AcceptanceTests.Core.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -9,8 +9,8 @@ using NUnit.Framework;
 public class When_saga_scanned_send_only_and_no_saga_storage : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_not_throw() =>
-        Assert.DoesNotThrowAsync(async () =>
+    public async Task Should_not_throw() =>
+        await Assert.DoesNotThrowAsync(async () =>
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<SendOnlyEndpointWithSaga>()

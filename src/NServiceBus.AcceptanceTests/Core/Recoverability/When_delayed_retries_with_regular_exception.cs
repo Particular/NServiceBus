@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Linq;
@@ -12,11 +12,11 @@ using NUnit.Framework;
 public class When_delayed_retries_with_regular_exception : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_preserve_the_original_body_for_regular_exceptions()
+    public async Task Should_preserve_the_original_body_for_regular_exceptions()
     {
         Requires.DelayedDelivery();
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b
                 .When(session => session.SendLocal(new MessageToBeRetried())))
             .Run());

@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration;
+namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration;
 
 using System;
+using System.Threading.Tasks;
 using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
 using NUnit.Framework;
@@ -8,9 +9,9 @@ using NUnit.Framework;
 public class When_send_only_endpoint_uses_migration_mode : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw_InvalidOperationException_on_subscribe()
+    public async Task Should_throw_InvalidOperationException_on_subscribe()
     {
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<SendOnlyEndpoint>(c => c
                 .When(s => s.Subscribe<SomeEvent>()))
             .Done(c => c.EndpointsStarted)
@@ -20,9 +21,9 @@ public class When_send_only_endpoint_uses_migration_mode : NServiceBusAcceptance
     }
 
     [Test]
-    public void Should_throw_InvalidOperationException_on_unsubscribe()
+    public async Task Should_throw_InvalidOperationException_on_unsubscribe()
     {
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<SendOnlyEndpoint>(c => c
                 .When(s => s.Unsubscribe<SomeEvent>()))
             .Done(c => c.EndpointsStarted)

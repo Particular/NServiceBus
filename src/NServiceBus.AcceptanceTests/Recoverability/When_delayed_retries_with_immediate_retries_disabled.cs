@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability;
+namespace NServiceBus.AcceptanceTests.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -10,11 +10,11 @@ using NUnit.Framework;
 public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_reschedule_message_the_configured_number_of_times()
+    public async Task Should_reschedule_message_the_configured_number_of_times()
     {
         Requires.DelayedDelivery();
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<RetryEndpoint>(b => b
                 .When((session, ctx) => session.SendLocal(new MessageToBeRetried { Id = ctx.Id })))
             .Run());

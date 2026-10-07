@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Conventions;
+namespace NServiceBus.AcceptanceTests.Core.Conventions;
 
 using System;
 using System.Threading.Tasks;
@@ -10,8 +10,8 @@ using NUnit.Framework;
 public class When_scanning_an_assembly_containing_a_ref_struct_and_sagas_enabled : NServiceBusAcceptanceTest
 {
     [Test]
-    public void It_should_not_throw_an_exception()
-        => Assert.DoesNotThrowAsync(
+    public async Task It_should_not_throw_an_exception()
+        => await Assert.DoesNotThrowAsync(
             () => Scenario.Define<ScenarioContext>()
                           .WithEndpoint<EndpointWithASaga>()
                           .Done(c => c.EndpointsStarted)

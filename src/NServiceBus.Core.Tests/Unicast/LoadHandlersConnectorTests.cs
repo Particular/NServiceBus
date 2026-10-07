@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Tests;
+namespace NServiceBus.Unicast.Tests;
 
 using System;
 using System.Threading.Tasks;
@@ -27,7 +27,7 @@ public class LoadHandlersConnectorTests
     }
 
     [Test]
-    public void Should_throw_if_ambient_transaction_is_different_from_scope_used_by_transport()
+    public async Task Should_throw_if_ambient_transaction_is_different_from_scope_used_by_transport()
     {
         var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new NoOpActivityFactory());
 
@@ -39,7 +39,7 @@ public class LoadHandlersConnectorTests
 
             using (new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
             {
-                var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
+                var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
 
                 Assert.That(ex.Message, Does.Contain("A TransactionScope has been created that is overriding the one created by the transport"));
             }
@@ -47,7 +47,7 @@ public class LoadHandlersConnectorTests
     }
 
     [Test]
-    public void Should_throw_if_ambient_transaction_suppressed_when_transport_uses_a_scope()
+    public async Task Should_throw_if_ambient_transaction_suppressed_when_transport_uses_a_scope()
     {
         var behavior = new LoadHandlersConnector(new MessageHandlerRegistry(), new NoOpActivityFactory());
 
@@ -59,7 +59,7 @@ public class LoadHandlersConnectorTests
 
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
+                var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await behavior.Invoke(context, c => Task.CompletedTask));
 
                 Assert.That(ex.Message, Does.Contain("The TransactionScope created by the transport has been suppressed"));
             }
@@ -67,7 +67,7 @@ public class LoadHandlersConnectorTests
     }
 
     [Test]
-    public void Should_not_throw_if_ambient_scope_is_same_as_transport_scope()
+    public async Task Should_not_throw_if_ambient_scope_is_same_as_transport_scope()
     {
         var messageHandlerRegistry = new MessageHandlerRegistry();
         messageHandlerRegistry.AddHandler<FakeHandler>();
@@ -85,7 +85,7 @@ public class LoadHandlersConnectorTests
 
             using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
             {
-                Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c => Task.CompletedTask));
+                await Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c => Task.CompletedTask));
             }
         }
     }

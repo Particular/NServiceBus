@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Routing;
+namespace NServiceBus.AcceptanceTests.Core.Routing;
 
 using System;
+using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
@@ -9,9 +10,9 @@ using NUnit.Framework;
 public class When_sending_non_message_with_routing_configured_by_type : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw_when_configuring_routing()
+    public async Task Should_throw_when_configuring_routing()
     {
-        var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(c => c
                 .When(b => b.Send(new NonMessage())))
             .Done(c => c.EndpointsStarted)

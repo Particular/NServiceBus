@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.JsonSerializer;
+namespace NServiceBus.AcceptanceTests.Core.JsonSerializer;
 
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,13 +9,13 @@ using NUnit.Framework;
 public class When_using_system_json_serializer_with_options : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_use_the_provided_json_options()
+    public async Task Should_use_the_provided_json_options()
     {
         var context = Scenario.Define<Context>()
            .WithEndpoint<Endpoint>(c => c
                .When(b => b.SendLocal(new MyMessage())));
 
-        var ex = Assert.ThrowsAsync<JsonException>(async () => await context.Run());
+        var ex = await Assert.ThrowsAsync<JsonException>(async () => await context.Run());
         Assert.That(ex.Message, Does.Match("^The property or field.*doesn't allow getting null values.*$"));
     }
 

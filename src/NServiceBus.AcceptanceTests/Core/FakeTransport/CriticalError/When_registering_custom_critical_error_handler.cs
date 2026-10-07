@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.CriticalError;
+namespace NServiceBus.AcceptanceTests.Core.FakeTransport.CriticalError;
 
 using System;
 using System.Linq;
@@ -11,10 +11,10 @@ using NUnit.Framework;
 public class When_registering_custom_critical_error_handler : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Critical_error_should_be_raised_inside_delegate()
+    public async Task Critical_error_should_be_raised_inside_delegate()
     {
         Context context = null;
-        var exception = Assert.CatchAsync<Exception>(async () =>
+        var exception = await Assert.CatchAsync<Exception>(async () =>
         {
             await Scenario.Define<Context>(c => context = c)
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.When(session => session.SendLocal(new MyRequest())))

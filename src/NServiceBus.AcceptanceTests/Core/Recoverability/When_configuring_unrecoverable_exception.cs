@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -10,13 +10,13 @@ using NUnit.Framework;
 public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_move_to_error_queue_without_retries()
+    public async Task Should_move_to_error_queue_without_retries()
     {
         Requires.DelayedDelivery();
 
         Context context = null;
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () =>
         {
             await Scenario.Define<Context>(ctx => context = ctx)
                 .WithEndpoint<EndpointWithFailingHandler>(b => b

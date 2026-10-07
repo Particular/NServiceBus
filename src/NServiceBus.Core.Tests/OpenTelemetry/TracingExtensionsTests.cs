@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.OpenTelemetry;
+namespace NServiceBus.Core.Tests.OpenTelemetry;
 
 using System;
 using System.Collections.Immutable;
@@ -39,14 +39,14 @@ public class TracingExtensionsTests
     }
 
     [Test]
-    public void Invoke_should_set_error_status_and_tags_when_exception()
+    public async Task Invoke_should_set_error_status_and_tags_when_exception()
     {
         var exception = new Exception("test exception");
         var pipeline = new FakePipeline(() => throw exception);
         using var activity = new Activity("test activity");
         activity.Start();
 
-        Assert.ThrowsAsync<Exception>(() => pipeline.Invoke(new FakeRootContext(), activity));
+        await Assert.ThrowsAsync<Exception>(() => pipeline.Invoke(new FakeRootContext(), activity));
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
 

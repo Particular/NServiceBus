@@ -1,8 +1,9 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope;
 
 using System;
+using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
@@ -10,9 +11,9 @@ using NUnit.Framework;
 public class When_using_timeout_greater_than_machine_max : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_blow_up()
+    public async Task Should_blow_up()
     {
-        var exception = Assert.ThrowsAsync<Exception>(async () =>
+        var exception = await Assert.ThrowsAsync<Exception>(async () =>
         {
             await Scenario.Define<ScenarioContext>()
                 .WithEndpoint<ScopeEndpoint>()

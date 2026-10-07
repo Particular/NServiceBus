@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -13,9 +13,9 @@ using Transport;
 public class When_transport_transaction_provided : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_be_available_in_pipeline()
+    public async Task Should_be_available_in_pipeline()
     {
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<ContextExtendingEndpoint>(e => e
                 .CustomConfig(config =>
                 {

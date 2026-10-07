@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Tests;
+namespace NServiceBus.Unicast.Tests;
 
 using System;
 using System.Threading;
@@ -98,7 +98,7 @@ public class RunningEndpointInstanceTest
         Assert.That(winner, Is.SameAs(dispose),
             "DisposeAsync did not complete within 5s of a 250ms internal timeout — " +
             "the disposeShutdownTimeout must fire and let disposal proceed past a stuck transport.Shutdown.");
-        Assert.DoesNotThrowAsync(() => dispose, "DisposeAsync threw an exception when transport.Shutdown hung. DisposeAsync should complete successfully even if transport.Shutdown does not.");
+        await Assert.DoesNotThrowAsync(() => dispose, "DisposeAsync threw an exception when transport.Shutdown hung. DisposeAsync should complete successfully even if transport.Shutdown does not.");
     }
 
     [Test]

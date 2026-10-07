@@ -46,6 +46,7 @@ public class When_using_endpoint_logging_scope : NServiceBusAcceptanceTest
             Assert.That(context.ResolvedEndpointName, Is.EqualTo(Conventions.EndpointNamingConvention(typeof(EndpointWithScope))));
             Assert.That(context.ResolvedEndpointIdentifier, Is.EqualTo("UsingEndpointLoggingScope.EndpointWithScope0"));
             Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
+                l is not null &&
                 l.LoggerName == "ScopeTest" &&
                 (l.Message ?? string.Empty).Contains("Message inside logging scope") &&
                 (l.Message ?? string.Empty).Contains("Endpoint = UsingEndpointLoggingScope.EndpointWithScope, EndpointIdentifier = UsingEndpointLoggingScope.EndpointWithScope0")));
@@ -81,12 +82,14 @@ public class When_using_endpoint_logging_scope : NServiceBusAcceptanceTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
+                l is not null &&
                 l.LoggerName == "PreStartMelLogger" &&
                 (l.Message ?? string.Empty).Contains("MEL logger before endpoint start inside scope") &&
                 (l.Message ?? string.Empty).Contains("Endpoint = UsingEndpointLoggingScope.EndpointWithScope")),
                 "MEL ILogger should be enriched via logger.BeginScope before endpoint start");
 
             Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
+                l is not null &&
                 l.LoggerName == "PreStartLegacyLogger" &&
                 (l.Message ?? string.Empty).Contains("Legacy logger before endpoint start inside scope") &&
                 (l.Message ?? string.Empty).Contains("Endpoint = UsingEndpointLoggingScope.EndpointWithScope")),
