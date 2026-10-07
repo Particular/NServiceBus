@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -1446,6 +1447,37 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
     }
 
+    [TestCase("assembly")]
+    [TestCase("module")]
+    public void Generated_accessors_suppress_the_experimental_diagnostic_of_a_referenced_assembly_declaring_the_property(string attributeTarget)
+    {
+        string[] referencedSources =
+        [
+            $$"""
+              [{{attributeTarget}}: System.Diagnostics.CodeAnalysis.Experimental("EXPLIB")]
+
+              public class StartBase
+              {
+                  public string CorrelationId { get; set; } = "correlation-value";
+              }
+
+              public class AttributedSagaBase : NServiceBus.ContainSagaData
+              {
+                  public string CorrelationId { get; set; } = "";
+              }
+              """
+        ];
+        var source = "#pragma warning disable EXPLIB\n" + AttributedPropertySaga("", "public class Start : StartBase, ICommand { }")
+            .Replace("public class AttributedSagaData : ContainSagaData", "public class AttributedSagaData : AttributedSagaBase");
+
+        // Registering the message hierarchy names the experimental base type, which fails to compile without generated accessors too.
+        var assembly = CompileAndLoad(source, dropMessageHierarchies: true, warningsAsErrors: true, referencedSources: referencedSources);
+
+        Assert.That(MembersSuppressing(GeneratedSource(source, referencedSources), "EXPLIB"), Is.EquivalentTo(new[] { MessageAccessFrom, CorrelationAccessFrom, CorrelationWriteTo }));
+        AssertCorrelationRoundTrip(assembly, "AttributedSagaData");
+        Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
+    }
+
     [Test]
     public void Setter_that_reports_an_obsolete_error_is_written_through_an_extern_accessor()
     {
@@ -1857,6 +1889,51 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
+    public void Message_cast_that_can_fail_to_a_type_of_an_experimental_referenced_assembly_is_read_by_the_runtime_accessor()
+    {
+        string[] referencedSources =
+        [
+            "public interface IStart : NServiceBus.ICommand { }",
+            """
+            [assembly: System.Diagnostics.CodeAnalysis.Experimental("EXPLIB")]
+
+            public class Start : IStart
+            {
+                public string Id { get; set; } = "start-value";
+            }
+            """
+        ];
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       [Saga]
+                       public class CastSaga : Saga<CastSagaData>, IAmStartedByMessages<IStart>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CastSagaData> mapper)
+                           {
+                       #pragma warning disable EXPLIB
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<IStart>(m => ((Start)m).Id);
+                       #pragma warning restore EXPLIB
+                           }
+
+                           public Task Handle(IStart message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class CastSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true, referencedSources: referencedSources);
+
+        var referenced = AssemblyLoadContext.GetLoadContext(assembly)!.Assemblies.ToDictionary(a => a.GetName().Name!);
+        var accessor = RegisteredMessageAccessor(assembly, "CastSaga", referenced["Referenced0"].GetType("IStart")!);
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(referenced["Referenced1"].GetType("Start")!)!), Is.EqualTo("start-value"));
+    }
+
+    [Test]
     public void Message_cast_that_can_fail_to_a_type_whose_extern_targets_an_experimental_base_class_is_read_by_the_runtime_accessor()
     {
         var source = $$"""
@@ -2097,8 +2174,8 @@ public class GeneratedCorrelationAccessorExecutionTests
             .Select(match => match.Groups["member"].Value)
     ];
 
-    static string GeneratedSource(string source) =>
-        string.Join(Environment.NewLine, RunGenerators(source, new CSharpParseOptions(LanguageVersion.Preview)).SyntaxTrees.Select(t => t.ToString()));
+    static string GeneratedSource(string source, string[] referencedSources = null) =>
+        string.Join(Environment.NewLine, RunGenerators(source, new CSharpParseOptions(LanguageVersion.Preview), referencedImages: CompileReferencedAssemblies(referencedSources)).SyntaxTrees.Select(t => t.ToString()));
 
     static T[] GetAccessors<T>(Assembly assembly) =>
     [
@@ -2187,9 +2264,10 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(sagaDataType.GetProperty("CorrelationId")!.GetValue(sagaData), Is.EqualTo("correlation-value"));
     }
 
-    static Assembly CompileAndLoad(string source, bool dropMessageHierarchies = false, bool warningsAsErrors = false)
+    static Assembly CompileAndLoad(string source, bool dropMessageHierarchies = false, bool warningsAsErrors = false, string[] referencedSources = null)
     {
-        var outputCompilation = RunGenerators(source, new CSharpParseOptions(LanguageVersion.Preview), warningsAsErrors);
+        var referencedImages = CompileReferencedAssemblies(referencedSources);
+        var outputCompilation = RunGenerators(source, new CSharpParseOptions(LanguageVersion.Preview), warningsAsErrors, referencedImages);
 
         if (dropMessageHierarchies)
         {
@@ -2202,9 +2280,44 @@ public class GeneratedCorrelationAccessorExecutionTests
         var errors = emitResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
         Assert.That(errors, Is.Empty, string.Join(Environment.NewLine, errors.Select(e => e.ToString())));
 
-        return Assembly.Load(peStream.ToArray());
+        if (referencedImages.Length == 0)
+        {
+            return Assembly.Load(peStream.ToArray());
+        }
+
+        // One context for all of them so the compiled assemblies resolve their references by name.
+        var loadContext = new AssemblyLoadContext(null);
+        foreach (var referencedImage in referencedImages)
+        {
+            loadContext.LoadFromStream(new MemoryStream(referencedImage));
+        }
+
+        peStream.Position = 0;
+        return loadContext.LoadFromStream(peStream);
     }
 
-    static Compilation RunGenerators(string source, CSharpParseOptions parseOptions, bool warningsAsErrors = false) =>
-        SagaAccessorCompilation.RunGenerators(SagaAccessorCompilation.CreateCompilation(source, parseOptions, warningsAsErrors), parseOptions);
+    // Each referenced assembly references the ones before it.
+    static byte[][] CompileReferencedAssemblies(string[] referencedSources)
+    {
+        var images = new List<byte[]>();
+        foreach (var referencedSource in referencedSources ?? [])
+        {
+            var compilation = CSharpCompilation.Create($"Referenced{images.Count}", [CSharpSyntaxTree.ParseText(referencedSource)],
+                [.. SagaAccessorCompilation.ReferenceAssemblyPaths(), .. images.Select(image => MetadataReference.CreateFromImage(image))],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+
+            using var peStream = new MemoryStream();
+            var emitResult = compilation.Emit(peStream);
+            Assert.That(emitResult.Success, Is.True, string.Join(Environment.NewLine, emitResult.Diagnostics));
+            images.Add(peStream.ToArray());
+        }
+
+        return [.. images];
+    }
+
+    static Compilation RunGenerators(string source, CSharpParseOptions parseOptions, bool warningsAsErrors = false, byte[][] referencedImages = null) =>
+        SagaAccessorCompilation.RunGenerators(
+            SagaAccessorCompilation.CreateCompilation(source, parseOptions, warningsAsErrors,
+                [.. SagaAccessorCompilation.ReferenceAssemblyPaths(), .. (referencedImages ?? []).Select(image => MetadataReference.CreateFromImage(image))]),
+            parseOptions);
 }

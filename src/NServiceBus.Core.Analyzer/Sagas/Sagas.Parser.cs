@@ -299,12 +299,12 @@ public static partial class Sagas
             }
 
             // Generated code can't name a file-local type, and naming an obsolete or experimental one reports what the mapping's suppressions covered.
-            static bool CanBeNamedWithoutDiagnostics(ITypeSymbol type)
+            bool CanBeNamedWithoutDiagnostics(ITypeSymbol type)
             {
                 SortedSet<string>? diagnosticIds = null;
                 for (var namedType = type as INamedTypeSymbol; namedType is not null; namedType = namedType.ContainingType)
                 {
-                    if (namedType.IsFileLocal || !TryAddSuppressibleDiagnosticIds(namedType, ref diagnosticIds) || !namedType.TypeArguments.All(CanBeNamedWithoutDiagnostics))
+                    if (namedType.IsFileLocal || !TryAddSuppressibleDiagnosticIdsWithDeclaringAssembly(namedType, ref diagnosticIds) || !namedType.TypeArguments.All(CanBeNamedWithoutDiagnostics))
                     {
                         return false;
                     }
@@ -315,10 +315,10 @@ public static partial class Sagas
             }
 
             // Repeating a user-defined conversion calls its operator, which reports what the mapping's suppressions covered.
-            static bool CanBeCalledWithoutDiagnostics(IMethodSymbol method)
+            bool CanBeCalledWithoutDiagnostics(IMethodSymbol method)
             {
                 SortedSet<string>? diagnosticIds = null;
-                return TryAddSuppressibleDiagnosticIds(method, ref diagnosticIds) && diagnosticIds is null;
+                return TryAddSuppressibleDiagnosticIdsWithDeclaringAssembly(method, ref diagnosticIds) && diagnosticIds is null;
             }
 
             // A user-defined conversion has to be repeated, because the operator a cast picks depends on the types it converts between.
@@ -430,12 +430,12 @@ public static partial class Sagas
             }
 
             // Like the compiler, use the attributes of the member an override overrides, on both the property and the accessor. Null when a pragma can't suppress them.
-            static ImmutableEquatableArray<string>? SuppressibleDiagnosticIds(IPropertySymbol property, bool setter)
+            ImmutableEquatableArray<string>? SuppressibleDiagnosticIds(IPropertySymbol property, bool setter)
             {
                 property = LeastOverridden(property);
 
                 SortedSet<string>? diagnosticIds = null;
-                if (!TryAddSuppressibleDiagnosticIds(property, ref diagnosticIds)
+                if (!TryAddSuppressibleDiagnosticIdsWithDeclaringAssembly(property, ref diagnosticIds)
                     || ((setter ? property.SetMethod : property.GetMethod) is { } accessor && !TryAddSuppressibleDiagnosticIds(accessor, ref diagnosticIds)))
                 {
                     return null;
@@ -443,6 +443,12 @@ public static partial class Sagas
 
                 return diagnosticIds is null ? ImmutableEquatableArray<string>.Empty : diagnosticIds.ToImmutableEquatableArray();
             }
+
+            // The compiler reports an experimental assembly or module on everything declared in it, except to code in that assembly.
+            bool TryAddSuppressibleDiagnosticIdsWithDeclaringAssembly(ISymbol symbol, ref SortedSet<string>? diagnosticIds) =>
+                TryAddSuppressibleDiagnosticIds(symbol, ref diagnosticIds)
+                && (symbol.ContainingAssembly is not { } assembly || SymbolEqualityComparer.Default.Equals(assembly, semanticModel.Compilation.Assembly)
+                    || (TryAddSuppressibleDiagnosticIds(assembly, ref diagnosticIds) && (symbol.ContainingModule is not { } module || TryAddSuppressibleDiagnosticIds(module, ref diagnosticIds))));
 
             static bool TryAddSuppressibleDiagnosticIds(ISymbol symbol, ref SortedSet<string>? diagnosticIds)
             {
