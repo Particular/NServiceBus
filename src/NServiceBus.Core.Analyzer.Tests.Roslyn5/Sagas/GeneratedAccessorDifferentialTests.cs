@@ -980,6 +980,7 @@ public class GeneratedAccessorDifferentialTests
 
     enum Role { Base, Interface, Message, Derived }
 
+    // Only classes implement interface messages, because the runtime accessor's CompileFast returns the boxed struct for a cast to a struct instead of reading the property.
     enum MessageKind { Class, SealedClass, AbstractBase, Interface, ClosedGeneric, NestedType, Record, Struct }
 
     enum MessageDeclaration { OnType, OnBaseClass, ImplicitInterface, ExplicitInterface, ExplicitInterfaceOnBaseClass, DefaultInterfaceMember, GenericBaseClass, HiddenInDerived, OverriddenInDerived, ReimplementedExplicitlyInDerived, ReimplementedWithNewInDerived }
