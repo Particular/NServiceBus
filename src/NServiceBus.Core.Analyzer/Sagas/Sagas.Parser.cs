@@ -263,7 +263,7 @@ public static partial class Sagas
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 // Without a member generated code can call, the runtime accessor compiled from the mapping expression is used.
-                if (ResolveRead(propertySymbol, messageExpression) is not { } read || TargetsGenericType(read.ExternGetter))
+                if (ResolveMappedRead(propertySymbol, memberAccess.Expression, messageTypeSymbol) is not { } read || TargetsGenericType(read.ExternGetter))
                 {
                     return;
                 }
@@ -272,13 +272,40 @@ public static partial class Sagas
                     read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules, read.AccessedMember, read.SuppressedDiagnosticIds));
             }
 
-            // Reading through the interface dispatches like the mapping expression; when generated code can't call the interface getter, it falls back to the implementation on the receiver type.
-            ReadAccess? ResolveRead(IPropertySymbol property, ExpressionSyntax receiverExpression)
+            // A cast that can fail for some messages has to fail the same way in generated code, so the read starts from the cast type.
+            ReadAccess? ResolveMappedRead(IPropertySymbol property, ExpressionSyntax receiverExpression, ITypeSymbol messageType)
             {
-                var receiver = semanticModel.GetTypeInfo(receiverExpression, cancellationToken).Type;
+                var position = receiverExpression.SpanStart;
+                var receiver = StripSyntaxWrappers(receiverExpression, cancellationToken, stripCasts: false);
+                // Generated code only repeats the outermost cast.
+                for (var operand = receiver; operand is CastExpressionSyntax cast; operand = StripSyntaxWrappers(cast.Expression, cancellationToken, stripCasts: false))
+                {
+                    if (operand != receiver && !IsImplicitConversion(semanticModel.GetTypeInfo(cast.Expression, cancellationToken).Type, semanticModel.GetTypeInfo(cast, cancellationToken).Type))
+                    {
+                        return null;
+                    }
+                }
+
+                if (semanticModel.GetTypeInfo(receiver, cancellationToken).Type is not { } castType || IsImplicitConversion(messageType, castType))
+                {
+                    return ResolveRead(property, position, messageType);
+                }
+
+                var castTypeName = castType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                return IsAccessible(castType) && ResolveRead(property, position, castType) is { } read && (read.ReceiverCastType is null || read.ReceiverCastType == castTypeName)
+                    ? read with { ReceiverCastType = castTypeName }
+                    : null;
+            }
+
+            bool IsImplicitConversion(ITypeSymbol? source, ITypeSymbol? destination) =>
+                source is not null && destination is not null && semanticModel.Compilation.ClassifyConversion(source, destination).IsImplicit;
+
+            // Reading through the interface dispatches like the mapping expression; when generated code can't call the interface getter, it falls back to the implementation on the receiver type.
+            ReadAccess? ResolveRead(IPropertySymbol property, int position, ITypeSymbol? receiver)
+            {
                 if (property.ContainingType is not { TypeKind: TypeKind.Interface } declaringInterface)
                 {
-                    return receiver is null || ReachableByName(property, receiverExpression, receiver)
+                    return receiver is null || ReachableByName(property, position, receiver)
                         ? DirectOrExternRead(property)
                         : CastOrExternRead(property);
                 }
@@ -298,7 +325,7 @@ public static partial class Sagas
                     }
                 }
 
-                if (ResolveImplementation(property, receiverExpression, receiver) is not ({ GetMethod: { } implementationGetter } implementation, var reachableByName))
+                if (ResolveImplementation(property, position, receiver) is not ({ GetMethod: { } implementationGetter } implementation, var reachableByName))
                 {
                     return null;
                 }
@@ -321,7 +348,7 @@ public static partial class Sagas
                 return new ReadAccess(property.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), externGetter, AccessedMember(property), suppressedDiagnosticIds);
             }
 
-            (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, ExpressionSyntax receiverExpression, ITypeSymbol? receiver)
+            (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, int position, ITypeSymbol? receiver)
             {
                 if (receiver is not { TypeKind: not TypeKind.Interface }
                     || receiver.FindImplementationForInterfaceMember(property) is not IPropertySymbol { ContainingType.TypeKind: not TypeKind.Interface } implementation)
@@ -329,12 +356,12 @@ public static partial class Sagas
                     return null;
                 }
 
-                return (implementation, implementation.ExplicitInterfaceImplementations.IsEmpty && ReachableByName(implementation, receiverExpression, receiver));
+                return (implementation, implementation.ExplicitInterfaceImplementations.IsEmpty && ReachableByName(implementation, position, receiver));
             }
 
             // An override found by name dispatches to the same member as the property it overrides.
-            bool ReachableByName(IPropertySymbol property, ExpressionSyntax receiverExpression, ITypeSymbol receiver) =>
-                semanticModel.LookupSymbols(receiverExpression.SpanStart, receiver, property.Name)
+            bool ReachableByName(IPropertySymbol property, int position, ITypeSymbol receiver) =>
+                semanticModel.LookupSymbols(position, receiver, property.Name)
                     .Any(found => found is IPropertySymbol foundProperty && SymbolEqualityComparer.Default.Equals(LeastOverridden(foundProperty), LeastOverridden(property)));
 
             static IPropertySymbol LeastOverridden(IPropertySymbol property)
@@ -471,13 +498,13 @@ public static partial class Sagas
                     ? StripSyntaxWrappers(expression, cancellationToken) as MemberAccessExpressionSyntax
                     : null;
 
-            static ExpressionSyntax StripSyntaxWrappers(ExpressionSyntax expression, CancellationToken cancellationToken)
+            static ExpressionSyntax StripSyntaxWrappers(ExpressionSyntax expression, CancellationToken cancellationToken, bool stripCasts = true)
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     switch (expression)
                     {
-                        case CastExpressionSyntax cast:
+                        case CastExpressionSyntax cast when stripCasts:
                             expression = cast.Expression;
                             continue;
                         case ParenthesizedExpressionSyntax parenthesized:

@@ -1519,6 +1519,47 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(ReadWithGeneratedAccessor(assembly, "AttributedSaga", "Start", Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("correlation-value"));
     }
 
+    [TestCase("public string Id { get; set; } = \"start-value\";", "", "", "start-value")]
+    [TestCase("[System.Obsolete(\"Use something else\", true)] public virtual string Id => \"start-value\";", "[System.Obsolete(\"Use something else\", true)] public override string Id => \"derived-value\";", "[System.Obsolete]", "derived-value")]
+    public void Message_cast_to_a_derived_message_type_fails_for_other_messages_like_the_mapping(string startProperty, string derivedProperty, string sagaAttribute, string expectedValue)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class Start : ICommand
+                       {
+                           {{startProperty}}
+                       }
+
+                       public class DerivedStart : Start
+                       {
+                           {{derivedProperty}}
+                       }
+
+                       [Saga]
+                       {{sagaAttribute}}
+                       public class CastSaga : Saga<CastSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CastSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => ((DerivedStart)m).Id);
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class CastSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var accessor = RegisteredMessageAccessor(assembly, "CastSaga", "Start");
+        Assert.That(accessor.GetType().Assembly, Is.SameAs(assembly));
+        Assert.Throws<InvalidCastException>(() => accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!));
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("DerivedStart")!)!), Is.EqualTo(expectedValue));
+    }
+
     [Test]
     public void Nullable_correlation_property_compiles_and_is_rejected_when_registered_like_the_runtime_mapping()
     {
