@@ -659,7 +659,6 @@ public class Msg2 : ICommand
         return Assert(source, DiagnosticIds.ToSagaMappingMustBeToAProperty);
     }
 
-
     const string DirectAccessSagaTypes =
 @"public interface IHasCorrId
 {
