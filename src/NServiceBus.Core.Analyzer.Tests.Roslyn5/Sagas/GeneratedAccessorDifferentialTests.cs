@@ -78,17 +78,17 @@ public class GeneratedAccessorDifferentialTests
     static IEnumerable<DifferentialCase> AllCases()
     {
         var index = 0;
-        foreach (var (name, dimensions, body, sagaType) in MessageCases().Concat(CorrelationCases()))
+        foreach (var (name, dimensions, body, sagaTypes) in MessageCases().Concat(MultiSagaCases()).Concat(CorrelationCases()))
         {
             var caseNamespace = $"Case{index++:D4}";
-            yield return new DifferentialCase(name, dimensions, caseNamespace, $"namespace {caseNamespace}\n{{\n{Suppressions}\n{body}\n#pragma warning restore\n}}\n", $"{caseNamespace}.{sagaType}");
+            yield return new DifferentialCase(name, dimensions, caseNamespace, $"namespace {caseNamespace}\n{{\n{Suppressions}\n{body}\n#pragma warning restore\n}}\n", [.. sagaTypes.Select(sagaType => $"{caseNamespace}.{sagaType}")]);
         }
     }
 
     // What the user suppresses for their own mapping and declarations; obsolete errors and IDs a pragma can't name need an obsolete saga instead.
     const string Suppressions = "#pragma warning disable CS0612, CS0618, CS0628, CS0672, CS0809, CS8602, LEGACY001, EXP001";
 
-    static IEnumerable<(string Name, string[] Dimensions, string Body, string SagaType)> MessageCases()
+    static IEnumerable<(string Name, string[] Dimensions, string Body, string[] SagaTypes)> MessageCases()
     {
         var shape = 0;
         var variant = 0;
@@ -121,6 +121,20 @@ public class GeneratedAccessorDifferentialTests
                             yield return MessageCase(kind, declaration, receiver, access, attributes[index], target, property);
                         }
 
+                        // Conversions of the read value and cast types generated code may not be able to name only need a sample of the public shapes.
+                        if (access == MessageAccess.Public && !sparse)
+                        {
+                            var conversion = RotatingConversions[shape % RotatingConversions.Length];
+                            var convertedType = conversion is OuterConversion.WideningNumeric or OuterConversion.NullableLift ? PropertyType.Int : RotatingTypes[shape % RotatingTypes.Length];
+                            yield return MessageCase(kind, declaration, receiver, access, MemberAttribute.None, AttributeTarget.Property, new Property(convertedType, "Id"), new Variation(Conversion: conversion));
+
+                            if (receiver == Receiver.CastToDerived)
+                            {
+                                var castTarget = RotatingCastTargets[shape % RotatingCastTargets.Length];
+                                yield return MessageCase(kind, declaration, receiver, access, MemberAttribute.None, AttributeTarget.Property, new Property(RotatingTypes[shape % RotatingTypes.Length], "Id"), new Variation(CastTarget: castTarget));
+                            }
+                        }
+
                         shape++;
                     }
                 }
@@ -132,14 +146,44 @@ public class GeneratedAccessorDifferentialTests
 
     static readonly PropertyType[] RotatingTypes = [PropertyType.String, PropertyType.Guid, PropertyType.Int];
     static readonly MemberAttribute[] RotatingAttributes = [MemberAttribute.Obsolete, MemberAttribute.ObsoleteCustomId, MemberAttribute.ObsoleteCs0618Id, MemberAttribute.Experimental];
+    static readonly OuterConversion[] RotatingConversions = [OuterConversion.Identity, OuterConversion.Boxing, OuterConversion.WideningNumeric, OuterConversion.NullableLift];
+    static readonly CastTarget[] RotatingCastTargets = [CastTarget.FileLocal, CastTarget.Obsolete, CastTarget.ObsoleteCustomId, CastTarget.ObsoleteError, CastTarget.Experimental];
+
+    // Two sagas mapping the same message through different receivers must each read like their own mapping.
+    static IEnumerable<(string Name, string[] Dimensions, string Body, string[] SagaTypes)> MultiSagaCases()
+    {
+        Receiver[] receivers = [Receiver.Direct, Receiver.BoxedResult, Receiver.CastToBaseClass, Receiver.CastToInterface, Receiver.AsInterface, Receiver.CastToMessageClass, Receiver.CastToDerived];
+        var variant = 0;
+        foreach (var kind in Enum.GetValues<MessageKind>())
+        {
+            foreach (var declaration in Enum.GetValues<MessageDeclaration>())
+            {
+                var possible = receivers.Where(receiver => IsPossible(kind, declaration, receiver, MessageAccess.Public)).ToArray();
+                for (var first = 0; first < possible.Length; first++)
+                {
+                    for (var second = first + 1; second < possible.Length; second++)
+                    {
+                        var property = new Property(RotatingTypes[variant++ % RotatingTypes.Length], "Id");
+                        yield return MessageCase(kind, declaration, possible[first], MessageAccess.Public, MemberAttribute.None, AttributeTarget.Property, property, new Variation(SecondReceiver: possible[second]));
+                    }
+                }
+            }
+        }
+    }
 
     static bool IsPossible(MessageKind kind, MessageDeclaration declaration, Receiver receiver, MessageAccess access)
     {
-        var hasDerived = kind != MessageKind.SealedClass;
+        var hasDerived = kind is not (MessageKind.SealedClass or MessageKind.Struct);
         var onInterface = declaration is MessageDeclaration.ImplicitInterface or MessageDeclaration.ExplicitInterface or MessageDeclaration.ExplicitInterfaceOnBaseClass or MessageDeclaration.DefaultInterfaceMember
             or MessageDeclaration.ReimplementedExplicitlyInDerived or MessageDeclaration.ReimplementedWithNewInDerived;
 
         if (!hasDerived && declaration is MessageDeclaration.ReimplementedExplicitlyInDerived or MessageDeclaration.ReimplementedWithNewInDerived)
+        {
+            return false;
+        }
+
+        // A struct has no base class and can't declare protected members.
+        if (kind == MessageKind.Struct && (declaration is not (MessageDeclaration.OnType or MessageDeclaration.ImplicitInterface or MessageDeclaration.ExplicitInterface or MessageDeclaration.DefaultInterfaceMember) || access == MessageAccess.ProtectedGetter))
         {
             return false;
         }
@@ -193,10 +237,10 @@ public class GeneratedAccessorDifferentialTests
 
     static Role MessageRole(MessageKind kind) => kind == MessageKind.AbstractBase ? Role.Base : kind == MessageKind.Interface ? Role.Interface : Role.Message;
 
-    static (string, string[], string, string) MessageCase(MessageKind kind, MessageDeclaration declaration, Receiver receiver, MessageAccess access, MemberAttribute attribute, AttributeTarget target, Property property)
+    static (string, string[], string, string[]) MessageCase(MessageKind kind, MessageDeclaration declaration, Receiver receiver, MessageAccess access, MemberAttribute attribute, AttributeTarget target, Property property, Variation variation = default)
     {
         var host = access == MessageAccess.PrivateInterface ? "Host." : "";
-        var keyword = kind == MessageKind.Record ? "record" : "class";
+        var keyword = kind == MessageKind.Record ? "record" : kind == MessageKind.Struct ? "struct" : "class";
         var baseDeclaration = declaration == MessageDeclaration.GenericBaseClass ? "GenericBase<TValue>" : "Base";
         var baseType = declaration == MessageDeclaration.GenericBaseClass ? $"GenericBase<{property.Type}>" : "Base";
         var messageType = kind == MessageKind.ClosedGeneric ? "Envelope<Order>" : kind == MessageKind.NestedType ? "Outer.Msg" : "Msg";
@@ -207,7 +251,7 @@ public class GeneratedAccessorDifferentialTests
             Role.Message => messageType,
             Role.Derived or _ => throw new ArgumentOutOfRangeException(nameof(kind))
         };
-        var hasDerived = kind != MessageKind.SealedClass;
+        var hasDerived = kind is not (MessageKind.SealedClass or MessageKind.Struct);
         var hasOther = kind is MessageKind.AbstractBase or MessageKind.Interface;
 
         var attributeText = AttributeText(attribute);
@@ -278,7 +322,23 @@ public class GeneratedAccessorDifferentialTests
                 throw new ArgumentOutOfRangeException(nameof(declaration));
         }
 
-        var saga = Saga(mappedType, "CorrelationId", MappingExpression(receiver, property, host, baseType, messageType), attribute);
+        var obsoleteSaga = attribute is MemberAttribute.ObsoleteError or MemberAttribute.ObsoleteInvalidId || variation.CastTarget == CastTarget.ObsoleteError;
+        var correlationType = variation.Conversion == OuterConversion.WideningNumeric ? "long" : property.Type;
+        var saga = Saga(mappedType, "CorrelationId", Convert(variation.Conversion, MappingExpression(receiver, property, host, baseType, messageType), property), obsoleteSaga);
+        if (variation.SecondReceiver is { } secondReceiver)
+        {
+            saga += $$"""
+
+
+                      {{Saga(mappedType, "CorrelationId", MappingExpression(secondReceiver, property, host, baseType, messageType), obsoleteSaga, "SecondSaga")}}
+
+                      public class SecondSagaData : ContainSagaData
+                      {
+                          public {{correlationType}} CorrelationId { get; set; } = {{property.Literal("Data")}};
+                      }
+                      """;
+        }
+
         var sagaHost = access switch
         {
             MessageAccess.Private or MessageAccess.ProtectedGetter when declaration == MessageDeclaration.OnType => kind == MessageKind.NestedType ? "Outer+Msg" : "Msg",
@@ -294,8 +354,9 @@ public class GeneratedAccessorDifferentialTests
         var derivedInterfaces = declaration is MessageDeclaration.ReimplementedExplicitlyInDerived or MessageDeclaration.ReimplementedWithNewInDerived ? ", IFace" : "";
 
         var messageDeclaration = $$"""
-                                   public {{(kind == MessageKind.SealedClass ? "sealed " : "")}}{{keyword}} {{(kind == MessageKind.ClosedGeneric ? "Envelope<TPayload>" : "Msg")}} : {{baseType}}, IFace
+                                   public {{(kind == MessageKind.SealedClass ? "sealed " : "")}}{{keyword}} {{(kind == MessageKind.ClosedGeneric ? "Envelope<TPayload>" : "Msg")}} : {{(kind == MessageKind.Struct ? "ICommand" : baseType)}}, IFace
                                    {
+                                       {{(kind == MessageKind.Struct ? "public Msg() { }" : "")}}
                                        {{messageMembers}}
                                        {{(sagaHost is "Msg" or "Outer+Msg" ? saga : "")}}
                                    }
@@ -314,7 +375,7 @@ public class GeneratedAccessorDifferentialTests
 
                       {{(kind == MessageKind.NestedType ? $"public class Outer\n{{\n{messageDeclaration}\n}}" : messageDeclaration)}}
 
-                      {{(hasDerived ? $"public {keyword} Derived : {messageType}{derivedInterfaces} {{ {derivedMembers} }}" : "")}}
+                      {{(hasDerived ? $"{CastTargetDeclaration(variation.CastTarget)} {keyword} Derived : {messageType}{derivedInterfaces} {{ {derivedMembers} }}" : "")}}
 
                       {{(hasOther ? $"public {keyword} Other : {baseType}, IFace {{ {otherMembers} }}" : "")}}
 
@@ -331,16 +392,58 @@ public class GeneratedAccessorDifferentialTests
 
                      public class TheSagaData : ContainSagaData
                      {
-                         public {{property.Type}} CorrelationId { get; set; } = {{property.Literal("Data")}};
+                         public {{correlationType}} CorrelationId { get; set; } = {{property.Literal("Data")}};
                      }
 
+                     {{(variation.CastTarget == CastTarget.ObsoleteError ? "[System.Obsolete]" : "")}}
                      {{Probe(instances, property)}}
                      """;
 
         var name = $"Message_{kind}_{declaration}_{receiver}_{access}_{AttributeName(attribute, target)}_{property}";
         string[] dimensions = [kind.ToString(), declaration.ToString(), receiver.ToString(), access.ToString(), attribute.ToString(), $"{attribute}On{target}", property.TypeDimension, property.NameDimension];
-        return (name, dimensions, body, sagaHost is null ? "TheSaga" : $"{sagaHost}+TheSaga");
+        string[] sagaTypes = [sagaHost is null ? "TheSaga" : $"{sagaHost}+TheSaga"];
+        if (variation.SecondReceiver is { } other)
+        {
+            name += $"_And{other}";
+            dimensions = [.. dimensions, "MultiSaga"];
+            sagaTypes = [.. sagaTypes, "SecondSaga"];
+        }
+
+        if (variation.Conversion != OuterConversion.None)
+        {
+            name += $"_{variation.Conversion}Conversion";
+            dimensions = [.. dimensions, $"{variation.Conversion}Conversion"];
+        }
+
+        if (variation.CastTarget != CastTarget.Plain)
+        {
+            name += $"_{variation.CastTarget}CastTarget";
+            dimensions = [.. dimensions, $"{variation.CastTarget}CastTarget"];
+        }
+
+        return (name, dimensions, body, sagaTypes);
     }
+
+    static string Convert(OuterConversion conversion, string mapping, Property property) => conversion switch
+    {
+        OuterConversion.None => mapping,
+        OuterConversion.Identity => $"({property.Type})({mapping})",
+        OuterConversion.Boxing => $"(object)({mapping})",
+        OuterConversion.WideningNumeric => $"(long)({mapping})",
+        OuterConversion.NullableLift => $"({property.Type}?)({mapping})",
+        _ => throw new ArgumentOutOfRangeException(nameof(conversion))
+    };
+
+    static string CastTargetDeclaration(CastTarget castTarget) => castTarget switch
+    {
+        CastTarget.Plain => "public",
+        CastTarget.FileLocal => "file",
+        CastTarget.Obsolete => $"{AttributeText(MemberAttribute.Obsolete)} public",
+        CastTarget.ObsoleteCustomId => $"{AttributeText(MemberAttribute.ObsoleteCustomId)} public",
+        CastTarget.ObsoleteError => $"{AttributeText(MemberAttribute.ObsoleteError)} public",
+        CastTarget.Experimental => $"{AttributeText(MemberAttribute.Experimental)} public",
+        _ => throw new ArgumentOutOfRangeException(nameof(castTarget))
+    };
 
     static string MappingExpression(Receiver receiver, Property property, string host, string baseType, string messageType) => receiver switch
     {
@@ -357,7 +460,7 @@ public class GeneratedAccessorDifferentialTests
         _ => throw new ArgumentOutOfRangeException(nameof(receiver))
     };
 
-    static IEnumerable<(string Name, string[] Dimensions, string Body, string SagaType)> CorrelationCases()
+    static IEnumerable<(string Name, string[] Dimensions, string Body, string[] SagaTypes)> CorrelationCases()
     {
         var variant = 0;
         foreach (var declaration in Enum.GetValues<SagaDataDeclaration>())
@@ -390,7 +493,7 @@ public class GeneratedAccessorDifferentialTests
         yield return CorrelationCase(SagaDataDeclaration.OnSagaData, SagaDataAccessors.GetSet, MemberAttribute.None, AttributeTarget.Property, new Property(PropertyType.NullableInt, "OrderId"));
     }
 
-    static (string, string[], string, string) CorrelationCase(SagaDataDeclaration declaration, SagaDataAccessors accessors, MemberAttribute attribute, AttributeTarget target, Property property)
+    static (string, string[], string, string[]) CorrelationCase(SagaDataDeclaration declaration, SagaDataAccessors accessors, MemberAttribute attribute, AttributeTarget target, Property property)
     {
         var attributeText = AttributeText(attribute);
         var getterModifier = accessors == SagaDataAccessors.PrivateGetSet ? "private " : "";
@@ -403,7 +506,7 @@ public class GeneratedAccessorDifferentialTests
         var mapping = $"m.{property.Name}";
         var message = $"public class Msg : ICommand {{ public {property.Type} {property.Name} {{ get; set; }} = {property.Literal("Msg")}; }}";
         var nestSaga = accessors == SagaDataAccessors.PrivateGetSet;
-        var saga = Saga("Msg", property.Name, mapping, attribute);
+        var saga = Saga("Msg", property.Name, mapping, attribute is MemberAttribute.ObsoleteError or MemberAttribute.ObsoleteInvalidId);
         var (sagaData, sagaHost) = declaration switch
         {
             SagaDataDeclaration.OnSagaData => ($"public class TheSagaData : ContainSagaData {{ {Declare("", property.Type, property.Literal("Data"))} {(nestSaga ? saga : "")} }}", "TheSagaData"),
@@ -425,16 +528,16 @@ public class GeneratedAccessorDifferentialTests
 
         var name = $"Correlation_{declaration}_{accessors}_{AttributeName(attribute, target)}_{property}";
         string[] dimensions = [declaration.ToString(), accessors.ToString(), attribute.ToString(), $"{attribute}On{target}", property.TypeDimension, property.NameDimension];
-        return (name, dimensions, body, nestSaga ? $"{sagaHost}+TheSaga" : "TheSaga");
+        return (name, dimensions, body, [nestSaga ? $"{sagaHost}+TheSaga" : "TheSaga"]);
     }
 
-    static string Saga(string mappedType, string sagaProperty, string mapping, MemberAttribute attribute) =>
+    static string Saga(string mappedType, string sagaProperty, string mapping, bool obsolete, string name = "TheSaga") =>
         $$"""
           [Saga]
-          {{(attribute is MemberAttribute.ObsoleteError or MemberAttribute.ObsoleteInvalidId ? "[System.Obsolete]" : "")}}
-          public class TheSaga : Saga<TheSagaData>, IAmStartedByMessages<{{mappedType}}>
+          {{(obsolete ? "[System.Obsolete]" : "")}}
+          public class {{name}} : Saga<{{name}}Data>, IAmStartedByMessages<{{mappedType}}>
           {
-              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TheSagaData> mapper) =>
+              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<{{name}}Data> mapper) =>
                   mapper.MapSaga(s => s.{{sagaProperty}}).ToMessage<{{mappedType}}>(m => {{mapping}});
 
               public Task Handle({{mappedType}} message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -662,50 +765,19 @@ public class GeneratedAccessorDifferentialTests
         var outcome = new Outcome(null, failures, differentialCase.Source);
         try
         {
-            var sagaType = assembly.GetType(differentialCase.SagaType, throwOnError: true)!;
             var probe = assembly.GetType($"{differentialCase.Namespace}.Probe", throwOnError: true)!;
-
-            var registered = Describe(() => Register(assembly, configuration, differentialCase, sagaType));
-            var expected = Describe(() => SagaAccessorCompilation.ExpressionBasedMetadata(sagaType));
-            if (registered.Value is not SagaMetadata registeredMetadata || expected.Value is not SagaMetadata expectedMetadata)
+            var registration = Describe(() => Register(assembly, configuration, differentialCase));
+            foreach (var sagaTypeName in differentialCase.SagaTypes)
             {
-                if (registered.Description != expected.Description)
+                var sagaType = assembly.GetType(sagaTypeName, throwOnError: true)!;
+                var registered = registration.Value is SagaMetadataCollection sagas ? Describe(() => sagas.Find(sagaType)) : registration;
+                var prefix = differentialCase.SagaTypes.Length > 1 ? $"{sagaType.Name}: " : "";
+                var (generatedMessageAccessor, generatedCorrelationAccessor) = Execute(assembly, probe, sagaType, registered, failures, prefix, differentialCase.ReadsMappedTypeImplementationOfDerived);
+                outcome = outcome with
                 {
-                    failures.Add($"Creating the saga metadata: registered {registered.Description}, compiled from the mapping {expected.Description}");
-                }
-
-                return outcome;
-            }
-
-            var messageType = registeredMetadata.AssociatedMessages.Single().MessageType;
-            var registeredMessageAccessor = MessageAccessor(registeredMetadata, messageType);
-            var expectedMessageAccessor = MessageAccessor(expectedMetadata, messageType);
-            outcome = outcome with { GeneratedMessageAccessor = registeredMessageAccessor.GetType().Assembly == assembly };
-            var messages = (object[])probe.GetMethod("Messages")!.Invoke(null, null)!;
-            foreach (var message in messages)
-            {
-                var readAs = differentialCase.ReadsMappedTypeImplementationOfDerived && message.GetType().Name == "Derived" ? messages.Single(m => m.GetType() == messageType) : message;
-                Compare(failures, $"Reading a {message.GetType().Name}", () => registeredMessageAccessor.AccessFrom(message), () => expectedMessageAccessor.AccessFrom(readAs));
-            }
-
-            if (!registeredMetadata.TryGetCorrelationProperty(out var registeredCorrelation) || !expectedMetadata.TryGetCorrelationProperty(out var expectedCorrelation))
-            {
-                throw new InvalidOperationException("The saga metadata has no correlation property.");
-            }
-
-            var registeredAccessor = registeredCorrelation.Accessor;
-            var expectedAccessor = expectedCorrelation.Accessor;
-            outcome = outcome with { GeneratedCorrelationAccessor = registeredAccessor.GetType().Assembly == assembly };
-
-            IContainSagaData NewSagaData() => (IContainSagaData)Activator.CreateInstance(registeredMetadata.SagaEntityType)!;
-            Compare(failures, "Reading new saga data", () => registeredAccessor.AccessFrom(NewSagaData()), () => expectedAccessor.AccessFrom(NewSagaData()));
-            foreach (var value in (object[])probe.GetMethod("Values")!.Invoke(null, null)!)
-            {
-                var writtenByRegistered = NewSagaData();
-                var writtenByExpected = NewSagaData();
-                Compare(failures, $"Writing {value}", () => Write(registeredAccessor, writtenByRegistered, value), () => Write(expectedAccessor, writtenByExpected, value));
-                Compare(failures, $"Reading {value} written by the registered accessor", () => expectedAccessor.AccessFrom(writtenByRegistered), () => expectedAccessor.AccessFrom(writtenByExpected));
-                Compare(failures, $"Reading {value} with the registered accessor", () => registeredAccessor.AccessFrom(writtenByExpected), () => expectedAccessor.AccessFrom(writtenByExpected));
+                    GeneratedMessageAccessor = outcome.GeneratedMessageAccessor || generatedMessageAccessor,
+                    GeneratedCorrelationAccessor = outcome.GeneratedCorrelationAccessor || generatedCorrelationAccessor
+                };
             }
         }
         catch (Exception exception)
@@ -716,10 +788,55 @@ public class GeneratedAccessorDifferentialTests
         return outcome;
     }
 
-    static SagaMetadata Register(Assembly assembly, EndpointConfiguration configuration, DifferentialCase differentialCase, Type sagaType)
+    static (bool GeneratedMessageAccessor, bool GeneratedCorrelationAccessor) Execute(Assembly assembly, Type probe, Type sagaType, (object Value, string Description) registered, List<string> failures, string prefix, bool readsMappedTypeImplementationOfDerived)
+    {
+        var expected = Describe(() => SagaAccessorCompilation.ExpressionBasedMetadata(sagaType));
+        if (registered.Value is not SagaMetadata registeredMetadata || expected.Value is not SagaMetadata expectedMetadata)
+        {
+            if (registered.Description != expected.Description)
+            {
+                failures.Add($"{prefix}Creating the saga metadata: registered {registered.Description}, compiled from the mapping {expected.Description}");
+            }
+
+            return (false, false);
+        }
+
+        var messageType = registeredMetadata.AssociatedMessages.Single().MessageType;
+        var registeredMessageAccessor = MessageAccessor(registeredMetadata, messageType);
+        var expectedMessageAccessor = MessageAccessor(expectedMetadata, messageType);
+        var messages = (object[])probe.GetMethod("Messages")!.Invoke(null, null)!;
+        foreach (var message in messages)
+        {
+            var readAs = readsMappedTypeImplementationOfDerived && message.GetType().Name == "Derived" ? messages.Single(m => m.GetType() == messageType) : message;
+            Compare(failures, $"{prefix}Reading a {message.GetType().Name}", () => registeredMessageAccessor.AccessFrom(message), () => expectedMessageAccessor.AccessFrom(readAs));
+        }
+
+        if (!registeredMetadata.TryGetCorrelationProperty(out var registeredCorrelation) || !expectedMetadata.TryGetCorrelationProperty(out var expectedCorrelation))
+        {
+            throw new InvalidOperationException("The saga metadata has no correlation property.");
+        }
+
+        var registeredAccessor = registeredCorrelation.Accessor;
+        var expectedAccessor = expectedCorrelation.Accessor;
+
+        IContainSagaData NewSagaData() => (IContainSagaData)Activator.CreateInstance(registeredMetadata.SagaEntityType)!;
+        Compare(failures, $"{prefix}Reading new saga data", () => registeredAccessor.AccessFrom(NewSagaData()), () => expectedAccessor.AccessFrom(NewSagaData()));
+        foreach (var value in (object[])probe.GetMethod("Values")!.Invoke(null, null)!)
+        {
+            var writtenByRegistered = NewSagaData();
+            var writtenByExpected = NewSagaData();
+            Compare(failures, $"{prefix}Writing {value}", () => Write(registeredAccessor, writtenByRegistered, value), () => Write(expectedAccessor, writtenByExpected, value));
+            Compare(failures, $"{prefix}Reading {value} written by the registered accessor", () => expectedAccessor.AccessFrom(writtenByRegistered), () => expectedAccessor.AccessFrom(writtenByExpected));
+            Compare(failures, $"{prefix}Reading {value} with the registered accessor", () => registeredAccessor.AccessFrom(writtenByExpected), () => expectedAccessor.AccessFrom(writtenByExpected));
+        }
+
+        return (registeredMessageAccessor.GetType().Assembly == assembly, registeredAccessor.GetType().Assembly == assembly);
+    }
+
+    static SagaMetadataCollection Register(Assembly assembly, EndpointConfiguration configuration, DifferentialCase differentialCase)
     {
         assembly.GetType("Test")!.GetMethod("Register")!.Invoke(null, [configuration, differentialCase.Namespace]);
-        return configuration.GetSettings().Get<SagaMetadataCollection>().Find(sagaType);
+        return configuration.GetSettings().Get<SagaMetadataCollection>();
     }
 
     static MessagePropertyAccessor MessageAccessor(SagaMetadata metadata, Type messageType) =>
@@ -757,7 +874,7 @@ public class GeneratedAccessorDifferentialTests
         }
     }
 
-    sealed record DifferentialCase(string Name, string[] Dimensions, string Namespace, string Source, string SagaType)
+    sealed record DifferentialCase(string Name, string[] Dimensions, string Namespace, string Source, string[] SagaTypes)
     {
         // Known limitation until Particular/NServiceBus#7968 lets such messages register: the generated accessor reads the mapped type's implementation.
         public bool ReadsMappedTypeImplementationOfDerived =>
@@ -811,7 +928,7 @@ public class GeneratedAccessorDifferentialTests
 
     enum Role { Base, Interface, Message, Derived }
 
-    enum MessageKind { Class, SealedClass, AbstractBase, Interface, ClosedGeneric, NestedType, Record }
+    enum MessageKind { Class, SealedClass, AbstractBase, Interface, ClosedGeneric, NestedType, Record, Struct }
 
     enum MessageDeclaration { OnType, OnBaseClass, ImplicitInterface, ExplicitInterface, ExplicitInterfaceOnBaseClass, DefaultInterfaceMember, GenericBaseClass, HiddenInDerived, OverriddenInDerived, ReimplementedExplicitlyInDerived, ReimplementedWithNewInDerived }
 
@@ -824,6 +941,12 @@ public class GeneratedAccessorDifferentialTests
     enum AttributeTarget { Property, Getter, Setter }
 
     enum PropertyType { String, Guid, Int, NullableInt }
+
+    enum OuterConversion { None, Identity, Boxing, WideningNumeric, NullableLift }
+
+    enum CastTarget { Plain, FileLocal, Obsolete, ObsoleteCustomId, ObsoleteError, Experimental }
+
+    readonly record struct Variation(Receiver? SecondReceiver = null, OuterConversion Conversion = OuterConversion.None, CastTarget CastTarget = CastTarget.Plain);
 
     enum SagaDataDeclaration { OnSagaData, OnBaseClass, OnGenericBaseClass, OverriddenOnSagaData }
 
