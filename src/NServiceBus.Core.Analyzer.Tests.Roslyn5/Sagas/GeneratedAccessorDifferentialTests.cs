@@ -232,7 +232,7 @@ public class GeneratedAccessorDifferentialTests
 
     const string RuntimeMessageAccessor = nameof(RuntimeMessageAccessor);
 
-    // A nested cast, or a conversion operator picked by the inner cast's type or the checked context, would bind differently when generated code repeats the outer cast.
+    // Nested casts and user-defined conversions aren't repeated by generated code, so these mappings use the runtime accessor.
     static IEnumerable<(string Name, string[] Dimensions, string Body, string[] SagaTypes)> RuntimeReceiverCases()
     {
         foreach (var receiver in Enum.GetValues<RuntimeReceiver>())

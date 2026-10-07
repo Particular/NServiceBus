@@ -267,7 +267,7 @@ public static partial class Sagas
                     read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules, read.AccessedMember, read.SuppressedDiagnosticIds));
             }
 
-            // The message, or one cast of it by reference, boxing or unboxing, which generated code repeats exactly; the cast type is only returned when the cast can fail.
+            // The message, or one identity, reference, boxing or unboxing cast of it; only a cast that can fail is returned for generated code to repeat.
             (ITypeSymbol MessageType, ITypeSymbol? ExplicitCastType)? ResolveReceiver(ExpressionSyntax receiverExpression, LambdaExpressionSyntax lambda)
             {
                 var receiver = StripSyntaxWrappers(receiverExpression, cancellationToken, stripCasts: false);
