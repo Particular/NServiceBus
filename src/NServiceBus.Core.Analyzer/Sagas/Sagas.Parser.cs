@@ -294,8 +294,9 @@ public static partial class Sagas
                     : null;
             }
 
+            // A user-defined conversion has to be repeated, because the operator a cast picks depends on the types it converts between.
             bool IsImplicitConversion(ITypeSymbol? source, ITypeSymbol? destination) =>
-                source is not null && destination is not null && semanticModel.Compilation.ClassifyConversion(source, destination).IsImplicit;
+                source is not null && destination is not null && semanticModel.Compilation.ClassifyConversion(source, destination) is { IsImplicit: true, IsUserDefined: false };
 
             // Reading through the interface dispatches like the mapping expression; when generated code can't call the interface getter, it falls back to the implementation on the receiver type.
             ReadAccess? ResolveRead(IPropertySymbol property, int position, ITypeSymbol? receiver)
