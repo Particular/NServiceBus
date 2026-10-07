@@ -6,11 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Analyzer;
-using Analyzer.Sagas;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Sagas;
 using NUnit.Framework;
 
@@ -1583,13 +1580,8 @@ public class GeneratedCorrelationAccessorExecutionTests
         return accessor.AccessFrom(message);
     }
 
-    static SagaMetadata RegisteredSagaMetadata(Assembly assembly, string sagaTypeName)
-    {
-        var configuration = new EndpointConfiguration("GeneratedAccessors");
-        var test = assembly.GetType("Test")!;
-        test.GetMethod("Configure")!.Invoke(Activator.CreateInstance(test), [configuration]);
-        return configuration.GetSettings().Get<SagaMetadataCollection>().Find(assembly.GetType(sagaTypeName)!);
-    }
+    static SagaMetadata RegisteredSagaMetadata(Assembly assembly, string sagaTypeName) =>
+        SagaAccessorCompilation.RegisteredSagas(assembly).Find(assembly.GetType(sagaTypeName)!);
 
     static MessagePropertyAccessor RegisteredMessageAccessor(Assembly assembly, string sagaTypeName, string messageTypeName) =>
         RegisteredMessageAccessor(assembly, sagaTypeName, assembly.GetType(messageTypeName)!);
@@ -1598,10 +1590,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     {
         var metadata = RegisteredSagaMetadata(assembly, sagaTypeName);
         Assert.That(metadata.TryGetFinder(messageType.FullName!, out var finderDefinition), Is.True);
-
-        // The property finder holds the accessor the saga was registered with, generated or compiled from the mapping expression.
-        var finder = typeof(SagaFinderDefinition).GetProperty("SagaFinder", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(finderDefinition)!;
-        return finder.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Select(f => f.GetValue(finder)).OfType<MessagePropertyAccessor>().Single();
+        return SagaAccessorCompilation.MessageAccessor(finderDefinition);
     }
 
     static void AssertCorrelationRoundTrip(Assembly assembly, string sagaDataTypeName)
@@ -1641,10 +1630,7 @@ public class GeneratedCorrelationAccessorExecutionTests
 
         if (dropMessageHierarchies)
         {
-            // The registration code lists every interface of a message, which cannot compile for an inaccessible one; only the accessors are under test.
-            var registrationTree = outputCompilation.SyntaxTrees.Single(t => t.ToString().Contains("RegisterMessageTypeWithHierarchy"));
-            var withoutHierarchies = Regex.Replace(registrationTree.ToString(), @"(RegisterMessageTypeWithHierarchy\(typeof\([^)]*\)), \[[^\]]*\]\)", "$1, [])");
-            outputCompilation = outputCompilation.ReplaceSyntaxTree(registrationTree, CSharpSyntaxTree.ParseText(withoutHierarchies, (CSharpParseOptions)registrationTree.Options, registrationTree.FilePath));
+            outputCompilation = SagaAccessorCompilation.WithoutMessageHierarchies(outputCompilation);
         }
 
         using var peStream = new MemoryStream();
@@ -1656,32 +1642,6 @@ public class GeneratedCorrelationAccessorExecutionTests
         return Assembly.Load(peStream.ToArray());
     }
 
-    static Compilation RunGenerators(string source, CSharpParseOptions parseOptions, bool warningsAsErrors = false)
-    {
-        var sourceTree = CSharpSyntaxTree.ParseText(source, parseOptions);
-
-        var compilation = CSharpCompilation.Create(
-            "CollidingAccessors",
-            [sourceTree],
-            ReferenceAssemblyPaths(),
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable,
-                generalDiagnosticOption: warningsAsErrors ? ReportDiagnostic.Error : ReportDiagnostic.Default));
-
-        var driver = CSharpGeneratorDriver.Create(
-            [
-                new AddSagaGenerator().AsSourceGenerator(),
-                new AddHandlerAndSagasRegistrationGenerator().AsSourceGenerator()
-            ],
-            parseOptions: parseOptions);
-
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
-        return outputCompilation;
-    }
-
-    static MetadataReference[] ReferenceAssemblyPaths() =>
-    [
-        .. AppDomain.CurrentDomain.GetAssemblies()
-            .Where(a => !string.IsNullOrWhiteSpace(a.Location))
-            .Select(MetadataReference (a) => MetadataReference.CreateFromFile(a.Location))
-    ];
+    static Compilation RunGenerators(string source, CSharpParseOptions parseOptions, bool warningsAsErrors = false) =>
+        SagaAccessorCompilation.RunGenerators(SagaAccessorCompilation.CreateCompilation(source, parseOptions, warningsAsErrors), parseOptions);
 }
