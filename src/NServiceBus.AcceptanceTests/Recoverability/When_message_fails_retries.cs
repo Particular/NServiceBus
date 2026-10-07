@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability;
+namespace NServiceBus.AcceptanceTests.Recoverability;
 
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,9 +10,9 @@ using NUnit.Framework;
 public class When_message_fails_retries : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_forward_message_to_error_queue()
+    public async Task Should_forward_message_to_error_queue()
     {
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When((session, c) => session.SendLocal(new MessageWhichFailsRetries())))
                 .Run());

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Collections.Generic;
@@ -12,11 +12,11 @@ using Transport;
 public class When_custom_policy_executed : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_provide_error_context_to_policy()
+    public async Task Should_provide_error_context_to_policy()
     {
         Requires.DelayedDelivery();
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b =>
                 b.When(bus => bus.SendLocal(new MessageToBeRetried())))
             .Run());

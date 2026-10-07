@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -11,9 +11,9 @@ using NUnit.Framework;
 public class When_saga_id_changed : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw()
+    public async Task Should_throw()
     {
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () =>
             await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(
                     b => b.When(session => session.SendLocal(new StartSaga

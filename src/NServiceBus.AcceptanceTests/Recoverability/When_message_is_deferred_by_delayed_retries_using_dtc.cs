@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability;
+namespace NServiceBus.AcceptanceTests.Recoverability;
 
 using System;
 using System.Collections.Generic;
@@ -12,12 +12,12 @@ using NUnit.Framework;
 public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_not_commit_distributed_transaction()
+    public async Task Should_not_commit_distributed_transaction()
     {
         Requires.DtcSupport();
         Requires.DelayedDelivery();
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
             .WithEndpoint<Endpoint>(b => b
                 .When((session, c) => session.SendLocal(new MessageToFail
                 {

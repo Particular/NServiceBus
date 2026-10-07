@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -9,9 +9,9 @@ using NUnit.Framework;
 class When_correlation_property_is_null : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw_an_exception_with_details()
+    public async Task Should_throw_an_exception_with_details()
     {
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<ScenarioContext>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<ScenarioContext>()
             .WithEndpoint<SagaWithCorrelationPropertyEndpoint>(e => e
                 .When(s => s
                     .SendLocal(new MessageWithNullCorrelationProperty

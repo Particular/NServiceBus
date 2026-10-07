@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
+using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
@@ -8,9 +9,9 @@ using NUnit.Framework;
 public class When_transactions_off_and_immediate_retries_enabled : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw_on_startup()
+    public async Task Should_throw_on_startup()
     {
-        var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
+        var exception = await Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
             .WithEndpoint<StartedEndpoint>()
             .Done(c => c.EndpointsStarted)
             .Run());

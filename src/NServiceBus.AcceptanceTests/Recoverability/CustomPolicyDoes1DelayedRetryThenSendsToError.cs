@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability;
+namespace NServiceBus.AcceptanceTests.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -11,12 +11,12 @@ using Transport;
 public class CustomPolicyDoes1DelayedRetryThenSendsToError : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_execute_twice_and_send_to_error_queue()
+    public async Task Should_execute_twice_and_send_to_error_queue()
     {
         Requires.DelayedDelivery();
 
         var messageId = Guid.NewGuid().ToString();
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b
                 .When(bus =>
                 {

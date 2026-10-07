@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
+using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
@@ -8,14 +9,14 @@ using NUnit.Framework;
 public class When_delayed_retries_enabled_with_no_support : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw_on_startup()
+    public async Task Should_throw_on_startup()
     {
         if (TestSuiteConstraints.Current.SupportsDelayedDelivery)
         {
             Assert.Ignore("Ignoring this test because it requires the transport to not support delayed delivery.");
         }
 
-        var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
+        var exception = await Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
             .WithEndpoint<StartedEndpoint>()
             .Done(c => c.EndpointsStarted)
             .Run());

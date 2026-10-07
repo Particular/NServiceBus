@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Pipeline.Incoming;
+namespace NServiceBus.Core.Tests.Pipeline.Incoming;
 
 using System;
 using System.Threading.Tasks;
@@ -85,13 +85,13 @@ public class InvokeHandlerTerminatorTest
     }
 
     [Test]
-    public void Should_rethrow_exception_with_additional_data()
+    public async Task Should_rethrow_exception_with_additional_data()
     {
         var thrownException = new InvalidOperationException();
         var messageHandler = CreateMessageHandler((i, m, ctx) => throw thrownException, new FakeMessageHandler());
         var behaviorContext = CreateBehaviorContext(messageHandler);
 
-        var caughtException = Assert.ThrowsAsync<InvalidOperationException>(async () => await terminator.Invoke(behaviorContext, _ => Task.CompletedTask));
+        var caughtException = await Assert.ThrowsAsync<InvalidOperationException>(async () => await terminator.Invoke(behaviorContext, _ => Task.CompletedTask));
 
         Assert.That(caughtException, Is.SameAs(thrownException));
         using (Assert.EnterMultipleScope())

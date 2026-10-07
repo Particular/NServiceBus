@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Sagas;
+namespace NServiceBus.AcceptanceTests.Core.Sagas;
 
 using System;
 using System.Threading;
@@ -14,9 +14,9 @@ using NUnit.Framework;
 public class When_no_finder_support : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw()
+    public async Task Should_throw()
     {
-        var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
             .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage())))
             .Done(c => c.EndpointsStarted)
             .Run());

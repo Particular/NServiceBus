@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline;
+namespace NServiceBus.AcceptanceTests.Core.Pipeline;
 
 using System;
 using System.Threading.Tasks;
@@ -10,11 +10,11 @@ using NUnit.Framework;
 public class When_overwriting_conversation_id : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_throw_when_incoming_conversation_id_available()
+    public async Task Should_throw_when_incoming_conversation_id_available()
     {
         var initialConversationId = Guid.NewGuid().ToString();
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(() => Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(() => Scenario.Define<Context>()
             .WithEndpoint<ReceivingEndpoint>(e => e
                 .When(s =>
                 {

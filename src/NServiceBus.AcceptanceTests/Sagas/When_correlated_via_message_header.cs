@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -33,9 +33,9 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
     }
 
     [Test]
-    public void Should_throw_when_header_is_missing()
+    public async Task Should_throw_when_header_is_missing()
     {
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () =>
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithSagaWithHeaderMapping>(c => c
                     .When(async session =>
@@ -54,9 +54,9 @@ public class When_correlated_via_message_header : NServiceBusAcceptanceTest
     }
 
     [Test]
-    public void Should_throw_when_header_cannot_be_cast_to_correlation_property_type()
+    public async Task Should_throw_when_header_cannot_be_cast_to_correlation_property_type()
     {
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () =>
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithSagaWithHeaderMapping>(c => c
                     .When(async session =>

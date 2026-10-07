@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
+namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry;
 
 using System;
 using System.Diagnostics;
@@ -11,8 +11,8 @@ using NUnit.Framework;
 public class When_no_listener_available : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_not_create_activity() =>
-        Assert.DoesNotThrowAsync(async () =>
+    public async Task Should_not_create_activity() =>
+        await Assert.DoesNotThrowAsync(async () =>
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithNoListener>(b =>

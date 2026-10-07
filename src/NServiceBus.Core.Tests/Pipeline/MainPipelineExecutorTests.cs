@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Pipeline;
+namespace NServiceBus.Core.Tests.Pipeline;
 
 using System;
 using System.Diagnostics;
@@ -98,7 +98,7 @@ public class MainPipelineExecutorTests
         }
 
         [Test]
-        public void Should_set_error_status_on_activity_when_pipeline_throws_exception()
+        public async Task Should_set_error_status_on_activity_when_pipeline_throws_exception()
         {
             var receivePipeline = new ActivityTrackingReceivePipeline();
             var serviceCollection = new ServiceCollection();
@@ -106,7 +106,7 @@ public class MainPipelineExecutorTests
             var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
             receivePipeline.ThrowsException = true;
 
-            Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
+            await Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
 
             Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Error));
         }

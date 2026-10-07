@@ -8,14 +8,14 @@ using Persistence;
 public class When_using_storage_sessions_concurrently(TestVariant param) : SagaPersisterTests(param)
 {
     [Test]
-    public void It_should_not_throw_when_being_disposed_more_than_once() =>
+    public async Task It_should_not_throw_when_being_disposed_more_than_once() =>
         // 1 : Open
         // 1 : Commit
         // 1 : Dispose
         // 2 : Open
         // 1 : Dispose
         // 2 : Commit
-        Assert.DoesNotThrowAsync(async () =>
+        await Assert.DoesNotThrowAsync(async () =>
         {
             var correlationPropertyData = Guid.NewGuid().ToString();
             var sagaData = new TestSagaData

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas;
+namespace NServiceBus.AcceptanceTests.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -10,9 +10,9 @@ using NUnit.Framework;
 public class When_updating_existing_correlation_property : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_blow_up()
+    public async Task Should_blow_up()
     {
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () =>
             await Scenario.Define<Context>()
                 .WithEndpoint<ChangePropertyEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
                 {

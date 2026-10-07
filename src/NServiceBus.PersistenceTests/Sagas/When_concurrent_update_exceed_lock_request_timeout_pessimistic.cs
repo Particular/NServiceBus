@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.PersistenceTesting.Sagas;
+namespace NServiceBus.PersistenceTesting.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -67,8 +67,8 @@ public class When_concurrent_update_exceed_lock_request_timeout_pessimistic : Sa
         var firstSessionTask = FirstSession();
         var secondSessionTask = SecondSession();
 
-        Assert.DoesNotThrowAsync(async () => await firstSessionTask);
-        Assert.CatchAsync<Exception>(async () => await secondSessionTask); // not all persisters guarantee a TimeoutException
+        await Assert.DoesNotThrowAsync(async () => await firstSessionTask);
+        await Assert.CatchAsync<Exception>(async () => await secondSessionTask); // not all persisters guarantee a TimeoutException
 
         var updatedSaga = await GetById<TestSagaData>(saga.Id);
         Assert.That(updatedSaga.SagaProperty, Is.EqualTo("session 1 value"));

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Routing;
+namespace NServiceBus.Core.Tests.Routing;
 
 using System;
 using System.Collections.Generic;
@@ -96,12 +96,12 @@ public class MessageDrivenSubscribeTerminatorTests
     }
 
     [Test]
-    public void Should_throw_when_no_publisher_for_message_found()
+    public async Task Should_throw_when_no_publisher_for_message_found()
     {
         // clear publishers list
         publishers.AddOrReplacePublishers("A", []);
 
-        var exception = Assert.ThrowsAsync<Exception>(() =>
+        var exception = await Assert.ThrowsAsync<Exception>(() =>
             subscribeTerminator.Invoke(new TestableSubscribeContext(), c => Task.CompletedTask));
 
         Assert.That(exception.Message, Does.Contain($"No publisher address could be found for message type '{typeof(object)}'."));
@@ -129,7 +129,7 @@ public class MessageDrivenSubscribeTerminatorTests
     }
 
     [Test]
-    public void When_subscribing_multiple_events_should_throw_aggregate_exception_with_all_failures()
+    public async Task When_subscribing_multiple_events_should_throw_aggregate_exception_with_all_failures()
     {
         var context = new TestableSubscribeContext
         {
@@ -148,7 +148,7 @@ public class MessageDrivenSubscribeTerminatorTests
             new PublisherTableEntry(typeof(EventA), PublisherAddress.CreateFromPhysicalAddresses("publisher1")),
         ]);
 
-        var exception = Assert.ThrowsAsync<AggregateException>(() => subscribeTerminator.Invoke(context, c => Task.CompletedTask));
+        var exception = await Assert.ThrowsAsync<AggregateException>(() => subscribeTerminator.Invoke(context, c => Task.CompletedTask));
 
         Assert.That(exception.InnerExceptions.Count, Is.EqualTo(2));
         using (Assert.EnterMultipleScope())

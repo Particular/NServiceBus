@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.Outbox;
+namespace NServiceBus.AcceptanceTests.Outbox;
 
 using System;
+using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
@@ -8,9 +9,9 @@ using NUnit.Framework;
 public class When_outbox_enabled_with_transaction_mode_above_receive_only : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_fail_to_start()
+    public async Task Should_fail_to_start()
     {
-        var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
             .Done(c => c.EndpointsStarted)
             .Run());

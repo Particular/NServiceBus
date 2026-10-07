@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Routing;
+namespace NServiceBus.Core.Tests.Routing;
 
 using System;
 using System.Threading;
@@ -13,7 +13,7 @@ using Unicast.Messages;
 public class NativeSubscribeTerminatorTests
 {
     [Test]
-    public void When_subscriptionmanager_throws_aggregateexception_on_subscribe()
+    public async Task When_subscriptionmanager_throws_aggregateexception_on_subscribe()
     {
         var innerException = new Exception("expected exception");
         var fakeSubscriptionManager = new FakeSubscriptionManager(new AggregateException(innerException));
@@ -22,13 +22,13 @@ public class NativeSubscribeTerminatorTests
         var terminator =
             new NativeSubscribeTerminator(fakeSubscriptionManager, messageMetadataRegistry);
 
-        var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
+        var exception = await Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
 
         Assert.That(exception, Is.SameAs(innerException));
     }
 
     [Test]
-    public void When_subscriptionmanager_throws_exception_on_subscribe()
+    public async Task When_subscriptionmanager_throws_exception_on_subscribe()
     {
         var expectedException = new Exception("expected exception");
         var fakeSubscriptionManager = new FakeSubscriptionManager(expectedException);
@@ -36,13 +36,13 @@ public class NativeSubscribeTerminatorTests
         messageMetadataRegistry.Initialize(_ => true, true);
         var terminator = new NativeSubscribeTerminator(fakeSubscriptionManager, messageMetadataRegistry);
 
-        var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
+        var exception = await Assert.ThrowsAsync<Exception>(() => terminator.Invoke(new TestableSubscribeContext(), _ => Task.CompletedTask));
 
         Assert.That(exception, Is.SameAs(expectedException));
     }
 
     [Test]
-    public void When_subscriptionmanager_throws_aggregateexception_on_subscribeAll()
+    public async Task When_subscriptionmanager_throws_aggregateexception_on_subscribeAll()
     {
         var aggregateException = new AggregateException(new Exception("expected exception"));
         var fakeSubscriptionManager = new FakeSubscriptionManager(aggregateException);
@@ -52,13 +52,13 @@ public class NativeSubscribeTerminatorTests
         var testableSubscribeContext = new TestableSubscribeContext();
         testableSubscribeContext.Extensions.Set(MessageSession.SubscribeAllFlagKey, true);
 
-        var exception = Assert.ThrowsAsync<AggregateException>(() => terminator.Invoke(testableSubscribeContext, _ => Task.CompletedTask));
+        var exception = await Assert.ThrowsAsync<AggregateException>(() => terminator.Invoke(testableSubscribeContext, _ => Task.CompletedTask));
 
         Assert.That(exception, Is.SameAs(aggregateException));
     }
 
     [Test]
-    public void When_subscriptionmanager_throws_exception_on_subscribeAll()
+    public async Task When_subscriptionmanager_throws_exception_on_subscribeAll()
     {
         var expectedException = new Exception("expected exception");
         var fakeSubscriptionManager = new FakeSubscriptionManager(expectedException);
@@ -68,7 +68,7 @@ public class NativeSubscribeTerminatorTests
         var testableSubscribeContext = new TestableSubscribeContext();
         testableSubscribeContext.Extensions.Set(MessageSession.SubscribeAllFlagKey, true);
 
-        var exception = Assert.ThrowsAsync<Exception>(() => terminator.Invoke(testableSubscribeContext, _ => Task.CompletedTask));
+        var exception = await Assert.ThrowsAsync<Exception>(() => terminator.Invoke(testableSubscribeContext, _ => Task.CompletedTask));
 
         Assert.That(exception, Is.SameAs(expectedException));
     }

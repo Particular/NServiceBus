@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.PublishSubscribe;
+namespace NServiceBus.AcceptanceTests.PublishSubscribe;
 
 using System;
 using System.Threading.Tasks;
@@ -28,9 +28,9 @@ public class When_disabling_publishing : NServiceBusAcceptanceTest
     }
 
     [Test]
-    public void Should_throw_when_publishing()
+    public async Task Should_throw_when_publishing()
     {
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<Context>()
             .WithEndpoint<EndpointWithDisabledPublishing>(e => e.When(
                 c => c.Publish(new MyEvent())))
             .Done(c => c.EndpointsStarted)

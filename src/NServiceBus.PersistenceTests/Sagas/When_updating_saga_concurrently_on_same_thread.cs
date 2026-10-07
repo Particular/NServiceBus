@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.PersistenceTesting.Sagas;
+namespace NServiceBus.PersistenceTesting.Sagas;
 
 using System;
 using System.Threading.Tasks;
@@ -43,7 +43,7 @@ public class When_updating_saga_concurrently_on_same_thread : SagaPersisterTests
         try
         {
             staleRecord.DateTimeProperty = DateTime.UtcNow.AddHours(1);
-            Assert.CatchAsync<Exception>(async () =>
+            await Assert.CatchAsync<Exception>(async () =>
             {
                 await persister.Update(staleRecord, losingSaveSession, losingContext);
                 await losingSaveSession.CompleteAsync();

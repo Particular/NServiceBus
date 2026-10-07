@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Features;
+namespace NServiceBus.Core.Tests.Features;
 
 using System;
 using System.Runtime.CompilerServices;
@@ -126,7 +126,7 @@ public class FeatureStartupTests
     }
 
     [Test]
-    public void Should_throw_when_feature_task_fails_on_start_and_should_stop_previously_started_tasks_and_should_abort_starting()
+    public async Task Should_throw_when_feature_task_fails_on_start_and_should_stop_previously_started_tasks_and_should_abort_starting()
     {
         var feature1 = new FeatureWithStartupTaskThatThrows(throwOnStop: true, createException: () => new InvalidOperationException("feature1"));
         var feature2 = new FeatureWithStartupTaskThatThrows(throwOnStart: true, createException: () => new InvalidOperationException("feature2"));
@@ -138,7 +138,7 @@ public class FeatureStartupTests
 
         featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
 
-        var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await featureComponent.StartFeatures(null, null));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await featureComponent.StartFeatures(null, null));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(exception.Message, Is.EqualTo("feature2"));
@@ -164,7 +164,7 @@ public class FeatureStartupTests
 
         await featureComponent.StartFeatures(null, null);
 
-        Assert.DoesNotThrowAsync(async () => await featureComponent.StopFeatures(null));
+        await Assert.DoesNotThrowAsync(async () => await featureComponent.StopFeatures(null));
 
         using (Assert.EnterMultipleScope())
         {

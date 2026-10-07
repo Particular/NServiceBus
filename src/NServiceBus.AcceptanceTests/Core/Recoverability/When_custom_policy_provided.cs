@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability;
+namespace NServiceBus.AcceptanceTests.Core.Recoverability;
 
 using System;
 using System.Threading.Tasks;
@@ -10,11 +10,11 @@ using NUnit.Framework;
 public class When_custom_policy_provided : NServiceBusAcceptanceTest
 {
     [Test]
-    public void Should_pass_recoverability_configuration()
+    public async Task Should_pass_recoverability_configuration()
     {
         Requires.DelayedDelivery();
 
-        var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
+        var exception = await Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b =>
                 b.When(bus => bus.SendLocal(new MessageToBeRetried())))
             .Run());

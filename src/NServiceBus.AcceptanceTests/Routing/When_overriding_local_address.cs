@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing;
+namespace NServiceBus.AcceptanceTests.Routing;
 
 using System;
 using System.Threading.Tasks;
@@ -29,9 +29,9 @@ public class When_overriding_local_address : NServiceBusAcceptanceTest
     }
 
     [Test]
-    public void Should_not_be_allowed_when_send_only()
+    public async Task Should_not_be_allowed_when_send_only()
     {
-        var ex = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
+        var ex = await Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
            .WithEndpoint<Sender>()
            .WithEndpoint<Receiver>(e => e.CustomConfig(c => c.SendOnly()))
            .Done(c => c.EndpointsStarted)
