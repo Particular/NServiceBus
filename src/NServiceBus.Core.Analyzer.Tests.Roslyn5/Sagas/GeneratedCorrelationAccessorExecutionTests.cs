@@ -2052,6 +2052,9 @@ public class GeneratedCorrelationAccessorExecutionTests
     [TestCase("[System.Obsolete(\"Use something else\", DiagnosticId = \"LEGACY001\")] public class DerivedStart : Start { }", "((DerivedStart)m).Id", "LEGACY001", "")]
     [TestCase("[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public interface IHasId { string Id { get; } }", "((IHasId)m).Id", "EXP001", "")]
     [TestCase("file interface IHasId { string Id { get; } }", "((IHasId)m).Id", null, "")]
+    [TestCase("[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public class ExperimentalType { } public class DerivedStart<T> : Start { }", "((DerivedStart<ExperimentalType[]>)m).Id", "EXP001", "")]
+    [TestCase("[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public class ExperimentalType { } public class DerivedStart<T> : Start { }", "((DerivedStart<ExperimentalType[][,]>)m).Id", "EXP001", "")]
+    [TestCase("file class Hidden { } public class DerivedStart<T> : Start { }", "((DerivedStart<Hidden[]>)m).Id", null, "")]
     public void Message_cast_that_can_fail_to_a_type_generated_code_cannot_name_is_read_by_the_runtime_accessor(string declarations, string mapping, string mappingSuppression, string sagaAttribute)
     {
         var source = $$"""

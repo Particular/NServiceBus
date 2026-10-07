@@ -309,6 +309,11 @@ public static partial class Sagas
             // Generated code can't name a file-local type, and naming an obsolete or experimental one reports what the mapping's suppressions covered.
             bool CanBeNamedWithoutDiagnostics(ITypeSymbol type)
             {
+                if (type is IArrayTypeSymbol array)
+                {
+                    return CanBeNamedWithoutDiagnostics(array.ElementType);
+                }
+
                 SortedSet<string>? diagnosticIds = null;
                 for (var namedType = type as INamedTypeSymbol; namedType is not null; namedType = namedType.ContainingType)
                 {
