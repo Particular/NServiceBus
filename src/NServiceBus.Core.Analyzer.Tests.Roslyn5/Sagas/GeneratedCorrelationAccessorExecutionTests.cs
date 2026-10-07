@@ -1560,6 +1560,62 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("DerivedStart")!)!), Is.EqualTo(expectedValue));
     }
 
+    [TestCase("m.Inner.Id", "a-inner", "b-inner")]
+    [TestCase("(m as IHasId).Id", "a", "b")]
+    public void Messages_mapped_through_something_other_than_the_message_are_read_by_runtime_accessors(string mapping, string expectedA, string expectedB)
+    {
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public interface IHasId
+                       {
+                           string Id { get; }
+                       }
+
+                       public class Inner
+                       {
+                           public string Id { get; set; } = "";
+                       }
+
+                       public class A : ICommand, IHasId
+                       {
+                           public Inner Inner { get; set; } = new() { Id = "a-inner" };
+                           public string Id => "a";
+                       }
+
+                       public class B : ICommand, IHasId
+                       {
+                           public Inner Inner { get; set; } = new() { Id = "b-inner" };
+                           public string Id => "b";
+                       }
+
+                       [Saga]
+                       public class MemberSaga : Saga<MemberSagaData>, IAmStartedByMessages<A>, IAmStartedByMessages<B>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MemberSagaData> mapper) =>
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<A>(m => {{mapping}}).ToMessage<B>(m => {{mapping}});
+
+                           public Task Handle(A message, IMessageHandlerContext context) => Task.CompletedTask;
+
+                           public Task Handle(B message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class MemberSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source);
+
+        var accessorA = RegisteredMessageAccessor(assembly, "MemberSaga", "A");
+        var accessorB = RegisteredMessageAccessor(assembly, "MemberSaga", "B");
+
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.That(accessorA.AccessFrom(Activator.CreateInstance(assembly.GetType("A")!)!), Is.EqualTo(expectedA));
+        Assert.That(accessorB.AccessFrom(Activator.CreateInstance(assembly.GetType("B")!)!), Is.EqualTo(expectedB));
+    }
+
     [Test]
     public void Nullable_correlation_property_compiles_and_is_rejected_when_registered_like_the_runtime_mapping()
     {

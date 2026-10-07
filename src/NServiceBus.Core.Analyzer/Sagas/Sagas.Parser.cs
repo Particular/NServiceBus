@@ -247,12 +247,9 @@ public static partial class Sagas
                     return;
                 }
 
-                // Message "variable" expression: the left side of "message.Property"
-                var messageExpression = StripSyntaxWrappers(memberAccess.Expression, cancellationToken);
-
-                // Message type (symbol)
-                var messageTypeSymbol = semanticModel.GetTypeInfo(messageExpression, cancellationToken).Type ?? propertySymbol.ContainingType;
-                if (messageTypeSymbol is null)
+                // Accessors are registered by the type they read, so reading anything but the mapped message could collide with another mapping's accessor.
+                if (semanticModel.GetSymbolInfo(StripSyntaxWrappers(memberAccess.Expression, cancellationToken), cancellationToken).Symbol is not IParameterSymbol { Type: var messageTypeSymbol } parameter
+                    || !SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, semanticModel.GetSymbolInfo(lambda, cancellationToken).Symbol))
                 {
                     return;
                 }
