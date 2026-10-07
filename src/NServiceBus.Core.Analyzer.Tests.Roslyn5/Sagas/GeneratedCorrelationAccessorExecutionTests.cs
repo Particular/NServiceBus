@@ -1936,34 +1936,33 @@ public class GeneratedCorrelationAccessorExecutionTests
         });
     }
 
-    [TestCase("public static implicit operator Wrapper(Start start) => new OtherWrapper { Id = \"wrapper-value\" };", "public static explicit operator OtherWrapper(Start start) => new() { Id = \"other-value\" };", "((OtherWrapper)(Wrapper)m).Id", "wrapper-value")]
-    [TestCase("", "public static implicit operator OtherWrapper(Start start) => new() { Id = \"other-value\" };", "((OtherWrapper)m).Id", "other-value")]
-    public void Message_converted_by_a_user_defined_conversion_is_read_like_the_mapping(string wrapperOperator, string otherWrapperOperator, string mapping, string expectedValue)
+    [TestCase("public class Start : ICommand { public string Id { get; set; } = \"start-value\"; } public class Wrapper { public string Id { get; set; } = \"\"; public static implicit operator Wrapper(Start start) => new OtherWrapper { Id = \"wrapper-value\" }; } public class OtherWrapper : Wrapper { public static explicit operator OtherWrapper(Start start) => new() { Id = \"other-value\" }; }",
+        "((OtherWrapper)(Wrapper)m).Id", false, "returns wrapper-value")]
+    [TestCase("public class Start : ICommand { public string Id { get; set; } = \"start-value\"; } public class Wrapper { public string Id { get; set; } = \"\"; } public class OtherWrapper : Wrapper { public static implicit operator OtherWrapper(Start start) => new() { Id = \"other-value\" }; }",
+        "((OtherWrapper)m).Id", false, "returns other-value")]
+    [TestCase("public class Base : ICommand { } public class Start : Base { public string Id { get; set; } = \"start-value\"; } public class Wrapper { public string Id { get; set; } = \"\"; public static explicit operator Wrapper(Base message) => new() { Id = \"base-value\" }; public static explicit operator Wrapper(Start message) => new() { Id = \"start-value\" }; }",
+        "((Wrapper)(Base)m).Id", false, "returns base-value")]
+    [TestCase("public class Start : ICommand { public string Id { get; set; } = \"start-value\"; public static explicit operator Wrapper(Start start) => new() { Id = \"wrapper-value\" }; } public class Wrapper { public string Id { get; set; } = \"\"; }",
+        "((Wrapper)(object)m).Id", false, "throws InvalidCastException")]
+    [TestCase(CheckedConversions, "((Wrapper)m).Id", true, "returns checked-value")]
+    [TestCase(CheckedConversions, "((Wrapper)m).Id", false, "returns unchecked-value")]
+    public void Message_converted_by_a_user_defined_conversion_is_read_by_the_runtime_accessor(string declarations, string mapping, bool checkedContext, string expectedRead)
     {
         var source = $$"""
                        {{AddAllPreamble}}
 
-                       public class Start : ICommand
-                       {
-                           public string Id { get; set; } = "start-value";
-                       }
-
-                       public class Wrapper
-                       {
-                           public string Id { get; set; } = "";
-                           {{wrapperOperator}}
-                       }
-
-                       public class OtherWrapper : Wrapper
-                       {
-                           {{otherWrapperOperator}}
-                       }
+                       {{declarations}}
 
                        [Saga]
                        public class ConversionSaga : Saga<ConversionSagaData>, IAmStartedByMessages<Start>
                        {
-                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConversionSagaData> mapper) =>
-                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => {{mapping}});
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConversionSagaData> mapper)
+                           {
+                               {{(checkedContext ? "checked" : "unchecked")}}
+                               {
+                                   mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => {{mapping}});
+                               }
+                           }
 
                            public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
                        }
@@ -1976,17 +1975,31 @@ public class GeneratedCorrelationAccessorExecutionTests
 
         var assembly = CompileAndLoad(source, warningsAsErrors: true);
 
-        Assert.That(RegisteredMessageAccessor(assembly, "ConversionSaga", "Start").AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo(expectedValue));
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.That(Read(RegisteredMessageAccessor(assembly, "ConversionSaga", "Start"), Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo(expectedRead));
     }
 
-    [TestCase("[System.Obsolete(\"Use something else\")]", "Wrapper", "implicit", "CS0618", "", true)]
-    [TestCase(LegacyObsolete, "Wrapper", "implicit", "LEGACY001", "", false)]
-    [TestCase(LegacyObsolete, "Start", "explicit", "LEGACY001", "", false)]
-    [TestCase(Experimental, "Wrapper", "explicit", "EXP001", "", false)]
-    [TestCase(Experimental, "Start", "implicit", "EXP001", "", false)]
-    [TestCase("[System.Obsolete(\"Use something else\", true)]", "Wrapper", "implicit", null, "[System.Obsolete]", false)]
-    [TestCase("[System.Obsolete(\"Use something else\", true)]", "Start", "explicit", null, "[System.Obsolete]", false)]
-    public void Message_converted_by_a_user_defined_conversion_that_reports_a_diagnostic_is_only_read_by_a_generated_accessor_when_generated_files_suppress_it(string attribute, string declaringType, string conversionKind, string mappingSuppression, string sagaAttribute, bool generated)
+    const string CheckedConversions = """
+                                      public class Start : ICommand
+                                      {
+                                          public static explicit operator Wrapper(Start start) => new() { Id = "unchecked-value" };
+                                          public static explicit operator checked Wrapper(Start start) => new() { Id = "checked-value" };
+                                      }
+
+                                      public class Wrapper
+                                      {
+                                          public string Id { get; set; } = "";
+                                      }
+                                      """;
+
+    [TestCase("[System.Obsolete(\"Use something else\")]", "Wrapper", "implicit", "CS0618", "")]
+    [TestCase(LegacyObsolete, "Wrapper", "implicit", "LEGACY001", "")]
+    [TestCase(LegacyObsolete, "Start", "explicit", "LEGACY001", "")]
+    [TestCase(Experimental, "Wrapper", "explicit", "EXP001", "")]
+    [TestCase(Experimental, "Start", "implicit", "EXP001", "")]
+    [TestCase("[System.Obsolete(\"Use something else\", true)]", "Wrapper", "implicit", null, "[System.Obsolete]")]
+    [TestCase("[System.Obsolete(\"Use something else\", true)]", "Start", "explicit", null, "[System.Obsolete]")]
+    public void Message_converted_by_a_user_defined_conversion_that_reports_a_diagnostic_is_read_by_the_runtime_accessor(string attribute, string declaringType, string conversionKind, string mappingSuppression, string sagaAttribute)
     {
         var conversionOperator = $"{attribute} public static {conversionKind} operator Wrapper(Start start) => new() {{ Id = \"wrapper-value\" }};";
         var source = $$"""
@@ -2026,9 +2039,8 @@ public class GeneratedCorrelationAccessorExecutionTests
 
         var assembly = CompileAndLoad(source, warningsAsErrors: true);
 
-        var accessor = RegisteredMessageAccessor(assembly, "ConversionSaga", "Start");
-        Assert.That(accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("wrapper-value"));
-        Assert.That(accessor.GetType().Assembly == assembly, Is.EqualTo(generated));
+        Assert.That(GetAccessors<MessagePropertyAccessor>(assembly), Is.Empty);
+        Assert.That(RegisteredMessageAccessor(assembly, "ConversionSaga", "Start").AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("wrapper-value"));
     }
 
     [TestCase("file class DerivedStart : Start { }", "((DerivedStart)m).Id", null, "")]
@@ -2396,17 +2408,17 @@ public class GeneratedCorrelationAccessorExecutionTests
             var message = Activator.CreateInstance(assembly.GetType(instanceTypeName)!)!;
             Assert.That(Read(accessor, message), Is.EqualTo(Read(expressionAccessor, message)), $"{sagaTypeName} reading a {instanceTypeName}");
         }
+    }
 
-        static string Read(MessagePropertyAccessor accessor, object message)
+    static string Read(MessagePropertyAccessor accessor, object message)
+    {
+        try
         {
-            try
-            {
-                return $"returns {accessor.AccessFrom(message)}";
-            }
-            catch (Exception exception)
-            {
-                return $"throws {exception.GetType().Name}";
-            }
+            return $"returns {accessor.AccessFrom(message)}";
+        }
+        catch (Exception exception)
+        {
+            return $"throws {exception.GetType().Name}";
         }
     }
 

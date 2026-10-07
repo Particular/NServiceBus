@@ -171,7 +171,7 @@ public class GeneratedAccessorDifferentialTests
         }
     }
 
-    // Generated code repeats a user-defined conversion, so it calls the operator the mapping calls.
+    // Generated code doesn't repeat user-defined conversions, so these use the runtime accessor whatever the operator's attributes.
     static IEnumerable<(string Name, string[] Dimensions, string Body, string[] SagaTypes)> ConversionOperatorCases()
     {
         var variant = 0;

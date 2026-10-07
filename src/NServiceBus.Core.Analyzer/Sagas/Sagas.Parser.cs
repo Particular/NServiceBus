@@ -247,9 +247,7 @@ public static partial class Sagas
                     return;
                 }
 
-                // Accessors are registered by the type they read, so reading anything but the mapped message could collide with another mapping's accessor.
-                if (semanticModel.GetSymbolInfo(StripSyntaxWrappers(memberAccess.Expression, cancellationToken), cancellationToken).Symbol is not IParameterSymbol { Type: var messageTypeSymbol } parameter
-                    || !SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, semanticModel.GetSymbolInfo(lambda, cancellationToken).Symbol))
+                if (ResolveReceiver(memberAccess.Expression, lambda) is not ({ } messageTypeSymbol, var explicitCastType))
                 {
                     return;
                 }
@@ -260,7 +258,7 @@ public static partial class Sagas
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 // Without a member generated code can call, the runtime accessor compiled from the mapping expression is used.
-                if (ResolveMappedRead(propertySymbol, memberAccess.Expression, messageTypeSymbol) is not { } read || TargetsUnsupportedType(read.ExternGetter))
+                if (ResolveMappedRead(propertySymbol, memberAccess.Expression.SpanStart, messageTypeSymbol, explicitCastType) is not { } read || TargetsUnsupportedType(read.ExternGetter))
                 {
                     return;
                 }
@@ -269,22 +267,34 @@ public static partial class Sagas
                     read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules, read.AccessedMember, read.SuppressedDiagnosticIds));
             }
 
-            // A cast that can fail for some messages has to fail the same way in generated code, so the read starts from the cast type.
-            ReadAccess? ResolveMappedRead(IPropertySymbol property, ExpressionSyntax receiverExpression, ITypeSymbol messageType)
+            // The message, or one cast of it by reference, boxing or unboxing, which generated code repeats exactly; the cast type is only returned when the cast can fail.
+            (ITypeSymbol MessageType, ITypeSymbol? ExplicitCastType)? ResolveReceiver(ExpressionSyntax receiverExpression, LambdaExpressionSyntax lambda)
             {
-                var position = receiverExpression.SpanStart;
                 var receiver = StripSyntaxWrappers(receiverExpression, cancellationToken, stripCasts: false);
-                // Generated code only repeats the outermost cast.
-                for (var operand = receiver; operand is CastExpressionSyntax cast; operand = StripSyntaxWrappers(cast.Expression, cancellationToken, stripCasts: false))
+                ITypeSymbol? explicitCastType = null;
+                if (receiver is CastExpressionSyntax cast)
                 {
-                    if ((operand != receiver && !IsImplicitConversion(semanticModel.GetTypeInfo(cast.Expression, cancellationToken).Type, semanticModel.GetTypeInfo(cast, cancellationToken).Type))
-                        || (semanticModel.GetOperation(cast, cancellationToken) is IConversionOperation { OperatorMethod: { } conversionOperator } && !CanBeCalledWithoutDiagnostics(conversionOperator)))
+                    if (semanticModel.GetOperation(cast, cancellationToken) is not IConversionOperation { Type: { } castType } conversion
+                        || conversion.GetConversion() is not ({ IsIdentity: true } or { IsReference: true } or { IsBoxing: true } or { IsUnboxing: true }))
                     {
                         return null;
                     }
+
+                    explicitCastType = conversion.GetConversion().IsImplicit ? null : castType;
+                    receiver = StripSyntaxWrappers(cast.Expression, cancellationToken, stripCasts: false);
                 }
 
-                if (semanticModel.GetTypeInfo(receiver, cancellationToken).Type is not { } castType || IsImplicitConversion(messageType, castType))
+                // Accessors are registered by the type they read, so reading anything but the mapped message could collide with another mapping's accessor.
+                return semanticModel.GetSymbolInfo(receiver, cancellationToken).Symbol is IParameterSymbol { Type: var messageType } parameter
+                       && SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, semanticModel.GetSymbolInfo(lambda, cancellationToken).Symbol)
+                    ? (messageType, explicitCastType)
+                    : null;
+            }
+
+            // A cast that can fail for some messages has to fail the same way in generated code, so the read starts from the cast type.
+            ReadAccess? ResolveMappedRead(IPropertySymbol property, int position, ITypeSymbol messageType, ITypeSymbol? castType)
+            {
+                if (castType is null)
                 {
                     return ResolveRead(property, position, messageType);
                 }
@@ -311,17 +321,6 @@ public static partial class Sagas
                 // Only what the generated files already suppress, such as a plain obsolete type.
                 return diagnosticIds is null;
             }
-
-            // Repeating a user-defined conversion calls its operator, which reports what the mapping's suppressions covered.
-            bool CanBeCalledWithoutDiagnostics(IMethodSymbol method)
-            {
-                SortedSet<string>? diagnosticIds = null;
-                return TryAddSuppressibleDiagnosticIdsWithDeclaringAssembly(method, ref diagnosticIds) && diagnosticIds is null;
-            }
-
-            // A user-defined conversion has to be repeated, because the operator a cast picks depends on the types it converts between.
-            bool IsImplicitConversion(ITypeSymbol? source, ITypeSymbol? destination) =>
-                source is not null && destination is not null && semanticModel.Compilation.ClassifyConversion(source, destination) is { IsImplicit: true, IsUserDefined: false };
 
             // Reading through the interface dispatches like the mapping expression; when generated code can't call the interface getter, it falls back to the implementation on the receiver type.
             ReadAccess? ResolveRead(IPropertySymbol property, int position, ITypeSymbol? receiver)
