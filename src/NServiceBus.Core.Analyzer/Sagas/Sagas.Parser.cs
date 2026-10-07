@@ -53,19 +53,17 @@ public static partial class Sagas
                 return null;
             }
 
-            if (sagaType.DeclaringSyntaxReferences.FirstOrDefault()?.SyntaxTree is not { } sagaSyntaxTree)
+            if (sagaType.DeclaringSyntaxReferences.IsEmpty)
             {
                 return null;
             }
-
-            var sagaSemanticModel = compilation.GetSemanticModel(sagaSyntaxTree);
 
             var sagaBaseSpec = Handlers.Parser.Parse(sagaType, BaseParser.SpecKind.Saga, knownTypes, cancellationToken);
             var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             // Analyze ConfigureHowToFindSaga to extract mappings. Finder-only sagas have no correlation property
             // and no property mappings but are still valid sagas that must be registered.
-            var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, sagaSemanticModel, cancellationToken);
+            var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, compilation, cancellationToken);
 
             return new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, correlationProperty, propertyMappings);
         }
@@ -89,7 +87,7 @@ public static partial class Sagas
 
         static (CorrelationPropertyMappingSpec?, ImmutableEquatableArray<PropertyMappingSpec>) ExtractPropertyMappings(
             INamedTypeSymbol sagaType,
-            SemanticModel semanticModel,
+            Compilation compilation,
             CancellationToken cancellationToken)
         {
             var configureMethod = FindConfigureHowToFindSagaMethod(sagaType);
@@ -110,7 +108,8 @@ public static partial class Sagas
                 return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
             }
 
-            var walker = new ConfigureMappingWalker(semanticModel, cancellationToken);
+            // A partial saga can declare it in another file.
+            var walker = new ConfigureMappingWalker(compilation.GetSemanticModel(methodDeclaration.SyntaxTree), cancellationToken);
             walker.Visit(methodBody);
 
             if (!walker.MapsCorrelationProperty)

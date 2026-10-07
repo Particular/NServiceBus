@@ -249,6 +249,50 @@ public class GeneratedCorrelationAccessorExecutionTests
     }
 
     [Test]
+    public void Partial_saga_mapped_in_another_file_gets_the_same_accessors_as_a_single_declaration()
+    {
+        const string mapping = """
+                                   protected override void ConfigureHowToFindSaga(SagaPropertyMapper<PartialSagaData> mapper) =>
+                                       mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => m.CorrelationId);
+                               """;
+        static string Source(string sagaMembers) =>
+            $$"""
+              {{AddAllPreamble}}
+
+              [Saga]
+              public partial class PartialSaga : Saga<PartialSagaData>, IAmStartedByMessages<Start>
+              {
+                  public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+              {{sagaMembers}}
+              }
+
+              public class PartialSagaData : ContainSagaData
+              {
+                  public string CorrelationId { get; set; } = "";
+              }
+
+              public class Start : ICommand
+              {
+                  public string CorrelationId { get; set; } = "correlation-value";
+              }
+              """;
+
+        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
+        var singleDeclaration = SagaAccessorCompilation.CreateCompilation(Source(mapping), parseOptions);
+        var mappedInAnotherFile = SagaAccessorCompilation.CreateCompilation(Source(""), parseOptions)
+            .AddSyntaxTrees(CSharpSyntaxTree.ParseText($"using NServiceBus;\n\npublic partial class PartialSaga\n{{\n{mapping}\n}}", parseOptions));
+
+        var expected = SagaAccessorCompilation.RunGenerators(singleDeclaration, parseOptions);
+        var actual = SagaAccessorCompilation.RunGenerators(mappedInAnotherFile, parseOptions, out var generatorDiagnostics);
+
+        Assert.That(generatorDiagnostics, Is.Empty);
+        Assert.That(GeneratedTrees(actual), Is.EqualTo(GeneratedTrees(expected)));
+        Assert.That(GeneratedTrees(actual), Has.Some.Contains("AccessFrom(global::Start message)"));
+
+        static string[] GeneratedTrees(Compilation compilation) => [.. compilation.SyntaxTrees.Where(tree => !string.IsNullOrEmpty(tree.FilePath)).Select(tree => tree.ToString())];
+    }
+
+    [Test]
     public void Message_getter_only_reachable_from_a_nested_saga_is_read_through_an_extern_accessor()
     {
         var source = """
