@@ -1945,6 +1945,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     [TestCase("public class Start : ICommand { public string Id { get; set; } = \"start-value\"; public static explicit operator Wrapper(Start start) => new() { Id = \"wrapper-value\" }; } public class Wrapper { public string Id { get; set; } = \"\"; }",
         "((Wrapper)(object)m).Id", false, "throws InvalidCastException")]
     [TestCase(CheckedConversions, "((Wrapper)m).Id", true, "returns checked-value")]
+    [TestCase(CheckedConversions, "checked((Wrapper)m).Id", false, "returns checked-value")]
     [TestCase(CheckedConversions, "((Wrapper)m).Id", false, "returns unchecked-value")]
     public void Message_converted_by_a_user_defined_conversion_is_read_by_the_runtime_accessor(string declarations, string mapping, bool checkedContext, string expectedRead)
     {

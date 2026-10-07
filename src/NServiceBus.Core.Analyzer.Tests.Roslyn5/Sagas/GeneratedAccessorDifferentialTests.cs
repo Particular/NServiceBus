@@ -33,6 +33,21 @@ public class GeneratedAccessorDifferentialTests
         Assert.That(Outcomes.Value[caseName].GeneratedMessageAccessor, Is.True);
     }
 
+    [TestCaseSource(nameof(RuntimeMessageAccessorCaseNames))]
+    public void Registered_accessors_for_receivers_generated_code_cannot_repeat_exactly_are_the_accessors_compiled_from_the_mapping(string caseName)
+    {
+        AssertOutcome(caseName);
+        Assert.That(Outcomes.Value[caseName].GeneratedMessageAccessor, Is.False);
+    }
+
+    [TestCaseSource(nameof(UnderscoreNameCaseNames))]
+    public void Registered_accessors_for_names_whose_parts_join_the_same_way_are_generated_for_each_saga(string caseName)
+    {
+        AssertOutcome(caseName);
+        Assert.That(Outcomes.Value[caseName].GeneratedMessageAccessors, Is.EqualTo(2));
+        Assert.That(Outcomes.Value[caseName].GeneratedCorrelationAccessors, Is.EqualTo(2));
+    }
+
     static void AssertOutcome(string caseName)
     {
         var outcome = Outcomes.Value[caseName];
@@ -57,6 +72,7 @@ public class GeneratedAccessorDifferentialTests
         }
 
         TestContext.Out.WriteLine($"  {executed.Count(c => Outcomes.Value[c.Name].GeneratedMessageAccessor)} generated message accessors, {executed.Count(c => Outcomes.Value[c.Name].GeneratedCorrelationAccessor)} generated correlation accessors");
+        TestContext.Out.WriteLine($"  {executed.Count(c => c.UsesRuntimeMessageAccessor)} receivers generated code can't repeat exactly, {executed.Count(c => c.HasUnderscoreNames)} pairs of names joining the same way");
 
         var uncovered = cases.SelectMany(c => c.Dimensions).Distinct()
             .Where(dimension => !executed.Any(c => c.Dimensions.Contains(dimension)))
@@ -71,14 +87,20 @@ public class GeneratedAccessorDifferentialTests
     // Saga data setters must be public.
     static readonly string[] AlwaysRejectedDimensions = ["GetPrivateSet", "GetProtectedSet"];
 
-    static IEnumerable<TestCaseData> CaseNames() => AllCases().Where(c => !c.ReadsMappedTypeImplementationOfDerived).Select(c => new TestCaseData(c.Name).SetArgDisplayNames(c.Name));
+    static IEnumerable<TestCaseData> CaseNames() => CaseNamesWhere(c => !c.ReadsMappedTypeImplementationOfDerived && !c.UsesRuntimeMessageAccessor && !c.HasUnderscoreNames);
 
-    static IEnumerable<TestCaseData> KnownLimitationCaseNames() => AllCases().Where(c => c.ReadsMappedTypeImplementationOfDerived).Select(c => new TestCaseData(c.Name).SetArgDisplayNames(c.Name));
+    static IEnumerable<TestCaseData> KnownLimitationCaseNames() => CaseNamesWhere(c => c.ReadsMappedTypeImplementationOfDerived);
+
+    static IEnumerable<TestCaseData> RuntimeMessageAccessorCaseNames() => CaseNamesWhere(c => c.UsesRuntimeMessageAccessor);
+
+    static IEnumerable<TestCaseData> UnderscoreNameCaseNames() => CaseNamesWhere(c => c.HasUnderscoreNames);
+
+    static IEnumerable<TestCaseData> CaseNamesWhere(Func<DifferentialCase, bool> predicate) => AllCases().Where(predicate).Select(c => new TestCaseData(c.Name).SetArgDisplayNames(c.Name));
 
     static IEnumerable<DifferentialCase> AllCases()
     {
         var index = 0;
-        foreach (var (name, dimensions, body, sagaTypes) in MessageCases().Concat(MultiSagaCases()).Concat(ConversionOperatorCases()).Concat(CorrelationCases()))
+        foreach (var (name, dimensions, body, sagaTypes) in MessageCases().Concat(MultiSagaCases()).Concat(ConversionOperatorCases()).Concat(RuntimeReceiverCases()).Concat(UnderscoreNameCases()).Concat(CorrelationCases()))
         {
             var caseNamespace = $"Case{index++:D4}";
             yield return new DifferentialCase(name, dimensions, caseNamespace, $"namespace {caseNamespace}\n{{\n{Suppressions}\n{body}\n#pragma warning restore\n}}\n", [.. sagaTypes.Select(sagaType => $"{caseNamespace}.{sagaType}")]);
@@ -203,7 +225,121 @@ public class GeneratedAccessorDifferentialTests
 
                              {{Probe("new Msg()", property)}}
                              """;
-                yield return ($"ConversionOperator_{attribute}_On{host}_{property}", ["ConversionOperator", $"{attribute}OnConversionOperator", $"ConversionOperatorOn{host}"], body, ["TheSaga"]);
+                yield return ($"ConversionOperator_{attribute}_On{host}_{property}", ["ConversionOperator", $"{attribute}OnConversionOperator", $"ConversionOperatorOn{host}", RuntimeMessageAccessor], body, ["TheSaga"]);
+            }
+        }
+    }
+
+    const string RuntimeMessageAccessor = nameof(RuntimeMessageAccessor);
+
+    // A nested cast, or a conversion operator picked by the inner cast's type or the checked context, would bind differently when generated code repeats the outer cast.
+    static IEnumerable<(string Name, string[] Dimensions, string Body, string[] SagaTypes)> RuntimeReceiverCases()
+    {
+        foreach (var receiver in Enum.GetValues<RuntimeReceiver>())
+        {
+            foreach (var propertyType in RotatingTypes)
+            {
+                var property = new Property(propertyType, "Id");
+                string Operator(string parameterType, string tag, string checkedKeyword = "") => $"public static explicit operator {checkedKeyword}Wrapper({parameterType} message) => new() {{ Id = {property.Literal(tag)} }};";
+                // The analyzers only accept a checked context around the receiver, not a checked block around the mapping.
+                var (wrapperOperators, messageOperators, mapping) = receiver switch
+                {
+                    RuntimeReceiver.NestedReferenceCasts => ("", "", "((Derived)(Base)m).Id"),
+                    RuntimeReceiver.NestedCastToOverloadedConversion => (Operator("Base", "Base") + Operator("Msg", "Msg"), "", "((Wrapper)(Base)m).Id"),
+                    RuntimeReceiver.NestedCastThroughObject => (Operator("Msg", "Msg"), "", "((Wrapper)(object)m).Id"),
+                    RuntimeReceiver.CheckedConversion => ("", Operator("Msg", "First") + Operator("Msg", "Second", "checked "), "checked((Wrapper)m).Id"),
+                    RuntimeReceiver.UncheckedConversion => ("", Operator("Msg", "First") + Operator("Msg", "Second", "checked "), "((Wrapper)m).Id"),
+                    _ => throw new ArgumentOutOfRangeException(nameof(receiver))
+                };
+                var body = $$"""
+                             public class Base : ICommand
+                             {
+                                 public {{property.Type}} Id { get; set; } = {{property.Literal("Base")}};
+                             }
+
+                             public class Msg : Base
+                             {
+                                 {{messageOperators}}
+                             }
+
+                             public class Derived : Msg
+                             {
+                                 public new {{property.Type}} Id { get; set; } = {{property.Literal("Derived")}};
+                             }
+
+                             public class Wrapper
+                             {
+                                 public {{property.Type}} Id { get; set; } = {{property.Literal("IFace")}};
+                                 {{wrapperOperators}}
+                             }
+
+                             {{Saga("Msg", "CorrelationId", mapping, false)}}
+
+                             public class TheSagaData : ContainSagaData
+                             {
+                                 public {{property.Type}} CorrelationId { get; set; } = {{property.Literal("Data")}};
+                             }
+
+                             {{Probe("new Msg(), new Derived()", property)}}
+                             """;
+                yield return ($"RuntimeReceiver_{receiver}_{property}", [receiver.ToString(), property.TypeDimension, RuntimeMessageAccessor], body, ["TheSaga"]);
+            }
+        }
+    }
+
+    const string UnderscoreNames = nameof(UnderscoreNames);
+
+    // Two sagas whose message or saga data type and property names join to the same text with an underscore between them.
+    static IEnumerable<(string Name, string[] Dimensions, string Body, string[] SagaTypes)> UnderscoreNameCases()
+    {
+        foreach (var propertyType in RotatingTypes)
+        {
+            var type = new Property(propertyType, "Id").Type;
+            (string Name, string FirstType, string FirstProperty, string SecondType, string SecondProperty)[] messages =
+            [
+                ("TypeUnderscore", "Order_Id", "Id", "Order", "Id_Id"),
+                ("TrailingUnderscore", "Order_", "Id", "Order", "_Id")
+            ];
+            (string Name, string FirstType, string FirstProperty, string SecondType, string SecondProperty)[] sagaData =
+            [
+                .. propertyType == PropertyType.Guid ? [] : new[] { ("PropertyTypeUnderscore", $"Data_{type}", "Prop", "Data", $"{type}_Prop") },
+                ("TrailingUnderscore", "Data_", "Prop", "Data", "_Prop")
+            ];
+            foreach (var message in messages)
+            {
+                foreach (var data in sagaData)
+                {
+                    var first = new Property(propertyType, message.FirstProperty);
+                    var second = new Property(propertyType, message.SecondProperty);
+                    var body = $$"""
+                                 public class {{message.FirstType}} : ICommand
+                                 {
+                                     public {{type}} {{message.FirstProperty}} { get; set; } = {{first.Literal("Msg")}};
+                                 }
+
+                                 public class {{message.SecondType}} : ICommand
+                                 {
+                                     public {{type}} {{message.SecondProperty}} { get; set; } = {{second.Literal("Other")}};
+                                 }
+
+                                 {{Saga(message.FirstType, data.FirstProperty, $"m.{message.FirstProperty}", false, sagaData: data.FirstType)}}
+
+                                 public class {{data.FirstType}} : ContainSagaData
+                                 {
+                                     public {{type}} {{data.FirstProperty}} { get; set; } = {{first.Literal("Data")}};
+                                 }
+
+                                 {{Saga(message.SecondType, data.SecondProperty, $"m.{message.SecondProperty}", false, "SecondSaga", data.SecondType)}}
+
+                                 public class {{data.SecondType}} : ContainSagaData
+                                 {
+                                     public {{type}} {{data.SecondProperty}} { get; set; } = {{second.Literal("Data")}};
+                                 }
+
+                                 {{Probe($"new {message.FirstType}(), new {message.SecondType}()", first)}}
+                                 """;
+                    yield return ($"UnderscoreNames_{message.Name}Message_{data.Name}SagaData_{propertyType}", [UnderscoreNames, $"{message.Name}MessageNames", $"{data.Name}SagaDataNames", propertyType.ToString()], body, ["TheSaga", "SecondSaga"]);
+                }
             }
         }
     }
@@ -583,13 +719,13 @@ public class GeneratedAccessorDifferentialTests
         return (name, dimensions, body, [nestSaga ? $"{sagaHost}+TheSaga" : "TheSaga"]);
     }
 
-    static string Saga(string mappedType, string sagaProperty, string mapping, bool obsolete, string name = "TheSaga") =>
+    static string Saga(string mappedType, string sagaProperty, string mapping, bool obsolete, string name = "TheSaga", string sagaData = null) =>
         $$"""
           [Saga]
           {{(obsolete ? "[System.Obsolete]" : "")}}
-          public class {{name}} : Saga<{{name}}Data>, IAmStartedByMessages<{{mappedType}}>
+          public class {{name}} : Saga<{{sagaData ?? $"{name}Data"}}>, IAmStartedByMessages<{{mappedType}}>
           {
-              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<{{name}}Data> mapper) =>
+              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<{{sagaData ?? $"{name}Data"}}> mapper) =>
                   mapper.MapSaga(s => s.{{sagaProperty}}).ToMessage<{{mappedType}}>(m => {{mapping}});
 
               public Task Handle({{mappedType}} message, IMessageHandlerContext context) => Task.CompletedTask;
@@ -827,8 +963,8 @@ public class GeneratedAccessorDifferentialTests
                 var (generatedMessageAccessor, generatedCorrelationAccessor) = Execute(assembly, probe, sagaType, registered, failures, prefix, differentialCase.ReadsMappedTypeImplementationOfDerived);
                 outcome = outcome with
                 {
-                    GeneratedMessageAccessor = outcome.GeneratedMessageAccessor || generatedMessageAccessor,
-                    GeneratedCorrelationAccessor = outcome.GeneratedCorrelationAccessor || generatedCorrelationAccessor
+                    GeneratedMessageAccessors = outcome.GeneratedMessageAccessors + (generatedMessageAccessor ? 1 : 0),
+                    GeneratedCorrelationAccessors = outcome.GeneratedCorrelationAccessors + (generatedCorrelationAccessor ? 1 : 0)
                 };
             }
         }
@@ -934,12 +1070,18 @@ public class GeneratedAccessorDifferentialTests
             && Dimensions.Any(dimension => dimension is nameof(MessageDeclaration.ReimplementedExplicitlyInDerived) or nameof(MessageDeclaration.ReimplementedWithNewInDerived))
             && !Dimensions.Contains(nameof(MessageKind.AbstractBase))
             && !(Dimensions.Contains(nameof(MessageKind.ClosedGeneric)) && Dimensions.Any(dimension => dimension is nameof(MemberAttribute.ObsoleteError) or nameof(MemberAttribute.ObsoleteInvalidId)));
+
+        public bool UsesRuntimeMessageAccessor => Dimensions.Contains(RuntimeMessageAccessor);
+
+        public bool HasUnderscoreNames => Dimensions.Contains(UnderscoreNames);
     }
 
     sealed record Outcome(string RejectedBy, IReadOnlyList<string> Failures, string Details)
     {
-        public bool GeneratedMessageAccessor { get; init; }
-        public bool GeneratedCorrelationAccessor { get; init; }
+        public int GeneratedMessageAccessors { get; init; }
+        public int GeneratedCorrelationAccessors { get; init; }
+        public bool GeneratedMessageAccessor => GeneratedMessageAccessors > 0;
+        public bool GeneratedCorrelationAccessor => GeneratedCorrelationAccessors > 0;
 
         public static Outcome Rejected(DifferentialCase differentialCase, string diagnostics) => new(diagnostics, [], differentialCase.Source);
 
@@ -1000,6 +1142,8 @@ public class GeneratedAccessorDifferentialTests
     enum CastTarget { Plain, FileLocal, Obsolete, ObsoleteCustomId, ObsoleteError, Experimental }
 
     enum ConversionOperatorHost { Message, CastType }
+
+    enum RuntimeReceiver { NestedReferenceCasts, NestedCastToOverloadedConversion, NestedCastThroughObject, CheckedConversion, UncheckedConversion }
 
     readonly record struct Variation(Receiver? SecondReceiver = null, OuterConversion Conversion = OuterConversion.None, CastTarget CastTarget = CastTarget.Plain);
 
