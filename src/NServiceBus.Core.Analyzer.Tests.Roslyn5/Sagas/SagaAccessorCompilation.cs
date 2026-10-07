@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Analyzer.Tests.Sagas;
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -23,7 +24,9 @@ static class SagaAccessorCompilation
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable,
                 generalDiagnosticOption: warningsAsErrors ? ReportDiagnostic.Error : ReportDiagnostic.Default));
 
-    public static Compilation RunGenerators(Compilation compilation, CSharpParseOptions parseOptions)
+    public static Compilation RunGenerators(Compilation compilation, CSharpParseOptions parseOptions) => RunGenerators(compilation, parseOptions, out _);
+
+    public static Compilation RunGenerators(Compilation compilation, CSharpParseOptions parseOptions, out ImmutableArray<Diagnostic> generatorDiagnostics)
     {
         var driver = CSharpGeneratorDriver.Create(
             [
@@ -32,7 +35,7 @@ static class SagaAccessorCompilation
             ],
             parseOptions: parseOptions);
 
-        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out _);
+        driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out generatorDiagnostics);
         return outputCompilation;
     }
 
