@@ -278,7 +278,8 @@ public static partial class Sagas
                 // Generated code only repeats the outermost cast.
                 for (var operand = receiver; operand is CastExpressionSyntax cast; operand = StripSyntaxWrappers(cast.Expression, cancellationToken, stripCasts: false))
                 {
-                    if (operand != receiver && !IsImplicitConversion(semanticModel.GetTypeInfo(cast.Expression, cancellationToken).Type, semanticModel.GetTypeInfo(cast, cancellationToken).Type))
+                    if ((operand != receiver && !IsImplicitConversion(semanticModel.GetTypeInfo(cast.Expression, cancellationToken).Type, semanticModel.GetTypeInfo(cast, cancellationToken).Type))
+                        || (semanticModel.GetOperation(cast, cancellationToken) is IConversionOperation { OperatorMethod: { } conversionOperator } && !CanBeCalledWithoutDiagnostics(conversionOperator)))
                     {
                         return null;
                     }
@@ -311,6 +312,13 @@ public static partial class Sagas
 
                 // Only what the generated files already suppress, such as a plain obsolete type.
                 return diagnosticIds is null;
+            }
+
+            // Repeating a user-defined conversion calls its operator, which reports what the mapping's suppressions covered.
+            static bool CanBeCalledWithoutDiagnostics(IMethodSymbol method)
+            {
+                SortedSet<string>? diagnosticIds = null;
+                return TryAddSuppressibleDiagnosticIds(method, ref diagnosticIds) && diagnosticIds is null;
             }
 
             // A user-defined conversion has to be repeated, because the operator a cast picks depends on the types it converts between.

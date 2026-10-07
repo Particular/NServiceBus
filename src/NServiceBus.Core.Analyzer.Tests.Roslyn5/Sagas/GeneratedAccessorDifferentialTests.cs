@@ -78,7 +78,7 @@ public class GeneratedAccessorDifferentialTests
     static IEnumerable<DifferentialCase> AllCases()
     {
         var index = 0;
-        foreach (var (name, dimensions, body, sagaTypes) in MessageCases().Concat(MultiSagaCases()).Concat(CorrelationCases()))
+        foreach (var (name, dimensions, body, sagaTypes) in MessageCases().Concat(MultiSagaCases()).Concat(ConversionOperatorCases()).Concat(CorrelationCases()))
         {
             var caseNamespace = $"Case{index++:D4}";
             yield return new DifferentialCase(name, dimensions, caseNamespace, $"namespace {caseNamespace}\n{{\n{Suppressions}\n{body}\n#pragma warning restore\n}}\n", [.. sagaTypes.Select(sagaType => $"{caseNamespace}.{sagaType}")]);
@@ -167,6 +167,43 @@ public class GeneratedAccessorDifferentialTests
                         yield return MessageCase(kind, declaration, possible[first], MessageAccess.Public, MemberAttribute.None, AttributeTarget.Property, property, new Variation(SecondReceiver: possible[second]));
                     }
                 }
+            }
+        }
+    }
+
+    // Generated code repeats a user-defined conversion, so it calls the operator the mapping calls.
+    static IEnumerable<(string Name, string[] Dimensions, string Body, string[] SagaTypes)> ConversionOperatorCases()
+    {
+        var variant = 0;
+        foreach (var attribute in Enum.GetValues<MemberAttribute>())
+        {
+            foreach (var host in Enum.GetValues<ConversionOperatorHost>())
+            {
+                var property = new Property(RotatingTypes[variant % RotatingTypes.Length], "Id");
+                var conversionOperator = $"{AttributeText(attribute)} public static {(variant++ % 2 == 0 ? "implicit" : "explicit")} operator Wrapper(Msg message) => new() {{ Id = {property.Literal("Derived")} }};";
+                var body = $$"""
+                             public class Msg : ICommand
+                             {
+                                 public {{property.Type}} Id { get; set; } = {{property.Literal("Msg")}};
+                                 {{(host == ConversionOperatorHost.Message ? conversionOperator : "")}}
+                             }
+
+                             public class Wrapper
+                             {
+                                 public {{property.Type}} Id { get; set; } = {{property.Literal("Base")}};
+                                 {{(host == ConversionOperatorHost.CastType ? conversionOperator : "")}}
+                             }
+
+                             {{Saga("Msg", "CorrelationId", "((Wrapper)m).Id", attribute is MemberAttribute.ObsoleteError or MemberAttribute.ObsoleteInvalidId)}}
+
+                             public class TheSagaData : ContainSagaData
+                             {
+                                 public {{property.Type}} CorrelationId { get; set; } = {{property.Literal("Data")}};
+                             }
+
+                             {{Probe("new Msg()", property)}}
+                             """;
+                yield return ($"ConversionOperator_{attribute}_On{host}_{property}", ["ConversionOperator", $"{attribute}OnConversionOperator", $"ConversionOperatorOn{host}"], body, ["TheSaga"]);
             }
         }
     }
@@ -945,6 +982,8 @@ public class GeneratedAccessorDifferentialTests
     enum OuterConversion { None, Identity, Boxing, WideningNumeric, NullableLift }
 
     enum CastTarget { Plain, FileLocal, Obsolete, ObsoleteCustomId, ObsoleteError, Experimental }
+
+    enum ConversionOperatorHost { Message, CastType }
 
     readonly record struct Variation(Receiver? SecondReceiver = null, OuterConversion Conversion = OuterConversion.None, CastTarget CastTarget = CastTarget.Plain);
 

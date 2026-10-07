@@ -1757,6 +1757,58 @@ public class GeneratedCorrelationAccessorExecutionTests
         Assert.That(RegisteredMessageAccessor(assembly, "ConversionSaga", "Start").AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo(expectedValue));
     }
 
+    [TestCase("[System.Obsolete(\"Use something else\")]", "Wrapper", "implicit", "CS0618", "", true)]
+    [TestCase(LegacyObsolete, "Wrapper", "implicit", "LEGACY001", "", false)]
+    [TestCase(LegacyObsolete, "Start", "explicit", "LEGACY001", "", false)]
+    [TestCase(Experimental, "Wrapper", "explicit", "EXP001", "", false)]
+    [TestCase(Experimental, "Start", "implicit", "EXP001", "", false)]
+    [TestCase("[System.Obsolete(\"Use something else\", true)]", "Wrapper", "implicit", null, "[System.Obsolete]", false)]
+    [TestCase("[System.Obsolete(\"Use something else\", true)]", "Start", "explicit", null, "[System.Obsolete]", false)]
+    public void Message_converted_by_a_user_defined_conversion_that_reports_a_diagnostic_is_only_read_by_a_generated_accessor_when_generated_files_suppress_it(string attribute, string declaringType, string conversionKind, string mappingSuppression, string sagaAttribute, bool generated)
+    {
+        var conversionOperator = $"{attribute} public static {conversionKind} operator Wrapper(Start start) => new() {{ Id = \"wrapper-value\" }};";
+        var source = $$"""
+                       {{AddAllPreamble}}
+
+                       public class Start : ICommand
+                       {
+                           public string Id { get; set; } = "start-value";
+                           {{(declaringType == "Start" ? conversionOperator : "")}}
+                       }
+
+                       public class Wrapper
+                       {
+                           public string Id { get; set; } = "";
+                           {{(declaringType == "Wrapper" ? conversionOperator : "")}}
+                       }
+
+                       [Saga]
+                       {{sagaAttribute}}
+                       public class ConversionSaga : Saga<ConversionSagaData>, IAmStartedByMessages<Start>
+                       {
+                           protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConversionSagaData> mapper)
+                           {
+                       {{(mappingSuppression is null ? "" : $"#pragma warning disable {mappingSuppression}")}}
+                               mapper.MapSaga(s => s.CorrelationId).ToMessage<Start>(m => ((Wrapper)m).Id);
+                       {{(mappingSuppression is null ? "" : $"#pragma warning restore {mappingSuppression}")}}
+                           }
+
+                           public Task Handle(Start message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class ConversionSagaData : ContainSagaData
+                       {
+                           public string CorrelationId { get; set; } = "";
+                       }
+                       """;
+
+        var assembly = CompileAndLoad(source, warningsAsErrors: true);
+
+        var accessor = RegisteredMessageAccessor(assembly, "ConversionSaga", "Start");
+        Assert.That(accessor.AccessFrom(Activator.CreateInstance(assembly.GetType("Start")!)!), Is.EqualTo("wrapper-value"));
+        Assert.That(accessor.GetType().Assembly == assembly, Is.EqualTo(generated));
+    }
+
     [TestCase("file class DerivedStart : Start { }", "((DerivedStart)m).Id", null, "")]
     [TestCase("file class Outer { public class DerivedStart : Start { } }", "((Outer.DerivedStart)m).Id", null, "")]
     [TestCase("[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")] public class DerivedStart : Start { }", "((DerivedStart)m).Id", "EXP001", "")]
