@@ -30,6 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <RemoveSourceFileFromPackage Include="AssemblyInfo.cs" />
     <RemoveSourceFileFromPackage Include="ConfigureLearningTransportInfrastructure.cs" />
     <RemoveSourceFileFromPackage Include="TransportTestsShippedSourceFilesApproval.cs" />
     <RemoveSourceFileFromPackage Include="TransportTestPolicy.cs" />
