@@ -168,12 +168,7 @@ public static partial class Sagas
 
             void AnalyzeToSagaCall(InvocationExpressionSyntax mapSagaCall)
             {
-                if (mapSagaCall.ArgumentList.Arguments.Count <= 0)
-                {
-                    return;
-                }
-
-                if (mapSagaCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
+                if (mapSagaCall.ArgumentList.Arguments is not [{ Expression: LambdaExpressionSyntax lambda }, ..])
                 {
                     return;
                 }
@@ -218,12 +213,7 @@ public static partial class Sagas
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
             {
-                if (toMessageCall.ArgumentList.Arguments.Count <= 0)
-                {
-                    return;
-                }
-
-                if (toMessageCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
+                if (toMessageCall.ArgumentList.Arguments is not [{ Expression: LambdaExpressionSyntax lambda }, ..])
                 {
                     return;
                 }
@@ -274,13 +264,18 @@ public static partial class Sagas
                 ITypeSymbol? explicitCastType = null;
                 if (receiver is CastExpressionSyntax cast)
                 {
-                    if (semanticModel.GetOperation(cast, cancellationToken) is not IConversionOperation { Type: { } castType } conversion
-                        || conversion.GetConversion() is not ({ IsIdentity: true } or { IsReference: true } or { IsBoxing: true } or { IsUnboxing: true }))
+                    if (semanticModel.GetOperation(cast, cancellationToken) is not IConversionOperation { Type: { } castType } operation)
                     {
                         return null;
                     }
 
-                    explicitCastType = conversion.GetConversion().IsImplicit ? null : castType;
+                    var conversion = operation.GetConversion();
+                    if (conversion is not ({ IsIdentity: true } or { IsReference: true } or { IsBoxing: true } or { IsUnboxing: true }))
+                    {
+                        return null;
+                    }
+
+                    explicitCastType = conversion.IsImplicit ? null : castType;
                     receiver = cast.Expression.WithoutParenthesesOrSuppressions();
                 }
 
@@ -327,11 +322,11 @@ public static partial class Sagas
             }
 
             // Reading through the interface dispatches like the mapping expression; when generated code can't call the interface getter, it falls back to the implementation on the receiver type.
-            ReadAccess? ResolveRead(IPropertySymbol property, int position, ITypeSymbol? receiver)
+            ReadAccess? ResolveRead(IPropertySymbol property, int position, ITypeSymbol receiver)
             {
                 if (property.ContainingType is not { TypeKind: TypeKind.Interface } declaringInterface)
                 {
-                    return receiver is null || ReachableByName(property, position, receiver)
+                    return ReachableByName(property, position, receiver)
                         ? DirectOrExternRead(property)
                         : CastOrExternRead(property);
                 }
@@ -374,9 +369,9 @@ public static partial class Sagas
                 return new ReadAccess(property.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), externGetter, AccessedMember(property), suppressedDiagnosticIds);
             }
 
-            (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, int position, ITypeSymbol? receiver)
+            (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, int position, ITypeSymbol receiver)
             {
-                if (receiver is not { TypeKind: not TypeKind.Interface }
+                if (receiver.TypeKind == TypeKind.Interface
                     || receiver.FindImplementationForInterfaceMember(property) is not IPropertySymbol { ContainingType.TypeKind: not TypeKind.Interface } implementation)
                 {
                     return null;
@@ -470,7 +465,7 @@ public static partial class Sagas
                             continue;
                         }
                     }
-                    else if (attribute.AttributeClass is { Name: "ExperimentalAttribute" } experimental && experimental.ContainingNamespace.ToDisplayString() == "System.Diagnostics.CodeAnalysis")
+                    else if (attribute.AttributeClass is { Name: "ExperimentalAttribute", ContainingNamespace: { Name: "CodeAnalysis", ContainingNamespace: { Name: "Diagnostics", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } } } })
                     {
                         diagnosticId = attribute.ConstructorArguments is [{ Value: string experimentalId }] ? experimentalId : null;
                     }
