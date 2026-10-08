@@ -6,7 +6,6 @@ using System;
 using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 static class SemanticModelExtensions
@@ -31,19 +30,15 @@ static class SemanticModelExtensions
 
         // Mirrors Inspect.GetMemberInfo with checkForSingleDot in Core, which SagaMapper uses for the saga data expression.
         public bool IsMemberAccessOnLambdaParameter(ExpressionSyntax expression, LambdaExpressionSyntax lambda, CancellationToken cancellationToken = default) =>
-            WithoutParenthesesOrSuppressions(expression) is MemberAccessExpressionSyntax memberAccess
-            && semanticModel.GetSymbolInfo(WithoutParenthesesOrSuppressions(memberAccess.Expression), cancellationToken).Symbol is IParameterSymbol parameter
-            && SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, semanticModel.GetSymbolInfo(lambda, cancellationToken).Symbol);
-    }
+            expression.WithoutParenthesesOrSuppressions() is MemberAccessExpressionSyntax memberAccess
+            && semanticModel.GetLambdaParameter(memberAccess.Expression, lambda, cancellationToken) is not null;
 
-    // Parentheses and the null-forgiving operator leave no trace in an expression tree, but a cast does.
-    static ExpressionSyntax WithoutParenthesesOrSuppressions(ExpressionSyntax expression) =>
-        expression switch
-        {
-            ParenthesizedExpressionSyntax parenthesized => WithoutParenthesesOrSuppressions(parenthesized.Expression),
-            PostfixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.SuppressNullableWarningExpression } suppression => WithoutParenthesesOrSuppressions(suppression.Operand),
-            _ => expression
-        };
+        public IParameterSymbol? GetLambdaParameter(ExpressionSyntax expression, LambdaExpressionSyntax lambda, CancellationToken cancellationToken = default) =>
+            semanticModel.GetSymbolInfo(expression.WithoutParenthesesOrSuppressions(), cancellationToken).Symbol is IParameterSymbol parameter
+            && SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, semanticModel.GetSymbolInfo(lambda, cancellationToken).Symbol)
+                ? parameter
+                : null;
+    }
 
     static Func<IModuleSymbol, int>? CreateMemorySafetyRulesVersionAccessor()
     {

@@ -178,7 +178,7 @@ public static partial class Sagas
                     return;
                 }
 
-                var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
+                var memberAccess = TryGetMemberAccess(lambda.Body);
                 // SagaMapper rejects saga data mappings that don't access a property on the lambda parameter, so there's nothing to generate.
                 if (memberAccess is null || !semanticModel.IsMemberAccessOnLambdaParameter(memberAccess, lambda, cancellationToken))
                 {
@@ -270,7 +270,7 @@ public static partial class Sagas
             // The message, or one identity, reference, boxing or unboxing cast of it; only a cast that can fail is returned for generated code to repeat.
             (ITypeSymbol MessageType, ITypeSymbol? ExplicitCastType)? ResolveReceiver(ExpressionSyntax receiverExpression, LambdaExpressionSyntax lambda)
             {
-                var receiver = StripSyntaxWrappers(receiverExpression, cancellationToken, stripCasts: false);
+                var receiver = receiverExpression.WithoutParenthesesOrSuppressions();
                 ITypeSymbol? explicitCastType = null;
                 if (receiver is CastExpressionSyntax cast)
                 {
@@ -281,12 +281,11 @@ public static partial class Sagas
                     }
 
                     explicitCastType = conversion.GetConversion().IsImplicit ? null : castType;
-                    receiver = StripSyntaxWrappers(cast.Expression, cancellationToken, stripCasts: false);
+                    receiver = cast.Expression.WithoutParenthesesOrSuppressions();
                 }
 
                 // Accessors are registered by the type they read, so reading anything but the mapped message could collide with another mapping's accessor.
-                return semanticModel.GetSymbolInfo(receiver, cancellationToken).Symbol is IParameterSymbol { Type: var messageType } parameter
-                       && SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, semanticModel.GetSymbolInfo(lambda, cancellationToken).Symbol)
+                return semanticModel.GetLambdaParameter(receiver, lambda, cancellationToken) is { Type: var messageType }
                     ? (messageType, explicitCastType)
                     : null;
             }
@@ -544,17 +543,18 @@ public static partial class Sagas
                     return null;
                 }
 
-                while (StripSyntaxWrappers(expression, cancellationToken, stripCasts: false) is CastExpressionSyntax cast)
+                expression = expression.WithoutParenthesesOrSuppressions();
+                while (expression is CastExpressionSyntax cast)
                 {
                     if (semanticModel.GetOperation(cast, cancellationToken) is not IConversionOperation conversion || !PreservesValue(conversion))
                     {
                         return null;
                     }
 
-                    expression = cast.Expression;
+                    expression = cast.Expression.WithoutParenthesesOrSuppressions();
                 }
 
-                return StripSyntaxWrappers(expression, cancellationToken) as MemberAccessExpressionSyntax;
+                return expression as MemberAccessExpressionSyntax;
             }
 
             static bool PreservesValue(IConversionOperation conversion) =>
@@ -563,33 +563,20 @@ public static partial class Sagas
                     || (csharpConversion.IsNullable && conversion.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T, TypeArguments: [var underlyingType] }
                         && SymbolEqualityComparer.Default.Equals(underlyingType, conversion.Operand.Type)));
 
-            static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
-                node is ExpressionSyntax expression
-                    ? StripSyntaxWrappers(expression, cancellationToken) as MemberAccessExpressionSyntax
-                    : null;
-
-            static ExpressionSyntax StripSyntaxWrappers(ExpressionSyntax expression, CancellationToken cancellationToken, bool stripCasts = true)
+            static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node)
             {
-                while (!cancellationToken.IsCancellationRequested)
+                if (node is not ExpressionSyntax expression)
                 {
-                    switch (expression)
-                    {
-                        case CastExpressionSyntax cast when stripCasts:
-                            expression = cast.Expression;
-                            continue;
-                        case ParenthesizedExpressionSyntax parenthesized:
-                            expression = parenthesized.Expression;
-                            continue;
-                        case PostfixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.SuppressNullableWarningExpression } suppressNullable:
-                            expression = suppressNullable.Operand;
-                            continue;
-                        default:
-                            return expression;
-                    }
+                    return null;
                 }
 
-                cancellationToken.ThrowIfCancellationRequested();
-                return expression;
+                expression = expression.WithoutParenthesesOrSuppressions();
+                while (expression is CastExpressionSyntax cast)
+                {
+                    expression = cast.Expression.WithoutParenthesesOrSuppressions();
+                }
+
+                return expression as MemberAccessExpressionSyntax;
             }
 
             static IPropertySymbol? ResolvePropertySymbol(SemanticModel model, MemberAccessExpressionSyntax memberAccess, CancellationToken cancellationToken)
