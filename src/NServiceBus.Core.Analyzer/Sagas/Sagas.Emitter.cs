@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Analyzer.Sagas;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Handlers;
 using Utility;
@@ -70,7 +71,6 @@ public static partial class Sagas
 
         static void EmitMessagePropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
         {
-            // Use Dictionary for O(1) deduplication instead of GroupBy
             var uniqueMappings = new Dictionary<MessagePropertyAccessorIdentity, PropertyMappingSpec>();
             foreach (var saga in sagas)
             {
@@ -84,30 +84,12 @@ public static partial class Sagas
                 }
             }
 
-            if (uniqueMappings.Count == 0)
+            foreach (var pair in uniqueMappings.OrderBy(static pair => pair.Key))
             {
-                return;
-            }
-
-            // Convert to list and sort once
-            var allPropertyMappings = new List<PropertyMappingSpec>(uniqueMappings.Values);
-            allPropertyMappings.Sort(static (a, b) => MessagePropertyAccessorIdentity.Of(a).CompareTo(MessagePropertyAccessorIdentity.Of(b)));
-
-            sourceWriter.WriteLine();
-
-            for (var index = 0; index < allPropertyMappings.Count; index++)
-            {
-                var mapping = allPropertyMappings[index];
+                var mapping = pair.Value;
                 var accessorClassName = MessagePropertyAccessorName(mapping);
-                _ = sourceWriter.WithCompilerGeneratedAttribute()
-                    .WithGeneratedCodeAttribute();
-                sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.MessagePropertyAccessor<{mapping.MessageType}>");
-                sourceWriter.WriteLine("{");
+                BeginAccessorClass(sourceWriter, accessorClassName, $"NServiceBus.Sagas.MessagePropertyAccessor<{mapping.MessageType}>");
 
-                sourceWriter.Indentation++;
-
-                sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
-                sourceWriter.WriteLine();
                 var member = MemberName(mapping.MessagePropertyName);
                 var read = (mapping.ExternGetter, mapping.GetterReceiverCastType) switch
                 {
@@ -122,16 +104,77 @@ public static partial class Sagas
                     WriteExternAccessor(sourceWriter, "AccessFrom_Property", externGetter, mapping.MessagePropertyType, $"{externGetter.ReceiverType} message");
                 }
 
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new {accessorClassName}();");
-                sourceWriter.Indentation--;
+                EndAccessorClass(sourceWriter, accessorClassName, "NServiceBus.Sagas.MessagePropertyAccessor");
+            }
+        }
 
-                sourceWriter.WriteLine("}");
-                if (index < allPropertyMappings.Count - 1)
+        static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
+        {
+            // Keyed by saga-data type too because the generated cast targets the concrete type.
+            var uniqueMappings = new Dictionary<CorrelationPropertyAccessorIdentity, (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
+            foreach (var saga in sagas)
+            {
+                if (saga.CorrelationPropertyMapping is not { } mapping)
                 {
-                    sourceWriter.WriteLine();
+                    continue;
+                }
+
+                var key = CorrelationPropertyAccessorIdentity.Of(saga.SagaDataFullyQualifiedName, mapping);
+                if (!uniqueMappings.ContainsKey(key))
+                {
+                    uniqueMappings.Add(key, (mapping, saga.SagaDataFullyQualifiedName));
                 }
             }
+
+            foreach (var pair in uniqueMappings.OrderBy(static pair => pair.Key))
+            {
+                var (mapping, sagaDataType) = pair.Value;
+                var accessorClassName = CorrelationPropertyAccessorName(sagaDataType, mapping);
+                BeginAccessorClass(sourceWriter, accessorClassName, "NServiceBus.Sagas.CorrelationPropertyAccessor");
+
+                var member = MemberName(mapping.PropertyName);
+                var read = mapping.ExternGetter is { ReceiverType: var getterReceiverType }
+                    ? $"AccessFrom_Property(({getterReceiverType})sagaData)"
+                    : $"(({sagaDataType})sagaData).{member}";
+                var write = mapping.ExternSetter is { ReceiverType: var setterReceiverType }
+                    ? $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)"
+                    : $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value";
+
+                WriteSuppressingDiagnostics(sourceWriter, $"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};", mapping.SuppressedGetterDiagnosticIds);
+                if (mapping.ExternGetter is { } externGetter)
+                {
+                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", externGetter, mapping.PropertyType, $"{externGetter.ReceiverType} sagaData");
+                }
+
+                sourceWriter.WriteLine();
+                WriteSuppressingDiagnostics(sourceWriter, $"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};", mapping.SuppressedSetterDiagnosticIds);
+                if (mapping.ExternSetter is { } externSetter)
+                {
+                    WriteExternAccessor(sourceWriter, "WriteTo_Property", externSetter, "void", $"{externSetter.ReceiverType} sagaData, {mapping.PropertyType} value");
+                }
+
+                EndAccessorClass(sourceWriter, accessorClassName, "NServiceBus.Sagas.CorrelationPropertyAccessor");
+            }
+        }
+
+        static void BeginAccessorClass(SourceWriter sourceWriter, string className, string baseType)
+        {
+            sourceWriter.WriteLine();
+            _ = sourceWriter.WithCompilerGeneratedAttribute()
+                .WithGeneratedCodeAttribute();
+            sourceWriter.WriteLine($"file sealed class {className} : {baseType}");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+            sourceWriter.WriteLine($$"""{{className}}() { }""");
+            sourceWriter.WriteLine();
+        }
+
+        static void EndAccessorClass(SourceWriter sourceWriter, string className, string instanceType)
+        {
+            sourceWriter.WriteLine();
+            sourceWriter.WriteLine($"public static readonly {instanceType} Instance = new {className}();");
+            sourceWriter.Indentation--;
+            sourceWriter.WriteLine("}");
         }
 
         static void WriteExternAccessor(SourceWriter sourceWriter, string methodName, ExternAccessorSpec accessor, string returnType, string parameters)
@@ -189,80 +232,6 @@ public static partial class Sagas
 
         // Separators are escaped inside a part so one part can't run into the next; parts without them hash as written.
         static string Escape(string? part) => part?.Replace("\\", "\\\\").Replace("_", "\\_").Replace("|", "\\|") ?? "";
-
-        static void EmitCorrelationPropertyAccessors(SourceWriter sourceWriter, ImmutableEquatableArray<SagaSpec> sagas)
-        {
-            // Keyed by saga-data type too because the generated cast targets the concrete type.
-            var uniqueMappings = new Dictionary<CorrelationPropertyAccessorIdentity, (CorrelationPropertyMappingSpec Mapping, string SagaDataType)>();
-            foreach (var saga in sagas)
-            {
-                if (saga.CorrelationPropertyMapping is not { } mapping)
-                {
-                    continue;
-                }
-
-                var key = CorrelationPropertyAccessorIdentity.Of(saga.SagaDataFullyQualifiedName, mapping);
-                if (!uniqueMappings.ContainsKey(key))
-                {
-                    uniqueMappings.Add(key, (mapping, saga.SagaDataFullyQualifiedName));
-                }
-            }
-
-            if (uniqueMappings.Count == 0)
-            {
-                return;
-            }
-
-            var allPropertyMappings = new List<(CorrelationPropertyMappingSpec Mapping, string SagaDataType)>(uniqueMappings.Values);
-            allPropertyMappings.Sort(static (a, b) => CorrelationPropertyAccessorIdentity.Of(a.SagaDataType, a.Mapping).CompareTo(CorrelationPropertyAccessorIdentity.Of(b.SagaDataType, b.Mapping)));
-
-            sourceWriter.WriteLine();
-
-            for (var index = 0; index < allPropertyMappings.Count; index++)
-            {
-                var (mapping, sagaDataType) = allPropertyMappings[index];
-                var accessorClassName = CorrelationPropertyAccessorName(sagaDataType, mapping);
-                _ = sourceWriter.WithCompilerGeneratedAttribute()
-                    .WithGeneratedCodeAttribute();
-                sourceWriter.WriteLine($"file sealed class {accessorClassName} : NServiceBus.Sagas.CorrelationPropertyAccessor");
-                sourceWriter.WriteLine("{");
-
-                sourceWriter.Indentation++;
-
-                sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
-                sourceWriter.WriteLine();
-                var member = MemberName(mapping.PropertyName);
-                var read = mapping.ExternGetter is { ReceiverType: var getterReceiverType }
-                    ? $"AccessFrom_Property(({getterReceiverType})sagaData)"
-                    : $"(({sagaDataType})sagaData).{member}";
-                var write = mapping.ExternSetter is { ReceiverType: var setterReceiverType }
-                    ? $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)"
-                    : $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value";
-
-                WriteSuppressingDiagnostics(sourceWriter, $"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};", mapping.SuppressedGetterDiagnosticIds);
-                if (mapping.ExternGetter is { } externGetter)
-                {
-                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", externGetter, mapping.PropertyType, $"{externGetter.ReceiverType} sagaData");
-                }
-
-                sourceWriter.WriteLine();
-                WriteSuppressingDiagnostics(sourceWriter, $"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};", mapping.SuppressedSetterDiagnosticIds);
-                if (mapping.ExternSetter is { } externSetter)
-                {
-                    WriteExternAccessor(sourceWriter, "WriteTo_Property", externSetter, "void", $"{externSetter.ReceiverType} sagaData, {mapping.PropertyType} value");
-                }
-
-                sourceWriter.WriteLine();
-                sourceWriter.WriteLine($"public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new {accessorClassName}();");
-                sourceWriter.Indentation--;
-
-                sourceWriter.WriteLine("}");
-                if (index < allPropertyMappings.Count - 1)
-                {
-                    sourceWriter.WriteLine();
-                }
-            }
-        }
 
         public static string CorrelationPropertyAccessorName(string sagaDataType, CorrelationPropertyMappingSpec mapping) =>
             $"{mapping.PropertyName}As{mapping.PropertyTypeName}Accessor_{CorrelationPropertyAccessorIdentity.Of(sagaDataType, mapping).Hash():x16}";
