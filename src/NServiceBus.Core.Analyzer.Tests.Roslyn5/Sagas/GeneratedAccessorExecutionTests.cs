@@ -13,7 +13,7 @@ using NServiceBus.Sagas;
 using NUnit.Framework;
 
 [TestFixture]
-public class GeneratedCorrelationAccessorExecutionTests
+public class GeneratedAccessorExecutionTests
 {
     const string AddAllPreamble = """
                                   using System.Threading.Tasks;
