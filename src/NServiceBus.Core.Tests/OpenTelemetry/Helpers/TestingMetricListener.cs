@@ -50,8 +50,9 @@ class TestingMetricListener : IDisposable
         meterListener.Start();
     }
 
+    // In v11 only PipelineMetrics.MeterName remains, see obsoletes-v10.cs.
     public static TestingMetricListener SetupNServiceBusMetricsListener() =>
-        SetupMetricsListener("NServiceBus.Core.Pipeline.Incoming");
+        SetupMetricsListener(V11BehaviorSwitch.UseV11Behavior ? PipelineMetrics.MeterName : LegacyMeter.Name);
 
     public static TestingMetricListener SetupMetricsListener(string sourceName)
     {

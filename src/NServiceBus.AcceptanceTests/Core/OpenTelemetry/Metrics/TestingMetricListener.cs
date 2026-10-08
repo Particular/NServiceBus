@@ -50,7 +50,14 @@ class TestingMetricListener : IDisposable
     }
 
     public static TestingMetricListener SetupNServiceBusMetricsListener() =>
-        SetupMetricsListener("NServiceBus.Core.Pipeline.Incoming");
+        SetupMetricsListener(NServiceBusMeterName);
+
+    // The meter is renamed by the NServiceBus.Core.OpenTelemetry.UseV11Behavior switch. In v11 only
+    // "NServiceBus.Core" remains: replace this with the constant.
+    public static string NServiceBusMeterName =>
+        AppContext.TryGetSwitch("NServiceBus.Core.OpenTelemetry.UseV11Behavior", out var enabled) && enabled
+            ? "NServiceBus.Core"
+            : "NServiceBus.Core.Pipeline.Incoming";
 
     public static TestingMetricListener SetupMetricsListener(string sourceName)
     {

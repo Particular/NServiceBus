@@ -28,7 +28,7 @@ public class When_customizing_metric_tags : OpenTelemetryAcceptanceTest
 
         List<Metric> exportedMetrics = [];
         using var meterProvider = Sdk.CreateMeterProviderBuilder()
-            .AddMeter("NServiceBus.Core.Pipeline.Incoming")
+            .AddMeter(TestingMetricListener.NServiceBusMeterName)
             .AddView(TotalFetched, new MetricStreamConfiguration
             {
                 TagKeys = ["nservicebus.queue", "nservicebus.message_type", TenantTag]
