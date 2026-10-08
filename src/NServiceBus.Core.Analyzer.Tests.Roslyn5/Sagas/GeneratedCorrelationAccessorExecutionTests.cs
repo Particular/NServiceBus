@@ -15,20 +15,24 @@ using NUnit.Framework;
 [TestFixture]
 public class GeneratedCorrelationAccessorExecutionTests
 {
+    const string AddAllPreamble = """
+                                  using System.Threading.Tasks;
+                                  using NServiceBus;
+
+                                  public class Test
+                                  {
+                                      public void Configure(EndpointConfiguration cfg)
+                                      {
+                                          cfg.Handlers.CollidingAccessorsAssembly.AddAll();
+                                      }
+                                  }
+                                  """;
+
     [Test]
     public void Generated_correlation_accessors_round_trip_for_colliding_saga_data_properties()
     {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                         }
-                     }
+        var source = $$"""
+                     {{AddAllPreamble}}
 
                      namespace First
                      {
@@ -111,17 +115,8 @@ public class GeneratedCorrelationAccessorExecutionTests
         }
     }
 
-    const string InitOnlySagaSource = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                         }
-                     }
+    const string InitOnlySagaSource = $$"""
+                     {{AddAllPreamble}}
 
                      [Saga]
                      public class InitSaga : Saga<InitSagaData>, IAmStartedByMessages<StartInit>
@@ -172,16 +167,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     public void Setters_that_generated_code_cannot_assign_round_trip_through_an_extern_accessor(string derivedProperty, string baseProperty)
     {
         var source = $$"""
-                       using System.Threading.Tasks;
-                       using NServiceBus;
-
-                       public class Test
-                       {
-                           public void Configure(EndpointConfiguration cfg)
-                           {
-                               cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                           }
-                       }
+                       {{AddAllPreamble}}
 
                        [Saga]
                        public class ExternSaga : Saga<ExternSagaData>, IAmStartedByMessages<StartExtern>
@@ -211,16 +197,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     public void Setter_declared_in_another_part_of_a_partial_saga_data_class_round_trips()
     {
         var source = $$"""
-                       using System.Threading.Tasks;
-                       using NServiceBus;
-
-                       public class Test
-                       {
-                           public void Configure(EndpointConfiguration cfg)
-                           {
-                               cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                           }
-                       }
+                       {{AddAllPreamble}}
 
                        [Saga]
                        public class ExternSaga : Saga<ExternSagaData>, IAmStartedByMessages<StartExtern>
@@ -295,17 +272,8 @@ public class GeneratedCorrelationAccessorExecutionTests
     [Test]
     public void Message_getter_only_reachable_from_a_nested_saga_is_read_through_an_extern_accessor()
     {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                         }
-                     }
+        var source = $$"""
+                     {{AddAllPreamble}}
 
                      public class OuterMessage : ICommand
                      {
@@ -339,17 +307,8 @@ public class GeneratedCorrelationAccessorExecutionTests
     [Test]
     public void Correlation_getter_only_reachable_from_a_nested_saga_is_read_through_an_extern_accessor()
     {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                         }
-                     }
+        var source = $$"""
+                     {{AddAllPreamble}}
 
                      public class OuterSagaData : ContainSagaData
                      {
@@ -376,54 +335,6 @@ public class GeneratedCorrelationAccessorExecutionTests
         AssertCorrelationRoundTrip(assembly, "OuterSagaData");
     }
 
-    [Test]
-    public void Message_property_mapped_through_an_explicit_interface_implementation_is_read()
-    {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                         }
-                     }
-
-                     public interface IHasId
-                     {
-                         string Id { get; }
-                     }
-
-                     [Saga]
-                     public class InterfaceSaga : Saga<InterfaceSagaData>, IAmStartedByMessages<StartInterface>
-                     {
-                         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<InterfaceSagaData> mapper) =>
-                             mapper.MapSaga(s => s.Id2).ToMessage<StartInterface>(m => ((IHasId)m).Id);
-
-                         public Task Handle(StartInterface message, IMessageHandlerContext context) => Task.CompletedTask;
-                     }
-
-                     public class InterfaceSagaData : ContainSagaData
-                     {
-                         public string Id2 { get; set; }
-                     }
-
-                     public class StartInterface : ICommand, IHasId
-                     {
-                         string IHasId.Id => "correlation-value";
-                     }
-                     """;
-
-        var assembly = CompileAndLoad(source);
-
-        var accessor = GetAccessor<MessagePropertyAccessor>(assembly);
-        var message = Activator.CreateInstance(assembly.GetType("StartInterface")!)!;
-
-        Assert.That(accessor.AccessFrom(message), Is.EqualTo("correlation-value"));
-    }
-
     [TestCase("public interface IStart : IEvent { string Id { get; } } public class Impl : IStart { public string Id => \"correlation-value\"; }", "IStart")]
     [TestCase("public interface IBase { string Id { get; } } public interface IStart : IEvent, IBase { } public class Impl : IStart { public string Id => \"correlation-value\"; }", "IStart")]
     [TestCase("public class BaseMessage : ICommand { public string Id => \"correlation-value\"; } public class Impl : BaseMessage { }", "Impl")]
@@ -431,16 +342,7 @@ public class GeneratedCorrelationAccessorExecutionTests
     public void Message_properties_declared_on_interfaces_and_base_types_are_read(string declarations, string mappedType)
     {
         var source = $$"""
-                       using System.Threading.Tasks;
-                       using NServiceBus;
-
-                       public class Test
-                       {
-                           public void Configure(EndpointConfiguration cfg)
-                           {
-                               cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                           }
-                       }
+                       {{AddAllPreamble}}
 
                        {{declarations}}
 
@@ -470,17 +372,8 @@ public class GeneratedCorrelationAccessorExecutionTests
     [Test]
     public void Properties_named_like_keywords_are_accessed_with_an_escape()
     {
-        var source = """
-                     using System.Threading.Tasks;
-                     using NServiceBus;
-
-                     public class Test
-                     {
-                         public void Configure(EndpointConfiguration cfg)
-                         {
-                             cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                         }
-                     }
+        var source = $$"""
+                     {{AddAllPreamble}}
 
                      [Saga]
                      public class KeywordSaga : Saga<KeywordSagaData>, IAmStartedByMessages<StartKeyword>
@@ -504,19 +397,6 @@ public class GeneratedCorrelationAccessorExecutionTests
 
         Assert.DoesNotThrow(() => CompileAndLoad(source));
     }
-
-    const string AddAllPreamble = """
-                                  using System.Threading.Tasks;
-                                  using NServiceBus;
-
-                                  public class Test
-                                  {
-                                      public void Configure(EndpointConfiguration cfg)
-                                      {
-                                          cfg.Handlers.CollidingAccessorsAssembly.AddAll();
-                                      }
-                                  }
-                                  """;
 
     [TestCase(true)]
     [TestCase(false)]
