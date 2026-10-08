@@ -669,6 +669,13 @@ namespace NServiceBus
     //   https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
     // - The ActivitySources report version 1.0.0 instead of 0.1.0, so a consumer can tell the two tag and
     //   span-name sets apart.
+    // - The metrics are emitted from the "NServiceBus.Core" meter at version 1.0.0 instead of
+    //   "NServiceBus.Core.Pipeline.Incoming" at 0.4.0. The instruments also cover outgoing, saga, outbox and
+    //   persistence work, so the incoming-pipeline name was misleading. Anything selecting on the
+    //   instrumentation scope (Grafana dashboards, Prometheus recording rules, alerting) breaks at the
+    //   switch, which is why this is an opt-in rather than a straight rename. Only one meter is emitted at a
+    //   time: emitting both would double every series, so a MeterProvider must subscribe to the name that
+    //   matches the switch.
     // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
     //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
     //   (snake_case within a dot-delimited component, no hyphens).
@@ -846,6 +853,14 @@ namespace NServiceBus
                 tags.Add(MeterTags.ExecutionResult, error is null ? "success" : "failure");
             }
         }
+    }
+
+    // The pre-v11 meter scope. PipelineMetrics creates its instruments under this name and version while
+    // V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyMeter
+    {
+        public const string Name = "NServiceBus.Core.Pipeline.Incoming";
+        public const string Version = "0.4.0";
     }
 
     // The pre-v11 "Start dispatching"/"Finished dispatching" events on the incoming span.
