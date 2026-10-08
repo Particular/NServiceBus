@@ -80,5 +80,38 @@ public class When_processing_incoming_message : OpenTelemetryAcceptanceTest
         }
     }
 
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_include_receive_address_in_span_name()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<ReceivingEndpoint>(e => e
+                .When(s => s.SendLocal(new IncomingMessage())))
+            .Run();
+
+        var incomingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        Assert.That(incomingMessageActivities, Has.Count.EqualTo(1));
+
+        var incomingActivity = incomingMessageActivities.Single();
+        Assert.That(incomingActivity.DisplayName, Does.StartWith("process "));
+        Assert.That(incomingActivity.DisplayName, Is.Not.EqualTo("process message"));
+    }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_tag_enclosed_message_types_as_array()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<ReceivingEndpoint>(e => e
+                .When(s => s.SendLocal(new IncomingMessage())))
+            .Run();
+
+        var incomingActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
+
+        // Array-valued tags are only visible through TagObjects, not Tags.
+        var enclosedMessageTypes = incomingActivity.TagObjects.ToImmutableDictionary()["nservicebus.enclosed_message_types"];
+        Assert.That(enclosedMessageTypes, Is.EqualTo(context.ReceivedHeaders[Headers.EnclosedMessageTypes].Split(';')));
+    }
+
     public class IncomingMessage : IMessage;
 }

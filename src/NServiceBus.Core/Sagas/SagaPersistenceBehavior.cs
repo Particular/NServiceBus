@@ -10,7 +10,7 @@ using Logging;
 using Pipeline;
 using Sagas;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider, PipelineMetrics pipelineMetrics)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Best-effort saga type resolution from saga headers; when trimming removes the type, processing falls back to querying the persister for the current saga type.")]
@@ -69,7 +69,20 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         //so that other behaviors can access the saga
         context.Extensions.Set(sagaInstanceState);
 
-        var loadedEntity = await TryLoadSagaEntity(currentSagaMetadata, context).ConfigureAwait(false);
+        var sagaFetchStart = Stopwatch.GetTimestamp();
+        IContainSagaData loadedEntity;
+        try
+        {
+            loadedEntity = await TryLoadSagaEntity(currentSagaMetadata, context).ConfigureAwait(false);
+            pipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!);
+        }
+#pragma warning disable PS0019
+        catch (Exception ex)
+#pragma warning restore PS0019
+        {
+            pipelineMetrics.RecordSagaFetchTime(context, Stopwatch.GetElapsedTime(sagaFetchStart), currentSagaMetadata.SagaType.FullName!, error: ex);
+            throw;
+        }
 
         if (loadedEntity == null)
         {

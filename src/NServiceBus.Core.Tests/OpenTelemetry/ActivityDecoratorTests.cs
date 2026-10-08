@@ -59,4 +59,29 @@ public class ActivityDecoratorTests
             Assert.That(tags["nservicebus.control_message"], Is.EqualTo(headers[Headers.ControlMessageHeader]));
         }
     }
+
+    [Test]
+    public void PromoteHeadersToTags_should_promote_enclosed_message_types_as_string()
+    {
+        var activity = new Activity("test");
+        var headers = new Dictionary<string, string> { { Headers.EnclosedMessageTypes, string.Join(';', EnclosedMessageTypes) } };
+
+        ActivityDecorator.PromoteHeadersToTags(activity, headers);
+
+        Assert.That(activity.TagObjects.ToImmutableDictionary()["nservicebus.enclosed_message_types"], Is.EqualTo("Ns.First;Ns.Second"));
+    }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public void PromoteHeadersToTags_should_promote_enclosed_message_types_as_array()
+    {
+        var activity = new Activity("test");
+        var headers = new Dictionary<string, string> { { Headers.EnclosedMessageTypes, string.Join(';', EnclosedMessageTypes) } };
+
+        ActivityDecorator.PromoteHeadersToTags(activity, headers);
+
+        Assert.That(activity.TagObjects.ToImmutableDictionary()["nservicebus.enclosed_message_types"], Is.EqualTo(EnclosedMessageTypes));
+    }
+
+    static readonly string[] EnclosedMessageTypes = ["Ns.First", "Ns.Second"];
 }

@@ -1,0 +1,89 @@
+﻿#nullable enable
+
+namespace NServiceBus.Core.Tests.OpenTelemetry;
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using Helpers;
+using NServiceBus.Extensibility;
+using NServiceBus.Transport;
+using NUnit.Framework;
+
+// Covers the pre-v11 default of V11BehaviorSwitch: without the OpenTelemetryV11Defaults attribute the incoming
+// message span stays a child of the NServiceBus sender span even when a transport SDK span is
+// ambient. In v11 that default is gone, so delete this file together with the V11BehaviorSwitch block in obsoletes-v10.cs.
+[TestFixture]
+public class TransportParentSpanDefaultBehaviorTests
+{
+    readonly ActivityFactory activityFactory = new(new InstrumentationOptions());
+
+    TestingActivityListener nsbActivityListener;
+
+    [SetUp]
+    public void SetUp()
+    {
+        nsbActivityListener = TestingActivityListener.SetupNServiceBusDiagnosticListener();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        nsbActivityListener.Dispose();
+    }
+
+    [Test]
+    public void Default_attaches_to_header_trace_when_even_id_ambient_activity_exists()
+    {
+        var sendActivity = new Activity("send activity");
+        sendActivity.SetIdFormat(ActivityIdFormat.W3C);
+        sendActivity.Start();
+        sendActivity.Stop();
+
+        using var ambientActivity = new Activity("transport sdk receive activity");
+        ambientActivity.Start();
+
+        var messageHeaders = new Dictionary<string, string> { { Headers.NServiceBusDiagnosticsTraceParent, sendActivity.Id! } };
+        var messageContext = new MessageContext(Guid.NewGuid().ToString(), messageHeaders, Array.Empty<byte>(), new TransportTransaction(), "receiver", new ContextBag());
+
+        var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
+
+        Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(activity.ParentId, Is.EqualTo(sendActivity.Id), "should use the sender span as parent, ignoring the ambient activity");
+            Assert.That(activity.Links.Count(), Is.EqualTo(0), "should not link to logical send span");
+        }
+    }
+
+    [Test]
+    public void Default_propagates_header_baggage_but_not_ambient_baggage()
+    {
+        var sendActivity = new Activity("send activity");
+        sendActivity.SetIdFormat(ActivityIdFormat.W3C);
+        sendActivity.Start();
+        sendActivity.Stop();
+
+        using var ambientActivity = new Activity("transport sdk receive activity");
+        ambientActivity.AddBaggage("ambient-only", "value");
+        ambientActivity.Start();
+
+        var messageHeaders = new Dictionary<string, string>
+        {
+            { Headers.NServiceBusDiagnosticsTraceParent, sendActivity.Id! },
+            { Headers.DiagnosticsBaggage, "tenant=acme" }
+        };
+        var messageContext = new MessageContext(Guid.NewGuid().ToString(), messageHeaders, Array.Empty<byte>(), new TransportTransaction(), "receiver", new ContextBag());
+
+        var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
+
+        Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(activity.Parent, Is.Null, "the sender span is the parent, so the ambient activity is not in the parent chain");
+            Assert.That(activity.GetBaggageItem("tenant"), Is.EqualTo("acme"), "baggage from the message is propagated");
+            Assert.That(activity.GetBaggageItem("ambient-only"), Is.Null, "baggage of an activity that is not the parent is not NServiceBus' concern");
+        }
+    }
+}

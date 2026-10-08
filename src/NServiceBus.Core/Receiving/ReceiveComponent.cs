@@ -69,12 +69,16 @@ partial class ReceiveComponent
         pipelineSettings.Register("TransportReceiveToPhysicalMessageProcessingConnector", static b =>
         {
             var storage = b.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage();
-            return new TransportReceiveToPhysicalMessageConnector(storage, b.GetRequiredService<IncomingPipelineMetrics>(), b.GetRequiredService<ILogger<TransportReceiveToPhysicalMessageConnector>>());
+            return new TransportReceiveToPhysicalMessageConnector(
+                storage,
+                b.GetRequiredService<PipelineMetrics>(),
+                b.GetRequiredService<ILogger<TransportReceiveToPhysicalMessageConnector>>()
+            );
         }, "Allows to abort processing the message");
 
-        pipelineSettings.Register("LoadHandlersConnector", sp => new LoadHandlersConnector(sp.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+        pipelineSettings.Register("LoadHandlersConnector", sp => new LoadHandlersConnector(sp.GetRequiredService<MessageHandlerRegistry>(), hostingConfiguration.ActivityFactory, sp.GetRequiredService<PipelineMetrics>()), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-        pipelineSettings.Register("InvokeHandlers", static sp => new InvokeHandlerTerminator(sp.GetRequiredService<IncomingPipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
+        pipelineSettings.Register("InvokeHandlers", static sp => new InvokeHandlerTerminator(sp.GetRequiredService<PipelineMetrics>()), "Calls the IHandleMessages<T>.Handle(T)");
 
         var handlerDiagnostics = new Dictionary<string, List<string>>();
 
@@ -185,7 +189,7 @@ partial class ReceiveComponent
 
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
-        var pipelineMetrics = builder.GetRequiredService<IncomingPipelineMetrics>();
+        var pipelineMetrics = builder.GetRequiredService<PipelineMetrics>();
         var envelopeUnwrapper = envelopeComponent.CreateUnwrapper(builder);
         var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
 
@@ -193,7 +197,9 @@ partial class ReceiveComponent
             builder,
             pipelineCache,
             pipelineComponent,
-            messageOperations);
+            messageOperations,
+            activityFactory
+        );
 
         await mainPump.Initialize(
             configuration.PushRuntimeSettings,

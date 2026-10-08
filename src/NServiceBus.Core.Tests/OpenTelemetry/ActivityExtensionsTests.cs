@@ -16,7 +16,7 @@ public class ActivityExtensionsTests
         var contextBag = new ContextBag();
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
+            Assert.That(contextBag.TryGetOutgoingPipelineActivity(out var activity), Is.False);
             Assert.That(activity, Is.Null);
         }
     }
@@ -31,7 +31,7 @@ public class ActivityExtensionsTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.False);
+            Assert.That(contextBag.TryGetOutgoingPipelineActivity(out var activity), Is.False);
             Assert.That(activity, Is.Null);
         }
     }
@@ -50,7 +50,7 @@ public class ActivityExtensionsTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(contextBag.TryGetRecordingOutgoingPipelineActivity(out var activity), Is.True);
+            Assert.That(contextBag.TryGetOutgoingPipelineActivity(out var activity), Is.True);
             Assert.That(activity, Is.EqualTo(recordingActivity));
         }
     }

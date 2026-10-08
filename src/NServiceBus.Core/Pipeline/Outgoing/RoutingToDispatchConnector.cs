@@ -3,7 +3,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using Extensibility;
@@ -14,6 +13,13 @@ using Transport;
 
 class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
 {
+    readonly IActivityFactory activityFactory;
+
+    public RoutingToDispatchConnector(IActivityFactory activityFactory)
+    {
+        this.activityFactory = activityFactory;
+    }
+
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
         var dispatchConsistency = DispatchConsistency.Default;
@@ -23,10 +29,6 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         }
 
         var outgoingMessage = context.Message;
-
-        // HINT: Context is propagated to the message headers from the current activity, if present.
-        // This may not be the outgoing message activity created by NServiceBus.
-        ContextPropagation.PropagateContextToHeaders(Activity.Current, outgoingMessage.Headers, context.Extensions);
 
         // We only propagate receive properties when the message id matches the incoming message id.
         var receiveProperties =
@@ -57,9 +59,20 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         }
 
         // HINT: These tags get applied to the outgoing message activity, if present.
-        if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
+        if (context.Extensions.TryGetOutgoingPipelineActivity(out var activity))
         {
             ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
+
+            // Append destination to span name per OTel messaging spec: {operation} {destination}
+            // Only for send/reply (unicast); publish destination is already set at span creation.
+            if (V11BehaviorSwitch.UseV11Behavior // removed in v11, see obsoletes-v10.cs
+                && operations.Length > 0
+                && operations[0].AddressTag is UnicastAddressTag unicastTag
+                && outgoingMessage.Headers.TryGetValue(Headers.MessageIntent, out var intentString)
+                && intentString is nameof(MessageIntent.Send) or nameof(MessageIntent.Reply))
+            {
+                activity.DisplayName = $"{activity.DisplayName} {unicastTag.Destination}";
+            }
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))

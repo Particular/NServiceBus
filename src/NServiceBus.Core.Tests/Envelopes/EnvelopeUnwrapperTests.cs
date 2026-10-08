@@ -4,11 +4,9 @@ using OpenTelemetry;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Text;
 using Extensibility;
 using NUnit.Framework;
 using Transport;
-
 
 public class EnvelopeUnwrapperTests
 {
@@ -17,7 +15,7 @@ public class EnvelopeUnwrapperTests
     ReadOnlyMemory<byte> originalBody;
     MessageContext messageContext;
     TestMeterFactory meterFactory;
-    IncomingPipelineMetrics incomingPipelineMetrics;
+    PipelineMetrics pipelineMetrics;
     List<IEnvelopeHandler> envelopeHandlers;
 
     [SetUp]
@@ -31,7 +29,7 @@ public class EnvelopeUnwrapperTests
         originalBody = "payload"u8.ToArray().AsMemory();
         messageContext = new MessageContext(nativeId, originalHeaders, originalBody, new TransportTransaction(), "receiveAddress", new ContextBag());
         meterFactory = new TestMeterFactory();
-        incomingPipelineMetrics = new IncomingPipelineMetrics(meterFactory, "queue", "disc");
+        pipelineMetrics = new PipelineMetrics(meterFactory, "queue", "disc");
     }
 
     [TearDown]
@@ -154,7 +152,7 @@ public class EnvelopeUnwrapperTests
         Assert.That(result.Body.Span.SequenceEqual(firstBody.Span), Is.True);
     }
 
-    EnvelopeUnwrapper.IncomingMessageHandle RunTest() => new EnvelopeUnwrapper([.. envelopeHandlers], incomingPipelineMetrics).UnwrapEnvelope(messageContext);
+    EnvelopeUnwrapper.IncomingMessageHandle RunTest() => new EnvelopeUnwrapper([.. envelopeHandlers], pipelineMetrics).UnwrapEnvelope(messageContext);
 
     class ReturningHandler(Dictionary<string, string> headersToReturn, ReadOnlyMemory<byte> bodyToReturn) : IEnvelopeHandler
     {

@@ -2,40 +2,31 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
 using Pipeline;
 using Transport;
 
-class MessageOperations
+class MessageOperations(
+    IMessageMapper messageMapper,
+    IPipeline<IOutgoingPublishContext> publishPipeline,
+    IPipeline<IOutgoingSendContext> sendPipeline,
+    IPipeline<IOutgoingReplyContext> replyPipeline,
+    IPipeline<ISubscribeContext> subscribePipeline,
+    IPipeline<IUnsubscribeContext> unsubscribePipeline,
+    IActivityFactory activityFactory)
 {
-    readonly IMessageMapper messageMapper;
-    protected readonly IPipeline<IOutgoingPublishContext> publishPipeline;
-    protected readonly IPipeline<IOutgoingSendContext> sendPipeline;
-    protected readonly IPipeline<IOutgoingReplyContext> replyPipeline;
-    protected readonly IPipeline<ISubscribeContext> subscribePipeline;
-    protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
-    protected readonly IActivityFactory activityFactory;
+    protected readonly IPipeline<IOutgoingPublishContext> publishPipeline = publishPipeline;
+    protected readonly IPipeline<IOutgoingSendContext> sendPipeline = sendPipeline;
+    protected readonly IPipeline<IOutgoingReplyContext> replyPipeline = replyPipeline;
+    protected readonly IPipeline<ISubscribeContext> subscribePipeline = subscribePipeline;
+    protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline = unsubscribePipeline;
+    readonly bool useMessageTypeNamesInSpanNames = V11BehaviorSwitch.UseV11Behavior; // removed in v11, see obsoletes-v10.cs
 
-    public MessageOperations(
-        IMessageMapper messageMapper,
-        IPipeline<IOutgoingPublishContext> publishPipeline,
-        IPipeline<IOutgoingSendContext> sendPipeline,
-        IPipeline<IOutgoingReplyContext> replyPipeline,
-        IPipeline<ISubscribeContext> subscribePipeline,
-        IPipeline<IUnsubscribeContext> unsubscribePipeline,
-        IActivityFactory activityFactory)
-    {
-        this.messageMapper = messageMapper;
-        this.publishPipeline = publishPipeline;
-        this.sendPipeline = sendPipeline;
-        this.replyPipeline = replyPipeline;
-        this.subscribePipeline = subscribePipeline;
-        this.unsubscribePipeline = unsubscribePipeline;
-        this.activityFactory = activityFactory;
-    }
 
     public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, PublishOptions options)
     {
@@ -78,9 +69,24 @@ class MessageOperations
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, ActivityDisplayNames.PublishEvent, publishContext);
+        var displayName = useMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
+            : ActivityDisplayNames.PublishEvent;
 
-        await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, displayName, publishContext);
+
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        try
+        {
+            await publishPipeline.Invoke(publishContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Builder);
+            throw;
+        }
     }
 
     public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -97,9 +103,23 @@ class MessageOperations
 
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context);
+        var displayName = useMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.SubscribeEvent} {string.Join(' ', eventTypes.Select(x => x.Name))}"
+            : ActivityDisplayNames.SubscribeEvent;
 
-        await subscribePipeline.Invoke(subscribeContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, displayName, context);
+
+        try
+        {
+            await subscribePipeline.Invoke(subscribeContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Builder);
+            throw;
+        }
     }
 
     public async Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -107,13 +127,29 @@ class MessageOperations
         var unsubscribeContext = new UnsubscribeContext(
             context,
             eventType,
-            options.Context);
+            options.Context
+            );
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context);
+        var displayName = useMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.UnsubscribeEvent} {eventType.Name}"
+            : ActivityDisplayNames.UnsubscribeEvent;
 
-        await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, displayName, context);
+
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        try
+        {
+            await unsubscribePipeline.Invoke(unsubscribeContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Builder);
+            throw;
+        }
     }
 
     public Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, SendOptions options)
@@ -157,9 +193,23 @@ class MessageOperations
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
+        var displayName = useMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.SendMessage} {messageType.Name}"
+            : ActivityDisplayNames.SendMessage;
 
-        await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, displayName, outgoingContext);
+
+        try
+        {
+            await sendPipeline.Invoke(outgoingContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Builder);
+            throw;
+        }
     }
 
     public Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, ReplyOptions options)
@@ -203,9 +253,23 @@ class MessageOperations
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
+        var displayName = useMessageTypeNamesInSpanNames
+            ? $"{ActivityDisplayNames.ReplyMessage} {messageType.Name}"
+            : ActivityDisplayNames.ReplyMessage;
 
-        await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, displayName, context);
+
+        try
+        {
+            await replyPipeline.Invoke(outgoingContext)
+                .ConfigureAwait(false);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception ex)
+        {
+            activityFactory.RecordError(activity, ex, context.Builder);
+            throw;
+        }
     }
 
     internal const string RuntimeTypeRoutingTrimmingMessage = "When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.";

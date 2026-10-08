@@ -1,0 +1,511 @@
+#nullable enable
+
+namespace NServiceBus;
+
+using System;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using Transport;
+using Pipeline;
+
+class PipelineMetrics
+{
+    const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
+    const string TotalFetched = "nservicebus.messaging.fetches";
+    const string TotalFailures = "nservicebus.messaging.failures";
+    const string MessageHandlerTime = "nservicebus.messaging.handler_time";
+    const string CriticalTime = "nservicebus.messaging.critical_time";
+    const string ProcessingTime = "nservicebus.messaging.processing_time";
+    const string RecoverabilityImmediate = "nservicebus.recoverability.immediate";
+    const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
+    const string RecoverabilityError = "nservicebus.recoverability.error";
+    const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
+    const string ActiveMessages = "nservicebus.messaging.active_messages";
+    const string TotalDeduplicated = "nservicebus.outbox.duplicates";
+    const string SagaFetchTime = "nservicebus.sagas.fetch_time";
+    const string MessageDeserializeTime = "nservicebus.messaging.deserialize_time";
+    const string MessageSerializeTime = "nservicebus.messaging.serialize_time";
+    const string OutboxFetchTime = "nservicebus.outbox.fetch_time";
+    const string OutboxStoreTime = "nservicebus.outbox.store_time";
+    const string CommitTime = "nservicebus.persistence.commit_time";
+
+    // queueName and discriminator are null for send-only endpoints, which have no receive queue to report.
+    public PipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator)
+    {
+        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
+        totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
+            description: "Total number of messages processed successfully by the endpoint.");
+        totalFetched = meter.CreateCounter<long>(TotalFetched,
+            description: "Total number of messages fetched from the queue by the endpoint.");
+        totalFailures = meter.CreateCounter<long>(TotalFailures,
+            description: "Total number of messages processed unsuccessfully by the endpoint.");
+        totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
+            description: "Total number of duplicate messages detected by the Outbox.");
+        messageHandlerTime = meter.CreateHistogram<double>(MessageHandlerTime, "s",
+            "The time in seconds for the execution of the business code.");
+        criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
+            "The time in seconds between when the message was sent until processed by the endpoint.");
+        processingTime = meter.CreateHistogram<double>(ProcessingTime, "s",
+            "The time in seconds between when the message was fetched from the input queue until successfully processed by the endpoint.");
+        totalImmediateRetries = meter.CreateCounter<long>(RecoverabilityImmediate,
+            description: "Total number of immediate retries requested.");
+        totalDelayedRetries = meter.CreateCounter<long>(RecoverabilityDelayed,
+            description: "Total number of delayed retries requested.");
+        totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
+            description: "Total number of messages sent to the error queue.");
+        totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
+            description: "Total number of unwrapping attempts by the endpoint.");
+        activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
+            description: "Number of messages currently being processed by the endpoint.");
+        sagaFetchTime = meter.CreateHistogram<double>(SagaFetchTime, "s",
+            "The time in seconds for loading saga data from the persister.");
+        messageDeserializeTime = meter.CreateHistogram<double>(MessageDeserializeTime, "s",
+            "The time in seconds for deserializing an incoming message.");
+        messageSerializeTime = meter.CreateHistogram<double>(MessageSerializeTime, "s",
+            "The time in seconds for serializing an outgoing message.");
+        outboxFetchTime = meter.CreateHistogram<double>(OutboxFetchTime, "s",
+            "The time in seconds for querying the outbox storage for deduplication.");
+        outboxStoreTime = meter.CreateHistogram<double>(OutboxStoreTime, "s",
+            "The time in seconds for storing a message in the outbox storage.");
+        persistenceTime = meter.CreateHistogram<double>(CommitTime, "s",
+            "The time in seconds for completing the synchronized storage session.");
+
+        // queueName and discriminator can be null (e.g., for a send-only endpoint)
+        // in such cases we don't want to report these tags
+        if (queueName != null)
+        {
+            DefaultMetricTags.Add(MeterTags.QueueName, queueName);
+        }
+
+        if (discriminator != null)
+        {
+            DefaultMetricTags.Add(MeterTags.EndpointDiscriminator, discriminator);
+        }
+    }
+
+    public void RecordProcessingTime(ITransportReceiveContext context, TimeSpan elapsed)
+    {
+        if (!processingTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+
+        LegacyExecutionResultTag.Add(ref tags); // removed in v11, see obsoletes-v10.cs
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerTypes],
+            processingTime.Name);
+
+        processingTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordCriticalTimeAndTotalProcessed(ITransportReceiveContext context)
+    {
+        if (!totalProcessedSuccessfully.Enabled && !criticalTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        LegacyExecutionResultTag.Add(ref tags); // removed in v11, see obsoletes-v10.cs
+
+        // totalProcessedSuccessfully and criticalTime always share the same tags in this method, so overrides are
+        // looked up under criticalTime's instrument name.
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerTypes],
+            criticalTime.Name);
+
+        if (totalProcessedSuccessfully.Enabled)
+        {
+            totalProcessedSuccessfully.Add(1, tags);
+        }
+        if (criticalTime.Enabled)
+        {
+            if (context.Message.Headers.TryGetDeliverAt(out var startTime)
+                || context.Message.Headers.TryGetTimeSent(out startTime))
+            {
+                var completedAt = DateTimeOffset.UtcNow;
+                var criticalTimeElapsed = completedAt - startTime;
+
+                criticalTime.Record(criticalTimeElapsed.TotalSeconds, tags);
+            }
+        }
+    }
+
+    public void RecordMessageProcessingFailure(PipelineMetricTags pipelineMetricTags, Exception error)
+    {
+        if (!totalFailures.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
+
+        tags.Add(MeterTags.ErrorType, error.GetType().FullName);
+
+        pipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerTypes,
+            MeterTags.ErrorType],
+            totalFailures.Name);
+        totalFailures.Add(1, tags);
+
+        // the processing and critical time are intentionally not recorded in case of failure
+    }
+
+    public void RecordFetchedMessage(PipelineMetricTags pipelineMetricTags)
+    {
+        if (!totalFetched.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        pipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.EndpointDiscriminator,
+            MeterTags.QueueName,
+            MeterTags.MessageType],
+            totalFetched.Name);
+
+        totalFetched.Add(1, tags);
+    }
+
+    public void RecordDeduplicatedMessage(ITransportReceiveContext context)
+    {
+        if (!totalDeduplicated.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.EndpointDiscriminator,
+            MeterTags.QueueName,
+            MeterTags.MessageType],
+            totalDeduplicated.Name);
+
+        totalDeduplicated.Add(1, tags);
+    }
+
+    public void RecordSuccessfulMessageHandlerTime(IInvokeHandlerContext context, TimeSpan elapsed)
+    {
+        if (!messageHandlerTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        LegacyExecutionResultTag.Add(ref tags); // removed in v11, see obsoletes-v10.cs
+
+        tags.Add(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName);
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerType],
+            messageHandlerTime.Name);
+        messageHandlerTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordFailedMessageHandlerTime(IInvokeHandlerContext context, TimeSpan elapsed, Exception error)
+    {
+        if (!messageHandlerTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
+
+        tags.Add(MeterTags.MessageHandlerType, context.MessageHandler.HandlerType.FullName);
+        tags.Add(MeterTags.ErrorType, error.GetType().FullName);
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerType,
+            MeterTags.ErrorType],
+            messageHandlerTime.Name);
+        messageHandlerTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordImmediateRetry(IRecoverabilityContext context)
+    {
+        if (!totalImmediateRetries.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        tags.Add(MeterTags.ErrorType, context.Exception.GetType().FullName);
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerType,
+            MeterTags.ErrorType],
+            totalImmediateRetries.Name
+            );
+        totalImmediateRetries.Add(1, tags);
+    }
+
+    public void RecordDelayedRetry(IRecoverabilityContext context)
+    {
+        if (!totalDelayedRetries.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        tags.Add(MeterTags.ErrorType, context.Exception.GetType().FullName);
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerType,
+            MeterTags.ErrorType],
+            totalDelayedRetries.Name);
+        totalDelayedRetries.Add(1, tags);
+    }
+
+    public void RecordSendToErrorQueue(IRecoverabilityContext context)
+    {
+        if (!totalSentToErrorQueue.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        tags.Add(MeterTags.ErrorType, context.Exception.GetType().FullName);
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerType,
+            MeterTags.ErrorType],
+            totalSentToErrorQueue.Name);
+        totalSentToErrorQueue.Add(1, tags);
+    }
+
+    public ActiveMessageScope TrackMessageProcessing(PipelineMetricTags pipelineMetricTags, IncomingMessage message)
+    {
+        if (!activeMessages.Enabled)
+        {
+            return default;
+        }
+
+        var tags = DefaultMetricTags;
+        if (message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes))
+        {
+            tags.Add(MeterTags.EnclosedMessageTypes, enclosedMessageTypes);
+        }
+        pipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.EnclosedMessageTypes],
+            activeMessages.Name);
+
+        activeMessages.Add(1, tags);
+        return new ActiveMessageScope(activeMessages, tags);
+    }
+
+    public void RecordSagaFetchTime(IInvokeHandlerContext context, TimeSpan elapsed, string sagaType, Exception? error = null)
+    {
+        if (!sagaFetchTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
+        tags.Add(MeterTags.SagaType, sagaType);
+        if (error != null)
+        {
+            tags.Add(MeterTags.ErrorType, error.GetType().FullName);
+        }
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.SagaType,
+            MeterTags.ErrorType],
+            sagaFetchTime.Name);
+        sagaFetchTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordDeserializeTime(IIncomingPhysicalMessageContext context, TimeSpan elapsed, Exception? error = null)
+    {
+        if (!messageDeserializeTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        if (context.Message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypes))
+        {
+            tags.Add(MeterTags.EnclosedMessageTypes, messageTypes);
+        }
+        if (error != null)
+        {
+            tags.Add(MeterTags.ErrorType, error.GetType().FullName);
+        }
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.EnclosedMessageTypes,
+            MeterTags.ErrorType],
+            messageDeserializeTime.Name);
+
+        messageDeserializeTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordSerializeTime(IOutgoingLogicalMessageContext context, TimeSpan elapsed, string? messageType, Exception? error = null)
+    {
+        if (!messageSerializeTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        if (messageType != null)
+        {
+            tags.Add(MeterTags.MessageType, messageType);
+        }
+        if (error != null)
+        {
+            tags.Add(MeterTags.ErrorType, error.GetType().FullName);
+        }
+        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
+
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+                MeterTags.QueueName,
+                MeterTags.EndpointDiscriminator,
+                MeterTags.MessageType,
+                MeterTags.ErrorType],
+            messageSerializeTime.Name);
+
+        messageSerializeTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordOutboxFetchTime(ITransportReceiveContext context, TimeSpan elapsed)
+    {
+        if (!outboxFetchTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator],
+            outboxFetchTime.Name);
+
+        outboxFetchTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordOutboxStoreTime(ITransportReceiveContext context, TimeSpan elapsed)
+    {
+        if (!outboxStoreTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator],
+            outboxStoreTime.Name);
+
+        outboxStoreTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void RecordPersistenceTime(IIncomingLogicalMessageContext context, TimeSpan elapsed)
+    {
+        if (!persistenceTime.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        context.PipelineMetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.MessageType,
+            MeterTags.MessageHandlerTypes],
+            persistenceTime.Name);
+
+        persistenceTime.Record(elapsed.TotalSeconds, tags);
+    }
+
+    public void EnvelopeUnwrappingSucceeded(MessageContext messageContext, IEnvelopeHandler type) => RecordEnvelopeUnwrapping(messageContext, type, true, null);
+    public void EnvelopeUnwrappingFailed(MessageContext messageContext, IEnvelopeHandler type, Exception? exception) => RecordEnvelopeUnwrapping(messageContext, type, false, exception);
+    void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
+    {
+        if (!totalEnvelopeUnwrapping.Enabled)
+        {
+            return;
+        }
+
+        var tags = DefaultMetricTags;
+        tags.Add(MeterTags.EnvelopeUnwrapperType, type.GetType().FullName);
+
+        if (exception != null)
+        {
+            tags.Add(MeterTags.ErrorType, exception.GetType().FullName);
+        }
+
+        messageContext.MetricTags.ApplyTags(ref tags, [
+            MeterTags.QueueName,
+            MeterTags.EndpointDiscriminator,
+            MeterTags.EnvelopeUnwrapperType,
+            MeterTags.ErrorType],
+            totalEnvelopeUnwrapping.Name);
+
+        totalEnvelopeUnwrapping.Add(succeeded ? 0 : 1, tags);
+    }
+
+    public readonly struct ActiveMessageScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
+    {
+        public void Dispose() => counter?.Add(-1, tags);
+    }
+
+    readonly Counter<long> totalProcessedSuccessfully;
+    readonly Counter<long> totalFetched;
+    readonly Counter<long> totalFailures;
+    readonly Counter<long> totalDeduplicated;
+    readonly Histogram<double> messageHandlerTime;
+    readonly Histogram<double> criticalTime;
+    readonly Histogram<double> processingTime;
+    readonly Counter<long> totalImmediateRetries;
+    readonly Counter<long> totalDelayedRetries;
+    readonly Counter<long> totalSentToErrorQueue;
+    readonly Counter<long> totalEnvelopeUnwrapping;
+    readonly UpDownCounter<long> activeMessages;
+    readonly Histogram<double> sagaFetchTime;
+    readonly Histogram<double> messageDeserializeTime;
+    readonly Histogram<double> messageSerializeTime;
+    readonly Histogram<double> outboxFetchTime;
+    readonly Histogram<double> outboxStoreTime;
+    readonly Histogram<double> persistenceTime;
+
+    readonly TagList DefaultMetricTags;
+}

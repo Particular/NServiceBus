@@ -11,19 +11,19 @@ public class TestingActivityListener : IDisposable
 {
     readonly ActivityListener activityListener;
 
-    public static TestingActivityListener SetupDiagnosticListener(string sourceName)
+    public static TestingActivityListener SetupDiagnosticListener(params string[] sourceNames)
     {
-        var testingListener = new TestingActivityListener(sourceName);
+        var testingListener = new TestingActivityListener(sourceNames);
 
         ActivitySource.AddActivityListener(testingListener.activityListener);
         return testingListener;
     }
 
-    TestingActivityListener(string sourceName = null)
+    TestingActivityListener(params string[] sourceNames)
     {
         activityListener = new ActivityListener
         {
-            ShouldListenTo = source => string.IsNullOrEmpty(sourceName) || source.Name == sourceName,
+            ShouldListenTo = source => sourceNames.Length == 0 || sourceNames.Contains(source.Name),
             Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
             SampleUsingParentId = (ref ActivityCreationOptions<string> options) => ActivitySamplingResult.AllData
         };
@@ -62,4 +62,5 @@ static class ActivityExtensions
     public static List<Activity> GetSendMessageActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.SendMessage").ToList();
     public static List<Activity> GetPublishEventActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.PublishMessage").ToList();
     public static List<Activity> GetInvokedHandlerActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.InvokeHandler").ToList();
+    public static List<Activity> GetRecoverabilityActivities(this ConcurrentQueue<Activity> activities) => activities.Where(a => a.OperationName == "NServiceBus.Diagnostics.Recoverability").ToList();
 }

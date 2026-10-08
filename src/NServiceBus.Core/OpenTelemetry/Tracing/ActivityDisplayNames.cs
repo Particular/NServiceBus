@@ -10,4 +10,15 @@ static class ActivityDisplayNames
     public const string UnsubscribeEvent = "unsubscribe event";
     public const string SendMessage = "send message";
     public const string ReplyMessage = "reply";
+    public const string Recoverability = "recover";
+    public const string MoveToError = "move to error";
+
+    // Operation-only prefixes used when V11BehaviorSwitch.UseV11Behavior is enabled (the only naming in v11, see obsoletes-v10.cs)
+    internal const string ProcessOperation = "process";
+    internal const string PublishOperation = "publish";
+    internal const string SendOperation = "send";
+    internal const string ImmediateRetryOperation = "immediate retry";
+    internal const string DelayedRetryOperation = "delayed retry";
+    internal const string MoveToErrorOperation = "move to";
+    internal const string DiscardOperation = "discard";
 }

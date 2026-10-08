@@ -74,5 +74,5 @@ public abstract class RecoverabilityAction
     /// </summary>
     public abstract ErrorHandleResult ErrorHandleResult { get; }
 
-    static readonly ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
+    static readonly ImmediateRetry CachedImmediateRetry = new();
 }

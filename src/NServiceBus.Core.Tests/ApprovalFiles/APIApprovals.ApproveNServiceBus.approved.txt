@@ -213,6 +213,12 @@ namespace NServiceBus
         public int MaxNumberOfRetries { get; }
         public System.TimeSpan TimeIncrease { get; }
     }
+    public class DelayedDeliveryInstrumentationOptions
+    {
+        public DelayedDeliveryInstrumentationOptions() { }
+        public NServiceBus.TraceMode SagaTimeoutTraceMode { get; set; }
+        public NServiceBus.TraceMode SendOperationTraceMode { get; set; }
+    }
     public static class DelayedDeliveryOptionExtensions
     {
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
@@ -326,6 +332,11 @@ namespace NServiceBus
             public bool TryGetExplicitlyConfiguredErrorQueueAddress([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out string? errorQueue) { }
         }
     }
+    public enum ExceptionRecordingMode
+    {
+        Logs = 0,
+        SpanAndLogs = 1,
+    }
     public class FailedConfig
     {
         public FailedConfig(string errorQueue, System.Collections.Generic.HashSet<System.Type> unrecoverableExceptionTypes) { }
@@ -388,6 +399,7 @@ namespace NServiceBus
         public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";
         public const string MessageId = "NServiceBus.MessageId";
         public const string MessageIntent = "NServiceBus.MessageIntent";
+        public const string NServiceBusDiagnosticsTraceParent = "NServiceBus.TraceParent";
         public const string NServiceBusVersion = "NServiceBus.Version";
         public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
         public const string OriginatingAddress = "NServiceBus.OriginatingAddress";
@@ -571,6 +583,10 @@ namespace NServiceBus
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions subscribeOptions, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions unsubscribeOptions, System.Threading.CancellationToken cancellationToken = default);
     }
+    public interface IMetricsTags
+    {
+        void AddOrOverride(string tagKey, object value, string instrumentName);
+    }
     public interface INeedInitialization
     {
         void Customize(NServiceBus.EndpointConfiguration configuration);
@@ -653,13 +669,6 @@ namespace NServiceBus
         public override NServiceBus.Transport.ErrorHandleResult ErrorHandleResult { get; }
         public override System.Collections.Generic.IReadOnlyCollection<NServiceBus.Pipeline.IRoutingContext> GetRoutingContexts(NServiceBus.Pipeline.IRecoverabilityActionContext context) { }
     }
-    public sealed class IncomingPipelineMetricTags
-    {
-        public IncomingPipelineMetricTags() { }
-        public void Add(string tagKey, object value) { }
-        public void ApplyTag(ref System.Diagnostics.TagList tagList, string tagKey) { }
-        public void ApplyTags(ref System.Diagnostics.TagList tagList, System.ReadOnlySpan<string> tagKeys) { }
-    }
     public static class InstallConfigExtensions
     {
         public static void AddInstaller<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TInstaller>(this NServiceBus.EndpointConfiguration config)
@@ -677,6 +686,15 @@ namespace NServiceBus
     {
         StopApplication = 0,
         Continue = 1,
+    }
+    public class InstrumentationOptions
+    {
+        public InstrumentationOptions() { }
+        public NServiceBus.DelayedDeliveryInstrumentationOptions DelayedDelivery { get; }
+        public NServiceBus.ExceptionRecordingMode ExceptionRecordingMode { get; set; }
+        public NServiceBus.TraceMode PublishTraceMode { get; set; }
+        public NServiceBus.RecoverabilityInstrumentationOptions Recoverability { get; }
+        public NServiceBus.TraceMode SendTraceMode { get; set; }
     }
     public sealed class KeyedServiceKey
     {
@@ -836,6 +854,16 @@ namespace NServiceBus
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode(@"AddMessageType<TMessage> relies on an NServiceBus source-generated interceptor to register the statically known message hierarchy without reflection when trimming is enabled. If this warning is reported, the interceptor was not used for this call; enable or restore the NServiceBus analyzer/source-generator tooling and use a statically known message type.")]
         public static void AddMessageType<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TMessage>(this NServiceBus.EndpointConfiguration config) { }
     }
+    public static class MetricTagsExtensions
+    {
+        extension(NServiceBus.Pipeline.IBehaviorContext context)
+        {
+            public NServiceBus.IMetricsTags MetricTags { get; }
+        }
+        extension(NServiceBus.Transport.MessageContext context)
+        {
+        }
+    }
     public class MoveToError : NServiceBus.RecoverabilityAction
     {
         protected MoveToError(string errorQueue) { }
@@ -861,7 +889,10 @@ namespace NServiceBus
     public static class OpenTelemetryExtensions
     {
         public static void ContinueExistingTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
+        public static void ContinueExistingTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
+        public static void StartNewTraceOnReceive(this NServiceBus.PublishOptions publishOptions) { }
         public static void StartNewTraceOnReceive(this NServiceBus.SendOptions sendOptions) { }
+        public static NServiceBus.InstrumentationOptions Tracing(this NServiceBus.EndpointConfiguration config) { }
     }
     public static class OutboxConfigExtensions
     {
@@ -1002,6 +1033,11 @@ namespace NServiceBus
     public static class RecoverabilityEndpointConfigurationExtensions
     {
         public static NServiceBus.RecoverabilitySettings Recoverability(this NServiceBus.EndpointConfiguration configuration) { }
+    }
+    public class RecoverabilityInstrumentationOptions
+    {
+        public RecoverabilityInstrumentationOptions() { }
+        public NServiceBus.TraceMode DelayedRetryTraceMode { get; set; }
     }
     public class RecoverabilitySettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
@@ -1301,6 +1337,11 @@ namespace NServiceBus
     {
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object?>> sagaEntityProperty) { }
+    }
+    public enum TraceMode
+    {
+        ContinueExisting = 0,
+        StartNew = 1,
     }
     public static class TransportConfig
     {

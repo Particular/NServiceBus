@@ -2,42 +2,36 @@
 
 namespace NServiceBus;
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using Extensibility;
 
 static class ContextPropagation
 {
-    public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers, ContextBag contextBag)
+    public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers)
     {
         if (activity is null)
         {
             return;
         }
 
+        // Written on both propagation paths below. The W3C "traceparent" header is still written
+        // too, so endpoints on older versions keep reading the context from where they expect it.
         if (activity.Id is not null)
         {
-            headers[Headers.DiagnosticsTraceParent] = activity.Id;
+            headers[Headers.NServiceBusDiagnosticsTraceParent] = activity.Id;
         }
 
-        if (activity.TraceStateString is not null)
+        // TODO: investigate if we need to improve the switch check for better performance
+        // Removed in v11, see obsoletes-v10.cs
+        if (!V11BehaviorSwitch.UseV11Behavior)
         {
-            headers[Headers.DiagnosticsTraceState] = activity.TraceStateString;
+            LegacyContextPropagation.PropagateContextToHeaders(activity, headers);
+            return;
         }
 
-        // Check whether the startnewtrace setting was set in the context, if so, add it to the headers now the trace parent was added
-        if (contextBag.TryGet<string>(Headers.StartNewTrace, out var headerContent))
-        {
-            headers[Headers.StartNewTrace] = headerContent;
-        }
-
-        var baggage = string.Join(",", activity.Baggage.Select(item => $"{item.Key}={Uri.EscapeDataString(item.Value ?? string.Empty)}"));
-        if (!string.IsNullOrEmpty(baggage))
-        {
-            headers[Headers.DiagnosticsBaggage] = baggage;
-        }
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11
+        DistributedContextPropagator.Current.Inject(activity, headers, Setter);
     }
 
     public static void PropagateContextFromHeaders(Activity? activity, IDictionary<string, string> headers)
@@ -47,41 +41,66 @@ static class ContextPropagation
             return;
         }
 
-        if (headers.TryGetValue(Headers.DiagnosticsTraceState, out var traceState))
+        PropagateTraceStateFromHeaders(activity, headers);
+        PropagateBaggageFromHeaders(activity, headers);
+    }
+
+    public static void PropagateTraceStateFromHeaders(Activity activity, IDictionary<string, string> headers)
+    {
+        // Removed in v11, see obsoletes-v10.cs
+        if (!V11BehaviorSwitch.UseV11Behavior)
+        {
+            LegacyContextPropagation.PropagateTraceStateFromHeaders(activity, headers);
+            return;
+        }
+
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11
+        DistributedContextPropagator.Current.ExtractTraceIdAndState(headers, Getter, out _, out var traceState);
+
+        if (traceState is not null)
         {
             activity.TraceStateString = traceState;
         }
+    }
 
-        if (headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))
+    // The activity must be started. Baggage the parent chain already carries (for example because a
+    // transport SDK extracted it from the same message onto its receive span) is not added again from
+    // the headers. Otherwise every hop would put each key on the wire twice.
+    public static void PropagateBaggageFromHeaders(Activity activity, IDictionary<string, string> headers)
+    {
+        // Removed in v11, see obsoletes-v10.cs
+        if (!V11BehaviorSwitch.UseV11Behavior)
         {
-            var baggageSpan = baggageValue.AsSpan();
-            // HINT: Iterate in reverse order because Activity baggage is LIFO
-            while (!baggageSpan.IsEmpty)
+            LegacyContextPropagation.PropagateBaggageFromHeaders(activity, headers, activity.Parent);
+            return;
+        }
+
+        // The following part was intentionally not extracted to a separate class to prevent
+        // accidental leftovers when because that the legacy propagator will be removed in v11
+        var baggage = DistributedContextPropagator.Current.ExtractBaggage(headers, Getter);
+
+        if (baggage is null)
+        {
+            return;
+        }
+
+        foreach (var baggageItem in baggage)
+        {
+            if (activity.Parent?.GetBaggageItem(baggageItem.Key) is null)
             {
-                var lastComma = baggageSpan.LastIndexOf(',');
-                ReadOnlySpan<char> baggageItem;
-
-                if (lastComma >= 0)
-                {
-                    baggageItem = baggageSpan[(lastComma + 1)..];
-                    baggageSpan = baggageSpan[..lastComma];
-                }
-                else
-                {
-                    baggageItem = baggageSpan;
-                    baggageSpan = [];
-                }
-
-                var firstEquals = baggageItem.IndexOf('=');
-                if (firstEquals < 0 || firstEquals >= baggageItem.Length)
-                {
-                    continue;
-                }
-
-                var key = baggageItem[..firstEquals].Trim();
-                var value = baggageItem[(firstEquals + 1)..];
-                activity.AddBaggage(key.ToString(), Uri.UnescapeDataString(value));
+                activity.AddBaggage(baggageItem.Key, baggageItem.Value);
             }
         }
     }
+
+    static readonly DistributedContextPropagator.PropagatorSetterCallback Setter = static (carrier, key, value) =>
+        ((IDictionary<string, string>)carrier!)[key] = value;
+
+    static readonly DistributedContextPropagator.PropagatorGetterCallback Getter =
+        static (carrier, key, out value, out values) =>
+        {
+            values = null;
+            value = ((IReadOnlyDictionary<string, string>)carrier!).GetValueOrDefault(key);
+        };
 }

@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using AcceptanceTests.Core.OpenTelemetry.Metrics;
 using Microsoft.Extensions.Logging.Abstractions;
 using NServiceBus.Outbox;
 using NServiceBus.Pipeline;
@@ -19,7 +20,7 @@ using Transport;
 using TransportOperation = Transport.TransportOperation;
 
 [TestFixture]
-public class TransportReceiveToPhysicalMessageConnectorTests
+public partial class TransportReceiveToPhysicalMessageConnectorTests
 {
     [Test]
     public async Task Should_honor_stored_delivery_constraints()
@@ -115,8 +116,11 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         }
     }
 
+    // In v11 the snake_case name is the only one: delete Should_add_outbox_span_tag_when_deduplicating in
+    // obsoletes-v10.cs and the attribute on this one.
     [Test]
-    public async Task Should_add_outbox_span_tag_when_deduplicating()
+    [OpenTelemetryV11Defaults]
+    public async Task Should_add_snake_case_outbox_span_tag_when_deduplicating()
     {
         string messageId = Guid.NewGuid().ToString();
         fakeOutbox.ExistingMessage = new OutboxMessage(messageId, Array.Empty<NServiceBus.Outbox.TransportOperation>());
@@ -128,33 +132,21 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
         await Invoke(context);
 
-        Assert.That(pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicate-message"], Is.EqualTo(true));
+        Assert.That(pipelineActivity.TagObjects.ToImmutableDictionary()["nservicebus.outbox.deduplicated_message"], Is.EqualTo(true));
     }
 
     [Test]
-    public async Task Should_add_batch_dispatch_events_when_sending_batched_messages()
+    public async Task Should_report_deduplicated_message_metric_when_deduplicating()
     {
-        var context = CreateContext(fakeBatchPipeline, Guid.NewGuid().ToString());
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
-        using var pipelineActivity = new Activity("test activity");
-        pipelineActivity.Start();
-        context.Extensions.SetIncomingPipelineActivity(pipelineActivity);
+        string messageId = Guid.NewGuid().ToString();
+        fakeOutbox.ExistingMessage = new OutboxMessage(messageId, Array.Empty<NServiceBus.Outbox.TransportOperation>());
+        var context = CreateContext(fakeBatchPipeline, messageId);
 
-        await Invoke(context, c =>
-        {
-            var batchedSends = c.Extensions.Get<PendingTransportOperations>();
-            batchedSends.AddRange([
-                new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
-                new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination")),
-                new TransportOperation(new OutgoingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()), new UnicastAddressTag("destination"))
-            ]);
-            return Task.CompletedTask;
-        });
+        await Invoke(context);
 
-        var startDispatcherActivityEvents = pipelineActivity.Events.Where(e => e.Name == "Start dispatching").ToArray();
-        Assert.That(startDispatcherActivityEvents, Has.Length.EqualTo(1));
-        Assert.That(startDispatcherActivityEvents.Single().Tags.ToImmutableDictionary()["message-count"], Is.EqualTo(3));
-        Assert.That(pipelineActivity.Events.Count(e => e.Name == "Finished dispatching"), Is.EqualTo(1));
+        metricsListener.AssertMetric("nservicebus.outbox.duplicates", 1);
     }
 
     [Test]
@@ -201,7 +193,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     public async Task Should_still_dispatch_when_outbox_is_disabled()
     {
         var noOpBehavior = new TransportReceiveToPhysicalMessageConnector(
-            new NoOpOutboxStorage(), new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
+            new NoOpOutboxStorage(), new PipelineMetrics(fakeMeterFactory, "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
 
         var context = CreateContext(fakeBatchPipeline, "id");
 
@@ -240,6 +232,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
         };
 
         context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
+        context.Extensions.Set(new PipelineMetricTags());
 
         return context;
     }
@@ -249,9 +242,13 @@ public class TransportReceiveToPhysicalMessageConnectorTests
     {
         fakeOutbox = new FakeOutboxStorage();
         fakeBatchPipeline = new FakeBatchPipeline();
+        fakeMeterFactory = new TestMeterFactory();
 
-        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
+        behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox, new PipelineMetrics(fakeMeterFactory, "queue", "disc"), NullLogger<TransportReceiveToPhysicalMessageConnector>.Instance);
     }
+
+    [TearDown]
+    public void TearDown() => fakeMeterFactory.Dispose();
 
     Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task>? next = null) => behavior.Invoke(context, next ?? (_ => Task.CompletedTask));
 
@@ -259,6 +256,7 @@ public class TransportReceiveToPhysicalMessageConnectorTests
 
     FakeBatchPipeline fakeBatchPipeline;
     FakeOutboxStorage fakeOutbox;
+    TestMeterFactory fakeMeterFactory;
 
     class MyEvent;
 

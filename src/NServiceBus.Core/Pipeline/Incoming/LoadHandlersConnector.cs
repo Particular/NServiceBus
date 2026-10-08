@@ -16,7 +16,7 @@ using Persistence;
 using Pipeline;
 using Unicast;
 
-class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
+class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory, PipelineMetrics pipelineMetrics) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
 {
     public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
     {
@@ -43,8 +43,7 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
             }
 
             // capture the message handler types to add them as tags to applicable metrics
-            var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
-            availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
+            context.PipelineMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
 
             foreach (var messageHandler in handlersToInvoke)
             {
@@ -64,7 +63,10 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
                     catch (Exception ex)
 #pragma warning restore PS0019
                     {
-                        activity?.SetErrorStatus(ex);
+                        if (activity is not null)
+                        {
+                            activityFactory.RecordError(activity, ex, context.Builder);
+                        }
                         throw;
                     }
                 }
@@ -77,7 +79,9 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
             }
 
             context.MessageHandled = true;
+            var persistenceStart = Stopwatch.GetTimestamp();
             await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
+            pipelineMetrics.RecordPersistenceTime(context, Stopwatch.GetElapsedTime(persistenceStart));
         }
     }
 

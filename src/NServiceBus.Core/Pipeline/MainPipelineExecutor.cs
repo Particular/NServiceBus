@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,24 +17,24 @@ class MainPipelineExecutor(
     INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
-    IncomingPipelineMetrics incomingPipelineMetrics,
+    PipelineMetrics pipelineMetrics,
     EnvelopeUnwrapper envelopeUnwrapper)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
+
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
-
-        var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();
-
-        incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
             using var incomingMessageHandle = envelopeUnwrapper.UnwrapEnvelope(messageContext);
             IncomingMessage message = incomingMessageHandle;
+
+            //This needs to happen after envelope unwrapping to ensure the proper value of the EnclosedMessageTypes header
+            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(messageContext.MetricTags, message);
 
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
@@ -51,12 +52,15 @@ class MainPipelineExecutor(
 
             try
             {
-                await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
+
+                await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
+                activity?.SetStatus(ActivityStatusCode.Ok);
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
             catch (Exception ex)
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
             {
+                activityFactory.RecordError(activity, ex, transportReceiveContext.Builder);
                 ex.Data["Message ID"] = message.MessageId;
 
                 if (message.NativeMessageId != message.MessageId)
@@ -68,13 +72,13 @@ class MainPipelineExecutor(
 
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
-                    incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+                    pipelineMetrics.RecordMessageProcessingFailure(messageContext.MetricTags, ex);
                 }
                 throw;
             }
             finally
             {
-                incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
+                pipelineMetrics.RecordFetchedMessage(messageContext.MetricTags);
             }
 
             var completedAt = DateTimeOffset.UtcNow;

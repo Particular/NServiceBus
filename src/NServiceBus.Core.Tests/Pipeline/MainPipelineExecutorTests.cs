@@ -123,14 +123,14 @@ public class MainPipelineExecutorTests
 
     static MainPipelineExecutor CreateMainPipelineExecutor(ServiceProvider serviceProvider, IPipeline<ITransportReceiveContext> receivePipeline)
     {
-        var incomingPipelineMetrics = new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc");
+        var incomingPipelineMetrics = new PipelineMetrics(new TestMeterFactory(), "queue", "disc");
         var executor = new MainPipelineExecutor(
             serviceProvider,
             new PipelineCache(serviceProvider, new PipelineModifications()),
             new TestableMessageOperations(),
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
-            new ActivityFactory(),
+            new ActivityFactory(new InstrumentationOptions()),
             incomingPipelineMetrics,
             new EnvelopeUnwrapper([], incomingPipelineMetrics));
 

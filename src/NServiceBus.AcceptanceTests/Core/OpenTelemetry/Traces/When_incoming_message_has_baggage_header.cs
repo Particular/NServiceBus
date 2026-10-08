@@ -17,7 +17,7 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
                 {
                     var sendOptions = new SendOptions();
                     sendOptions.RouteToThisEndpoint();
-                    sendOptions.SetHeader(Headers.DiagnosticsBaggage, "key1=value1,key2=value2,key3=");
+                    sendOptions.SetHeader(Headers.DiagnosticsBaggage, "key1=value1,key2=value2,key3=value3");
                     await session.Send(new SomeMessage(), sendOptions);
                 })
             )
@@ -29,7 +29,7 @@ public class When_incoming_message_has_baggage_header : OpenTelemetryAcceptanceT
 
         VerifyBaggageItem("key1", "value1");
         VerifyBaggageItem("key2", "value2");
-        VerifyBaggageItem("key3", "");
+        VerifyBaggageItem("key3", "value3");
         return;
 
         void VerifyBaggageItem(string key, string expectedValue)
