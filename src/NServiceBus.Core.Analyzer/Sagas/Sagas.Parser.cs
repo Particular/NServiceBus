@@ -37,8 +37,10 @@ public static partial class Sagas
         public HandlerSpec Handler { get; }
     }
 
-    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? GetterReceiverCastType, string? ExternGetterReceiverType, string? ExternGetterMethodName, bool UsesUpdatedMemorySafetyRules, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeName, string? ExternGetterReceiverType, string? ExternSetterReceiverType, bool UsesUpdatedMemorySafetyRules, ImmutableEquatableArray<string> SuppressedGetterDiagnosticIds, ImmutableEquatableArray<string> SuppressedSetterDiagnosticIds);
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? GetterReceiverCastType, ExternAccessorSpec? ExternGetter, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeName, ExternAccessorSpec? ExternGetter, ExternAccessorSpec? ExternSetter, ImmutableEquatableArray<string> SuppressedGetterDiagnosticIds, ImmutableEquatableArray<string> SuppressedSetterDiagnosticIds);
+    // An UnsafeAccessor bound by metadata name on the type declaring the accessor; the updated memory safety rules require it to be marked safe.
+    public readonly record struct ExternAccessorSpec(string ReceiverType, string MethodName, bool UsesUpdatedMemorySafetyRules);
 
     public static class Parser
     {
@@ -206,9 +208,7 @@ public static partial class Sagas
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 // Not the metadata name: the analyzers accept types like int?, whose metadata name Nullable`1 isn't a valid identifier.
                 var propertyTypeName = propertySymbol.Type.Name;
-                var needsExtern = externGetter is not null || externSetter is not null;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertyTypeName, ExternReceiverType(externGetter), ExternReceiverType(externSetter), needsExtern && semanticModel.UsesUpdatedMemorySafetyRules,
-                    suppressedGetterDiagnosticIds, suppressedSetterDiagnosticIds);
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertyTypeName, Extern(externGetter), Extern(externSetter), suppressedGetterDiagnosticIds, suppressedSetterDiagnosticIds);
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
@@ -253,8 +253,7 @@ public static partial class Sagas
                     return;
                 }
 
-                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, read.ReceiverCastType, ExternReceiverType(read.ExternGetter), read.ExternGetter?.MetadataName,
-                    read.ExternGetter is not null && semanticModel.UsesUpdatedMemorySafetyRules, read.AccessedMember, read.SuppressedDiagnosticIds));
+                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, read.ReceiverCastType, Extern(read.ExternGetter), read.AccessedMember, read.SuppressedDiagnosticIds));
             }
 
             // The message, or one identity, reference, boxing or unboxing cast of it; only a cast that can fail is returned for generated code to repeat.
@@ -502,7 +501,10 @@ public static partial class Sagas
 
             bool IsAccessible(ISymbol symbol) => semanticModel.Compilation.IsSymbolAccessibleWithin(symbol, semanticModel.Compilation.Assembly);
 
-            static string? ExternReceiverType(IMethodSymbol? accessor) => accessor?.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            ExternAccessorSpec? Extern(IMethodSymbol? accessor) =>
+                accessor is null
+                    ? null
+                    : new ExternAccessorSpec(accessor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), accessor.MetadataName, semanticModel.UsesUpdatedMemorySafetyRules);
 
             // UnsafeAccessor rejects closed generic target types, a value type target would need the receiver by ref, and the extern names its target.
             bool TargetsUnsupportedType(IMethodSymbol? externAccessor)

@@ -108,19 +108,18 @@ public static partial class Sagas
 
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
-                var getterReceiverType = mapping.ExternGetterReceiverType;
                 var member = MemberName(mapping.MessagePropertyName);
-                var read = (getterReceiverType, mapping.GetterReceiverCastType) switch
+                var read = (mapping.ExternGetter, mapping.GetterReceiverCastType) switch
                 {
                     (null, null) => $"message.{member}",
                     (null, { } castType) => $"(({castType})message).{member}",
-                    (_, null) => "AccessFrom_Property(message)",
-                    (_, { } castType) => $"AccessFrom_Property(({castType})message)"
+                    (not null, null) => "AccessFrom_Property(message)",
+                    (not null, { } castType) => $"AccessFrom_Property(({castType})message)"
                 };
                 WriteSuppressingDiagnostics(sourceWriter, $"protected override object? AccessFrom({mapping.MessageType} message) => {read};", mapping.SuppressedDiagnosticIds);
-                if (getterReceiverType is not null)
+                if (mapping.ExternGetter is { } externGetter)
                 {
-                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", mapping.ExternGetterMethodName!, mapping.MessagePropertyType, $"{getterReceiverType} message", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", externGetter, mapping.MessagePropertyType, $"{externGetter.ReceiverType} message");
                 }
 
                 sourceWriter.WriteLine();
@@ -135,11 +134,11 @@ public static partial class Sagas
             }
         }
 
-        static void WriteExternAccessor(SourceWriter sourceWriter, string methodName, string accessorName, string returnType, string parameters, bool usesUpdatedMemorySafetyRules)
+        static void WriteExternAccessor(SourceWriter sourceWriter, string methodName, ExternAccessorSpec accessor, string returnType, string parameters)
         {
-            var safetyModifier = usesUpdatedMemorySafetyRules ? "safe " : "";
+            var safetyModifier = accessor.UsesUpdatedMemorySafetyRules ? "safe " : "";
             sourceWriter.WriteLine();
-            sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"{accessorName}\")]");
+            sourceWriter.WriteLine($"[global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = \"{accessor.MethodName}\")]");
             sourceWriter.WriteLine($"static {safetyModifier}extern {returnType} {methodName}({parameters});");
         }
 
@@ -167,7 +166,7 @@ public static partial class Sagas
             : IComparable<MessagePropertyAccessorIdentity>
         {
             public static MessagePropertyAccessorIdentity Of(PropertyMappingSpec mapping) =>
-                new(mapping.MessageType, mapping.MessagePropertyName, mapping.AccessedMember, mapping.GetterReceiverCastType, mapping.ExternGetterReceiverType, mapping.ExternGetterMethodName);
+                new(mapping.MessageType, mapping.MessagePropertyName, mapping.AccessedMember, mapping.GetterReceiverCastType, mapping.ExternGetter?.ReceiverType, mapping.ExternGetter?.MethodName);
 
             // Parts that are null leave the names of plain reads unchanged.
             public ulong Hash() =>
@@ -233,22 +232,24 @@ public static partial class Sagas
                 sourceWriter.WriteLine($$"""{{accessorClassName}}() { }""");
                 sourceWriter.WriteLine();
                 var member = MemberName(mapping.PropertyName);
-                var getterReceiverType = mapping.ExternGetterReceiverType;
-                var setterReceiverType = mapping.ExternSetterReceiverType;
-                var read = getterReceiverType is null ? $"(({sagaDataType})sagaData).{member}" : $"AccessFrom_Property(({getterReceiverType})sagaData)";
-                var write = setterReceiverType is null ? $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value" : $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)";
+                var read = mapping.ExternGetter is { ReceiverType: var getterReceiverType }
+                    ? $"AccessFrom_Property(({getterReceiverType})sagaData)"
+                    : $"(({sagaDataType})sagaData).{member}";
+                var write = mapping.ExternSetter is { ReceiverType: var setterReceiverType }
+                    ? $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)"
+                    : $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value";
 
                 WriteSuppressingDiagnostics(sourceWriter, $"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};", mapping.SuppressedGetterDiagnosticIds);
-                if (getterReceiverType is not null)
+                if (mapping.ExternGetter is { } externGetter)
                 {
-                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", $"get_{mapping.PropertyName}", mapping.PropertyType, $"{getterReceiverType} sagaData", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "AccessFrom_Property", externGetter, mapping.PropertyType, $"{externGetter.ReceiverType} sagaData");
                 }
 
                 sourceWriter.WriteLine();
                 WriteSuppressingDiagnostics(sourceWriter, $"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};", mapping.SuppressedSetterDiagnosticIds);
-                if (setterReceiverType is not null)
+                if (mapping.ExternSetter is { } externSetter)
                 {
-                    WriteExternAccessor(sourceWriter, "WriteTo_Property", $"set_{mapping.PropertyName}", "void", $"{setterReceiverType} sagaData, {mapping.PropertyType} value", mapping.UsesUpdatedMemorySafetyRules);
+                    WriteExternAccessor(sourceWriter, "WriteTo_Property", externSetter, "void", $"{externSetter.ReceiverType} sagaData, {mapping.PropertyType} value");
                 }
 
                 sourceWriter.WriteLine();
@@ -271,7 +272,7 @@ public static partial class Sagas
             : IComparable<CorrelationPropertyAccessorIdentity>
         {
             public static CorrelationPropertyAccessorIdentity Of(string sagaDataType, CorrelationPropertyMappingSpec mapping) =>
-                new(sagaDataType, mapping.PropertyType, mapping.PropertyName, mapping.ExternGetterReceiverType);
+                new(sagaDataType, mapping.PropertyType, mapping.PropertyName, mapping.ExternGetter?.ReceiverType);
 
             public ulong Hash() =>
                 NonCryptographicHash.GetHash(

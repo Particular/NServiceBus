@@ -18,8 +18,8 @@ public class GeneratedAccessorNameTests
             Mapping("global::Order", "Order", "_Id"),
             Mapping("global::Start", "Start", "Id", accessedMember: "global::Base.Id|cast=global::Derived"),
             Mapping("global::Start", "Start", "Id", accessedMember: "global::Base.Id", castType: "global::Derived"),
-            Mapping("global::Start", "Start", "Id", externReceiverType: "global::Start", externMethodName: "Outer.get_Id"),
-            Mapping("global::Start", "Start", "Id", externReceiverType: "global::Start.Outer", externMethodName: "get_Id")
+            Mapping("global::Start", "Start", "Id", externGetter: new ExternAccessorSpec("global::Start", "Outer.get_Id", false)),
+            Mapping("global::Start", "Start", "Id", externGetter: new ExternAccessorSpec("global::Start.Outer", "get_Id", false))
         ];
 
         var identities = mappings.Select(Emitter.MessagePropertyAccessorIdentity.Of).ToArray();
@@ -40,7 +40,7 @@ public class GeneratedAccessorNameTests
             ("global::Data", Correlation("_Prop")),
             ("global::Data", Correlation("Prop", "global::Order_Id")),
             ("global::Data", Correlation("Id_Prop", "global::Order")),
-            ("global::Data", Correlation("Prop", externGetterReceiverType: "global::Data"))
+            ("global::Data", Correlation("Prop", externGetter: new ExternAccessorSpec("global::Data", "get_Prop", false)))
         ];
 
         var identities = mappings.Select(m => Emitter.CorrelationPropertyAccessorIdentity.Of(m.SagaDataType, m.Mapping)).ToArray();
@@ -50,9 +50,9 @@ public class GeneratedAccessorNameTests
         Assert.That(names, Is.Unique);
     }
 
-    static PropertyMappingSpec Mapping(string messageType, string messageName, string propertyName, string accessedMember = null, string castType = null, string externReceiverType = null, string externMethodName = null) =>
-        new(messageType, messageName, propertyName, "string", castType, externReceiverType, externMethodName, false, accessedMember, ImmutableEquatableArray<string>.Empty);
+    static PropertyMappingSpec Mapping(string messageType, string messageName, string propertyName, string accessedMember = null, string castType = null, ExternAccessorSpec? externGetter = null) =>
+        new(messageType, messageName, propertyName, "string", castType, externGetter, accessedMember, ImmutableEquatableArray<string>.Empty);
 
-    static CorrelationPropertyMappingSpec Correlation(string propertyName, string propertyType = "string", string externGetterReceiverType = null) =>
-        new(propertyName, propertyType, propertyType, externGetterReceiverType, null, false, ImmutableEquatableArray<string>.Empty, ImmutableEquatableArray<string>.Empty);
+    static CorrelationPropertyMappingSpec Correlation(string propertyName, string propertyType = "string", ExternAccessorSpec? externGetter = null) =>
+        new(propertyName, propertyType, propertyType, externGetter, null, ImmutableEquatableArray<string>.Empty, ImmutableEquatableArray<string>.Empty);
 }
