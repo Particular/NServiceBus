@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Logging;
 using NUnit.Framework;
 
+[NonParallelizable] // Asserts on the static log factory, which all fixtures write to
 public class When_on_error_throws : NServiceBusTransportTest
 {
     [TestCase(TransportTransactionMode.ReceiveOnly)]
