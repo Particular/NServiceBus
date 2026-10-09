@@ -838,9 +838,9 @@ namespace NServiceBus
     }
     public static class MessagingBasedServicePlatformConfigExtensions
     {
-        extension(NServiceBus.ServicePlatformSettings settings)
+        extension(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            public NServiceBus.ServicePlatformSettings ServiceControlErrorInstanceQueue(string queue) { }
+            public void ServiceControlErrorInstanceQueue(string queue) { }
         }
     }
     public class MoveToError : NServiceBus.RecoverabilityAction
@@ -1190,14 +1190,6 @@ namespace NServiceBus
         public static void AddNServiceBusEndpoint(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, NServiceBus.EndpointConfiguration endpointConfiguration, object? endpointIdentifier = null) { }
         public static void AddNServiceBusInstallers(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<NServiceBus.InstallersOptions>? configure = null) { }
     }
-    public static class ServicePlatformConfigExtensions
-    {
-        extension(NServiceBus.EndpointConfiguration endpointConfiguration)
-        {
-            public NServiceBus.ServicePlatformSettings EnableServicePlatform() { }
-        }
-    }
-    public class ServicePlatformSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings { }
     public static class SettingsExtensions
     {
         extension(NServiceBus.Settings.IReadOnlySettings settings)
@@ -1354,9 +1346,9 @@ namespace NServiceBus
     }
     public static class UsageReportConfigurationExtensions
     {
-        extension(NServiceBus.ServicePlatformSettings settings)
+        extension(NServiceBus.EndpointConfiguration endpointConfiguration)
         {
-            public NServiceBus.ServicePlatformSettings SendUsageInformation() { }
+            public void ReportUsageInformationToServiceControl() { }
         }
     }
     [System.Obsolete("The DataBus feature has been released as a dedicated package, \'NServiceBus.ClaimC" +

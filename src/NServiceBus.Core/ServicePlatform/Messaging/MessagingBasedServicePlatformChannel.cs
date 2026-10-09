@@ -7,8 +7,8 @@ using NServiceBus.Routing;
 using NServiceBus.ServicePlatform;
 using NServiceBus.Transport;
 
-class MessagingBasedServicePlatformChannel(IMessageDispatcher messageDispacther, UnicastAddressTag unicastAddressTag, ReceiveAddresses? receiveAddresses) : ServicePlatformChannel
+class MessagingBasedServicePlatformChannel(IMessageDispatcher messageDispacther, UnicastAddressTag unicastAddressTag, string? receiveAddress) : ServicePlatformChannel
 {
     public override ServicePlatformSender<TMessage> CreateSender<TMessage>(JsonTypeInfo<TMessage> jsonTypeInfo)
-        => new MessagingBasedServicePlatformSender<TMessage>(jsonTypeInfo, messageDispacther, unicastAddressTag, receiveAddresses);
+        => new MessagingBasedServicePlatformSender<TMessage>(jsonTypeInfo, messageDispacther, unicastAddressTag, receiveAddress);
 }

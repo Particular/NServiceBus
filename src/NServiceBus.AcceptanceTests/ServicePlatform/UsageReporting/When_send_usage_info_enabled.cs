@@ -82,14 +82,14 @@ public class When_send_usage_info_enabled : NServiceBusAcceptanceTest
         public BusinessEndpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
             endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);
-            endpointConfiguration.Recoverability().Immediate(x => x.NumberOfRetries(1));
+            _ = endpointConfiguration.Recoverability().Immediate(x => x.NumberOfRetries(1));
 
-            endpointConfiguration.EnableServicePlatform().SendUsageInformation();
+            endpointConfiguration.ReportUsageInformationToServiceControl();
             // Override the default interval for the test
             endpointConfiguration.GetSettings().Set("UsageReporting.ReportingInterval", ReportingInterval);
 
             // HINT: The platform expects Json so this is ensuring that the feature is not using the configured serializer
-            endpointConfiguration.UseSerialization<XmlSerializer>();
+            _ = endpointConfiguration.UseSerialization<XmlSerializer>();
         });
 
         [Handler]
@@ -115,7 +115,7 @@ public class When_send_usage_info_enabled : NServiceBusAcceptanceTest
         public ServiceControl() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
             endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);
-            endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+            _ = endpointConfiguration.UseSerialization<SystemJsonSerializer>();
             endpointConfiguration.Pipeline.Register(
                 new FixEnclosedMessageTypeBehavior(),
                 "Fixes the enclosed message type header to match the message type in the test"

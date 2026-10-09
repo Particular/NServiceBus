@@ -10,17 +10,15 @@ using NServiceBus.Configuration.AdvancedExtensibility;
 /// </summary>
 public static class MessagingBasedServicePlatformConfigExtensions
 {
-    extension(ServicePlatformSettings settings)
+    extension(EndpointConfiguration endpointConfiguration)
     {
         /// <summary>
-        /// Sets the ServiceControl Error instance input queue.
+        /// Set the primary instance queue of the ServiceControl Error instance for this endpoint.
         /// </summary>
-        public ServicePlatformSettings ServiceControlErrorInstanceQueue(string queue)
+        public void ServiceControlErrorInstanceQueue(string queue)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(queue);
-            settings.GetSettings().Set(MessagingBasedServicePlatformConnection.ServiceControlQueueSettingKey, queue);
-            return settings;
-
+            endpointConfiguration.GetSettings().Set(MessagingBasedServicePlatformConnection.ServiceControlQueueSettingKey, queue);
         }
     }
 }

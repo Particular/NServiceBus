@@ -14,10 +14,10 @@ class MessagingBasedServicePlatformConnection : ServicePlatformConnection
         Configuration platformConfiguration,
         IMessageDispatcher messageDispatcher,
         ReceiveAddresses? receiveAddresses = null
-    )
-    {
-        PrimaryInstance = new MessagingBasedServicePlatformChannel(messageDispatcher, new(platformConfiguration.ServiceControlQueue), receiveAddresses);
-    }
+    ) => PrimaryInstance = new MessagingBasedServicePlatformChannel(
+        messageDispatcher,
+        new(platformConfiguration.ServiceControlQueue),
+        receiveAddresses?.MainReceiveAddress);
 
     public override ServicePlatformChannel PrimaryInstance { get; }
 
