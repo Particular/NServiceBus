@@ -2,22 +2,18 @@
 
 namespace NServiceBus;
 
-using NServiceBus.Features;
-
 /// <summary>
 /// Usage reporting configuration extensions.
 /// </summary>
 public static class UsageReportConfigurationExtensions
 {
-    extension(ServicePlatformSettings settings)
+    extension(EndpointConfiguration endpointConfiguration)
     {
         /// <summary>
-        /// Enable sending usage information to the service platform.
+        /// Periodically report usage information to a ServiceControl instance.
+        /// Requires ServiceControl version 6.22.0 or higher.
         /// </summary>
-        public ServicePlatformSettings SendUsageInformation()
-        {
-            settings.Settings.EnableFeature<SendUsageInfoToPlatform>();
-            return settings;
-        }
+        public void ReportUsageInformationToServiceControl()
+            => endpointConfiguration.EnableFeature<SendUsageInfoToPlatform>();
     }
 }
