@@ -19,7 +19,7 @@ class MessagingBasedServicePlatformSender<TMessage> : ServicePlatformSender<TMes
     readonly IMessageDispatcher messageDispatcher;
     readonly UnicastAddressTag destinationAddress;
 
-    public MessagingBasedServicePlatformSender(JsonTypeInfo<TMessage> jsonTypeInfo, IMessageDispatcher messageDispatcher, UnicastAddressTag destinationAddress, ReceiveAddresses? receiveAddresses)
+    public MessagingBasedServicePlatformSender(JsonTypeInfo<TMessage> jsonTypeInfo, IMessageDispatcher messageDispatcher, UnicastAddressTag destinationAddress, string? replyToAddress)
     {
         this.jsonTypeInfo = jsonTypeInfo;
         this.messageDispatcher = messageDispatcher;
@@ -32,9 +32,9 @@ class MessagingBasedServicePlatformSender<TMessage> : ServicePlatformSender<TMes
             [Headers.MessageIntent] = MessageIntent.Send.ToString()
         };
 
-        if (receiveAddresses is not null)
+        if (replyToAddress is not null)
         {
-            headers[Headers.ReplyToAddress] = receiveAddresses.MainReceiveAddress;
+            headers[Headers.ReplyToAddress] = replyToAddress;
         }
     }
 

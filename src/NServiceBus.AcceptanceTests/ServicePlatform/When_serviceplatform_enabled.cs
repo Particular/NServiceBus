@@ -45,10 +45,9 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
                     endpointConfig.SendOnly();
                 }
 
-                var servicePlatform = endpointConfig.EnableServicePlatform();
                 if (customServiceControlName)
                 {
-                    _ = servicePlatform.ServiceControlErrorInstanceQueue(CustomServiceControlName);
+                    endpointConfig.ServiceControlErrorInstanceQueue(CustomServiceControlName);
                 }
             }))
             .Done(ctx => ctx.Done)
@@ -82,10 +81,7 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
 
     class SendMessageToPlatformFeature : Feature
     {
-        public SendMessageToPlatformFeature()
-        {
-            DependsOn<ServicePlatform>();
-        }
+        public SendMessageToPlatformFeature() => DependsOn<ServicePlatform>();
 
         protected override void Setup(FeatureConfigurationContext context)
             => context.RegisterStartupTask(serviceProvider =>
