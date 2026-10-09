@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageReference Include="NUnit" Version="5.0.0" />
     <PackageReference Include="NUnit.Analyzers" Version="4.15.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
     <PackageReference Include="Particular.AnalyzerTesting" Version="2.3.0" />
     <PackageReference Include="Particular.Approvals" Version="2.0.1" />
   </ItemGroup>
