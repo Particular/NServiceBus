@@ -7,6 +7,8 @@ using NUnit.Framework;
 
 public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
 {
+    const string AuditTarget = "audit_target_in_code";
+
     [Test]
     public async Task Should_audit_to_target_queue()
     {
@@ -20,7 +22,7 @@ public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
 
     public class UserEndpoint : EndpointConfigurationBuilder
     {
-        public UserEndpoint() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo("audit_with_code_target"));
+        public UserEndpoint() => EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo(AuditTarget));
 
         [Handler]
         public class Handler : IHandleMessages<MessageToBeAudited>
@@ -33,7 +35,7 @@ public class When_audit_is_overridden_in_code : NServiceBusAcceptanceTest
     {
         public AuditSpy() =>
             EndpointSetup<DefaultServer>()
-                .CustomEndpointName("audit_with_code_target");
+                .CustomEndpointName(AuditTarget);
 
         [Handler]
         public class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>
