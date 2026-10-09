@@ -70,9 +70,10 @@ partial class UsageReporter(
 
         meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
         {
-            if (IsSuccessfulMessageProcessingEvent(instrument) && tags.IndexOf(queueNameTag) >= 0)
+            var usageReporterState = (UsageReporter)state!;
+
+            if (IsSuccessfulMessageProcessingEvent(instrument) && tags.IndexOf(usageReporterState.queueNameTag) >= 0)
             {
-                var usageReporterState = (UsageReporter)state!;
                 // Update the internal counter
                 _ = Interlocked.Add(ref usageReporterState.messagesSuccessfullyProcessed, measurement);
             }
