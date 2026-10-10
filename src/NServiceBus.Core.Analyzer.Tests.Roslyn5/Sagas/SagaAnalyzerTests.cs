@@ -659,6 +659,147 @@ public class Msg2 : ICommand
         return Assert(source, DiagnosticIds.ToSagaMappingMustBeToAProperty);
     }
 
+    const string DirectAccessSagaTypes =
+@"public interface IHasCorrId
+{
+    string CorrId { get; }
+}
+public class ChildData
+{
+    public string CorrId { get; set; }
+}
+public class MyData : ContainSagaData, IHasCorrId
+{
+    public string CorrId { get; set; }
+    public ChildData Child { get; set; }
+}
+public class Msg1 : ICommand, IHasCorrId
+{
+    public string CorrId { get; set; }
+}
+public class Msg2 : ICommand
+{
+    public string CorrId { get; set; }
+}";
+
+    [Test]
+    [TestCase("((IHasCorrId)saga).CorrId")]
+    [TestCase("(saga as IHasCorrId).CorrId")]
+    [TestCase("((MyData)saga).CorrId")]
+    [TestCase("((MyData)saga)!.CorrId")]
+    [TestCase("saga.Child.CorrId")]
+    [TestCase("Data.CorrId")]
+    public Task ToSagaMappingsMustAccessSagaDataPropertiesDirectly(string sagaMapping)
+    {
+        var source =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.MapSaga(saga => [|" + sagaMapping + @"|])
+            .ToMessage<Msg1>(msg => msg.CorrId)
+            .ToMessageHeader<Msg2>(""CorrId"");
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+" + DirectAccessSagaTypes;
+
+        return Assert(source, DiagnosticIds.ToSagaMappingMustAccessSagaDataPropertyDirectly);
+    }
+
+    [Test]
+    public Task ToSagaMappingsMustAccessSagaDataPropertiesDirectlyInExpressionBody()
+    {
+        var source =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper) =>
+        mapper.MapSaga(saga => [|((IHasCorrId)saga).CorrId|]).ToMessage<Msg1>(msg => msg.CorrId);
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+" + DirectAccessSagaTypes;
+
+        return Assert(source, DiagnosticIds.ToSagaMappingMustAccessSagaDataPropertyDirectly);
+    }
+
+    [Test]
+    public Task ToSagaMappingsMustAccessSagaDataPropertiesDirectlyOldSyntax()
+    {
+        var source =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.ConfigureMapping<Msg1>(msg => msg.CorrId).ToSaga(saga => [|((IHasCorrId)saga).CorrId|]);
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+" + DirectAccessSagaTypes;
+
+        return Assert(source, [DiagnosticIds.ToSagaMappingMustAccessSagaDataPropertyDirectly], [DiagnosticIds.SagaMappingExpressionCanBeSimplified], mustCompile: false);
+    }
+
+    [Test]
+    [TestCase("saga.CorrId")]
+    [TestCase("(saga).CorrId")]
+    [TestCase("saga!.CorrId")]
+    [TestCase("(saga.CorrId)")]
+    [TestCase("saga.CorrId!")]
+    public Task ToSagaMappingsAccessingSagaDataPropertiesDirectlyAreAllowed(string sagaMapping)
+    {
+        var source =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>, IAmStartedByMessages<Msg2>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.MapSaga(saga => " + sagaMapping + @")
+            .ToMessage<Msg1>(msg => ((IHasCorrId)msg).CorrId)
+            .ToMessage<Msg2>(msg => (msg as Msg2).CorrId);
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+    public Task Handle(Msg2 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+" + DirectAccessSagaTypes;
+
+        return Assert(source);
+    }
+
+    [Test]
+    [TestCase("(object)saga.CorrId")]
+    [TestCase("(object)((IHasCorrId)saga).CorrId")]
+    public Task ToSagaMappingsWithAnOuterConversionAreOnlyReportedAsNotPointingToAProperty(string sagaMapping)
+    {
+        var source =
+@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+public class MySaga : Saga<MyData>, IAmStartedByMessages<Msg1>
+{
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyData> mapper)
+    {
+        mapper.MapSaga([|saga => " + sagaMapping + @"|])
+            .ToMessage<Msg1>(msg => msg.CorrId);
+    }
+    public Task Handle(Msg1 message, IMessageHandlerContext context) => throw new NotImplementedException();
+}
+" + DirectAccessSagaTypes;
+
+        return Assert(source, DiagnosticIds.ToSagaMappingMustBeToAProperty);
+    }
+
     [Test]
     public Task CorrelationExpressionsMustMatchTypeOldSyntax()
     {

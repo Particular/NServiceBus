@@ -9,9 +9,9 @@
 
 namespace NServiceBus
 {
-    public static partial class ExpressionBodiedConfigureHowToFindSagaHandlerRegistryExtensions
+    public static partial class MappedPropertiesWithCustomDiagnosticsHandlerRegistryExtensions
     {
-        public sealed partial class ExpressionBodiedConfigureHowToFindSagaRootRegistry
+        public sealed partial class MappedPropertiesWithCustomDiagnosticsRootRegistry
         {
             partial void AddAllSagasCore()
             {
@@ -50,7 +50,9 @@ namespace NServiceBus
     {
         OrderPlacedOrderIdAccessor_5f69124e5a7de2e1() { }
 
+        #pragma warning disable EXP001, LEGACY001
         protected override object? AccessFrom(global::OrderPlaced message) => message.OrderId;
+        #pragma warning restore EXP001, LEGACY001
 
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_5f69124e5a7de2e1();
     }
@@ -61,9 +63,14 @@ namespace NServiceBus
     {
         OrderIdAsStringAccessor_912ea78b27a6e1ec() { }
 
+        #pragma warning disable EXP001
         public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::OrderShippingPolicyData)sagaData).OrderId;
+        #pragma warning restore EXP001
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::OrderShippingPolicyData)sagaData).OrderId = (string)value;
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property((global::OrderShippingPolicyData)sagaData, (string)value);
+
+        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
+        static extern void WriteTo_Property(global::OrderShippingPolicyData sagaData, string value);
 
         public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_912ea78b27a6e1ec();
     }
@@ -81,26 +88,26 @@ namespace NServiceBus
 namespace NServiceBus
 {
     /// <summary>
-    /// Provides access to handler and saga registries discovered in the <i>ExpressionBodiedConfigureHowToFindSaga</i> assembly.
+    /// Provides access to handler and saga registries discovered in the <i>MappedPropertiesWithCustomDiagnostics</i> assembly.
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    public static partial class ExpressionBodiedConfigureHowToFindSagaHandlerRegistryExtensions
+    public static partial class MappedPropertiesWithCustomDiagnosticsHandlerRegistryExtensions
     {
         extension (global::NServiceBus.HandlerRegistry registry)
         {
             /// <summary>
-            /// Gets the root registry for handler and saga types in the <i>ExpressionBodiedConfigureHowToFindSaga</i> assembly.
+            /// Gets the root registry for handler and saga types in the <i>MappedPropertiesWithCustomDiagnostics</i> assembly.
             /// </summary>
             /// <remarks>
             /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
             /// </remarks>
-            public ExpressionBodiedConfigureHowToFindSagaRootRegistry ExpressionBodiedConfigureHowToFindSagaAssembly => new(registry.Configuration);
+            public MappedPropertiesWithCustomDiagnosticsRootRegistry MappedPropertiesWithCustomDiagnosticsAssembly => new(registry.Configuration);
         }
 
         /// <summary>
         /// Root registry to add handlers and sagas for the entire assembly.
         /// </summary>
-        public sealed partial class ExpressionBodiedConfigureHowToFindSagaRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
+        public sealed partial class MappedPropertiesWithCustomDiagnosticsRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
             readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 

@@ -56,10 +56,7 @@ namespace NServiceBus
     {
         StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6() { }
 
-        protected override object? AccessFrom(global::Orders.Shipping.StartPartitionSagaCommand message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_CorrelationId")]
-        static extern string AccessFrom_Property(global::Orders.Shipping.StartPartitionSagaCommand message);
+        protected override object? AccessFrom(global::Orders.Shipping.StartPartitionSagaCommand message) => message.CorrelationId;
 
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6();
     }
@@ -70,15 +67,9 @@ namespace NServiceBus
     {
         CorrelationIdAsStringAccessor_90ab90feac5d44a9() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData);
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData).CorrelationId;
 
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_CorrelationId")]
-        static extern string AccessFrom_Property(global::Orders.Shipping.PartitionedEndpointSagaData sagaData);
-
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData, ((string)value));
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_CorrelationId")]
-        static extern void WriteTo_Property(global::Orders.Shipping.PartitionedEndpointSagaData sagaData, string value);
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData).CorrelationId = (string)value;
 
         public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new CorrelationIdAsStringAccessor_90ab90feac5d44a9();
     }
