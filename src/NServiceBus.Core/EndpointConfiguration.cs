@@ -72,6 +72,7 @@ public class EndpointConfiguration : ExposeSettings
         featureSettings.EnableFeature<AutoCorrelationFeature>();
         featureSettings.EnableFeature<PlatformRetryNotifications>();
         featureSettings.EnableFeature<OpenTelemetryFeature>();
+        featureSettings.EnableFeature<Features.ServicePlatform>();
 
         Settings.Set(featureSettings);
 
