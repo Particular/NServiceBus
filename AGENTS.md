@@ -29,6 +29,23 @@ Prefer public records close to the implementation. Keep `docs/README.md` current
 5. If sources conflict, do not resolve the conflict by inference. Use the current implementation and public contract for external behavior, report the conflict, and ask the record owner when it affects the decision.
 6. In the response or pull request, cite the records consulted, distinguish evidence from inference, and state when relevant private context was unavailable or unauthorized. Keep private locations, quotations, customer names, and other confidential details out of public artifacts such as pull request descriptions, code comments, and `docs/`; say that internal context was consulted instead.
 
+## Writing
+
+These rules apply to everything written for a reader: pull request descriptions, commit messages, `docs/`, ADRs, code comments, and review replies. Write in en-US.
+
+- Start with the main point: the decision, the change, or the answer. Add only the background the reader needs to act on it or to agree with it.
+- Every sentence adds something the reader does not already have from the code, the diff, the title, or earlier text in the same document. Cut sentences that announce, summarize, or repeat.
+- State facts plainly. Do not add weight with a contrast against a claim nobody made, a one-line closer, inflated significance, or words such as pivotal, seamless, or robust used figuratively. Keep a contrast that corrects something a reader would likely assume.
+- Write short, direct sentences, under 25 words where possible, with a named actor and an active verb. Keep the passive when the source does not say who acts. Keep should and must where the text sets a rule. Qualify a claim only when the evidence is uncertain, and say what is uncertain.
+- Use one term for one concept, and use the term the code uses. Define a term on first use when the audience may not know it. Avoid idioms and phrasal verbs that a non-native reader or a translation tool can misread.
+- In a procedure, write one action per numbered step, in the imperative, in the order the reader performs it.
+- Write a commit subject or pull request title as a short imperative summary of the change, without emoji or type prefixes; a squash merge turns the title into the commit subject. Give each commit one intent, and put renames and formatting changes in their own commits.
+- Use formatting only where it helps scanning: sentence-case headings, lists for three or more parallel items, no bold label on every item, no emoji, and no dashes to join clauses in prose. Index entries and list items may be fragments, with a dash or colon between a term and its description.
+- Do not invent facts, numbers, rationale, or sources. When the record does not say, write that it does not say.
+- Leave out chat and drafting residue: offers, praise, and notes on how the text was produced or what it replaced. Keep provenance that changes how to read the text, such as a record reconstructed after the decision. Mention earlier behavior only where it explains the current design or a default, or in changelogs, release notes, and upgrade guides.
+
+Default to no code comment. Write one only for what the code cannot state, such as a non-obvious invariant, an ordering requirement, or a workaround whose cause is not visible. Explain why, not what, in one line, two at most. When it needs more, put the explanation in `docs/` or the pull request and link to it with a pointer comment. History such as "changed to fix" belongs in the commit, not the comment.
+
 ## Pointer comments
 
 A brief code comment may link to a canonical public source, such as a `docs/` file or an ADR under `docs/decisions/`, when the relevant rationale is not apparent from the surrounding code. It is a signpost, not a copy of the rationale: keep the durable explanation in the linked record. Do not use a comment to narrate obvious code, and do not restate a pull request or ADR in the comment body.

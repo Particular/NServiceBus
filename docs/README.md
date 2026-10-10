@@ -18,7 +18,7 @@ NServiceBus is the core library of the Particular Service Platform, producing th
 
 ## Architecture and design
 
-This repository tracks no design pages yet. When one is added, it will be linked here as the source that explains why the repository is designed the way it is.
+This repository has no design pages.
 
 ## Decisions and rationale
 
@@ -26,7 +26,7 @@ This repository tracks no design pages yet. When one is added, it will be linked
 
 ### Decisions recorded in pull requests
 
-A pull request is listed here only when it is the canonical record for a decision area: it establishes a durable constraint or convention, or rejects an alternative likely to return, and no `docs/` file or ADR covers it. Bug fixes and routine changes are not listed; recover them from `git log` and `gh pr view`.
+A pull request is listed here only when it is the canonical record for a decision area. It establishes a durable constraint or convention, or rejects an alternative likely to return, and no `docs/` file or ADR covers it. Bug fixes and routine changes are not listed. Find them with `git log` and `gh pr view`.
 
 - The trimming and NativeAOT support strategy spans multiple coordinated changes rather than one switch — [#7929](https://github.com/Particular/NServiceBus/pull/7929)
 - Object-overload `Send`/`Publish`/`Reply` calls keep runtime-type routing by default; the trimming-safe path is opt-in through explicit generic or `Type` overloads — [#7889](https://github.com/Particular/NServiceBus/pull/7889)
@@ -37,6 +37,6 @@ A pull request is listed here only when it is the canonical record for a decisio
 - `DispatchProperties`/`ReceiveProperties` keep well-known keys in dedicated fields instead of a plain `Dictionary<string,string>` — [#7843](https://github.com/Particular/NServiceBus/pull/7843)
 - Host id generation and the learning saga persister use an XxHash128-based `DeterministicGuid`, with the legacy MD5 path kept behind an `AppContext` switch until removal in v12 — [#7723](https://github.com/Particular/NServiceBus/pull/7723)
 - OpenTelemetry baggage propagation through `DistributedContextPropagator` is gated behind an `AppContext` switch until v11 to keep rolling upgrades compatible — [#7825](https://github.com/Particular/NServiceBus/pull/7825)
-- Trace-continuation behavior for delayed messages is configurable rather than fixed — [#7845](https://github.com/Particular/NServiceBus/pull/7845)
+- Trace-continuation behavior for delayed messages is configurable — [#7845](https://github.com/Particular/NServiceBus/pull/7845)
 
 Keep this index current when a canonical source is added, replaced, or retired; link, do not copy.
