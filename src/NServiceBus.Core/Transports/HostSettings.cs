@@ -42,6 +42,17 @@ public class HostSettings(string name, string hostDisplayName, StartupDiagnostic
     public IReadOnlySettings? CoreSettings { get; } = coreSettings;
 
     /// <summary>
+    /// The pool of header dictionaries configured by the hosting endpoint for transports to use,
+    /// e.g. for incoming message headers. Defaults to an always-allocating pool (no pooling);
+    /// transports wanting to participate in pooling set <see cref="HeaderPool.Shared" />.
+    /// </summary>
+    public HeaderPool HeaderPool
+    {
+        get;
+        init => field = value ?? throw new ArgumentNullException(nameof(value));
+    } = Transport.HeaderPool.AlwaysAllocate;
+
+    /// <summary>
     /// Service provider available only when running hosted in an NServiceBus endpoint; Otherwise, <c>null</c>.
     /// Transports can use the provider in hosted scenarios to resolve dependencies from the provider.
     /// </summary>
