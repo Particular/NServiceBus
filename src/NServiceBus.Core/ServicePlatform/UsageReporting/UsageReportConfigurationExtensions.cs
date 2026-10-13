@@ -14,6 +14,6 @@ public static class UsageReportConfigurationExtensions
         /// Requires ServiceControl version 6.22.0 or higher.
         /// </summary>
         public void ReportUsageInformationToServiceControl()
-            => endpointConfiguration.EnableFeature<SendUsageInfoToPlatform>();
+            => endpointConfiguration.EnableFeature<ReportUsageInformationToPlatform>();
     }
 }
