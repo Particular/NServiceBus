@@ -17,7 +17,7 @@ public class When_send_usage_info_enabled : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ServiceControl>()
-            .WithEndpoint<BusinessEndpoint>(b => b
+            .WithEndpoint<EndpointThatProcessesMessagesAndReportsUsageInfo>(b => b
                 .When(async msg =>
                 {
                     await msg.SendLocal(new BusinessMessage());
@@ -41,7 +41,7 @@ public class When_send_usage_info_enabled : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>(ctx => ctx.FailOnNextMessage = true)
             .WithEndpoint<ServiceControl>()
-            .WithEndpoint<BusinessEndpoint>(b => b
+            .WithEndpoint<EndpointThatProcessesMessagesAndReportsUsageInfo>(b => b
                             .When(async msg =>
                             {
                                 await msg.SendLocal(new BusinessMessage());
@@ -77,9 +77,9 @@ public class When_send_usage_info_enabled : NServiceBusAcceptanceTest
 
     }
 
-    public class BusinessEndpoint : EndpointConfigurationBuilder
+    public class EndpointThatProcessesMessagesAndReportsUsageInfo : EndpointConfigurationBuilder
     {
-        public BusinessEndpoint() => EndpointSetup<DefaultServer>(endpointConfiguration =>
+        public EndpointThatProcessesMessagesAndReportsUsageInfo() => EndpointSetup<DefaultServer>(endpointConfiguration =>
         {
             endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);
             _ = endpointConfiguration.Recoverability().Immediate(x => x.NumberOfRetries(1));

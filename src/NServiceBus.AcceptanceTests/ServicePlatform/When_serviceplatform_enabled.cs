@@ -34,7 +34,7 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint(customServiceControlName ? new PrimaryServiceControl(CustomServiceControlName) : new PrimaryServiceControl(), _ => { })
-            .WithEndpoint<BusinessEndpoint>(b => b.CustomConfig(endpointConfig =>
+            .WithEndpoint<EndpointThatSendsMessagesToThePlatform>(b => b.CustomConfig(endpointConfig =>
             {
                 endpointConfig.EnableFeature<SendMessageToPlatformFeature>();
                 // HINT: The ServicePlatform channel should always use the Json Serializer and ignore this
@@ -58,7 +58,7 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
             Assert.That(context.BusinessId, Is.EqualTo(BusinessId));
             if (!sendOnly)
             {
-                var expectedName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(BusinessEndpoint));
+                var expectedName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointThatSendsMessagesToThePlatform));
                 Assert.That(context.ReplyToAddress, Is.EqualTo(expectedName));
             }
         }
@@ -101,9 +101,9 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
         }
     }
 
-    public class BusinessEndpoint : EndpointConfigurationBuilder
+    public class EndpointThatSendsMessagesToThePlatform : EndpointConfigurationBuilder
     {
-        public BusinessEndpoint() => EndpointSetup<DefaultServer>();
+        public EndpointThatSendsMessagesToThePlatform() => EndpointSetup<DefaultServer>();
     }
 
     public class PrimaryServiceControl : EndpointConfigurationBuilder
