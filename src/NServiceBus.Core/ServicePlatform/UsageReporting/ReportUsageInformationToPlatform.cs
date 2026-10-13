@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 using NServiceBus.Features;
 using NServiceBus.ServicePlatform;
 
-class SendUsageInfoToPlatform : Feature
+class ReportUsageInformationToPlatform : Feature
 {
-    public SendUsageInfoToPlatform()
+    public ReportUsageInformationToPlatform()
     {
         DependsOn<Features.ServicePlatform>();
         Defaults(settings => settings.SetDefault(ReportingIntervalSettingKey, TimeSpan.FromMinutes(10)));
