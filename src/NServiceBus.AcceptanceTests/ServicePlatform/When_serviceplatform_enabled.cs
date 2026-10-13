@@ -108,7 +108,11 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
 
     public class PrimaryServiceControl : EndpointConfigurationBuilder
     {
-        public PrimaryServiceControl(string instanceName = "Particular.ServiceControl")
+        public PrimaryServiceControl() : this("Particular.ServiceControl")
+        {
+        }
+
+        public PrimaryServiceControl(string instanceName)
             => EndpointSetup<DefaultServer>(endpointConfiguration => endpointConfiguration.UseSerialization<SystemJsonSerializer>())
                 .CustomEndpointName(instanceName);
 
