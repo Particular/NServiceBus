@@ -88,6 +88,8 @@ public class When_send_usage_info_enabled : NServiceBusAcceptanceTest
             // Override the default interval for the test
             endpointConfiguration.GetSettings().Set("UsageReporting.ReportingInterval", ReportingInterval);
 
+            endpointConfiguration.ServiceControlErrorInstanceQueue(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(ServiceControl)));
+
             // HINT: The platform expects Json so this is ensuring that the feature is not using the configured serializer
             _ = endpointConfiguration.UseSerialization<XmlSerializer>();
         });
@@ -121,7 +123,7 @@ public class When_send_usage_info_enabled : NServiceBusAcceptanceTest
                 "Fixes the enclosed message type header to match the message type in the test"
             );
 
-        }).CustomEndpointName("Particular.ServiceControl");
+        });
 
         class FixEnclosedMessageTypeBehavior : Behavior<IIncomingPhysicalMessageContext>
         {
