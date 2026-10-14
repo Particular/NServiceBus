@@ -10,6 +10,7 @@ static class ActivityExtensions
 {
     public const string OutgoingActivityKey = "NServiceBus.Diagnostics.Activity.Outgoing";
     public const string IncomingActivityKey = "NServiceBus.Diagnostics.Activity.Incoming";
+    public const string FailedIncomingActivityContextKey = "NServiceBus.Diagnostics.ActivityContext.FailedIncoming";
 
     public static bool TryGetOutgoingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
         => pipelineContext.TryGetPipelineActivity(OutgoingActivityKey, out activity);
@@ -32,4 +33,9 @@ static class ActivityExtensions
 
     public static void SetOutgoingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(OutgoingActivityKey, activity);
     public static void SetIncomingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(IncomingActivityKey, activity);
+
+    public static void SetFailedIncomingPipelineActivityContext(this ContextBag transportContext, Activity activity) => transportContext.Set(FailedIncomingActivityContextKey, activity.Context);
+
+    public static bool TryGetFailedIncomingPipelineActivityContext(this ContextBag transportContext, out ActivityContext activityContext) =>
+        transportContext.TryGet(FailedIncomingActivityContextKey, out activityContext);
 }

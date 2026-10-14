@@ -189,11 +189,13 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
     public Activity? StartRecoverabilityActivity(ErrorContext context)
     {
-        var activity = StartActivityFromIncomingMessage(
-            ActivitySources.Recoverability,
-            ActivityNames.RecoverabilityActivityName,
-            context.Headers,
-            context.NativeMessageId);
+        var activity = context.Extensions.TryGetFailedIncomingPipelineActivityContext(out var failedProcessContext)
+            ? StartChildOfFailedProcessActivity(failedProcessContext, context.NativeMessageId)
+            : StartActivityFromIncomingMessage(
+                ActivitySources.Recoverability,
+                ActivityNames.RecoverabilityActivityName,
+                context.Headers,
+                context.NativeMessageId);
 
         if (activity is null)
         {
@@ -201,6 +203,27 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
 
         activity.DisplayName = ActivityDisplayNames.Recoverability;
+
+        return activity;
+    }
+
+    static Activity? StartChildOfFailedProcessActivity(ActivityContext failedProcessContext, string nativeMessageId)
+    {
+        if (!ActivitySources.Recoverability.HasListeners())
+        {
+            return null;
+        }
+
+        var activity = ActivitySources.Recoverability.CreateActivity(ActivityNames.RecoverabilityActivityName, ActivityKind.Internal, failedProcessContext);
+
+        if (activity is null)
+        {
+            return null;
+        }
+
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
+        activity.Start();
 
         return activity;
     }

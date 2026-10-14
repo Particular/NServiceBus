@@ -70,6 +70,12 @@ class MainPipelineExecutor(
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
+                if (activity != null)
+                {
+                    // Transports pass this ContextBag to ErrorContext, enforced by the When_setting_context_items transport test.
+                    messageContext.Extensions.SetFailedIncomingPipelineActivityContext(activity);
+                }
+
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
                     pipelineMetrics.RecordMessageProcessingFailure(messageContext.MetricTags, ex);
