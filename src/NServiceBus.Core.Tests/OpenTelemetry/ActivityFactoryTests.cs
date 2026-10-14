@@ -430,7 +430,7 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
             Assert.That(activity, Is.Not.Null);
 
-            activityFactory.RecordError(activity, new Exception("boom"), new ServiceCollection().BuildServiceProvider());
+            activityFactory.RecordError(activity, new Exception("boom"), new FakeRootContext());
 
             var tags = activity.Tags.ToImmutableDictionary();
             using (Assert.EnterMultipleScope())
@@ -520,16 +520,17 @@ public class ActivityFactoryTests
             using var handlerActivity = ActivitySources.Main.StartActivity("handler activity");
             Assert.That(handlerActivity, Is.Not.Null);
             var exception = new Exception("boom");
+            var context = new FakeRootContext();
 
-            activityFactory.RecordError(handlerActivity!, exception, new ServiceCollection().BuildServiceProvider());
-            activityFactory.RecordError(pipelineActivity!, exception, new ServiceCollection().BuildServiceProvider());
+            activityFactory.RecordError(handlerActivity!, exception, context);
+            activityFactory.RecordError(pipelineActivity!, exception, context);
 
             var pipelineTags = pipelineActivity!.Tags.ToImmutableDictionary();
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(pipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error), "status should be set on every activity");
-                Assert.That(pipelineTags.ContainsKey("otel.status_code"), Is.True, "legacy tags should be set on every activity, not deduped via ExceptionRecordedFlag");
-                Assert.That(pipelineTags.ContainsKey("otel.status_description"), Is.True, "legacy tags should be set on every activity, not deduped via ExceptionRecordedFlag");
+                Assert.That(pipelineTags.ContainsKey("otel.status_code"), Is.True, "legacy tags should be set on every activity, not deduped via the context extensions");
+                Assert.That(pipelineTags.ContainsKey("otel.status_description"), Is.True, "legacy tags should be set on every activity, not deduped via the context extensions");
                 Assert.That(handlerActivity!.Events.Count(), Is.EqualTo(1), "the first activity to see the exception records the event");
                 Assert.That(pipelineActivity.Events, Is.Empty, "the exception event itself should still only be recorded once");
             }

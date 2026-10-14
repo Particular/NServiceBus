@@ -2,6 +2,7 @@
 
 namespace NServiceBus;
 
+using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Extensibility;
@@ -11,6 +12,7 @@ static class ActivityExtensions
     public const string OutgoingActivityKey = "NServiceBus.Diagnostics.Activity.Outgoing";
     public const string IncomingActivityKey = "NServiceBus.Diagnostics.Activity.Incoming";
     public const string FailedIncomingActivityContextKey = "NServiceBus.Diagnostics.ActivityContext.FailedIncoming";
+    public const string RecordedExceptionKey = "NServiceBus.Diagnostics.RecordedException";
 
     public static bool TryGetOutgoingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
         => pipelineContext.TryGetPipelineActivity(OutgoingActivityKey, out activity);
@@ -35,6 +37,14 @@ static class ActivityExtensions
     public static void SetIncomingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(IncomingActivityKey, activity);
 
     public static void SetFailedIncomingPipelineActivityContext(this ContextBag transportContext, Activity activity) => transportContext.Set(FailedIncomingActivityContextKey, activity.Context);
+
+    // The innermost span records the exception. Outer spans see the same instance propagate and skip it.
+    public static bool IsRecordedOnSpan(this ContextBag pipelineContext, Exception exception) =>
+        pipelineContext.TryGet<Exception>(RecordedExceptionKey, out var recordedException) && ReferenceEquals(recordedException, exception);
+
+    public static void MarkAsRecordedOnSpan(this ContextBag pipelineContext, Exception exception) => pipelineContext.SetOnRoot(RecordedExceptionKey, exception);
+
+    public static void ClearRecordedOnSpan(this ContextBag transportContext) => transportContext.Remove(RecordedExceptionKey);
 
     public static bool TryGetFailedIncomingPipelineActivityContext(this ContextBag transportContext, out ActivityContext activityContext) =>
         transportContext.TryGet(FailedIncomingActivityContextKey, out activityContext);
