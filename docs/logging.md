@@ -17,6 +17,6 @@ Core depends on this registration. `EndpointPreparation.Prepare` and `ReceiveCom
 ## Guidance for components
 
 - Inside an endpoint, resolve `ILogger<T>` or `ILoggerFactory` from the service provider that NServiceBus passes in, for example `HostSettings.ServiceProvider` during transport initialization. `GetRequiredService` is safe there.
-- In raw mode (`HostSettings.IsRawMode`), no endpoint registers logging, and `HostSettings.ServiceProvider` can be `null`. A transport that supports raw mode must handle a missing provider or a missing factory, for example by falling back to `NullLogger<T>`.
+- In raw mode (`HostSettings.IsRawMode`), no endpoint registers logging. A raw host can still assign a `ServiceProvider` built from its own service collection before initialization. Check `HostSettings.SupportsDependencyInjection` before using the provider, and fall back to `NullLogger<T>` when there is no provider or the provider has no `ILoggerFactory`.
 - Do not call `AddLogging` from a component. The host or Core owns the logging configuration.
 - When an application uses the deprecated `LogManager.UseFactory`, Core routes `LogManager` loggers to that factory and does not add its default providers to the `ILoggerFactory`. Entries written through `ILogger<T>` reach only the providers that the host registered.
