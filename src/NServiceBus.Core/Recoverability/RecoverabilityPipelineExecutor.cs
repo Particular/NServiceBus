@@ -36,7 +36,7 @@ class RecoverabilityPipelineExecutor<TState>(
                     activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
                 }
 
-                recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext, activityFactory.Options.ExceptionRecordingMode);
+                recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext);
             }
 
             var metadata = faultMetadataExtractor.Extract(errorContext);

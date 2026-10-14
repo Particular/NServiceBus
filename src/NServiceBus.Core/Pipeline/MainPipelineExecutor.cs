@@ -61,8 +61,6 @@ class MainPipelineExecutor(
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
             {
                 activityFactory.RecordError(activity, ex, transportReceiveContext);
-                // The process span is the outermost span. Some transports reuse the ContextBag for the next attempt.
-                messageContext.Extensions.ClearRecordedOnSpan();
                 ex.Data["Message ID"] = message.MessageId;
 
                 if (message.NativeMessageId != message.MessageId)
@@ -74,8 +72,7 @@ class MainPipelineExecutor(
 
                 if (activity != null)
                 {
-                    // Transports pass this ContextBag to ErrorContext, enforced by the When_setting_context_items transport test.
-                    messageContext.Extensions.SetFailedIncomingPipelineActivityContext(activity);
+                    messageContext.Extensions.SetFailedAttempt(activity, ex);
                 }
 
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))

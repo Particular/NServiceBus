@@ -189,8 +189,8 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
     public Activity? StartRecoverabilityActivity(ErrorContext context)
     {
-        var activity = context.Extensions.TryGetFailedIncomingPipelineActivityContext(out var failedProcessContext)
-            ? StartChildOfFailedProcessActivity(failedProcessContext, context.NativeMessageId)
+        var activity = context.Extensions.TryGetFailedAttempt(out var failedAttempt)
+            ? StartChildOfFailedIncomingPipelineActivity(failedAttempt, context.NativeMessageId)
             : StartActivityFromIncomingMessage(
                 ActivitySources.Recoverability,
                 ActivityNames.RecoverabilityActivityName,
@@ -207,14 +207,19 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         return activity;
     }
 
-    static Activity? StartChildOfFailedProcessActivity(ActivityContext failedProcessContext, string nativeMessageId)
+    static Activity? StartChildOfFailedIncomingPipelineActivity(FailedAttempt failedAttempt, string nativeMessageId)
     {
         if (!ActivitySources.Recoverability.HasListeners())
         {
             return null;
         }
 
-        var activity = ActivitySources.Recoverability.CreateActivity(ActivityNames.RecoverabilityActivityName, ActivityKind.Internal, failedProcessContext);
+        // The link points to the span where the exception was thrown, because the exception log is written under the recoverability span.
+        ActivityLink[]? links = failedAttempt.InnermostFailedActivityContext != failedAttempt.IncomingPipelineActivityContext
+            ? [new ActivityLink(failedAttempt.InnermostFailedActivityContext)]
+            : null;
+
+        var activity = ActivitySources.Recoverability.CreateActivity(ActivityNames.RecoverabilityActivityName, ActivityKind.Internal, failedAttempt.IncomingPipelineActivityContext, links: links);
 
         if (activity is null)
         {
@@ -283,18 +288,18 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
         if (!context.Extensions.IsRecordedOnSpan(exception))
         {
-            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
-            {
-                // The factory is created before the container exists, so the logger is resolved on first use.
-                logger ??= context.Builder.GetRequiredService<ILogger<ActivityFactory>>();
-                LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
-            }
-            else
+            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs)
             {
                 activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
             }
+            else if (!context.Extensions.TryGet<IncomingMessage>(out _))
+            {
+                // Outside a receive the exception goes to the caller. In a receive the recoverability pipeline logs it.
+                logger ??= context.Builder.GetRequiredService<ILogger<ActivityFactory>>();
+                LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
+            }
 
-            context.Extensions.MarkAsRecordedOnSpan(exception);
+            context.Extensions.MarkAsRecordedOnSpan(exception, activity);
         }
 
         if (exception is TaskCanceledException)

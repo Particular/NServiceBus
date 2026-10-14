@@ -19,12 +19,14 @@ public class When_processing_fails_and_recoverability_runs : OpenTelemetryAccept
             .Run();
 
         var failedProcess = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single(a => a.Status == ActivityStatusCode.Error);
+        var failedHandler = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single(a => a.Status == ActivityStatusCode.Error);
         var recoverability = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Single();
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(recoverability.ParentId, Is.EqualTo(failedProcess.Id));
             Assert.That(recoverability.TraceId, Is.EqualTo(failedProcess.TraceId));
+            Assert.That(recoverability.Links.Select(l => l.Context.SpanId), Is.EqualTo(new[] { failedHandler.SpanId }), "recoverability span should link to the span where the exception was thrown");
         }
     }
 
