@@ -265,7 +265,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
     }
 
-    public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider)
+    public void RecordError(Activity? activity, Exception exception, IBehaviorContext context)
     {
         if (activity == null)
         {
@@ -281,12 +281,12 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
         }
 
-        if (!exception.Data.Contains(ExceptionRecordedFlag))
+        if (!context.Extensions.IsRecordedOnSpan(exception))
         {
             if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
             {
                 // The factory is created before the container exists, so the logger is resolved on first use.
-                logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
+                logger ??= context.Builder.GetRequiredService<ILogger<ActivityFactory>>();
                 LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
             }
             else
@@ -294,7 +294,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
                 activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
             }
 
-            exception.Data[ExceptionRecordedFlag] = true;
+            context.Extensions.MarkAsRecordedOnSpan(exception);
         }
 
         if (exception is TaskCanceledException)
@@ -302,8 +302,6 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
     }
-
-    const string ExceptionRecordedFlag = "otel.exception.recorded";
 
     ILogger? logger;
 
