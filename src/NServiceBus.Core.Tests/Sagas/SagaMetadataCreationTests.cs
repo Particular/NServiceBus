@@ -239,6 +239,13 @@ public class SagaMetadataCreationTests
     }
 
     [Test]
+    public void ValidateThatSagaPropertyIsNotMappedThroughACast()
+    {
+        var ex = Assert.Throws<ArgumentException>(() => SagaMetadata.Create<SagaWithSagaDataPropertyMappedThroughInterface>());
+        Assert.That(ex.Message, Does.Contain("more than a single dot"));
+    }
+
+    [Test]
     public void ValidateThrowsWhenSagaMapsMessageItDoesntHandle()
     {
         var ex = Assert.Throws<ArgumentException>(() => SagaMetadata.Create<SagaThatMapsMessageItDoesntHandle>());
@@ -854,6 +861,25 @@ public class SagaMetadataCreationTests
         public class SagaData : ContainSagaData
         {
             public int SomeField = 0;
+        }
+    }
+
+    class SagaWithSagaDataPropertyMappedThroughInterface : Saga<SagaWithSagaDataPropertyMappedThroughInterface.SagaData>,
+        IAmStartedByMessages<SomeMessage>
+    {
+        public Task Handle(SomeMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+            mapper.MapSaga(s => ((IHasSomeProperty)s).SomeProperty).ToMessage<SomeMessage>(m => m.SomeProperty);
+
+        public interface IHasSomeProperty
+        {
+            int SomeProperty { get; }
+        }
+
+        public class SagaData : ContainSagaData, IHasSomeProperty
+        {
+            public int SomeProperty { get; set; }
         }
     }
 

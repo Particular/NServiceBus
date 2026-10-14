@@ -60,10 +60,7 @@ namespace NServiceBus
     {
         OrderPlacedOrderIdAccessor_13dea9c2dc628538() { }
 
-        protected override object? AccessFrom(global::Orders.Shipping.OrderPlaced message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern string AccessFrom_Property(global::Orders.Shipping.OrderPlaced message);
+        protected override object? AccessFrom(global::Orders.Shipping.OrderPlaced message) => message.OrderId;
 
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_13dea9c2dc628538();
     }
@@ -74,15 +71,9 @@ namespace NServiceBus
     {
         OrderIdAsStringAccessor_1073497622a938fb() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property((global::Orders.Shipping.OrderShippingPolicyData)sagaData);
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::Orders.Shipping.OrderShippingPolicyData)sagaData).OrderId;
 
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern string AccessFrom_Property(global::Orders.Shipping.OrderShippingPolicyData sagaData);
-
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property((global::Orders.Shipping.OrderShippingPolicyData)sagaData, ((string)value));
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
-        static extern void WriteTo_Property(global::Orders.Shipping.OrderShippingPolicyData sagaData, string value);
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.Shipping.OrderShippingPolicyData)sagaData).OrderId = (string)value;
 
         public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_1073497622a938fb();
     }
