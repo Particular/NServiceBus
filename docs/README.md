@@ -18,7 +18,7 @@ NServiceBus is the core library of the Particular Service Platform, producing th
 
 ## Architecture and design
 
-This repository has no design pages.
+- [Logging](logging.md) — why components can rely on a `Microsoft.Extensions.Logging.ILoggerFactory` being registered for every endpoint, and where that guarantee does not hold
 
 ## Decisions and rationale
 
