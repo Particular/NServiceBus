@@ -6,12 +6,22 @@ using System.Collections.Generic;
 using Pipeline;
 using Routing;
 using Transport;
+using NServiceBus.Utils;
 
 static class RoutingContextExtensions
 {
-    public static TransportOperation ToTransportOperation(this IRoutingContext context, RoutingStrategy strategy, DispatchConsistency dispatchConsistency, bool copySharedMutableMessageState)
+    public static TransportOperation ToTransportOperation(this IRoutingContext context, RoutingStrategy strategy, DispatchConsistency dispatchConsistency, bool copySharedMutableMessageState, HeaderPool headerPool)
     {
-        var headers = copySharedMutableMessageState ? new Dictionary<string, string>(context.Message.Headers) : context.Message.Headers;
+        Dictionary<string, string> headers;
+        if (copySharedMutableMessageState)
+        {
+            headers = headerPool.Rent(context.Message.Headers.Count);
+            context.Message.Headers.CopyTo(headers);
+        }
+        else
+        {
+            headers = context.Message.Headers;
+        }
         var dispatchProperties = context.Extensions.TryGet<DispatchProperties>(out var properties)
             ? copySharedMutableMessageState ? new DispatchProperties(properties) : properties
             : [];
