@@ -46,6 +46,22 @@ public partial class InstrumentationOptions
     /// or <see cref="OpenTelemetryExtensions.ContinueExistingTraceOnReceive(PublishOptions)"/>.
     /// </summary>
     public TraceMode PublishTraceMode { get; set; } = TraceMode.ContinueExisting;
+
+    /// <summary>
+    /// Controls how exception details are recorded when an operation fails.
+    /// Defaults to <see cref="NServiceBus.ExceptionRecordingMode.Logs"/>: exceptions are recorded only in the log.
+    /// Until v11 the default is <see cref="NServiceBus.ExceptionRecordingMode.SpanAndLogs"/> for backward compatibility, see obsoletes-v10.cs.
+    /// </summary>
+    public ExceptionRecordingMode ExceptionRecordingMode
+    {
+        get => exceptionRecordingMode ?? defaultExceptionRecordingMode;
+        set => exceptionRecordingMode = value;
+    }
+
+    internal bool IsExceptionRecordingModeSet => exceptionRecordingMode.HasValue;
+
+    ExceptionRecordingMode? exceptionRecordingMode;
+    ExceptionRecordingMode defaultExceptionRecordingMode = ExceptionRecordingMode.Logs;
 }
 
 /// <summary>

@@ -6,6 +6,7 @@ using Features;
 
 sealed class OpenTelemetryFeature : Feature
 {
+    // Removed in v11, see obsoletes-v10.cs
     public OpenTelemetryFeature() => Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault);
 
     protected override void Setup(FeatureConfigurationContext context)
