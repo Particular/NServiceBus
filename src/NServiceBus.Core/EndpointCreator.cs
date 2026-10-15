@@ -19,6 +19,7 @@ class EndpointCreator
         this.settings = settings;
         this.hostingConfiguration = hostingConfiguration;
         this.conventions = conventions;
+        conventions.AddSystemMessagesConventions(static type => type == typeof(SagaTimeoutTrigger));
     }
 
     public static EndpointCreator Create(EndpointConfiguration endpointConfiguration, IServiceCollection serviceCollection)
@@ -204,6 +205,7 @@ class EndpointCreator
         messageMetadataRegistry.StrictRegisteredOnlyMode = strictMode;
         messageMetadataRegistry.Initialize(conventions.IsMessageType, allowDynamicTypeLoading);
 
+        messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(SagaTimeoutTrigger), []);
         messageMetadataRegistry.RegisterMessageTypes(hostingConfiguration.AvailableTypes);
         messageMetadataRegistry.RegisterMessageTypesBypassingChecks(messageTypesHandled);
 

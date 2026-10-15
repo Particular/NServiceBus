@@ -143,6 +143,7 @@ public class MessageHandlerRegistry
 
         var handlerFactories = GetOrCreate<THandler>();
         handlerFactories.Add(new TimeoutHandlerFactory<THandler, TMessage>());
+        handlerFactories.Add(new TimeoutTriggerHandlerFactory<THandler, TMessage>());
     }
 
     List<IMessageHandlerFactory> GetOrCreate<THandler>()
@@ -247,6 +248,34 @@ public class MessageHandlerRegistry
         [DebuggerStepThrough]
         [StackTraceHidden]
         static Task InvokeTimeout(IHandleTimeouts<TMessage> handler, TMessage message, IMessageHandlerContext handlerContext) => handler.Timeout(message, handlerContext);
+
+        static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
+
+        static readonly ObjectFactory<IHandleTimeouts<TMessage>> handlerFactory =
+            // SAFETY: Registration validated THandler implements IHandleTimeouts<TMessage>; retype skips the interface cast.
+            static (sp, args) => Unsafe.As<IHandleTimeouts<TMessage>>(factory(sp, args));
+    }
+
+    sealed class TimeoutTriggerHandlerFactory<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Handler)] THandler, TMessage> : IMessageHandlerFactory
+        where THandler : class
+    {
+        public Type MessageType { get; } = typeof(SagaTimeoutTrigger);
+
+        public MessageHandler Create() =>
+            new MessageHandlerInvoker<IHandleTimeouts<TMessage>, SagaTimeoutTrigger>(
+                static provider => handlerFactory(provider, []),
+                InvokeTimeout, // This needs to stay a method group to wipe it out from the stack trace
+                isTimeoutHandler: true)
+            {
+                HandlerType = typeof(THandler),
+                TimeoutTriggerMessageType = typeof(TMessage)
+            };
+
+        [DebuggerNonUserCode]
+        [DebuggerStepThrough]
+        [StackTraceHidden]
+        static Task InvokeTimeout(IHandleTimeouts<TMessage> handler, SagaTimeoutTrigger trigger, IMessageHandlerContext handlerContext) =>
+            handler.Timeout((TMessage)handlerContext.Extensions.Get<Sagas.ActiveSagaInstance>().FiringTimeoutPayload, handlerContext);
 
         static readonly ObjectFactory<THandler> factory = ActivatorUtilities.CreateFactory<THandler>([]);
 

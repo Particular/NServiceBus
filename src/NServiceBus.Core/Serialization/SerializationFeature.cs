@@ -57,6 +57,8 @@ sealed class SerializationFeature : Feature
         context.Services.AddSingleton<IMessageCreator>(mapper);
         context.Services.AddSingleton(messageMetadataRegistry);
         context.Services.AddSingleton(logicalMessageFactory);
+        context.Services.AddSingleton(resolver);
+        context.Services.AddSingleton(mainSerializer);
 
         LogFoundMessages(messageMetadataRegistry.GetAllMessages());
 
