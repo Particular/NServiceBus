@@ -13,6 +13,10 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
 {
     public IReadOnlyCollection<StoredSagaTimeout> PendingTriggers => pendingTriggers.Values;
 
+    public IReadOnlyList<SagaTimeoutChange> Changes => changes;
+
+    public bool HasStoredTimeouts => storedTimeouts.Count > 0;
+
     public StoredSagaTimeout Add<TTimeoutMessageType>(TTimeoutMessageType payload, DateTimeOffset dueTime)
     {
         var timeout = new StoredSagaTimeout
@@ -28,6 +32,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
 
         storedTimeouts.Add(timeout);
         pendingTriggers[timeout.TimeoutId] = timeout;
+        changes.Add(new SagaTimeoutChange(SagaTimeoutChangeKind.Requested, timeout.TimeoutId, Snapshot(timeout), null));
         return timeout;
     }
 
@@ -57,6 +62,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
         var stored = storedTimeouts.Find(t => t.TimeoutId == timeoutId);
         if (stored is null)
         {
+            changes.Add(new SagaTimeoutChange(SagaTimeoutChangeKind.RescheduleRejected, timeoutId, null, newDueTime));
             return;
         }
 
@@ -70,13 +76,28 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
         stored.TriggerId = Guid.NewGuid().ToString();
         stored.Version++;
         pendingTriggers[timeoutId] = stored;
+        changes.Add(new SagaTimeoutChange(SagaTimeoutChangeKind.Rescheduled, timeoutId, Snapshot(stored), null));
     }
 
     public void Cancel(string timeoutId)
     {
-        _ = storedTimeouts.RemoveAll(t => t.TimeoutId == timeoutId);
+        var stored = Remove(timeoutId);
+        changes.Add(stored is null
+            ? new SagaTimeoutChange(SagaTimeoutChangeKind.CancelRejected, timeoutId, null, null)
+            : new SagaTimeoutChange(SagaTimeoutChangeKind.Canceled, timeoutId, Snapshot(stored), null));
+    }
+
+    public StoredSagaTimeout? Remove(string timeoutId)
+    {
+        var stored = storedTimeouts.Find(t => t.TimeoutId == timeoutId);
+        if (stored is not null)
+        {
+            _ = storedTimeouts.Remove(stored);
+        }
+
         _ = pendingTriggers.Remove(timeoutId);
         _ = foundPayloads.Remove(timeoutId);
+        return stored;
     }
 
     public StoredSagaTimeout? Get(string timeoutId) => storedTimeouts.Find(t => t.TimeoutId == timeoutId);
@@ -96,6 +117,33 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
         return stream.ToArray();
     }
 
+    static StoredSagaTimeout Snapshot(StoredSagaTimeout stored) => new()
+    {
+        TimeoutId = stored.TimeoutId,
+        TriggerId = stored.TriggerId,
+        Version = stored.Version,
+        DueTime = stored.DueTime,
+        MessageType = stored.MessageType,
+        ContentType = stored.ContentType,
+        Payload = stored.Payload
+    };
+
+    readonly List<SagaTimeoutChange> changes = [];
     readonly Dictionary<string, StoredSagaTimeout> pendingTriggers = [];
     readonly Dictionary<string, object> foundPayloads = [];
+}
+
+enum SagaTimeoutChangeKind
+{
+    Requested,
+    Rescheduled,
+    Canceled,
+    RescheduleRejected,
+    CancelRejected
+}
+
+// Timeout is a snapshot taken when the change was made; it's null for rejected changes
+sealed record SagaTimeoutChange(SagaTimeoutChangeKind Kind, string TimeoutId, StoredSagaTimeout? Timeout, DateTimeOffset? RequestedDueTime)
+{
+    public DateTimeOffset ChangedAt { get; } = DateTimeOffset.UtcNow;
 }
