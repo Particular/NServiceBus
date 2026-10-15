@@ -20,6 +20,11 @@ public sealed class StoredSagaTimeout
     public required string TriggerId { get; set; }
 
     /// <summary>
+    /// Starts at 1 when the timeout is requested and increases by one on each reschedule, so the platform can apply changes in order.
+    /// </summary>
+    public required int Version { get; set; }
+
+    /// <summary>
     /// The last requested due time.
     /// </summary>
     public required DateTimeOffset DueTime { get; set; }

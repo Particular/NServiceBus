@@ -24,6 +24,7 @@ public class ForwardFromPipelineTests : AnalyzerTestFixture<ForwardCancellationT
             typeof(NServiceBus.Pipeline.PipelineTerminator<>),
             typeof(NServiceBus.Pipeline.StageConnector<,>),
             typeof(NServiceBus.Pipeline.StageForkConnector<,,>),
+            typeof(NServiceBus.ServicePlatform.ServicePlatformSender<>),
 #pragma warning restore IDE0001 // Simplify Names
         };
 

@@ -11,7 +11,7 @@ using Pipeline;
 using Sagas;
 using Serialization;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, MessageDeserializerResolver messageDeserializerResolver, IMessageSerializer mainSerializer, IServiceProvider serviceProvider)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, MessageDeserializerResolver messageDeserializerResolver, IMessageSerializer mainSerializer, SagaTimeoutPlatformNotifier platformNotifier, IServiceProvider serviceProvider)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Best-effort saga type resolution from saga headers; when trimming removes the type, processing falls back to querying the persister for the current saga type.")]
@@ -147,6 +147,8 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
 
             logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
 
+            await NotifyPlatform(sagaInstanceState, context).ConfigureAwait(false);
+
             sagaInstanceState.Completed();
         }
         else
@@ -170,6 +172,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             }
 
             await DispatchTimeoutTriggers(saga, sagaInstanceState, context).ConfigureAwait(false);
+            await NotifyPlatform(sagaInstanceState, context).ConfigureAwait(false);
 
             sagaInstanceState.Updated();
         }
@@ -206,7 +209,8 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
 
         sagaInstanceState.FiringTimeoutPayload = sagaInstanceState.Timeouts.Deserialize(stored, timeoutMessageType);
         // Removal is saved with the handler's saga changes, so a failing handler leaves the timeout in place for retries
-        sagaInstanceState.Timeouts.Cancel(trigger.TimeoutId);
+        _ = sagaInstanceState.Timeouts.Remove(trigger.TimeoutId);
+        sagaInstanceState.FiringTimeout = stored;
         return true;
     }
 
@@ -232,6 +236,29 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             };
 
             await context.Send<SagaTimeoutTrigger>(trigger, options).ConfigureAwait(false);
+        }
+    }
+
+    async Task NotifyPlatform(ActiveSagaInstance sagaInstanceState, IInvokeHandlerContext context)
+    {
+        if (platformNotifier is null || sagaInstanceState.Timeouts is null)
+        {
+            return;
+        }
+
+        if (sagaInstanceState.FiringTimeout is not null)
+        {
+            await platformNotifier.NotifyTriggered(sagaInstanceState, sagaInstanceState.FiringTimeout, context).ConfigureAwait(false);
+        }
+
+        if (!sagaInstanceState.Instance.Completed)
+        {
+            await platformNotifier.NotifyChanges(sagaInstanceState, context).ConfigureAwait(false);
+        }
+        // Timeouts requested by a saga that completes in the same message were never reported
+        else if (!sagaInstanceState.IsNew && sagaInstanceState.Timeouts.HasStoredTimeouts)
+        {
+            await platformNotifier.NotifySagaCompleted(sagaInstanceState, context).ConfigureAwait(false);
         }
     }
 
