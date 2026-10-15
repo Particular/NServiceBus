@@ -40,6 +40,10 @@
     "Lifecycle": "Scoped"
   },
   {
+    "Type": "NServiceBus.ServicePlatform.ServicePlatformConnection",
+    "Lifecycle": "Singleton"
+  },
+  {
     "Type": "NServiceBus.Persistence.ICompletableSynchronizedStorageSession",
     "Lifecycle": "Scoped"
   },
