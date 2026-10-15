@@ -40,18 +40,38 @@ class MessagingBasedServicePlatformSender<TMessage> : ServicePlatformSender<TMes
 
     public override async Task Send(TMessage message, CancellationToken cancellationToken = default)
     {
-        using var bufferWriter = new ArrayPoolBufferWriter<byte>();
-        var writer = new Utf8JsonWriter(bufferWriter);
-        await using var _ = writer.ConfigureAwait(false);
-        JsonSerializer.Serialize(writer, message, jsonTypeInfo);
+        var transportOperation = CreateTransportOperation(message);
+        await messageDispatcher.Dispatch(new(transportOperation), new(), cancellationToken).ConfigureAwait(false);
+    }
 
+    public override Task Send(TMessage message, IPipelineContext pipelineContext)
+    {
+        ArgumentNullException.ThrowIfNull(pipelineContext);
+
+        if (!pipelineContext.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))
+        {
+            return Send(message, pipelineContext.CancellationToken);
+        }
+
+        pendingOperations.Add(CreateTransportOperation(message));
+        return Task.CompletedTask;
+    }
+
+    TransportOperation CreateTransportOperation(TMessage message)
+    {
+        using var bufferWriter = new ArrayPoolBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(bufferWriter))
+        {
+            JsonSerializer.Serialize(writer, message, jsonTypeInfo);
+        }
+
+        // Pending operations outlive the pooled buffer, so the body is copied
         var outgoingMessage = new OutgoingMessage(
             Guid.NewGuid().ToString(),
-            headers,
-            bufferWriter.WrittenMemory
+            new Dictionary<string, string>(headers),
+            bufferWriter.WrittenMemory.ToArray()
         );
 
-        var transportOperation = new TransportOperation(outgoingMessage, destinationAddress);
-        await messageDispatcher.Dispatch(new(transportOperation), new(), cancellationToken).ConfigureAwait(false);
+        return new TransportOperation(outgoingMessage, destinationAddress);
     }
 }
