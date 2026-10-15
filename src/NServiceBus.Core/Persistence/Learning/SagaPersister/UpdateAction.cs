@@ -5,9 +5,11 @@ namespace NServiceBus;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Sagas;
 
 class UpdateAction(
     IContainSagaData sagaData,
+    IReadOnlyList<StoredSagaTimeout> timeouts,
     Dictionary<string, SagaStorageFile> sagaFiles,
     SagaManifestCollection sagaManifests)
     : StorageAction(sagaData, sagaFiles, sagaManifests)
@@ -16,6 +18,6 @@ class UpdateAction(
     {
         var sagaFile = GetSagaFile();
 
-        return sagaFile.Write(sagaData, cancellationToken);
+        return sagaFile.Write(sagaData, timeouts, cancellationToken);
     }
 }

@@ -2454,6 +2454,7 @@ namespace NServiceBus.Sagas
         System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
+    public interface ISupportTimeoutManagement { }
     public abstract class MessagePropertyAccessor
     {
         protected MessagePropertyAccessor() { }
@@ -2554,6 +2555,21 @@ namespace NServiceBus.Sagas
     public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void DisableBestPracticeValidation() { }
+    }
+    public static class SagaTimeoutStorageExtensions
+    {
+        public static System.Collections.Generic.IReadOnlyList<NServiceBus.Sagas.StoredSagaTimeout> GetSagaTimeouts(this NServiceBus.Extensibility.ContextBag context, NServiceBus.IContainSagaData sagaData) { }
+        public static void SetSagaTimeouts(this NServiceBus.Extensibility.ContextBag context, NServiceBus.IContainSagaData sagaData, System.Collections.Generic.IEnumerable<NServiceBus.Sagas.StoredSagaTimeout> timeouts) { }
+    }
+    public sealed class StoredSagaTimeout
+    {
+        public StoredSagaTimeout() { }
+        public required string ContentType { get; set; }
+        public required System.DateTimeOffset DueTime { get; set; }
+        public required string MessageType { get; set; }
+        public required byte[] Payload { get; set; }
+        public required string TimeoutId { get; set; }
+        public required string TriggerId { get; set; }
     }
 }
 namespace NServiceBus.Serialization
