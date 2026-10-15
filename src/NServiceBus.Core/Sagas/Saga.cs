@@ -6,10 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
 using Particular.Obsoletes;
+using Sagas;
 
 /// <summary>
 /// This class is used to define sagas containing data and handling a message.
@@ -63,6 +68,22 @@ public abstract class Saga
 
         SetTimeoutHeaders(options);
 
+        if (Entity is IContainSagaTimeoutData sagaInstance)
+        {
+            var timeoutId = Guid.NewGuid().ToString();
+            var triggerId = Guid.NewGuid().ToString();
+            options.SetHeader("NServiceBus.SagaTimeoutTriggerID", triggerId);
+            options.SetHeader("NServiceBus.SagaTimeoutID", timeoutId);
+            
+            sagaInstance.TimeoutData.Add(new TimeoutInfo
+            {
+                ExactDueTime = at,
+                TimeoutId = timeoutId,
+                TriggerId = triggerId,
+                Payload = timeoutMessage!
+            });
+        }
+
         return context.Send<TTimeoutMessageType>(timeoutMessage, options);
     }
 
@@ -93,7 +114,89 @@ public abstract class Saga
 
         SetTimeoutHeaders(sendOptions);
 
+        if (Entity is IContainSagaTimeoutData sagaInstance)
+        {
+            var timeoutId = Guid.NewGuid().ToString();
+            var triggerId = Guid.NewGuid().ToString();
+            sendOptions.SetHeader("NServiceBus.SagaTimeoutTriggerID", triggerId);
+            sendOptions.SetHeader("NServiceBus.SagaTimeoutID", timeoutId);
+
+            var payload = JsonSerializer.Serialize(timeoutMessage);
+
+            sagaInstance.TimeoutData.Add(new TimeoutInfo
+            {
+                EstimatedDueTime = DateTimeOffset.UtcNow + within,
+                TimeoutId = timeoutId,
+                TriggerId = triggerId,
+                Payload = payload
+            });
+        }
+
         return context.Send<TTimeoutMessageType>(timeoutMessage, sendOptions);
+    }
+
+    [RequiresUnreferencedCode("JSON serialization of the state type might require types that cannot be statically analyzed. Use the Set<T>(T, JsonSerializerOptions, CancellationToken) or Set<T>(T, JsonTypeInfo<T>, CancellationToken) overload instead.")]
+    [RequiresDynamicCode("JSON serialization of the state type might require runtime code generation. Use the Set<T>(T, JsonSerializerOptions, CancellationToken) or Set<T>(T, JsonTypeInfo<T>, CancellationToken) overload instead.")]
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within, TTimeoutMessageType timeoutMessage)
+    {
+    }
+
+    /// <summary>
+    /// Request for a timeout to occur within the given <see cref="TimeSpan" />.
+    /// </summary>
+    /// <param name="context">The context which is used to send the timeout.</param>
+    /// <param name="within">Given <see cref="TimeSpan" /> to delay timeout message by.</param>
+    /// <param name="timeoutMessage">The message to send after <paramref name="within" /> expires.</param>
+    /// <param name="typeInfo"></param>
+    protected Task RequestTimeout<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, TimeSpan within, TTimeoutMessageType timeoutMessage, JsonTypeInfo<TTimeoutMessageType> typeInfo)
+    {
+        VerifySagaCanHandleTimeout(timeoutMessage);
+
+        var sendOptions = new SendOptions();
+
+        sendOptions.DelayDeliveryWith(within);
+        sendOptions.RouteToThisEndpoint();
+
+        SetTimeoutHeaders(sendOptions);
+
+        //HINT: Will be replaced by checking if persister supports saga metadata
+        if (Entity is IContainSagaTimeoutData sagaInstance)
+        {
+            var timeoutId = Guid.NewGuid().ToString();
+            var triggerId = Guid.NewGuid().ToString();
+            sendOptions.SetHeader("NServiceBus.SagaTimeoutTriggerID", triggerId);
+            sendOptions.SetHeader("NServiceBus.SagaTimeoutID", timeoutId);
+
+            var payload = JsonSerializer.Serialize(timeoutMessage, typeInfo);
+
+            sagaInstance.TimeoutData.Add(new TimeoutInfo
+            {
+                EstimatedDueTime = DateTimeOffset.UtcNow + within,
+                TimeoutId = timeoutId,
+                TriggerId = triggerId,
+                Payload = payload
+            });
+        }
+
+        return context.Send<TTimeoutMessageType>(timeoutMessage, sendOptions);
+    }
+
+    /// <summary>
+    /// Request for a timeout to occur within the given <see cref="TimeSpan" />.
+    /// </summary>
+    /// <param name="context">The context which is used to send the timeout.</param>
+    /// <param name="predicate"></param>
+    protected IEnumerable<TimeoutReference<TTimeoutMessageType>> FindTimeouts<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, Func<TimeoutReference<TTimeoutMessageType>, bool> predicate)
+    {
+        if (Entity is not IContainSagaTimeoutData sagaInstance)
+        {
+            throw new Exception("This saga does not support rescheduling timeouts.");
+        }
+
+        return sagaInstance.TimeoutData
+            .Where(x => x.Type == typeof(TTimeoutMessageType).FullName)
+            .Select(x => new TimeoutReference<TTimeoutMessageType>(x, this, sagaInstance, context, null))
+            .Where(predicate);
     }
 
     /// <summary>
@@ -169,7 +272,7 @@ public abstract class Saga
         }
     }
 
-    void SetTimeoutHeaders(ExtendableOptions options)
+    internal void SetTimeoutHeaders(ExtendableOptions options)
     {
         options.SetHeader(Headers.SagaId, Entity.Id.ToString());
         options.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);

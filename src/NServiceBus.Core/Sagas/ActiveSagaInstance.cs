@@ -2,6 +2,7 @@ namespace NServiceBus.Sagas;
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 
 /// <summary>
 /// Represents a saga instance being processed on the pipeline.
