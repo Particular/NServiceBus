@@ -163,5 +163,7 @@ public class UsageReporterTests
             SentMessages.Add(message);
             return Task.CompletedTask;
         }
+
+        public override Task Send(TMessage message, IPipelineContext pipelineContext) => Send(message, pipelineContext.CancellationToken);
     }
 }
