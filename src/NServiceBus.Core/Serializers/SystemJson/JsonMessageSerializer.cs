@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using NServiceBus.MessageInterfaces;
 using NServiceBus.Serialization;
 
@@ -31,7 +32,7 @@ class JsonMessageSerializer : IMessageSerializer
     public void Serialize(object message, Stream stream)
     {
         var messageType = message.GetType();
-        var typeInfo = serializerOptions.ResolveTypeInfo(messageType);
+        var typeInfo = ResolveTypeInfo(messageType);
         if (typeInfo is not null)
         {
             JsonSerializer.Serialize(stream, message, typeInfo);
@@ -62,7 +63,7 @@ class JsonMessageSerializer : IMessageSerializer
     object Deserialize(ReadOnlyMemory<byte> body, Type type)
     {
         var actualType = GetMappedType(type);
-        var typeInfo = serializerOptions.ResolveTypeInfo(actualType);
+        var typeInfo = ResolveTypeInfo(actualType);
         if (typeInfo is not null)
         {
             using var stream = new ReadOnlyStream(body);
@@ -74,6 +75,9 @@ class JsonMessageSerializer : IMessageSerializer
             return DeserializeWithReflection(stream, actualType, serializerOptions)!;
         }
     }
+
+    JsonTypeInfo? ResolveTypeInfo(Type messageType) =>
+        messageType == typeof(SagaTimeoutTrigger) ? SagaTimeoutJsonContext.Default.SagaTimeoutTrigger : serializerOptions.ResolveTypeInfo(messageType);
 
     [UnconditionalSuppressMessage(
         "Trimming",

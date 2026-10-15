@@ -216,6 +216,7 @@ public sealed class ReplacesOutgoingMessage : IMutateOutgoingMessages
 public class OrderSaga : Saga<OrderSagaData>,
     IAmStartedByMessages<StartOrderCommand>,
     IHandleMessages<HandleOrderCommand>,
+    IHandleMessages<RescheduleOrderTimeoutCommand>,
     IHandleTimeouts<OrderTimeout>
 {
     public static bool Started;
@@ -226,13 +227,24 @@ public class OrderSaga : Saga<OrderSagaData>,
     {
         mapper.MapSaga(s => s.OrderId)
             .ToMessage<StartOrderCommand>(m => m.OrderId)
-            .ToMessage<HandleOrderCommand>(m => m.OrderId);
+            .ToMessage<HandleOrderCommand>(m => m.OrderId)
+            .ToMessage<RescheduleOrderTimeoutCommand>(m => m.OrderId);
     }
 
-    public Task Handle(StartOrderCommand message, IMessageHandlerContext context)
+    public async Task Handle(StartOrderCommand message, IMessageHandlerContext context)
     {
         Started = true;
-        return RequestTimeout<OrderTimeout>(context, TimeSpan.FromMilliseconds(300));
+        // Exercises saga timeout management: the timeout fires only after it's found, changed, and rescheduled
+        await RequestTimeout(context, TimeSpan.FromHours(1), new OrderTimeout { Reason = "Original" });
+        await context.SendLocal<RescheduleOrderTimeoutCommand>(new RescheduleOrderTimeoutCommand { OrderId = message.OrderId });
+    }
+
+    public Task Handle(RescheduleOrderTimeoutCommand message, IMessageHandlerContext context)
+    {
+        var timeout = FindTimeouts<OrderTimeout>(_ => true).Single();
+        timeout.Payload.Reason = "Rescheduled";
+        RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddMilliseconds(300));
+        return Task.CompletedTask;
     }
 
     public Task Handle(HandleOrderCommand message, IMessageHandlerContext context)
@@ -243,7 +255,7 @@ public class OrderSaga : Saga<OrderSagaData>,
 
     public Task Timeout(OrderTimeout state, IMessageHandlerContext context)
     {
-        TimedOut = true;
+        TimedOut = state.Reason == "Rescheduled";
         return Task.CompletedTask;
     }
 }
@@ -263,7 +275,15 @@ public class HandleOrderCommand : ICommand
     public string OrderId { get; set; } = string.Empty;
 }
 
-public class OrderTimeout : IMessage;
+public class RescheduleOrderTimeoutCommand : ICommand
+{
+    public string OrderId { get; set; } = string.Empty;
+}
+
+public class OrderTimeout : IMessage
+{
+    public string Reason { get; set; } = string.Empty;
+}
 #endif
 
 public class MyCommand : ICommand
@@ -335,6 +355,7 @@ public sealed class TrimmedScenarioDiagnostics
 #if INCLUDE_SAGA
 [JsonSerializable(typeof(StartOrderCommand))]
 [JsonSerializable(typeof(HandleOrderCommand))]
+[JsonSerializable(typeof(RescheduleOrderTimeoutCommand))]
 [JsonSerializable(typeof(OrderTimeout))]
 #endif
 public partial class TrimmedEndpointJsonContext : JsonSerializerContext

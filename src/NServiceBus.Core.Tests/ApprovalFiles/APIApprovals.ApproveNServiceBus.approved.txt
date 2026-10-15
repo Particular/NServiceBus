@@ -1093,7 +1093,9 @@ namespace NServiceBus
         protected Saga() { }
         public bool Completed { get; }
         public NServiceBus.IContainSagaData Entity { get; set; }
+        protected void CancelTimeout(string timeoutId) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
+        protected System.Collections.Generic.IEnumerable<NServiceBus.SagaTimeout<TTimeoutMessageType>> FindTimeouts<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TTimeoutMessageType>(System.Func<NServiceBus.SagaTimeout<TTimeoutMessageType>, bool> predicate) { }
         protected void MarkAsComplete() { }
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("When trimming is enabled, routing a message using its runtime type cannot be stat" +
             "ically analyzed by the trimmer. Use the generic overload or, when the message ty" +
@@ -1109,6 +1111,7 @@ namespace NServiceBus
             where TTimeoutMessageType : new() { }
         protected System.Threading.Tasks.Task RequestTimeout<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTimeOffset at, TTimeoutMessageType timeoutMessage) { }
         protected System.Threading.Tasks.Task RequestTimeout<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
+        protected void RescheduleTimeout(string timeoutId, System.DateTimeOffset newDueTime) { }
     }
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class SagaAttribute : System.Attribute
@@ -1138,6 +1141,12 @@ namespace NServiceBus
         [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Saga discovery using assembly scanning might require access to unreferenced code.")]
         public static void AddSaga<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga>(this NServiceBus.EndpointConfiguration config)
             where TSaga : NServiceBus.Saga, NServiceBus.IHandleMessages { }
+    }
+    public sealed class SagaTimeout<TTimeoutMessageType>
+    {
+        public System.DateTimeOffset DueTime { get; }
+        public TTimeoutMessageType Payload { get; }
+        public string TimeoutId { get; }
     }
     public abstract class Saga<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]  TSagaData> : NServiceBus.Saga
         where TSagaData :  class, NServiceBus.IContainSagaData, new ()
@@ -2454,6 +2463,7 @@ namespace NServiceBus.Sagas
         System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
+    public interface ISupportTimeoutManagement { }
     public abstract class MessagePropertyAccessor
     {
         protected MessagePropertyAccessor() { }
@@ -2554,6 +2564,21 @@ namespace NServiceBus.Sagas
     public class SagaSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void DisableBestPracticeValidation() { }
+    }
+    public static class SagaTimeoutStorageExtensions
+    {
+        public static System.Collections.Generic.IReadOnlyList<NServiceBus.Sagas.StoredSagaTimeout> GetSagaTimeouts(this NServiceBus.Extensibility.ContextBag context, NServiceBus.IContainSagaData sagaData) { }
+        public static void SetSagaTimeouts(this NServiceBus.Extensibility.ContextBag context, NServiceBus.IContainSagaData sagaData, System.Collections.Generic.IEnumerable<NServiceBus.Sagas.StoredSagaTimeout> timeouts) { }
+    }
+    public sealed class StoredSagaTimeout
+    {
+        public StoredSagaTimeout() { }
+        public required string ContentType { get; set; }
+        public required System.DateTimeOffset DueTime { get; set; }
+        public required string MessageType { get; set; }
+        public required byte[] Payload { get; set; }
+        public required string TimeoutId { get; set; }
+        public required string TriggerId { get; set; }
     }
 }
 namespace NServiceBus.Serialization

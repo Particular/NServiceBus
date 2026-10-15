@@ -3,12 +3,13 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
+using Sagas;
 
 class SagaStorageFile : IDisposable, IAsyncDisposable
 {
@@ -101,7 +102,7 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
         }
     }
 
-    public async Task Write(IContainSagaData sagaData, CancellationToken cancellationToken = default)
+    public async Task Write(IContainSagaData sagaData, IReadOnlyList<StoredSagaTimeout> timeouts, CancellationToken cancellationToken = default)
     {
         ObjectDisposedException.ThrowIf(fileStream is null, this);
 
@@ -109,15 +110,38 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
 
         var sagaDataType = sagaData.GetType();
         var typeInfo = options.ResolveTypeInfo(sagaDataType);
-        if (typeInfo is not null)
+
+        // Sagas without timeouts keep the plain saga data format
+        if (timeouts.Count == 0)
         {
-            await JsonSerializer.SerializeAsync(fileStream, sagaData, typeInfo, cancellationToken)
-                .ConfigureAwait(false);
+            if (typeInfo is not null)
+            {
+                await JsonSerializer.SerializeAsync(fileStream, sagaData, typeInfo, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                await SerializeWithReflectionAsync(fileStream, sagaData, sagaDataType, options, cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
         else
         {
-            await SerializeWithReflectionAsync(fileStream, sagaData, sagaDataType, options, cancellationToken)
-                .ConfigureAwait(false);
+            using var writer = new Utf8JsonWriter(fileStream);
+            writer.WriteStartObject();
+            writer.WritePropertyName(TimeoutsPropertyName);
+            JsonSerializer.Serialize(writer, [.. timeouts], SagaTimeoutJsonContext.Default.ListStoredSagaTimeout);
+            writer.WritePropertyName(SagaDataPropertyName);
+            if (typeInfo is not null)
+            {
+                JsonSerializer.Serialize(writer, sagaData, typeInfo);
+            }
+            else
+            {
+                SerializeWithReflection(writer, sagaData, sagaDataType, options);
+            }
+            writer.WriteEndObject();
+            await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
         // Because the file is opened in ReadWrite mode, leftover content from last write
@@ -127,23 +151,32 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
 
     public void MarkAsCompleted() => isCompleted = true;
 
-    public ValueTask<TSagaData?> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+    public async ValueTask<(TSagaData? SagaData, List<StoredSagaTimeout> Timeouts)> Read<TSagaData>(CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
     {
         ObjectDisposedException.ThrowIf(fileStream is null, this);
 
-        var typeInfo = options.ResolveTypeInfo(typeof(TSagaData));
-        if (typeInfo is not null)
-        {
-            return ReadWithTypeInfoAsync<TSagaData>(fileStream, typeInfo, cancellationToken);
-        }
-        else
-        {
-            return DeserializeWithReflectionAsync<TSagaData>(fileStream, options, cancellationToken);
-        }
-    }
+        using var document = await JsonDocument.ParseAsync(fileStream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-    static async ValueTask<TSagaData?> ReadWithTypeInfoAsync<TSagaData>(Stream stream, JsonTypeInfo typeInfo, CancellationToken cancellationToken) where TSagaData : class
-        => (TSagaData?)await JsonSerializer.DeserializeAsync(stream, typeInfo, cancellationToken).ConfigureAwait(false);
+        var sagaDataElement = document.RootElement;
+        List<StoredSagaTimeout> timeouts = [];
+
+        if (sagaDataElement.ValueKind == JsonValueKind.Object && sagaDataElement.TryGetProperty(SagaDataPropertyName, out var envelopedSagaData))
+        {
+            if (sagaDataElement.TryGetProperty(TimeoutsPropertyName, out var timeoutsElement))
+            {
+                timeouts = timeoutsElement.Deserialize(SagaTimeoutJsonContext.Default.ListStoredSagaTimeout) ?? [];
+            }
+
+            sagaDataElement = envelopedSagaData;
+        }
+
+        var typeInfo = options.ResolveTypeInfo(typeof(TSagaData));
+        var sagaData = typeInfo is not null
+            ? (TSagaData?)sagaDataElement.Deserialize(typeInfo)
+            : (TSagaData?)DeserializeWithReflection(sagaDataElement, typeof(TSagaData), options);
+
+        return (sagaData, timeouts);
+    }
 
     [UnconditionalSuppressMessage(
         "Trimming",
@@ -164,13 +197,26 @@ class SagaStorageFile : IDisposable, IAsyncDisposable
         "AOT",
         "IL3050",
         Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
-    static async ValueTask<TSagaData?> DeserializeWithReflectionAsync<TSagaData>(Stream stream, JsonSerializerOptions options, CancellationToken cancellationToken) where TSagaData : class
-        => (TSagaData?)await JsonSerializer.DeserializeAsync(stream, typeof(TSagaData), options, cancellationToken).ConfigureAwait(false);
+    static void SerializeWithReflection(Utf8JsonWriter writer, object value, Type inputType, JsonSerializerOptions options)
+        => JsonSerializer.Serialize(writer, value, inputType, options);
+
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    [UnconditionalSuppressMessage(
+        "AOT",
+        "IL3050",
+        Justification = "Only called when System.Text.Json reflection serialization is enabled.")]
+    static object? DeserializeWithReflection(JsonElement element, Type returnType, JsonSerializerOptions options)
+        => element.Deserialize(returnType, options);
 
     FileStream? fileStream;
     readonly JsonSerializerOptions options;
     bool isCompleted;
 
     const int DefaultBufferSize = 4096;
+    const string SagaDataPropertyName = "$sagaData";
+    const string TimeoutsPropertyName = "$sagaTimeouts";
     static readonly Task<SagaStorageFile?> noSagaFoundResult = Task.FromResult<SagaStorageFile?>(null);
 }

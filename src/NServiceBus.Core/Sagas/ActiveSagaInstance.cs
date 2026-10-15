@@ -2,7 +2,6 @@ namespace NServiceBus.Sagas;
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 
 /// <summary>
 /// Represents a saga instance being processed on the pipeline.
@@ -35,9 +34,14 @@ public class ActiveSagaInstance
     internal SagaMetadata Metadata { get; }
 
     /// <summary>
-    /// Timeout data if supported by the persister.
+    /// The stored timeouts of the saga instance, when the persister supports timeout management.
     /// </summary>
-    internal TimeoutData TimeoutData { get; private set; }
+    internal SagaTimeouts Timeouts { get; set; } = null!;
+
+    /// <summary>
+    /// The stored payload of the timeout being fired by the incoming trigger message.
+    /// </summary>
+    internal object FiringTimeoutPayload { get; set; } = null!;
 
     /// <summary>
     /// The actual saga instance.
@@ -63,11 +67,6 @@ public class ActiveSagaInstance
     /// UTC timestamp of when the active saga instance was last modified.
     /// </summary>
     public DateTimeOffset Modified { get; private set; }
-
-    internal void AttachTimeoutData(TimeoutData timeoutData)
-    {
-        TimeoutData = timeoutData;
-    }
 
     /// <summary>
     /// Provides a way to update the actual saga entity.
