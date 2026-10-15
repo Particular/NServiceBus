@@ -3,9 +3,11 @@
 namespace NServiceBus;
 
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Sagas;
 using Serialization;
+using Unicast.Messages;
 
 /// <summary>
 /// The saga data that will be persisted.
@@ -66,7 +69,7 @@ public class TimeoutReference<[DynamicallyAccessedMembers(DynamicMemberTypeAcces
 {
     readonly TimeoutInfo info;
     readonly Saga saga;
-    readonly IContainSagaTimeoutData sagaData;
+    readonly TimeoutData timeoutData;
 
     /// <summary>
     /// Unique ID of this timeout
@@ -88,24 +91,29 @@ public class TimeoutReference<[DynamicallyAccessedMembers(DynamicMemberTypeAcces
     /// </summary>
     public TTimeoutMessageType State { get; private set; }
 
-    internal TimeoutReference(TimeoutInfo info, Saga saga, IContainSagaTimeoutData sagaData)
+    internal TimeoutReference(TimeoutInfo info, Saga saga, TimeoutData timeoutData)
     {
         this.info = info;
         this.saga = saga;
-        this.sagaData = sagaData;
+        this.timeoutData = timeoutData;
 
-        State = Deserialize(info.Payload);
+        State = timeoutData.Deserialize<TTimeoutMessageType>(info);
     }
 
     /// <summary>
     /// Cancels this timeout.
     /// </summary>
-    public void Cancel() => sagaData.TimeoutData.RemoveAll(x => x.TimeoutId == TimeoutId);
+    public void Cancel()
+    {
+        //TODO: This may fail if cancel is called while enumerating the TimeoutReferences returned by FindTimeouts
+        timeoutData.Remove(TimeoutId);
+    }
 
     /// <summary>
     /// Changes the due date of this timeout.
     /// </summary>
     /// <param name="newDueDate"></param>
+    /// <param name="context"></param>
     /// <returns></returns>
     public Task Reschedule(DateTimeOffset newDueDate, IMessageHandlerContext context)
     {
@@ -131,6 +139,7 @@ public class TimeoutReference<[DynamicallyAccessedMembers(DynamicMemberTypeAcces
     /// Changes the state of a timeout
     /// </summary>
     /// <param name="newState"></param>
+    /// <param name="context"></param>
     /// <returns></returns>
     public Task Update(TTimeoutMessageType newState, IMessageHandlerContext context)
     {
@@ -152,7 +161,7 @@ public class TimeoutReference<[DynamicallyAccessedMembers(DynamicMemberTypeAcces
         info.EstimatedDueTime = null;
 
         State = newState;
-        info.Payload = Serialize(State);
+        timeoutData.Serialize(newState, info);
 
         return context.Send<TTimeoutMessageType>(State, options);
     }
@@ -163,12 +172,39 @@ class TimeoutData
     readonly List<TimeoutInfo> timeoutInfos;
     readonly MessageDeserializerResolver deserializerResolver;
     readonly IMessageSerializer mainSerializer;
+    readonly MessageMetadataRegistry messageMetadataRegistry;
 
-    public TimeoutData(List<TimeoutInfo> timeoutInfos, MessageDeserializerResolver deserializerResolver, IMessageSerializer mainSerializer)
+    public TimeoutData(List<TimeoutInfo> timeoutInfos, MessageDeserializerResolver deserializerResolver, IMessageSerializer mainSerializer, MessageMetadataRegistry messageMetadataRegistry)
     {
         this.timeoutInfos = timeoutInfos;
         this.deserializerResolver = deserializerResolver;
         this.mainSerializer = mainSerializer;
+        this.messageMetadataRegistry = messageMetadataRegistry;
+    }
+
+    public void Serialize<T>(T state, TimeoutInfo info)
+    {
+        info.Type = typeof(T).AssemblyQualifiedName!;
+        info.ContentType = mainSerializer.ContentType;
+
+        using var stream = new MemoryStream();
+
+        mainSerializer.Serialize(state!, stream);
+
+        var base64 = Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length);
+        info.Payload = base64;
+    }
+
+    public T Deserialize<T>(TimeoutInfo info)
+    {
+        //TODO: Use resolver
+        byte[] bytes = Convert.FromBase64String(info.Payload);
+        using var stream = new MemoryStream(bytes);
+        var metadata = messageMetadataRegistry.GetMessageMetadata(info.Type);
+        var payload = mainSerializer.Deserialize(bytes, metadata.MessageHierarchy);
+
+        //TODO: Can we hardcode this?
+        return (T)payload[0];
     }
 
     public TimeoutInfo Add<T>(T state, DateTimeOffset at)
@@ -178,9 +214,8 @@ class TimeoutData
             TimeoutId = Guid.NewGuid().ToString(),
             TriggerId = Guid.NewGuid().ToString(),
             ExactDueTime = at,
-            Type = typeof(T).FullName!,
-            Payload = mainSerializer.Serialize(state,)
         };
+        Serialize(state, timeoutInfo);
         timeoutInfos.Add(timeoutInfo);
         return timeoutInfo;
     }
@@ -191,19 +226,21 @@ class TimeoutData
         {
             TimeoutId = Guid.NewGuid().ToString(),
             TriggerId = Guid.NewGuid().ToString(),
-            EstimatedDueTime = DateTimeOffset.UtcNow + delay,
-            Type = typeof(T).FullName!,
-            Payload = mainSerializer.Serialize(state,)
+            EstimatedDueTime = DateTimeOffset.UtcNow + delay
         };
+        Serialize(state, timeoutInfo);
         timeoutInfos.Add(timeoutInfo);
         return timeoutInfo;
     }
 
-    public IEnumerable<TimeoutReference<T>> Find<T>(Func<TimeoutReference<T>, bool> predicate)
+    public void Remove(string timeoutId) => timeoutInfos.RemoveAll(x => x.TimeoutId == timeoutId);
+
+    public IEnumerable<TimeoutReference<T>> Find<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(Saga saga, Func<TimeoutReference<T>, bool> predicate)
     {
+        //HINT: We need Saga only to set the headers so it can be refactored away later
         return timeoutInfos
-            .Where(x => x.Type == typeof(T).FullName)
-            .Select(x => new TimeoutReference<T>(x,  ))
+            .Where(x => x.Type == typeof(T).AssemblyQualifiedName)
+            .Select(x => new TimeoutReference<T>(x, saga, this));
     }
 }
 

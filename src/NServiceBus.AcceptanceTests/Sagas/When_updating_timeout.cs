@@ -24,7 +24,7 @@ public class When_updating_timeout : NServiceBusAcceptanceTest
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(context.SagaReceivedTimeout, Is.False);
+            Assert.That(context.SagaReceivedTimeout, Is.True);
             Assert.That(context.TimeoutValue, Is.EqualTo("Updated"));
         }
     }
@@ -69,7 +69,7 @@ public class When_updating_timeout : NServiceBusAcceptanceTest
                 await timeout.Update(new MySagaTimeout
                 {
                     Value = "Updated"
-                });
+                }, context);
                 await context.SendLocal(new RescheduleTimeoutMessage { Id = message.Id });
             }
 
@@ -77,7 +77,7 @@ public class When_updating_timeout : NServiceBusAcceptanceTest
             {
                 var timeout = FindTimeouts<MySagaTimeout>(context, x => true)
                     .Single();
-                await timeout.Reschedule(DateTimeOffset.UtcNow);
+                await timeout.Reschedule(DateTimeOffset.UtcNow, context);
             }
 
             public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
