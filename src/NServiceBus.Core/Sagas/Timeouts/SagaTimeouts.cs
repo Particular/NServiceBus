@@ -17,6 +17,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
         {
             TimeoutId = Guid.NewGuid().ToString(),
             TriggerId = Guid.NewGuid().ToString(),
+            Version = 1,
             DueTime = dueTime,
             MessageType = MessageTypeName(typeof(TTimeoutMessageType)),
             ContentType = serializer.ContentType,
@@ -65,6 +66,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
 
         stored.DueTime = newDueTime;
         stored.TriggerId = Guid.NewGuid().ToString();
+        stored.Version++;
         pendingTriggers[timeoutId] = stored;
     }
 
