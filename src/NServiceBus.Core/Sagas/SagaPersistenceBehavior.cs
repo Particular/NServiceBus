@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 using Logging;
 using Pipeline;
 using Sagas;
+using Serialization;
+using Unicast.Messages;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, IServiceProvider serviceProvider)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, MessageDeserializerResolver messageDeserializerResolver, IMessageSerializer mainSerializer, MessageMetadataRegistry messageMetadataRegistry, IServiceProvider serviceProvider)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Best-effort saga type resolution from saga headers; when trimming removes the type, processing falls back to querying the persister for the current saga type.")]
@@ -75,7 +77,13 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         {
             if (IsMessageAllowedToStartTheSaga(context, currentSagaMetadata))
             {
-                sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(currentSagaMetadata, context));
+                var newSagaEntity = CreateNewSagaEntity(currentSagaMetadata, context);
+                sagaInstanceState.AttachNewEntity(newSagaEntity);
+                if (newSagaEntity is IContainSagaTimeoutData containSagaTimeoutData)
+                {
+                    containSagaTimeoutData.TimeoutData = [];
+                    sagaInstanceState.AttachTimeoutData(new TimeoutData(containSagaTimeoutData.TimeoutData, messageDeserializerResolver, mainSerializer, messageMetadataRegistry));
+                }
             }
             else
             {
@@ -90,7 +98,12 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         else
         {
             sagaInstanceState.AttachExistingEntity(loadedEntity);
+            if (loadedEntity is IContainSagaTimeoutData containSagaTimeoutData)
+            {
+                sagaInstanceState.AttachTimeoutData(new TimeoutData(containSagaTimeoutData.TimeoutData, messageDeserializerResolver, mainSerializer, messageMetadataRegistry));
+            }
         }
+
 
         Activity.Current?.AddTag(ActivityTags.HandlerSagaId, sagaInstanceState.SagaId);
 

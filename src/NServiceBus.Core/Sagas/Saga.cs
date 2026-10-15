@@ -6,10 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
 using Particular.Obsoletes;
+using Sagas;
 
 /// <summary>
 /// This class is used to define sagas containing data and handling a message.
@@ -63,6 +68,14 @@ public abstract class Saga
 
         SetTimeoutHeaders(options);
 
+        var sagaInstance = context.Extensions.Get<ActiveSagaInstance>();
+        if (sagaInstance.TimeoutData != null)
+        {
+            var timeoutInfo = sagaInstance.TimeoutData.Add(timeoutMessage, at);
+            options.SetHeader("NServiceBus.SagaTimeoutTriggerID", timeoutInfo.TriggerId);
+            options.SetHeader("NServiceBus.SagaTimeoutID", timeoutInfo.TimeoutId);
+        }
+
         return context.Send<TTimeoutMessageType>(timeoutMessage, options);
     }
 
@@ -93,7 +106,32 @@ public abstract class Saga
 
         SetTimeoutHeaders(sendOptions);
 
+        var sagaInstance = context.Extensions.Get<ActiveSagaInstance>();
+        if (sagaInstance.TimeoutData != null)
+        {
+            var timeoutInfo = sagaInstance.TimeoutData.Add(timeoutMessage, within);
+            sendOptions.SetHeader("NServiceBus.SagaTimeoutTriggerID", timeoutInfo.TriggerId);
+            sendOptions.SetHeader("NServiceBus.SagaTimeoutID", timeoutInfo.TimeoutId);
+        }
+
         return context.Send<TTimeoutMessageType>(timeoutMessage, sendOptions);
+    }
+
+    /// <summary>
+    /// Request for a timeout to occur within the given <see cref="TimeSpan" />.
+    /// </summary>
+    /// <param name="context">The context which is used to send the timeout.</param>
+    /// <param name="predicate"></param>
+    protected IEnumerable<TimeoutReference<TTimeoutMessageType>> FindTimeouts<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, Func<TimeoutReference<TTimeoutMessageType>, bool> predicate)
+    {
+        var sagaInstance = context.Extensions.Get<ActiveSagaInstance>();
+
+        if (sagaInstance.TimeoutData == null)
+        {
+            throw new Exception("This saga does not support rescheduling timeouts.");
+        }
+
+        return sagaInstance.TimeoutData.Find(this, predicate);
     }
 
     /// <summary>
@@ -169,7 +207,7 @@ public abstract class Saga
         }
     }
 
-    void SetTimeoutHeaders(ExtendableOptions options)
+    internal void SetTimeoutHeaders(ExtendableOptions options)
     {
         options.SetHeader(Headers.SagaId, Entity.Id.ToString());
         options.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);
