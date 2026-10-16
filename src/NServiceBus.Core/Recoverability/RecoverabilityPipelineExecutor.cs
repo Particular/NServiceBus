@@ -22,9 +22,6 @@ class RecoverabilityPipelineExecutor<TState>(
 {
     public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
     {
-        // The activity covers the whole recoverability execution: the decision and the pipeline that carries it
-        // out (the retry dispatch or the move to the error queue), so its duration is the time the failed message
-        // spent in recoverability.
         using var activity = activityFactory.StartRecoverabilityActivity(errorContext);
 
         var childScope = serviceProvider.CreateAsyncScope();

@@ -255,12 +255,6 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
     }
 
-    // contextBag: the pipeline context of a failed message processing operation. Recoverability follows such a
-    // failure: it logs the exception with its decision and links its activity to the innermost pipeline activity
-    // the exception escaped from, which this records on the root of the bag, the one the transport floats from
-    // OnMessage to OnError. Null for a failure outside message processing, for example a send from the message
-    // session or the recoverability pipeline itself: nothing follows, so the exception is logged right away, while
-    // the activity is current and the log entry correlates to it.
     public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider, ContextBag? contextBag = null)
     {
         if (activity == null)
@@ -282,7 +276,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
 
-        // The event is added once per exception, to the innermost activity it escaped from; the activities further
+        // The event is added once, per exception, to the innermost activity it escaped from; the activities further
         // out only mark their status and error type. ExceptionRecordingMode.Logs leaves the details to the log entry.
         if (!exception.Data.Contains(ExceptionRecordedFlag))
         {
@@ -296,6 +290,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
         if (contextBag is null)
         {
+            //TODO: this looks like a smell
             // The factory is created before the container exists, so the logger is resolved on first use.
             logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
             LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
