@@ -10,7 +10,7 @@ using NUnit.Framework;
 public class When_changing_saga_timeout_payload_without_rescheduling : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_fire_with_the_stored_payload()
+    public async Task Should_fire_with_the_transported_payload()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(e => e.When(s => s.SendLocal(new StartSaga { Id = Guid.NewGuid().ToString() })))
