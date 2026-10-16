@@ -16,6 +16,8 @@ public class InstrumentationOptionsTests
             // Set by ApplyPreV11Defaults in obsoletes-v10.cs. When that file is deleted in v11 this
             // assertion fails: flip it to TraceMode.ContinueExisting, which is the initializer's value.
             Assert.That(options.PublishTraceMode, Is.EqualTo(TraceMode.StartNew), "publishes start a new linked trace by default until v11");
+            // Also set by ApplyPreV11Defaults. In v11 flip it to ExceptionRecordingMode.Logs.
+            Assert.That(options.ExceptionRecordingMode, Is.EqualTo(ExceptionRecordingMode.SpanAndLogs), "exceptions are recorded as span events and in the log by default until v11");
         }
     }
 }

@@ -886,7 +886,58 @@ namespace NServiceBus
         // delete this method: PublishTraceMode then defaults to TraceMode.ContinueExisting through its
         // initializer in InstrumentationOptions.cs, and the empty partial declaration plus the constructor
         // call there can be removed.
-        partial void ApplyPreV11Defaults() => PublishTraceMode = TraceMode.StartNew;
+        partial void ApplyPreV11Defaults()
+        {
+            PublishTraceMode = TraceMode.StartNew;
+            // Exception details are recorded as span events and in the log by default in v10 for backward
+            // compatibility. In v11 delete this line: Logs is then the default through defaultExceptionRecordingMode
+            // in InstrumentationOptions.cs.
+            defaultExceptionRecordingMode = ExceptionRecordingMode.SpanAndLogs;
+        }
+
+        // Lets users opt in to ExceptionRecordingMode.Logs ahead of v11 through the OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN
+        // convention: https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
+        // The environment variable is the highest-priority signal for this setting: when it's set to a recognized value
+        // it always wins, even over an explicitly configured ExceptionRecordingMode, so operators can force the
+        // exception-signal behavior without a code change/redeploy. When neither code nor the environment variable
+        // chooses a mode, a hint is logged at startup so users discover the opt-in.
+        // In v11 Logs is the default, so delete this method, the members below, and the
+        // `Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault);` call in OpenTelemetryFeature's constructor.
+        internal static void SetExceptionRecordingModeDefault(Settings.SettingsHolder settings)
+        {
+            var options = settings.GetOrCreate<InstrumentationOptions>();
+
+            var environment = settings.Get<SystemEnvironment>();
+            var variableValue = environment.GetEnvironmentVariable(ExceptionSignalOptInEnvironmentVariableKey);
+
+            // Recognized values per https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/#recording-an-exception
+            ExceptionRecordingMode? modeFromEnvironment = variableValue switch
+            {
+                "logs" => ExceptionRecordingMode.Logs,
+                "logs/dup" => ExceptionRecordingMode.SpanAndLogs,
+                _ => null
+            };
+
+            if (modeFromEnvironment.HasValue)
+            {
+                options.ExceptionRecordingMode = modeFromEnvironment.Value;
+            }
+
+            if (!options.IsExceptionRecordingModeSet)
+            {
+                ExceptionRecordingModeHintLog.Info(ExceptionRecordingOptInHint);
+            }
+        }
+
+        internal static readonly string ExceptionSignalOptInEnvironmentVariableKey = "OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN";
+
+        internal const string ExceptionRecordingOptInHint =
+            "Exception details of failed operations are recorded both as span events and in the log (ExceptionRecordingMode.SpanAndLogs). " +
+            "In NServiceBus version 11, ExceptionRecordingMode.Logs becomes the default and records them only in the log. To opt in now, " +
+            "set endpointConfiguration.Tracing().ExceptionRecordingMode to ExceptionRecordingMode.Logs, or set the OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN " +
+            "environment variable to 'logs'. Set the mode explicitly to suppress this message.";
+
+        static readonly Logging.ILog ExceptionRecordingModeHintLog = Logging.LogManager.GetLogger<InstrumentationOptions>();
     }
 #nullable restore
 }
