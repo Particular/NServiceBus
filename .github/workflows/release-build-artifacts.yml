@@ -1,0 +1,43 @@
+name: Release - build and store artifacts
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
+env:
+  DOTNET_NOLOGO: true
+defaults:
+  run:
+    shell: pwsh
+jobs:
+  build-and-store-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6.0.0
+        with:
+          global-json-file: global.json
+      - name: Build
+        run: dotnet build src --configuration Release
+      - name: Sign NuGet packages
+        uses: Particular/sign-nuget-packages-action@main
+        with:
+         client-id: ${{ secrets.AZURE_KEY_VAULT_CLIENT_ID }}
+         tenant-id: ${{ secrets.AZURE_KEY_VAULT_TENANT_ID }}
+         client-secret: ${{ secrets.AZURE_KEY_VAULT_CLIENT_SECRET }}
+         certificate-name: ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
+      - name: Publish NuGet packages to the workflow
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: nugets
+          path: nugets/*
+          retention-days: 1
+      - name: Create draft release and attach artifacts
+        uses: particular/deployment-workflows/.github/actions/create-draft-release-with-assets@1.0.0
+        with:
+          asset-paths: "nugets/"
