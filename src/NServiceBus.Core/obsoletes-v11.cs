@@ -22,7 +22,7 @@ public partial class InstrumentationOptions
 {
     /// <summary>
     /// Controls how exception details are recorded when an operation fails.
-    /// Defaults to <see cref="NServiceBus.ExceptionRecordingMode.SpanAndLogs"/>: exceptions are recorded as an event on the activity.
+    /// Defaults to <see cref="NServiceBus.ExceptionRecordingMode.SpanAndLogs"/>: exceptions are logged when recoverability decides and recorded as an event on the activity.
     /// </summary>
     public ExceptionRecordingMode ExceptionRecordingMode { get; set; } = ExceptionRecordingMode.SpanAndLogs;
 

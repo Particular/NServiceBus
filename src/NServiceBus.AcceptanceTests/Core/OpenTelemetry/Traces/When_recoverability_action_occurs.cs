@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -68,6 +69,31 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
 
         var endpointName = Conventions.EndpointNamingConvention(typeof(RecoverabilityEndpoint));
         Assert.That(immediateRetry.DisplayName, Is.EqualTo($"immediate retry {endpointName}"));
+    }
+
+    [Test]
+    public async Task Should_link_to_the_handler_span_the_exception_escaped_from()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<RecoverabilityEndpoint>(b => b
+                .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(0)).Delayed(i => i.NumberOfRetries(0)))
+                .DoNotFailOnErrorMessages()
+                .When(s => s.SendLocal(new FailingMessage())))
+            .Done(_ => ActionTags().Contains("move_to_error"))
+            .Run();
+
+        var moveToError = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities()
+            .Single(a => (string)a.GetTagItem(ActivityTagName) == "move_to_error");
+        var failedHandler = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities()
+            .Single(a => a.Status == ActivityStatusCode.Error);
+
+        var link = moveToError.Links.SingleOrDefault(l => l.Context.SpanId == failedHandler.SpanId);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(link.Context, Is.Not.EqualTo(default(ActivityContext)), "the recoverability span should link to the handler span the exception escaped from");
+            Assert.That(link.Context.TraceId, Is.EqualTo(failedHandler.TraceId));
+        }
     }
 
     string[] ActionTags() =>

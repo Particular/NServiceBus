@@ -8,6 +8,8 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Helpers;
+using Logging;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Extensibility;
 using NServiceBus.Pipeline;
 using NServiceBus.Sagas;
@@ -390,6 +392,151 @@ public class ActivityFactoryTests
             _ = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", context);
 
             Assert.That(context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.Not.Null);
+        }
+    }
+
+    class RecordError : ActivityFactoryTests
+    {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Should_mark_the_activity_as_failed(bool withContextBag)
+        {
+            var (serviceProvider, _) = CapturingLoggerProvider.CreateServiceProvider();
+            using var activity = new Activity("incoming").Start();
+            var exception = new InvalidOperationException("boom");
+
+            activityFactory.RecordError(activity, exception, serviceProvider, withContextBag ? new ContextBag() : null);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
+                Assert.That(activity.StatusDescription, Is.EqualTo("boom"));
+                Assert.That(activity.TagObjects.ToImmutableDictionary()[ActivityTags.ErrorType], Is.EqualTo(typeof(InvalidOperationException).FullName));
+            }
+        }
+
+        [Test]
+        public void Should_add_exception_event_to_the_innermost_activity_only()
+        {
+            var (serviceProvider, _) = CapturingLoggerProvider.CreateServiceProvider();
+            using var handlerActivity = new Activity("handler").Start();
+            using var incomingActivity = new Activity("incoming").Start();
+            var exception = new InvalidOperationException("boom");
+            var root = new ContextBag();
+
+            activityFactory.RecordError(handlerActivity, exception, serviceProvider, new ContextBag(root));
+            activityFactory.RecordError(incomingActivity, exception, serviceProvider, root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(handlerActivity.Events.Select(e => e.Name), Is.EqualTo(["exception"]));
+                Assert.That(incomingActivity.Events, Is.Empty, "the activities further out only mark their status");
+                Assert.That(incomingActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
+            }
+        }
+
+        // Whichever pipeline activities exist (the handler activity can be sampled out or its source not listened
+        // to), the first one to record an exception with a context bag is the innermost one it escaped from, and
+        // that is the one recoverability links to.
+        [TestCase(ExceptionRecordingMode.Logs)]
+        [TestCase(ExceptionRecordingMode.SpanAndLogs)]
+        public void Should_record_the_innermost_pipeline_activity_as_failed_in_the_context_bag(ExceptionRecordingMode exceptionRecordingMode)
+        {
+            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
+            var (serviceProvider, _) = CapturingLoggerProvider.CreateServiceProvider();
+            using var handlerActivity = new Activity("handler").Start();
+            using var incomingActivity = new Activity("incoming").Start();
+            var exception = new InvalidOperationException("boom");
+            var root = new ContextBag();
+
+            factory.RecordError(handlerActivity, exception, serviceProvider, new ContextBag(root));
+            factory.RecordError(incomingActivity, exception, serviceProvider, root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(root.TryTakeFailedActivityContext(out var failedActivityContext), Is.True);
+                Assert.That(failedActivityContext, Is.EqualTo(handlerActivity.Context));
+            }
+        }
+
+        // An outgoing activity failing inside a handler records first, but without a context bag: the pipeline
+        // activity that records next is the one recoverability links to.
+        [Test]
+        public void Should_skip_activities_recorded_without_a_context_bag_when_recording_the_failed_activity()
+        {
+            var (serviceProvider, _) = CapturingLoggerProvider.CreateServiceProvider();
+            using var sendActivity = new Activity("send").Start();
+            using var handlerActivity = new Activity("handler").Start();
+            var exception = new InvalidOperationException("boom");
+            var root = new ContextBag();
+
+            activityFactory.RecordError(sendActivity, exception, serviceProvider);
+            activityFactory.RecordError(handlerActivity, exception, serviceProvider, root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(root.TryTakeFailedActivityContext(out var failedActivityContext), Is.True);
+                Assert.That(failedActivityContext, Is.EqualTo(handlerActivity.Context));
+                Assert.That(sendActivity.Events.Select(e => e.Name), Is.EqualTo(["exception"]), "the event still goes to the innermost activity");
+                Assert.That(handlerActivity.Events, Is.Empty);
+            }
+        }
+
+        // The pipeline activities leave logging to recoverability, which logs the exception with its decision.
+        [TestCase(ExceptionRecordingMode.Logs)]
+        [TestCase(ExceptionRecordingMode.SpanAndLogs)]
+        public void Should_not_log_when_recording_with_a_context_bag(ExceptionRecordingMode exceptionRecordingMode)
+        {
+            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
+            var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+            using var activity = new Activity("incoming").Start();
+
+            factory.RecordError(activity, new InvalidOperationException("boom"), serviceProvider, new ContextBag());
+
+            Assert.That(entries, Is.Empty);
+        }
+
+        // Without a context bag nothing follows that would log the exception, so it is logged right away, while
+        // the activity is current.
+        [TestCase(ExceptionRecordingMode.Logs)]
+        [TestCase(ExceptionRecordingMode.SpanAndLogs)]
+        public void Should_log_right_away_when_recording_without_a_context_bag(ExceptionRecordingMode exceptionRecordingMode)
+        {
+            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
+            var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+            using var activity = new Activity("send").Start();
+            activity.DisplayName = "send message";
+            var exception = new InvalidOperationException("boom");
+
+            factory.RecordError(activity, exception, serviceProvider);
+
+            var entry = entries.Single();
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(entry.Level, Is.EqualTo(LogLevel.Error));
+                Assert.That(entry.Exception, Is.SameAs(exception));
+                Assert.That(entry.Message, Is.EqualTo("An exception occurred while executing 'send message'."));
+                string[] expectedEvents = exceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs ? ["exception"] : [];
+                Assert.That(activity.Events.Select(e => e.Name), Is.EqualTo(expectedEvents));
+            }
+        }
+
+        [Test]
+        public void Should_not_add_exception_event_in_logs_mode()
+        {
+            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.Logs });
+            var (serviceProvider, _) = CapturingLoggerProvider.CreateServiceProvider();
+            using var activity = new Activity("incoming").Start();
+            var exception = new InvalidOperationException("boom");
+
+            factory.RecordError(activity, exception, serviceProvider, new ContextBag());
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Events, Is.Empty);
+                Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
+                Assert.That(activity.TagObjects.ToImmutableDictionary()[ActivityTags.ErrorType], Is.EqualTo(typeof(InvalidOperationException).FullName));
+            }
         }
     }
 
