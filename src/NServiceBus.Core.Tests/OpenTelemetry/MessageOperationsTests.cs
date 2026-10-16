@@ -3,8 +3,11 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Helpers;
+using Logging;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Pipeline;
 
@@ -185,7 +188,8 @@ public class MessageOperationsTests
             throw new Exception("processing exception");
         };
 
-        var ex = Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
+        var (serviceProvider, _) = CapturingLoggerProvider.CreateServiceProvider();
+        var ex = Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(serviceProvider), new object(), new SendOptions()));
 
         Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
         var tags = activity.Tags.ToImmutableDictionary();
@@ -193,6 +197,32 @@ public class MessageOperationsTests
         {
             Assert.That(tags["otel.status_code"], Is.EqualTo("ERROR"));
             Assert.That(tags["otel.status_description"], Is.EqualTo(ex.Message));
+        }
+    }
+
+    // No recoverability follows a failed operation on the message session, so the exception is logged right away,
+    // in the context of the operation's activity.
+    [Test]
+    public void Should_log_the_exception_right_away_on_failure()
+    {
+        var operations = new TestableMessageOperations();
+        var exception = new Exception("processing exception");
+        Activity activity = null;
+        operations.SendPipeline.OnInvoke = _ =>
+        {
+            activity = Activity.Current;
+            throw exception;
+        };
+        var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(serviceProvider), new object(), new SendOptions()));
+
+        var entry = entries.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(entry.Level, Is.EqualTo(LogLevel.Error));
+            Assert.That(entry.Exception, Is.SameAs(exception));
+            Assert.That(entry.Message, Is.EqualTo($"An exception occurred while executing '{activity.DisplayName}'."));
         }
     }
 

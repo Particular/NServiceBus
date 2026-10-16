@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Extensibility;
+using Logging;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Pipeline;
 using OpenTelemetry.Helpers;
 using Transport;
@@ -79,14 +81,19 @@ public class RecoverabilityExecutorTests
             }
         };
 
-        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()));
+        var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()), serviceProvider);
 
         Assert.ThrowsAsync<InvalidOperationException>(async () => await executor.Invoke(CreateErrorContext()));
 
+        // Nothing follows a failure of recoverability itself, so the exception is logged right away.
+        var exceptionLog = entries.Single(e => e.Exception is InvalidOperationException);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(pipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
             Assert.That(pipelineActivity.IsStopped, Is.True);
+            Assert.That(exceptionLog.Level, Is.EqualTo(LogLevel.Error));
+            Assert.That(exceptionLog.Message, Is.EqualTo($"An exception occurred while executing '{pipelineActivity.DisplayName}'."));
         }
     }
 
@@ -142,10 +149,10 @@ public class RecoverabilityExecutorTests
         Assert.That(pipelineActivity.Links, Is.Empty);
     }
 
-    static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline, IActivityFactory activityFactory = null)
+    static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline, IActivityFactory activityFactory = null, IServiceProvider serviceProvider = null)
     {
         var executor = new RecoverabilityPipelineExecutor<object>(
-            new ServiceCollection().AddLogging().BuildServiceProvider(), // TODO: Does not get disposed
+            serviceProvider ?? new ServiceCollection().AddLogging().BuildServiceProvider(), // TODO: Does not get disposed
             new ThrowingPipelineCache(),
             new TestableMessageOperations(),
             null,

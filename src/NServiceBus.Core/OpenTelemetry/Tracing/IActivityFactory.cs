@@ -17,6 +17,6 @@ interface IActivityFactory
     Activity? StartRecoverabilityActivity(ErrorContext context);
     void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress);
     // contextBag: the pipeline context of a failed message processing operation, which recoverability follows.
-    // Omitted for a failure outside message processing.
+    // Omitted for a failure outside message processing, which is logged right away.
     void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider, ContextBag? contextBag = null);
 }
