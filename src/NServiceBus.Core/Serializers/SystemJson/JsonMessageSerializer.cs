@@ -76,8 +76,7 @@ class JsonMessageSerializer : IMessageSerializer
         }
     }
 
-    JsonTypeInfo? ResolveTypeInfo(Type messageType) =>
-        messageType == typeof(SagaTimeoutTrigger) ? SagaTimeoutJsonContext.Default.SagaTimeoutTrigger : serializerOptions.ResolveTypeInfo(messageType);
+    JsonTypeInfo? ResolveTypeInfo(Type messageType) => serializerOptions.ResolveTypeInfo(messageType);
 
     [UnconditionalSuppressMessage(
         "Trimming",

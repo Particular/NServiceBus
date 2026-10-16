@@ -8,10 +8,13 @@ using System.IO;
 using System.Linq;
 using Sagas;
 using Serialization;
+using Unicast.Messages;
 
-class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer mainSerializer, MessageDeserializerResolver deserializerResolver)
+class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer mainSerializer, MessageDeserializerResolver deserializerResolver, MessageMetadataRegistry messageMetadataRegistry)
 {
-    public IReadOnlyCollection<StoredSagaTimeout> PendingTriggers => pendingTriggers.Values;
+    public const string TimeoutIdHeader = "NServiceBus.SagaTimeoutId";
+
+    public IReadOnlyCollection<PendingSagaTimeout> PendingTimeouts => pendingTimeouts.Values;
 
     public StoredSagaTimeout Add<TTimeoutMessageType>(TTimeoutMessageType payload, DateTimeOffset dueTime)
     {
@@ -26,7 +29,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
         };
 
         storedTimeouts.Add(timeout);
-        pendingTriggers[timeout.TimeoutId] = timeout;
+        pendingTimeouts[timeout.TimeoutId] = new PendingSagaTimeout(timeout, typeof(TTimeoutMessageType));
         return timeout;
     }
 
@@ -44,7 +47,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
             }
 
             // The typed instance is kept so a reschedule stores the payload the user may have changed.
-            foundPayloads[stored.TimeoutId] = timeout.Payload!;
+            foundPayloads[stored.TimeoutId] = (timeout.Payload!, typeof(TTimeoutMessageType));
             found.Add(timeout);
         }
 
@@ -59,21 +62,28 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
             return;
         }
 
-        if (foundPayloads.TryGetValue(timeoutId, out var payload))
+        Type payloadType;
+        if (foundPayloads.TryGetValue(timeoutId, out var found))
         {
-            stored.Payload = Serialize(payload);
+            stored.Payload = Serialize(found.Payload);
             stored.ContentType = mainSerializer.ContentType;
+            payloadType = found.PayloadType;
+        }
+        else
+        {
+            payloadType = (messageMetadataRegistry.GetMessageMetadata(stored.MessageType)
+                ?? throw new InvalidOperationException($"Can't reschedule saga timeout '{timeoutId}' because the message type '{stored.MessageType}' isn't registered.")).MessageType;
         }
 
         stored.DueTime = newDueTime;
         stored.TriggerId = Guid.NewGuid().ToString();
-        pendingTriggers[timeoutId] = stored;
+        pendingTimeouts[timeoutId] = new PendingSagaTimeout(stored, payloadType);
     }
 
     public void Cancel(string timeoutId)
     {
         _ = storedTimeouts.RemoveAll(t => t.TimeoutId == timeoutId);
-        _ = pendingTriggers.Remove(timeoutId);
+        _ = pendingTimeouts.Remove(timeoutId);
         _ = foundPayloads.Remove(timeoutId);
     }
 
@@ -94,6 +104,8 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
         return stream.ToArray();
     }
 
-    readonly Dictionary<string, StoredSagaTimeout> pendingTriggers = [];
-    readonly Dictionary<string, object> foundPayloads = [];
+    readonly Dictionary<string, PendingSagaTimeout> pendingTimeouts = [];
+    readonly Dictionary<string, (object Payload, Type PayloadType)> foundPayloads = [];
 }
+
+record PendingSagaTimeout(StoredSagaTimeout Stored, Type PayloadType);
