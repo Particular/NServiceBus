@@ -33,7 +33,13 @@ To confirm that the graph is compatible:
 
 1. Check that each referenced assembly is marked trimmable or AOT-compatible. `<VerifyReferenceAotCompatibility>true</VerifyReferenceAotCompatibility>` fails the build when a referenced assembly is not marked.
 2. Publish a small endpoint that uses the component with `PublishAot`, run it, and check that the publish output contains no trim or AOT warnings. `src/TrimmedEndpoint` and `TrimmedEndpointTests` show the pattern. Publishing analyzes the full graph, including references that carry no annotations.
-3. Run that check in CI so that a dependency update cannot silently break compatibility.
+3. In that endpoint, add the component's assembly as a `TrimmerRootAssembly` item. Without it, the publish analyzes only the code the endpoint reaches, not every path in the component.
+4. While investigating, set `<TrimmerSingleWarn>false</TrimmerSingleWarn>`. By default, publish reports one warning per referenced assembly that is not marked trimmable, which hides where in that assembly the problem is.
+5. Run that check in CI so that a dependency update cannot silently break compatibility.
+
+The analyzers enabled by `IsAotCompatible` cover only a subset of the warnings that publish reports, so the publish check is required even when the build has no warnings.
+
+When the component multi-targets, set `IsAotCompatible` only for target frameworks that support it, for example with `Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))"`.
 
 ### Enable the analyzers when the component cannot be marked compatible
 
@@ -48,14 +54,16 @@ When a reference is not compatible, or the component still has reflection-based 
 
 These properties report warnings for the component's own code without telling consumers that the package is compatible. They flag reflection and dynamic code that the component adds, and calls to annotated APIs in Core or the BCL, such as assembly scanning. Each warning then requires a decision: fix the code, or annotate the API with `[RequiresUnreferencedCode]` or `[RequiresDynamicCode]` so that consumers see it. When the remaining blockers are removed, switching to `IsAotCompatible` is a small step.
 
+The analyzers do not report problems inside referenced assemblies. They also do not replace a publish check. They keep the component's own code from adding new incompatible code.
+
 When enabling the analyzers produces too many warnings to fix at once, record the current warnings in an approval test and require that the list only shrinks. Core used this approach before [#7929](https://github.com/Particular/NServiceBus/pull/7929) removed its approval test.
 
 ### Patterns to follow
 
 - Register features explicitly with `EnableEndpointFeature<T>()`, `EnableFeature<T>()`, or `Enable<T>()` inside a feature. These APIs require a public parameterless constructor. Do not rely on assembly scanning to discover the component's features or installers.
 - Serialize with `System.Text.Json` source generation (`JsonSerializerContext` or `JsonTypeInfo<T>`) instead of reflection-based `JsonSerializer` calls. Serializers that accept user types should let users supply their own `JsonSerializerContext`.
-- Guard dynamic code with `RuntimeFeature.IsDynamicCodeSupported` instead of `#if` blocks, so one binary works in both modes.
-- When a type cannot be made compatible, put `[RequiresUnreferencedCode]` and `[RequiresDynamicCode]` on the class, not on the interface members it implements, so that other implementations of the interface stay compatible.
-- Do not suppress trim or AOT warnings on public APIs. Use `[UnconditionalSuppressMessage]` only on internal code whose callers already carry the annotation.
+- Guard dynamic code with `RuntimeFeature.IsDynamicCodeSupported` instead of `#if` blocks, so one binary works in both modes. The check covers Native AOT only: a trimmed application that still uses the JIT returns `true`. Code behind the check still needs trimming annotations, and the check justifies suppressing only the AOT warning (IL3050).
+- When a type cannot be made compatible, put `[RequiresUnreferencedCode]` and `[RequiresDynamicCode]` on the class, not on the interface members it implements, so that other implementations of the interface stay compatible. Annotations on an interface member and its implementations must match (IL2046 and IL3051).
+- Do not suppress trim or AOT warnings on public APIs. Use `[UnconditionalSuppressMessage]` only on internal code whose callers already carry the annotation, and state the invariant in `Justification`. The trimmer ignores `#pragma warning disable` and `[SuppressMessage]` because neither is kept in the compiled assembly.
 
 Adding trimming annotations without changing runtime behavior can ship in a minor release. Making an existing API throw when trimming or Native AOT is active is a breaking change.
