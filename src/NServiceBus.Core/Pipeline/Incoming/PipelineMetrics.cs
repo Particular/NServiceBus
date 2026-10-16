@@ -10,6 +10,9 @@ using Pipeline;
 
 class PipelineMetrics
 {
+    public const string MeterName = "NServiceBus.Core";
+    public const string MeterVersion = "1.0.0";
+
     const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
     const string TotalFailures = "nservicebus.messaging.failures";
@@ -32,7 +35,9 @@ class PipelineMetrics
     // queueName and discriminator are null for send-only endpoints, which have no receive queue to report.
     public PipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator)
     {
-        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.4.0");
+        var meter = V11BehaviorSwitch.UseV11Behavior // pre-v11 name removed in v11, see obsoletes-v10.cs
+            ? meterFactory.Create(MeterName, MeterVersion)
+            : meterFactory.Create(LegacyMeter.Name, LegacyMeter.Version);
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
         totalFetched = meter.CreateCounter<long>(TotalFetched,
