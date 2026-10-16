@@ -19,6 +19,7 @@ NServiceBus is the core library of the Particular Service Platform, producing th
 ## Architecture and design
 
 - [Logging](logging.md) — why components can rely on a `Microsoft.Extensions.Logging.ILoggerFactory` being registered for every endpoint, and where that guarantee does not hold
+- [Trimming and Native AOT](trimming-and-aot.md) — what Core supports under trimming and Native AOT, how CI verifies it, and when downstream components should claim compatibility or only enable the analyzers
 
 ## Decisions and rationale
 
