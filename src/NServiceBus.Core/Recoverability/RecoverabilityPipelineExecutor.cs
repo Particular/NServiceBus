@@ -22,22 +22,22 @@ class RecoverabilityPipelineExecutor<TState>(
 {
     public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
     {
+        // The activity covers the whole recoverability execution: the decision and the pipeline that carries it
+        // out (the retry dispatch or the move to the error queue), so its duration is the time the failed message
+        // spent in recoverability.
+        using var activity = activityFactory.StartRecoverabilityActivity(errorContext);
+
         var childScope = serviceProvider.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
-            RecoverabilityAction? recoverabilityAction;
+            var recoverabilityAction = recoverabilityPolicy(errorContext, state);
 
-            using (var activity = activityFactory.StartRecoverabilityActivity(errorContext))
+            if (activity is not null)
             {
-                recoverabilityAction = recoverabilityPolicy(errorContext, state);
-
-                if (activity is not null)
-                {
-                    activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
-                }
-
-                recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext, activityFactory.Options.ExceptionRecordingMode);
+                activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
             }
+
+            recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext, activityFactory.Options.ExceptionRecordingMode);
 
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
@@ -52,7 +52,17 @@ class RecoverabilityPipelineExecutor<TState>(
                     errorContext.Extensions,
                     cancellationToken);
 
-            await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
+            try
+            {
+                await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
+            }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - recording and rethrowing
+            catch (Exception ex)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
+            {
+                activityFactory.RecordError(activity, ex, childScope.ServiceProvider);
+                throw;
+            }
 
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
         }

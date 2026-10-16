@@ -1,11 +1,13 @@
 ﻿namespace NServiceBus.Core.Tests.Recoverability;
 
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Extensibility;
 using NServiceBus.Pipeline;
+using OpenTelemetry.Helpers;
 using Transport;
 using NUnit.Framework;
 
@@ -60,7 +62,33 @@ public class RecoverabilityExecutorTests
         Assert.That(errorContext.Extensions.Get<Guid>("new value"), Is.EqualTo(newValue));
     }
 
-    static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline)
+    [Test]
+    public void Should_record_error_on_the_recoverability_activity_when_pipeline_throws()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        Activity pipelineActivity = null;
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = _ =>
+            {
+                pipelineActivity = Activity.Current;
+                throw new InvalidOperationException("dispatch failed");
+            }
+        };
+
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()));
+
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await executor.Invoke(CreateErrorContext()));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
+            Assert.That(pipelineActivity.IsStopped, Is.True);
+        }
+    }
+
+    static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline, IActivityFactory activityFactory = null)
     {
         var executor = new RecoverabilityPipelineExecutor<object>(
             new ServiceCollection().AddLogging().BuildServiceProvider(), // TODO: Does not get disposed
@@ -71,7 +99,7 @@ public class RecoverabilityExecutorTests
             recoverabilityPipeline,
             new FaultMetadataExtractor([], _ => { }),
             null,
-            NoOpActivityFactory.Instance
+            activityFactory ?? NoOpActivityFactory.Instance
             );
         return executor;
     }
