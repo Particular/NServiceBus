@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Extensibility;
 using NServiceBus.Pipeline;
 using NServiceBus.Sagas;
@@ -390,6 +391,72 @@ public class ActivityFactoryTests
             _ = activityFactory.StartOutgoingPipelineActivity("activityName", "activityDisplayName", context);
 
             Assert.That(context.Extensions.Get<Activity>(ActivityExtensions.OutgoingActivityKey), Is.Not.Null);
+        }
+    }
+
+    class RecordError : ActivityFactoryTests
+    {
+        // Whichever pipeline activities exist (the handler activity can be sampled out or its source not listened
+        // to), the first one to record an exception with a context bag is the innermost one it escaped from, and
+        // that is the one recoverability links to.
+        [TestCase(ExceptionRecordingMode.Logs)]
+        [TestCase(ExceptionRecordingMode.SpanAndLogs)]
+        public void Should_record_the_innermost_pipeline_activity_as_failed_in_the_context_bag(ExceptionRecordingMode exceptionRecordingMode)
+        {
+            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
+            using var handlerActivity = new Activity("handler").Start();
+            using var incomingActivity = new Activity("incoming").Start();
+            var exception = new InvalidOperationException("boom");
+            var root = new ContextBag();
+            var serviceProvider = new ServiceCollection().AddLogging().BuildServiceProvider();
+
+            factory.RecordError(handlerActivity, exception, serviceProvider, new ContextBag(root));
+            factory.RecordError(incomingActivity, exception, serviceProvider, root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(root.TryTakeFailedActivityContext(out var failedActivityContext), Is.True);
+                Assert.That(failedActivityContext, Is.EqualTo(handlerActivity.Context));
+            }
+        }
+
+        // An outgoing activity failing inside a handler records first, but without a context bag: the pipeline
+        // activity that records next is the one recoverability links to.
+        [Test]
+        public void Should_skip_activities_recorded_without_a_context_bag_when_recording_the_failed_activity()
+        {
+            using var sendActivity = new Activity("send").Start();
+            using var handlerActivity = new Activity("handler").Start();
+            var exception = new InvalidOperationException("boom");
+            var root = new ContextBag();
+            var serviceProvider = new ServiceCollection().AddLogging().BuildServiceProvider();
+
+            activityFactory.RecordError(sendActivity, exception, serviceProvider);
+            activityFactory.RecordError(handlerActivity, exception, serviceProvider, root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(root.TryTakeFailedActivityContext(out var failedActivityContext), Is.True);
+                Assert.That(failedActivityContext, Is.EqualTo(handlerActivity.Context));
+            }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Should_mark_the_activity_as_failed(bool withContextBag)
+        {
+            using var activity = new Activity("incoming").Start();
+            var exception = new InvalidOperationException("boom");
+            var serviceProvider = new ServiceCollection().AddLogging().BuildServiceProvider();
+
+            activityFactory.RecordError(activity, exception, serviceProvider, withContextBag ? new ContextBag() : null);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
+                Assert.That(activity.StatusDescription, Is.EqualTo("boom"));
+                Assert.That(activity.TagObjects.ToImmutableDictionary()[ActivityTags.ErrorType], Is.EqualTo(typeof(InvalidOperationException).FullName));
+            }
         }
     }
 

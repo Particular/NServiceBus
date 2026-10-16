@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Pipeline;
@@ -189,6 +190,13 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
     public Activity? StartRecoverabilityActivity(ErrorContext context)
     {
+        // The context of the pipeline activity the exception escaped from, written by RecordError to the context bag
+        // the transport floats from OnMessage to OnError. It is taken whether or not a listener is present, so a
+        // transport that reuses the bag for an immediate retry cannot carry it into the next attempt. Absent when no
+        // pipeline activity was created, when the failure happened outside the activities or when the transport
+        // does not float the bag.
+        var failedActivityExists = context.Extensions.TryTakeFailedActivityContext(out var failedActivityContext);
+
         var activity = StartActivityFromIncomingMessage(
             ActivitySources.Recoverability,
             ActivityNames.RecoverabilityActivityName,
@@ -198,6 +206,11 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         if (activity is null)
         {
             return activity;
+        }
+
+        if (failedActivityExists)
+        {
+            activity.AddLink(new ActivityLink(failedActivityContext));
         }
 
         activity.DisplayName = ActivityDisplayNames.Recoverability;
@@ -242,7 +255,11 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
     }
 
-    public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider)
+    // contextBag: the pipeline context of a failed message processing operation, which recoverability follows. The
+    // innermost pipeline activity the exception escaped from is recorded on the root of the bag, the one the
+    // transport floats from OnMessage to OnError, so the recoverability activity can link to it. Null for a failure
+    // outside message processing.
+    public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider, ContextBag? contextBag = null)
     {
         if (activity == null)
         {
@@ -256,6 +273,11 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         if (!V11BehaviorSwitch.UseV11Behavior)
         {
             LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
+        }
+
+        if (exception is TaskCanceledException)
+        {
+            activity.SetTag(ActivityTags.CancelledTask, true);
         }
 
         if (!exception.Data.Contains(ExceptionRecordedFlag))
@@ -274,16 +296,21 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             exception.Data[ExceptionRecordedFlag] = true;
         }
 
-        if (exception is TaskCanceledException)
+        // The first activity to record the exception with a context bag is the innermost pipeline activity it
+        // escaped from. An outgoing activity that failed inside a handler records without a bag and is skipped.
+        if (contextBag is not null && !exception.Data.Contains(FailedActivityRecordedFlag))
         {
-            activity.SetTag(ActivityTags.CancelledTask, true);
+            exception.Data[FailedActivityRecordedFlag] = true;
+            contextBag.SetFailedActivityContext(activity);
         }
     }
 
+    const string FailedActivityRecordedFlag = "otel.failed-activity.recorded";
     const string ExceptionRecordedFlag = "otel.exception.recorded";
 
     ILogger? logger;
 
     [LoggerMessage(LogLevel.Error, "An exception occurred while executing '{DisplayName}'.")]
     static partial void LogExceptionWhileExecuting(ILogger logger, Exception exception, string displayName);
+
 }

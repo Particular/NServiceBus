@@ -1,7 +1,9 @@
 ﻿namespace NServiceBus.Core.Tests.Recoverability;
 
 using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
@@ -86,6 +88,58 @@ public class RecoverabilityExecutorTests
             Assert.That(pipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
             Assert.That(pipelineActivity.IsStopped, Is.True);
         }
+    }
+
+    [Test]
+    public async Task Should_link_recoverability_activity_to_the_failed_processing_activity()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        using var failedActivity = new Activity("handler").Start();
+        failedActivity.Stop();
+
+        var errorContext = CreateErrorContext();
+        errorContext.Extensions.SetFailedActivityContext(failedActivity);
+
+        Activity pipelineActivity = null;
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = _ =>
+            {
+                pipelineActivity = Activity.Current;
+            }
+        };
+
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()));
+
+        await executor.Invoke(errorContext);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pipelineActivity.Links.Select(l => l.Context), Does.Contain(failedActivity.Context));
+            Assert.That(errorContext.Extensions.TryTakeFailedActivityContext(out _), Is.False, "the failed activity context should be consumed");
+        }
+    }
+
+    [Test]
+    public async Task Should_not_link_recoverability_activity_when_no_failed_processing_activity()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        Activity pipelineActivity = null;
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = _ =>
+            {
+                pipelineActivity = Activity.Current;
+            }
+        };
+
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()));
+
+        await executor.Invoke(CreateErrorContext());
+
+        Assert.That(pipelineActivity.Links, Is.Empty);
     }
 
     static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline, IActivityFactory activityFactory = null)

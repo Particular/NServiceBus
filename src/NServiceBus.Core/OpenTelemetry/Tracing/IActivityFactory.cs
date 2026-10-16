@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
+using Extensibility;
 using Pipeline;
 using Transport;
 
@@ -15,5 +16,7 @@ interface IActivityFactory
     Activity? StartHandlerActivity(MessageHandler messageHandler);
     Activity? StartRecoverabilityActivity(ErrorContext context);
     void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress);
-    void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider);
+    // contextBag: the pipeline context of a failed message processing operation, which recoverability follows.
+    // Omitted for a failure outside message processing.
+    void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider, ContextBag? contextBag = null);
 }
