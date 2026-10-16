@@ -3,6 +3,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Sagas;
 using NServiceBus.ServicePlatform;
+using Unicast.Messages;
 
 /// <summary>
 /// Used to configure saga.
@@ -39,7 +40,7 @@ public sealed class Sagas : Feature
                 // Without timeout management support or a platform connection, timeout changes aren't reported
                 : null!;
 
-            return new SagaPersistenceBehavior(persister, sagaIdGenerator, sagaMetaModel, b.GetRequiredService<TimeoutSerializer>(), platformNotifier, b);
+            return new SagaPersistenceBehavior(persister, sagaIdGenerator, sagaMetaModel, b.GetRequiredService<TimeoutSerializer>(), b.GetRequiredService<MessageMetadataRegistry>(), platformNotifier, b);
         }, "Invokes the saga logic");
         context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
     }

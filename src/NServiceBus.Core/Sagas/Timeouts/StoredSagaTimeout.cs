@@ -15,7 +15,7 @@ public sealed class StoredSagaTimeout
     public required string TimeoutId { get; set; }
 
     /// <summary>
-    /// The identifier of the current trigger message. Trigger messages with a different identifier are stale.
+    /// The identifier of the current timeout message, used as its message ID. Timeout messages with a different message ID are stale.
     /// </summary>
     public required string TriggerId { get; set; }
 

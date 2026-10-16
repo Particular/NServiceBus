@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 using Logging;
 using Pipeline;
 using Sagas;
+using Unicast.Messages;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, TimeoutSerializer timeoutSerializer, SagaTimeoutPlatformNotifier platformNotifier, IServiceProvider serviceProvider)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, TimeoutSerializer timeoutSerializer, MessageMetadataRegistry messageMetadataRegistry, SagaTimeoutPlatformNotifier platformNotifier, IServiceProvider serviceProvider)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Best-effort saga type resolution from saga headers; when trimming removes the type, processing falls back to querying the persister for the current saga type.")]
@@ -37,20 +38,25 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             return;
         }
 
-        var timeoutTrigger = context.MessageBeingHandled as SagaTimeoutTrigger;
-        var timeoutTriggerMessageType = context.MessageHandler.TimeoutTriggerMessageType;
+        // A timeout without the header was dispatched without timeout management and is fired as is
+        var hasManagedTimeoutId = context.Headers.TryGetValue(SagaTimeouts.TimeoutIdHeader, out var managedTimeoutId) && isTimeoutMessage;
 
-        if (timeoutTrigger is not null)
+        if (hasManagedTimeoutId)
         {
-            if (timeoutTriggerMessageType is null || timeoutTrigger.TimeoutMessageType != SagaTimeouts.MessageTypeName(timeoutTriggerMessageType))
+            if (string.IsNullOrWhiteSpace(managedTimeoutId))
             {
-                // Another timeout handler of the saga handles this timeout type
-                return;
+                throw new Exception($"The saga timeout message '{context.MessageId}' has an empty '{SagaTimeouts.TimeoutIdHeader}' header.");
             }
 
             if (!supportsTimeoutManagement)
             {
-                throw new Exception($"Received a saga timeout trigger for timeout '{timeoutTrigger.TimeoutId}', but the configured saga persister doesn't support timeout management.");
+                throw new Exception($"Received saga timeout '{managedTimeoutId}', but the configured saga persister doesn't support timeout management.");
+            }
+
+            if (context.MessageHandler.TimeoutMessageType != context.MessageMetadata.MessageType)
+            {
+                // Another timeout handler of the saga handles this timeout type; return before loading the saga so only one handler opens it
+                return;
             }
         }
 
@@ -111,7 +117,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             AttachTimeouts(saga, sagaInstanceState, context);
         }
 
-        if (timeoutTrigger is not null && !sagaInstanceState.NotFound && !TryStartFiring(timeoutTrigger, timeoutTriggerMessageType!, sagaInstanceState, context))
+        if (hasManagedTimeoutId && !sagaInstanceState.NotFound && !TryStartFiring(managedTimeoutId!, sagaInstanceState, context))
         {
             return;
         }
@@ -170,7 +176,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
                 await persister.Update(saga.Entity, context.SynchronizedStorageSession, context.Extensions, context.CancellationToken).ConfigureAwait(false);
             }
 
-            await DispatchTimeoutTriggers(saga, sagaInstanceState, context).ConfigureAwait(false);
+            await DispatchTimeouts(saga, sagaInstanceState, context).ConfigureAwait(false);
             await NotifyPlatform(sagaInstanceState, context).ConfigureAwait(false);
 
             sagaInstanceState.Updated();
@@ -185,56 +191,59 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         }
 
         var storedTimeouts = context.Extensions.GetOrCreateSagaTimeouts(saga.Entity);
-        var timeouts = new SagaTimeouts(storedTimeouts, timeoutSerializer);
+        var timeouts = new SagaTimeouts(storedTimeouts, timeoutSerializer, messageMetadataRegistry);
         sagaInstanceState.Timeouts = timeouts;
         saga.Timeouts = timeouts;
     }
 
-    static bool TryStartFiring(SagaTimeoutTrigger trigger, Type timeoutMessageType, ActiveSagaInstance sagaInstanceState, IInvokeHandlerContext context)
+    static bool TryStartFiring(string timeoutId, ActiveSagaInstance sagaInstanceState, IInvokeHandlerContext context)
     {
-        var stored = sagaInstanceState.Timeouts.Get(trigger.TimeoutId);
+        var stored = sagaInstanceState.Timeouts.Get(timeoutId);
 
         if (stored is null)
         {
-            logger.DebugFormat("Ignoring trigger {0} for saga timeout {1} because the timeout already fired or was canceled.", context.MessageId, trigger.TimeoutId);
+            logger.DebugFormat("Ignoring message {0} for saga timeout {1} because the timeout already fired or was canceled.", context.MessageId, timeoutId);
             return false;
         }
 
-        if (stored.TriggerId != trigger.TriggerId)
+        // The message ID of the dispatched timeout is the trigger ID, so a rescheduled timeout makes earlier messages stale
+        if (stored.TriggerId != context.MessageId)
         {
-            logger.DebugFormat("Ignoring trigger {0} for saga timeout {1} because the timeout was rescheduled.", context.MessageId, trigger.TimeoutId);
+            logger.DebugFormat("Ignoring message {0} for saga timeout {1} because the timeout was rescheduled.", context.MessageId, timeoutId);
             return false;
         }
 
-        sagaInstanceState.FiringTimeoutPayload = sagaInstanceState.Timeouts.Deserialize(stored, timeoutMessageType);
+        if (context.MessageHandler.TimeoutMessageType is not { } handledType || stored.MessageType != SagaTimeouts.MessageTypeName(handledType))
+        {
+            // Another timeout handler of the saga handles this timeout type
+            return false;
+        }
+
         // Removal is saved with the handler's saga changes, so a failing handler leaves the timeout in place for retries
-        _ = sagaInstanceState.Timeouts.Remove(trigger.TimeoutId);
+        _ = sagaInstanceState.Timeouts.Remove(timeoutId);
         sagaInstanceState.FiringTimeout = stored;
         return true;
     }
 
-    static async Task DispatchTimeoutTriggers(Saga saga, ActiveSagaInstance sagaInstanceState, IInvokeHandlerContext context)
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Timeout payload types are the annotated generic arguments of RequestTimeout and FindTimeouts, or message types registered in the message metadata registry.")]
+    static async Task DispatchTimeouts(Saga saga, ActiveSagaInstance sagaInstanceState, IInvokeHandlerContext context)
     {
         if (sagaInstanceState.Timeouts is null)
         {
             return;
         }
 
-        foreach (var timeout in sagaInstanceState.Timeouts.PendingTriggers)
+        foreach (var (stored, payloadType) in sagaInstanceState.Timeouts.PendingTimeouts)
         {
             var options = new SendOptions();
-            options.DoNotDeliverBefore(timeout.DueTime);
+            options.DoNotDeliverBefore(stored.DueTime);
             options.RouteToThisEndpoint();
+            options.SetMessageId(stored.TriggerId);
+            options.SetHeader(SagaTimeouts.TimeoutIdHeader, stored.TimeoutId);
             saga.SetTimeoutHeaders(options);
 
-            var trigger = new SagaTimeoutTrigger
-            {
-                TimeoutId = timeout.TimeoutId,
-                TriggerId = timeout.TriggerId,
-                TimeoutMessageType = timeout.MessageType
-            };
-
-            await context.Send<SagaTimeoutTrigger>(trigger, options).ConfigureAwait(false);
+            // The stored snapshot is sent so payload changes only apply when rescheduled
+            await context.Send(sagaInstanceState.Timeouts.Deserialize(stored, payloadType), payloadType, options).ConfigureAwait(false);
         }
     }
 

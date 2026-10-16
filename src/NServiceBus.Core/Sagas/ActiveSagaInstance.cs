@@ -39,12 +39,7 @@ public class ActiveSagaInstance
     internal SagaTimeouts Timeouts { get; set; } = null!;
 
     /// <summary>
-    /// The stored payload of the timeout being fired by the incoming trigger message.
-    /// </summary>
-    internal object FiringTimeoutPayload { get; set; } = null!;
-
-    /// <summary>
-    /// The stored timeout being fired by the incoming trigger message, already removed from the saga's timeouts.
+    /// The stored timeout being fired by the incoming timeout message, already removed from the saga's timeouts.
     /// </summary>
     internal StoredSagaTimeout FiringTimeout { get; set; } = null!;
 
