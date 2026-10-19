@@ -51,6 +51,8 @@ Do not invoke `OnError` when `OnMessage` throws because of shutdown cancellation
 
 Core imposes no limit on how long `OnMessage` may run, and it does not cancel a handler for taking too long. Any limit comes from the transport: a peek lock, a visibility timeout, a broker acknowledgement timeout, or a transaction timeout. When that limit expires while a handler is still running, the message becomes available again, and another receiver can process it at the same time. The first handler's acknowledgement then fails or has no effect.
 
+A transport may use an in-memory least-recently-used (LRU) cache to remember successfully processed messages whose acknowledgement failed, for example because their lease expired. On redelivery, it can retry acknowledgement without invoking `OnMessage` again. This is an optional mitigation for duplicate processing, not a core requirement. It works only if the message returns to the same receiver while its ID remains in the cache. It does not provide durable deduplication.
+
 When a transport has a native lease, it should:
 
 - Renew the lease for every message that it has received and not yet completed, including messages that wait for a concurrency slot.
