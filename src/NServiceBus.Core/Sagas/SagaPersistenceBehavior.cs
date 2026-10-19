@@ -255,8 +255,8 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         {
             await platformNotifier.NotifyChanges(sagaInstanceState, context).ConfigureAwait(false);
         }
-        // Timeouts requested by a saga that completes in the same message were never reported
-        else if (!sagaInstanceState.IsNew && sagaInstanceState.Timeouts.HasStoredTimeouts)
+        // Timeouts requested by a new saga that completes in the same message were never reported
+        else if (!sagaInstanceState.IsNew && sagaInstanceState.Timeouts.HadStoredTimeoutsWhenLoaded)
         {
             await platformNotifier.NotifySagaCompleted(sagaInstanceState, context).ConfigureAwait(false);
         }

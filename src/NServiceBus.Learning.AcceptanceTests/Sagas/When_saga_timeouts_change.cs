@@ -44,6 +44,28 @@ public class When_saga_timeouts_change : NServiceBusAcceptanceTest
             Assert.That(triggered.GetProperty("TimeoutId").GetString(), Is.EqualTo(context.FiredTimeoutId));
             Assert.That(triggered.GetProperty("Version").GetInt32(), Is.EqualTo(2));
             Assert.That(triggered.GetProperty("TriggerId").GetString(), Is.EqualTo(rescheduled.GetProperty("TriggerId").GetString()));
+
+            Assert.That(context.PlatformMessages.Select(m => m.Body.GetProperty("ManagementAddress").GetString()), Is.All.Not.Empty);
+            Assert.That(context.PlatformMessages.Select(m => m.Body.GetProperty("HostId").GetString()), Is.All.Not.Empty);
+            Assert.That(rescheduled.GetProperty("OperationId").ValueKind, Is.EqualTo(JsonValueKind.Null));
+        }
+    }
+
+    [Test]
+    public async Task Should_report_completion_after_the_last_timeout_is_canceled()
+    {
+        var context = await Scenario.Define<Context>()
+            .WithEndpoint<ServiceControlSpy>()
+            .WithEndpoint<Endpoint>(e => e.When(s => s.SendLocal(new StartSagaToCancel { Id = Guid.NewGuid().ToString() })))
+            .Done(c => c.Received("SagaCompleted").Length > 0)
+            .Run();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(context.Received("SagaTimeoutRequested"), Has.Length.EqualTo(1));
+            Assert.That(context.Received("SagaCompleted").Single().GetProperty("CorrelationPropertyValue").GetString(), Is.EqualTo(context.SagaCorrelationId));
+            // A completing saga reports only the completion, which discards all its timeouts
+            Assert.That(context.Received("SagaTimeoutCanceled"), Is.Empty);
         }
     }
 
@@ -64,6 +86,7 @@ public class When_saga_timeouts_change : NServiceBusAcceptanceTest
         public Endpoint() => EndpointSetup<DefaultServer>(c =>
         {
             c.ServiceControlErrorInstanceQueue(Conventions.EndpointNamingConvention(typeof(ServiceControlSpy)));
+            c.ReportSagaTimeoutsToServiceControl();
             _ = c.Recoverability().Immediate(i => i.NumberOfRetries(1));
         });
 
@@ -125,6 +148,39 @@ public class When_saga_timeouts_change : NServiceBusAcceptanceTest
                 public virtual string CorrelationProperty { get; set; }
             }
         }
+
+        [Saga]
+        public class CancelAndCompleteSaga(Context testContext) : Saga<CancelAndCompleteSaga.SagaData>,
+            IAmStartedByMessages<StartSagaToCancel>,
+            IHandleMessages<CancelAndComplete>,
+            IHandleTimeouts<CanceledTimeout>
+        {
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
+                mapper.MapSaga(s => s.CorrelationProperty)
+                    .ToMessage<StartSagaToCancel>(m => m.Id)
+                    .ToMessage<CancelAndComplete>(m => m.Id);
+
+            public async Task Handle(StartSagaToCancel message, IMessageHandlerContext context)
+            {
+                testContext.SagaCorrelationId = message.Id;
+                await RequestTimeout<CanceledTimeout>(context, TimeSpan.FromHours(1));
+                await context.SendLocal(new CancelAndComplete { Id = message.Id });
+            }
+
+            public Task Handle(CancelAndComplete message, IMessageHandlerContext context)
+            {
+                CancelTimeout(FindTimeouts<CanceledTimeout>(_ => true).Single().TimeoutId);
+                MarkAsComplete();
+                return Task.CompletedTask;
+            }
+
+            public Task Timeout(CanceledTimeout state, IMessageHandlerContext context) => Task.CompletedTask;
+
+            public class SagaData : ContainSagaData
+            {
+                public virtual string CorrelationProperty { get; set; }
+            }
+        }
     }
 
     public class ServiceControlSpy : EndpointConfigurationBuilder
@@ -150,6 +206,16 @@ public class When_saga_timeouts_change : NServiceBusAcceptanceTest
     }
 
     public class ChangeTimeouts : ICommand
+    {
+        public string Id { get; set; }
+    }
+
+    public class StartSagaToCancel : ICommand
+    {
+        public string Id { get; set; }
+    }
+
+    public class CancelAndComplete : ICommand
     {
         public string Id { get; set; }
     }

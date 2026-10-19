@@ -57,7 +57,7 @@ class MessagingBasedServicePlatformSender<TMessage> : ServicePlatformSender<TMes
         return Task.CompletedTask;
     }
 
-    TransportOperation CreateTransportOperation(TMessage message)
+    internal TransportOperation CreateTransportOperation(TMessage message)
     {
         using var bufferWriter = new ArrayPoolBufferWriter<byte>();
         using (var writer = new Utf8JsonWriter(bufferWriter))

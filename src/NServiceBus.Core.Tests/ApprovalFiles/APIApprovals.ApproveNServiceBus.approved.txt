@@ -1149,6 +1149,13 @@ namespace NServiceBus
         public static void AddSaga<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.None | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]  TSaga>(this NServiceBus.EndpointConfiguration config)
             where TSaga : NServiceBus.Saga, NServiceBus.IHandleMessages { }
     }
+    public static class SagaTimeoutReportingConfigurationExtensions
+    {
+        extension(NServiceBus.EndpointConfiguration endpointConfiguration)
+        {
+            public void ReportSagaTimeoutsToServiceControl() { }
+        }
+    }
     public sealed class SagaTimeout<TTimeoutMessageType>
     {
         public System.DateTimeOffset DueTime { get; }

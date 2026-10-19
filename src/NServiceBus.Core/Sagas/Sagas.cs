@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Sagas;
-using NServiceBus.ServicePlatform;
 using Unicast.Messages;
 
 /// <summary>
@@ -30,17 +29,13 @@ public sealed class Sagas : Feature
         var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
 
         // Register the Saga related behaviors for incoming messages
-        var endpointName = context.Settings.EndpointName();
-
         context.Pipeline.Register("InvokeSaga", b =>
         {
             var persister = b.GetRequiredService<ISagaPersister>();
-            var platformNotifier = persister is ISupportTimeoutManagement && b.GetService<ServicePlatformConnection>() is { } platformConnection
-                ? new SagaTimeoutPlatformNotifier(platformConnection, endpointName)
-                // Without timeout management support or a platform connection, timeout changes aren't reported
-                : null!;
+            // Timeout changes are reported only when reporting is enabled and the persister supports timeout management
+            var platformNotifier = persister is ISupportTimeoutManagement ? b.GetService<SagaTimeoutPlatformNotifier>() : null;
 
-            return new SagaPersistenceBehavior(persister, sagaIdGenerator, sagaMetaModel, b.GetRequiredService<TimeoutSerializer>(), b.GetRequiredService<MessageMetadataRegistry>(), platformNotifier, b);
+            return new SagaPersistenceBehavior(persister, sagaIdGenerator, sagaMetaModel, b.GetRequiredService<TimeoutSerializer>(), b.GetRequiredService<MessageMetadataRegistry>(), platformNotifier!, b);
         }, "Invokes the saga logic");
         context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
     }

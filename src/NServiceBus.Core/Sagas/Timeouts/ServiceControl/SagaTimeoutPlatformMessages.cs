@@ -14,6 +14,10 @@ abstract class SagaTimeoutPlatformMessage
     public string? CorrelationPropertyValue { get; set; }
     // Time on the machine that made the change, so the platform can account for clock drift between machines
     public required DateTimeOffset ChangedAt { get; set; }
+    public required string Host { get; set; }
+    public required string HostId { get; set; }
+    // The queue that accepts timeout changes requested by an operator
+    public required string ManagementAddress { get; set; }
 }
 
 abstract class SagaTimeoutChangeMessage : SagaTimeoutPlatformMessage
@@ -33,13 +37,18 @@ sealed class SagaTimeoutRequested : SagaTimeoutChangeMessage
 
 sealed class SagaTimeoutRescheduled : SagaTimeoutChangeMessage
 {
+    // Set when an operator requested the change
+    public Guid? OperationId { get; set; }
     public required string TriggerId { get; set; }
     public required DateTimeOffset DueTime { get; set; }
     public required string PayloadContentType { get; set; }
     public required byte[] Payload { get; set; }
 }
 
-sealed class SagaTimeoutCanceled : SagaTimeoutChangeMessage;
+sealed class SagaTimeoutCanceled : SagaTimeoutChangeMessage
+{
+    public Guid? OperationId { get; set; }
+}
 
 sealed class SagaTimeoutTriggered : SagaTimeoutChangeMessage
 {
@@ -48,6 +57,7 @@ sealed class SagaTimeoutTriggered : SagaTimeoutChangeMessage
 
 sealed class SagaTimeoutChangeRejected : SagaTimeoutPlatformMessage
 {
+    public Guid? OperationId { get; set; }
     public required string TimeoutId { get; set; }
     public required string RequestedChange { get; set; }
     public DateTimeOffset? RequestedDueTime { get; set; }

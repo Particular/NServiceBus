@@ -3,26 +3,85 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using Hosting;
 using Sagas;
 using ServicePlatform;
+using Transport;
 
 // Reports timeout changes to the ServiceControl primary instance as outgoing operations of the message being handled,
 // so a rolled back saga save doesn't report changes that never happened.
-sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, string endpointName)
+sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, string endpointName, HostInformation hostInformation, string managementAddress)
 {
-    public async Task NotifyChanges(ActiveSagaInstance sagaInstance, IPipelineContext context)
+    public Task NotifyChanges(ActiveSagaInstance sagaInstance, IPipelineContext context) =>
+        NotifyChanges(sagaInstance.Metadata, sagaInstance.Instance.Entity, sagaInstance.Timeouts.Changes, new PipelineReportSink(context), context.CancellationToken);
+
+    public Task NotifyTriggered(ActiveSagaInstance sagaInstance, StoredSagaTimeout firedTimeout, IPipelineContext context) =>
+        new PipelineReportSink(context).Send(triggered, Populate(new SagaTimeoutTriggered
+        {
+            EndpointName = endpointName,
+            SagaType = SagaType(sagaInstance.Metadata),
+            SagaId = sagaInstance.Instance.Entity.Id,
+            ChangedAt = DateTimeOffset.UtcNow,
+            Host = hostInformation.DisplayName,
+            HostId = HostId,
+            ManagementAddress = managementAddress,
+            TimeoutId = firedTimeout.TimeoutId,
+            TimeoutType = firedTimeout.MessageType,
+            Version = firedTimeout.Version,
+            TriggerId = firedTimeout.TriggerId
+        }, sagaInstance.Metadata, sagaInstance.Instance.Entity));
+
+    public Task NotifySagaCompleted(ActiveSagaInstance sagaInstance, IPipelineContext context) =>
+        new PipelineReportSink(context).Send(completed, Populate(new SagaCompleted
+        {
+            EndpointName = endpointName,
+            SagaType = SagaType(sagaInstance.Metadata),
+            SagaId = sagaInstance.Instance.Entity.Id,
+            ChangedAt = DateTimeOffset.UtcNow,
+            Host = hostInformation.DisplayName,
+            HostId = HostId,
+            ManagementAddress = managementAddress
+        }, sagaInstance.Metadata, sagaInstance.Instance.Entity));
+
+    // Used when the saga can't be loaded, so there is no saga data to read the correlation property from
+    public Task NotifyRejected(string sagaType, Guid sagaId, string timeoutId, string requestedChange, DateTimeOffset? requestedDueTime, string reason, Guid operationId, ICollection<TransportOperation> operations, CancellationToken cancellationToken = default) =>
+        new TransportOperationsReportSink(operations).Send(rejected, new SagaTimeoutChangeRejected
+        {
+            EndpointName = endpointName,
+            SagaType = sagaType,
+            SagaId = sagaId,
+            ChangedAt = DateTimeOffset.UtcNow,
+            Host = hostInformation.DisplayName,
+            HostId = HostId,
+            ManagementAddress = managementAddress,
+            OperationId = operationId,
+            TimeoutId = timeoutId,
+            RequestedChange = requestedChange,
+            RequestedDueTime = requestedDueTime,
+            Reason = reason
+        }, cancellationToken);
+
+    public Task NotifyChanges(SagaMetadata metadata, IContainSagaData sagaData, IReadOnlyList<SagaTimeoutChange> changes, ICollection<TransportOperation> operations, CancellationToken cancellationToken = default) =>
+        NotifyChanges(metadata, sagaData, changes, new TransportOperationsReportSink(operations), cancellationToken);
+
+    async Task NotifyChanges(SagaMetadata metadata, IContainSagaData sagaData, IReadOnlyList<SagaTimeoutChange> changes, ReportSink sink, CancellationToken cancellationToken)
     {
-        foreach (var change in sagaInstance.Timeouts.Changes)
+        foreach (var change in changes)
         {
             Task notification = change.Kind switch
             {
-                SagaTimeoutChangeKind.Requested => requested.Send(Populate(new SagaTimeoutRequested
+                SagaTimeoutChangeKind.Requested => sink.Send(requested, Populate(new SagaTimeoutRequested
                 {
                     EndpointName = endpointName,
-                    SagaType = SagaType(sagaInstance),
-                    SagaId = sagaInstance.Instance.Entity.Id,
+                    SagaType = SagaType(metadata),
+                    SagaId = sagaData.Id,
                     ChangedAt = change.ChangedAt,
+                    Host = hostInformation.DisplayName,
+                    HostId = HostId,
+                    ManagementAddress = managementAddress,
                     TimeoutId = change.TimeoutId,
                     TimeoutType = change.Timeout!.MessageType,
                     Version = change.Timeout.Version,
@@ -30,13 +89,17 @@ sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, s
                     DueTime = change.Timeout.DueTime,
                     PayloadContentType = change.Timeout.ContentType,
                     Payload = change.Timeout.Payload
-                }, sagaInstance), context),
-                SagaTimeoutChangeKind.Rescheduled => rescheduled.Send(Populate(new SagaTimeoutRescheduled
+                }, metadata, sagaData), cancellationToken),
+                SagaTimeoutChangeKind.Rescheduled => sink.Send(rescheduled, Populate(new SagaTimeoutRescheduled
                 {
                     EndpointName = endpointName,
-                    SagaType = SagaType(sagaInstance),
-                    SagaId = sagaInstance.Instance.Entity.Id,
+                    SagaType = SagaType(metadata),
+                    SagaId = sagaData.Id,
                     ChangedAt = change.ChangedAt,
+                    Host = hostInformation.DisplayName,
+                    HostId = HostId,
+                    ManagementAddress = managementAddress,
+                    OperationId = change.OperationId,
                     TimeoutId = change.TimeoutId,
                     TimeoutType = change.Timeout!.MessageType,
                     Version = change.Timeout.Version,
@@ -44,29 +107,36 @@ sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, s
                     DueTime = change.Timeout.DueTime,
                     PayloadContentType = change.Timeout.ContentType,
                     Payload = change.Timeout.Payload
-                }, sagaInstance), context),
-                SagaTimeoutChangeKind.Canceled => canceled.Send(Populate(new SagaTimeoutCanceled
+                }, metadata, sagaData), cancellationToken),
+                SagaTimeoutChangeKind.Canceled => sink.Send(canceled, Populate(new SagaTimeoutCanceled
                 {
                     EndpointName = endpointName,
-                    SagaType = SagaType(sagaInstance),
-                    SagaId = sagaInstance.Instance.Entity.Id,
+                    SagaType = SagaType(metadata),
+                    SagaId = sagaData.Id,
                     ChangedAt = change.ChangedAt,
+                    Host = hostInformation.DisplayName,
+                    HostId = HostId,
+                    ManagementAddress = managementAddress,
+                    OperationId = change.OperationId,
                     TimeoutId = change.TimeoutId,
                     TimeoutType = change.Timeout!.MessageType,
                     Version = change.Timeout.Version
-                }, sagaInstance), context),
-                SagaTimeoutChangeKind.RescheduleRejected or SagaTimeoutChangeKind.CancelRejected => rejected.Send(Populate(new SagaTimeoutChangeRejected
+                }, metadata, sagaData), cancellationToken),
+                SagaTimeoutChangeKind.RescheduleRejected or SagaTimeoutChangeKind.CancelRejected => sink.Send(rejected, Populate(new SagaTimeoutChangeRejected
                 {
                     EndpointName = endpointName,
-                    SagaType = SagaType(sagaInstance),
-                    SagaId = sagaInstance.Instance.Entity.Id,
+                    SagaType = SagaType(metadata),
+                    SagaId = sagaData.Id,
                     ChangedAt = change.ChangedAt,
+                    Host = hostInformation.DisplayName,
+                    HostId = HostId,
+                    ManagementAddress = managementAddress,
+                    OperationId = change.OperationId,
                     TimeoutId = change.TimeoutId,
-                    RequestedChange = change.Kind == SagaTimeoutChangeKind.RescheduleRejected ? "Reschedule" : "Cancel",
+                    RequestedChange = change.Kind == SagaTimeoutChangeKind.RescheduleRejected ? SagaTimeoutManagementHeaders.RescheduleChange : SagaTimeoutManagementHeaders.CancelChange,
                     RequestedDueTime = change.RequestedDueTime,
-                    // Fired and canceled timeouts are removed from storage, so the endpoint can't tell them apart from an unknown ID
-                    Reason = "TimeoutNotFound"
-                }, sagaInstance), context),
+                    Reason = change.RejectionReason
+                }, metadata, sagaData), cancellationToken),
                 _ => throw new InvalidOperationException($"Unknown saga timeout change '{change.Kind}'.")
             };
 
@@ -74,39 +144,19 @@ sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, s
         }
     }
 
-    public Task NotifyTriggered(ActiveSagaInstance sagaInstance, StoredSagaTimeout firedTimeout, IPipelineContext context) =>
-        triggered.Send(Populate(new SagaTimeoutTriggered
-        {
-            EndpointName = endpointName,
-            SagaType = SagaType(sagaInstance),
-            SagaId = sagaInstance.Instance.Entity.Id,
-            ChangedAt = DateTimeOffset.UtcNow,
-            TimeoutId = firedTimeout.TimeoutId,
-            TimeoutType = firedTimeout.MessageType,
-            Version = firedTimeout.Version,
-            TriggerId = firedTimeout.TriggerId
-        }, sagaInstance), context);
+    static string SagaType(SagaMetadata metadata) => metadata.SagaType.FullName!;
 
-    public Task NotifySagaCompleted(ActiveSagaInstance sagaInstance, IPipelineContext context) =>
-        completed.Send(Populate(new SagaCompleted
-        {
-            EndpointName = endpointName,
-            SagaType = SagaType(sagaInstance),
-            SagaId = sagaInstance.Instance.Entity.Id,
-            ChangedAt = DateTimeOffset.UtcNow
-        }, sagaInstance), context);
-
-    static string SagaType(ActiveSagaInstance sagaInstance) => sagaInstance.Metadata.SagaType.FullName!;
-
-    static TMessage Populate<TMessage>(TMessage message, ActiveSagaInstance sagaInstance) where TMessage : SagaTimeoutPlatformMessage
+    static TMessage Populate<TMessage>(TMessage message, SagaMetadata metadata, IContainSagaData sagaData) where TMessage : SagaTimeoutPlatformMessage
     {
-        if (sagaInstance.Metadata.TryGetCorrelationProperty(out var correlationProperty))
+        if (metadata.TryGetCorrelationProperty(out var correlationProperty))
         {
-            message.CorrelationPropertyValue = correlationProperty.Accessor.AccessFrom(sagaInstance.Instance.Entity)?.ToString();
+            message.CorrelationPropertyValue = correlationProperty.Accessor.AccessFrom(sagaData)?.ToString();
         }
 
         return message;
     }
+
+    string HostId => hostInformation.HostId.ToString("N");
 
     readonly ServicePlatformSender<SagaTimeoutRequested> requested = connection.PrimaryInstance.CreateSender(SagaTimeoutPlatformMessagesJsonContext.Default.SagaTimeoutRequested);
     readonly ServicePlatformSender<SagaTimeoutRescheduled> rescheduled = connection.PrimaryInstance.CreateSender(SagaTimeoutPlatformMessagesJsonContext.Default.SagaTimeoutRescheduled);
@@ -114,4 +164,30 @@ sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, s
     readonly ServicePlatformSender<SagaTimeoutTriggered> triggered = connection.PrimaryInstance.CreateSender(SagaTimeoutPlatformMessagesJsonContext.Default.SagaTimeoutTriggered);
     readonly ServicePlatformSender<SagaTimeoutChangeRejected> rejected = connection.PrimaryInstance.CreateSender(SagaTimeoutPlatformMessagesJsonContext.Default.SagaTimeoutChangeRejected);
     readonly ServicePlatformSender<SagaCompleted> completed = connection.PrimaryInstance.CreateSender(SagaTimeoutPlatformMessagesJsonContext.Default.SagaCompleted);
+
+    abstract class ReportSink
+    {
+        public abstract Task Send<TMessage>(ServicePlatformSender<TMessage> sender, TMessage message, CancellationToken cancellationToken = default);
+    }
+
+    sealed class PipelineReportSink(IPipelineContext context) : ReportSink
+    {
+        // The pipeline context carries its own cancellation token
+        public override Task Send<TMessage>(ServicePlatformSender<TMessage> sender, TMessage message, CancellationToken cancellationToken = default) => sender.Send(message, context);
+    }
+
+    // Satellites have no pipeline, so reports join the satellite's own transport operations
+    sealed class TransportOperationsReportSink(ICollection<TransportOperation> operations) : ReportSink
+    {
+        public override Task Send<TMessage>(ServicePlatformSender<TMessage> sender, TMessage message, CancellationToken cancellationToken = default)
+        {
+            if (sender is MessagingBasedServicePlatformSender<TMessage> messagingSender)
+            {
+                operations.Add(messagingSender.CreateTransportOperation(message));
+                return Task.CompletedTask;
+            }
+
+            return sender.Send(message, cancellationToken);
+        }
+    }
 }

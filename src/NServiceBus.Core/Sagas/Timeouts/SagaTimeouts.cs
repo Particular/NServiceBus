@@ -16,7 +16,8 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
 
     public IReadOnlyList<SagaTimeoutChange> Changes => changes;
 
-    public bool HasStoredTimeouts => storedTimeouts.Count > 0;
+    // Captured before any change, so a handler that removes the last timeout and completes the saga still reports the completion
+    public bool HadStoredTimeoutsWhenLoaded { get; } = storedTimeouts.Count > 0;
 
     public StoredSagaTimeout Add<TTimeoutMessageType>(TTimeoutMessageType payload, DateTimeOffset dueTime)
     {
@@ -87,13 +88,33 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
         changes.Add(new SagaTimeoutChange(SagaTimeoutChangeKind.Rescheduled, timeoutId, Snapshot(stored), null));
     }
 
-    public void Cancel(string timeoutId)
+    // The payload is stored as received because operator requests are applied without deserializing it
+    public StoredSagaTimeout RescheduleRequestedByOperator(StoredSagaTimeout stored, DateTimeOffset newDueTime, ReadOnlyMemory<byte> payload, string? contentType, Guid operationId)
+    {
+        if (!payload.IsEmpty)
+        {
+            stored.Payload = payload.ToArray();
+            stored.ContentType = contentType ?? throw new ArgumentNullException(nameof(contentType));
+        }
+
+        stored.DueTime = newDueTime;
+        stored.TriggerId = Guid.NewGuid().ToString();
+        stored.Version++;
+        _ = foundPayloads.Remove(stored.TimeoutId);
+        changes.Add(new SagaTimeoutChange(SagaTimeoutChangeKind.Rescheduled, stored.TimeoutId, Snapshot(stored), null, operationId));
+        return stored;
+    }
+
+    public void Cancel(string timeoutId, Guid? operationId = null)
     {
         var stored = Remove(timeoutId);
         changes.Add(stored is null
-            ? new SagaTimeoutChange(SagaTimeoutChangeKind.CancelRejected, timeoutId, null, null)
-            : new SagaTimeoutChange(SagaTimeoutChangeKind.Canceled, timeoutId, Snapshot(stored), null));
+            ? new SagaTimeoutChange(SagaTimeoutChangeKind.CancelRejected, timeoutId, null, null, operationId)
+            : new SagaTimeoutChange(SagaTimeoutChangeKind.Canceled, timeoutId, Snapshot(stored), null, operationId));
     }
+
+    public void Reject(SagaTimeoutChangeKind kind, string timeoutId, DateTimeOffset? requestedDueTime, string reason, Guid operationId) =>
+        changes.Add(new SagaTimeoutChange(kind, timeoutId, null, requestedDueTime, operationId, reason));
 
     public StoredSagaTimeout? Remove(string timeoutId)
     {
@@ -110,6 +131,8 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
 
     // Identifies the timeout and its scheduled instance, so a rescheduled timeout makes earlier messages stale.
     public static string Identity(StoredSagaTimeout stored) => $"{stored.TimeoutId}-{stored.TriggerId}";
+
+    public StoredSagaTimeout? Get(string timeoutId) => storedTimeouts.Find(t => t.TimeoutId == timeoutId);
 
     public StoredSagaTimeout? GetByIdentity(string identity) => storedTimeouts.Find(t => Identity(t) == identity);
 
@@ -149,8 +172,16 @@ enum SagaTimeoutChangeKind
     CancelRejected
 }
 
-// Timeout is a snapshot taken when the change was made; it's null for rejected changes
-sealed record SagaTimeoutChange(SagaTimeoutChangeKind Kind, string TimeoutId, StoredSagaTimeout? Timeout, DateTimeOffset? RequestedDueTime)
+// Timeout is a snapshot taken when the change was made; it's null for rejected changes. OperationId is set for changes an operator requested.
+sealed record SagaTimeoutChange(SagaTimeoutChangeKind Kind, string TimeoutId, StoredSagaTimeout? Timeout, DateTimeOffset? RequestedDueTime, Guid? OperationId = null, string RejectionReason = SagaTimeoutChangeRejectionReasons.TimeoutNotFound)
 {
     public DateTimeOffset ChangedAt { get; } = DateTimeOffset.UtcNow;
+}
+
+static class SagaTimeoutChangeRejectionReasons
+{
+    // Fired and canceled timeouts are removed from storage, so the endpoint can't tell them apart from an unknown ID
+    public const string TimeoutNotFound = "TimeoutNotFound";
+    public const string VersionMismatch = "VersionMismatch";
+    public const string SagaNotFound = "SagaNotFound";
 }
