@@ -1,6 +1,6 @@
-# Transport receivers
+# Message receivers
 
-Core drives every transport through `IMessageReceiver`. Transport authors should use the tests in `src/NServiceBus.TransportTests` as the executable contract.
+Transports implement `IMessageReceiver` to receive messages for core. Transport authors should use the tests in `src/NServiceBus.TransportTests` as the executable contract.
 
 ## Call sequence
 
