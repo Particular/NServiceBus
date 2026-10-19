@@ -8,6 +8,7 @@ TaskExtensions.cs
 TransportTestLoggerFactory.cs
 When_cancelling_stop_on_error.cs
 When_cancelling_stop_on_message.cs
+When_concurrency_is_lowered_and_restored_while_messages_are_in_flight.cs
 When_creating_send_only_transport.cs
 When_failure_happens_after_isolated_send.cs
 When_failure_happens_after_send.cs
