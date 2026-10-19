@@ -2,8 +2,6 @@
 
 Core drives every transport through `IMessageReceiver`. Transport authors should use the tests in `src/NServiceBus.TransportTests` as the executable contract.
 
-For the user-facing side of concurrency, see [Tuning endpoint message processing](https://docs.particular.net/nservicebus/operations/tuning).
-
 ## Call sequence
 
 `ReceiveComponent` creates one receiver for the main input queue, one for the instance-specific queue when it is enabled, and one per satellite. For each receiver, core calls:
@@ -18,6 +16,8 @@ After every receiver has stopped, core stops features and then calls `TransportI
 A receiver must support `StartReceive` after `StopReceive`. The stop-and-restart approach to `ChangeConcurrency` depends on it.
 
 ## Concurrency
+
+For the user-facing side of concurrency, see [Tuning endpoint message processing](https://docs.particular.net/nservicebus/operations/tuning).
 
 `PushRuntimeSettings.MaxConcurrency` is "the maximum number of messages that should be in flight at any given time". In practice, it limits how many `OnMessage` and `OnError` invocations run at the same time.
 
