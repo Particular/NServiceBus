@@ -9,9 +9,8 @@ using System.Threading.Tasks;
 using Logging;
 using Pipeline;
 using Sagas;
-using Serialization;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, MessageDeserializerResolver messageDeserializerResolver, IMessageSerializer mainSerializer, IServiceProvider serviceProvider)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, TimeoutSerializer timeoutSerializer, IServiceProvider serviceProvider)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Best-effort saga type resolution from saga headers; when trimming removes the type, processing falls back to querying the persister for the current saga type.")]
@@ -183,7 +182,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         }
 
         var storedTimeouts = context.Extensions.GetOrCreateSagaTimeouts(saga.Entity);
-        var timeouts = new SagaTimeouts(storedTimeouts, mainSerializer, messageDeserializerResolver);
+        var timeouts = new SagaTimeouts(storedTimeouts, timeoutSerializer);
         sagaInstanceState.Timeouts = timeouts;
         saga.Timeouts = timeouts;
     }

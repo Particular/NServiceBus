@@ -32,10 +32,6 @@
     "Lifecycle": "Singleton"
   },
   {
-    "Type": "NServiceBus.Serialization.IMessageSerializer",
-    "Lifecycle": "Singleton"
-  },
-  {
     "Type": "NServiceBus.Persistence.ISynchronizedStorageSession",
     "Lifecycle": "Scoped"
   },

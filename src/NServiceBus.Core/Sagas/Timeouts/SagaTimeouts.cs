@@ -4,12 +4,10 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Sagas;
-using Serialization;
 
-class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer mainSerializer, MessageDeserializerResolver deserializerResolver)
+class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer serializer)
 {
     public IReadOnlyCollection<StoredSagaTimeout> PendingTriggers => pendingTriggers.Values;
 
@@ -21,7 +19,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
             TriggerId = Guid.NewGuid().ToString(),
             DueTime = dueTime,
             MessageType = MessageTypeName(typeof(TTimeoutMessageType)),
-            ContentType = mainSerializer.ContentType,
+            ContentType = serializer.ContentType,
             Payload = Serialize(payload!)
         };
 
@@ -62,7 +60,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
         if (foundPayloads.TryGetValue(timeoutId, out var payload))
         {
             stored.Payload = Serialize(payload);
-            stored.ContentType = mainSerializer.ContentType;
+            stored.ContentType = serializer.ContentType;
         }
 
         stored.DueTime = newDueTime;
@@ -81,18 +79,12 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, IMessageSerializer ma
 
     public object Deserialize(StoredSagaTimeout stored, Type messageType)
     {
-        var serializer = deserializerResolver.Resolve(new Dictionary<string, string> { [Headers.ContentType] = stored.ContentType });
-        return serializer.Deserialize(stored.Payload, [messageType])[0];
+        return serializer.Deserialize(stored.Payload, stored.ContentType, messageType);
     }
 
     public static string MessageTypeName(Type messageType) => messageType.FullName!;
 
-    byte[] Serialize(object payload)
-    {
-        using var stream = new MemoryStream();
-        mainSerializer.Serialize(payload, stream);
-        return stream.ToArray();
-    }
+    byte[] Serialize(object payload) => serializer.Serialize(payload);
 
     readonly Dictionary<string, StoredSagaTimeout> pendingTriggers = [];
     readonly Dictionary<string, object> foundPayloads = [];
