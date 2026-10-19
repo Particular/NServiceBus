@@ -840,7 +840,7 @@ namespace NServiceBus
                 return;
             }
 
-            activity?.SetStatus(ActivityStatusCode.Ok);        
+            activity?.SetStatus(ActivityStatusCode.Ok);
         }
     }
 
