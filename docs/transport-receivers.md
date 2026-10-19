@@ -32,9 +32,9 @@ The concurrency tests block every `OnMessage` invocation and check that the numb
 
 ### Changing concurrency
 
-NServiceBus does not expose an endpoint API for users to change concurrency at runtime. Core uses `ChangeConcurrency` only for automatic rate limiting after consecutive processing failures.
+NServiceBus does not expose an endpoint API for users to change concurrency at runtime. Core uses `ChangeConcurrency` only for [automatic rate limiting](https://docs.particular.net/nservicebus/recoverability/#automatic-rate-limiting).
 
-[`WrappedMessageReceiver`](https://github.com/Particular/NServiceBus/pull/6214) calls `ChangeConcurrency` with `new PushRuntimeSettings(1)` when the consecutive-failure circuit breaker trips. It calls `ChangeConcurrency` with the original settings when the breaker resets. It makes these calls from its own background loop, not from inside `OnMessage` or `OnError`, so a receiver may wait for in-flight messages without deadlocking. When the receiver stops, the wrapper cancels the token that it passed to `ChangeConcurrency` and waits for the call to return before it calls `StopReceive`. The two calls never overlap. If a call throws, the wrapper logs a warning and does not retry. Core makes no further call until the breaker changes state again, so the receiver stays in whatever state the failed call left it.
+Core calls `ChangeConcurrency` outside `OnMessage` and `OnError`, so a receiver may wait for in-flight messages without deadlocking. During shutdown, core cancels the token passed to `ChangeConcurrency` and waits for the call to return before calling `StopReceive`.
 
 A receiver must accept `ChangeConcurrency` at any time between `StartReceive` and `StopReceive`, while messages are in flight. The receiver must eventually enforce the new limit, but the call need not wait for existing invocations to finish. When lowering concurrency, existing `OnMessage` and `OnError` invocations may complete normally, temporarily exceeding the new limit even after the call returns. Changing concurrency must not cancel those invocations solely to meet the new limit.
 
