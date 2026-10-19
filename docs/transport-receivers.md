@@ -38,13 +38,14 @@ A receiver must accept `ChangeConcurrency` at any time between `StartReceive` an
 
 ## Stopping and cancellation
 
-`StopReceive` must stop receiving new messages and then wait for every in-flight `OnMessage` and `OnError` invocation to return. The token passed to `StopReceive` does not shorten that wait. Instead, the receiver forwards its cancellation to the token that it passes to `OnMessage` and `OnError`, so that handlers can cancel cooperatively. Handlers that ignore cancellation can delay shutdown indefinitely.
+`StopReceive` must stop receiving new messages and wait for all in-flight `OnMessage` and `OnError` invocations to return.
 
-The token that a receiver passes to `OnMessage` and `OnError` should be canceled only when the receiver is stopping. Stopping without cancellation must let in-flight invocations complete without canceling their tokens. Canceling the stop token must cancel the tokens passed to those invocations.
+- If the stop token is not canceled, let those invocations finish without canceling their processing tokens.
+- If the stop token is canceled, cancel their processing tokens so handlers can stop cooperatively. This also applies when the stop token is already canceled when `StopReceive` is called.
 
-An `OnMessage` invocation that fails because of that cancellation must not invoke `OnError`. An `OnError` invocation that fails because of that cancellation must not raise a critical error.
+Cancellation requests that handlers stop; it does not end the wait. Handlers that ignore cancellation can delay shutdown indefinitely. A client library's shutdown timeout must not cause `StopReceive` to return while invocations are still running.
 
-A client library with its own shutdown timeout can break this contract. An example is a library that abandons or negatively acknowledges in-flight messages after a fixed timeout. In that case, a message whose handler completes successfully is still redelivered.
+Do not invoke `OnError` when `OnMessage` throws because of shutdown cancellation. Do not raise a critical error when `OnError` throws because of shutdown cancellation. See [Cancellation and catching exceptions](https://docs.particular.net/nservicebus/cancellation-and-catching-exceptions) for how to distinguish cancellation from a processing failure.
 
 ## Long-running handlers
 
