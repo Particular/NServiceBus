@@ -30,7 +30,7 @@ For the user-facing side of concurrency, see [Tuning endpoint message processing
 
 The concurrency tests block every `OnMessage` invocation and check that the number of blocked invocations equals the limit and that every message is processed. They take the count as soon as it reaches the limit, so they can miss a receiver that briefly exceeds it.
 
-## Changing concurrency
+### Changing concurrency
 
 NServiceBus does not expose an endpoint API for users to change concurrency at runtime. Core uses `ChangeConcurrency` only for automatic rate limiting after consecutive processing failures.
 
