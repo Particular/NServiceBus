@@ -835,12 +835,12 @@ namespace NServiceBus
     {
         public static void SetOk(Activity? activity)
         {
-            if (activity is null || V11BehaviorSwitch.UseV11Behavior)
+            if (V11BehaviorSwitch.UseV11Behavior)
             {
                 return;
             }
 
-            activity.SetStatus(ActivityStatusCode.Ok);
+            activity?.SetStatus(ActivityStatusCode.Ok);        
         }
     }
 
