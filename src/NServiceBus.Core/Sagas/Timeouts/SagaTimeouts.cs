@@ -108,7 +108,10 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
         return stored;
     }
 
-    public StoredSagaTimeout? Get(string timeoutId) => storedTimeouts.Find(t => t.TimeoutId == timeoutId);
+    // Identifies the timeout and its scheduled instance, so a rescheduled timeout makes earlier messages stale.
+    public static string Identity(StoredSagaTimeout stored) => $"{stored.TimeoutId}-{stored.TriggerId}";
+
+    public StoredSagaTimeout? GetByIdentity(string identity) => storedTimeouts.Find(t => Identity(t) == identity);
 
     public object Deserialize(StoredSagaTimeout stored, Type messageType)
     {

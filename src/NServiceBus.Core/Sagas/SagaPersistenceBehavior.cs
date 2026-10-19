@@ -196,20 +196,13 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         saga.Timeouts = timeouts;
     }
 
-    static bool TryStartFiring(string timeoutId, ActiveSagaInstance sagaInstanceState, IInvokeHandlerContext context)
+    static bool TryStartFiring(string timeoutIdentity, ActiveSagaInstance sagaInstanceState, IInvokeHandlerContext context)
     {
-        var stored = sagaInstanceState.Timeouts.Get(timeoutId);
+        var stored = sagaInstanceState.Timeouts.GetByIdentity(timeoutIdentity);
 
         if (stored is null)
         {
-            logger.DebugFormat("Ignoring message {0} for saga timeout {1} because the timeout already fired or was canceled.", context.MessageId, timeoutId);
-            return false;
-        }
-
-        // The message ID of the dispatched timeout is the trigger ID, so a rescheduled timeout makes earlier messages stale
-        if (stored.TriggerId != context.MessageId)
-        {
-            logger.DebugFormat("Ignoring message {0} for saga timeout {1} because the timeout was rescheduled.", context.MessageId, timeoutId);
+            logger.DebugFormat("Ignoring message {0} for saga timeout {1} because the timeout already fired, was canceled, or was rescheduled.", context.MessageId, timeoutIdentity);
             return false;
         }
 
@@ -220,7 +213,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
         }
 
         // Removal is saved with the handler's saga changes, so a failing handler leaves the timeout in place for retries
-        _ = sagaInstanceState.Timeouts.Remove(timeoutId);
+        _ = sagaInstanceState.Timeouts.Remove(stored.TimeoutId);
         sagaInstanceState.FiringTimeout = stored;
         return true;
     }
@@ -238,8 +231,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             var options = new SendOptions();
             options.DoNotDeliverBefore(stored.DueTime);
             options.RouteToThisEndpoint();
-            options.SetMessageId(stored.TriggerId);
-            options.SetHeader(SagaTimeouts.TimeoutIdHeader, stored.TimeoutId);
+            options.SetHeader(SagaTimeouts.TimeoutIdHeader, SagaTimeouts.Identity(stored));
             saga.SetTimeoutHeaders(options);
 
             // The stored snapshot is sent so payload changes only apply when rescheduled

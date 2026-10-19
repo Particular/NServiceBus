@@ -35,7 +35,7 @@ public class SagaTimeoutManagementTests
     [Test]
     public async Task Should_fire_the_transported_payload_and_remove_the_stored_timeout()
     {
-        var context = CreateContext(timeoutId: "timeout-1", messageId: "trigger-1");
+        var context = CreateContext(timeoutId: "timeout-1-trigger-1", messageId: "message-1");
 
         await CreateBehavior(persister).Invoke(context, Fire);
 
@@ -75,7 +75,7 @@ public class SagaTimeoutManagementTests
         persister.Timeouts = [StoredTimeout("timeout-1", "trigger-1", "stored", typeof(DerivedTimeout))];
         var behavior = CreateBehavior(persister);
 
-        await behavior.Invoke(CreateContext(timeoutId: "timeout-1", messageId: "trigger-1", handledTimeoutType: typeof(MyTimeout), message: new DerivedTimeout { Value = "transported" }), Fire);
+        await behavior.Invoke(CreateContext(timeoutId: "timeout-1-trigger-1", messageId: "message-1", handledTimeoutType: typeof(MyTimeout), message: new DerivedTimeout { Value = "transported" }), Fire);
 
         using (Assert.EnterMultipleScope())
         {
@@ -84,7 +84,7 @@ public class SagaTimeoutManagementTests
             Assert.That(persister.GetCalls, Is.Zero);
         }
 
-        await behavior.Invoke(CreateContext(timeoutId: "timeout-1", messageId: "trigger-1", handledTimeoutType: typeof(DerivedTimeout), message: new DerivedTimeout { Value = "transported" }), Fire);
+        await behavior.Invoke(CreateContext(timeoutId: "timeout-1-trigger-1", messageId: "message-1", handledTimeoutType: typeof(DerivedTimeout), message: new DerivedTimeout { Value = "transported" }), Fire);
 
         using (Assert.EnterMultipleScope())
         {
@@ -104,7 +104,13 @@ public class SagaTimeoutManagementTests
             return Task.CompletedTask;
         });
 
-        Assert.That(context.SentMessages.Single().Message, Is.TypeOf<MyTimeout>().With.Property(nameof(MyTimeout.Value)).EqualTo("requested"));
+        var sent = context.SentMessages.Single();
+        var added = persister.Timeouts.Single(t => t.TimeoutId != "timeout-1");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sent.Message, Is.TypeOf<MyTimeout>().With.Property(nameof(MyTimeout.Value)).EqualTo("requested"));
+            Assert.That(sent.Options.GetHeaders()[SagaTimeouts.TimeoutIdHeader], Is.EqualTo($"{added.TimeoutId}-{added.TriggerId}"));
+        }
     }
 
     [Test]
@@ -139,7 +145,7 @@ public class SagaTimeoutManagementTests
     public async Task Should_ignore_a_timeout_that_is_no_longer_stored()
     {
         persister.Timeouts.Clear();
-        var context = CreateContext(timeoutId: "timeout-1", messageId: "trigger-1");
+        var context = CreateContext(timeoutId: "timeout-1-trigger-1", messageId: "message-1");
 
         await CreateBehavior(persister).Invoke(context, Fire);
 
@@ -149,7 +155,7 @@ public class SagaTimeoutManagementTests
     [Test]
     public async Task Should_ignore_a_stale_message_and_keep_the_stored_timeout()
     {
-        var context = CreateContext(timeoutId: "timeout-1", messageId: "old-trigger");
+        var context = CreateContext(timeoutId: "timeout-1-old-trigger", messageId: "trigger-1");
 
         await CreateBehavior(persister).Invoke(context, Fire);
 
@@ -163,7 +169,7 @@ public class SagaTimeoutManagementTests
     [Test]
     public void Should_fail_when_the_timeout_id_header_is_empty()
     {
-        var context = CreateContext(timeoutId: " ", messageId: "trigger-1");
+        var context = CreateContext(timeoutId: " ", messageId: "message-1");
 
         _ = Assert.ThrowsAsync<Exception>(() => CreateBehavior(persister).Invoke(context, Fire));
         Assert.That(fired, Is.Empty);
@@ -172,7 +178,7 @@ public class SagaTimeoutManagementTests
     [Test]
     public void Should_fail_when_the_timeout_id_header_is_present_and_the_persister_does_not_support_timeout_management()
     {
-        var context = CreateContext(timeoutId: "timeout-1", messageId: "trigger-1");
+        var context = CreateContext(timeoutId: "timeout-1-trigger-1", messageId: "message-1");
 
         _ = Assert.ThrowsAsync<Exception>(() => CreateBehavior(new UnsupportedPersister(persister)).Invoke(context, Fire));
         Assert.That(fired, Is.Empty);
@@ -183,7 +189,7 @@ public class SagaTimeoutManagementTests
     {
         var behavior = CreateBehavior(persister);
 
-        _ = Assert.ThrowsAsync<InvalidOperationException>(() => behavior.Invoke(CreateContext(timeoutId: "timeout-1", messageId: "trigger-1"), _ => throw new InvalidOperationException()));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => behavior.Invoke(CreateContext(timeoutId: "timeout-1-trigger-1", messageId: "message-1"), _ => throw new InvalidOperationException()));
 
         using (Assert.EnterMultipleScope())
         {
@@ -191,7 +197,7 @@ public class SagaTimeoutManagementTests
             Assert.That(persister.UpdateCalls, Is.Zero);
         }
 
-        await behavior.Invoke(CreateContext(timeoutId: "timeout-1", messageId: "trigger-1"), Fire);
+        await behavior.Invoke(CreateContext(timeoutId: "timeout-1-trigger-1", messageId: "retry-message"), Fire);
 
         using (Assert.EnterMultipleScope())
         {
@@ -203,7 +209,7 @@ public class SagaTimeoutManagementTests
     [Test]
     public async Task Should_ignore_the_timeout_id_header_on_a_message_that_is_not_a_timeout()
     {
-        var context = CreateContext(timeoutId: "timeout-1", messageId: "trigger-1", isTimeoutMessage: false);
+        var context = CreateContext(timeoutId: "timeout-1-trigger-1", messageId: "message-1", isTimeoutMessage: false);
 
         await CreateBehavior(new UnsupportedPersister(persister)).Invoke(context, Fire);
 
@@ -245,8 +251,8 @@ public class SagaTimeoutManagementTests
         {
             Assert.That(stored.TriggerId, Is.Not.EqualTo("trigger-1"));
             Assert.That(sent.Message, Is.TypeOf<MyTimeout>().With.Property(nameof(MyTimeout.Value)).EqualTo("stored"));
-            Assert.That(sent.Options.GetMessageId(), Is.EqualTo(stored.TriggerId));
-            Assert.That(sent.Options.GetHeaders()[SagaTimeouts.TimeoutIdHeader], Is.EqualTo("timeout-1"));
+            Assert.That(sent.Options.GetHeaders()[SagaTimeouts.TimeoutIdHeader], Is.EqualTo($"timeout-1-{stored.TriggerId}"));
+            Assert.That(stored.TimeoutId, Is.EqualTo("timeout-1"));
         }
     }
 
