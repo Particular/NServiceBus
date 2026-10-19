@@ -28,8 +28,6 @@ For the user-facing side of concurrency, see [Tuning endpoint message processing
 - Core provides no concurrency limiter. Each transport must enforce the limit.
 - Prefetching is allowed, but prefetched messages must not be passed to `OnMessage` beyond the limit. A concurrency change may temporarily exceed the new limit while existing invocations finish. See [Changing concurrency](#changing-concurrency). When messages wait for a slot, their native lease keeps running. See [Long-running handlers](#long-running-handlers).
 
-The concurrency tests block every `OnMessage` invocation and check that the number of blocked invocations equals the limit and that every message is processed. They take the count as soon as it reaches the limit, so they can miss a receiver that briefly exceeds it.
-
 ### Changing concurrency
 
 NServiceBus does not expose an endpoint API for users to change concurrency at runtime. Core uses `ChangeConcurrency` only for [automatic rate limiting](https://docs.particular.net/nservicebus/recoverability/#automatic-rate-limiting).
@@ -37,8 +35,6 @@ NServiceBus does not expose an endpoint API for users to change concurrency at r
 Core calls `ChangeConcurrency` outside `OnMessage` and `OnError`, so a receiver may wait for in-flight messages without deadlocking. During shutdown, core cancels the token passed to `ChangeConcurrency` and waits for the call to return before calling `StopReceive`.
 
 A receiver must accept `ChangeConcurrency` at any time between `StartReceive` and `StopReceive`, while messages are in flight. The receiver must eventually enforce the new limit, but the call need not wait for existing invocations to finish. When lowering concurrency, existing `OnMessage` and `OnError` invocations may complete normally, temporarily exceeding the new limit even after the call returns. Changing concurrency must not cancel those invocations solely to meet the new limit.
-
-The TransportTests change concurrency only before messages are sent. They do not exercise a change while handlers are running.
 
 ## Stopping and cancellation
 
