@@ -19,7 +19,7 @@ NServiceBus is the core library of the Particular Service Platform, producing th
 ## Architecture and design
 
 - [Logging](logging.md) — why components can rely on a `Microsoft.Extensions.Logging.ILoggerFactory` being registered for every endpoint, and where that guarantee does not hold
-- [Transport receivers](transport-receivers.md) — what core expects from an `IMessageReceiver` for concurrency, changing concurrency, stopping, cancellation, and long-running handlers, and how existing transports meet it
+- [Transport receivers](transport-receivers.md) — what core expects from an `IMessageReceiver` for concurrency, changing concurrency, stopping, cancellation, and long-running handlers
 
 ## Decisions and rationale
 
