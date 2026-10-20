@@ -9,7 +9,7 @@ using Extensibility;
 using Persistence;
 using Sagas;
 
-sealed class LearningSagaPersister(SagaManifestCollection sagaManifests) : ISagaPersister, ISupportTimeoutManagement
+sealed class LearningSagaPersister(SagaManifestCollection sagaManifests) : ISagaPersister
 {
     public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
     {

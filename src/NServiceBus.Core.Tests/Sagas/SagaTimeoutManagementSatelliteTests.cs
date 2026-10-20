@@ -161,7 +161,7 @@ public class SagaTimeoutManagementSatelliteTests
         public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null) => [JsonSerializer.Deserialize(body.Span, messageTypes[0])];
     }
 
-    class TestPersister : ISagaPersister, ISupportTimeoutManagement
+    class TestPersister : ISagaPersister
     {
         public TimeoutSaga.TimeoutSagaData Data { get; } = new() { Id = Guid.NewGuid(), Originator = "origin", OriginalMessageId = "id", Key = "key" };
 

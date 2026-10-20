@@ -264,8 +264,10 @@ public class SagaTimeoutManagementTests
 
     SagaPersistenceBehavior CreateBehavior(ISagaPersister sagaPersister)
     {
+        // The persistence definition signals support, here simulated by the persister type
+        var supportsTimeoutManagement = sagaPersister is not UnsupportedPersister;
         var metadata = SagaMetadata.Create<TimeoutSaga>();
-        return new SagaPersistenceBehavior(sagaPersister, new DefaultSagaIdGenerator(), [metadata], new TimeoutSerializer(serializer, new MessageDeserializerResolver(serializer, [])), registry, null, null);
+        return new SagaPersistenceBehavior(sagaPersister, new DefaultSagaIdGenerator(), [metadata], new TimeoutSerializer(serializer, new MessageDeserializerResolver(serializer, [])), registry, null, supportsTimeoutManagement, null);
     }
 
     TestableInvokeHandlerContext CreateContext(string timeoutId, string messageId, bool isTimeoutMessage = true, Type handledTimeoutType = null, MyTimeout message = null)
@@ -390,7 +392,7 @@ public class SagaTimeoutManagementTests
         public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null) => [JsonSerializer.Deserialize(body.Span, messageTypes[0])];
     }
 
-    class TestPersister : ISagaPersister, ISupportTimeoutManagement
+    class TestPersister : ISagaPersister
     {
         public TimeoutSaga.TimeoutSagaData Data { get; } = new() { Id = Guid.NewGuid(), Originator = "origin", OriginalMessageId = "id", Key = "key" };
         public List<StoredSagaTimeout> Timeouts { get; set; } = [];

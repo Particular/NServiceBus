@@ -6,16 +6,18 @@ using System.Collections.Generic;
 using Extensibility;
 
 /// <summary>
-/// Implemented by saga persisters that store saga timeouts atomically with the saga data.
+/// Implemented by persistence definitions whose saga storage stores saga timeouts atomically with the saga data.
 /// </summary>
 /// <remarks>
-/// When loading a saga, the persister passes the stored timeouts to Core with <see cref="SagaTimeoutStorageExtensions.SetSagaTimeouts" />.
-/// When saving or updating a saga, the persister reads them with <see cref="SagaTimeoutStorageExtensions.GetSagaTimeouts" />.
+/// The marker is on the persistence definition so that the NServiceBus analyzers can detect at compile time
+/// that sagas using timeout management, or saga timeout reporting, are configured with a persistence that doesn't support it.
+/// When loading a saga, the saga persister passes the stored timeouts to Core with <see cref="SagaTimeoutStorageExtensions.SetSagaTimeouts" />.
+/// When saving or updating a saga, the saga persister reads them with <see cref="SagaTimeoutStorageExtensions.GetSagaTimeouts" />.
 /// </remarks>
 public interface ISupportTimeoutManagement;
 
 /// <summary>
-/// Passes saga timeouts between Core and persisters that implement <see cref="ISupportTimeoutManagement" />.
+/// Passes saga timeouts between Core and the saga persisters of persistence definitions that implement <see cref="ISupportTimeoutManagement" />.
 /// </summary>
 public static class SagaTimeoutStorageExtensions
 {

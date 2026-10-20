@@ -145,7 +145,7 @@ public abstract class Saga
     internal SagaTimeouts? Timeouts { get; set; }
 
     SagaTimeouts GetManagedTimeouts() =>
-        Timeouts ?? throw new InvalidOperationException($"Saga '{GetType().FullName}' uses timeout management, but the configured saga persister doesn't support it. Use a persister that implements '{nameof(ISupportTimeoutManagement)}'.");
+        Timeouts ?? throw new InvalidOperationException($"Saga '{GetType().FullName}' uses timeout management, but the configured saga persistence doesn't support it. Use a persistence whose definition implements '{nameof(ISupportTimeoutManagement)}'.");
 
     /// <summary>
     /// Sends the <paramref name="message" /> using the bus to the endpoint that caused this saga to start.

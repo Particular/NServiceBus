@@ -56,6 +56,8 @@ public class FeatureConfigurationContext
 
     internal bool HasSupportForStorage<TStorage>() where TStorage : StorageType, new() => persistenceConfiguration.SupportedPersistences.Contains<TStorage>();
     internal TOptions? GetStorageOptions<TOptions>() where TOptions : StorageType.Options => persistenceConfiguration.SupportedPersistences.Get<TOptions>();
+    internal bool SagaStorageSupportsTimeoutManagement => persistenceConfiguration.SagaStorageSupportsTimeoutManagement;
+    internal string? SagaPersistenceName => persistenceConfiguration.SagaPersistenceDefinition?.Name;
 
     /// <summary>
     /// Adds a new satellite receiver.

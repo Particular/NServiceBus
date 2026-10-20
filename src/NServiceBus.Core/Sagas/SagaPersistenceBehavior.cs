@@ -11,7 +11,7 @@ using Pipeline;
 using Sagas;
 using Unicast.Messages;
 
-class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, TimeoutSerializer timeoutSerializer, MessageMetadataRegistry messageMetadataRegistry, SagaTimeoutPlatformNotifier platformNotifier, IServiceProvider serviceProvider)
+class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, SagaMetadataCollection sagaMetadataCollection, TimeoutSerializer timeoutSerializer, MessageMetadataRegistry messageMetadataRegistry, SagaTimeoutPlatformNotifier platformNotifier, bool supportsTimeoutManagement, IServiceProvider serviceProvider)
     : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
 {
     [UnconditionalSuppressMessage("Trimming", "IL2057", Justification = "Best-effort saga type resolution from saga headers; when trimming removes the type, processing falls back to querying the persister for the current saga type.")]
@@ -50,7 +50,7 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
 
             if (!supportsTimeoutManagement)
             {
-                throw new Exception($"Received saga timeout '{managedTimeoutId}', but the configured saga persister doesn't support timeout management.");
+                throw new Exception($"Received saga timeout '{managedTimeoutId}', but the configured saga persistence doesn't support timeout management.");
             }
 
             if (context.MessageHandler.TimeoutMessageType != context.MessageMetadata.MessageType)
@@ -261,8 +261,6 @@ class SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdG
             await platformNotifier.NotifySagaCompleted(sagaInstanceState, context).ConfigureAwait(false);
         }
     }
-
-    readonly bool supportsTimeoutManagement = persister is ISupportTimeoutManagement;
 
     static void RemoveSagaHeadersIfProcessingAEvent(IInvokeHandlerContext context)
     {

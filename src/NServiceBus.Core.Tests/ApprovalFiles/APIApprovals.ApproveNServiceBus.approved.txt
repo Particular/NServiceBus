@@ -689,7 +689,7 @@ namespace NServiceBus
         public override string? ToString() { }
         public static NServiceBus.KeyedServiceKey AnyKey(object baseKey) { }
     }
-    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<NServiceBus.LearningPersistence> { }
+    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<NServiceBus.LearningPersistence>, NServiceBus.Sagas.ISupportTimeoutManagement { }
     public static class LearningSagaPersisterConfigurationExtensions
     {
         public static void SagaSerializerOptions(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> persistenceExtensions, System.Text.Json.JsonSerializerOptions options) { }
@@ -2595,6 +2595,12 @@ namespace NServiceBus.Sagas
     {
         public static System.Collections.Generic.IReadOnlyList<NServiceBus.Sagas.StoredSagaTimeout> GetSagaTimeouts(this NServiceBus.Extensibility.ContextBag context, NServiceBus.IContainSagaData sagaData) { }
         public static void SetSagaTimeouts(this NServiceBus.Extensibility.ContextBag context, NServiceBus.IContainSagaData sagaData, System.Collections.Generic.IEnumerable<NServiceBus.Sagas.StoredSagaTimeout> timeouts) { }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple=true)]
+    public sealed class SagaUsesTimeoutManagementAttribute : System.Attribute
+    {
+        public SagaUsesTimeoutManagementAttribute(System.Type sagaType) { }
+        public System.Type SagaType { get; }
     }
     public sealed class StoredSagaTimeout
     {
