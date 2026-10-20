@@ -52,12 +52,11 @@ public class When_rescheduling_saga_timeout : NServiceBusAcceptanceTest
                 await context.SendLocal(new RescheduleTimeout { Id = message.Id });
             }
 
-            public Task Handle(RescheduleTimeout message, IMessageHandlerContext context)
+            public async Task Handle(RescheduleTimeout message, IMessageHandlerContext context)
             {
-                var timeout = FindTimeouts<MyTimeout>(_ => true).Single();
+                var timeout = (await FindTimeouts<MyTimeout>(_ => true, context.CancellationToken)).Single();
                 timeout.Payload.Value = "Updated";
-                RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddSeconds(5));
-                return Task.CompletedTask;
+                await RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddSeconds(5), context.CancellationToken);
             }
 
             public Task Timeout(MyTimeout state, IMessageHandlerContext context)
