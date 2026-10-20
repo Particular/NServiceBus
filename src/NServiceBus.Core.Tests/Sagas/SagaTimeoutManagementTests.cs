@@ -118,11 +118,7 @@ public class SagaTimeoutManagementTests
     {
         var context = CreateContext(timeoutId: null, messageId: "message-1", isTimeoutMessage: false);
 
-        await CreateBehavior(persister).Invoke(context, _ =>
-        {
-            saga.RequestThenReschedule();
-            return Task.CompletedTask;
-        });
+        await CreateBehavior(persister).Invoke(context, _ => saga.RequestThenReschedule());
 
         Assert.That(context.SentMessages, Has.Length.EqualTo(1));
     }
@@ -132,11 +128,7 @@ public class SagaTimeoutManagementTests
     {
         var context = CreateContext(timeoutId: null, messageId: "message-1", isTimeoutMessage: false);
 
-        await CreateBehavior(persister).Invoke(context, _ =>
-        {
-            saga.RequestThenCancel();
-            return Task.CompletedTask;
-        });
+        await CreateBehavior(persister).Invoke(context, _ => saga.RequestThenCancel());
 
         Assert.That(context.SentMessages, Is.Empty);
     }
@@ -225,11 +217,7 @@ public class SagaTimeoutManagementTests
     {
         var context = CreateContext(timeoutId: null, messageId: "message-1", isTimeoutMessage: false);
 
-        await CreateBehavior(persister).Invoke(context, _ =>
-        {
-            saga.RescheduleThenChangePayload();
-            return Task.CompletedTask;
-        });
+        await CreateBehavior(persister).Invoke(context, _ => saga.RescheduleThenChangePayload());
 
         Assert.That(context.SentMessages.Single().Message, Is.TypeOf<MyTimeout>().With.Property(nameof(MyTimeout.Value)).EqualTo("changed"));
     }
@@ -239,11 +227,7 @@ public class SagaTimeoutManagementTests
     {
         var context = CreateContext(timeoutId: null, messageId: "message-1", isTimeoutMessage: false);
 
-        await CreateBehavior(persister).Invoke(context, _ =>
-        {
-            saga.RescheduleById("timeout-1");
-            return Task.CompletedTask;
-        });
+        await CreateBehavior(persister).Invoke(context, _ => saga.RescheduleById("timeout-1"));
 
         var stored = persister.Timeouts.Single();
         var sent = context.SentMessages.Single();
@@ -339,27 +323,27 @@ public class SagaTimeoutManagementTests
             payload.Value = "changed after request";
         }
 
-        public void RequestThenReschedule()
+        public Task RequestThenReschedule(CancellationToken cancellationToken = default)
         {
             var timeout = Timeouts.Add(new MyTimeout { Value = "requested" }, DateTimeOffset.UtcNow.AddHours(1));
-            RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddHours(2));
+            return RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddHours(2), cancellationToken);
         }
 
-        public void RequestThenCancel()
+        public Task RequestThenCancel(CancellationToken cancellationToken = default)
         {
             var timeout = Timeouts.Add(new MyTimeout { Value = "requested" }, DateTimeOffset.UtcNow.AddHours(1));
-            CancelTimeout(timeout.TimeoutId);
+            return CancelTimeout(timeout.TimeoutId, cancellationToken);
         }
 
-        public void RescheduleThenChangePayload()
+        public async Task RescheduleThenChangePayload(CancellationToken cancellationToken = default)
         {
-            var timeout = FindTimeouts<MyTimeout>(_ => true).Single();
+            var timeout = (await FindTimeouts<MyTimeout>(_ => true, cancellationToken)).Single();
             timeout.Payload.Value = "changed";
-            RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddHours(1));
+            await RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddHours(1), cancellationToken);
             timeout.Payload.Value = "changed after reschedule";
         }
 
-        public void RescheduleById(string timeoutId) => RescheduleTimeout(timeoutId, DateTimeOffset.UtcNow.AddHours(1));
+        public Task RescheduleById(string timeoutId, CancellationToken cancellationToken = default) => RescheduleTimeout(timeoutId, DateTimeOffset.UtcNow.AddHours(1), cancellationToken);
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSagaData> mapper) => mapper.MapSaga(s => s.Key).ToMessage<Start>(m => m.Key);
 
