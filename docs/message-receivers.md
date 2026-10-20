@@ -15,6 +15,17 @@ After every receiver has stopped, core stops features and then calls `TransportI
 
 A receiver must support `StartReceive` after `StopReceive`.
 
+### Subscriptions
+
+Core calls `ISubscriptionManager` independently of the receiver's lifecycle methods. When automatic subscriptions are enabled, core calls `SubscribeAll` during endpoint start, before `StartReceive`. User code can call `Subscribe` and `Unsubscribe` through `IMessageSession` while the endpoint runs. Core does not wait for those calls before it calls `ChangeConcurrency` or `StopReceive`, so they can overlap with either. Core cancels the token passed to them when the endpoint starts stopping, but a transport cannot rely on that to stop a call that is already in progress.
+
+A transport that receives from a separate native source for each subscription must:
+
+- Start receiving from a subscription added before `StartReceive` when the receiver starts.
+- Not receive from any source after `StopReceive` returns, including a source added while `StopReceive` runs.
+- Make `StopReceive` wait for in-flight messages from a source that `Unsubscribe` is still removing.
+- When receiving resumes after `ChangeConcurrency`, or when `StartReceive` follows `StopReceive`, receive from the current subscriptions: include ones added in the meantime and leave out ones removed.
+
 ## Concurrency
 
 For the user-facing side of concurrency, see [Tuning endpoint message processing](https://docs.particular.net/nservicebus/operations/tuning).
