@@ -64,7 +64,7 @@ public class When_updating_timeout : NServiceBusAcceptanceTest
 
             public async Task Handle(UpdateTimeoutMessage message, IMessageHandlerContext context)
             {
-                var timeout = FindTimeouts<MySagaTimeout>(context, x => true)
+                var timeout = (await FindTimeouts<MySagaTimeout>(context, x => true))
                     .Single();
                 await timeout.Update(new MySagaTimeout
                 {
@@ -75,7 +75,7 @@ public class When_updating_timeout : NServiceBusAcceptanceTest
 
             public async Task Handle(RescheduleTimeoutMessage message, IMessageHandlerContext context)
             {
-                var timeout = FindTimeouts<MySagaTimeout>(context, x => true)
+                var timeout = (await FindTimeouts<MySagaTimeout>(context, x => true))
                     .Single();
                 await timeout.Reschedule(DateTimeOffset.UtcNow, context);
             }

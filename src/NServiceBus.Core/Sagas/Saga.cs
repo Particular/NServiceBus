@@ -122,7 +122,8 @@ public abstract class Saga
     /// </summary>
     /// <param name="context">The context which is used to send the timeout.</param>
     /// <param name="predicate"></param>
-    protected IEnumerable<TimeoutReference<TTimeoutMessageType>> FindTimeouts<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, Func<TimeoutReference<TTimeoutMessageType>, bool> predicate)
+    /// <remarks>Timeouts are currently loaded with the saga, but the method is asynchronous so that a future version can load them from storage on demand.</remarks>
+    protected Task<IReadOnlyList<TimeoutReference<TTimeoutMessageType>>> FindTimeouts<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(IMessageHandlerContext context, Func<TimeoutReference<TTimeoutMessageType>, bool> predicate)
     {
         var sagaInstance = context.Extensions.Get<ActiveSagaInstance>();
 
@@ -131,7 +132,8 @@ public abstract class Saga
             throw new Exception("This saga does not support rescheduling timeouts.");
         }
 
-        return sagaInstance.TimeoutData.Find(this, predicate);
+        IReadOnlyList<TimeoutReference<TTimeoutMessageType>> timeouts = [.. sagaInstance.TimeoutData.Find(this, predicate)];
+        return Task.FromResult(timeouts);
     }
 
     /// <summary>

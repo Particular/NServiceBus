@@ -103,10 +103,12 @@ public class TimeoutReference<[DynamicallyAccessedMembers(DynamicMemberTypeAcces
     /// <summary>
     /// Cancels this timeout.
     /// </summary>
-    public void Cancel()
+    /// <param name="context">The context of the message being handled.</param>
+    public Task Cancel(IMessageHandlerContext context)
     {
-        //TODO: This may fail if cancel is called while enumerating the TimeoutReferences returned by FindTimeouts
+        ArgumentNullException.ThrowIfNull(context);
         timeoutData.Remove(TimeoutId);
+        return Task.CompletedTask;
     }
 
     /// <summary>
