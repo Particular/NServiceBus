@@ -17,6 +17,8 @@ A receiver must support `StartReceive` after `StopReceive`.
 
 ### Subscriptions
 
+Core uses the main receiver's `Subscriptions` property for endpoint subscription operations. Instance-specific and satellite receivers have publish/subscribe disabled.
+
 Core calls `ISubscriptionManager` independently of the receiver's lifecycle methods. When automatic subscriptions are enabled, core calls `SubscribeAll` during endpoint start, before `StartReceive`. User code can call `Subscribe` and `Unsubscribe` through `IMessageSession` while the endpoint runs. Core does not wait for those calls before it calls `ChangeConcurrency` or `StopReceive`, so they can overlap with either. Core cancels the token passed to them when the endpoint starts stopping, but a transport cannot rely on that to stop a call that is already in progress.
 
 A transport that receives from a separate native source for each subscription must:
@@ -37,7 +39,6 @@ For the user-facing side of concurrency, see [Tuning endpoint message processing
 - Without `LimitMessageProcessingConcurrencyTo`, core passes the shared `PushRuntimeSettings.Default` instance. Its value is `Math.Max(2, Environment.ProcessorCount)`. A transport may compare against that instance to choose its own default.
 - When rate limiting ends, core passes the original instance to `ChangeConcurrency`. A transport that maps `PushRuntimeSettings.Default` to its own default must apply the same mapping there.
 - Core provides no concurrency limiter. Each transport must enforce the limit.
-- Prefetching is allowed, but prefetched messages must not be passed to `OnMessage` beyond the limit. A concurrency change may temporarily exceed the new limit while existing invocations finish. See [Changing concurrency](#changing-concurrency). When messages wait for a slot, their native lease keeps running. See [Long-running handlers](#long-running-handlers).
 
 ### Changing concurrency
 
@@ -45,7 +46,7 @@ NServiceBus does not expose an endpoint API for users to change concurrency at r
 
 Core calls `ChangeConcurrency` outside `OnMessage` and `OnError`, so a receiver may wait for in-flight messages without deadlocking. During shutdown, core cancels the token passed to `ChangeConcurrency` and waits for the call to return before calling `StopReceive`.
 
-A receiver must accept `ChangeConcurrency` at any time between `StartReceive` and `StopReceive`, while messages are in flight. The receiver must eventually enforce the new limit, but the call need not wait for existing invocations to finish. When lowering concurrency, existing `OnMessage` and `OnError` invocations may complete normally, temporarily exceeding the new limit even after the call returns. Changing concurrency must not cancel those invocations solely to meet the new limit.
+A receiver must support `ChangeConcurrency` while messages are being processed. Lowering the limit must eventually reduce concurrency to the new value. Existing `OnMessage` and `OnError` invocations may finish normally; `ChangeConcurrency` may return before they finish. Changing concurrency must not cancel those invocations solely to meet the new limit.
 
 ## Stopping and cancellation
 
@@ -62,7 +63,7 @@ Do not invoke `OnError` when `OnMessage` throws because of shutdown cancellation
 
 Core imposes no limit on how long `OnMessage` may run, and it does not cancel a handler for taking too long. Any limit comes from the transport: a peek lock, a visibility timeout, a broker acknowledgement timeout, or a transaction timeout. When that limit expires while a handler is still running, the message becomes available again, and another receiver can process it at the same time. The first handler's acknowledgement then fails or has no effect.
 
-A transport may remember successfully processed messages whose acknowledgement failed, for example because their lease expired. On redelivery, it can retry acknowledgement without invoking `OnMessage` again. This is an optional mitigation for duplicate processing, not a core requirement. Its protection depends on how long the transport retains that information and whether it is available to the receiver handling the redelivery. It does not imply a durable deduplication guarantee.
+A transport may retry acknowledgement without invoking `OnMessage` again when a successfully processed message is redelivered after an acknowledgement failure. This mitigation is optional and does not guarantee durable deduplication.
 
 When a transport has a native lease, it should:
 
