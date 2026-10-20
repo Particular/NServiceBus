@@ -46,10 +46,10 @@ public class When_changing_saga_timeout_payload_without_rescheduling : NServiceB
                 await context.SendLocal(new ChangePayload { Id = message.Id });
             }
 
-            public Task Handle(ChangePayload message, IMessageHandlerContext context)
+            public async Task Handle(ChangePayload message, IMessageHandlerContext context)
             {
-                FindTimeouts<MyTimeout>(_ => true).Single().Payload.Value = "Changed";
-                return Task.CompletedTask;
+                var timeouts = await FindTimeouts<MyTimeout>(_ => true, context.CancellationToken);
+                timeouts.Single().Payload.Value = "Changed";
             }
 
             public Task Timeout(MyTimeout state, IMessageHandlerContext context)

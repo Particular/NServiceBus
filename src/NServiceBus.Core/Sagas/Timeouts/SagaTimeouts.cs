@@ -38,7 +38,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
         return timeout;
     }
 
-    public IEnumerable<SagaTimeout<TTimeoutMessageType>> Find<TTimeoutMessageType>(Func<SagaTimeout<TTimeoutMessageType>, bool> predicate)
+    public IReadOnlyList<SagaTimeout<TTimeoutMessageType>> Find<TTimeoutMessageType>(Func<SagaTimeout<TTimeoutMessageType>, bool> predicate)
     {
         var messageType = MessageTypeName(typeof(TTimeoutMessageType));
         var found = new List<SagaTimeout<TTimeoutMessageType>>();
