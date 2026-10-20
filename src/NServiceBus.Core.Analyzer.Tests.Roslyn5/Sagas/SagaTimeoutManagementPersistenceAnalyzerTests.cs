@@ -278,11 +278,7 @@ public class SagaTimeoutManagementPersistenceAnalyzerTests : AnalyzerTestFixture
                      {
                          protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderData> mapper) => mapper.MapSaga(s => s.OrderId).ToMessage<CancelOrder>(m => m.OrderId);
 
-                         public Task Handle(CancelOrder message, IMessageHandlerContext context)
-                         {
-                             CancelTimeout(message.TimeoutId);
-                             return Task.CompletedTask;
-                         }
+                         public Task Handle(CancelOrder message, IMessageHandlerContext context) => CancelTimeout(message.TimeoutId, context.CancellationToken);
                      }
 
                      public class OrderData : ContainSagaData

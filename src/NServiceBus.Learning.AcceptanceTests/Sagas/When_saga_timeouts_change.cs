@@ -112,24 +112,22 @@ public class When_saga_timeouts_change : NServiceBusAcceptanceTest
                 await context.SendLocal(new ChangeTimeouts { Id = message.Id });
             }
 
-            public Task Handle(ChangeTimeouts message, IMessageHandlerContext context)
+            public async Task Handle(ChangeTimeouts message, IMessageHandlerContext context)
             {
-                var fired = FindTimeouts<FiredTimeout>(_ => true).Single();
-                var canceled = FindTimeouts<CanceledTimeout>(_ => true).Single();
+                var fired = (await FindTimeouts<FiredTimeout>(_ => true, context.CancellationToken)).Single();
+                var canceled = (await FindTimeouts<CanceledTimeout>(_ => true, context.CancellationToken)).Single();
                 testContext.FiredTimeoutId = fired.TimeoutId;
                 testContext.CanceledTimeoutId = canceled.TimeoutId;
 
-                RescheduleTimeout(fired.TimeoutId, DateTimeOffset.UtcNow.AddSeconds(1));
-                CancelTimeout(canceled.TimeoutId);
-                CancelTimeout("unknown-timeout");
+                await RescheduleTimeout(fired.TimeoutId, DateTimeOffset.UtcNow.AddSeconds(1), context.CancellationToken);
+                await CancelTimeout(canceled.TimeoutId, context.CancellationToken);
+                await CancelTimeout("unknown-timeout", context.CancellationToken);
 
                 if (!testContext.ChangeAttemptFailed)
                 {
                     testContext.ChangeAttemptFailed = true;
                     throw new SimulatedException("Roll back the first attempt");
                 }
-
-                return Task.CompletedTask;
             }
 
             public Task Timeout(FiredTimeout state, IMessageHandlerContext context)
@@ -167,11 +165,11 @@ public class When_saga_timeouts_change : NServiceBusAcceptanceTest
                 await context.SendLocal(new CancelAndComplete { Id = message.Id });
             }
 
-            public Task Handle(CancelAndComplete message, IMessageHandlerContext context)
+            public async Task Handle(CancelAndComplete message, IMessageHandlerContext context)
             {
-                CancelTimeout(FindTimeouts<CanceledTimeout>(_ => true).Single().TimeoutId);
+                var timeout = (await FindTimeouts<CanceledTimeout>(_ => true, context.CancellationToken)).Single();
+                await CancelTimeout(timeout.TimeoutId, context.CancellationToken);
                 MarkAsComplete();
-                return Task.CompletedTask;
             }
 
             public Task Timeout(CanceledTimeout state, IMessageHandlerContext context) => Task.CompletedTask;

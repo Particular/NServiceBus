@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
 using Particular.Obsoletes;
@@ -113,11 +114,16 @@ public abstract class Saga
     /// Finds the pending timeouts of type <typeparamref name="TTimeoutMessageType" /> of this saga instance that match the predicate.
     /// </summary>
     /// <param name="predicate">Selects the timeouts to return, based on the timeout ID, the due time, or the payload.</param>
-    /// <remarks>Changes to a returned payload are stored only when the timeout is rescheduled with <see cref="RescheduleTimeout" />.</remarks>
-    protected IEnumerable<SagaTimeout<TTimeoutMessageType>> FindTimeouts<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(Func<SagaTimeout<TTimeoutMessageType>, bool> predicate)
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <remarks>
+    /// Changes to a returned payload are stored only when the timeout is rescheduled with <see cref="RescheduleTimeout" />.
+    /// Timeouts are currently loaded with the saga, but the method is asynchronous so that a future version can load them from storage on demand.
+    /// </remarks>
+    protected Task<IReadOnlyList<SagaTimeout<TTimeoutMessageType>>> FindTimeouts<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(Func<SagaTimeout<TTimeoutMessageType>, bool> predicate, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(predicate);
-        return GetManagedTimeouts().Find(predicate);
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(GetManagedTimeouts().Find(predicate));
     }
 
     /// <summary>
@@ -126,20 +132,26 @@ public abstract class Saga
     /// </summary>
     /// <param name="timeoutId">The ID of the timeout.</param>
     /// <param name="newDueTime">The new due time. It can be the current due time when only the payload changed.</param>
-    protected void RescheduleTimeout(string timeoutId, DateTimeOffset newDueTime)
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    protected Task RescheduleTimeout(string timeoutId, DateTimeOffset newDueTime, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(timeoutId);
+        cancellationToken.ThrowIfCancellationRequested();
         GetManagedTimeouts().Reschedule(timeoutId, newDueTime);
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// Cancels a pending timeout of this saga instance. Does nothing if no pending timeout has the given ID.
     /// </summary>
     /// <param name="timeoutId">The ID of the timeout.</param>
-    protected void CancelTimeout(string timeoutId)
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    protected Task CancelTimeout(string timeoutId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(timeoutId);
+        cancellationToken.ThrowIfCancellationRequested();
         GetManagedTimeouts().Cancel(timeoutId);
+        return Task.CompletedTask;
     }
 
     internal SagaTimeouts? Timeouts { get; set; }

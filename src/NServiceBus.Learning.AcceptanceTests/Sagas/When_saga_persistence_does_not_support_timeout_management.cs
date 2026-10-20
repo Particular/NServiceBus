@@ -44,11 +44,7 @@ public class When_saga_persistence_does_not_support_timeout_management : NServic
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper) =>
                 mapper.MapSaga(s => s.CorrelationProperty).ToMessage<StartSaga>(m => m.Id);
 
-            public Task Handle(StartSaga message, IMessageHandlerContext context)
-            {
-                CancelTimeout("timeout-id");
-                return Task.CompletedTask;
-            }
+            public Task Handle(StartSaga message, IMessageHandlerContext context) => CancelTimeout("timeout-id", context.CancellationToken);
 
             public class SagaData : ContainSagaData
             {

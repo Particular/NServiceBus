@@ -13,6 +13,7 @@ public class SagaTimeoutManagementUsageGeneratorTests
         var source = """
                      using System;
                      using System.Linq;
+                     using System.Threading;
                      using System.Threading.Tasks;
                      using NServiceBus;
 
@@ -23,10 +24,9 @@ public class SagaTimeoutManagementUsageGeneratorTests
                          {
                              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderData> mapper) => mapper.MapSaga(s => s.OrderId).ToMessage<StartOrder>(m => m.OrderId);
 
-                             public Task Handle(StartOrder message, IMessageHandlerContext context)
+                             public async Task Handle(StartOrder message, IMessageHandlerContext context)
                              {
-                                 var timeout = FindTimeouts<BuyersRemorse>(_ => true).FirstOrDefault();
-                                 return Task.CompletedTask;
+                                 var timeout = (await FindTimeouts<BuyersRemorse>(_ => true, context.CancellationToken)).FirstOrDefault();
                              }
 
                              public Task Timeout(BuyersRemorse state, IMessageHandlerContext context) => Task.CompletedTask;
@@ -41,17 +41,13 @@ public class SagaTimeoutManagementUsageGeneratorTests
 
                          public partial class CancelsTimeouts
                          {
-                             public Task Handle(StartOrder message, IMessageHandlerContext context)
-                             {
-                                 this.CancelTimeout("timeout-id");
-                                 return Task.CompletedTask;
-                             }
+                             public Task Handle(StartOrder message, IMessageHandlerContext context) => this.CancelTimeout("timeout-id", context.CancellationToken);
                          }
 
                          // The call is in a base saga in the same compilation
                          public abstract class ReschedulingSagaBase : Saga<OrderData>
                          {
-                             protected void Postpone(string timeoutId) => RescheduleTimeout(timeoutId, DateTimeOffset.UtcNow.AddDays(1));
+                             protected Task Postpone(string timeoutId, CancellationToken cancellationToken) => RescheduleTimeout(timeoutId, DateTimeOffset.UtcNow.AddDays(1), cancellationToken);
                          }
 
                          [Saga]
@@ -59,11 +55,7 @@ public class SagaTimeoutManagementUsageGeneratorTests
                          {
                              protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderData> mapper) => mapper.MapSaga(s => s.OrderId).ToMessage<StartOrder>(m => m.OrderId);
 
-                             public Task Handle(StartOrder message, IMessageHandlerContext context)
-                             {
-                                 Postpone("timeout-id");
-                                 return Task.CompletedTask;
-                             }
+                             public Task Handle(StartOrder message, IMessageHandlerContext context) => Postpone("timeout-id", context.CancellationToken);
                          }
                      }
 
