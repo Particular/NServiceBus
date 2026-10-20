@@ -66,6 +66,7 @@ A transport may remember successfully processed messages whose acknowledgement f
 
 When a transport has a native lease, it should:
 
-- Renew the lease for every message that it has received and not yet completed, including messages that wait for a concurrency slot.
+- Renew the lease for every message that it has received and not yet completed, including messages that wait for a concurrency slot. Stop renewing a message once the receiver will not pass it to `OnMessage`, for example a message still waiting for a slot when `StopReceive` is called. Release it, for example with an abandon, a nack, or a zero visibility timeout, so that it can be redelivered without waiting for in-flight invocations to return or for its lease to expire.
+- When completing a message releases it or sets its lease, make sure a renewal already in progress cannot take effect afterward.
 - Expose the renewal cap as a setting and document how it relates to handler duration.
 - Log when renewal stops, when the cap is reached, or when completion fails because the lease expired.
