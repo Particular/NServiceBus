@@ -25,6 +25,7 @@ This section points to sources that explain why the repository is designed the w
 These pages describe what core expects from, and guarantees to, transports, persisters, and serializers. Downstream repositories link to this section from their own `docs/README.md`, so add each new contract page here.
 
 - [Logging](logging.md) — why components can rely on a `Microsoft.Extensions.Logging.ILoggerFactory` being registered for every endpoint, and where that guarantee does not hold
+- [Message receivers](message-receivers.md) — what core expects from an `IMessageReceiver` for concurrency, changing concurrency, stopping, cancellation, and long-running handlers
 
 ## Decisions and rationale
 
