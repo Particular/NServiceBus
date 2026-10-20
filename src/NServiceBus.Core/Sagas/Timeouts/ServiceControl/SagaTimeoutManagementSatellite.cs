@@ -37,8 +37,15 @@ sealed partial class SagaTimeoutManagementSatellite(
     public async Task Handle(IServiceProvider serviceProvider, MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var request = SagaTimeoutManagementRequest.Parse(messageContext.Headers, messageContext.Body);
-        var messageId = IncomingMessage.GetOrSetMessageIdFromHeaders(messageContext.Headers, messageContext.NativeMessageId);
+        var incomingMessage = new IncomingMessage(
+            messageContext.NativeMessageId,
+            messageContext.Headers,
+            messageContext.Body,
+            messageContext.ReceiveProperties);
+
+        var messageId = incomingMessage.MessageId;
         var contextBag = new ContextBag(messageContext.Extensions);
+        contextBag.Set(incomingMessage);
 
         var deduplicationEntry = await outboxStorage.Get(messageId, contextBag, cancellationToken).ConfigureAwait(false);
         TransportOperation[] operations;
