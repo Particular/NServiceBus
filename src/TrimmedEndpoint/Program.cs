@@ -239,12 +239,11 @@ public class OrderSaga : Saga<OrderSagaData>,
         await context.SendLocal<RescheduleOrderTimeoutCommand>(new RescheduleOrderTimeoutCommand { OrderId = message.OrderId });
     }
 
-    public Task Handle(RescheduleOrderTimeoutCommand message, IMessageHandlerContext context)
+    public async Task Handle(RescheduleOrderTimeoutCommand message, IMessageHandlerContext context)
     {
-        var timeout = FindTimeouts<OrderTimeout>(_ => true).Single();
+        var timeout = (await FindTimeouts<OrderTimeout>(_ => true, context.CancellationToken)).Single();
         timeout.Payload.Reason = "Rescheduled";
-        RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddMilliseconds(300));
-        return Task.CompletedTask;
+        await RescheduleTimeout(timeout.TimeoutId, DateTimeOffset.UtcNow.AddMilliseconds(300), context.CancellationToken);
     }
 
     public Task Handle(HandleOrderCommand message, IMessageHandlerContext context)
