@@ -31,14 +31,14 @@ public class When_failure_happens_after_send : NServiceBusTransportTest
                     return;
                 }
 
-                await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentBeforeFailure", "" } }, context.TransportTransaction, cancellationToken: cancellationToken);
+                await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentBeforeFailure", "true" } }, context.TransportTransaction, cancellationToken: cancellationToken);
 
                 throw new Exception("Simulated exception");
 
             },
             async (context, cancellationToken) =>
             {
-                await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentFromOnError", "" } }, context.TransportTransaction, cancellationToken: cancellationToken);
+                await SendMessage(InputQueueName, new Dictionary<string, string> { { "SentFromOnError", "true" } }, context.TransportTransaction, cancellationToken: cancellationToken);
                 return ErrorHandleResult.Handled;
             },
             transactionMode);
