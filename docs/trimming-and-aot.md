@@ -39,8 +39,6 @@ To confirm that the graph is compatible:
 
 The analyzers enabled by `IsAotCompatible` cover only a subset of the warnings that publish reports, so the publish check is required even when the build has no warnings.
 
-When the component multi-targets, set `IsAotCompatible` only for target frameworks that support it, for example with `Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))"`.
-
 ### Enable the analyzers when the component cannot be marked compatible
 
 When a reference is not compatible, or the component still has reflection-based code paths, do not set `IsAotCompatible` or `IsTrimmable`. Enable the analyzers instead:
@@ -61,9 +59,15 @@ When enabling the analyzers produces too many warnings to fix at once, record th
 ### Patterns to follow
 
 - Register features explicitly with `EnableEndpointFeature<T>()`, `EnableFeature<T>()`, or `Enable<T>()` inside a feature. These APIs require a public parameterless constructor. Do not rely on assembly scanning to discover the component's features or installers.
-- Serialize with `System.Text.Json` source generation (`JsonSerializerContext` or `JsonTypeInfo<T>`) instead of reflection-based `JsonSerializer` calls. Serializers that accept user types should let users supply their own `JsonSerializerContext`.
-- Guard dynamic code with `RuntimeFeature.IsDynamicCodeSupported` instead of `#if` blocks, so one binary works in both modes. The check covers Native AOT only: a trimmed application that still uses the JIT returns `true`. Code behind the check still needs trimming annotations, and the check justifies suppressing only the AOT warning (IL3050).
-- When a type cannot be made compatible, put `[RequiresUnreferencedCode]` and `[RequiresDynamicCode]` on the class, not on the interface members it implements, so that other implementations of the interface stay compatible. Annotations on an interface member and its implementations must match (IL2046 and IL3051).
-- Do not suppress trim or AOT warnings on public APIs. Use `[UnconditionalSuppressMessage]` only on internal code whose callers already carry the annotation, and state the invariant in `Justification`. The trimmer ignores `#pragma warning disable` and `[SuppressMessage]` because neither is kept in the compiled assembly.
+- Serializers that accept user types should let users supply their own `JsonSerializerContext`, so that user message types are serialized with source-generated metadata.
 
 Adding trimming annotations without changing runtime behavior can ship in a minor release. Making an existing API throw when trimming or Native AOT is active is a breaking change.
+
+## General trimming and AOT guidance
+
+This page covers what is specific to NServiceBus. For the general techniques, such as annotating reflection, guarding dynamic code with `RuntimeFeature.IsDynamicCodeSupported`, suppressing warnings, and `System.Text.Json` source generation, see:
+
+- [Prepare .NET libraries for trimming](https://learn.microsoft.com/dotnet/core/deploying/trimming/prepare-libraries-for-trimming)
+- [Introduction to trim warnings](https://learn.microsoft.com/dotnet/core/deploying/trimming/fixing-warnings)
+- [Native AOT deployment](https://learn.microsoft.com/dotnet/core/deploying/native-aot/)
+- The [`aot-trimming` agent skill](https://github.com/Aaronontheweb/dotnet-skills/tree/master/skills/aot-trimming), which collects these techniques as a pattern playbook for coding agents
