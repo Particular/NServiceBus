@@ -6,7 +6,7 @@ When `OnMessage` throws, the transport reports the failure to core through `OnEr
 
 Call `OnError` once for each failed processing attempt, in every transaction mode. Core counts each `OnError` call as a failure, and each successful `OnMessage` as a success, for [automatic rate limiting](https://docs.particular.net/nservicebus/recoverability/#automatic-rate-limiting).
 
-A failure to complete the receive after `OnMessage` returns is also a processing failure. An example is a `TransactionScope` that aborts when it commits.
+A failure to complete the receive after `OnMessage` returns is also a processing failure. An example is a `TransactionScope` owned by the transport that aborts when it commits.
 
 Populate the `ErrorContext` as follows:
 
@@ -47,7 +47,7 @@ Core sends the error queue copy and the delayed retry through the transport's `I
 - Sends that `OnMessage` makes with `DispatchConsistency.Isolated` are emitted even when processing fails.
 - In `TransportTransactionMode.ReceiveOnly` and `TransportTransactionMode.None`, sends are not atomic with the receive. If completing the receive fails after `OnError` returned `Handled`, the error queue can get a duplicate.
 
-If the failed attempt ran in a transaction, that transaction must be rolled back. The `TransportTransaction` passed to `OnError` must not include the failed attempt's work. When `OnError` returns `Handled`, commit the transaction passed to `OnError` together with completing the receive. When it returns `RetryRequired`, roll that transaction back.
+If the failed attempt ran in a transaction owned by the transport, that transaction must be rolled back. The `TransportTransaction` passed to `OnError` must not include the failed attempt's work. When `OnError` returns `Handled`, commit the transaction passed to `OnError` together with completing the receive. When it returns `RetryRequired`, roll that transaction back.
 
 Delayed retries require `TransportDefinition.SupportsDelayedDelivery`. When the transport does not support delayed delivery, core refuses to start with delayed retries configured, and moves the message to the error queue when a custom policy requests a delayed retry.
 
