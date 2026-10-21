@@ -1,0 +1,10 @@
+templates-dir: .templates
+create:
+  include-footer: true
+issue-labels-include:
+  - "Bug"
+  - "Feature"
+  - "Improvement"
+  - "Dependency CVE"
+issue-labels-exclude:
+  - "Refactoring"
