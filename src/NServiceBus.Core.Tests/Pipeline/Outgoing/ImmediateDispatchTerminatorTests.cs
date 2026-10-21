@@ -40,14 +40,14 @@ public class ImmediateDispatchTerminatorTests
     }
 
     [Test]
-    public void Should_not_return_header_dictionaries_to_the_pool_when_dispatch_fails()
+    public async Task Should_not_return_header_dictionaries_to_the_pool_when_dispatch_fails()
     {
         var pool = NewPool();
         var headers = RentHeaders(pool, "message-1");
 
         var terminator = new ImmediateDispatchTerminator(new ThrowingDispatcher(), pool);
 
-        Assert.ThrowsAsync<InvalidOperationException>(() => terminator.Invoke(NewDispatchContext(Operation(headers)), _ => Task.CompletedTask));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => terminator.Invoke(NewDispatchContext(Operation(headers)), _ => Task.CompletedTask));
 
         var rentedAfterFailure = pool.Rent();
         using (Assert.EnterMultipleScope())
