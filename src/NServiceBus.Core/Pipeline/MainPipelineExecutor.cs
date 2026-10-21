@@ -3,7 +3,6 @@
 namespace NServiceBus;
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,7 +53,7 @@ class MainPipelineExecutor(
             {
 
                 await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
-                activity?.SetStatus(ActivityStatusCode.Ok);
+                LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
             catch (Exception ex)

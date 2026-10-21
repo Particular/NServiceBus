@@ -111,3 +111,32 @@ namespace NServiceBus.Core.Tests.Reliability.Outbox
         }
     }
 }
+
+namespace NServiceBus.Core.Tests.Pipeline
+{
+    using System.Diagnostics;
+    using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
+    using NUnit.Framework;
+
+    public partial class MainPipelineExecutorTests
+    {
+        partial class When_activity_listener_registered
+        {
+            // Covers the pre-v11 Ok status on a successful incoming pipeline. In v11 the status is left unset, as the
+            // OpenTelemetry trace API asks of instrumentation libraries: delete this test.
+            // Should_leave_status_unset_on_activity_when_pipeline_successful covers the v11 behavior.
+            [Test]
+            public async Task Should_set_ok_status_on_activity_when_pipeline_successful()
+            {
+                var receivePipeline = new ActivityTrackingReceivePipeline();
+                var serviceCollection = new ServiceCollection();
+                await using var serviceProvider = serviceCollection.BuildServiceProvider();
+                var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
+                await executor.Invoke(CreateMessageContext());
+
+                Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Ok));
+            }
+        }
+    }
+}

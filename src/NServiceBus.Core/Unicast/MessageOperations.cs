@@ -2,7 +2,6 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -80,7 +79,7 @@ class MessageOperations(
         {
             await publishPipeline.Invoke(publishContext)
                 .ConfigureAwait(false);
-            activity?.SetStatus(ActivityStatusCode.Ok);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
         }
         catch (Exception ex)
         {
@@ -113,7 +112,7 @@ class MessageOperations(
         {
             await subscribePipeline.Invoke(subscribeContext)
                 .ConfigureAwait(false);
-            activity?.SetStatus(ActivityStatusCode.Ok);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
         }
         catch (Exception ex)
         {
@@ -143,7 +142,7 @@ class MessageOperations(
         {
             await unsubscribePipeline.Invoke(unsubscribeContext)
                 .ConfigureAwait(false);
-            activity?.SetStatus(ActivityStatusCode.Ok);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
         }
         catch (Exception ex)
         {
@@ -203,7 +202,7 @@ class MessageOperations(
         {
             await sendPipeline.Invoke(outgoingContext)
                 .ConfigureAwait(false);
-            activity?.SetStatus(ActivityStatusCode.Ok);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
         }
         catch (Exception ex)
         {
@@ -263,7 +262,7 @@ class MessageOperations(
         {
             await replyPipeline.Invoke(outgoingContext)
                 .ConfigureAwait(false);
-            activity?.SetStatus(ActivityStatusCode.Ok);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
         }
         catch (Exception ex)
         {
