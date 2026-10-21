@@ -26,6 +26,7 @@ These pages describe what core expects from, and guarantees to, transports, pers
 
 - [Logging](logging.md) — why components can rely on a `Microsoft.Extensions.Logging.ILoggerFactory` being registered for every endpoint, and where that guarantee does not hold
 - [Message receivers](message-receivers.md) — what core expects from an `IMessageReceiver` for concurrency, changing concurrency, stopping, cancellation, and long-running handlers
+- [Recoverability](recoverability.md) — what core expects from a transport when `OnMessage` fails: building the `ErrorContext`, counting failures, acting on `ErrorHandleResult`, dispatching from `OnError`, and handling an `OnError` failure
 
 ## Decisions and rationale
 
