@@ -1,0 +1,46 @@
+name: Deploy Production
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+env:
+  DOTNET_NOLOGO: true
+jobs:
+  check-authorized-user:
+    uses: Particular/deployment-workflows/.github/workflows/verify-authorized-user.yml@1.0.0
+  publish-release-notes:
+    needs: check-authorized-user
+    uses: Particular/deployment-workflows/.github/workflows/publish-release-notes.yml@1.0.0
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+  virus-scan:
+    needs: publish-release-notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Scan release for viruses
+        uses: Particular/virus-scan-action@main
+        with:
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
+          tag: ${{ inputs.version }}
+          github-access-token: ${{ secrets.GITHUB_TOKEN }}
+          slack-token: ${{ secrets.SLACK_TOKEN }}
+          slack-channel: ${{ vars.VIRUS_REPORTING_SLACK_CHANNEL }}
+  push-nuget-packages:
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    needs: publish-release-notes
+    steps:
+        - name: Push NuGet packages
+          uses: particular/deployment-workflows/.github/actions/push-nuget-packages@1.0.0
+          with:
+            version: ${{ inputs.version }}
+            deploy-environment: production
+            api-key: required-but-real-value-not-needed-we-use-trusted-publishing-for-production
