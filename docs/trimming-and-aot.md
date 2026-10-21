@@ -33,7 +33,7 @@ To confirm that the component is compatible:
 
 1. Set `<VerifyReferenceAotCompatibility>true</VerifyReferenceAotCompatibility>` to get a warning for each referenced assembly that is not marked trimmable or AOT-compatible. For each reported reference, either confirm with the publish check below that the component's calls into it are safe, or reach it only through APIs that the component annotates.
 2. Publish a small endpoint that uses the component with `PublishAot`, run it, and check that the publish output contains no trim or AOT warnings outside code that only the component's annotated APIs reach. `src/TrimmedEndpoint` and `TrimmedEndpointTests` show the pattern. Publishing analyzes the full graph, including references that carry no annotations.
-3. In that endpoint, add the component's assembly as a `TrimmerRootAssembly` item. Without it, the publish analyzes only the code the endpoint reaches, not every path in the component.
+3. In that endpoint, add the component's assembly as a `TrimmerRootAssembly` item so that it is a [root assembly](https://learn.microsoft.com/dotnet/core/deploying/trimming/prepare-libraries-for-trimming#show-all-warnings-with-test-app). Without it, the publish analyzes only the code the endpoint reaches, not every path in the component.
 4. While investigating, set `<TrimmerSingleWarn>false</TrimmerSingleWarn>`. By default, publish reports one warning per referenced assembly that is not marked trimmable, which hides where in that assembly the problem is.
 5. Run that check in CI so that a dependency update cannot silently break compatibility.
 
