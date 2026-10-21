@@ -918,7 +918,7 @@ namespace NServiceBus
         // it always wins, even over an explicitly configured ExceptionRecordingMode, so operators can force the
         // exception-signal behavior without a code change/redeploy. When neither code nor the environment variable
         // chooses a mode, a hint is logged at startup so users discover the opt-in.
-        // In v11 Logs is the default, so delete this method, the members below, and the
+        // In v11 Logs is the default and SpanAndLogs is obsolete (see ExceptionRecordingMode.cs), so delete this method, the members below, and the
         // `Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault);` call in OpenTelemetryFeature's constructor.
         internal static void SetExceptionRecordingModeDefault(Settings.SettingsHolder settings)
         {
@@ -950,7 +950,7 @@ namespace NServiceBus
 
         internal const string ExceptionRecordingOptInHint =
             "Exception details of failed operations are recorded both as span events and in the log (ExceptionRecordingMode.SpanAndLogs). " +
-            "In NServiceBus version 11, ExceptionRecordingMode.Logs becomes the default and records them only in the log. To opt in now, " +
+            "In NServiceBus version 11, they are recorded only in the log (ExceptionRecordingMode.Logs) and SpanAndLogs is no longer available. To opt in now, " +
             "set endpointConfiguration.Tracing().ExceptionRecordingMode to ExceptionRecordingMode.Logs, or set the OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN " +
             "environment variable to 'logs'. Set the mode explicitly to suppress this message.";
 
