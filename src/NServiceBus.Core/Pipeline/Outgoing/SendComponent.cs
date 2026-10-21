@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using MessageInterfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Transport;
 
@@ -45,7 +46,8 @@ class SendComponent
             pipelineComponent.CreatePipeline<IOutgoingReplyContext>(builder),
             pipelineComponent.CreatePipeline<ISubscribeContext>(builder),
             pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder),
-            activityFactory);
+            activityFactory,
+            builder.GetRequiredService<ILogger<MessageOperations>>());
 
     readonly IActivityFactory activityFactory;
     readonly IMessageMapper messageMapper;

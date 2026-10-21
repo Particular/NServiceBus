@@ -15,5 +15,10 @@ interface IActivityFactory
     Activity? StartHandlerActivity(MessageHandler messageHandler);
     Activity? StartRecoverabilityActivity(ErrorContext context);
     void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress);
+    // Marks the activity as failed and, once per exception, records the exception on the innermost activity it
+    // escaped from. Logging the exception is the caller's concern.
+    void RecordError(Activity? activity, Exception exception);
+
+    // A failure in the message processing pipeline: with ExceptionRecordingMode.Logs the exception is also logged.
     void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider);
 }

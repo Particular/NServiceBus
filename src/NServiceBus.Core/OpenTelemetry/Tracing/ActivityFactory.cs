@@ -242,6 +242,23 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
     }
 
+    public void RecordError(Activity? activity, Exception exception)
+    {
+        if (activity == null)
+        {
+            return;
+        }
+
+        MarkFailed(activity, exception);
+
+        if (IsFirstRecording(exception) && Options.ExceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs)
+        {
+            AddExceptionEvent(activity, exception);
+        }
+    }
+
+    // A failure in the message processing pipeline. With ExceptionRecordingMode.Logs the exception is logged from
+    // the innermost activity it escaped from.
     public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider)
     {
         if (activity == null)
@@ -249,6 +266,27 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return;
         }
 
+        MarkFailed(activity, exception);
+
+        if (!IsFirstRecording(exception))
+        {
+            return;
+        }
+
+        if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
+        {
+            // The factory is created before the container exists, so the logger is resolved on first use.
+            logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
+            LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
+        }
+        else
+        {
+            AddExceptionEvent(activity, exception);
+        }
+    }
+
+    static void MarkFailed(Activity activity, Exception exception)
+    {
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
@@ -258,27 +296,27 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
         }
 
-        if (!exception.Data.Contains(ExceptionRecordedFlag))
-        {
-            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
-            {
-                // The factory is created before the container exists, so the logger is resolved on first use.
-                logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
-                LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
-            }
-            else
-            {
-                activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
-            }
-
-            exception.Data[ExceptionRecordedFlag] = true;
-        }
-
         if (exception is TaskCanceledException)
         {
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
     }
+
+    // The exception details are recorded once, by the innermost activity the exception escaped from; the activities
+    // further out only mark their status and error type.
+    static bool IsFirstRecording(Exception exception)
+    {
+        if (exception.Data.Contains(ExceptionRecordedFlag))
+        {
+            return false;
+        }
+
+        exception.Data[ExceptionRecordedFlag] = true;
+        return true;
+    }
+
+    static void AddExceptionEvent(Activity activity, Exception exception)
+        => activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
 
     const string ExceptionRecordedFlag = "otel.exception.recorded";
 
@@ -286,4 +324,5 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
     [LoggerMessage(LogLevel.Error, "An exception occurred while executing '{DisplayName}'.")]
     static partial void LogExceptionWhileExecuting(ILogger logger, Exception exception, string displayName);
+
 }

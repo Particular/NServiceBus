@@ -393,6 +393,42 @@ public class ActivityFactoryTests
         }
     }
 
+    class RecordError : ActivityFactoryTests
+    {
+        [Test]
+        public void Should_mark_the_activity_as_failed()
+        {
+            using var activity = new Activity("send").Start();
+            var exception = new InvalidOperationException("boom");
+
+            activityFactory.RecordError(activity, exception);
+
+            AssertFailed(activity);
+        }
+
+        static void AssertFailed(Activity activity)
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
+                Assert.That(activity.StatusDescription, Is.EqualTo("boom"));
+                Assert.That(activity.TagObjects.ToImmutableDictionary()[ActivityTags.ErrorType], Is.EqualTo(typeof(InvalidOperationException).FullName));
+            }
+        }
+
+        [TestCase(ExceptionRecordingMode.Logs, false)]
+        [TestCase(ExceptionRecordingMode.SpanAndLogs, true)]
+        public void Should_add_exception_event_in_span_and_logs_mode_only(ExceptionRecordingMode exceptionRecordingMode, bool eventExpected)
+        {
+            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
+            using var activity = new Activity("send").Start();
+
+            factory.RecordError(activity, new InvalidOperationException("boom"));
+
+            Assert.That(activity.Events.Select(e => e.Name), Is.EqualTo(eventExpected ? ["exception"] : Array.Empty<string>()));
+        }
+    }
+
     class StartHandlerActivity : ActivityFactoryTests
     {
         [Test]

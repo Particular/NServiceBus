@@ -26,4 +26,8 @@ sealed class NoOpActivityFactory : IActivityFactory
     public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider)
     {
     }
+
+    public void RecordError(Activity? activity, Exception exception)
+    {
+    }
 }

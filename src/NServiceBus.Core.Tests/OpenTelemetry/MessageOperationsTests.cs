@@ -3,8 +3,11 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Helpers;
+using Logging;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Pipeline;
 
@@ -194,6 +197,49 @@ public class MessageOperationsTests
             Assert.That(tags["otel.status_code"], Is.EqualTo("ERROR"));
             Assert.That(tags["otel.status_description"], Is.EqualTo(ex.Message));
         }
+    }
+
+    // No recoverability follows a failed operation on the message session, so the exception is logged right away,
+    // whatever the ExceptionRecordingMode, as a warning: the caller gets the exception and decides what it means.
+    [TestCase(ExceptionRecordingMode.Logs)]
+    [TestCase(ExceptionRecordingMode.SpanAndLogs)]
+    public void Should_log_the_exception_as_a_warning_on_failure(ExceptionRecordingMode exceptionRecordingMode)
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode }), logger);
+        var exception = new Exception("processing exception");
+        Activity activity = null;
+        operations.SendPipeline.OnInvoke = _ =>
+        {
+            activity = Activity.Current;
+            throw exception;
+        };
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
+
+        var entry = entries.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(entry.Level, Is.EqualTo(LogLevel.Warning));
+            Assert.That(entry.Exception, Is.SameAs(exception));
+            Assert.That(entry.Message, Is.EqualTo("An exception occurred while executing 'send message'."));
+            string[] expectedEvents = exceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs ? ["exception"] : [];
+            Assert.That(activity.Events.Select(e => e.Name), Is.EqualTo(expectedEvents));
+        }
+    }
+
+    // The log entry does not depend on tracing: it is written when no listener created an activity too.
+    [Test]
+    public void Should_log_the_exception_on_failure_without_an_activity()
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(NoOpActivityFactory.Instance, logger);
+        var exception = new Exception("processing exception");
+        operations.SendPipeline.OnInvoke = _ => throw exception;
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
+
+        Assert.That(entries.Single().Exception, Is.SameAs(exception));
     }
 
     [Test]
