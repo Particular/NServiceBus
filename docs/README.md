@@ -38,5 +38,6 @@ A pull request is listed here only when it is the canonical record for a decisio
 - Host id generation and the learning saga persister use an XxHash128-based `DeterministicGuid`, with the legacy MD5 path kept behind an `AppContext` switch until removal in v12 — [#7723](https://github.com/Particular/NServiceBus/pull/7723)
 - OpenTelemetry baggage propagation through `DistributedContextPropagator` is gated behind an `AppContext` switch until v11 to keep rolling upgrades compatible — [#7825](https://github.com/Particular/NServiceBus/pull/7825)
 - Trace-continuation behavior for delayed messages is configurable rather than fixed — [#7845](https://github.com/Particular/NServiceBus/pull/7845)
+- The metrics meter is renamed from `NServiceBus.Core.Pipeline.Incoming` to `NServiceBus.Core` only behind the OpenTelemetry v11 `AppContext` switch, emitting one scope at a time rather than both — [#7972](https://github.com/Particular/NServiceBus/pull/7972)
 
 Keep this index current when a canonical source is added, replaced, or retired; link, do not copy.
