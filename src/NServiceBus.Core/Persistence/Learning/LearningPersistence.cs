@@ -12,6 +12,9 @@ public class LearningPersistence : PersistenceDefinition, IPersistenceDefinition
 {
     LearningPersistence() => Supports<StorageType.Sagas, LearningSagaPersistence>();
 
+    /// <inheritdoc />
+    public override bool SupportsTimeoutManagement => true;
+
     /// <summary>
     /// Creates the learning persistence definition.
     /// </summary>

@@ -2,6 +2,7 @@
 
 namespace NServiceBus;
 
+using System;
 using Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,11 @@ class ReportSagaTimeoutsToPlatform : Feature
 
     protected override void Setup(FeatureConfigurationContext context)
     {
+        if (!context.SagaStorageSupportsTimeoutManagement)
+        {
+            throw new Exception($"Saga timeout reporting to ServiceControl requires a saga persistence that supports timeout management, but the selected saga persistence '{context.SagaPersistenceName}' doesn't. Use a persistence that supports timeout management, or remove the call to 'ReportSagaTimeoutsToServiceControl()'.");
+        }
+
         var endpointName = context.Settings.EndpointName();
         var managementQueue = new QueueAddress(context.Receiving.LocalQueueAddress.BaseAddress, qualifier: ManagementQueueQualifier);
 
@@ -33,6 +39,7 @@ class ReportSagaTimeoutsToPlatform : Feature
 
         context.Services.AddSingleton(serviceProvider => new SagaTimeoutManagementSatellite(
             serviceProvider.GetRequiredService<ISagaPersister>(),
+            serviceProvider.GetRequiredService<ITimeoutPersister>(),
             context.Settings.Get<SagaMetadataCollection>(),
             serviceProvider.GetRequiredService<MessageMetadataRegistry>(),
             serviceProvider.GetRequiredService<TimeoutSerializer>(),

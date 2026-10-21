@@ -689,7 +689,10 @@ namespace NServiceBus
         public override string? ToString() { }
         public static NServiceBus.KeyedServiceKey AnyKey(object baseKey) { }
     }
-    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<NServiceBus.LearningPersistence> { }
+    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition, NServiceBus.Persistence.IPersistenceDefinitionFactory<NServiceBus.LearningPersistence>
+    {
+        public override bool SupportsTimeoutManagement { get; }
+    }
     public static class LearningSagaPersisterConfigurationExtensions
     {
         public static void SagaSerializerOptions(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> persistenceExtensions, System.Text.Json.JsonSerializerOptions options) { }
@@ -2031,6 +2034,7 @@ namespace NServiceBus.Persistence
     public abstract class PersistenceDefinition
     {
         protected PersistenceDefinition() { }
+        public virtual bool SupportsTimeoutManagement { get; }
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> action) { }
         [System.Obsolete("Use \'HasSupportFor<T>()\' instead. Will be removed in version 11.0.0.", true)]
         public bool HasSupportFor(System.Type storageType) { }
@@ -2489,7 +2493,14 @@ namespace NServiceBus.Sagas
         System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
     }
-    public interface ISupportTimeoutManagement { }
+    public interface ITimeoutPersister
+    {
+        System.Threading.Tasks.Task Cancel(NServiceBus.IContainSagaData sagaData, string timeoutId, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<NServiceBus.Sagas.StoredSagaTimeout>> Get(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task MarkFired(NServiceBus.IContainSagaData sagaData, string timeoutId, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Request(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.StoredSagaTimeout timeout, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task Reschedule(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.StoredSagaTimeout timeout, NServiceBus.Persistence.ISynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context, System.Threading.CancellationToken cancellationToken = default);
+    }
     public abstract class MessagePropertyAccessor
     {
         protected MessagePropertyAccessor() { }
@@ -2591,10 +2602,11 @@ namespace NServiceBus.Sagas
     {
         public void DisableBestPracticeValidation() { }
     }
-    public static class SagaTimeoutStorageExtensions
+    [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple=true)]
+    public sealed class SagaUsesTimeoutManagementAttribute : System.Attribute
     {
-        public static System.Collections.Generic.IReadOnlyList<NServiceBus.Sagas.StoredSagaTimeout> GetSagaTimeouts(this NServiceBus.Extensibility.ContextBag context, NServiceBus.IContainSagaData sagaData) { }
-        public static void SetSagaTimeouts(this NServiceBus.Extensibility.ContextBag context, NServiceBus.IContainSagaData sagaData, System.Collections.Generic.IEnumerable<NServiceBus.Sagas.StoredSagaTimeout> timeouts) { }
+        public SagaUsesTimeoutManagementAttribute(System.Type sagaType) { }
+        public System.Type SagaType { get; }
     }
     public sealed class StoredSagaTimeout
     {

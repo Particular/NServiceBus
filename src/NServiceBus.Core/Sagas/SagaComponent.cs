@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Features;
+using Microsoft.Extensions.DependencyInjection;
 using Sagas;
 using Settings;
 
@@ -40,10 +42,33 @@ static class SagaComponent
             }
         }
 
+        if (!persistenceConfiguration.SagaStorageSupportsTimeoutManagement)
+        {
+            var sagasUsingTimeoutManagement = sagaMetaModel.Where(s => s.UsesTimeoutManagement).Select(s => s.SagaType.FullName).ToArray();
+
+            if (sagasUsingTimeoutManagement.Length != 0)
+            {
+                throw new Exception(
+                    $"The selected saga persistence '{persistenceConfiguration.SagaPersistenceDefinition?.Name}' doesn't support saga timeout management. The following sagas use FindTimeouts, RescheduleTimeout, or CancelTimeout: " +
+                    string.Join(", ", sagasUsingTimeoutManagement) + ". Use a persistence that supports timeout management, or remove the calls.");
+            }
+        }
+
         if (settings.VerifyIfEntitiesAreShared)
         {
             sagaMetaModel.VerifyIfEntitiesAreShared();
         }
+    }
+
+    // Runs after feature setup because the saga persistence feature registers the timeout persister
+    public static void AssertTimeoutPersisterIsRegistered(Settings settings, PersistenceComponent.Configuration persistenceConfiguration, IServiceCollection services)
+    {
+        if (!persistenceConfiguration.SagaStorageSupportsTimeoutManagement || !settings.IsSagasFeatureActive || services.Any(s => s.ServiceType == typeof(ITimeoutPersister)))
+        {
+            return;
+        }
+
+        throw new Exception($"The saga persistence '{persistenceConfiguration.SagaPersistenceDefinition?.Name}' supports timeout management but doesn't register an '{nameof(ITimeoutPersister)}'.");
     }
 
     public class Settings
@@ -65,6 +90,7 @@ static class SagaComponent
         public bool VerifyIfEntitiesAreShared => !settings.GetOrDefault<bool>(SagaSettings.DisableVerifyingIfEntitiesAreShared);
         public SagaMetadataCollection SagaMetadata => settings.Get<SagaMetadataCollection>();
         public bool IsSendOnlyEndpoint => settings.GetOrDefault<bool>("Endpoint.SendOnly");
+        public bool IsSagasFeatureActive => settings.IsFeatureActive<Features.Sagas>();
 
         readonly SettingsHolder settings;
     }

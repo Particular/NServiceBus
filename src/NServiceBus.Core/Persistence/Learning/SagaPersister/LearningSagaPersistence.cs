@@ -35,6 +35,7 @@ sealed class LearningSagaPersistence : Feature
 
         context.Services.AddSingleton(new SagaManifestCollection(allSagas, storageLocation, sagaName => sagaName.Replace("+", ""), serializerOptions));
         context.Services.AddSingleton<ISagaPersister, LearningSagaPersister>();
+        context.Services.AddSingleton<ITimeoutPersister, LearningTimeoutPersister>();
     }
 
     static JsonSerializerOptions GetDefaultOptions()
