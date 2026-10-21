@@ -23,25 +23,25 @@ These APIs carry `[RequiresUnreferencedCode]` or `[RequiresDynamicCode]`, so a t
 
 Downstream components are transports, persisters, serializers, and other packages that extend NServiceBus.
 
-### Mark the component compatible only when the whole dependency graph is compatible
+### Mark the component compatible only when a rooted publish has no unannotated warnings
 
-Set `<IsAotCompatible>true</IsAotCompatible>` only when the component itself and every assembly it references are trimming- and AOT-compatible. A third-party client library such as a broker or database SDK counts as a reference.
+Setting `<IsAotCompatible>true</IsAotCompatible>` tells consumers that the component produces no trim or AOT warnings, except at call sites of APIs it annotates with `[RequiresUnreferencedCode]` or `[RequiresDynamicCode]`. The component may still use reflection and reference incompatible assemblies, as long as those paths are annotated. Core is marked compatible and still contains the reflection-based paths listed above, because they are annotated.
 
-The analyzers check only the component's own code. A call into a referenced assembly that has no trimming annotations produces no warning, even when that assembly uses reflection or emits code at runtime. Marking the component compatible in that case tells consumers that the package is safe when it is not, and the failure appears at publish time or at runtime in the consumer's application.
+The analyzers check only the component's own code. A call into a referenced assembly that has no trimming annotations produces no warning, even when that assembly uses reflection or emits code at runtime. A third-party client library such as a broker or database SDK counts as a reference. A clean build is therefore not enough to claim compatibility. A package marked compatible on that basis can fail at publish time or at runtime in the consumer's application.
 
-To confirm that the graph is compatible:
+To confirm that the component is compatible:
 
-1. Check that each referenced assembly is marked trimmable or AOT-compatible. `<VerifyReferenceAotCompatibility>true</VerifyReferenceAotCompatibility>` fails the build when a referenced assembly is not marked.
-2. Publish a small endpoint that uses the component with `PublishAot`, run it, and check that the publish output contains no trim or AOT warnings. `src/TrimmedEndpoint` and `TrimmedEndpointTests` show the pattern. Publishing analyzes the full graph, including references that carry no annotations.
+1. Set `<VerifyReferenceAotCompatibility>true</VerifyReferenceAotCompatibility>` to get a warning for each referenced assembly that is not marked trimmable or AOT-compatible. For each reported reference, either confirm with the publish check below that the component's calls into it are safe, or reach it only through APIs that the component annotates.
+2. Publish a small endpoint that uses the component with `PublishAot`, run it, and check that the publish output contains no trim or AOT warnings outside code that only the component's annotated APIs reach. `src/TrimmedEndpoint` and `TrimmedEndpointTests` show the pattern. Publishing analyzes the full graph, including references that carry no annotations.
 3. In that endpoint, add the component's assembly as a `TrimmerRootAssembly` item. Without it, the publish analyzes only the code the endpoint reaches, not every path in the component.
 4. While investigating, set `<TrimmerSingleWarn>false</TrimmerSingleWarn>`. By default, publish reports one warning per referenced assembly that is not marked trimmable, which hides where in that assembly the problem is.
 5. Run that check in CI so that a dependency update cannot silently break compatibility.
 
 The analyzers enabled by `IsAotCompatible` cover only a subset of the warnings that publish reports, so the publish check is required even when the build has no warnings.
 
-### Enable the analyzers when the component cannot be marked compatible
+### Enable the analyzers when the component cannot be marked compatible yet
 
-When a reference is not compatible, or the component still has reflection-based code paths, do not set `IsAotCompatible` or `IsTrimmable`. Enable the analyzers instead:
+When the publish check reports warnings that the component cannot yet fix or annotate, do not set `IsAotCompatible` or `IsTrimmable`. Enable the analyzers instead:
 
 ```xml
 <PropertyGroup>
