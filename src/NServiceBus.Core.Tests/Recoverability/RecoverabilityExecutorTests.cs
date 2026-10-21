@@ -1,13 +1,18 @@
 ﻿namespace NServiceBus.Core.Tests.Recoverability;
 
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Pipeline;
 using Extensibility;
+using Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NServiceBus.Pipeline;
-using Transport;
 using NUnit.Framework;
+using OpenTelemetry.Helpers;
+using Pipeline;
+using Transport;
 
 [TestFixture]
 public class RecoverabilityExecutorTests
@@ -60,10 +65,43 @@ public class RecoverabilityExecutorTests
         Assert.That(errorContext.Extensions.Get<Guid>("new value"), Is.EqualTo(newValue));
     }
 
-    static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline)
+    // The transport raises a failure of recoverability as a critical error, which logs it: recoverability does not log
+    // it as well.
+    [TestCase(ExceptionRecordingMode.Logs)]
+    [TestCase(ExceptionRecordingMode.SpanAndLogs)]
+    public void Should_record_error_on_the_recoverability_activity_and_not_log_when_pipeline_throws(ExceptionRecordingMode exceptionRecordingMode)
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        Activity pipelineActivity = null;
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = _ =>
+            {
+                pipelineActivity = Activity.Current;
+                throw new InvalidOperationException("dispatch failed");
+            }
+        };
+
+        var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode }), serviceProvider);
+
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await executor.Invoke(CreateErrorContext()));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
+            Assert.That(pipelineActivity.IsStopped, Is.True);
+            Assert.That(entries.Where(e => e.Exception is InvalidOperationException), Is.Empty);
+            string[] expectedEvents = exceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs ? ["exception"] : [];
+            Assert.That(pipelineActivity.Events.Select(e => e.Name), Is.EqualTo(expectedEvents));
+        }
+    }
+
+    static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline, IActivityFactory activityFactory = null, IServiceProvider serviceProvider = null)
     {
         var executor = new RecoverabilityPipelineExecutor<object>(
-            new ServiceCollection().AddLogging().BuildServiceProvider(), // TODO: Does not get disposed
+            serviceProvider ?? new ServiceCollection().AddLogging().BuildServiceProvider(), // TODO: Does not get disposed
             new ThrowingPipelineCache(),
             new TestableMessageOperations(),
             null,
@@ -71,7 +109,7 @@ public class RecoverabilityExecutorTests
             recoverabilityPipeline,
             new FaultMetadataExtractor([], _ => { }),
             null,
-            NoOpActivityFactory.Instance
+            activityFactory ?? NoOpActivityFactory.Instance
             );
         return executor;
     }
