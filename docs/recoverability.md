@@ -43,8 +43,8 @@ A transport may run an immediate retry in memory by calling `OnMessage` again wi
 
 Core sends the error queue copy and the delayed retry through the transport's `IMessageDispatcher`. It uses `DispatchConsistency.Default` and passes `ErrorContext.TransportTransaction`. Code in `OnError`, such as a custom recoverability action, may dispatch the same way.
 
-- In `TransportTransactionMode.SendsAtomicWithReceive` and `TransportTransactionMode.TransactionScope`, sends made from `OnError` must commit atomically with completing the receive when `OnError` returns `Handled`. Sends that `OnMessage` made before the failure must not be emitted.
-- Sends that `OnMessage` makes with `DispatchConsistency.Isolated` are emitted even when processing fails.
+- In `TransportTransactionMode.SendsAtomicWithReceive` and `TransportTransactionMode.TransactionScope`, sends made from `OnError` must commit atomically with completing the receive when `OnError` returns `Handled`. Sends that `OnMessage` made before the failure are rolled back with the failed attempt and must never reach their destination.
+- Operations with `DispatchConsistency.Isolated` are the exception. Core uses this consistency when a user calls `RequireImmediateDispatch()`. The dispatcher must send these operations outside the receive transaction, in every transaction mode, so they reach their destination even when the attempt that sent them fails.
 - In `TransportTransactionMode.ReceiveOnly` and `TransportTransactionMode.None`, sends are not atomic with the receive. If completing the receive fails after `OnError` returned `Handled`, the error queue can get a duplicate.
 
 If the failed attempt ran in a transaction owned by the transport, that transaction must be rolled back. The `TransportTransaction` passed to `OnError` must not include the failed attempt's work. When `OnError` returns `Handled`, commit the transaction passed to `OnError` together with completing the receive. When it returns `RetryRequired`, roll that transaction back.
