@@ -32,20 +32,4 @@ static class ActivityExtensions
 
     public static void SetOutgoingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(OutgoingActivityKey, activity);
     public static void SetIncomingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(IncomingActivityKey, activity);
-
-    public static void SetFailedActivityContext(this ContextBag pipelineContext, Activity activity)
-        => pipelineContext.SetOnRoot(FailedActivityContextKey, activity.Context);
-
-    public static bool TryTakeFailedActivityContext(this ContextBag pipelineContext, out ActivityContext activityContext)
-    {
-        if (!pipelineContext.TryGet(FailedActivityContextKey, out activityContext))
-        {
-            return false;
-        }
-
-        pipelineContext.Remove(FailedActivityContextKey);
-        return activityContext != default;
-    }
-
-    const string FailedActivityContextKey = "NServiceBus.Diagnostics.Activity.Failed";
 }

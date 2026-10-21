@@ -107,7 +107,7 @@ public class RecoverabilityExecutorTests
         failedActivity.Stop();
 
         var errorContext = CreateErrorContext();
-        errorContext.Extensions.SetFailedActivityContext(failedActivity);
+        errorContext.Exception.AddActivityContext(failedActivity.Context);
 
         Activity pipelineActivity = null;
         var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
@@ -122,11 +122,7 @@ public class RecoverabilityExecutorTests
 
         await executor.Invoke(errorContext);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(pipelineActivity.Links.Select(l => l.Context), Does.Contain(failedActivity.Context));
-            Assert.That(errorContext.Extensions.TryTakeFailedActivityContext(out _), Is.False, "the failed activity context should be consumed");
-        }
+        Assert.That(pipelineActivity.Links.Select(l => l.Context), Does.Contain(failedActivity.Context));
     }
 
     [Test]

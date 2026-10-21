@@ -6,11 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Extensibility;
 using Pipeline;
 using Transport;
 
-sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
+sealed partial class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 {
     public InstrumentationOptions Options { get; } = options;
 
@@ -188,13 +187,6 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 
     public Activity? StartRecoverabilityActivity(ErrorContext context)
     {
-        // The context of the pipeline activity the exception escaped from, written by RecordError to the context bag
-        // the transport floats from OnMessage to OnError. It is taken whether or not a listener is present, so a
-        // transport that reuses the bag for an immediate retry cannot carry it into the next attempt. Absent when no
-        // pipeline activity was created, when the failure happened outside the activities or when the transport
-        // does not float the bag.
-        var failedActivityExists = context.Extensions.TryTakeFailedActivityContext(out var failedActivityContext);
-
         var activity = StartActivityFromIncomingMessage(
             ActivitySources.Recoverability,
             ActivityNames.RecoverabilityActivityName,
@@ -206,9 +198,9 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             return activity;
         }
 
-        if (failedActivityExists)
+        if (context.Exception.TryGetActivityContext(out var failedActivityContext))
         {
-            activity.AddLink(new ActivityLink(failedActivityContext));
+            activity.AddLink(new ActivityLink(failedActivityContext.Value));
         }
 
         activity.DisplayName = ActivityDisplayNames.Recoverability;
@@ -260,37 +252,6 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
             return;
         }
 
-        MarkFailed(activity, exception);
-
-        if (IsFirstRecording(exception) && Options.ExceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs)
-        {
-            AddExceptionEvent(activity, exception);
-        }
-    }
-
-    // A failure in the message processing pipeline: recoverability follows and links its activity to the innermost
-    // pipeline activity the exception escaped from, which is recorded on the root of the context bag, the one the
-    // transport floats from OnMessage to OnError.
-    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag)
-    {
-        if (activity == null)
-        {
-            return;
-        }
-
-        RecordError(activity, exception);
-
-        // The first activity to record the exception with a context bag is the innermost pipeline activity it
-        // escaped from. An outgoing activity that failed inside a handler records without a bag and is skipped.
-        if (!exception.Data.Contains(FailedActivityRecordedFlag))
-        {
-            exception.Data[FailedActivityRecordedFlag] = true;
-            contextBag.SetFailedActivityContext(activity);
-        }
-    }
-
-    static void MarkFailed(Activity activity, Exception exception)
-    {
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
@@ -304,25 +265,13 @@ sealed class ActivityFactory(InstrumentationOptions options) : IActivityFactory
         {
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
-    }
 
-    // The exception details are recorded once, by the innermost activity the exception escaped from; the activities
-    // further out only mark their status and error type.
-    static bool IsFirstRecording(Exception exception)
-    {
-        if (exception.Data.Contains(ExceptionRecordedFlag))
-        {
-            return false;
-        }
-
-        exception.Data[ExceptionRecordedFlag] = true;
-        return true;
+        LegacyAddExceptionEvent(activity, exception);
     }
 
     static void AddExceptionEvent(Activity activity, Exception exception)
         => activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
 
-    const string FailedActivityRecordedFlag = "otel.failed-activity.recorded";
     const string ExceptionRecordedFlag = "otel.exception.recorded";
 
 }

@@ -86,8 +86,6 @@ class MessageOperations(
         catch (Exception ex)
         {
             activityFactory.RecordError(activity, ex);
-            // Outside the message processing pipeline nothing else logs the failure. A warning: the caller gets the
-            // exception and decides what it means.
             logger.OperationFailed(ex, displayName);
             throw;
         }

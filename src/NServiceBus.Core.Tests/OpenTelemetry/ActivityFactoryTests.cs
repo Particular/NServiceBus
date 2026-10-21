@@ -406,17 +406,6 @@ public class ActivityFactoryTests
             AssertFailed(activity);
         }
 
-        [Test]
-        public void Should_mark_the_activity_as_failed_in_the_pipeline()
-        {
-            using var activity = new Activity("incoming").Start();
-            var exception = new InvalidOperationException("boom");
-
-            activityFactory.RecordError(activity, exception, new ContextBag());
-
-            AssertFailed(activity);
-        }
-
         static void AssertFailed(Activity activity)
         {
             using (Assert.EnterMultipleScope())
@@ -445,59 +434,15 @@ public class ActivityFactoryTests
             using var handlerActivity = new Activity("handler").Start();
             using var incomingActivity = new Activity("incoming").Start();
             var exception = new InvalidOperationException("boom");
-            var root = new ContextBag();
 
-            activityFactory.RecordError(handlerActivity, exception, new ContextBag(root));
-            activityFactory.RecordError(incomingActivity, exception, root);
+            activityFactory.RecordError(handlerActivity, exception);
+            activityFactory.RecordError(incomingActivity, exception);
 
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(handlerActivity.Events.Select(e => e.Name), Is.EqualTo(["exception"]));
                 Assert.That(incomingActivity.Events, Is.Empty, "the activities further out only mark their status");
                 Assert.That(incomingActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
-            }
-        }
-
-        // Whichever pipeline activities exist (the handler activity can be sampled out or its source not listened
-        // to), the first one to record an exception with a context bag is the innermost one it escaped from, and
-        // that is the one recoverability links to.
-        [TestCase(ExceptionRecordingMode.Logs)]
-        [TestCase(ExceptionRecordingMode.SpanAndLogs)]
-        public void Should_record_the_innermost_pipeline_activity_as_failed_in_the_context_bag(ExceptionRecordingMode exceptionRecordingMode)
-        {
-            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
-            using var handlerActivity = new Activity("handler").Start();
-            using var incomingActivity = new Activity("incoming").Start();
-            var exception = new InvalidOperationException("boom");
-            var root = new ContextBag();
-
-            factory.RecordError(handlerActivity, exception, new ContextBag(root));
-            factory.RecordError(incomingActivity, exception, root);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(root.TryTakeFailedActivityContext(out var failedActivityContext), Is.True);
-                Assert.That(failedActivityContext, Is.EqualTo(handlerActivity.Context));
-            }
-        }
-
-        // An outgoing activity failing inside a handler records first, but without a context bag: the pipeline
-        // activity that records next is the one recoverability links to.
-        [Test]
-        public void Should_skip_activities_recorded_without_a_context_bag_when_recording_the_failed_activity()
-        {
-            using var sendActivity = new Activity("send").Start();
-            using var handlerActivity = new Activity("handler").Start();
-            var exception = new InvalidOperationException("boom");
-            var root = new ContextBag();
-
-            activityFactory.RecordError(sendActivity, exception);
-            activityFactory.RecordError(handlerActivity, exception, root);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(root.TryTakeFailedActivityContext(out var failedActivityContext), Is.True);
-                Assert.That(failedActivityContext, Is.EqualTo(handlerActivity.Context));
             }
         }
     }

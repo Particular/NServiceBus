@@ -890,6 +890,27 @@ namespace NServiceBus
         // call there can be removed.
         partial void ApplyPreV11Defaults() => PublishTraceMode = TraceMode.StartNew;
     }
+
+    partial class ActivityFactory
+    {
+        void LegacyAddExceptionEvent(Activity activity, Exception exception)
+        {
+            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
+            {
+                return;
+            }
+
+            if (exception.Data.Contains(ExceptionRecordedFlag))
+            {
+                return;
+            }
+
+            exception.Data[ExceptionRecordedFlag] = true;
+
+            AddExceptionEvent(activity, exception);
+        }
+    }
+
 #nullable restore
 }
 

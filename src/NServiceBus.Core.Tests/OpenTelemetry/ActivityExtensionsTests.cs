@@ -55,34 +55,4 @@ public class ActivityExtensionsTests
         }
     }
 
-    [Test]
-    public void SetFailedActivityContext_should_write_the_context_to_the_root()
-    {
-        using var handlerActivity = new Activity("handler").Start();
-
-        var root = new ContextBag();
-        var child = new ContextBag(root);
-
-        child.SetFailedActivityContext(handlerActivity);
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(root.TryTakeFailedActivityContext(out var context), Is.True, "the context should be readable from the root bag");
-            Assert.That(context, Is.EqualTo(handlerActivity.Context));
-        }
-    }
-
-    [Test]
-    public void TryTakeFailedActivityContext_should_consume_the_context()
-    {
-        using var activity = new Activity("handler").Start();
-        var contextBag = new ContextBag();
-        contextBag.SetFailedActivityContext(activity);
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(contextBag.TryTakeFailedActivityContext(out _), Is.True);
-            Assert.That(contextBag.TryTakeFailedActivityContext(out _), Is.False);
-        }
-    }
 }
