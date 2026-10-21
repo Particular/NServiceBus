@@ -25,7 +25,7 @@ class ReportSagaTimeoutsToPlatform : Feature
     {
         if (!context.SagaStorageSupportsTimeoutManagement)
         {
-            throw new Exception($"Saga timeout reporting to ServiceControl requires a saga persistence that supports timeout management, but the selected saga persistence '{context.SagaPersistenceName}' doesn't. Use a persistence that implements 'ISupportTimeoutManagement', or remove the call to 'ReportSagaTimeoutsToServiceControl()'.");
+            throw new Exception($"Saga timeout reporting to ServiceControl requires a saga persistence that supports timeout management, but the selected saga persistence '{context.SagaPersistenceName}' doesn't. Use a persistence that supports timeout management, or remove the call to 'ReportSagaTimeoutsToServiceControl()'.");
         }
 
         var endpointName = context.Settings.EndpointName();
@@ -39,6 +39,7 @@ class ReportSagaTimeoutsToPlatform : Feature
 
         context.Services.AddSingleton(serviceProvider => new SagaTimeoutManagementSatellite(
             serviceProvider.GetRequiredService<ISagaPersister>(),
+            serviceProvider.GetRequiredService<ITimeoutPersister>(),
             context.Settings.Get<SagaMetadataCollection>(),
             serviceProvider.GetRequiredService<MessageMetadataRegistry>(),
             serviceProvider.GetRequiredService<TimeoutSerializer>(),

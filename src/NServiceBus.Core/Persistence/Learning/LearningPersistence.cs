@@ -4,14 +4,16 @@ namespace NServiceBus;
 
 using Features;
 using Persistence;
-using Sagas;
 
 /// <summary>
 /// Used to enable Learning persistence.
 /// </summary>
-public class LearningPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<LearningPersistence>, ISupportTimeoutManagement
+public class LearningPersistence : PersistenceDefinition, IPersistenceDefinitionFactory<LearningPersistence>
 {
     LearningPersistence() => Supports<StorageType.Sagas, LearningSagaPersistence>();
+
+    /// <inheritdoc />
+    public override bool SupportsTimeoutManagement => true;
 
     /// <summary>
     /// Creates the learning persistence definition.
