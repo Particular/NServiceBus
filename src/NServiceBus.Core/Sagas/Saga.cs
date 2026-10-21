@@ -10,7 +10,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Extensibility;
 using Particular.Obsoletes;
-using Sagas;
 
 /// <summary>
 /// This class is used to define sagas containing data and handling a message.
@@ -145,7 +144,7 @@ public abstract class Saga
     internal SagaTimeouts? Timeouts { get; set; }
 
     SagaTimeouts GetManagedTimeouts() =>
-        Timeouts ?? throw new InvalidOperationException($"Saga '{GetType().FullName}' uses timeout management, but the configured saga persistence doesn't support it. Use a persistence whose definition implements '{nameof(ISupportTimeoutManagement)}'.");
+        Timeouts ?? throw new InvalidOperationException($"Saga '{GetType().FullName}' uses timeout management, but the configured saga persistence doesn't support it. Use a persistence that supports timeout management.");
 
     /// <summary>
     /// Sends the <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
