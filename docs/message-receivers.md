@@ -6,7 +6,7 @@ Transports implement `IMessageReceiver` to receive messages for core. Transport 
 
 `ReceiveComponent` creates one receiver for the main input queue, one for the instance-specific queue when it is enabled, and one per satellite. For each receiver, core calls:
 
-1. `Initialize` once, with the `PushRuntimeSettings`, the `OnMessage` delegate, and the `OnError` delegate.
+1. `Initialize` once, with the `PushRuntimeSettings`, the `OnMessage` delegate, and the `OnError` delegate. See [Recoverability](recoverability.md) for when to call `OnError` and how to act on its result.
 2. `StartReceive` once, when the endpoint starts.
 3. `ChangeConcurrency` any number of times while the receiver runs, only when consecutive-failure rate limiting is configured. See [Changing concurrency](#changing-concurrency).
 4. `StopReceive` once, when the endpoint stops. Core passes the endpoint's stop token. Under the generic host, this is the token that `IHostedService.StopAsync` receives, which is canceled when the host's shutdown timeout expires. When an endpoint is disposed without being stopped, core passes a token that is already canceled.
