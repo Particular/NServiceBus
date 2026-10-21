@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
+using Extensibility;
 using Pipeline;
 using Transport;
 
@@ -19,6 +20,7 @@ interface IActivityFactory
     // escaped from. Logging the exception is the caller's concern.
     void RecordError(Activity? activity, Exception exception);
 
-    // A failure in the message processing pipeline: with ExceptionRecordingMode.Logs the exception is also logged.
-    void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider);
+    // A failure in the message processing pipeline: recoverability follows, so the innermost pipeline activity the
+    // exception escaped from is also recorded on the context bag for the recoverability activity to link to.
+    void RecordError(Activity? activity, Exception exception, ContextBag contextBag);
 }
