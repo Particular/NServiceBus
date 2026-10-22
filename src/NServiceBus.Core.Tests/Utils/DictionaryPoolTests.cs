@@ -3,9 +3,11 @@
 namespace NServiceBus.Core.Tests.Utils;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus.Core.Tests.Helpers;
 using NServiceBus.Transport;
@@ -594,6 +596,100 @@ public class DictionaryPoolTests
             Assert.That(pool.Count, Is.EqualTo(threads * perThread));
             Assert.That(rented, Has.All.Empty);
         }
+    }
+
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(-1)]
+    public async Task Interleaved_defers_and_drains_pool_each_dictionary_exactly_once(int maxConcurrencyLevel)
+    {
+        const int producers = 16;
+        const int iterations = 200;
+        var pool = new DictionaryPool<string, string>(maxPoolSize: producers * iterations);
+        var head = new DeferralHead();
+        var scheduler = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, maxConcurrencyLevel == -1 ? Environment.ProcessorCount : maxConcurrencyLevel).ConcurrentScheduler;
+        // Reference identity: a dictionary may be held by at most one producer at a time.
+        var held = new ConcurrentDictionary<Dictionary<string, string>, int>(ReferenceEqualityComparer.Instance);
+        var seen = new ConcurrentDictionary<Dictionary<string, string>, int>(ReferenceEqualityComparer.Instance);
+        var deferred = 0;
+        var reused = 0;
+        var producersDone = 0;
+        var violations = new ConcurrentQueue<string>();
+
+        Task Run(Func<Task> work) => Task.Factory.StartNew(work, CancellationToken.None, TaskCreationOptions.DenyChildAttach, scheduler).Unwrap();
+
+        async Task Produce(int producer)
+        {
+            for (var i = 0; i < iterations; i++)
+            {
+                var dict = pool.Rent();
+                if (!held.TryAdd(dict, producer))
+                {
+                    violations.Enqueue($"producer {producer} rented a dictionary held by producer {held[dict]}");
+                }
+
+                if (!seen.TryAdd(dict, producer))
+                {
+                    _ = Interlocked.Increment(ref reused);
+                }
+
+                if (dict.Count != 0)
+                {
+                    violations.Enqueue($"producer {producer} rented a dictionary with {dict.Count} entries");
+                }
+
+                dict["producer"] = producer.ToString();
+                await Task.Yield();
+
+                _ = held.TryRemove(dict, out _);
+                if (pool.TryDefer(dict, ref head.Value))
+                {
+                    _ = Interlocked.Increment(ref deferred);
+                }
+                else
+                {
+                    violations.Enqueue($"producer {producer} could not defer a rented dictionary");
+                }
+
+                // A direct return of a deferred instance must be ignored and must not double-pool it.
+                if (i % 7 == 0)
+                {
+                    pool.Return(dict);
+                }
+            }
+
+            _ = Interlocked.Increment(ref producersDone);
+        }
+
+        async Task Drain()
+        {
+            while (Volatile.Read(ref producersDone) < producers)
+            {
+                pool.ReturnDeferred(ref head.Value);
+                await Task.Yield();
+            }
+        }
+
+        var tasks = Enumerable.Range(0, producers).Select(p => Run(() => Produce(p))).ToList();
+        tasks.Add(Run(Drain));
+        await Task.WhenAll(tasks);
+
+        pool.ReturnDeferred(ref head.Value);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(violations, Is.Empty, string.Join(Environment.NewLine, violations));
+            Assert.That(deferred, Is.EqualTo(producers * iterations));
+            Assert.That(head.Value, Is.Null, "The final drain must leave the chain empty.");
+            // Every deferral ended as exactly one pool entry, minus the entries rented out again during the run.
+            Assert.That(pool.Count, Is.EqualTo(deferred - reused));
+            Assert.That(seen.Keys, Has.All.Empty);
+        }
+    }
+
+    sealed class DeferralHead
+    {
+        public Dictionary<string, string>? Value;
     }
 
     [Test]
