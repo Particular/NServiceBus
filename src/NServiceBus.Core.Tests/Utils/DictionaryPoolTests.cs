@@ -387,4 +387,230 @@ public class DictionaryPoolTests
         var fresh = realPool.Rent();
         Assert.That(fresh, Is.Not.SameAs(rented), "Rent must allocate a fresh dictionary.");
     }
+
+    [Test]
+    public void TryDefer_of_foreign_dictionary_is_rejected()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var foreign = new Dictionary<string, string> { ["a"] = "1" };
+        Dictionary<string, string>? head = null;
+
+        var deferred = pool.TryDefer(foreign, ref head);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(deferred, Is.False);
+            Assert.That(head, Is.Null);
+        }
+    }
+
+    [Test]
+    public void TryDefer_twice_is_rejected_the_second_time()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var dict = pool.Rent();
+        Dictionary<string, string>? head = null;
+
+        var first = pool.TryDefer(dict, ref head);
+        var second = pool.TryDefer(dict, ref head);
+
+        pool.ReturnDeferred(ref head);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(first, Is.True);
+            Assert.That(second, Is.False);
+            Assert.That(pool.Count, Is.EqualTo(1), "A dictionary deferred twice must be pooled once.");
+        }
+    }
+
+    [Test]
+    public void TryDefer_of_returned_dictionary_is_rejected()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var dict = pool.Rent();
+        pool.Return(dict);
+        Dictionary<string, string>? head = null;
+
+        Assert.That(pool.TryDefer(dict, ref head), Is.False);
+    }
+
+    [Test]
+    public void Return_of_deferred_dictionary_is_ignored_and_keeps_contents()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var dict = pool.Rent();
+        dict["a"] = "1";
+        Dictionary<string, string>? head = null;
+        _ = pool.TryDefer(dict, ref head);
+
+        pool.Return(dict);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dict, Does.ContainKey("a"), "A deferred dictionary must not be cleared by a direct return.");
+            Assert.That(pool.Count, Is.Zero, "A deferred dictionary must not be pooled by a direct return.");
+            Assert.That(pool.Rent(), Is.Not.SameAs(dict));
+        }
+    }
+
+    [Test]
+    public void ReturnDeferred_clears_and_pools_every_deferred_dictionary()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var first = pool.Rent();
+        var second = pool.Rent();
+        first["a"] = "1";
+        second["b"] = "2";
+        Dictionary<string, string>? head = null;
+        _ = pool.TryDefer(first, ref head);
+        _ = pool.TryDefer(second, ref head);
+
+        pool.ReturnDeferred(ref head);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(head, Is.Null);
+            Assert.That(pool.Count, Is.EqualTo(2));
+            Assert.That(first, Is.Empty);
+            Assert.That(second, Is.Empty);
+        }
+
+        var rented = new[] { pool.Rent(), pool.Rent() };
+        Assert.That(rented, Is.EquivalentTo(new[] { first, second }));
+    }
+
+    [Test]
+    public void ReturnDeferred_makes_dictionary_returnable_again_after_rent()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var dict = pool.Rent();
+        Dictionary<string, string>? head = null;
+        _ = pool.TryDefer(dict, ref head);
+        pool.ReturnDeferred(ref head);
+
+        var reused = pool.Rent();
+        reused["a"] = "1";
+        pool.Return(reused);
+
+        Assert.That(pool.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ReturnDeferred_respects_maxPoolSize()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 2);
+        Dictionary<string, string>? head = null;
+        for (var i = 0; i < 5; i++)
+        {
+            _ = pool.TryDefer(pool.Rent(), ref head);
+        }
+
+        pool.ReturnDeferred(ref head);
+
+        Assert.That(pool.Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void ReturnDeferred_trims_oversized_dictionaries()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4, maxRetainedCapacityPerItem: 4);
+        var dict = pool.Rent();
+        for (var i = 0; i < 100; i++)
+        {
+            dict[i.ToString()] = "v";
+        }
+
+        var capacityBefore = dict.Capacity;
+        Dictionary<string, string>? head = null;
+        _ = pool.TryDefer(dict, ref head);
+
+        pool.ReturnDeferred(ref head);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dict, Is.Empty);
+            Assert.That(dict.Capacity, Is.LessThan(capacityBefore));
+        }
+    }
+
+    [Test]
+    public void ReturnDeferred_with_null_head_is_a_no_op()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        Dictionary<string, string>? head = null;
+
+        Assert.DoesNotThrow(() => pool.ReturnDeferred(ref head));
+        Assert.That(pool.Count, Is.Zero);
+    }
+
+    [Test]
+    public void ReturnDeferred_called_twice_pools_each_dictionary_once()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        Dictionary<string, string>? head = null;
+        _ = pool.TryDefer(pool.Rent(), ref head);
+
+        pool.ReturnDeferred(ref head);
+        pool.ReturnDeferred(ref head);
+
+        Assert.That(pool.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Concurrent_defers_are_all_drained()
+    {
+        const int threads = 16;
+        const int perThread = 500;
+        var pool = new DictionaryPool<string, string>(maxPoolSize: threads * perThread);
+        var rented = new List<Dictionary<string, string>>(threads * perThread);
+        for (var i = 0; i < threads * perThread; i++)
+        {
+            var dict = pool.Rent();
+            dict["a"] = "1";
+            rented.Add(dict);
+        }
+
+        Dictionary<string, string>? head = null;
+        var deferredCount = 0;
+        var tasks = Enumerable.Range(0, threads).Select(t => Task.Factory.StartNew(() =>
+        {
+            for (var i = 0; i < perThread; i++)
+            {
+                if (pool.TryDefer(rented[(t * perThread) + i], ref head))
+                {
+                    _ = System.Threading.Interlocked.Increment(ref deferredCount);
+                }
+            }
+        }, TaskCreationOptions.LongRunning)).ToArray();
+
+        await Task.WhenAll(tasks);
+
+        pool.ReturnDeferred(ref head);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(deferredCount, Is.EqualTo(threads * perThread));
+            Assert.That(pool.Count, Is.EqualTo(threads * perThread));
+            Assert.That(rented, Has.All.Empty);
+        }
+    }
+
+    [Test]
+    public void Always_allocate_never_defers()
+    {
+        var dict = HeaderPool.AlwaysAllocate.Rent();
+        dict["a"] = "1";
+        Dictionary<string, string>? head = null;
+
+        var deferred = HeaderPool.AlwaysAllocate.TryDefer(dict, ref head);
+        HeaderPool.AlwaysAllocate.ReturnDeferred(ref head);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(deferred, Is.False);
+            Assert.That(head, Is.Null);
+            Assert.That(dict, Does.ContainKey("a"));
+        }
+    }
 }
