@@ -210,6 +210,46 @@ public class OutboxStorageTests(TestVariant param)
         await storage.SetAsDispatched(messageId, configuration.GetContextBagForOutbox());
     }
 
+    [Test]
+    public async Task Should_not_retain_header_dictionaries_passed_to_store()
+    {
+        configuration.RequiresOutboxSupport();
+
+        var storage = configuration.OutboxStorage;
+        var ctx = configuration.GetContextBagForOutbox();
+
+        var messageId = Guid.NewGuid().ToString();
+        _ = await storage.Get(messageId, ctx);
+
+        var headers = new Dictionary<string, string>
+        {
+            { "HeaderPooling.Key1", "value1" },
+            { "HeaderPooling.Key2", "value2" },
+        };
+        var messageToStore = new OutboxMessage(messageId,
+            [new TransportOperation(Guid.NewGuid().ToString(), null, new byte[] { 1, 2, 3 }, headers)]);
+
+        await using (var transaction = await storage.BeginTransaction(ctx))
+        {
+            await storage.Store(messageToStore, transaction, ctx);
+
+            await transaction.Commit();
+        }
+
+        // Emulates dispatch under header pooling: after a successful dispatch, the header dictionaries that were
+        // passed to Store are cleared and reused for other messages.
+        headers.Clear();
+
+        var storedMessage = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+
+        Assert.That(storedMessage, Is.Not.Null);
+        Assert.That(storedMessage.TransportOperations[0].Headers, Is.SupersetOf(new Dictionary<string, string>
+        {
+            { "HeaderPooling.Key1", "value1" },
+            { "HeaderPooling.Key2", "value2" },
+        }), "IOutboxStorage.Store must not keep the header dictionaries it receives; they are cleared and reused after dispatch.");
+    }
+
     PersistenceTestsConfiguration configuration;
     readonly TestVariant param = param.DeepCopy();
 }

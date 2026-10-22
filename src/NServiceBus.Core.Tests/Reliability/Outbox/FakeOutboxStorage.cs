@@ -32,7 +32,7 @@ class FakeOutboxStorage : IOutboxStorage
 
     public Task Store(OutboxMessage message, IOutboxTransaction transaction, ContextBag options, CancellationToken cancellationToken = default)
     {
-        StoredMessage = message;
+        StoredMessage = new OutboxMessage(message.MessageId, [.. message.TransportOperations.Select(DeepClone)]);
         return Task.CompletedTask;
     }
 
