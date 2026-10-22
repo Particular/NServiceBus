@@ -9,12 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Logging;
 using Particular.Obsoletes;
+using Transport;
 
 class MessageSession : IMessageSession
 {
-    internal MessageSession(LogSlot loggingSlot)
+    internal MessageSession(LogSlot loggingSlot, HeaderPool headerPool)
     {
         this.loggingSlot = loggingSlot;
+        this.headerPool = headerPool;
         initializedTaskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
     }
 
@@ -93,7 +95,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Send(context, message, sendOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     [OverloadResolutionPriority(-1)]
@@ -105,7 +115,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, sendOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Send(context, message, sendOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     public async Task Send(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, SendOptions sendOptions, CancellationToken cancellationToken = default)
@@ -117,7 +135,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Send(CreateContext(linkedTokenSource.Token), message, messageType, sendOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Send(context, message, messageType, sendOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     public async Task Send<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, SendOptions sendOptions, CancellationToken cancellationToken = default)
@@ -128,7 +154,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Send(CreateContext(linkedTokenSource.Token), messageConstructor, sendOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Send(context, messageConstructor, sendOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
@@ -143,7 +177,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Publish(context, message, publishOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     [OverloadResolutionPriority(-1)]
@@ -155,7 +197,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, publishOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Publish(context, message, publishOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     public async Task Publish(object message, [DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] Type messageType, PublishOptions publishOptions, CancellationToken cancellationToken = default)
@@ -167,7 +217,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Publish(CreateContext(linkedTokenSource.Token), message, messageType, publishOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Publish(context, message, messageType, publishOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     public async Task Publish<[DynamicallyAccessedMembers(IMessageCreator.CreatorMembersRequired)] T>(Action<T> messageConstructor, PublishOptions publishOptions, CancellationToken cancellationToken = default)
@@ -178,7 +236,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Publish(CreateContext(linkedTokenSource.Token), messageConstructor, publishOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Publish(context, messageConstructor, publishOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     public async Task Subscribe(Type eventType, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
@@ -189,7 +255,15 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Subscribe(CreateContext(linkedTokenSource.Token), eventType, subscribeOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Subscribe(context, eventType, subscribeOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     public async Task SubscribeAll(Type[] eventTypes, SubscribeOptions subscribeOptions, CancellationToken cancellationToken = default)
@@ -199,7 +273,15 @@ class MessageSession : IMessageSession
         // set a flag on the context so that subscribe implementations know which send API was used.
         subscribeOptions.Context.Set(SubscribeAllFlagKey, true);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Subscribe(CreateContext(linkedTokenSource.Token), eventTypes, subscribeOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Subscribe(context, eventTypes, subscribeOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     public async Task Unsubscribe(Type eventType, UnsubscribeOptions unsubscribeOptions, CancellationToken cancellationToken = default)
@@ -210,10 +292,19 @@ class MessageSession : IMessageSession
         using var _ = LogManager.BeginSlotScope(loggingSlot);
         await WaitUntilInitialized(cancellationToken).ConfigureAwait(false);
         using var linkedTokenSource = CreateOperationLinkedTokenSource(cancellationToken);
-        await messageOperations.Unsubscribe(CreateContext(linkedTokenSource.Token), eventType, unsubscribeOptions).ConfigureAwait(false);
+        var context = CreateContext(linkedTokenSource.Token);
+        try
+        {
+            await messageOperations.Unsubscribe(context, eventType, unsubscribeOptions).ConfigureAwait(false);
+        }
+        finally
+        {
+            context.ReturnDeferredHeaders(headerPool);
+        }
     }
 
     readonly LogSlot loggingSlot;
+    readonly HeaderPool headerPool;
     IServiceProvider? serviceProvider;
     MessageOperations? messageOperations;
     IPipelineCache? pipelineCache;

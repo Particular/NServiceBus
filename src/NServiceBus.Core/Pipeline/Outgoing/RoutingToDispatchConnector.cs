@@ -63,11 +63,12 @@ class RoutingToDispatchConnector(HeaderPool headerPool) : StageConnector<IRoutin
         }
 
         // When copies were made for multicast, the original headers dictionary is no longer
-        // needed by any transport operation. Return it to the pool. When copies were NOT made
-        // (unicast), the original is in the transport operations and will be returned after dispatch.
+        // needed by any transport operation, but outgoing behaviors may still read it while unwinding,
+        // so the owning pipeline invocation returns it. When copies were NOT made (unicast), the
+        // original is in the transport operations and is deferred after dispatch.
         if (copySharedMutableMessageState)
         {
-            headerPool.Return(outgoingMessage.Headers);
+            PipelineRootContext.FindOwner(context.Extensions)?.DeferHeaderReturn(headerPool, outgoingMessage.Headers);
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))

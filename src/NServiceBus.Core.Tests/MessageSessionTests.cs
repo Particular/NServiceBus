@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Transport;
 
 [TestFixture]
 public class MessageSessionTests
@@ -32,7 +33,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), HeaderPool.AlwaysAllocate);
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
         await session.Send(new object());
@@ -56,7 +57,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), HeaderPool.AlwaysAllocate);
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), new CancellationToken(true));
 
         await Assert.ThrowsAsync<OperationCanceledException>(async () =>
@@ -77,7 +78,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), HeaderPool.AlwaysAllocate);
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
         await Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken(true)));
@@ -86,7 +87,7 @@ public class MessageSessionTests
     [Test]
     public async Task Deferred_session_should_wait_until_initialized()
     {
-        var deferredSession = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
+        var deferredSession = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), HeaderPool.AlwaysAllocate);
         var messageOperations = new TestableMessageOperations();
 
         var sendTask = deferredSession.Send(new object(), new SendOptions());

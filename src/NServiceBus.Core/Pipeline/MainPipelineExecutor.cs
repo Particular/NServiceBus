@@ -17,7 +17,8 @@ class MainPipelineExecutor(
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
     IncomingPipelineMetrics incomingPipelineMetrics,
-    EnvelopeUnwrapper envelopeUnwrapper)
+    EnvelopeUnwrapper envelopeUnwrapper,
+    HeaderPool headerPool)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -51,34 +52,41 @@ class MainPipelineExecutor(
 
             try
             {
-                await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
-            }
+                try
+                {
+                    await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
+                }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
-            catch (Exception ex)
+                catch (Exception ex)
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
-            {
-                ex.Data["Message ID"] = message.MessageId;
-
-                if (message.NativeMessageId != message.MessageId)
                 {
-                    ex.Data["Transport message ID"] = message.NativeMessageId;
+                    ex.Data["Message ID"] = message.MessageId;
+
+                    if (message.NativeMessageId != message.MessageId)
+                    {
+                        ex.Data["Transport message ID"] = message.NativeMessageId;
+                    }
+
+                    ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
+
+                    if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
+                    {
+                        incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+                    }
+                    throw;
+                }
+                finally
+                {
+                    incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
                 }
 
-                ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
-
-                if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
-                {
-                    incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
-                }
-                throw;
+                var completedAt = DateTimeOffset.UtcNow;
+                await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
             }
             finally
             {
-                incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
+                transportReceiveContext.ReturnDeferredHeaders(headerPool);
             }
-
-            var completedAt = DateTimeOffset.UtcNow;
-            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
         }
     }
 }

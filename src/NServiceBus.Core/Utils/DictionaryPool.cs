@@ -146,7 +146,8 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// The pool only retains instances it handed out itself. Returning a dictionary
     /// that was not rented from this pool, or returning the same instance twice,
     /// is a no-op: the instance is not pooled, not cleared, and simply left to the
-    /// garbage collector.
+    /// garbage collector. A dictionary parked with <c>TryDefer</c> is owned by the
+    /// deferral list and is ignored the same way.
     /// </para>
     /// <para>
     /// Not returning a rented dictionary will NOT result in any memory leaks:
@@ -165,6 +166,59 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
             return;
         }
 
+        Pool(pooled, clearDictionary);
+    }
+
+    /// <summary>
+    /// Parks a rented dictionary on the lock-free list rooted at <paramref name="head"/> so it can be
+    /// returned later with <see cref="ReturnDeferred"/>. Only a rented instance of this pool can be
+    /// deferred; foreign, already returned, and already deferred instances are rejected. While deferred,
+    /// <see cref="Return"/> ignores the instance and its contents stay intact.
+    /// </summary>
+    internal bool TryDefer(Dictionary<TKey, TValue> dictionary, ref Dictionary<TKey, TValue>? head)
+    {
+        ArgumentNullException.ThrowIfNull(dictionary);
+
+        if (dictionary is not Pooled pooled || !pooled.TryMarkAsDeferred())
+        {
+            return false;
+        }
+
+        Pooled? current;
+        do
+        {
+            current = (Pooled?)Volatile.Read(ref head);
+            pooled.next = current;
+        } while (!ReferenceEquals(Interlocked.CompareExchange(ref head, pooled, current), current));
+
+        if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryDeferred(PoolId, pooled.Count);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Takes every dictionary parked on <paramref name="head"/> and returns it to the pool.
+    /// Safe to call with an empty list and safe to call more than once.
+    /// </summary>
+    internal void ReturnDeferred(ref Dictionary<TKey, TValue>? head)
+    {
+        var node = (Pooled?)Interlocked.Exchange(ref head, null);
+
+        while (node is not null)
+        {
+            var following = node.next;
+            node.next = null;
+            node.MarkDeferredAsInPool();
+            Pool(node, clearDictionary: true);
+            node = following;
+        }
+    }
+
+    void Pool(Pooled pooled, bool clearDictionary)
+    {
         var tooLarge = pooled.Count > maxRetainedCapacityPerItem;
         var dictionaryEntryCount = pooled.Count; // capture before Clear
 
@@ -220,10 +274,17 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     {
         const int RentedOut = 0;
         const int InPool = 1;
+        const int Deferred = 2;
 
         int state = RentedOut;
 
-        internal bool TryMarkInPool() => Interlocked.Exchange(ref state, InPool) == RentedOut;
+        internal Pooled? next;
+
+        internal bool TryMarkInPool() => Interlocked.CompareExchange(ref state, InPool, RentedOut) == RentedOut;
+
+        internal bool TryMarkAsDeferred() => Interlocked.CompareExchange(ref state, Deferred, RentedOut) == RentedOut;
+
+        internal void MarkDeferredAsInPool() => Volatile.Write(ref state, InPool);
 
         internal void MarkAsRentedOut() => Volatile.Write(ref state, RentedOut);
     }
