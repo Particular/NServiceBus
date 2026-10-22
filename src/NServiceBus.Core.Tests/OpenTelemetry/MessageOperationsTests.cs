@@ -10,6 +10,7 @@ using Logging;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Pipeline;
+using Testing;
 
 [TestFixture]
 public class MessageOperationsTests
@@ -273,6 +274,20 @@ public class MessageOperationsTests
             Assert.That(entry.Exception, Is.SameAs(exception));
             Assert.That(entry.Activity, Is.SameAs(operationActivity), "the log record should be correlated with the operation span");
         }
+    }
+
+    // An operation started from a handler fails the message processing too, and recoverability logs the exception
+    // with its decision: the operation does not log it as well.
+    [Test]
+    public void Should_not_log_the_exception_on_failure_inside_message_processing()
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions()), logger);
+        operations.SendPipeline.OnInvoke = _ => throw new Exception("processing exception");
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(new TestableInvokeHandlerContext(), new object(), new SendOptions()));
+
+        Assert.That(entries, Is.Empty);
     }
 
     // The log entry does not depend on tracing: it is written when no listener created an activity too.
