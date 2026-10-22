@@ -58,6 +58,11 @@ class SatelliteRecoverabilityExecutor<TState>(
         var dispatcher = serviceProvider.GetRequiredService<IMessageDispatcher>();
         await dispatcher.Dispatch(new TransportOperations([.. transportOperations]), errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
 
+        foreach (var transportOperation in transportOperations)
+        {
+            headerPool.Return(transportOperation.Message.Headers);
+        }
+
         return recoverabilityAction.ErrorHandleResult;
     }
 

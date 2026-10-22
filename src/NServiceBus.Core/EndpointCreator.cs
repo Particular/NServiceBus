@@ -10,6 +10,7 @@ using MessageInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Settings;
+using Transport;
 using Unicast.Messages;
 
 class EndpointCreator
@@ -179,7 +180,7 @@ class EndpointCreator
         _ = services.AddMetrics();
 
         hostingComponent = HostingComponent.Initialize(hostingConfiguration);
-        MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot);
+        MessageSession = new MessageSession(hostingConfiguration.EndpointLogSlot, settings.GetHeaderPool());
 
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = SuppressJustification)]
         [UnconditionalSuppressMessage("AOT", "IL3050", Justification = SuppressJustification)]

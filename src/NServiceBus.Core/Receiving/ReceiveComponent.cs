@@ -186,8 +186,9 @@ partial class ReceiveComponent
         var receivePipeline = pipelineComponent.CreatePipeline<ITransportReceiveContext>(builder);
 
         var pipelineMetrics = builder.GetRequiredService<IncomingPipelineMetrics>();
+        var headerPool = builder.GetRequiredService<HeaderPool>();
         var envelopeUnwrapper = envelopeComponent.CreateUnwrapper(builder);
-        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
+        var mainPipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper, headerPool);
 
         var recoverabilityPipelineExecutor = recoverabilityComponent.CreateRecoverabilityPipelineExecutor(
             builder,
@@ -208,7 +209,7 @@ partial class ReceiveComponent
             string discriminator = configuration.InstanceSpecificQueueAddress?.Discriminator ?? InstanceSpecificReceiverId;
             var instanceProcessingLogSlot = new EndpointDiscriminatorLogSlot(endpointLogSlot, discriminator);
             var instancePump = CreateReceiver(consecutiveFailuresConfiguration, instanceSpecificPump, instanceProcessingLogSlot, slotFactory, manageSlotLifecycle: true);
-            var instancePipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper);
+            var instancePipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper, headerPool);
 
             await instancePump.Initialize(
                 configuration.PushRuntimeSettings,

@@ -107,4 +107,17 @@ sealed class DictionaryPoolEventSource : EventSource
             WriteEvent(6, poolId, keyType, valueType);
         }
     }
+
+    /// <summary>
+    /// Fired when a rented dictionary was parked for a later return instead of being returned
+    /// immediately. Verbose for the same reason as <see cref="DictionaryRented"/>.
+    /// </summary>
+    [Event(7, Level = EventLevel.Verbose)]
+    internal void DictionaryDeferred(int poolId, int dictionaryCount)
+    {
+        if (IsEnabled(EventLevel.Verbose, EventKeywords.None))
+        {
+            WriteEvent(7, poolId, dictionaryCount);
+        }
+    }
 }
