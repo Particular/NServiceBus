@@ -10,7 +10,6 @@ using Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Transport;
-using Utils;
 
 class SatelliteRecoverabilityExecutor<TState>(
     IServiceProvider serviceProvider,
@@ -80,8 +79,7 @@ class SatelliteRecoverabilityExecutor<TState>(
         static ContextBag CreateExtensions(HeaderPool pool)
         {
             var extensions = new ContextBag();
-            // Recoverability actions look the pool up by the base type.
-            extensions.Set<DictionaryPool<string, string>>(pool);
+            extensions.Set(pool);
             return extensions;
         }
 #pragma warning disable CS0618 // Type or member is obsolete. Can be removed in the next major when FailedMessage is removed from the interface.
