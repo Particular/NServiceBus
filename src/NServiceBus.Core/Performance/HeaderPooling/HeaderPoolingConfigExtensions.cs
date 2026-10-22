@@ -15,8 +15,10 @@ public static class HeaderPoolingConfigExtensions
     {
         /// <summary>
         /// Enables pooling of outgoing message header dictionaries. Dictionaries are rented
-        /// when messages are sent and returned to the pool after they have been dispatched;
-        /// reading headers after the pipeline completes is outside the contract.
+        /// when messages are sent and returned to the pool once the message has been dispatched
+        /// and the pipeline invocation that sent it has completed, that is, when the incoming message
+        /// has been processed or the session operation has returned. Keeping a reference to a header
+        /// dictionary beyond that point is outside the contract.
         /// </summary>
         public void EnableHeaderPooling()
         {
