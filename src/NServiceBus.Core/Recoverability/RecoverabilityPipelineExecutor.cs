@@ -48,7 +48,7 @@ class RecoverabilityPipelineExecutor<TState>(
             }
             finally
             {
-                recoverabilityContext.ReturnDeferredHeaders(headerPool);
+                recoverabilityContext.ReturnDeferredHeaders();
             }
 
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;

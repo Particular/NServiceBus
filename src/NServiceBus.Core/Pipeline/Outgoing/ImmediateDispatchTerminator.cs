@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Pipeline;
 using Transport;
 
-class ImmediateDispatchTerminator(IMessageDispatcher dispatcher, HeaderPool headerPool) : PipelineTerminator<IDispatchContext>
+class ImmediateDispatchTerminator(IMessageDispatcher dispatcher) : PipelineTerminator<IDispatchContext>
 {
     protected override async Task Terminate(IDispatchContext context)
     {
@@ -27,7 +27,7 @@ class ImmediateDispatchTerminator(IMessageDispatcher dispatcher, HeaderPool head
 
         foreach (var operation in operations)
         {
-            owner.DeferHeaderReturn(headerPool, operation.Message.Headers);
+            owner.DeferHeaderReturn(operation.Message.Headers);
         }
     }
 }

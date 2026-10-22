@@ -10,9 +10,10 @@ using Transport;
 
 class PipelineRootContext : BehaviorContext
 {
-    public PipelineRootContext(IServiceProvider builder, MessageOperations messageOperations, IPipelineCache pipelineCache, CancellationToken cancellationToken, ContextBag? parentContext = null)
+    public PipelineRootContext(IServiceProvider builder, MessageOperations messageOperations, IPipelineCache pipelineCache, HeaderPool headerPool, CancellationToken cancellationToken, ContextBag? parentContext = null)
         : base(parentContext, cancellationToken)
     {
+        this.headerPool = headerPool;
         Set(messageOperations);
         Set(builder);
         Set(pipelineCache);
@@ -31,9 +32,10 @@ class PipelineRootContext : BehaviorContext
         return null;
     }
 
-    internal void DeferHeaderReturn(HeaderPool pool, Dictionary<string, string> headers) => pool.TryDefer(headers, ref deferredHeaders);
+    internal void DeferHeaderReturn(Dictionary<string, string> headers) => headerPool.TryDefer(headers, ref deferredHeaders);
 
-    internal void ReturnDeferredHeaders(HeaderPool pool) => pool.ReturnDeferred(ref deferredHeaders);
+    internal void ReturnDeferredHeaders() => headerPool.ReturnDeferred(ref deferredHeaders);
 
+    readonly HeaderPool headerPool;
     Dictionary<string, string>? deferredHeaders;
 }

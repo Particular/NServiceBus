@@ -206,7 +206,7 @@ public class RoutingToDispatchConnectorTests
     {
         var pool = new HeaderPool(maxPoolSize: 8);
         var behavior = new RoutingToDispatchConnector(pool);
-        var owner = new FakeRootContext();
+        var owner = new FakeRootContext(pool);
         var originalHeaders = pool.Rent();
         originalHeaders["SomeHeaderKey"] = "SomeHeaderValue";
         var routingContext = new RoutingContext(
@@ -222,7 +222,7 @@ public class RoutingToDispatchConnectorTests
             Assert.That(pool.Count, Is.Zero, "The original headers must not be pooled before the owner drains.");
         }
 
-        owner.ReturnDeferredHeaders(pool);
+        owner.ReturnDeferredHeaders();
 
         using (Assert.EnterMultipleScope())
         {

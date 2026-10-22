@@ -68,7 +68,7 @@ class MessageSession : IMessageSession
         ArgumentNullException.ThrowIfNull(messageOperations);
         ArgumentNullException.ThrowIfNull(pipelineCache);
 
-        return new PipelineRootContext(serviceProvider, messageOperations, pipelineCache, cancellationToken);
+        return new PipelineRootContext(serviceProvider, messageOperations, pipelineCache, headerPool, cancellationToken);
     }
 
     CancellationTokenSource CreateOperationLinkedTokenSource(CancellationToken cancellationToken)
@@ -102,7 +102,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -122,7 +122,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -142,7 +142,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -161,7 +161,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -184,7 +184,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -204,7 +204,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -224,7 +224,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -243,7 +243,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -262,7 +262,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -280,7 +280,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
@@ -299,7 +299,7 @@ class MessageSession : IMessageSession
         }
         finally
         {
-            context.ReturnDeferredHeaders(headerPool);
+            context.ReturnDeferredHeaders();
         }
     }
 
