@@ -22,8 +22,8 @@ public class ImmediateDispatchTerminatorTests
         var second = RentHeaders(pool, "message-2");
 
         var dispatcher = new FakeDispatcher();
-        var terminator = new ImmediateDispatchTerminator(dispatcher, pool);
-        var owner = new FakeRootContext();
+        var terminator = new ImmediateDispatchTerminator(dispatcher);
+        var owner = new FakeRootContext(pool);
 
         await terminator.Invoke(NewDispatchContext(owner, Operation(first), Operation(second)), _ => Task.CompletedTask);
 
@@ -35,7 +35,7 @@ public class ImmediateDispatchTerminatorTests
             Assert.That(pool.Count, Is.Zero, "Nothing may be pooled before the owner drains.");
         }
 
-        owner.ReturnDeferredHeaders(pool);
+        owner.ReturnDeferredHeaders();
 
         // ConcurrentStack is LIFO and the deferral list is LIFO too: the drain pools the first dictionary last.
         var rentedFirst = pool.Rent();
@@ -54,7 +54,7 @@ public class ImmediateDispatchTerminatorTests
     {
         var pool = NewPool();
         var headers = RentHeaders(pool, "message-1");
-        var terminator = new ImmediateDispatchTerminator(new FakeDispatcher(), pool);
+        var terminator = new ImmediateDispatchTerminator(new FakeDispatcher());
 
         await terminator.Invoke(new TestableDispatchContext { Operations = [Operation(headers)] }, _ => Task.CompletedTask);
 
@@ -71,9 +71,9 @@ public class ImmediateDispatchTerminatorTests
         var pool = NewPool();
         var headers = RentHeaders(pool, "message-1");
 
-        var terminator = new ImmediateDispatchTerminator(new ThrowingDispatcher(), pool);
+        var terminator = new ImmediateDispatchTerminator(new ThrowingDispatcher());
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => terminator.Invoke(NewDispatchContext(new FakeRootContext(), Operation(headers)), _ => Task.CompletedTask));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => terminator.Invoke(NewDispatchContext(new FakeRootContext(pool), Operation(headers)), _ => Task.CompletedTask));
 
         var rentedAfterFailure = pool.Rent();
         using (Assert.EnterMultipleScope())
@@ -93,11 +93,11 @@ public class ImmediateDispatchTerminatorTests
         var rented = RentHeaders(pool, "message-1");
         var foreign = new Dictionary<string, string> { ["NServiceBus.MessageId"] = "message-2" };
 
-        var terminator = new ImmediateDispatchTerminator(new FakeDispatcher(), pool);
-        var owner = new FakeRootContext();
+        var terminator = new ImmediateDispatchTerminator(new FakeDispatcher());
+        var owner = new FakeRootContext(pool);
 
         await terminator.Invoke(NewDispatchContext(owner, Operation(rented), Operation(foreign)), _ => Task.CompletedTask);
-        owner.ReturnDeferredHeaders(pool);
+        owner.ReturnDeferredHeaders();
 
         var recycled = pool.Rent();
         using (Assert.EnterMultipleScope())

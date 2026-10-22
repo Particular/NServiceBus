@@ -40,6 +40,7 @@ class MainPipelineExecutor(
                 childScope.ServiceProvider,
                 messageOperations,
                 pipelineCache,
+                headerPool,
                 message,
                 messageContext.TransportTransaction,
                 messageContext.Extensions,
@@ -85,7 +86,7 @@ class MainPipelineExecutor(
             }
             finally
             {
-                transportReceiveContext.ReturnDeferredHeaders(headerPool);
+                transportReceiveContext.ReturnDeferredHeaders();
             }
         }
     }

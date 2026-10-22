@@ -68,7 +68,7 @@ class RoutingToDispatchConnector(HeaderPool headerPool) : StageConnector<IRoutin
         // original is in the transport operations and is deferred after dispatch.
         if (copySharedMutableMessageState)
         {
-            PipelineRootContext.FindOwner(context.Extensions)?.DeferHeaderReturn(headerPool, outgoingMessage.Headers);
+            PipelineRootContext.FindOwner(context.Extensions)?.DeferHeaderReturn(outgoingMessage.Headers);
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))

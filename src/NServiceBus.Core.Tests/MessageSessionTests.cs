@@ -56,7 +56,7 @@ public class MessageSessionTests
             {
                 OnInvoke = context =>
                 {
-                    PipelineRootContext.FindOwner(context.Extensions).DeferHeaderReturn(pool, headers);
+                    PipelineRootContext.FindOwner(context.Extensions).DeferHeaderReturn(headers);
                     valueSeenWhileInOperation = headers["key"];
                 }
             }

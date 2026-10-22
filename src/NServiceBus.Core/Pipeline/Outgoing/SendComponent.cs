@@ -30,7 +30,7 @@ class SendComponent
         pipelineSettings.Register(sp => new RoutingToDispatchConnector(sp.GetRequiredService<HeaderPool>()),
             "Decides if the current message should be batched or immediately be dispatched to the transport");
         pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
-        pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IMessageDispatcher>(), b.GetRequiredService<HeaderPool>()), "Hands the outgoing messages over to the transport for immediate delivery");
+        pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IMessageDispatcher>()), "Hands the outgoing messages over to the transport for immediate delivery");
 
         var sendComponent = new SendComponent(messageMapper, hostingConfiguration.ActivityFactory);
 
