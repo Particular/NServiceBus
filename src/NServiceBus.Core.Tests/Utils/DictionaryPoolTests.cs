@@ -693,6 +693,25 @@ public class DictionaryPoolTests
     }
 
     [Test]
+    public void Always_allocate_rejects_dictionaries_rented_from_another_pool()
+    {
+        var sharedLike = new HeaderPool(maxPoolSize: 4);
+        var dict = sharedLike.Rent();
+        dict["a"] = "1";
+        Dictionary<string, string>? head = null;
+
+        var deferred = HeaderPool.AlwaysAllocate.TryDefer(dict, ref head);
+        HeaderPool.AlwaysAllocate.ReturnDeferred(ref head);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(deferred, Is.False, "An always-allocating pool must not park dictionaries it did not rent out.");
+            Assert.That(head, Is.Null);
+            Assert.That(dict, Does.ContainKey("a"));
+        }
+    }
+
+    [Test]
     public void Always_allocate_never_defers()
     {
         var dict = HeaderPool.AlwaysAllocate.Rent();
