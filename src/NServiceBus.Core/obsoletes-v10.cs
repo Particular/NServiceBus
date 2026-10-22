@@ -893,19 +893,17 @@ namespace NServiceBus
 
     partial class ActivityFactory
     {
-        void LegacyAddExceptionEvent(Activity activity, Exception exception)
+        void LegacyAddExceptionEvent(Activity activity, Exception exception, Extensibility.ContextBag contextBag)
         {
             if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
             {
                 return;
             }
 
-            if (exception.Data.Contains(ExceptionRecordedFlag))
+            if (!ExceptionTracking.For(contextBag).TryRecordExceptionEvent(exception))
             {
                 return;
             }
-
-            exception.Data[ExceptionRecordedFlag] = true;
 
             AddExceptionEvent(activity, exception);
         }

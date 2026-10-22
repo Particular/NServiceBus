@@ -107,7 +107,7 @@ public class RecoverabilityExecutorTests
         failedActivity.Stop();
 
         var errorContext = CreateErrorContext();
-        errorContext.Exception.AddActivityContext(failedActivity.Context);
+        ExceptionTracking.For(errorContext.Extensions).RecordFailedActivity(errorContext.Exception, failedActivity);
 
         Activity pipelineActivity = null;
         var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
@@ -148,6 +148,35 @@ public class RecoverabilityExecutorTests
 
         var decisionLog = entries.Single(e => e.Exception == errorContext.Exception);
         Assert.That(decisionLog.Activity, Is.SameAs(recoverabilityActivity));
+    }
+
+    // A transport may reuse the context bag for the next attempt. What the previous attempt recorded is for a different
+    // exception instance and must not be linked.
+    [Test]
+    public async Task Should_not_link_recoverability_activity_to_an_activity_that_failed_with_another_exception()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        using var previousAttemptActivity = new Activity("handler").Start();
+        previousAttemptActivity.Stop();
+
+        var errorContext = CreateErrorContext();
+        ExceptionTracking.For(errorContext.Extensions).RecordFailedActivity(new Exception("previous attempt"), previousAttemptActivity);
+
+        Activity pipelineActivity = null;
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = _ =>
+            {
+                pipelineActivity = Activity.Current;
+            }
+        };
+
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()));
+
+        await executor.Invoke(errorContext);
+
+        Assert.That(pipelineActivity.Links, Is.Empty);
     }
 
     [Test]

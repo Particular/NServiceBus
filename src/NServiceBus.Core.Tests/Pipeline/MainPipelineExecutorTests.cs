@@ -117,45 +117,71 @@ public partial class MainPipelineExecutorTests
         }
 
         // No activity further in (for example the handler activity, when its source is not listened to) recorded the
-        // failure, so the incoming activity is the innermost one the exception escaped from.
+        // failure, so the incoming activity is the innermost one the exception escaped from. It is recorded on the
+        // context bag the transport floats to recoverability.
         [Test]
-        public void Should_add_the_incoming_activity_context_to_the_exception_when_pipeline_throws()
+        public void Should_record_the_incoming_activity_as_failed_when_pipeline_throws()
         {
             var receivePipeline = new ActivityTrackingReceivePipeline { ThrowsException = true };
             var serviceCollection = new ServiceCollection();
             using var serviceProvider = serviceCollection.BuildServiceProvider();
             var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
+            var messageContext = CreateMessageContext();
 
-            var exception = Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
+            var exception = Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(messageContext));
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(exception.TryGetActivityContext(out var activityContext), Is.True);
+                Assert.That(ExceptionTracking.For(messageContext.Extensions).TryGetFailedActivityContext(exception, out var activityContext), Is.True);
                 Assert.That(activityContext, Is.EqualTo(receivePipeline.PipelineAcitivty.Context));
             }
         }
 
-        // The handler activity adds its context first; the incoming activity must not replace it.
+        // Everything in Exception.Data is copied to the failed message as NServiceBus.ExceptionInfo.Data.* headers.
+        // A processing failure should add only the processing details there, nothing the tracing uses internally.
         [Test]
-        public void Should_keep_the_activity_context_of_an_activity_further_in()
+        public void Should_record_only_processing_details_with_the_failed_message()
+        {
+            var receivePipeline = new ActivityTrackingReceivePipeline { ThrowsException = true };
+            var serviceCollection = new ServiceCollection();
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
+            var messageContext = CreateMessageContext();
+
+            var exception = Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(messageContext));
+
+            var errorContext = new ErrorContext(exception, messageContext.Headers, messageContext.NativeMessageId, messageContext.Body, messageContext.TransportTransaction, 1, messageContext.ReceiveAddress, messageContext.Extensions);
+            var metadata = new FaultMetadataExtractor([], _ => { }).Extract(errorContext);
+
+            Assert.That(metadata.Keys.Where(k => k.StartsWith(FaultsHeaderKeys.ExceptionInfoDataPrefix)), Is.EquivalentTo(new[]
+            {
+                $"{FaultsHeaderKeys.ExceptionInfoDataPrefix}Message ID",
+                $"{FaultsHeaderKeys.ExceptionInfoDataPrefix}Pipeline canceled"
+            }));
+        }
+
+        // The handler activity records the failure first; the incoming activity must not replace it.
+        [Test]
+        public void Should_keep_the_failed_activity_recorded_further_in()
         {
             using var handlerActivity = new Activity("handler");
             handlerActivity.SetIdFormat(ActivityIdFormat.W3C);
             handlerActivity.Start();
             handlerActivity.Stop();
             var exception = new Exception("handler failed");
-            exception.AddActivityContext(handlerActivity.Context);
+            var messageContext = CreateMessageContext();
+            ExceptionTracking.For(messageContext.Extensions).RecordFailedActivity(exception, handlerActivity);
 
             var receivePipeline = new ActivityTrackingReceivePipeline { ExceptionToThrow = exception };
             var serviceCollection = new ServiceCollection();
             using var serviceProvider = serviceCollection.BuildServiceProvider();
             var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
 
-            Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
+            Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(messageContext));
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(exception.TryGetActivityContext(out var activityContext), Is.True);
+                Assert.That(ExceptionTracking.For(messageContext.Extensions).TryGetFailedActivityContext(exception, out var activityContext), Is.True);
                 Assert.That(activityContext, Is.EqualTo(handlerActivity.Context));
             }
         }

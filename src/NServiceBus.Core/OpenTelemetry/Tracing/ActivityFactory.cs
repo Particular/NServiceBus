@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Extensibility;
 using Pipeline;
 using Transport;
 
@@ -198,9 +199,9 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
-        if (context.Exception.TryGetActivityContext(out var failedActivityContext))
+        if (ExceptionTracking.For(context.Extensions).TryGetFailedActivityContext(context.Exception, out var failedActivityContext))
         {
-            activity.AddLink(new ActivityLink(failedActivityContext.Value));
+            activity.AddLink(new ActivityLink(failedActivityContext));
         }
 
         activity.DisplayName = ActivityDisplayNames.Recoverability;
@@ -245,7 +246,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
     }
 
-    public void RecordError(Activity? activity, Exception exception)
+    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag)
     {
         if (activity == null)
         {
@@ -266,12 +267,11 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
 
-        LegacyAddExceptionEvent(activity, exception);
+        LegacyAddExceptionEvent(activity, exception, contextBag);
     }
 
     static void AddExceptionEvent(Activity activity, Exception exception)
         => activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
 
-    const string ExceptionRecordedFlag = "otel.exception.recorded";
 
 }

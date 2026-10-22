@@ -58,7 +58,7 @@ class RecoverabilityPipelineExecutor<TState>(
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
             {
                 // Not logged here: the transport raises the failure as a critical error, which logs it.
-                activityFactory.RecordError(activity, ex);
+                activityFactory.RecordError(activity, ex, recoverabilityContext.Extensions);
                 throw;
             }
 

@@ -85,7 +85,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex);
+            activityFactory.RecordError(activity, ex, context.Extensions);
             logger.OperationFailed(ex, displayName);
             throw;
         }
@@ -119,7 +119,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex);
+            activityFactory.RecordError(activity, ex, context.Extensions);
             logger.OperationFailed(ex, displayName);
             throw;
         }
@@ -150,7 +150,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex);
+            activityFactory.RecordError(activity, ex, context.Extensions);
             logger.OperationFailed(ex, displayName);
             throw;
         }
@@ -211,7 +211,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex);
+            activityFactory.RecordError(activity, ex, context.Extensions);
             logger.OperationFailed(ex, displayName);
             throw;
         }
@@ -272,7 +272,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex);
+            activityFactory.RecordError(activity, ex, context.Extensions);
             logger.OperationFailed(ex, displayName);
             throw;
         }

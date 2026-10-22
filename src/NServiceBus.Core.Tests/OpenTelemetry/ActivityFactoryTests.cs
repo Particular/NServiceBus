@@ -401,7 +401,7 @@ public class ActivityFactoryTests
             using var activity = new Activity("send").Start();
             var exception = new InvalidOperationException("boom");
 
-            activityFactory.RecordError(activity, exception);
+            activityFactory.RecordError(activity, exception, new ContextBag());
 
             using (Assert.EnterMultipleScope())
             {
@@ -418,7 +418,7 @@ public class ActivityFactoryTests
             var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
             using var activity = new Activity("send").Start();
 
-            factory.RecordError(activity, new InvalidOperationException("boom"));
+            factory.RecordError(activity, new InvalidOperationException("boom"), new ContextBag());
 
             Assert.That(activity.Events.Select(e => e.Name), Is.EqualTo(eventExpected ? ["exception"] : Array.Empty<string>()));
         }
@@ -429,9 +429,10 @@ public class ActivityFactoryTests
             using var handlerActivity = new Activity("handler").Start();
             using var incomingActivity = new Activity("incoming").Start();
             var exception = new InvalidOperationException("boom");
+            var root = new ContextBag();
 
-            activityFactory.RecordError(handlerActivity, exception);
-            activityFactory.RecordError(incomingActivity, exception);
+            activityFactory.RecordError(handlerActivity, exception, new ContextBag(root));
+            activityFactory.RecordError(incomingActivity, exception, root);
 
             using (Assert.EnterMultipleScope())
             {
@@ -441,17 +442,36 @@ public class ActivityFactoryTests
             }
         }
 
-        // Recording the error on the activity is independent from the link recoverability uses: that is the call
-        // site's concern, see ExceptionTracingExtensions.
+        // A handler that catches one exception and throws another: the new exception gets its own event.
         [Test]
-        public void Should_not_add_the_activity_context_to_the_exception()
+        public void Should_add_exception_event_for_a_different_exception()
+        {
+            using var sendActivity = new Activity("send").Start();
+            using var handlerActivity = new Activity("handler").Start();
+            var root = new ContextBag();
+
+            activityFactory.RecordError(sendActivity, new InvalidOperationException("send failed"), root);
+            activityFactory.RecordError(handlerActivity, new InvalidOperationException("handler failed"), root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(sendActivity.Events.Select(e => e.Name), Is.EqualTo(["exception"]));
+                Assert.That(handlerActivity.Events.Select(e => e.Name), Is.EqualTo(["exception"]));
+            }
+        }
+
+        // Recording the error on the activity is independent from remembering the failed activity for recoverability:
+        // only the message processing pipeline does that.
+        [Test]
+        public void Should_not_record_the_activity_as_failed_for_recoverability()
         {
             using var activity = new Activity("send").Start();
             var exception = new InvalidOperationException("boom");
+            var contextBag = new ContextBag();
 
-            activityFactory.RecordError(activity, exception);
+            activityFactory.RecordError(activity, exception, contextBag);
 
-            Assert.That(exception.TryGetActivityContext(out _), Is.False);
+            Assert.That(ExceptionTracking.For(contextBag).TryGetFailedActivityContext(exception, out _), Is.False);
         }
     }
 

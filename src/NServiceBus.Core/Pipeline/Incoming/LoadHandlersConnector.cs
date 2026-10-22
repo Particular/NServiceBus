@@ -5,7 +5,6 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -66,9 +65,8 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
                     {
                         if (activity is not null)
                         {
-                            activityFactory.RecordError(activity, ex);
-
-                            ex.AddActivityContext(activity.Context);
+                            activityFactory.RecordError(activity, ex, context.Extensions);
+                            ExceptionTracking.For(context.Extensions).RecordFailedActivity(ex, activity);
                         }
                         throw;
                     }
@@ -130,36 +128,4 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
     static readonly string scopeInconsistencyMessage =
         "This can result in inconsistent data because other enlisting operations won't be committed atomically with the receive transaction. " +
         $"The transport transaction mode must be changed to something other than '{nameof(TransportTransactionMode.TransactionScope)}' before attempting to manually control the TransactionScope in the pipeline.";
-}
-
-static class ExceptionTracingExtensions
-{
-
-    public static bool TryGetActivityContext(this Exception exception, [NotNullWhen(true)] out ActivityContext? activityContext)
-    {
-        if (exception.Data.Contains(FailedActivityContextKey))
-        {
-            var value = exception.Data[FailedActivityContextKey];
-
-            if (value is ActivityContext activityContextValue)
-            {
-                activityContext = activityContextValue;
-                return true;
-            }
-        }
-
-        activityContext = null;
-        return false;
-    }
-
-    public static void AddActivityContext(this Exception exception, ActivityContext activityContext)
-    {
-        if (exception.Data.Contains(FailedActivityContextKey))
-        {
-            return;
-        }
-        exception.Data[FailedActivityContextKey] = activityContext;
-    }
-
-    const string FailedActivityContextKey = "NServiceBus.Diagnostics.Activity.Failed";
 }
