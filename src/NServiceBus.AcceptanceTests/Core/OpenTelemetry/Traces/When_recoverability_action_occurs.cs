@@ -96,6 +96,37 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
         }
     }
 
+    // Each attempt throws a new exception, so the recoverability span of each attempt links to that attempt's handler
+    // span, also when the transport reuses the context bag for the immediate retry.
+    [Test]
+    public async Task Should_link_each_attempt_to_its_own_handler_span()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<RecoverabilityEndpoint>(b => b
+                .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)).Delayed(i => i.NumberOfRetries(0)))
+                .DoNotFailOnErrorMessages()
+                .When(s => s.SendLocal(new FailingMessage())))
+            .Done(_ => ActionTags().Contains("move_to_error"))
+            .Run();
+
+        var recoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().OrderBy(a => a.StartTimeUtc).ToList();
+        var failedHandlerActivities = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities()
+            .Where(a => a.Status == ActivityStatusCode.Error)
+            .OrderBy(a => a.StartTimeUtc)
+            .ToList();
+
+        Assert.That(recoverabilityActivities, Has.Count.EqualTo(2), "an immediate retry and a move to the error queue");
+        Assert.That(failedHandlerActivities, Has.Count.EqualTo(2), "one failed handler span per attempt");
+
+        using (Assert.EnterMultipleScope())
+        {
+            for (var attempt = 0; attempt < 2; attempt++)
+            {
+                Assert.That(recoverabilityActivities[attempt].Links.Select(l => l.Context.SpanId), Is.EqualTo(new[] { failedHandlerActivities[attempt].SpanId }), $"attempt {attempt + 1}");
+            }
+        }
+    }
+
     string[] ActionTags() =>
         NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities()
             .Select(a => (string)a.GetTagItem(ActivityTagName))
