@@ -221,11 +221,11 @@ public class OutboxStorageTests(TestVariant param)
         var messageId = Guid.NewGuid().ToString();
         _ = await storage.Get(messageId, ctx);
 
-        var headers = new Dictionary<string, string>
-        {
-            { "HeaderPooling.Key1", "value1" },
-            { "HeaderPooling.Key2", "value2" },
-        };
+        // The pool clears and reuses only dictionaries it created, so the headers must come from a pool.
+        var pool = new NServiceBus.Transport.HeaderPool(maxPoolSize: 1);
+        var headers = pool.Rent();
+        headers["HeaderPooling.Key1"] = "value1";
+        headers["HeaderPooling.Key2"] = "value2";
         var messageToStore = new OutboxMessage(messageId,
             [new TransportOperation(Guid.NewGuid().ToString(), null, new byte[] { 1, 2, 3 }, headers)]);
 
@@ -236,9 +236,12 @@ public class OutboxStorageTests(TestVariant param)
             await transaction.Commit();
         }
 
-        // Emulates dispatch under header pooling: after a successful dispatch, the header dictionaries that were
-        // passed to Store are cleared and reused for other messages.
-        headers.Clear();
+        // Emulates the dispatch that follows a commit under header pooling: the dictionary passed to Store is
+        // returned to the pool and rented again by the next outgoing message, which writes its own values.
+        pool.Return(headers);
+        var reused = pool.Rent();
+        Assert.That(reused, Is.SameAs(headers), "The pool must hand out the returned dictionary again.");
+        reused["HeaderPooling.Key1"] = "reused-by-another-message";
 
         var storedMessage = await storage.Get(messageId, configuration.GetContextBagForOutbox());
 
