@@ -228,6 +228,53 @@ public class MessageOperationsTests
         }
     }
 
+    // Every operation logs its failure at Warning, while the operation's span is current, so the log record is
+    // correlated with that span.
+    [TestCase("send")]
+    [TestCase("publish")]
+    [TestCase("reply")]
+    [TestCase("subscribe")]
+    [TestCase("unsubscribe")]
+    public void Should_log_the_exception_correlated_with_the_operation_span_on_failure(string operation)
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions()), logger);
+        var exception = new Exception("processing exception");
+        Activity operationActivity = null;
+
+        void Fail()
+        {
+            operationActivity = Activity.Current;
+            throw exception;
+        }
+
+        Func<Task> invoke = operation switch
+        {
+            "send" => () => { operations.SendPipeline.OnInvoke = _ => Fail(); return operations.Send(new FakeRootContext(), new object(), new SendOptions()); }
+            ,
+            "publish" => () => { operations.PublishPipeline.OnInvoke = _ => Fail(); return operations.Publish(new FakeRootContext(), new object(), new PublishOptions()); }
+            ,
+            "reply" => () => { operations.ReplyPipeline.OnInvoke = _ => Fail(); return operations.Reply(new FakeRootContext(), new object(), new ReplyOptions()); }
+            ,
+            "subscribe" => () => { operations.SubscribePipeline.OnInvoke = _ => Fail(); return operations.Subscribe(new FakeRootContext(), typeof(object), new SubscribeOptions()); }
+            ,
+            "unsubscribe" => () => { operations.UnsubscribePipeline.OnInvoke = _ => Fail(); return operations.Unsubscribe(new FakeRootContext(), typeof(object), new UnsubscribeOptions()); }
+            ,
+            _ => throw new ArgumentOutOfRangeException(nameof(operation))
+        };
+
+        Assert.ThrowsAsync<Exception>(async () => await invoke());
+
+        var entry = entries.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(operationActivity, Is.Not.Null, "the operation should have started a span");
+            Assert.That(entry.Level, Is.EqualTo(LogLevel.Warning));
+            Assert.That(entry.Exception, Is.SameAs(exception));
+            Assert.That(entry.Activity, Is.SameAs(operationActivity), "the log record should be correlated with the operation span");
+        }
+    }
+
     // The log entry does not depend on tracing: it is written when no listener created an activity too.
     [Test]
     public void Should_log_the_exception_on_failure_without_an_activity()

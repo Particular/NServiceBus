@@ -122,7 +122,32 @@ public class RecoverabilityExecutorTests
 
         await executor.Invoke(errorContext);
 
-        Assert.That(pipelineActivity.Links.Select(l => l.Context), Does.Contain(failedActivity.Context));
+        Assert.That(pipelineActivity.Links.Select(l => l.Context), Is.EqualTo(new[] { failedActivity.Context }));
+    }
+
+    // The decision log entry is written under the recoverability span, which links to where the processing failed.
+    [Test]
+    public async Task Should_log_the_decision_under_the_recoverability_activity()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        Activity recoverabilityActivity = null;
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = _ =>
+            {
+                recoverabilityActivity = Activity.Current;
+            }
+        };
+
+        var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()), serviceProvider);
+        var errorContext = CreateErrorContext();
+
+        await executor.Invoke(errorContext);
+
+        var decisionLog = entries.Single(e => e.Exception == errorContext.Exception);
+        Assert.That(decisionLog.Activity, Is.SameAs(recoverabilityActivity));
     }
 
     [Test]

@@ -2,8 +2,10 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
+using Faults;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
@@ -113,6 +115,50 @@ public partial class MainPipelineExecutorTests
 
             Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Error));
         }
+
+        // No activity further in (for example the handler activity, when its source is not listened to) recorded the
+        // failure, so the incoming activity is the innermost one the exception escaped from.
+        [Test]
+        public void Should_add_the_incoming_activity_context_to_the_exception_when_pipeline_throws()
+        {
+            var receivePipeline = new ActivityTrackingReceivePipeline { ThrowsException = true };
+            var serviceCollection = new ServiceCollection();
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
+
+            var exception = Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exception.TryGetActivityContext(out var activityContext), Is.True);
+                Assert.That(activityContext, Is.EqualTo(receivePipeline.PipelineAcitivty.Context));
+            }
+        }
+
+        // The handler activity adds its context first; the incoming activity must not replace it.
+        [Test]
+        public void Should_keep_the_activity_context_of_an_activity_further_in()
+        {
+            using var handlerActivity = new Activity("handler");
+            handlerActivity.SetIdFormat(ActivityIdFormat.W3C);
+            handlerActivity.Start();
+            handlerActivity.Stop();
+            var exception = new Exception("handler failed");
+            exception.AddActivityContext(handlerActivity.Context);
+
+            var receivePipeline = new ActivityTrackingReceivePipeline { ExceptionToThrow = exception };
+            var serviceCollection = new ServiceCollection();
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
+
+            Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(CreateMessageContext()));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exception.TryGetActivityContext(out var activityContext), Is.True);
+                Assert.That(activityContext, Is.EqualTo(handlerActivity.Context));
+            }
+        }
     }
 
     static MessageContext CreateMessageContext() =>
@@ -148,10 +194,17 @@ public partial class MainPipelineExecutorTests
 
         public bool ThrowsException { get; set; }
 
+        public Exception ExceptionToThrow { get; set; }
+
         public Task Invoke(ITransportReceiveContext context)
         {
             PipelineAcitivty = Activity.Current;
             TransportReceiveContext = context;
+
+            if (ExceptionToThrow is not null)
+            {
+                throw ExceptionToThrow;
+            }
 
             if (ThrowsException)
             {

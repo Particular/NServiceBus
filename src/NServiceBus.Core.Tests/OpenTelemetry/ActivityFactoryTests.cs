@@ -403,11 +403,6 @@ public class ActivityFactoryTests
 
             activityFactory.RecordError(activity, exception);
 
-            AssertFailed(activity);
-        }
-
-        static void AssertFailed(Activity activity)
-        {
             using (Assert.EnterMultipleScope())
             {
                 Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
@@ -444,6 +439,19 @@ public class ActivityFactoryTests
                 Assert.That(incomingActivity.Events, Is.Empty, "the activities further out only mark their status");
                 Assert.That(incomingActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
             }
+        }
+
+        // Recording the error on the activity is independent from the link recoverability uses: that is the call
+        // site's concern, see ExceptionTracingExtensions.
+        [Test]
+        public void Should_not_add_the_activity_context_to_the_exception()
+        {
+            using var activity = new Activity("send").Start();
+            var exception = new InvalidOperationException("boom");
+
+            activityFactory.RecordError(activity, exception);
+
+            Assert.That(exception.TryGetActivityContext(out _), Is.False);
         }
     }
 

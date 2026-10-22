@@ -2,10 +2,12 @@ namespace NServiceBus.Core.Tests.Logging;
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-sealed record CapturedLogEntry(string Category, LogLevel Level, string Message, Exception Exception);
+// Activity: Activity.Current when the entry was written, the span a log record is correlated with.
+sealed record CapturedLogEntry(string Category, LogLevel Level, string Message, Exception Exception, Activity Activity);
 
 // Captures every log entry written through Microsoft.Extensions.Logging so tests can assert on category, level,
 // message and attached exception.
@@ -36,6 +38,6 @@ sealed class CapturingLoggerProvider : ILoggerProvider
         public bool IsEnabled(LogLevel logLevel) => true;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-            => entries.Enqueue(new CapturedLogEntry(category, logLevel, formatter(state, exception), exception));
+            => entries.Enqueue(new CapturedLogEntry(category, logLevel, formatter(state, exception), exception, Activity.Current));
     }
 }
