@@ -232,6 +232,43 @@ public class RoutingToDispatchConnectorTests
     }
 
     [Test]
+    public async Task Should_keep_original_headers_readable_for_multiple_routing_strategies_when_dispatch_fails()
+    {
+        var pool = new HeaderPool(maxPoolSize: 8);
+        var behavior = new RoutingToDispatchConnector(pool);
+        var owner = new FakeRootContext(pool);
+        var originalHeaders = pool.Rent();
+        originalHeaders["SomeHeaderKey"] = "SomeHeaderValue";
+        var routingContext = new RoutingContext(
+            new OutgoingMessage("ID", originalHeaders, Array.Empty<byte>()),
+            [new DestinationRoutingStrategy("destination1", "Key1", "Value1"), new DestinationRoutingStrategy("destination2", "Key2", "Value2")],
+            owner);
+        Dictionary<string, string>[] copies = null;
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => behavior.Invoke(routingContext, context =>
+        {
+            copies = context.Operations.Select(o => o.Message.Headers).ToArray();
+            throw new InvalidOperationException("dispatch failed");
+        }));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(originalHeaders["SomeHeaderKey"], Is.EqualTo("SomeHeaderValue"), "Behaviors unwinding from the failure can still read the original headers.");
+            Assert.That(pool.Count, Is.Zero);
+        }
+
+        owner.ReturnDeferredHeaders();
+
+        using (Assert.EnterMultipleScope())
+        {
+            // The original was never handed to the transport, so the failed dispatch does not keep it alive.
+            Assert.That(originalHeaders, Is.Empty);
+            Assert.That(pool.Count, Is.EqualTo(1));
+            Assert.That(copies, Has.All.ContainKey("SomeHeaderKey"), "Copies handed to the failed dispatch are left intact for the GC.");
+        }
+    }
+
+    [Test]
     public async Task Should_not_return_original_headers_for_multiple_routing_strategies_when_there_is_no_owner()
     {
         var pool = new HeaderPool(maxPoolSize: 8);

@@ -76,6 +76,37 @@ public class MessageSessionTests
     }
 
     [Test]
+    public async Task Should_return_deferred_headers_when_the_operation_throws()
+    {
+        var pool = new HeaderPool(maxPoolSize: 4);
+        var headers = pool.Rent();
+        headers["key"] = "value";
+        var messageOperations = new TestableMessageOperations
+        {
+            SendPipeline =
+            {
+                OnInvoke = context =>
+                {
+                    // Emulates a dispatch that completed before a later behavior failed.
+                    PipelineRootContext.FindOwner(context.Extensions).DeferHeaderReturn(headers);
+                    throw new InvalidOperationException("behavior failed after dispatch");
+                }
+            }
+        };
+
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), pool);
+        session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => session.Send(new object()));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(headers, Is.Empty, "Headers of a dispatched message are returned even when the operation fails later.");
+            Assert.That(pool.Count, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
     public async Task Should_propagate_endpoint_cancellation_status_to_context()
     {
         var messageOperations = new TestableMessageOperations
