@@ -27,8 +27,7 @@ sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext
         HeaderPool headerPool,
         CancellationToken cancellationToken) : base(serviceProvider, messageOperations, pipelineCache, headerPool, cancellationToken, parent)
     {
-        // Recoverability actions look the pool up by the base type.
-        Extensions.Set<DictionaryPool<string, string>>(headerPool);
+        Extensions.Set(headerPool);
 #pragma warning disable CS0618 // Type or member is obsolete. Can be removed in the next major when FailedMessage is removed from the interface.
         FailedMessage = errorContext.Message;
 #pragma warning restore CS0618 // Type or member is obsolete

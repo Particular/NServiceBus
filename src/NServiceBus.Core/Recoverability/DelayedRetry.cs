@@ -39,9 +39,9 @@ public class DelayedRetry : RecoverabilityAction
 
         Logger.Warn($"Delayed Retry will reschedule message '{context.MessageId}' after a delay of {Delay} because of an exception:", exception);
 
-        var headerPool = context.Extensions.TryGet<DictionaryPool<string, string>>(out var pool)
+        var headerPool = context.Extensions.TryGet<HeaderPool>(out var pool)
             ? pool
-            : DictionaryPool<string, string>.AlwaysAllocate;
+            : HeaderPool.AlwaysAllocate;
         var outgoingMessageHeaders = headerPool.Rent(context.Headers.Count);
         context.Headers.CopyTo(outgoingMessageHeaders);
         var outgoingMessage = new OutgoingMessage(context.MessageId, outgoingMessageHeaders, context.Body);
