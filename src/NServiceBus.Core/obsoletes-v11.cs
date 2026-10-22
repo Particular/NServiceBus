@@ -13,7 +13,7 @@ using Settings;
 // explicitly configured ExceptionRecordingMode, so operators can force the
 // exception-signal behavior without a code change/redeploy.
 //
-// In v12, once the exceptions-as-logs migration has settled, delete this
+// In v11, once the exceptions-as-logs migration has settled, delete this
 // entire file (SetExceptionRecordingModeDefault and
 // ExceptionSignalOptInEnvironmentVariableKey), and remove the
 // `Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault);` call in
