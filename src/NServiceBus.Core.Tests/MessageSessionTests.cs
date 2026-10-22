@@ -44,6 +44,38 @@ public class MessageSessionTests
     }
 
     [Test]
+    public async Task Should_return_deferred_headers_once_the_operation_completes()
+    {
+        var pool = new HeaderPool(maxPoolSize: 4);
+        var headers = pool.Rent();
+        headers["key"] = "value";
+        string valueSeenWhileInOperation = null;
+        var messageOperations = new TestableMessageOperations
+        {
+            SendPipeline =
+            {
+                OnInvoke = context =>
+                {
+                    PipelineRootContext.FindOwner(context.Extensions).DeferHeaderReturn(pool, headers);
+                    valueSeenWhileInOperation = headers["key"];
+                }
+            }
+        };
+
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), pool);
+        session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
+
+        await session.Send(new object());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(valueSeenWhileInOperation, Is.EqualTo("value"));
+            Assert.That(headers, Is.Empty, "The session must drain deferred headers when the operation completes.");
+            Assert.That(pool.Count, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
     public async Task Should_propagate_endpoint_cancellation_status_to_context()
     {
         var messageOperations = new TestableMessageOperations
