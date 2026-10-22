@@ -46,6 +46,8 @@ class MainPipelineExecutor(
                 messageContext.Extensions,
                 cancellationToken);
 
+            using var headerScope = transportReceiveContext.TrackHeaderReturns();
+
             if (activity != null)
             {
                 transportReceiveContext.SetIncomingPipelineActivity(activity);
@@ -53,41 +55,34 @@ class MainPipelineExecutor(
 
             try
             {
-                try
-                {
-                    await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
-                }
+                await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
+            }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
-                catch (Exception ex)
+            catch (Exception ex)
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
+            {
+                ex.Data["Message ID"] = message.MessageId;
+
+                if (message.NativeMessageId != message.MessageId)
                 {
-                    ex.Data["Message ID"] = message.MessageId;
-
-                    if (message.NativeMessageId != message.MessageId)
-                    {
-                        ex.Data["Transport message ID"] = message.NativeMessageId;
-                    }
-
-                    ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
-
-                    if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
-                    {
-                        incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
-                    }
-                    throw;
-                }
-                finally
-                {
-                    incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
+                    ex.Data["Transport message ID"] = message.NativeMessageId;
                 }
 
-                var completedAt = DateTimeOffset.UtcNow;
-                await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
+                ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
+
+                if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
+                {
+                    incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+                }
+                throw;
             }
             finally
             {
-                transportReceiveContext.ReturnDeferredHeaders();
+                incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
             }
+
+            var completedAt = DateTimeOffset.UtcNow;
+            await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, completedAt), cancellationToken).ConfigureAwait(false);
         }
     }
 }

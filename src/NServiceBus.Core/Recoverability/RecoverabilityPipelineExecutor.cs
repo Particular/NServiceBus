@@ -42,14 +42,8 @@ class RecoverabilityPipelineExecutor<TState>(
                 headerPool,
                 cancellationToken);
 
-            try
-            {
-                await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
-            }
-            finally
-            {
-                recoverabilityContext.ReturnDeferredHeaders();
-            }
+            using var headerScope = recoverabilityContext.TrackHeaderReturns();
+            await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
 
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
         }

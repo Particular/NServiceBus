@@ -36,6 +36,14 @@ class PipelineRootContext : BehaviorContext
 
     internal void ReturnDeferredHeaders() => headerPool.ReturnDeferred(ref deferredHeaders);
 
+    internal HeaderReturnScope TrackHeaderReturns() => new(this);
+
     readonly HeaderPool headerPool;
     Dictionary<string, string>? deferredHeaders;
+
+    // Marks where the invocation that owns the deferred headers ends; disposing returns them to the pool.
+    internal readonly struct HeaderReturnScope(PipelineRootContext root) : IDisposable
+    {
+        public void Dispose() => root.ReturnDeferredHeaders();
+    }
 }
