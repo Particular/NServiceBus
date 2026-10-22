@@ -175,7 +175,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// deferred; foreign, already returned, and already deferred instances are rejected. While deferred,
     /// <see cref="Return"/> ignores the instance and its contents stay intact.
     /// </summary>
-    internal bool TryDefer(Dictionary<TKey, TValue> dictionary, ref Dictionary<TKey, TValue>? head)
+    internal virtual bool TryDefer(Dictionary<TKey, TValue> dictionary, ref Dictionary<TKey, TValue>? head)
     {
         ArgumentNullException.ThrowIfNull(dictionary);
 
@@ -297,5 +297,8 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
         // Discarding without clearing: the caller may still legitimately read the
         // dictionary after a no-op return, and the next rent never sees this instance.
         public override void Return(Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
+
+        // A dictionary rented from another pool must not end up parked in this never-rented one.
+        internal override bool TryDefer(Dictionary<TKey, TValue> dictionary, ref Dictionary<TKey, TValue>? head) => false;
     }
 }
