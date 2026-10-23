@@ -184,6 +184,9 @@ public class HeaderSerializerTests
     [TestCase("{ \"key\": { \"nested\": true } }")]
     [TestCase("{ \"key\": }")]
     [TestCase("{ \"key\": \"value\"")]
+    [TestCase("{} garbage")]
+    [TestCase("{} {}")]
+    [TestCase("{ \"key\": \"value\" } }")]
     public void Deserialize_throws_for_malformed_json(string malformed) => Assert.That(() => HeaderSerializer.Deserialize(malformed), Throws.InstanceOf<JsonException>());
 
     [Test]
