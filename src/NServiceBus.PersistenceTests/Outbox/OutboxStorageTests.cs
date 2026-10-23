@@ -155,6 +155,49 @@ public class OutboxStorageTests(TestVariant param)
     }
 
     [Test]
+    public async Task Should_not_retain_header_dictionaries_passed_to_store()
+    {
+        configuration.RequiresOutboxSupport();
+
+        var storage = configuration.OutboxStorage;
+        var ctx = configuration.GetContextBagForOutbox();
+
+        var messageId = Guid.NewGuid().ToString();
+        _ = await storage.Get(messageId, ctx); // dedup prime, per existing suite convention
+
+        // Under header pooling Store receives dictionaries rented from the pool, whose runtime type is a
+        // Dictionary subclass. Serializers that inspect the runtime type must still round-trip them.
+        var headerPool = new Transport.HeaderPool();
+        var headers = headerPool.Rent();
+        headers["HeaderPooling.Key1"] = "value1";
+        headers["HeaderPooling.Key2"] = "value2";
+        var messageToStore = new OutboxMessage(messageId,
+            [new TransportOperation(Guid.NewGuid().ToString(), null, new byte[] { 1, 2, 3 }, headers)]);
+
+        await using (var transaction = await storage.BeginTransaction(ctx))
+        {
+            await storage.Store(messageToStore, transaction, ctx);
+
+            await transaction.Commit();
+        }
+
+        // Emulates the dispatch pipeline under header pooling: once the outbox transaction commits, the operations
+        // are dispatched and their header dictionaries, the same instances passed to Store, are returned to the
+        // pool, which clears them. An outbox that kept a reference to them gets its stored entry wiped right here.
+        headerPool.Return(headers);
+
+        var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+
+        Assert.That(message, Is.Not.Null);
+        Assert.That(message.TransportOperations, Has.Length.EqualTo(1));
+        Assert.That(message.TransportOperations[0].Headers, Is.SupersetOf(new Dictionary<string, string>
+        {
+            { "HeaderPooling.Key1", "value1" },
+            { "HeaderPooling.Key2", "value2" },
+        }), "IOutboxStorage.Store must not retain the header dictionaries it is given; dispatch pooling clears them after the transaction commits.");
+    }
+
+    [Test]
     public async Task Should_return_fresh_header_dictionaries_from_get()
     {
         configuration.RequiresOutboxSupport();
