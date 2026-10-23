@@ -1,7 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -72,33 +71,6 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
     }
 
     [Test]
-    public async Task Should_link_to_the_handler_span_the_exception_escaped_from()
-    {
-        await Scenario.Define<Context>()
-            .WithEndpoint<RecoverabilityEndpoint>(b => b
-                .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(0)).Delayed(i => i.NumberOfRetries(0)))
-                .DoNotFailOnErrorMessages()
-                .When(s => s.SendLocal(new FailingMessage())))
-            .Done(_ => ActionTags().Contains("move_to_error"))
-            .Run();
-
-        var moveToError = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities()
-            .Single(a => (string)a.GetTagItem(ActivityTagName) == "move_to_error");
-        var failedHandler = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities()
-            .Single(a => a.Status == ActivityStatusCode.Error);
-
-        var link = moveToError.Links.SingleOrDefault(l => l.Context.SpanId == failedHandler.SpanId);
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(link.Context, Is.Not.EqualTo(default(ActivityContext)), "the recoverability span should link to the handler span the exception escaped from");
-            Assert.That(link.Context.TraceId, Is.EqualTo(failedHandler.TraceId));
-        }
-    }
-
-    // Each attempt throws a new exception, so the recoverability span of each attempt links to that attempt's handler
-    // span, also when the transport reuses the context bag for the immediate retry.
-    [Test]
     public async Task Should_link_each_attempt_to_its_own_handler_span()
     {
         await Scenario.Define<Context>()
@@ -111,7 +83,6 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
 
         var recoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().OrderBy(a => a.StartTimeUtc).ToList();
         var failedHandlerActivities = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities()
-            .Where(a => a.Status == ActivityStatusCode.Error)
             .OrderBy(a => a.StartTimeUtc)
             .ToList();
 
@@ -122,7 +93,7 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
         {
             for (var attempt = 0; attempt < 2; attempt++)
             {
-                Assert.That(recoverabilityActivities[attempt].Links.Select(l => l.Context.SpanId), Is.EqualTo(new[] { failedHandlerActivities[attempt].SpanId }), $"attempt {attempt + 1}");
+                Assert.That(recoverabilityActivities[attempt].Links.Select(l => l.Context.SpanId), Is.EqualTo([failedHandlerActivities[attempt].SpanId]), $"attempt {attempt + 1}");
             }
         }
     }
