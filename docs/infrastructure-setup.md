@@ -42,6 +42,10 @@ Subscriptions are not part of installers. Core calls `ISubscriptionManager` whet
 - The `AutoSubscribe` feature is enabled by default. It calls `SubscribeAll` every time an endpoint that is not send-only starts. When `SubscribeAll` throws, `AutoSubscribe` logs the exception at `Error` and the endpoint keeps starting. It rethrows only a `QueueNotFoundException`.
 - `NativeSubscribeTerminator` and `NativeUnsubscribeTerminator` pass `Subscribe` and `Unsubscribe` calls from `IMessageSession` to `ISubscriptionManager`. In subscription migration mode, `MigrationSubscribeTerminator` and `MigrationUnsubscribeTerminator` call it as well.
 
+A subscription lasts until `Unsubscribe` removes it. It survives endpoint restarts, and the endpoint receives the events published to it whether or not the current run calls `Subscribe`. An endpoint that disables `AutoSubscribe` usually subscribes once, or uses subscriptions that deployment created, so core might not call `SubscribeAll` or `Subscribe` during a run. The user-facing documentation states this for [stopped subscribers and decommissioned handlers](https://docs.particular.net/nservicebus/messaging/publish-subscribe/controlling-what-is-subscribed).
+
+When the broker or the publisher delivers events to the endpoint's input queue, receiving from the input queue is enough. When the transport receives from each native subscription separately, the receiver must find the endpoint's existing subscriptions itself; see [Message receivers](message-receivers.md#subscriptions).
+
 Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions.
 
 Core does not define which native resources `SubscribeAll` may create, or which resources `Unsubscribe` may delete, when `SetupInfrastructure` is `false`. Current transports handle it in different ways:

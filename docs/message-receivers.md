@@ -23,6 +23,7 @@ Core calls `ISubscriptionManager` independently of the receiver's lifecycle meth
 
 A transport that receives from a separate native source for each subscription must:
 
+- Receive from every native subscription that exists for the endpoint when `StartReceive` is called, including subscriptions created by an earlier run or by deployment tooling. Core does not call `SubscribeAll` or `Subscribe` on every start, for example when `AutoSubscribe` is disabled, so the receiver cannot use those calls to learn which subscriptions exist. See [Infrastructure setup](infrastructure-setup.md#subscriptions).
 - Start receiving from a subscription added before `StartReceive` when the receiver starts.
 - Not receive from any source after `StopReceive` returns, including a source added while `StopReceive` runs.
 - Make `StopReceive` wait for in-flight messages from a source that `Unsubscribe` is still removing.
