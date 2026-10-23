@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Pipeline;
 using Routing;
 using Transport;
-using NServiceBus.Utils;
 
 static class RoutingContextExtensions
 {

@@ -1,13 +1,13 @@
 #nullable enable
 
-namespace NServiceBus.Utils;
+namespace NServiceBus;
 
 using System.Collections.Generic;
 
 /// <summary>
 /// Extension methods for dictionary operations.
 /// </summary>
-public static class ReadOnlyDictionaryExtensions
+static class ReadOnlyDictionaryExtensions
 {
     /// <summary>
     /// Copies all entries from <paramref name="source"/> into <paramref name="destination"/>,

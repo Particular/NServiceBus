@@ -3016,9 +3016,4 @@ namespace NServiceBus.Utils
         public virtual System.Collections.Generic.Dictionary<TKey, TValue> Rent(int minimumCapacity = 0) { }
         public virtual void Return(System.Collections.Generic.Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
     }
-    public static class ReadOnlyDictionaryExtensions
-    {
-        public static void CopyTo<TKey, TValue>(this System.Collections.Generic.IReadOnlyDictionary<TKey, TValue> source, System.Collections.Generic.Dictionary<TKey, TValue> destination)
-            where TKey :  notnull { }
-    }
 }

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using DelayedDelivery;
 using Logging;
-using NServiceBus.Utils;
 using Pipeline;
 using Recoverability;
 using Routing;
