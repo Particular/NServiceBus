@@ -240,7 +240,8 @@ public class MessageHandlerRegistry
                 InvokeTimeout, // This needs to stay a method group to wipe it out from the stack trace
                 isTimeoutHandler: true)
             {
-                HandlerType = typeof(THandler)
+                HandlerType = typeof(THandler),
+                TimeoutMessageType = typeof(TMessage)
             };
 
         [DebuggerNonUserCode]

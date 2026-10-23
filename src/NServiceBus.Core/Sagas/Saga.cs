@@ -7,9 +7,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
 using Particular.Obsoletes;
+using Sagas;
 
 /// <summary>
 /// This class is used to define sagas containing data and handling a message.
@@ -56,6 +58,12 @@ public abstract class Saga
     {
         VerifySagaCanHandleTimeout(timeoutMessage);
 
+        if (Timeouts is not null)
+        {
+            _ = Timeouts.Add(timeoutMessage, at);
+            return Task.CompletedTask;
+        }
+
         var options = new SendOptions();
 
         options.DoNotDeliverBefore(at);
@@ -86,6 +94,12 @@ public abstract class Saga
     {
         VerifySagaCanHandleTimeout(timeoutMessage);
 
+        if (Timeouts is not null)
+        {
+            _ = Timeouts.Add(timeoutMessage, DateTimeOffset.UtcNow + within);
+            return Task.CompletedTask;
+        }
+
         var sendOptions = new SendOptions();
 
         sendOptions.DelayDeliveryWith(within);
@@ -95,6 +109,55 @@ public abstract class Saga
 
         return context.Send<TTimeoutMessageType>(timeoutMessage, sendOptions);
     }
+
+    /// <summary>
+    /// Finds the pending timeouts of type <typeparamref name="TTimeoutMessageType" /> of this saga instance that match the predicate.
+    /// </summary>
+    /// <param name="predicate">Selects the timeouts to return, based on the timeout ID, the due time, or the payload.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <remarks>
+    /// Changes to a returned payload are stored only when the timeout is rescheduled with <see cref="RescheduleTimeout" />.
+    /// Timeouts are currently loaded with the saga, but the method is asynchronous so that a future version can load them from storage on demand.
+    /// </remarks>
+    protected Task<IReadOnlyList<SagaTimeout<TTimeoutMessageType>>> FindTimeouts<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] TTimeoutMessageType>(Func<SagaTimeout<TTimeoutMessageType>, bool> predicate, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(GetManagedTimeouts().Find(predicate));
+    }
+
+    /// <summary>
+    /// Reschedules a pending timeout of this saga instance, storing any change made to the payload returned by <see cref="FindTimeouts{TTimeoutMessageType}" />.
+    /// Does nothing if no pending timeout has the given ID.
+    /// </summary>
+    /// <param name="timeoutId">The ID of the timeout.</param>
+    /// <param name="newDueTime">The new due time. It can be the current due time when only the payload changed.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    protected Task RescheduleTimeout(string timeoutId, DateTimeOffset newDueTime, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(timeoutId);
+        cancellationToken.ThrowIfCancellationRequested();
+        GetManagedTimeouts().Reschedule(timeoutId, newDueTime);
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Cancels a pending timeout of this saga instance. Does nothing if no pending timeout has the given ID.
+    /// </summary>
+    /// <param name="timeoutId">The ID of the timeout.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    protected Task CancelTimeout(string timeoutId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(timeoutId);
+        cancellationToken.ThrowIfCancellationRequested();
+        GetManagedTimeouts().Cancel(timeoutId);
+        return Task.CompletedTask;
+    }
+
+    internal SagaTimeouts? Timeouts { get; set; }
+
+    SagaTimeouts GetManagedTimeouts() =>
+        Timeouts ?? throw new InvalidOperationException($"Saga '{GetType().FullName}' uses timeout management, but the configured saga persistence doesn't support it. Use a persistence whose definition implements '{nameof(ISupportTimeoutManagement)}'.");
 
     /// <summary>
     /// Sends the <paramref name="message" /> using the bus to the endpoint that caused this saga to start.
@@ -169,7 +232,7 @@ public abstract class Saga
         }
     }
 
-    void SetTimeoutHeaders(ExtendableOptions options)
+    internal void SetTimeoutHeaders(ExtendableOptions options)
     {
         options.SetHeader(Headers.SagaId, Entity.Id.ToString());
         options.SetHeader(Headers.IsSagaTimeoutMessage, bool.TrueString);

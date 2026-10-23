@@ -50,6 +50,8 @@ public partial class SagaMetadata
 
     internal Func<IContainSagaData> SagaDataFactory { get; }
 
+    internal bool UsesTimeoutManagement { get; }
+
     /// <summary>
     /// Property this saga is correlated on.
     /// </summary>
@@ -163,6 +165,7 @@ public partial class SagaMetadata
         SagaDataFactory = sagaDataFactory;
         Loader = sagaLoader;
         AssociatedMessages = messages;
+        UsesTimeoutManagement = sagaType.Assembly.GetCustomAttributes<SagaUsesTimeoutManagementAttribute>().Any(a => a.SagaType == sagaType);
 
         foreach (var sagaMessage in messages.Where(m => m.IsAllowedToStartSaga))
         {

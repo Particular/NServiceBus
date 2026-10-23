@@ -49,7 +49,12 @@ NServiceBus.Core/Recoverability
 NServiceBus.Core/Recoverability/DelayedRetries
 NServiceBus.Core/Recoverability/ImmediateRetries
 NServiceBus.Core/Recoverability/Settings
+NServiceBus.Core/Sagas/Timeouts
+NServiceBus.Core/Sagas/Timeouts/ServiceControl
 NServiceBus.Core/Serializers/SystemJson
+NServiceBus.Core/ServicePlatform
+NServiceBus.Core/ServicePlatform/Messaging
+NServiceBus.Core/ServicePlatform/UsageReporting
 NServiceBus.Core/Support
 NServiceBus.Core/Unicast/Config
 NServiceBus.AcceptanceTests/Core/UnitOfWork/TransactionScope

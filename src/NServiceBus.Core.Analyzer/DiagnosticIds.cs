@@ -59,4 +59,8 @@ public static class DiagnosticIds
 
     // SagaAnalyzer
     public const string ToSagaMappingMustAccessSagaDataPropertyDirectly = "NSB0042";
+
+    // SagaTimeoutManagementPersistenceAnalyzer
+    public const string SagaTimeoutReportingRequiresSupportingPersistence = "NSB0043";
+    public const string SagaTimeoutManagementRequiresSupportingPersistence = "NSB0044";
 }

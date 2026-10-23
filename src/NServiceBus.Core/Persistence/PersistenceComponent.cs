@@ -9,6 +9,7 @@ using System.Linq;
 using Features;
 using Logging;
 using Persistence;
+using Sagas;
 using Settings;
 
 sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSettings)
@@ -83,9 +84,13 @@ sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSetti
     {
         public IReadOnlyCollection<(StorageType Storage, StorageType.Options Options)> SupportedPersistences { get; } = supportedPersistences;
 
+        public PersistenceDefinition? SagaPersistenceDefinition { get; } = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
+
+        public bool SagaStorageSupportsTimeoutManagement => SagaPersistenceDefinition is ISupportTimeoutManagement;
+
         public void AssertSagaAndOutboxUseSamePersistence()
         {
-            var sagaPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
+            var sagaPersisterDefinition = SagaPersistenceDefinition;
             var outboxPersisterDefinition = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Outbox>())?.Definition;
             var bothFeaturesActive = settings.IsFeatureActive<Features.Sagas>() && settings.IsFeatureActive<Features.Outbox>();
 

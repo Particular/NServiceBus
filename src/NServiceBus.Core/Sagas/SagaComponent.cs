@@ -40,6 +40,18 @@ static class SagaComponent
             }
         }
 
+        if (!persistenceConfiguration.SagaStorageSupportsTimeoutManagement)
+        {
+            var sagasUsingTimeoutManagement = sagaMetaModel.Where(s => s.UsesTimeoutManagement).Select(s => s.SagaType.FullName).ToArray();
+
+            if (sagasUsingTimeoutManagement.Length != 0)
+            {
+                throw new Exception(
+                    $"The selected saga persistence '{persistenceConfiguration.SagaPersistenceDefinition?.Name}' doesn't support saga timeout management. The following sagas use FindTimeouts, RescheduleTimeout, or CancelTimeout: " +
+                    string.Join(", ", sagasUsingTimeoutManagement) + ". Use a persistence that implements 'ISupportTimeoutManagement', or remove the calls.");
+            }
+        }
+
         if (settings.VerifyIfEntitiesAreShared)
         {
             sagaMetaModel.VerifyIfEntitiesAreShared();

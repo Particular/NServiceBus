@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Extensibility;
 using Outbox;
 using Persistence;
+using Sagas;
 using Transport;
 
 class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSession
@@ -63,23 +64,23 @@ class LearningSynchronizedStorageSession : ICompletableSynchronizedStorageSessio
         deferredActions.Clear();
     }
 
-    public async Task<TSagaData?> Read<TSagaData>(Guid sagaId, SagaManifestCollection sagaManifests, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
+    public async Task<(TSagaData? SagaData, List<StoredSagaTimeout> Timeouts)> Read<TSagaData>(Guid sagaId, SagaManifestCollection sagaManifests, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
     {
         var sagaStorageFile = await Open(sagaId, typeof(TSagaData), sagaManifests, cancellationToken)
             .ConfigureAwait(false);
 
         if (sagaStorageFile == null)
         {
-            return null;
+            return (null, []);
         }
 
         return await sagaStorageFile.Read<TSagaData>(cancellationToken)
             .ConfigureAwait(false);
     }
 
-    public void Update(IContainSagaData sagaData, SagaManifestCollection sagaManifests) => deferredActions.Add(new UpdateAction(sagaData, sagaFiles, sagaManifests));
+    public void Update(IContainSagaData sagaData, IReadOnlyList<StoredSagaTimeout> timeouts, SagaManifestCollection sagaManifests) => deferredActions.Add(new UpdateAction(sagaData, timeouts, sagaFiles, sagaManifests));
 
-    public void Save(IContainSagaData sagaData, SagaManifestCollection sagaManifests) => deferredActions.Add(new SaveAction(sagaData, sagaFiles, sagaManifests));
+    public void Save(IContainSagaData sagaData, IReadOnlyList<StoredSagaTimeout> timeouts, SagaManifestCollection sagaManifests) => deferredActions.Add(new SaveAction(sagaData, timeouts, sagaFiles, sagaManifests));
 
     public void Complete(IContainSagaData sagaData, SagaManifestCollection sagaManifests) => deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
 

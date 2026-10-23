@@ -27,6 +27,9 @@ public partial class MessageHandler
 
     internal virtual bool IsTimeoutHandler { get; } = false;
 
+    // The exact timeout message type this handler fires stored saga timeouts for
+    internal Type? TimeoutMessageType { get; init; }
+
     /// <summary>
     /// Invokes the message handler.
     /// </summary>

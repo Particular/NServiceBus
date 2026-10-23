@@ -34,6 +34,16 @@ public class ActiveSagaInstance
     internal SagaMetadata Metadata { get; }
 
     /// <summary>
+    /// The stored timeouts of the saga instance, when the persister supports timeout management.
+    /// </summary>
+    internal SagaTimeouts Timeouts { get; set; } = null!;
+
+    /// <summary>
+    /// The stored timeout being fired by the incoming timeout message, already removed from the saga's timeouts.
+    /// </summary>
+    internal StoredSagaTimeout FiringTimeout { get; set; } = null!;
+
+    /// <summary>
     /// The actual saga instance.
     /// </summary>
     public Saga Instance { get; }

@@ -5,9 +5,11 @@ namespace NServiceBus;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Sagas;
 
 class SaveAction(
     IContainSagaData sagaData,
+    IReadOnlyList<StoredSagaTimeout> timeouts,
     Dictionary<string, SagaStorageFile> sagaFiles,
     SagaManifestCollection sagaManifests)
     : StorageAction(sagaData, sagaFiles, sagaManifests)
@@ -22,7 +24,7 @@ class SaveAction(
 
         sagaFiles.RegisterSagaFile(sagaFile, sagaId, sagaManifest.SagaEntityType);
 
-        await sagaFile.Write(sagaData, cancellationToken)
+        await sagaFile.Write(sagaData, timeouts, cancellationToken)
             .ConfigureAwait(false);
     }
 }

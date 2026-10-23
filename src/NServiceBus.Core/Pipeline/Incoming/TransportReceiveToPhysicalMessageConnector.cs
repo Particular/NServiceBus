@@ -141,7 +141,7 @@ partial class TransportReceiveToPhysicalMessageConnector(
         return activity;
     }
 
-    static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
+    internal static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
     {
         foreach (var operation in deduplicationEntry.TransportOperations)
         {
@@ -151,7 +151,7 @@ partial class TransportReceiveToPhysicalMessageConnector(
         }
     }
 
-    static TransportOperation[] ConvertToOutboxOperations(Transport.TransportOperation[] operations)
+    internal static TransportOperation[] ConvertToOutboxOperations(Transport.TransportOperation[] operations)
     {
         var transportOperations = new TransportOperation[operations.Length];
         for (int index = 0; index < operations.Length; index++)
