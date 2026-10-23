@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
 using Routing;
 using Transport;
-using NServiceBus.Utils;
 
 static class IncomingMessageOperations
 {

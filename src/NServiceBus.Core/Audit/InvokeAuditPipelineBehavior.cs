@@ -6,7 +6,6 @@ using System;
 using System.Threading.Tasks;
 using Pipeline;
 using Transport;
-using NServiceBus.Utils;
 
 class InvokeAuditPipelineBehavior(
     string auditAddress,

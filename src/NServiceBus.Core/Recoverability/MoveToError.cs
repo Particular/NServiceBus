@@ -4,7 +4,6 @@ namespace NServiceBus;
 
 using System.Collections.Generic;
 using Logging;
-using NServiceBus.Utils;
 using Pipeline;
 using Recoverability;
 using Routing;

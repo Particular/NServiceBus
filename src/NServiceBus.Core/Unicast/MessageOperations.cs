@@ -8,7 +8,6 @@ using Extensibility;
 using MessageInterfaces;
 using Pipeline;
 using Transport;
-using Utils;
 
 class MessageOperations(
     IMessageMapper messageMapper,
