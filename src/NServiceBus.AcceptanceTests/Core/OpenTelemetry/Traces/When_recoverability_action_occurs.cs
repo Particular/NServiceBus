@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
+﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
 using System;
 using System.Linq;
@@ -70,9 +70,16 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
         Assert.That(immediateRetry.DisplayName, Is.EqualTo($"immediate retry {endpointName}"));
     }
 
-    [Test]
-    public async Task Should_link_each_attempt_to_its_own_handler_span()
+    [TestCase(true)]
+    [TestCase(false, TestName = "Should link each attempt to its receive span without handler tracing")]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_link_each_attempt_to_its_innermost_failed_span(bool handlerTracing)
     {
+        if (!handlerTracing)
+        {
+            DisableHandlerTracing();
+        }
+
         await Scenario.Define<Context>()
             .WithEndpoint<RecoverabilityEndpoint>(b => b
                 .CustomConfig(c => c.Recoverability().Immediate(i => i.NumberOfRetries(1)).Delayed(i => i.NumberOfRetries(0)))
@@ -81,19 +88,20 @@ public class When_recoverability_action_occurs : OpenTelemetryAcceptanceTest
             .Done(_ => ActionTags().Contains("move_to_error"))
             .Run();
 
-        var recoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().OrderBy(a => a.StartTimeUtc).ToList();
-        var failedHandlerActivities = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities()
+        var activities = NServiceBusActivityListener.CompletedActivities;
+        var recoverabilityActivities = activities.GetRecoverabilityActivities().OrderBy(a => a.StartTimeUtc).ToList();
+        var innermostFailedActivities = (handlerTracing ? activities.GetInvokedHandlerActivities() : activities.GetReceiveMessageActivities())
             .OrderBy(a => a.StartTimeUtc)
             .ToList();
 
         Assert.That(recoverabilityActivities, Has.Count.EqualTo(2), "an immediate retry and a move to the error queue");
-        Assert.That(failedHandlerActivities, Has.Count.EqualTo(2), "one failed handler span per attempt");
+        Assert.That(innermostFailedActivities, Has.Count.EqualTo(2), "one innermost failed span per attempt");
 
         using (Assert.EnterMultipleScope())
         {
             for (var attempt = 0; attempt < 2; attempt++)
             {
-                Assert.That(recoverabilityActivities[attempt].Links.Select(l => l.Context.SpanId), Is.EqualTo([failedHandlerActivities[attempt].SpanId]), $"attempt {attempt + 1}");
+                Assert.That(recoverabilityActivities[attempt].Links.Select(l => l.Context.SpanId), Is.EqualTo([innermostFailedActivities[attempt].SpanId]), $"attempt {attempt + 1}");
             }
         }
     }

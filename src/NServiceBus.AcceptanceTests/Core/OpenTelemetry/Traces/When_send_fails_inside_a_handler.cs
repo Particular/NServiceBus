@@ -22,7 +22,7 @@ public class When_send_fails_inside_a_handler : OpenTelemetryAcceptanceTest
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        var exceptionLogs = context.Logs.Where(l => l is { Level: > Logging.LogLevel.Debug, Message: not null } && l.Message.Contains(ErrorMessage)).ToList();
+        var exceptionLogs = context.Logs.Where(l => ReferenceEquals(l.Exception, context.SendException)).ToList();
 
         var handlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
         var sendActivity = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities().Single(a => a.ParentSpanId == handlerActivity.SpanId);
@@ -37,11 +37,14 @@ public class When_send_fails_inside_a_handler : OpenTelemetryAcceptanceTest
         }
     }
 
-    public class Context : ScenarioContext;
+    public class Context : ScenarioContext
+    {
+        public Exception SendException { get; set; }
+    }
 
     public class SendingEndpoint : EndpointConfigurationBuilder
     {
-        public SendingEndpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(new FailingSendBehavior(), "fails sending FailingSendMessage"));
+        public SendingEndpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register<FailingSendBehavior>("fails sending FailingSendMessage"));
 
         [Handler]
         public class TriggerMessageHandler : IHandleMessages<TriggerMessage>
@@ -49,10 +52,18 @@ public class When_send_fails_inside_a_handler : OpenTelemetryAcceptanceTest
             public Task Handle(TriggerMessage message, IMessageHandlerContext context) => context.SendLocal(new FailingSendMessage());
         }
 
-        class FailingSendBehavior : Behavior<IOutgoingLogicalMessageContext>
+        public class FailingSendBehavior(Context testContext) : Behavior<IOutgoingLogicalMessageContext>
         {
             public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
-                => context.Message.MessageType == typeof(FailingSendMessage) ? throw new SimulatedException(ErrorMessage) : next();
+            {
+                if (context.Message.MessageType != typeof(FailingSendMessage))
+                {
+                    return next();
+                }
+
+                testContext.SendException = new SimulatedException(ErrorMessage);
+                throw testContext.SendException;
+            }
         }
     }
 

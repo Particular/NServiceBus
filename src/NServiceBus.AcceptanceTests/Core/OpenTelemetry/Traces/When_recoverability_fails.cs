@@ -32,15 +32,14 @@ public class When_recoverability_fails : OpenTelemetryAcceptanceTest
             .Done(c => c.CriticalErrorRaised && !c.FailedMessages.IsEmpty)
             .Run();
 
-        var recoverabilityFailureLog = context.Logs.Single(l => l is { Level: > Logging.LogLevel.Debug, Message: not null } && l.Message.Contains(RecoverabilityErrorMessage));
+        var recoverabilityFailureLogs = context.Logs.Where(l => ReferenceEquals(l.Exception, context.RecoverabilityException)).ToList();
+        var failedRecoverabilityActivity = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().OrderBy(a => a.StartTimeUtc).First();
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(recoverabilityFailureLog.Level, Is.EqualTo(Logging.LogLevel.Fatal), "the critical error should log it");
-            Assert.That(recoverabilityFailureLog.Exception, Is.SameAs(context.RecoverabilityException));
+            Assert.That(recoverabilityFailureLogs.Select(l => l.Level), Is.EqualTo([Logging.LogLevel.Fatal]), "the critical error should log it, once");
 
-            Assert.That(context.ActivityWhenRecoverabilityFailed.OperationName, Is.EqualTo("NServiceBus.Diagnostics.Recoverability"), "the failure should happen inside the recoverability span");
-            Assert.That(context.ActivityWhenRecoverabilityFailed.Status, Is.EqualTo(ActivityStatusCode.Error));
+            Assert.That(failedRecoverabilityActivity.Status, Is.EqualTo(ActivityStatusCode.Error), "the span of the failed first attempt");
         }
     }
 
@@ -49,7 +48,6 @@ public class When_recoverability_fails : OpenTelemetryAcceptanceTest
         public bool CriticalErrorRaised { get; set; }
         public int RecoverabilityAttempts;
         public Exception RecoverabilityException { get; set; }
-        public Activity ActivityWhenRecoverabilityFailed { get; set; }
     }
 
     public class FailingEndpoint : EndpointConfigurationBuilder
@@ -69,7 +67,6 @@ public class When_recoverability_fails : OpenTelemetryAcceptanceTest
                 if (Interlocked.Increment(ref testContext.RecoverabilityAttempts) == 1)
                 {
                     testContext.RecoverabilityException = new SimulatedException(RecoverabilityErrorMessage);
-                    testContext.ActivityWhenRecoverabilityFailed = Activity.Current;
                     throw testContext.RecoverabilityException;
                 }
 

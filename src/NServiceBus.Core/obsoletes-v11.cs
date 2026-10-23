@@ -17,7 +17,9 @@ using Settings;
 // entire file (SetExceptionRecordingModeDefault and
 // ExceptionSignalOptInEnvironmentVariableKey), and remove the
 // `Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault);` call in
-// OpenTelemetryFeature's constructor.
+// OpenTelemetryFeature's constructor. Delete the tests of the opt-in with it:
+// the ExceptionSignalOptInEnvironmentVariableKey tests in OpenTelemetryExtensionsTests
+// and When_processing_fails_with_exception_logs_opt_in.
 public partial class InstrumentationOptions
 {
     /// <summary>

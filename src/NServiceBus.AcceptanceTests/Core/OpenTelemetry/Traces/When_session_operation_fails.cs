@@ -38,13 +38,9 @@ public class When_session_operation_fails : OpenTelemetryAcceptanceTest
             .Done(c => c.SendException is not null)
             .Run();
 
-        var exceptionLog = context.Logs.Single(l => l is { Level: > Logging.LogLevel.Debug, Message: not null } && l.Message.Contains(ErrorMessage));
+        var exceptionLog = context.Logs.Single(l => ReferenceEquals(l.Exception, context.SendException));
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(exceptionLog.Level, Is.EqualTo(Logging.LogLevel.Warn));
-            Assert.That(exceptionLog.Exception, Is.SameAs(context.SendException));
-        }
+        Assert.That(exceptionLog.Level, Is.EqualTo(Logging.LogLevel.Warn));
 
         if (tracingEnabled)
         {

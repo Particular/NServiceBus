@@ -17,7 +17,7 @@ public class When_an_exception_passes_through_several_spans : OpenTelemetryAccep
     public async Task Should_record_the_exception_once_mark_every_span_as_failed_and_log_it_once(ExceptionRecordingMode exceptionRecordingMode)
     {
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<SendingEndpoint>(e => e
+            .WithEndpoint<PublishingEndpoint>(e => e
                 .CustomConfig(c =>
                 {
                     c.Tracing().ExceptionRecordingMode = exceptionRecordingMode;
@@ -28,15 +28,15 @@ public class When_an_exception_passes_through_several_spans : OpenTelemetryAccep
             .Done(c => !c.FailedMessages.IsEmpty)
             .Run();
 
-        var handlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
+        var activities = NServiceBusActivityListener.CompletedActivities;
 
         Activity[] spansPassedThrough = [
-            NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities().Single(a => a.ParentSpanId == handlerActivity.SpanId),
-            handlerActivity,
-            NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single(a => a.SpanId == handlerActivity.ParentSpanId)];
+            activities.GetPublishEventActivities().Single(),
+            activities.GetInvokedHandlerActivities().Single(),
+            activities.GetReceiveMessageActivities().Single()];
 
         var exceptionEvents = spansPassedThrough.SelectMany(a => a.Events.Where(e => e.Name == "exception").Select(_ => a)).ToList();
-        var exceptionLogs = context.Logs.Where(l => l is { Level: > Logging.LogLevel.Debug, Message: not null } && l.Message.Contains(ErrorMessage)).ToList();
+        var exceptionLogs = context.Logs.Where(l => ReferenceEquals(l.Exception, context.PublishException)).ToList();
 
         using (Assert.EnterMultipleScope())
         {
@@ -55,28 +55,32 @@ public class When_an_exception_passes_through_several_spans : OpenTelemetryAccep
         }
     }
 
-    public class Context : ScenarioContext;
-
-    public class SendingEndpoint : EndpointConfigurationBuilder
+    public class Context : ScenarioContext
     {
-        public SendingEndpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register(new FailingSendBehavior(), "fails sending FailingSendMessage"));
+        public Exception PublishException { get; set; }
+    }
+
+    public class PublishingEndpoint : EndpointConfigurationBuilder
+    {
+        public PublishingEndpoint() => EndpointSetup<DefaultServer>(c => c.Pipeline.Register<FailingPublishBehavior>("fails publishing FailingEvent"));
 
         [Handler]
         public class TriggerMessageHandler : IHandleMessages<TriggerMessage>
         {
-            public Task Handle(TriggerMessage message, IMessageHandlerContext context) => context.SendLocal(new FailingSendMessage());
+            public Task Handle(TriggerMessage message, IMessageHandlerContext context) => context.Publish(new FailingEvent());
         }
 
-        class FailingSendBehavior : Behavior<IOutgoingLogicalMessageContext>
+        public class FailingPublishBehavior(Context testContext) : Behavior<IOutgoingPublishContext>
         {
-            public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
-                => context.Message.MessageType == typeof(FailingSendMessage) ? throw new SimulatedException(ErrorMessage) : next();
+            public override Task Invoke(IOutgoingPublishContext context, Func<Task> next)
+            {
+                testContext.PublishException = new SimulatedException();
+                throw testContext.PublishException;
+            }
         }
     }
 
     public class TriggerMessage : IMessage;
 
-    public class FailingSendMessage : IMessage;
-
-    const string ErrorMessage = "send from handler failed!";
+    public class FailingEvent : IEvent;
 }

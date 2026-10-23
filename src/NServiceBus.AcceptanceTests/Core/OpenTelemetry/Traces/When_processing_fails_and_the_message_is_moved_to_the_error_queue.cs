@@ -27,12 +27,11 @@ public class When_processing_fails_and_the_message_is_moved_to_the_error_queue :
             .Run();
 
         var recoverabilityActivity = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Single();
-        var exceptionLog = context.Logs.Single(l => l is { Level: > Logging.LogLevel.Debug, Message: not null } && l.Message.Contains(ErrorMessage));
+        var exceptionLog = context.Logs.Single(l => ReferenceEquals(l.Exception, context.HandlerException));
         var handlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(exceptionLog.Exception, Is.SameAs(context.HandlerException));
             Assert.That(exceptionLog.Level, Is.EqualTo(Logging.LogLevel.Error), "a move to the error queue is logged at Error");
             Assert.That(exceptionLog.SpanId, Is.EqualTo(recoverabilityActivity.SpanId), "the log entry should be correlated with the recoverability span");
 
