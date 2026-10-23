@@ -11,8 +11,6 @@ using NServiceBus;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 
-// Carrying out the recoverability decision fails once. The transport raises a critical error, which logs the failure
-// at Fatal; recoverability does not log it as well. The message is processed again and moved to the error queue.
 public class When_recoverability_fails : OpenTelemetryAcceptanceTest
 {
     [Test]
@@ -34,14 +32,15 @@ public class When_recoverability_fails : OpenTelemetryAcceptanceTest
             .Done(c => c.CriticalErrorRaised && !c.FailedMessages.IsEmpty)
             .Run();
 
-        var recoverabilityFailureLogs = context.Logs.Where(l => l.Level > Logging.LogLevel.Debug && l.Message.Contains(RecoverabilityErrorMessage)).ToList();
-        var failedRecoverabilityActivities = NServiceBusActivityListener.CompletedActivities.GetRecoverabilityActivities().Where(a => a.Status == ActivityStatusCode.Error).ToList();
+        var recoverabilityFailureLog = context.Logs.Single(l => l is { Level: > Logging.LogLevel.Debug, Message: not null } && l.Message.Contains(RecoverabilityErrorMessage));
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(recoverabilityFailureLogs, Has.Count.EqualTo(1), "the recoverability failure should be logged exactly once");
-            Assert.That(recoverabilityFailureLogs.Single().Level, Is.EqualTo(Logging.LogLevel.Fatal), "the critical error should log it");
-            Assert.That(failedRecoverabilityActivities, Has.Count.EqualTo(1), "the recoverability span should be marked as failed");
+            Assert.That(recoverabilityFailureLog.Level, Is.EqualTo(Logging.LogLevel.Fatal), "the critical error should log it");
+            Assert.That(recoverabilityFailureLog.Exception, Is.SameAs(context.RecoverabilityException));
+
+            Assert.That(context.ActivityWhenRecoverabilityFailed.OperationName, Is.EqualTo("NServiceBus.Diagnostics.Recoverability"), "the failure should happen inside the recoverability span");
+            Assert.That(context.ActivityWhenRecoverabilityFailed.Status, Is.EqualTo(ActivityStatusCode.Error));
         }
     }
 
@@ -49,6 +48,8 @@ public class When_recoverability_fails : OpenTelemetryAcceptanceTest
     {
         public bool CriticalErrorRaised { get; set; }
         public int RecoverabilityAttempts;
+        public Exception RecoverabilityException { get; set; }
+        public Activity ActivityWhenRecoverabilityFailed { get; set; }
     }
 
     public class FailingEndpoint : EndpointConfigurationBuilder
@@ -64,7 +65,16 @@ public class When_recoverability_fails : OpenTelemetryAcceptanceTest
         public class FailOnceRecoverabilityBehavior(Context testContext) : Behavior<IRecoverabilityContext>
         {
             public override Task Invoke(IRecoverabilityContext context, Func<Task> next)
-                => Interlocked.Increment(ref testContext.RecoverabilityAttempts) == 1 ? throw new SimulatedException(RecoverabilityErrorMessage) : next();
+            {
+                if (Interlocked.Increment(ref testContext.RecoverabilityAttempts) == 1)
+                {
+                    testContext.RecoverabilityException = new SimulatedException(RecoverabilityErrorMessage);
+                    testContext.ActivityWhenRecoverabilityFailed = Activity.Current;
+                    throw testContext.RecoverabilityException;
+                }
+
+                return next();
+            }
         }
     }
 
