@@ -63,6 +63,22 @@ When enabling the analyzers produces too many warnings to fix at once, record th
 
 Adding trimming annotations without changing runtime behavior can ship in a minor release. Making an existing API throw when trimming or Native AOT is active is a breaking change.
 
+### Register handlers and sagas from a source generator
+
+A source generator in a downstream component must not emit `AddHandler<T>()` or `AddSaga<T>()` calls. NServiceBus replaces those calls with AOT-safe code only for call sites that exist in the compilation's own source, and one generator cannot see the output of another.
+
+Contribute to the generated handler registry instead:
+
+1. Emit a class that implements `IHandlerRegistryContributor<TSelf>` for itself and carries `[HandlerRegistryContributor]`. The class can be internal, must not be generic, and must be accessible from the generated registry.
+2. In `AddHandlers` and `AddSagas`, call the generator-facing APIs that the generated registry itself uses: `MessageHandlerRegistry.AddMessageHandlerForMessage<THandler, TMessage>()`, `MessageMetadataRegistry.RegisterMessageTypeWithHierarchy`, and `SagaMetadata.Create<TSaga, TSagaData>` with generated accessors.
+3. Put the class in the namespace that matches the registry node that should call it. The same namespace-to-node mapping applies as for handlers.
+
+An assembly with only contributors still gets a generated registry. An endpoint registers it with `endpointConfiguration.Handlers.<AssemblyName>Assembly.AddAll()`.
+
+Each assembly with a generated registry also declares a hidden entry type. `endpointConfiguration.Handlers.AddAll()`, `AddAllHandlers()`, and `AddAllSagas()` call the entry of the endpoint assembly and of every referenced assembly that declares one. A contribution can run more than once, for example when an endpoint calls `Handlers.<AssemblyName>Assembly.AddAll()` and then `Handlers.AddAll()`, so `AddHandlers` and `AddSagas` must be idempotent. Handler and saga registrations are already deduplicated.
+
+`Handlers.AddAll()` is replaced at compile time and throws when it is not, for example in a non-C# project or when it is used as a method group.
+
 ## General trimming and AOT guidance
 
 This page covers what is specific to NServiceBus. For the general techniques, such as annotating reflection, guarding dynamic code with `RuntimeFeature.IsDynamicCodeSupported`, suppressing warnings, and `System.Text.Json` source generation, see:
