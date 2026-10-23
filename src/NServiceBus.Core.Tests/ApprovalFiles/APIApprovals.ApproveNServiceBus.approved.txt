@@ -341,6 +341,12 @@ namespace NServiceBus
             "heck\'. Will be removed in version 11.0.0.", true)]
         protected override System.Type ProvidedByFeature() { }
     }
+    [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple=false, Inherited=false)]
+    public sealed class GeneratedHandlerRegistryAttribute : System.Attribute
+    {
+        public GeneratedHandlerRegistryAttribute(System.Type entryType) { }
+        public System.Type EntryType { get; }
+    }
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HandlerAttribute : System.Attribute
     {
