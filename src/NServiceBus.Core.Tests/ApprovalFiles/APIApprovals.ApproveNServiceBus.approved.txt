@@ -351,11 +351,10 @@ namespace NServiceBus
         public HandlerRegistry(NServiceBus.EndpointConfiguration configuration) { }
         public NServiceBus.EndpointConfiguration Configuration { get; }
     }
-    [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple=true, Inherited=false)]
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HandlerRegistryContributorAttribute : System.Attribute
     {
-        public HandlerRegistryContributorAttribute(System.Type contributorType) { }
-        public System.Type ContributorType { get; }
+        public HandlerRegistryContributorAttribute() { }
     }
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HandlerRegistryExtensionsAttribute : System.Attribute

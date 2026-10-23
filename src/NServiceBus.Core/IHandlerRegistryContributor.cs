@@ -8,8 +8,9 @@ using System.ComponentModel;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Source generators in other packages implement this interface on a generated type and declare it with the
-/// <see cref="HandlerRegistryContributorAttribute" />. The implementation must be public and implicit, and must not be generic.
+/// Source generators in other packages implement this interface on a generated class and mark the class with the
+/// <see cref="HandlerRegistryContributorAttribute" />. The class cannot be static because static classes cannot implement
+/// interfaces. An abstract class works. The members must be implemented implicitly as public static methods.
 /// </para>
 /// <para>
 /// The namespace of the implementing type selects the registry node whose <c>AddAll</c>, <c>AddAllHandlers</c>, and
