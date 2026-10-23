@@ -94,7 +94,9 @@ public class When_reading_headers_after_batched_send_with_header_pooling : NServ
             {
                 await next();
 
-                if (testContext.BatchedHeaders is null || testContext.ReceiveBehaviorCompleted)
+                // Only the trigger invocation owns the batched headers; the follow-up can be received before its root returns them.
+                if (!context.Message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var enclosedMessageTypes) ||
+                    !enclosedMessageTypes.Contains(typeof(TriggerMessage).FullName!))
                 {
                     return;
                 }

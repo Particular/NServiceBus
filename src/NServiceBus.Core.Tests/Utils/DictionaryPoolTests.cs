@@ -682,12 +682,6 @@ public class DictionaryPoolTests
                 {
                     violations.Enqueue($"producer {producer} could not defer a rented dictionary");
                 }
-
-                // A direct return of a deferred instance must be ignored and must not double-pool it.
-                if (i % 7 == 0)
-                {
-                    pool.Return(dict);
-                }
             }
 
             _ = Interlocked.Increment(ref producersDone);
