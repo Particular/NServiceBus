@@ -393,6 +393,91 @@ public class ActivityFactoryTests
         }
     }
 
+    class RecordError : ActivityFactoryTests
+    {
+        [Test]
+        public void Should_mark_the_activity_as_failed()
+        {
+            using var activity = new Activity("send").Start();
+            var exception = new InvalidOperationException("boom");
+
+            activityFactory.RecordError(activity, exception, new ContextBag());
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.Status, Is.EqualTo(ActivityStatusCode.Error));
+                Assert.That(activity.StatusDescription, Is.EqualTo("boom"));
+                Assert.That(activity.TagObjects.ToImmutableDictionary()[ActivityTags.ErrorType], Is.EqualTo(typeof(InvalidOperationException).FullName));
+            }
+        }
+
+        [TestCase(ExceptionRecordingMode.Logs, false)]
+        [TestCase(ExceptionRecordingMode.SpanAndLogs, true)]
+        public void Should_add_exception_event_in_span_and_logs_mode_only(ExceptionRecordingMode exceptionRecordingMode, bool eventExpected)
+        {
+            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
+            using var activity = new Activity("send").Start();
+
+            factory.RecordError(activity, new InvalidOperationException("boom"), new ContextBag());
+
+            Assert.That(activity.Events.Select(e => e.Name), Is.EqualTo(eventExpected ? ["exception"] : Array.Empty<string>()));
+        }
+
+        [Test]
+        public void Should_add_exception_event_to_the_innermost_activity_only()
+        {
+            using var handlerActivity = new Activity("handler").Start();
+            using var incomingActivity = new Activity("incoming").Start();
+            var exception = new InvalidOperationException("boom");
+            var root = new ContextBag();
+
+            activityFactory.RecordError(handlerActivity, exception, new ContextBag(root));
+            activityFactory.RecordError(incomingActivity, exception, root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(handlerActivity.Events.Select(e => e.Name), Is.EqualTo(["exception"]));
+                Assert.That(incomingActivity.Events, Is.Empty, "the activities further out only mark their status");
+                Assert.That(incomingActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
+            }
+        }
+
+        [Test]
+        public void Should_add_exception_event_for_a_different_exception()
+        {
+            using var sendActivity = new Activity("send").Start();
+            using var handlerActivity = new Activity("handler").Start();
+            var root = new ContextBag();
+
+            activityFactory.RecordError(sendActivity, new InvalidOperationException("send failed"), root);
+            activityFactory.RecordError(handlerActivity, new InvalidOperationException("handler failed"), root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(sendActivity.Events.Select(e => e.Name), Is.EqualTo(["exception"]));
+                Assert.That(handlerActivity.Events.Select(e => e.Name), Is.EqualTo(["exception"]));
+            }
+        }
+
+        [Test]
+        public void Should_record_the_innermost_activity_for_recoverability()
+        {
+            using var sendActivity = new Activity("send").Start();
+            using var handlerActivity = new Activity("handler").Start();
+            var exception = new InvalidOperationException("boom");
+            var root = new ContextBag();
+
+            activityFactory.RecordError(sendActivity, exception, new ContextBag(root));
+            activityFactory.RecordError(handlerActivity, exception, root);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(root.TryGetWrappingActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(activityContext, Is.EqualTo(sendActivity.Context));
+            }
+        }
+    }
+
     class StartHandlerActivity : ActivityFactoryTests
     {
         [Test]

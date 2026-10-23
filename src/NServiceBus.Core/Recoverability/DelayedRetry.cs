@@ -5,6 +5,8 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using DelayedDelivery;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Recoverability;
 using Routing;
@@ -39,6 +41,8 @@ public class DelayedRetry : RecoverabilityAction
 
         var currentDelayedRetriesAttempt = context.DelayedDeliveriesPerformed + 1;
 
+        context.Builder.GetService<ILogger<DelayedRetry>>()?.DelayedRetryLogged(exception, context.MessageId, Delay);
+
         if (context is IRecoverabilityActionContextNotifications notifications)
         {
             notifications.Add(new MessageToBeRetried(
@@ -70,4 +74,10 @@ public class DelayedRetry : RecoverabilityAction
         });
         return [routingContext];
     }
+}
+
+static partial class DelayedRetryLoggerMessages
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Delayed Retry will reschedule message '{MessageId}' after a delay of {Delay} because of an exception:")]
+    public static partial void DelayedRetryLogged(this ILogger logger, Exception exception, string messageId, TimeSpan delay);
 }

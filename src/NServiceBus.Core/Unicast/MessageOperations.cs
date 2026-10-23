@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Transport;
 
@@ -17,7 +18,8 @@ class MessageOperations(
     IPipeline<IOutgoingReplyContext> replyPipeline,
     IPipeline<ISubscribeContext> subscribePipeline,
     IPipeline<IUnsubscribeContext> unsubscribePipeline,
-    IActivityFactory activityFactory)
+    IActivityFactory activityFactory,
+    ILogger<MessageOperations> logger)
 {
     protected readonly IPipeline<IOutgoingPublishContext> publishPipeline = publishPipeline;
     protected readonly IPipeline<IOutgoingSendContext> sendPipeline = sendPipeline;
@@ -83,7 +85,11 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Builder);
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            if (context is not IIncomingContext)
+            {
+                logger.OperationFailed(ex, displayName);
+            }
             throw;
         }
     }
@@ -116,7 +122,11 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Builder);
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            if (context is not IIncomingContext)
+            {
+                logger.OperationFailed(ex, displayName);
+            }
             throw;
         }
     }
@@ -146,7 +156,11 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Builder);
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            if (context is not IIncomingContext)
+            {
+                logger.OperationFailed(ex, displayName);
+            }
             throw;
         }
     }
@@ -206,7 +220,11 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Builder);
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            if (context is not IIncomingContext)
+            {
+                logger.OperationFailed(ex, displayName);
+            }
             throw;
         }
     }
@@ -266,7 +284,11 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Builder);
+            activityFactory.RecordError(activity, ex, context.Extensions);
+            if (context is not IIncomingContext)
+            {
+                logger.OperationFailed(ex, displayName);
+            }
             throw;
         }
     }
@@ -279,4 +301,10 @@ class MessageOperations(
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
         context.Set(new DispatchProperties(dispatchProperties));
     }
+}
+
+static partial class MessageOperationsLoggerMessages
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "An exception occurred while executing '{Operation}'.")]
+    public static partial void OperationFailed(this ILogger logger, Exception exception, string operation);
 }

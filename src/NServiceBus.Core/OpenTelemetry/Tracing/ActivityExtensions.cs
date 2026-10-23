@@ -2,6 +2,7 @@
 
 namespace NServiceBus;
 
+using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Extensibility;
@@ -10,6 +11,7 @@ static class ActivityExtensions
 {
     public const string OutgoingActivityKey = "NServiceBus.Diagnostics.Activity.Outgoing";
     public const string IncomingActivityKey = "NServiceBus.Diagnostics.Activity.Incoming";
+    public const string WrappingActivityKey = "NServiceBus.Diagnostics.Activity.Innermost";
 
     public static bool TryGetOutgoingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
         => pipelineContext.TryGetPipelineActivity(OutgoingActivityKey, out activity);
@@ -32,4 +34,25 @@ static class ActivityExtensions
 
     public static void SetOutgoingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(OutgoingActivityKey, activity);
     public static void SetIncomingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(IncomingActivityKey, activity);
+
+    public static bool TryRecordWrappingActivity(this ContextBag pipelineContext, Exception exception, Activity activity)
+    {
+        if (pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? innermostActivity) && ReferenceEquals(innermostActivity.Exception, exception))
+        {
+            return false;
+        }
+
+        pipelineContext.SetOnRoot(WrappingActivityKey, new WrappingActivity(exception, activity.Context));
+        return true;
+    }
+
+    public static bool TryGetWrappingActivityContext(this ContextBag pipelineContext, Exception exception, out ActivityContext activityContext)
+    {
+        activityContext = pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? innermostActivity) && ReferenceEquals(innermostActivity.Exception, exception)
+            ? innermostActivity.Context
+            : default;
+        return activityContext != default;
+    }
+
+    sealed record WrappingActivity(Exception Exception, ActivityContext Context);
 }

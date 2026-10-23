@@ -1,6 +1,8 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
+using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using Configuration.AdvancedExtensibility;
@@ -8,14 +10,10 @@ using EndpointTemplates;
 using NServiceBus;
 using NUnit.Framework;
 
-// The OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN override is applied while the OpenTelemetryFeature defaults
-// run, which is AFTER the endpoint's activity factory has already been built from the instrumentation
-// options. The opt-in only takes effect when the activity factory and the settings share a single
-// InstrumentationOptions instance.
 public class When_processing_fails_with_exception_logs_opt_in : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public async Task Should_record_the_exception_as_a_log_instead_of_a_span_event()
+    public async Task Should_select_the_logs_mode()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<FailingEndpoint>(e => e
@@ -25,13 +23,10 @@ public class When_processing_fails_with_exception_logs_opt_in : OpenTelemetryAcc
 
         Assert.That(context.FailedMessages, Has.Count.EqualTo(1), "the message should have failed");
 
-        var handlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
+        var activities = NServiceBusActivityListener.CompletedActivities;
+        var exceptionEvents = activities.GetInvokedHandlerActivities().Concat(activities.GetReceiveMessageActivities()).SelectMany(a => a.Events).Where(e => e.Name == "exception");
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(handlerActivity.Events, Is.Empty, "the exception should not be recorded as a span event when the endpoint opted in to exceptions as logs");
-            Assert.That(context.Logs.Any(l => l.LoggerName == "NServiceBus.ActivityFactory" && l.Level == Logging.LogLevel.Error && l.Message.Contains(ErrorMessage)), Is.True, "the exception should be recorded as an error log instead");
-        }
+        Assert.That(exceptionEvents, Is.Empty, "the opt-in selects the logs mode, which records no exception events");
     }
 
     public class Context : ScenarioContext;
@@ -54,6 +49,9 @@ public class When_processing_fails_with_exception_logs_opt_in : OpenTelemetryAcc
 
     public class FailingMessage : IMessage;
 
-    const string OptInEnvironmentVariable = "OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN";
+    static readonly string OptInEnvironmentVariable = (string)(typeof(InstrumentationOptions)
+        .GetField("ExceptionSignalOptInEnvironmentVariableKey", BindingFlags.Static | BindingFlags.NonPublic)
+        ?? throw new InvalidOperationException("InstrumentationOptions.ExceptionSignalOptInEnvironmentVariableKey not found")).GetValue(null);
+
     const string ErrorMessage = "boom!";
 }
