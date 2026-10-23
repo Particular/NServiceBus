@@ -254,11 +254,15 @@ public partial class SagaMetadata
 
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
         Justification = "The returned method is only invoked on code paths that are annotated with RequiresUnreferencedCode")]
+    [UnconditionalSuppressMessage("AOT", "IL3050",
+        Justification = "The returned method is only invoked on code paths that are annotated with RequiresDynamicCode")]
     static MethodInfo GetCreateSagaOfTSagaMethod() => typeof(SagaMetadata)
         .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
 
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
         Justification = "The returned method is only invoked on code paths that are annotated with RequiresUnreferencedCode")]
+    [UnconditionalSuppressMessage("AOT", "IL3050",
+        Justification = "The returned method is only invoked on code paths that are annotated with RequiresDynamicCode")]
     static MethodInfo GetCreateSagaOfTSagaTEntityMethod() => typeof(SagaMetadata)
         .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
 

@@ -200,6 +200,8 @@ public class MessageHandlerRegistry
 
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
         Justification = "The returned method is only invoked on code paths that are annotated with RequiresUnreferencedCode")]
+    [UnconditionalSuppressMessage("AOT", "IL3050",
+        Justification = "The returned method is only invoked on code paths that are annotated with RequiresDynamicCode")]
     static MethodInfo GetAddHandlerWithReflectionMethod() => typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
 
