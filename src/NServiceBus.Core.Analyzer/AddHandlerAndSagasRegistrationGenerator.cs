@@ -76,7 +76,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
     internal static IncrementalValueProvider<ImmutableEquatableArray<Parser.ContributorSpec>> BuildContributorSpecsPipeline(IncrementalGeneratorInitializationContext context) =>
         context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.HandlerRegistryContributorAttribute",
-                predicate: static (node, _) => node is ClassDeclarationSyntax,
+                predicate: static (node, _) => node is ClassDeclarationSyntax or RecordDeclarationSyntax,
                 transform: static (context, cancellationToken) => Parser.ParseContributor(context, cancellationToken))
             .Where(static spec => spec.HasValue)
             .Select(static (spec, _) => spec!.Value)

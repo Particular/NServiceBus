@@ -225,6 +225,28 @@ public class HandlerRegistryContributorGeneratorTests
     }
 
     [Test]
+    public void RecordClassContributorIsCollected()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryContributor]
+                     internal sealed record class RecordContributor : IHandlerRegistryContributor<RecordContributor>
+                     {
+                         public static RecordContributor Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
+                     }
+                     """;
+
+        var output = GeneratedCompilation.Run(nameof(RecordClassContributorIsCollected), source, [new AddHandlerAndSagasRegistrationGenerator()]);
+
+        Assert.That(output.CompilationErrors, Is.Empty);
+        Assert.That(output.SourceOf("HandlerRegistrations.g.cs"), Does.Contain("AddHandlers<global::RecordContributor>(_configuration);").And.Contain("AddSagas<global::RecordContributor>(_configuration);"));
+    }
+
+    [Test]
     public void NoContributorsAndNoHandlersProduceNoOutput()
     {
         var source = """

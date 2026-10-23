@@ -78,6 +78,38 @@ public class HandlerRegistryContributorAttributeAnalyzerTests : AnalyzerTestFixt
     }
 
     [Test]
+    public Task DoesNotReportValidRecordContributor()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [HandlerRegistryContributor]
+                     internal sealed record class RecordContributor : IHandlerRegistryContributor<RecordContributor>
+                     {
+                         public static RecordContributor Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
+                     }
+                     """;
+
+        return Assert(source);
+    }
+
+    [Test]
+    public Task ReportsRecordClassThatDoesNotImplementTheInterface()
+    {
+        var source = """
+                     using NServiceBus;
+
+                     [[|HandlerRegistryContributor|]]
+                     public sealed record class RecordContributor;
+                     """;
+
+        return Assert(source, DiagnosticIds.InvalidHandlerRegistryContributor);
+    }
+
+    [Test]
     public Task ReportsTypeThatDoesNotImplementTheInterface()
     {
         var source = """
