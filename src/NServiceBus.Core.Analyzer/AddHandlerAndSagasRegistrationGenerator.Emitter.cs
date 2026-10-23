@@ -16,6 +16,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 {
     internal class Emitter(SourceProductionContext context)
     {
+        internal const string EntryNamespace = "NServiceBus.Generated";
+
         public void Emit(ImmutableArray<BaseSpec> spec, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec, string assemblyName)
         {
             if (spec.Length == 0 && contributors.Count == 0)
@@ -23,15 +25,57 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 return;
             }
 
+            var namespaceTree = BuildNamespaceTree(spec, contributors, assemblyName, rootTypeSpec);
+
             var sourceWriter = new SourceWriter()
                 .PreAmble()
                 .WithOpenNamespace(rootTypeSpec.Namespace);
 
-            EmitHandlers(sourceWriter, spec, contributors, rootTypeSpec, assemblyName);
+            EmitHandlers(sourceWriter, namespaceTree);
             sourceWriter.CloseCurlies();
 
             context.AddSource("HandlerRegistrations.g.cs", sourceWriter.ToSourceText());
+
+            var entryWriter = new SourceWriter().PreAmble();
+            EmitEntry(entryWriter, namespaceTree);
+            context.AddSource("HandlerRegistryEntry.g.cs", entryWriter.ToSourceText());
         }
+
+        internal static string GetEntryTypeName(string assemblyName) => $"{SanitizeIdentifier(assemblyName)}HandlerRegistryEntry";
+
+        static void EmitEntry(SourceWriter sourceWriter, NamespaceTree namespaceTree)
+        {
+            var entryTypeName = GetEntryTypeName(namespaceTree.AssemblyName);
+            var rootSpec = namespaceTree.RootTypeSpec;
+            var rootRegistry = string.IsNullOrEmpty(rootSpec.Namespace)
+                ? $"global::{namespaceTree.ExtensionTypeName}.{namespaceTree.Root.RegistryName}"
+                : $"global::{rootSpec.Namespace}.{namespaceTree.ExtensionTypeName}.{namespaceTree.Root.RegistryName}";
+
+            sourceWriter.WriteLine($"[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::{EntryNamespace}.{entryTypeName}))]");
+            sourceWriter.WriteLine();
+            sourceWriter.WriteLine($"namespace {EntryNamespace}");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+            sourceWriter.WriteLine("/// <summary>");
+            sourceWriter.WriteLine($"/// Registers the handlers and sagas discovered in the <i>{namespaceTree.AssemblyName}</i> assembly. Used by the composed <c>Handlers.AddAll</c> methods.");
+            sourceWriter.WriteLine("/// </summary>");
+            sourceWriter.WithGeneratedCodeAttribute();
+            sourceWriter.WriteLine("[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]");
+            sourceWriter.WriteLine($"public static class {entryTypeName}");
+            sourceWriter.WriteLine("{");
+            sourceWriter.Indentation++;
+
+            EmitEntryMethod(sourceWriter, "AddAll", rootRegistry);
+            sourceWriter.WriteLine();
+            EmitEntryMethod(sourceWriter, "AddAllHandlers", rootRegistry);
+            sourceWriter.WriteLine();
+            EmitEntryMethod(sourceWriter, "AddAllSagas", rootRegistry);
+
+            sourceWriter.CloseCurlies();
+        }
+
+        static void EmitEntryMethod(SourceWriter sourceWriter, string methodName, string rootRegistry) =>
+            sourceWriter.WriteLine($"public static void {methodName}(global::NServiceBus.EndpointConfiguration configuration) => new {rootRegistry}(configuration).{methodName}();");
 
         public static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec) =>
             BuildNamespaceTree(baseSpecs, ImmutableEquatableArray<ContributorSpec>.Empty, baseSpecs[0].AssemblyName, rootTypeSpec);
@@ -42,11 +86,9 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return new NamespaceTree(root, rootTypeSpec.ExtensionTypeName, assemblyName, rootTypeSpec);
         }
 
-        static void EmitHandlers(SourceWriter sourceWriter, ImmutableArray<BaseSpec> baseSpecs, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec, string assemblyName)
+        static void EmitHandlers(SourceWriter sourceWriter, NamespaceTree namespaceTree)
         {
-            Debug.Assert(baseSpecs.Length > 0 || contributors.Count > 0);
-
-            var namespaceTree = BuildNamespaceTree(baseSpecs, contributors, assemblyName, rootTypeSpec);
+            var rootTypeSpec = namespaceTree.RootTypeSpec;
 
             sourceWriter.WriteLine("/// <summary>");
             sourceWriter.WriteLine($"/// Provides access to handler and saga registries discovered in the <i>{namespaceTree.AssemblyName}</i> assembly.");
