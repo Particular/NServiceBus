@@ -18,7 +18,16 @@ NServiceBus is the core library of the Particular Service Platform, producing th
 
 ## Architecture and design
 
-This repository has no design pages.
+This section points to sources that explain why the repository is designed the way it is. Each entry says which question it answers. How-to material stays in the pages linked under Start here.
+
+## For downstream components
+
+These pages describe what core expects from, and guarantees to, transports, persisters, and serializers. Downstream repositories link to this section from their own `docs/README.md`, so add each new contract page here.
+
+- [Logging](logging.md) — why components can rely on a `Microsoft.Extensions.Logging.ILoggerFactory` being registered for every endpoint, and where that guarantee does not hold
+- [Message receivers](message-receivers.md) — what core expects from an `IMessageReceiver` for concurrency, changing concurrency, stopping, cancellation, and long-running handlers
+- [Recoverability](recoverability.md) — what core expects from a transport when `OnMessage` fails: building the `ErrorContext`, counting failures, acting on `ErrorHandleResult`, dispatching from `OnError`, and handling an `OnError` failure
+- [Trimming and Native AOT](trimming-and-aot.md) — what Core supports under trimming and Native AOT, how CI verifies it, and when downstream components should claim compatibility or only enable the analyzers
 
 ## Decisions and rationale
 
@@ -31,6 +40,7 @@ A pull request is listed here only when it is the canonical record for a decisio
 - The trimming and NativeAOT support strategy spans multiple coordinated changes rather than one switch — [#7929](https://github.com/Particular/NServiceBus/pull/7929)
 - Object-overload `Send`/`Publish`/`Reply` calls keep runtime-type routing by default; the trimming-safe path is opt-in through explicit generic or `Type` overloads — [#7889](https://github.com/Particular/NServiceBus/pull/7889)
 - Message metadata resolves without reflection-based assembly scanning so it stays trimming-safe — [#7918](https://github.com/Particular/NServiceBus/pull/7918)
+- Generated saga accessors use direct property access and keep an `UnsafeAccessor` only for accessors generated code can't call or whose obsolete or experimental diagnostics a pragma can't suppress, so they compile under the C# 15 updated memory safety rules — [#7953](https://github.com/Particular/NServiceBus/pull/7953)
 - Startup diagnostics sections carry explicit `JsonTypeInfo<T>` metadata to avoid reflection-based serialization under NativeAOT — [#7882](https://github.com/Particular/NServiceBus/pull/7882)
 - Out-of-slot logging is routed through a DI-registered ambient `AsyncLocal` factory instead of mutating `LogManager` global state — [#7758](https://github.com/Particular/NServiceBus/pull/7758)
 - `ContextBag`/`BehaviorContext` store pipeline context values in a fixed-size inline array instead of a lazily allocated dictionary — [#7823](https://github.com/Particular/NServiceBus/pull/7823)
