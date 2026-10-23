@@ -13,8 +13,7 @@ static class DynamicMemberTypeAccess
                                                            | DynamicallyAccessedMemberTypes.PublicProperties;
 
     public const DynamicallyAccessedMemberTypes Saga = Handler
-                                                       | DynamicallyAccessedMemberTypes.NonPublicConstructors // Needed since we use RuntimeHelpers.GetUninitializedObject when performing saga mapping
-                                                       | DynamicallyAccessedMemberTypes.NonPublicMethods; // Needed since we are calling the protected ConfigureHowToFindSaga
+                                                       | DynamicallyAccessedMemberTypes.NonPublicConstructors; // Needed since we use RuntimeHelpers.GetUninitializedObject when performing saga mapping
 
     public const DynamicallyAccessedMemberTypes Handler = InvokableWithDependencyInjection;
 
