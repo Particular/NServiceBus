@@ -368,6 +368,7 @@ namespace NServiceBus
         extension(NServiceBus.EndpointConfiguration config)
         {
             public void EnableHeaderPooling() { }
+            public void EnableHeaderPooling(NServiceBus.Transport.HeaderPool pool) { }
             public void DisableHeaderPooling() { }
         }
     }
