@@ -19,7 +19,7 @@ A receiver must support `StartReceive` after `StopReceive`.
 
 Core uses the main receiver's `Subscriptions` property for endpoint subscription operations. Instance-specific and satellite receivers have publish/subscribe disabled.
 
-Core calls `ISubscriptionManager` independently of the receiver's lifecycle methods. When automatic subscriptions are enabled, core calls `SubscribeAll` during endpoint start, before `StartReceive`. User code can call `Subscribe` and `Unsubscribe` through `IMessageSession` while the endpoint runs. Core does not wait for those calls before it calls `ChangeConcurrency` or `StopReceive`, so they can overlap with either. Core cancels the token passed to them when the endpoint starts stopping, but a transport cannot rely on that to stop a call that is already in progress.
+Core calls `ISubscriptionManager` independently of the receiver's lifecycle methods. When automatic subscriptions are enabled, core calls `SubscribeAll` during endpoint start, before `StartReceive`. Subscribe and unsubscribe calls run whether or not installers are enabled; see [Infrastructure setup](infrastructure-setup.md#subscriptions). User code can call `Subscribe` and `Unsubscribe` through `IMessageSession` while the endpoint runs. Core does not wait for those calls before it calls `ChangeConcurrency` or `StopReceive`, so they can overlap with either. Core cancels the token passed to them when the endpoint starts stopping, but a transport cannot rely on that to stop a call that is already in progress.
 
 A transport that receives from a separate native source for each subscription must:
 
