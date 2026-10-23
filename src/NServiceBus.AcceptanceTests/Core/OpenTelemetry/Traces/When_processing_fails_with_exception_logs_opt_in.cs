@@ -10,7 +10,6 @@ using EndpointTemplates;
 using NServiceBus;
 using NUnit.Framework;
 
-// Remove in v11 together with NServiceBus.Core/obsoletes-v11.cs, which defines the opt-in.
 public class When_processing_fails_with_exception_logs_opt_in : OpenTelemetryAcceptanceTest
 {
     [Test]
@@ -50,7 +49,6 @@ public class When_processing_fails_with_exception_logs_opt_in : OpenTelemetryAcc
 
     public class FailingMessage : IMessage;
 
-    // Read from Core, which keeps it internal, so the test stops working when v11 removes the opt-in.
     static readonly string OptInEnvironmentVariable = (string)(typeof(InstrumentationOptions)
         .GetField("ExceptionSignalOptInEnvironmentVariableKey", BindingFlags.Static | BindingFlags.NonPublic)
         ?? throw new InvalidOperationException("InstrumentationOptions.ExceptionSignalOptInEnvironmentVariableKey not found")).GetValue(null);

@@ -65,8 +65,6 @@ public class RecoverabilityExecutorTests
         Assert.That(errorContext.Extensions.Get<Guid>("new value"), Is.EqualTo(newValue));
     }
 
-    // The transport raises a failure of recoverability as a critical error, which logs it: recoverability does not log
-    // it as well.
     [TestCase(ExceptionRecordingMode.Logs)]
     [TestCase(ExceptionRecordingMode.SpanAndLogs)]
     public void Should_record_error_on_the_recoverability_activity_and_not_log_when_pipeline_throws(ExceptionRecordingMode exceptionRecordingMode)
@@ -125,7 +123,6 @@ public class RecoverabilityExecutorTests
         Assert.That(pipelineActivity.Links.Select(l => l.Context), Is.EqualTo(new[] { failedActivity.Context }));
     }
 
-    // The decision log entry is written under the recoverability span, which links to where the processing failed.
     [Test]
     public async Task Should_log_the_decision_under_the_recoverability_activity()
     {
@@ -150,8 +147,6 @@ public class RecoverabilityExecutorTests
         Assert.That(decisionLog.Activity, Is.SameAs(recoverabilityActivity));
     }
 
-    // A transport may reuse the context bag for the next attempt. What the previous attempt recorded is for a different
-    // exception instance and must not be linked.
     [Test]
     public async Task Should_not_link_recoverability_activity_to_an_activity_that_failed_with_another_exception()
     {

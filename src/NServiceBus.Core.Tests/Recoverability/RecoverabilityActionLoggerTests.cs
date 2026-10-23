@@ -12,8 +12,6 @@ using Transport;
 [TestFixture]
 public class RecoverabilityActionLoggerTests
 {
-    // The exception details are always logged with the recoverability decision; ExceptionRecordingMode only controls
-    // whether the exception is also recorded as an event on the activity. The executor test covers both modes.
     [Test]
     public void Should_log_the_exception_with_the_decision()
     {

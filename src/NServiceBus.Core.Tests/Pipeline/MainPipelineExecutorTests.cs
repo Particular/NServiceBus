@@ -116,9 +116,6 @@ public partial class MainPipelineExecutorTests
             Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Error));
         }
 
-        // No activity further in (for example the handler activity, when its source is not listened to) recorded the
-        // failure, so the incoming activity is the innermost one the exception escaped from. It is recorded on the
-        // context bag the transport floats to recoverability.
         [Test]
         public void Should_record_the_incoming_activity_as_failed_when_pipeline_throws()
         {
@@ -137,8 +134,6 @@ public partial class MainPipelineExecutorTests
             }
         }
 
-        // Everything in Exception.Data is copied to the failed message as NServiceBus.ExceptionInfo.Data.* headers.
-        // A processing failure should add only the processing details there, nothing the tracing uses internally.
         [Test]
         public void Should_record_only_processing_details_with_the_failed_message()
         {
@@ -160,7 +155,6 @@ public partial class MainPipelineExecutorTests
             }));
         }
 
-        // The handler activity records the failure first; the incoming activity must not replace it.
         [Test]
         public void Should_keep_the_failed_activity_recorded_further_in()
         {

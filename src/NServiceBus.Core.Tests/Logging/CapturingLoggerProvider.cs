@@ -6,11 +6,8 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-// Activity: Activity.Current when the entry was written, the span a log record is correlated with.
 sealed record CapturedLogEntry(string Category, LogLevel Level, string Message, Exception Exception, Activity Activity);
 
-// Captures every log entry written through Microsoft.Extensions.Logging so tests can assert on category, level,
-// message and attached exception.
 sealed class CapturingLoggerProvider : ILoggerProvider
 {
     public ConcurrentQueue<CapturedLogEntry> Entries { get; } = new();

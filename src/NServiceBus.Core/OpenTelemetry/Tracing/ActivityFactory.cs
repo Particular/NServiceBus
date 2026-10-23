@@ -271,7 +271,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
     }
 
     static void AddExceptionEvent(Activity activity, Exception exception)
-        => activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
+        => activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList);
 
 
 }

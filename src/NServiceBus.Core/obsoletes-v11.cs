@@ -4,22 +4,6 @@ namespace NServiceBus;
 
 using Settings;
 
-// This scaffolds a temporary, environment-variable-driven override for
-// ExceptionRecordingMode so users can opt in ahead of time to the "logs"
-// model described by the OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN convention:
-// https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
-// The environment variable is the highest-priority signal for this setting:
-// when it's set to a recognized value it always wins, even over an
-// explicitly configured ExceptionRecordingMode, so operators can force the
-// exception-signal behavior without a code change/redeploy.
-//
-// In v11, once the exceptions-as-logs migration has settled, delete this
-// entire file (SetExceptionRecordingModeDefault and
-// ExceptionSignalOptInEnvironmentVariableKey), and remove the
-// `Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault);` call in
-// OpenTelemetryFeature's constructor. Delete the tests of the opt-in with it:
-// the ExceptionSignalOptInEnvironmentVariableKey tests in OpenTelemetryExtensionsTests
-// and When_processing_fails_with_exception_logs_opt_in.
 public partial class InstrumentationOptions
 {
     /// <summary>

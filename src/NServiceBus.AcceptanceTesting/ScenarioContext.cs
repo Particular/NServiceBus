@@ -77,7 +77,6 @@ public class ScenarioContext
         public string? Message { get; set; }
         public LogLevel Level { get; set; }
         public Exception? Exception { get; set; }
-        // The span that was current when the entry was logged: the one a log record is correlated with.
         public ActivityTraceId? TraceId { get; set; }
         public ActivitySpanId? SpanId { get; set; }
     }

@@ -442,7 +442,6 @@ public class ActivityFactoryTests
             }
         }
 
-        // A handler that catches one exception and throws another: the new exception gets its own event.
         [Test]
         public void Should_add_exception_event_for_a_different_exception()
         {
@@ -460,8 +459,6 @@ public class ActivityFactoryTests
             }
         }
 
-        // Recording the error on the activity is independent from remembering the failed activity for recoverability:
-        // only the message processing pipeline does that.
         [Test]
         public void Should_not_record_the_activity_as_failed_for_recoverability()
         {

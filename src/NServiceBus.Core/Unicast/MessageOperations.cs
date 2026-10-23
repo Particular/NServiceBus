@@ -86,8 +86,6 @@ class MessageOperations(
         catch (Exception ex)
         {
             activityFactory.RecordError(activity, ex, context.Extensions);
-            // Inside message processing the exception fails the processing too, and recoverability logs it with its
-            // decision. Logging it here as well would log it twice.
             if (context is not IIncomingContext)
             {
                 logger.OperationFailed(ex, displayName);

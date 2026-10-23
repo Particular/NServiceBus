@@ -9,10 +9,6 @@ using Transport;
 
 sealed class RecoverabilityActionLogger(IServiceProvider serviceProvider)
 {
-    // The one place the exception details are logged: once per failure, when recoverability has decided, at the
-    // level the decision warrants. The log record is written while the recoverability activity is current, which
-    // links to the activity the exception escaped from. ExceptionRecordingMode only controls whether the exception
-    // is also recorded as an event on that activity.
     public void LogRecoverabilityAction(RecoverabilityAction recoverabilityAction, ErrorContext errorContext)
     {
         var exception = errorContext.Exception;

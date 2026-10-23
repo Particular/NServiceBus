@@ -200,8 +200,6 @@ public class MessageOperationsTests
         }
     }
 
-    // No recoverability follows a failed operation on the message session, so the exception is logged right away,
-    // whatever the ExceptionRecordingMode, as a warning: the caller gets the exception and decides what it means.
     [TestCase(ExceptionRecordingMode.Logs)]
     [TestCase(ExceptionRecordingMode.SpanAndLogs)]
     public void Should_log_the_exception_as_a_warning_on_failure(ExceptionRecordingMode exceptionRecordingMode)
@@ -229,8 +227,6 @@ public class MessageOperationsTests
         }
     }
 
-    // Every operation logs its failure at Warning, while the operation's span is current, so the log record is
-    // correlated with that span.
     [TestCase("send")]
     [TestCase("publish")]
     [TestCase("reply")]
@@ -276,8 +272,6 @@ public class MessageOperationsTests
         }
     }
 
-    // An operation started from a handler fails the message processing too, and recoverability logs the exception
-    // with its decision: the operation does not log it as well.
     [Test]
     public void Should_not_log_the_exception_on_failure_inside_message_processing()
     {
@@ -290,7 +284,6 @@ public class MessageOperationsTests
         Assert.That(entries, Is.Empty);
     }
 
-    // The log entry does not depend on tracing: it is written when no listener created an activity too.
     [Test]
     public void Should_log_the_exception_on_failure_without_an_activity()
     {

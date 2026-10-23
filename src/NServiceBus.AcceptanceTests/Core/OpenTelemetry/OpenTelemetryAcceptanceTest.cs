@@ -17,7 +17,6 @@ public abstract class OpenTelemetryAcceptanceTest : NServiceBusAcceptanceTest
         NServiceBusActivityListener = null;
     }
 
-    // Handler spans have their own source only with the v11 defaults; before that they come from the core source.
     protected void DisableHandlerTracing()
     {
         NServiceBusActivityListener.Dispose();

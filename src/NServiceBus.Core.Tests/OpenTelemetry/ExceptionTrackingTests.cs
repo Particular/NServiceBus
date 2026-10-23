@@ -8,7 +8,6 @@ using NUnit.Framework;
 [TestFixture]
 public class ExceptionTrackingTests
 {
-    // Kept on the root, so a pipeline's child context and the context the transport floats to recoverability share it.
     [Test]
     public void Should_share_the_tracking_through_the_root_context_bag()
     {
