@@ -57,7 +57,10 @@ public static class DiagnosticIds
     public const string RuntimeTypeMayDiffer = "NSB0040";
     public const string GenericMessageTypeIsObject = "NSB0041";
 
+    // SagaAnalyzer
+    public const string ToSagaMappingMustAccessSagaDataPropertyDirectly = "NSB0042";
+	
     // SagaTimeoutManagementPersistenceAnalyzer
-    public const string SagaTimeoutReportingRequiresSupportingPersistence = "NSB0042";
-    public const string SagaTimeoutManagementRequiresSupportingPersistence = "NSB0043";
+    public const string SagaTimeoutReportingRequiresSupportingPersistence = "NSB0043";
+    public const string SagaTimeoutManagementRequiresSupportingPersistence = "NSB0044";
 }

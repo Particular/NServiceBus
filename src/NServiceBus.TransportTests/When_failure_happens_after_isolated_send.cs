@@ -27,7 +27,7 @@ public class When_failure_happens_after_isolated_send : NServiceBusTransportTest
 
                 await SendMessage(
                     InputQueueName,
-                    new Dictionary<string, string> { { "IsolatedSend", "" } },
+                    new Dictionary<string, string> { { "IsolatedSend", bool.TrueString } },
                     context.TransportTransaction,
                     dispatchConsistency: DispatchConsistency.Isolated,
                     cancellationToken: cancellationToken);

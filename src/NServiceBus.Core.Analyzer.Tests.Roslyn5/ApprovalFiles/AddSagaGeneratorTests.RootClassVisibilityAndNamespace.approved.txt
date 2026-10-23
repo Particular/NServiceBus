@@ -60,10 +60,7 @@ namespace CustomRegistrations
     {
         OrderBilledOrderIdAccessor_6b40737e550b4237() { }
 
-        protected override object? AccessFrom(global::Orders.OrderBilled message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern string AccessFrom_Property(global::Orders.OrderBilled message);
+        protected override object? AccessFrom(global::Orders.OrderBilled message) => message.OrderId;
 
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_6b40737e550b4237();
     }
@@ -74,10 +71,7 @@ namespace CustomRegistrations
     {
         OrderPlacedOrderIdAccessor_92819afdda929c86() { }
 
-        protected override object? AccessFrom(global::Orders.OrderPlaced message) => AccessFrom_Property(message);
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern string AccessFrom_Property(global::Orders.OrderPlaced message);
+        protected override object? AccessFrom(global::Orders.OrderPlaced message) => message.OrderId;
 
         public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_92819afdda929c86();
     }
@@ -88,15 +82,9 @@ namespace CustomRegistrations
     {
         OrderIdAsStringAccessor_828f31182d7d1121() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => AccessFrom_Property((global::Orders.OrderShippingPolicyData)sagaData);
+        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::Orders.OrderShippingPolicyData)sagaData).OrderId;
 
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "get_OrderId")]
-        static extern string AccessFrom_Property(global::Orders.OrderShippingPolicyData sagaData);
-
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => WriteTo_Property((global::Orders.OrderShippingPolicyData)sagaData, ((string)value));
-
-        [global::System.Runtime.CompilerServices.UnsafeAccessor(global::System.Runtime.CompilerServices.UnsafeAccessorKind.Method, Name = "set_OrderId")]
-        static extern void WriteTo_Property(global::Orders.OrderShippingPolicyData sagaData, string value);
+        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.OrderShippingPolicyData)sagaData).OrderId = (string)value;
 
         public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_828f31182d7d1121();
     }

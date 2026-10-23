@@ -7,7 +7,7 @@ using EndpointTemplates;
 using NUnit.Framework;
 
 // The analyzer can't tell which sagas of this assembly an endpoint hosts, so it warns here, which is the case the startup check covers
-#pragma warning disable NSB0043
+#pragma warning disable NSB0044
 
 public class When_saga_persistence_does_not_support_timeout_management : NServiceBusAcceptanceTest
 {
@@ -59,9 +59,9 @@ public class When_saga_persistence_does_not_support_timeout_management : NServic
         {
             c.UsePersistence<AcceptanceTestingPersistence, StorageType.Sagas>();
             c.ServiceControlErrorInstanceQueue("ServiceControl");
-#pragma warning disable NSB0042 // The analyzer reports this misconfiguration; the test covers the startup check behind it
+#pragma warning disable NSB0043 // The analyzer reports this misconfiguration; the test covers the startup check behind it
             c.ReportSagaTimeoutsToServiceControl();
-#pragma warning restore NSB0042
+#pragma warning restore NSB0043
         });
 
         [Saga]
