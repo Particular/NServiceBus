@@ -31,6 +31,12 @@ static partial class HeaderSerializer
     /// </remarks>
     public static Dictionary<string, string> Deserialize(ReadOnlySpan<byte> utf8Json, DictionaryPool<string, string>? pool = null)
     {
+        // Utf8JsonReader rejects a byte order mark, whereas reading the file as text used to skip it.
+        if (utf8Json.StartsWith(Encoding.UTF8.Preamble))
+        {
+            utf8Json = utf8Json[Encoding.UTF8.Preamble.Length..];
+        }
+
         var dict = pool?.Rent() ?? [];
         try
         {
