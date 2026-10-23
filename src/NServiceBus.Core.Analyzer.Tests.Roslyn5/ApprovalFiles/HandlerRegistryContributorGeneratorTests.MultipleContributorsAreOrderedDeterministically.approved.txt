@@ -64,7 +64,7 @@ namespace NServiceBus
             public void AddAllHandlers()
             {
                 AddAllHandlersCore();
-                global::RootContributor.AddHandlers(_configuration);
+                global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::RootContributor>(_configuration);
                 Acme.AddAllHandlers();
                 Zeta.AddAllHandlers();
             }
@@ -78,7 +78,7 @@ namespace NServiceBus
             public void AddAllSagas()
             {
                 AddAllSagasCore();
-                global::RootContributor.AddSagas(_configuration);
+                global::NServiceBus.HandlerRegistryContributors.AddSagas<global::RootContributor>(_configuration);
                 Acme.AddAllSagas();
                 Zeta.AddAllSagas();
             }
@@ -108,8 +108,8 @@ namespace NServiceBus
                 public void AddAllHandlers()
                 {
                     AddAllHandlersCore();
-                    global::Acme.FirstContributor.AddHandlers(_configuration);
-                    global::Acme.SecondContributor.AddHandlers(_configuration);
+                    global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::Acme.FirstContributor>(_configuration);
+                    global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::Acme.SecondContributor>(_configuration);
                 }
 
                 /// <summary>
@@ -118,8 +118,8 @@ namespace NServiceBus
                 public void AddAllSagas()
                 {
                     AddAllSagasCore();
-                    global::Acme.FirstContributor.AddSagas(_configuration);
-                    global::Acme.SecondContributor.AddSagas(_configuration);
+                    global::NServiceBus.HandlerRegistryContributors.AddSagas<global::Acme.FirstContributor>(_configuration);
+                    global::NServiceBus.HandlerRegistryContributors.AddSagas<global::Acme.SecondContributor>(_configuration);
                 }
 
                 partial void AddAllHandlersCore();
@@ -148,7 +148,7 @@ namespace NServiceBus
                 public void AddAllHandlers()
                 {
                     AddAllHandlersCore();
-                    global::Zeta.ZetaContributor.AddHandlers(_configuration);
+                    global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::Zeta.ZetaContributor>(_configuration);
                 }
 
                 /// <summary>
@@ -157,7 +157,7 @@ namespace NServiceBus
                 public void AddAllSagas()
                 {
                     AddAllSagasCore();
-                    global::Zeta.ZetaContributor.AddSagas(_configuration);
+                    global::NServiceBus.HandlerRegistryContributors.AddSagas<global::Zeta.ZetaContributor>(_configuration);
                 }
 
                 partial void AddAllHandlersCore();

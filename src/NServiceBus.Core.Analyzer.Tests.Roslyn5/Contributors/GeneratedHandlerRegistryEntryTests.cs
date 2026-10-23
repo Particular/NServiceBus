@@ -30,10 +30,12 @@ public class GeneratedHandlerRegistryEntryTests
                      }
 
                      [HandlerRegistryContributor]
-                     internal abstract class OrdersContributor : IHandlerRegistryContributor
+                     internal sealed class OrdersContributor : IHandlerRegistryContributor<OrdersContributor>
                      {
-                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                         public static void AddSagas(EndpointConfiguration configuration) { }
+                         public static OrdersContributor Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
                      }
                      """;
 
@@ -61,10 +63,12 @@ public class GeneratedHandlerRegistryEntryTests
                      }
 
                      [HandlerRegistryContributor]
-                     internal abstract class OrdersContributor : IHandlerRegistryContributor
+                     internal sealed class OrdersContributor : IHandlerRegistryContributor<OrdersContributor>
                      {
-                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                         public static void AddSagas(EndpointConfiguration configuration) { }
+                         public static OrdersContributor Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
                      }
                      """;
 
@@ -118,10 +122,12 @@ public class GeneratedHandlerRegistryEntryTests
                                          using NServiceBus;
 
                                          [HandlerRegistryContributor]
-                                         internal abstract class OrdersContributor : IHandlerRegistryContributor
+                                         internal sealed class OrdersContributor : IHandlerRegistryContributor<OrdersContributor>
                                          {
-                                             public static void AddHandlers(EndpointConfiguration configuration) { }
-                                             public static void AddSagas(EndpointConfiguration configuration) { }
+                                             public static OrdersContributor Instance { get; } = new();
+
+                                             public void AddHandlers(EndpointConfiguration configuration) { }
+                                             public void AddSagas(EndpointConfiguration configuration) { }
                                          }
                                          """;
 
@@ -140,10 +146,12 @@ public class GeneratedHandlerRegistryEntryTests
                                           }
 
                                           [HandlerRegistryContributor]
-                                          internal abstract class OrdersContributor : IHandlerRegistryContributor
+                                          internal sealed class OrdersContributor : IHandlerRegistryContributor<OrdersContributor>
                                           {
-                                              public static void AddHandlers(EndpointConfiguration configuration) => Calls.Recorded.Add("AddHandlers");
-                                              public static void AddSagas(EndpointConfiguration configuration) => Calls.Recorded.Add("AddSagas");
+                                              public static OrdersContributor Instance { get; } = new();
+
+                                              public void AddHandlers(EndpointConfiguration configuration) => Calls.Recorded.Add("AddHandlers");
+                                              public void AddSagas(EndpointConfiguration configuration) => Calls.Recorded.Add("AddSagas");
                                           }
                                           """;
 }

@@ -197,7 +197,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
                     foreach (var contributor in current.Contributors)
                     {
-                        writer.WriteLine($"{contributor.FullyQualifiedName}.AddHandlers(_configuration);");
+                        writer.WriteLine($"global::NServiceBus.HandlerRegistryContributors.AddHandlers<{contributor.FullyQualifiedName}>(_configuration);");
                     }
 
                     foreach (var child in current.Children)
@@ -219,7 +219,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
                     foreach (var contributor in current.Contributors)
                     {
-                        writer.WriteLine($"{contributor.FullyQualifiedName}.AddSagas(_configuration);");
+                        writer.WriteLine($"global::NServiceBus.HandlerRegistryContributors.AddSagas<{contributor.FullyQualifiedName}>(_configuration);");
                     }
 
                     foreach (var child in current.Children)

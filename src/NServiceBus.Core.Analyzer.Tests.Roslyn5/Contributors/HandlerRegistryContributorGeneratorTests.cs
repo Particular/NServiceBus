@@ -10,10 +10,12 @@ public class HandlerRegistryContributorGeneratorTests
 {
     const string ContributorSource = """
                                      [HandlerRegistryContributor]
-                                     internal abstract class {0} : IHandlerRegistryContributor
+                                     internal sealed class {0} : IHandlerRegistryContributor<{0}>
                                      {
-                                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                                         public static void AddSagas(EndpointConfiguration configuration) { }
+                                         public static {0} Instance { get; } = new();
+
+                                         public void AddHandlers(EndpointConfiguration configuration) { }
+                                         public void AddSagas(EndpointConfiguration configuration) { }
                                      }
                                      """;
 
@@ -250,31 +252,30 @@ public class HandlerRegistryContributorGeneratorTests
                      [HandlerRegistryContributor]
                      public class DoesNotImplementTheInterface
                      {
-                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                         public static void AddSagas(EndpointConfiguration configuration) { }
+                         public static DoesNotImplementTheInterface Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
                      }
 
                      [HandlerRegistryContributor]
-                     public abstract class GenericContributor<T> : IHandlerRegistryContributor
+                     public class GenericContributor<T> : IHandlerRegistryContributor<GenericContributor<T>>
                      {
-                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                         public static void AddSagas(EndpointConfiguration configuration) { }
-                     }
+                         public static GenericContributor<T> Instance { get; } = new();
 
-                     [HandlerRegistryContributor]
-                     public abstract class ExplicitContributor : IHandlerRegistryContributor
-                     {
-                         static void IHandlerRegistryContributor.AddHandlers(EndpointConfiguration configuration) { }
-                         static void IHandlerRegistryContributor.AddSagas(EndpointConfiguration configuration) { }
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
                      }
 
                      public static class Holder
                      {
                          [HandlerRegistryContributor]
-                         abstract class PrivateContributor : IHandlerRegistryContributor
+                         class PrivateContributor : IHandlerRegistryContributor<PrivateContributor>
                          {
-                             public static void AddHandlers(EndpointConfiguration configuration) { }
-                             public static void AddSagas(EndpointConfiguration configuration) { }
+                             public static PrivateContributor Instance { get; } = new();
+
+                             public void AddHandlers(EndpointConfiguration configuration) { }
+                             public void AddSagas(EndpointConfiguration configuration) { }
                          }
                      }
                      """;

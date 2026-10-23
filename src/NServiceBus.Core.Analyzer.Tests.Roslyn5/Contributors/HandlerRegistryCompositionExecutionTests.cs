@@ -52,11 +52,13 @@ public class HandlerRegistryCompositionExecutionTests
                                             }
 
                                             [HandlerRegistryContributor]
-                                            internal abstract class {{name}}Contributor : IHandlerRegistryContributor
+                                            internal sealed class {{name}}Contributor : IHandlerRegistryContributor<{{name}}Contributor>
                                             {
-                                                public static void AddHandlers(EndpointConfiguration configuration) => configuration.GetSettings().GetOrCreate<List<string>>().Add("{{name}}.AddHandlers");
+                                                public static {{name}}Contributor Instance { get; } = new();
 
-                                                public static void AddSagas(EndpointConfiguration configuration) => configuration.GetSettings().GetOrCreate<List<string>>().Add("{{name}}.AddSagas");
+                                                public void AddHandlers(EndpointConfiguration configuration) => configuration.GetSettings().GetOrCreate<List<string>>().Add("{{name}}.AddHandlers");
+
+                                                public void AddSagas(EndpointConfiguration configuration) => configuration.GetSettings().GetOrCreate<List<string>>().Add("{{name}}.AddSagas");
                                             }
                                         }
                                         """;

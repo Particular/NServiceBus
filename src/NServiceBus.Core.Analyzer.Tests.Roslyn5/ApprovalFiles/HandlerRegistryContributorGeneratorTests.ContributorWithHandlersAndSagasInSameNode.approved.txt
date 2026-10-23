@@ -275,7 +275,7 @@ namespace NServiceBus
                     public void AddAllHandlers()
                     {
                         AddAllHandlersCore();
-                        global::Acme.Orders.OrderWorkflowContributor.AddHandlers(_configuration);
+                        global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::Acme.Orders.OrderWorkflowContributor>(_configuration);
                     }
 
                     /// <summary>
@@ -287,7 +287,7 @@ namespace NServiceBus
                     public void AddAllSagas()
                     {
                         AddAllSagasCore();
-                        global::Acme.Orders.OrderWorkflowContributor.AddSagas(_configuration);
+                        global::NServiceBus.HandlerRegistryContributors.AddSagas<global::Acme.Orders.OrderWorkflowContributor>(_configuration);
                     }
 
                     partial void AddAllHandlersCore();

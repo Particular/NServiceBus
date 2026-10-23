@@ -19,19 +19,47 @@ public class HandlerRegistryContributorExecutionTests
                                       }
 
                                       [HandlerRegistryContributor]
-                                      internal abstract class RootContributor : IHandlerRegistryContributor
+                                      internal sealed class RootContributor : IHandlerRegistryContributor<RootContributor>
                                       {
-                                          public static void AddHandlers(EndpointConfiguration configuration) => Calls.Recorded.Add("Root.AddHandlers");
-                                          public static void AddSagas(EndpointConfiguration configuration) => Calls.Recorded.Add("Root.AddSagas");
+                                          public static RootContributor Instance { get; } = new();
+
+                                          public void AddHandlers(EndpointConfiguration configuration) => Calls.Recorded.Add("Root.AddHandlers");
+                                          public void AddSagas(EndpointConfiguration configuration) => Calls.Recorded.Add("Root.AddSagas");
                                       }
 
                                       namespace Acme.Workflows
                                       {
                                           [HandlerRegistryContributor]
-                                          internal abstract class WorkflowContributor : IHandlerRegistryContributor
+                                          internal sealed class WorkflowContributor : IHandlerRegistryContributor<WorkflowContributor>
                                           {
-                                              public static void AddHandlers(EndpointConfiguration configuration) => Calls.Recorded.Add("Workflow.AddHandlers");
-                                              public static void AddSagas(EndpointConfiguration configuration) => Calls.Recorded.Add("Workflow.AddSagas");
+                                              public static WorkflowContributor Instance { get; } = new();
+
+                                              public void AddHandlers(EndpointConfiguration configuration) => Calls.Recorded.Add("Workflow.AddHandlers");
+                                              public void AddSagas(EndpointConfiguration configuration) => Calls.Recorded.Add("Workflow.AddSagas");
+                                          }
+                                      }
+
+                                      namespace Acme.NonGeneric
+                                      {
+                                          [HandlerRegistryContributor]
+                                          internal sealed class NonGenericContributor : IHandlerRegistryContributor
+                                          {
+                                              public static IHandlerRegistryContributor Instance { get; } = new NonGenericContributor();
+
+                                              public void AddHandlers(EndpointConfiguration configuration) => Calls.Recorded.Add("NonGeneric.AddHandlers");
+                                              public void AddSagas(EndpointConfiguration configuration) => Calls.Recorded.Add("NonGeneric.AddSagas");
+                                          }
+                                      }
+
+                                      namespace Acme.Explicit
+                                      {
+                                          [HandlerRegistryContributor]
+                                          internal sealed class ExplicitContributor : IHandlerRegistryContributor<ExplicitContributor>
+                                          {
+                                              static ExplicitContributor IHandlerRegistryContributor<ExplicitContributor>.Instance { get; } = new();
+
+                                              void IHandlerRegistryContributor.AddHandlers(EndpointConfiguration configuration) => Calls.Recorded.Add("Explicit.AddHandlers");
+                                              void IHandlerRegistryContributor.AddSagas(EndpointConfiguration configuration) => Calls.Recorded.Add("Explicit.AddSagas");
                                           }
                                       }
                                       """;
@@ -41,7 +69,7 @@ public class HandlerRegistryContributorExecutionTests
     {
         var calls = Execute(nameof(AddAllRunsContributorsOfTheNodeAndItsChildren), "cfg.Handlers.AddAllRunsContributorsOfTheNodeAndItsChildrenAssembly.AddAll();");
 
-        Assert.That(calls, Is.EqualTo("Root.AddHandlers, Workflow.AddHandlers, Root.AddSagas, Workflow.AddSagas"));
+        Assert.That(calls, Is.EqualTo("Root.AddHandlers, Explicit.AddHandlers, NonGeneric.AddHandlers, Workflow.AddHandlers, Root.AddSagas, Explicit.AddSagas, NonGeneric.AddSagas, Workflow.AddSagas"));
     }
 
     [Test]
@@ -49,7 +77,7 @@ public class HandlerRegistryContributorExecutionTests
     {
         var calls = Execute(nameof(AddAllHandlersRunsOnlyHandlerContributions), "cfg.Handlers.AddAllHandlersRunsOnlyHandlerContributionsAssembly.AddAllHandlers();");
 
-        Assert.That(calls, Is.EqualTo("Root.AddHandlers, Workflow.AddHandlers"));
+        Assert.That(calls, Is.EqualTo("Root.AddHandlers, Explicit.AddHandlers, NonGeneric.AddHandlers, Workflow.AddHandlers"));
     }
 
     [Test]
@@ -58,6 +86,22 @@ public class HandlerRegistryContributorExecutionTests
         var calls = Execute(nameof(ChildNodeRunsOnlyItsOwnContributors), "cfg.Handlers.ChildNodeRunsOnlyItsOwnContributorsAssembly.Acme.Workflows.AddAll();");
 
         Assert.That(calls, Is.EqualTo("Workflow.AddHandlers, Workflow.AddSagas"));
+    }
+
+    [Test]
+    public void ContributorImplementingOnlyTheNonGenericInterfaceIsCalled()
+    {
+        var calls = Execute(nameof(ContributorImplementingOnlyTheNonGenericInterfaceIsCalled), "cfg.Handlers.ContributorImplementingOnlyTheNonGenericInterfaceIsCalledAssembly.Acme.NonGeneric.AddAll();");
+
+        Assert.That(calls, Is.EqualTo("NonGeneric.AddHandlers, NonGeneric.AddSagas"));
+    }
+
+    [Test]
+    public void ExplicitInterfaceImplementationsAreCalled()
+    {
+        var calls = Execute(nameof(ExplicitInterfaceImplementationsAreCalled), "cfg.Handlers.ExplicitInterfaceImplementationsAreCalledAssembly.Acme.Explicit.AddAll();");
+
+        Assert.That(calls, Is.EqualTo("Explicit.AddHandlers, Explicit.AddSagas"));
     }
 
     static string Execute(string assemblyName, string statement)

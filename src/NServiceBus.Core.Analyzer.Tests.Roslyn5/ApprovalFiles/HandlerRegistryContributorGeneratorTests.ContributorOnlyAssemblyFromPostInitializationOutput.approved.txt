@@ -150,7 +150,7 @@ namespace NServiceBus
                     public void AddAllHandlers()
                     {
                         AddAllHandlersCore();
-                        global::Acme.Workflows.WorkflowContributor.AddHandlers(_configuration);
+                        global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::Acme.Workflows.WorkflowContributor>(_configuration);
                     }
 
                     /// <summary>
@@ -159,7 +159,7 @@ namespace NServiceBus
                     public void AddAllSagas()
                     {
                         AddAllSagasCore();
-                        global::Acme.Workflows.WorkflowContributor.AddSagas(_configuration);
+                        global::NServiceBus.HandlerRegistryContributors.AddSagas<global::Acme.Workflows.WorkflowContributor>(_configuration);
                     }
 
                     partial void AddAllHandlersCore();
@@ -204,9 +204,11 @@ using NServiceBus;
 namespace Acme.Workflows
 {
     [HandlerRegistryContributor]
-    internal abstract class WorkflowContributor : IHandlerRegistryContributor
+    internal sealed class WorkflowContributor : IHandlerRegistryContributor<WorkflowContributor>
     {
-        public static void AddHandlers(EndpointConfiguration configuration) { }
-        public static void AddSagas(EndpointConfiguration configuration) { }
+        public static WorkflowContributor Instance { get; } = new();
+
+        public void AddHandlers(EndpointConfiguration configuration) { }
+        public void AddSagas(EndpointConfiguration configuration) { }
     }
 }

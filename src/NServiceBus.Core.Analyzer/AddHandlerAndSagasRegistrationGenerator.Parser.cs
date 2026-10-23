@@ -108,15 +108,6 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             if (!contributorType.AllInterfaces.Contains(contributorInterface, SymbolEqualityComparer.Default))
             {
                 problems.Add($"must implement {contributorInterface.Name}");
-                return problems;
-            }
-
-            foreach (var interfaceMethod in contributorInterface.GetMembers().OfType<IMethodSymbol>())
-            {
-                if (contributorType.FindImplementationForInterfaceMember(interfaceMethod) is not IMethodSymbol { ExplicitInterfaceImplementations.Length: 0 })
-                {
-                    problems.Add($"must implement {interfaceMethod.Name} implicitly as a public static method");
-                }
             }
 
             return problems;

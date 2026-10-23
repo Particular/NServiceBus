@@ -88,7 +88,7 @@ namespace NServiceBus
             public void AddAllHandlers()
             {
                 AddAllHandlersCore();
-                global::WorkflowContributor.AddHandlers(_configuration);
+                global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::WorkflowContributor>(_configuration);
             }
 
             /// <summary>
@@ -97,7 +97,7 @@ namespace NServiceBus
             public void AddAllSagas()
             {
                 AddAllSagasCore();
-                global::WorkflowContributor.AddSagas(_configuration);
+                global::NServiceBus.HandlerRegistryContributors.AddSagas<global::WorkflowContributor>(_configuration);
             }
 
             partial void AddAllHandlersCore();

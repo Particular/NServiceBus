@@ -217,7 +217,7 @@ namespace NServiceBus
                     public void AddAllHandlers()
                     {
                         AddAllHandlersCore();
-                        global::Acme.Host.HostContributor.AddHandlers(_configuration);
+                        global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::Acme.Host.HostContributor>(_configuration);
                     }
 
                     /// <summary>
@@ -229,7 +229,7 @@ namespace NServiceBus
                     public void AddAllSagas()
                     {
                         AddAllSagasCore();
-                        global::Acme.Host.HostContributor.AddSagas(_configuration);
+                        global::NServiceBus.HandlerRegistryContributors.AddSagas<global::Acme.Host.HostContributor>(_configuration);
                     }
 
                     partial void AddAllHandlersCore();

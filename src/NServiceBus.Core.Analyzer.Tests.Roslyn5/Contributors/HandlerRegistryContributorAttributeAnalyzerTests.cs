@@ -15,26 +15,59 @@ public class HandlerRegistryContributorAttributeAnalyzerTests : AnalyzerTestFixt
                      using NServiceBus;
 
                      [HandlerRegistryContributor]
-                     public abstract class PublicContributor : IHandlerRegistryContributor
+                     public sealed class PublicContributor : IHandlerRegistryContributor<PublicContributor>
                      {
-                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                         public static void AddSagas(EndpointConfiguration configuration) { }
+                         public static PublicContributor Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
                      }
 
                      [HandlerRegistryContributor]
-                     internal sealed class InternalContributor : IHandlerRegistryContributor
+                     internal sealed class InternalContributor : IHandlerRegistryContributor<InternalContributor>
                      {
-                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                         public static void AddSagas(EndpointConfiguration configuration) { }
+                         public static InternalContributor Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
+                     }
+
+                     [HandlerRegistryContributor]
+                     internal sealed class ExplicitContributor : IHandlerRegistryContributor<ExplicitContributor>
+                     {
+                         static ExplicitContributor IHandlerRegistryContributor<ExplicitContributor>.Instance { get; } = new();
+
+                         void IHandlerRegistryContributor.AddHandlers(EndpointConfiguration configuration) { }
+                         void IHandlerRegistryContributor.AddSagas(EndpointConfiguration configuration) { }
+                     }
+
+                     [HandlerRegistryContributor]
+                     internal sealed class NonGenericContributor : IHandlerRegistryContributor
+                     {
+                         public static IHandlerRegistryContributor Instance { get; } = new NonGenericContributor();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
+                     }
+
+                     [HandlerRegistryContributor]
+                     internal sealed class ExplicitNonGenericContributor : IHandlerRegistryContributor
+                     {
+                         static IHandlerRegistryContributor IHandlerRegistryContributor.Instance { get; } = new ExplicitNonGenericContributor();
+
+                         void IHandlerRegistryContributor.AddHandlers(EndpointConfiguration configuration) { }
+                         void IHandlerRegistryContributor.AddSagas(EndpointConfiguration configuration) { }
                      }
 
                      internal static class Holder
                      {
                          [HandlerRegistryContributor]
-                         internal abstract class NestedContributor : IHandlerRegistryContributor
+                         internal sealed class NestedContributor : IHandlerRegistryContributor<NestedContributor>
                          {
-                             public static void AddHandlers(EndpointConfiguration configuration) { }
-                             public static void AddSagas(EndpointConfiguration configuration) { }
+                             public static NestedContributor Instance { get; } = new();
+
+                             public void AddHandlers(EndpointConfiguration configuration) { }
+                             public void AddSagas(EndpointConfiguration configuration) { }
                          }
                      }
 
@@ -53,8 +86,10 @@ public class HandlerRegistryContributorAttributeAnalyzerTests : AnalyzerTestFixt
                      [[|HandlerRegistryContributor|]]
                      public class NotAContributor
                      {
-                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                         public static void AddSagas(EndpointConfiguration configuration) { }
+                         public static NotAContributor Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
                      }
                      """;
 
@@ -85,10 +120,12 @@ public class HandlerRegistryContributorAttributeAnalyzerTests : AnalyzerTestFixt
                      using NServiceBus;
 
                      [[|HandlerRegistryContributor|]]
-                     public abstract class GenericContributor<T> : IHandlerRegistryContributor
+                     public class GenericContributor<T> : IHandlerRegistryContributor<GenericContributor<T>>
                      {
-                         public static void AddHandlers(EndpointConfiguration configuration) { }
-                         public static void AddSagas(EndpointConfiguration configuration) { }
+                         public static GenericContributor<T> Instance { get; } = new();
+
+                         public void AddHandlers(EndpointConfiguration configuration) { }
+                         public void AddSagas(EndpointConfiguration configuration) { }
                      }
                      """;
 
@@ -104,10 +141,12 @@ public class HandlerRegistryContributorAttributeAnalyzerTests : AnalyzerTestFixt
                      public static class Holder<T>
                      {
                          [[|HandlerRegistryContributor|]]
-                         public abstract class NestedContributor : IHandlerRegistryContributor
+                         public class NestedContributor : IHandlerRegistryContributor<NestedContributor>
                          {
-                             public static void AddHandlers(EndpointConfiguration configuration) { }
-                             public static void AddSagas(EndpointConfiguration configuration) { }
+                             public static NestedContributor Instance { get; } = new();
+
+                             public void AddHandlers(EndpointConfiguration configuration) { }
+                             public void AddSagas(EndpointConfiguration configuration) { }
                          }
                      }
                      """;
@@ -124,28 +163,13 @@ public class HandlerRegistryContributorAttributeAnalyzerTests : AnalyzerTestFixt
                      public static class Holder
                      {
                          [[|HandlerRegistryContributor|]]
-                         abstract class PrivateContributor : IHandlerRegistryContributor
+                         class PrivateContributor : IHandlerRegistryContributor<PrivateContributor>
                          {
-                             public static void AddHandlers(EndpointConfiguration configuration) { }
-                             public static void AddSagas(EndpointConfiguration configuration) { }
+                             public static PrivateContributor Instance { get; } = new();
+
+                             public void AddHandlers(EndpointConfiguration configuration) { }
+                             public void AddSagas(EndpointConfiguration configuration) { }
                          }
-                     }
-                     """;
-
-        return Assert(source, DiagnosticIds.InvalidHandlerRegistryContributor);
-    }
-
-    [Test]
-    public Task ReportsExplicitInterfaceImplementation()
-    {
-        var source = """
-                     using NServiceBus;
-
-                     [[|HandlerRegistryContributor|]]
-                     public abstract class ExplicitContributor : IHandlerRegistryContributor
-                     {
-                         static void IHandlerRegistryContributor.AddHandlers(EndpointConfiguration configuration) { }
-                         static void IHandlerRegistryContributor.AddSagas(EndpointConfiguration configuration) { }
                      }
                      """;
 
@@ -175,7 +199,7 @@ public class HandlerRegistryContributorAttributeAnalyzerTests : AnalyzerTestFixt
                      public static class Holder
                      {
                          [HandlerRegistryContributor]
-                         abstract class Contributor<T>
+                         class Contributor<T>
                          {
                          }
                      }

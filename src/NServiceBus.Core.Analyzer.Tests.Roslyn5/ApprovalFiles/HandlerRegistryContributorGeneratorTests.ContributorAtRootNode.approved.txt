@@ -48,7 +48,7 @@ namespace NServiceBus
             public void AddAllHandlers()
             {
                 AddAllHandlersCore();
-                global::RootContributor.AddHandlers(_configuration);
+                global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::RootContributor>(_configuration);
             }
 
             /// <summary>
@@ -57,7 +57,7 @@ namespace NServiceBus
             public void AddAllSagas()
             {
                 AddAllSagasCore();
-                global::RootContributor.AddSagas(_configuration);
+                global::NServiceBus.HandlerRegistryContributors.AddSagas<global::RootContributor>(_configuration);
             }
 
             partial void AddAllHandlersCore();

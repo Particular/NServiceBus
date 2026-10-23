@@ -21,10 +21,12 @@ public sealed class ContributorFixtureGenerator : IIncrementalGenerator
                                                                            namespace Acme.Workflows
                                                                            {
                                                                                [HandlerRegistryContributor]
-                                                                               internal abstract class WorkflowContributor : IHandlerRegistryContributor
+                                                                               internal sealed class WorkflowContributor : IHandlerRegistryContributor<WorkflowContributor>
                                                                                {
-                                                                                   public static void AddHandlers(EndpointConfiguration configuration) { }
-                                                                                   public static void AddSagas(EndpointConfiguration configuration) { }
+                                                                                   public static WorkflowContributor Instance { get; } = new();
+
+                                                                                   public void AddHandlers(EndpointConfiguration configuration) { }
+                                                                                   public void AddSagas(EndpointConfiguration configuration) { }
                                                                                }
                                                                            }
                                                                            """));

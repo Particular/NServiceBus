@@ -46,7 +46,7 @@ internal static partial class OrdersRegistrations
         public void AddAllHandlers()
         {
             AddAllHandlersCore();
-            global::OrdersContributor.AddHandlers(_configuration);
+            global::NServiceBus.HandlerRegistryContributors.AddHandlers<global::OrdersContributor>(_configuration);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ internal static partial class OrdersRegistrations
         public void AddAllSagas()
         {
             AddAllSagasCore();
-            global::OrdersContributor.AddSagas(_configuration);
+            global::NServiceBus.HandlerRegistryContributors.AddSagas<global::OrdersContributor>(_configuration);
         }
 
         partial void AddAllHandlersCore();

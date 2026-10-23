@@ -365,6 +365,13 @@ namespace NServiceBus
     {
         public HandlerRegistryContributorAttribute() { }
     }
+    public static class HandlerRegistryContributors
+    {
+        public static void AddHandlers<TContributor>(NServiceBus.EndpointConfiguration configuration)
+            where TContributor : NServiceBus.IHandlerRegistryContributor { }
+        public static void AddSagas<TContributor>(NServiceBus.EndpointConfiguration configuration)
+            where TContributor : NServiceBus.IHandlerRegistryContributor { }
+    }
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HandlerRegistryExtensionsAttribute : System.Attribute
     {
@@ -524,8 +531,14 @@ namespace NServiceBus
     }
     public interface IHandlerRegistryContributor
     {
+        NServiceBus.IHandlerRegistryContributor Instance { get; }
         void AddHandlers(NServiceBus.EndpointConfiguration configuration);
         void AddSagas(NServiceBus.EndpointConfiguration configuration);
+    }
+    public interface IHandlerRegistryContributor<TSelf> : NServiceBus.IHandlerRegistryContributor
+        where TSelf : NServiceBus.IHandlerRegistryContributor<TSelf>
+    {
+        TSelf Instance { get; }
     }
     public interface IMessageConvention
     {
