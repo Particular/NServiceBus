@@ -11,6 +11,12 @@ public abstract class OpenTelemetryAcceptanceTest : NServiceBusAcceptanceTest
     [SetUp]
     public void Setup() => NServiceBusActivityListener = TestingActivityListener.SetupDiagnosticListener("NServiceBus.Core", "NServiceBus.Core.Handler", "NServiceBus.Core.Recoverability");
 
+    protected void DisableTracing()
+    {
+        NServiceBusActivityListener.Dispose();
+        NServiceBusActivityListener = null;
+    }
+
     [TearDown]
     public void Cleanup()
     {
