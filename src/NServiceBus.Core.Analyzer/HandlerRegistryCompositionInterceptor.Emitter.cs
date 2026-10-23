@@ -20,6 +20,14 @@ public sealed partial class HandlerRegistryCompositionInterceptor
                 return;
             }
 
+            if (spec.Entries.Count == 0)
+            {
+                foreach (var call in spec.Calls)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(NoHandlerRegistryFound, call.Location.ToLocation(), GetEntryMethodName(call.Kind)));
+                }
+            }
+
             var sourceWriter = new SourceWriter()
                 .ForInterceptor()
                 .WithGeneratedCodeAttribute();

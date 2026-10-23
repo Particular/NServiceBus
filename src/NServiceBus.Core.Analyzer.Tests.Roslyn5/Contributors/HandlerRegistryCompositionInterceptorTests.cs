@@ -10,6 +10,12 @@ using Particular.AnalyzerTesting;
 [TestFixture]
 public class HandlerRegistryCompositionInterceptorTests
 {
+    static readonly string[] ExpectedWarnings =
+    [
+        "HandlerRegistry.AddAll registers nothing because neither this assembly nor a referenced assembly has a generated handler registry.",
+        "HandlerRegistry.AddAllSagas registers nothing because neither this assembly nor a referenced assembly has a generated handler registry."
+    ];
+
     const string InterceptorHintName = "InterceptionsOfHandlerRegistryAddAllMethods.g.cs";
 
     const string Usings = """
@@ -190,6 +196,49 @@ public class HandlerRegistryCompositionInterceptorTests
         var output = GeneratedCompilation.Run(nameof(NoInvocationProducesNoInterceptor), host, [new HandlerRegistryCompositionInterceptor(), new AddHandlerAndSagasRegistrationGenerator()], library);
 
         Assert.That(output.Sources.Select(source => source.HintName), Does.Not.Contain(InterceptorHintName));
+    }
+
+    [Test]
+    public void CallWithoutAnyRegistryReportsAWarning()
+    {
+        var host = """
+                   using NServiceBus;
+
+                   public class Test
+                   {
+                       public void Configure(EndpointConfiguration cfg)
+                       {
+                           cfg.Handlers.AddAll();
+                           cfg.Handlers.AddAllSagas();
+                       }
+                   }
+                   """;
+
+        var output = GeneratedCompilation.Run(nameof(CallWithoutAnyRegistryReportsAWarning), host, [new HandlerRegistryCompositionInterceptor(), new AddHandlerAndSagasRegistrationGenerator()]);
+
+        var warnings = output.GeneratorDiagnostics.Where(d => d.Id == DiagnosticIds.NoHandlerRegistryFound).ToArray();
+        Assert.That(warnings.Select(d => d.GetMessage()), Is.EqualTo(ExpectedWarnings));
+        Assert.That(string.Join(",", warnings.Select(d => d.Location.GetLineSpan().StartLinePosition.Line)), Is.EqualTo("6,7"));
+        Assert.That(warnings.Select(d => d.Severity), Has.All.EqualTo(DiagnosticSeverity.Warning));
+    }
+
+    [Test]
+    public void CallWithARegistryDoesNotReportAWarning()
+    {
+        var library = GeneratedCompilation.BuildLibrary("AcmeLibrary", Library("Library"));
+
+        var host = """
+                   using NServiceBus;
+
+                   public class Test
+                   {
+                       public void Configure(EndpointConfiguration cfg) => cfg.Handlers.AddAll();
+                   }
+                   """;
+
+        var output = GeneratedCompilation.Run(nameof(CallWithARegistryDoesNotReportAWarning), host, [new HandlerRegistryCompositionInterceptor(), new AddHandlerAndSagasRegistrationGenerator()], library);
+
+        Assert.That(output.GeneratorDiagnostics, Is.Empty);
     }
 
     [Test]
