@@ -105,7 +105,7 @@ public class RecoverabilityExecutorTests
         failedActivity.Stop();
 
         var errorContext = CreateErrorContext();
-        ExceptionTracking.For(errorContext.Extensions).TryRecordInnermostActivity(errorContext.Exception, failedActivity);
+        errorContext.Extensions.TryRecordInnermostActivity(errorContext.Exception, failedActivity);
 
         Activity pipelineActivity = null;
         var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
@@ -156,7 +156,7 @@ public class RecoverabilityExecutorTests
         previousAttemptActivity.Stop();
 
         var errorContext = CreateErrorContext();
-        ExceptionTracking.For(errorContext.Extensions).TryRecordInnermostActivity(new Exception("previous attempt"), previousAttemptActivity);
+        errorContext.Extensions.TryRecordInnermostActivity(new Exception("previous attempt"), previousAttemptActivity);
 
         Activity pipelineActivity = null;
         var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>

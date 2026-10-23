@@ -199,7 +199,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
-        if (ExceptionTracking.For(context.Extensions).TryGetInnermostActivityContext(context.Exception, out var innermostActivityContext))
+        if (context.Extensions.TryGetInnermostActivityContext(context.Exception, out var innermostActivityContext))
         {
             activity.AddLink(new ActivityLink(innermostActivityContext));
         }
@@ -253,7 +253,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return;
         }
 
-        var isInnermostActivity = ExceptionTracking.For(contextBag).TryRecordInnermostActivity(exception, activity);
+        var isInnermostActivity = contextBag.TryRecordInnermostActivity(exception, activity);
 
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
