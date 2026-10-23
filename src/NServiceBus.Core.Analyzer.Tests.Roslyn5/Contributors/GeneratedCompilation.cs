@@ -1,19 +1,23 @@
 namespace NServiceBus.Core.Analyzer.Tests.Contributors;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.CodeAnalysis;
+using Analyzer.Handlers;
+using Analyzer.Sagas;
 using Microsoft.CodeAnalysis.CSharp;
 using NServiceBus.Core.Analyzer.Tests.Sagas;
 using NUnit.Framework;
 
 static class GeneratedCompilation
 {
-    public static readonly CSharpParseOptions ParseOptions = new(LanguageVersion.Preview);
+    public static readonly CSharpParseOptions ParseOptions = new CSharpParseOptions(LanguageVersion.Preview)
+        .WithFeatures([new KeyValuePair<string, string>("InterceptorsNamespaces", "NServiceBus")]);
 
     public static GeneratedOutput Run(string assemblyName, string source, IIncrementalGenerator[] generators, params byte[][] referencedImages)
     {
@@ -31,6 +35,13 @@ static class GeneratedCompilation
         driver = (CSharpGeneratorDriver)driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generatorDiagnostics);
 
         return new GeneratedOutput(outputCompilation, generatorDiagnostics, driver.GetRunResult());
+    }
+
+    public static byte[] BuildLibrary(string assemblyName, string source)
+    {
+        var output = Run(assemblyName, source, [new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()]);
+        Assert.That(output.CompilationErrors, Is.Empty);
+        return EmitImage(output.Compilation);
     }
 
     public static byte[] EmitImage(Compilation compilation)

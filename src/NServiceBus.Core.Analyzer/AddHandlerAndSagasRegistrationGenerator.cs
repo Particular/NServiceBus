@@ -14,7 +14,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
     {
         var addHandlers = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.HandlerAttribute",
-                predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
+                predicate: static (node, _) => IsHandlerOrSagaCandidate(node),
                 transform: static (context, cancellationToken) => Parser.Parse(context, Parser.SpecKind.Handler, cancellationToken: cancellationToken))
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
@@ -22,7 +22,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
 
         var addSagas = context.SyntaxProvider
             .ForAttributeWithMetadataName("NServiceBus.SagaAttribute",
-                predicate: static (node, _) => node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword),
+                predicate: static (node, _) => IsHandlerOrSagaCandidate(node),
                 transform: static (context, cancellationToken) => Parser.Parse(context, Parser.SpecKind.Saga, cancellationToken: cancellationToken))
             .Where(static spec => spec is not null)
             .Select(static (spec, _) => spec!)
@@ -50,6 +50,28 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
                 emitter.Emit(spec.Left.Left.Left, spec.Left.Right, spec.Left.Left.Right, spec.Right);
             });
     }
+
+    internal static bool IsHandlerOrSagaCandidate(SyntaxNode node) =>
+        node is ClassDeclarationSyntax classDeclarationSyntax && !classDeclarationSyntax.Modifiers.Any(SyntaxKind.AbstractKeyword);
+
+    internal static IncrementalValueProvider<bool> BuildHasRegistryPipeline(IncrementalGeneratorInitializationContext context)
+    {
+        var hasHandlers = BuildHasAttributedClassPipeline(context, "NServiceBus.HandlerAttribute");
+        var hasSagas = BuildHasAttributedClassPipeline(context, "NServiceBus.SagaAttribute");
+        var hasContributors = BuildContributorSpecsPipeline(context)
+            .Select(static (contributors, _) => contributors.Count > 0);
+
+        return hasHandlers.Combine(hasSagas).Combine(hasContributors)
+            .Select(static (flags, _) => flags.Left.Left || flags.Left.Right || flags.Right);
+    }
+
+    static IncrementalValueProvider<bool> BuildHasAttributedClassPipeline(IncrementalGeneratorInitializationContext context, string attributeMetadataName) =>
+        context.SyntaxProvider
+            .ForAttributeWithMetadataName(attributeMetadataName,
+                predicate: static (node, _) => IsHandlerOrSagaCandidate(node),
+                transform: static (_, _) => true)
+            .Collect()
+            .Select(static (matches, _) => matches.Length > 0);
 
     internal static IncrementalValueProvider<ImmutableEquatableArray<Parser.ContributorSpec>> BuildContributorSpecsPipeline(IncrementalGeneratorInitializationContext context) =>
         context.SyntaxProvider
