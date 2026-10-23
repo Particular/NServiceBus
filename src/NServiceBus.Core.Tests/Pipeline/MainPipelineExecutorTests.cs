@@ -117,7 +117,7 @@ public partial class MainPipelineExecutorTests
         }
 
         [Test]
-        public void Should_record_the_incoming_activity_as_failed_when_pipeline_throws()
+        public void Should_record_the_incoming_activity_as_innermost_when_pipeline_throws()
         {
             var receivePipeline = new ActivityTrackingReceivePipeline { ThrowsException = true };
             var serviceCollection = new ServiceCollection();
@@ -129,7 +129,7 @@ public partial class MainPipelineExecutorTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(ExceptionTracking.For(messageContext.Extensions).TryGetFailedActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(ExceptionTracking.For(messageContext.Extensions).TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
                 Assert.That(activityContext, Is.EqualTo(receivePipeline.PipelineAcitivty.Context));
             }
         }
@@ -156,7 +156,7 @@ public partial class MainPipelineExecutorTests
         }
 
         [Test]
-        public void Should_keep_the_failed_activity_recorded_further_in()
+        public void Should_keep_the_innermost_activity_recorded_further_in()
         {
             using var handlerActivity = new Activity("handler");
             handlerActivity.SetIdFormat(ActivityIdFormat.W3C);
@@ -164,7 +164,7 @@ public partial class MainPipelineExecutorTests
             handlerActivity.Stop();
             var exception = new Exception("handler failed");
             var messageContext = CreateMessageContext();
-            ExceptionTracking.For(messageContext.Extensions).RecordFailedActivity(exception, handlerActivity);
+            ExceptionTracking.For(messageContext.Extensions).TryRecordInnermostActivity(exception, handlerActivity);
 
             var receivePipeline = new ActivityTrackingReceivePipeline { ExceptionToThrow = exception };
             var serviceCollection = new ServiceCollection();
@@ -175,7 +175,7 @@ public partial class MainPipelineExecutorTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(ExceptionTracking.For(messageContext.Extensions).TryGetFailedActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(ExceptionTracking.For(messageContext.Extensions).TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
                 Assert.That(activityContext, Is.EqualTo(handlerActivity.Context));
             }
         }

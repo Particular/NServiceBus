@@ -460,15 +460,21 @@ public class ActivityFactoryTests
         }
 
         [Test]
-        public void Should_not_record_the_activity_as_failed_for_recoverability()
+        public void Should_record_the_innermost_activity_for_recoverability()
         {
-            using var activity = new Activity("send").Start();
+            using var sendActivity = new Activity("send").Start();
+            using var handlerActivity = new Activity("handler").Start();
             var exception = new InvalidOperationException("boom");
-            var contextBag = new ContextBag();
+            var root = new ContextBag();
 
-            activityFactory.RecordError(activity, exception, contextBag);
+            activityFactory.RecordError(sendActivity, exception, new ContextBag(root));
+            activityFactory.RecordError(handlerActivity, exception, root);
 
-            Assert.That(ExceptionTracking.For(contextBag).TryGetFailedActivityContext(exception, out _), Is.False);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(ExceptionTracking.For(root).TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(activityContext, Is.EqualTo(sendActivity.Context));
+            }
         }
     }
 

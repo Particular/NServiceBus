@@ -60,11 +60,6 @@ class MainPipelineExecutor(
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
             {
                 activityFactory.RecordError(activity, ex, transportReceiveContext.Extensions);
-                if (activity != null)
-                {
-                    ExceptionTracking.For(transportReceiveContext.Extensions).RecordFailedActivity(ex, activity);
-                }
-
                 ex.Data["Message ID"] = message.MessageId;
 
                 if (message.NativeMessageId != message.MessageId)

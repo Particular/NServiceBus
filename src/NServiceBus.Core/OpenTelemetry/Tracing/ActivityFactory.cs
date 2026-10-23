@@ -199,9 +199,9 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
-        if (ExceptionTracking.For(context.Extensions).TryGetFailedActivityContext(context.Exception, out var failedActivityContext))
+        if (ExceptionTracking.For(context.Extensions).TryGetInnermostActivityContext(context.Exception, out var innermostActivityContext))
         {
-            activity.AddLink(new ActivityLink(failedActivityContext));
+            activity.AddLink(new ActivityLink(innermostActivityContext));
         }
 
         activity.DisplayName = ActivityDisplayNames.Recoverability;
@@ -253,6 +253,8 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return;
         }
 
+        var isInnermostActivity = ExceptionTracking.For(contextBag).TryRecordInnermostActivity(exception, activity);
+
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
 
@@ -267,7 +269,10 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
 
-        LegacyAddExceptionEvent(activity, exception, contextBag);
+        if (isInnermostActivity)
+        {
+            LegacyAddExceptionEvent(activity, exception);
+        }
     }
 
     static void AddExceptionEvent(Activity activity, Exception exception)

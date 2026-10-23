@@ -20,37 +20,26 @@ sealed class ExceptionTracking
         return tracking;
     }
 
-    public bool TryRecordExceptionEvent(Exception exception)
+    public bool TryRecordInnermostActivity(Exception exception, Activity activity)
     {
-        if (ReferenceEquals(exceptionWithEvent, exception))
+        if (ReferenceEquals(trackedException, exception))
         {
             return false;
         }
 
-        exceptionWithEvent = exception;
+        trackedException = exception;
+        innermostActivityContext = activity.Context;
         return true;
     }
 
-    public void RecordFailedActivity(Exception exception, Activity activity)
+    public bool TryGetInnermostActivityContext(Exception exception, out ActivityContext activityContext)
     {
-        if (ReferenceEquals(exceptionWithFailedActivity, exception))
-        {
-            return;
-        }
-
-        exceptionWithFailedActivity = exception;
-        failedActivityContext = activity.Context;
-    }
-
-    public bool TryGetFailedActivityContext(Exception exception, out ActivityContext activityContext)
-    {
-        activityContext = ReferenceEquals(exceptionWithFailedActivity, exception) ? failedActivityContext : default;
+        activityContext = ReferenceEquals(trackedException, exception) ? innermostActivityContext : default;
         return activityContext != default;
     }
 
-    Exception? exceptionWithEvent;
-    Exception? exceptionWithFailedActivity;
-    ActivityContext failedActivityContext;
+    Exception? trackedException;
+    ActivityContext innermostActivityContext;
 
     static readonly string Key = typeof(ExceptionTracking).FullName!;
 }

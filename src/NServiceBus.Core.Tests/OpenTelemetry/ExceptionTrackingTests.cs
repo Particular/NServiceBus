@@ -18,45 +18,47 @@ public class ExceptionTrackingTests
     }
 
     [Test]
-    public void Should_record_the_exception_event_once_per_exception_instance()
+    public void Should_record_the_innermost_activity_once_per_exception_instance()
     {
+        using var sendActivity = new Activity("send").Start();
+        using var handlerActivity = new Activity("handler").Start();
         var tracking = new ExceptionTracking();
         var first = new InvalidOperationException("first");
         var second = new InvalidOperationException("second");
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(tracking.TryRecordExceptionEvent(first), Is.True);
-            Assert.That(tracking.TryRecordExceptionEvent(first), Is.False);
-            Assert.That(tracking.TryRecordExceptionEvent(second), Is.True, "a different exception instance is a new exception");
+            Assert.That(tracking.TryRecordInnermostActivity(first, sendActivity), Is.True);
+            Assert.That(tracking.TryRecordInnermostActivity(first, handlerActivity), Is.False);
+            Assert.That(tracking.TryRecordInnermostActivity(second, handlerActivity), Is.True, "a different exception instance is a new exception");
         }
     }
 
     [Test]
-    public void Should_keep_the_first_failed_activity_for_an_exception_instance()
+    public void Should_keep_the_innermost_activity_for_an_exception_instance()
     {
+        using var sendActivity = new Activity("send").Start();
         using var handlerActivity = new Activity("handler").Start();
-        using var incomingActivity = new Activity("incoming").Start();
         var tracking = new ExceptionTracking();
         var exception = new InvalidOperationException("boom");
 
-        tracking.RecordFailedActivity(exception, handlerActivity);
-        tracking.RecordFailedActivity(exception, incomingActivity);
+        tracking.TryRecordInnermostActivity(exception, sendActivity);
+        tracking.TryRecordInnermostActivity(exception, handlerActivity);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(tracking.TryGetFailedActivityContext(exception, out var activityContext), Is.True);
-            Assert.That(activityContext, Is.EqualTo(handlerActivity.Context));
+            Assert.That(tracking.TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
+            Assert.That(activityContext, Is.EqualTo(sendActivity.Context));
         }
     }
 
     [Test]
-    public void Should_not_return_the_failed_activity_for_another_exception_instance()
+    public void Should_not_return_the_innermost_activity_for_another_exception_instance()
     {
         using var activity = new Activity("handler").Start();
         var tracking = new ExceptionTracking();
-        tracking.RecordFailedActivity(new InvalidOperationException("previous attempt"), activity);
+        tracking.TryRecordInnermostActivity(new InvalidOperationException("previous attempt"), activity);
 
-        Assert.That(tracking.TryGetFailedActivityContext(new InvalidOperationException("this attempt"), out _), Is.False);
+        Assert.That(tracking.TryGetInnermostActivityContext(new InvalidOperationException("this attempt"), out _), Is.False);
     }
 }

@@ -12,7 +12,7 @@ using NUnit.Framework;
 public class When_send_fails_inside_a_handler : OpenTelemetryAcceptanceTest
 {
     [Test]
-    public async Task Should_log_with_the_decision_and_link_to_the_handler_span()
+    public async Task Should_log_with_the_decision_and_link_to_the_send_span()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SendingEndpoint>(e => e
@@ -32,8 +32,7 @@ public class When_send_fails_inside_a_handler : OpenTelemetryAcceptanceTest
         {
             Assert.That(exceptionLogs.Select(l => l.LoggerName), Is.EqualTo(["NServiceBus.MoveToError"]), "the decision should log the exception, not the send");
 
-            Assert.That(recoverabilityActivity.Links.Select(l => l.Context.SpanId), Does.Contain(handlerActivity.SpanId));
-            Assert.That(recoverabilityActivity.Links.Select(l => l.Context.SpanId), Does.Not.Contain(sendActivity.SpanId));
+            Assert.That(recoverabilityActivity.Links.Select(l => l.Context.SpanId), Is.EqualTo([sendActivity.SpanId]), "the send span is the innermost span around the throw");
         }
     }
 
