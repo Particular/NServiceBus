@@ -85,7 +85,7 @@ public class GeneratedHandlerRegistryEntryTests
         var output = GeneratedCompilation.Run("My.Orders-Assembly", ContributorOnlySource, [new AddHandlerAndSagasRegistrationGenerator()]);
 
         Assert.That(output.Sources.Select(s => s.HintName), Is.EqualTo(["HandlerRegistrations.g.cs", "HandlerRegistryEntry.g.cs"]));
-        Assert.That(output.SourceOf("HandlerRegistryEntry.g.cs"), Does.Contain("public static class MyOrdersAssemblyHandlerRegistryEntry"));
+        Assert.That(output.SourceOf("HandlerRegistryEntry.g.cs"), Does.Match(@"public static class MyOrdersAssemblyHandlerRegistryEntry_[0-9a-f]{16}\b"));
     }
 
     [Test]

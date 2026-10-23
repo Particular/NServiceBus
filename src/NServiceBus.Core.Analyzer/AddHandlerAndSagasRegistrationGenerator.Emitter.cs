@@ -41,7 +41,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             context.AddSource("HandlerRegistryEntry.g.cs", entryWriter.ToSourceText());
         }
 
-        internal static string GetEntryTypeName(string assemblyName) => $"{SanitizeIdentifier(assemblyName)}HandlerRegistryEntry";
+        internal static string GetEntryTypeName(string assemblyName) => $"{SanitizeIdentifier(assemblyName)}HandlerRegistryEntry_{NonCryptographicHash.GetHash(assemblyName):x16}";
 
         static void EmitEntry(SourceWriter sourceWriter, NamespaceTree namespaceTree)
         {

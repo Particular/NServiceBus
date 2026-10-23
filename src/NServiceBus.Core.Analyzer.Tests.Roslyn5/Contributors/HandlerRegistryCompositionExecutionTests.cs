@@ -106,6 +106,35 @@ public class HandlerRegistryCompositionExecutionTests
         Assert.That(handlers.GetHandlersFor(hostCommand), Has.Count.EqualTo(1));
     }
 
+    [Test]
+    public void AssembliesWhoseSanitizedNamesCollideAreComposedSeparately()
+    {
+        var dotted = GeneratedCompilation.BuildLibrary("My.App", $"{Usings}\n\n{Body("One")}");
+        var plain = GeneratedCompilation.BuildLibrary("MyApp", $"{Usings}\n\n{Body("Two")}");
+        var underscored = GeneratedCompilation.BuildLibrary("My_App", $"{Usings}\n\n{Body("Three")}");
+
+        var host = $$"""
+                     {{Usings}}
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg) => cfg.Handlers.AddAll();
+                     }
+
+                     {{Body("Host")}}
+                     """;
+
+        var output = GeneratedCompilation.Run(nameof(AssembliesWhoseSanitizedNamesCollideAreComposedSeparately), host, Generators, dotted, plain, underscored);
+        Assert.That(output.CompilationErrors, Is.Empty);
+
+        var assembly = GeneratedCompilation.Load(output.Compilation, dotted, plain, underscored);
+        var configuration = new EndpointConfiguration("Collisions");
+        var test = assembly.GetType("Test")!;
+        test.GetMethod("Configure")!.Invoke(Activator.CreateInstance(test), [configuration]);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas, One.AddHandlers, One.AddSagas, Three.AddHandlers, Three.AddSagas, Two.AddHandlers, Two.AddSagas"));
+    }
+
     static readonly IIncrementalGenerator[] Generators = [new HandlerRegistryCompositionInterceptor(), new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()];
 
     static EndpointConfiguration Configure(string assemblyName, string statements)
