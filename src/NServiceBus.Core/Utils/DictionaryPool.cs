@@ -33,9 +33,9 @@ using System.Threading;
 /// successive usages need roughly the same number of entries (e.g. message headers,
 /// which are uniform across a given endpoint), this means the preserved capacity
 /// serves the next rent without any internal resize. <c>TrimExcess</c>
-/// only fires when a returned dictionary's entry count exceeds
-/// <c>maxRetainedCapacityPerItem</c>, a safety valve so one anomalously large usage
-/// doesn't permanently inflate the pool's footprint. This is not the common path.
+/// only fires when a returned dictionary's backing <see cref="Dictionary{TKey, TValue}.Capacity"/>
+/// exceeds <c>maxRetainedCapacityPerItem</c>, a safety valve so one anomalously large usage
+/// or a large pre-sized rent doesn't permanently inflate the pool's footprint. This is not the common path.
 /// </para>
 /// </remarks>
 public class DictionaryPool<TKey, TValue> where TKey : notnull
@@ -46,10 +46,11 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// multiple of processor count so it's never the bottleneck under normal load.
     /// </param>
     /// <param name="maxRetainedCapacityPerItem">
-    /// If a returned dictionary's entry count exceeds this, it is trimmed
-    /// (<c>Clear</c> + <c>TrimExcess</c>) before being pooled, so one unusually large
-    /// usage doesn't permanently inflate the pool's memory footprint. Defaults to
-    /// 1024, well above typical header counts, so normal usage always takes the
+    /// If a returned dictionary's backing <see cref="Dictionary{TKey, TValue}.Capacity"/> exceeds this,
+    /// it is trimmed (<c>Clear</c> + <c>TrimExcess</c>) before being pooled, so one unusually large
+    /// usage doesn't permanently inflate the pool's memory footprint. The capacity is the size of the
+    /// internal arrays, which the dictionary rounds up to a prime, so it can exceed the entry count.
+    /// Defaults to 1024, well above typical header counts, so normal usage always takes the
     /// no-realloc path.
     /// </param>
     public DictionaryPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 1024)
@@ -139,7 +140,8 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     /// <param name="clearDictionary">
     /// Whether to clear the dictionary's contents before pooling it. Defaults to true.
     /// Only pass false if you've already cleared it yourself; otherwise the next
-    /// <see cref="Rent"/> caller sees stale data.
+    /// <see cref="Rent"/> caller sees stale data. A dictionary whose capacity exceeds
+    /// <c>maxRetainedCapacityPerItem</c> is cleared and trimmed regardless.
     /// </param>
     /// <remarks>
     /// <para>
@@ -219,8 +221,9 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
 
     void Pool(Pooled pooled, bool clearDictionary)
     {
-        var tooLarge = pooled.Count > maxRetainedCapacityPerItem;
         var dictionaryEntryCount = pooled.Count; // capture before Clear
+        var dictionaryCapacity = pooled.Capacity;
+        var tooLarge = dictionaryCapacity > maxRetainedCapacityPerItem;
 
         if (clearDictionary || tooLarge)
         {
@@ -235,7 +238,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
 
             if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
             {
-                DictionaryPoolEventSource.Log.DictionaryTrimmed(PoolId, dictionaryEntryCount, maxRetainedCapacityPerItem);
+                DictionaryPoolEventSource.Log.DictionaryTrimmed(PoolId, dictionaryCapacity, maxRetainedCapacityPerItem);
             }
         }
 

@@ -43,7 +43,7 @@ public class HeaderPoolingConfigTests
     public void Enable_with_a_pool_uses_that_pool()
     {
         var endpointConfiguration = new EndpointConfiguration("HeaderPoolingCustomPool");
-        var pool = new HeaderPool(maxPoolSize: 512, maxRetainedCapacityPerItem: 128);
+        var pool = new HeaderPool(maxPoolSize: 512, maxRetainedCapacityPerItem: 256);
 
         endpointConfiguration.EnableHeaderPooling(pool);
 

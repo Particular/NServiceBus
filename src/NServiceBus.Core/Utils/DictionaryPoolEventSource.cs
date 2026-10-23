@@ -69,14 +69,14 @@ sealed class DictionaryPoolEventSource : EventSource
 
     /// <summary>
     /// Fired when a returned dictionary was trimmed (<c>Clear</c> + <c>TrimExcess</c>) before
-    /// pooling because its entry count exceeded <c>maxRetainedCapacityPerItem</c>.
+    /// pooling because its capacity exceeded <c>maxRetainedCapacityPerItem</c>.
     /// </summary>
     [Event(4, Level = EventLevel.Informational)]
-    internal void DictionaryTrimmed(int poolId, int dictionaryCount, int maxRetainedCapacity)
+    internal void DictionaryTrimmed(int poolId, int dictionaryCapacity, int maxRetainedCapacity)
     {
         if (IsEnabled(EventLevel.Informational, EventKeywords.None))
         {
-            WriteEvent(4, poolId, dictionaryCount, maxRetainedCapacity);
+            WriteEvent(4, poolId, dictionaryCapacity, maxRetainedCapacity);
         }
     }
 

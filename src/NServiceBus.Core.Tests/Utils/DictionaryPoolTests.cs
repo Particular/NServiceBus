@@ -97,11 +97,41 @@ public class DictionaryPoolTests
         {
             dict[$"key{i}"] = $"value{i}";
         }
-        pool.Return(dict); // Count=100 > 5 → Clear + TrimExcess
+        pool.Return(dict); // Capacity > 5 → Clear + TrimExcess
 
         var reused = pool.Rent();
         reused["x"] = "1";
         Assert.That(reused, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void Presized_empty_return_trims_capacity()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4, maxRetainedCapacityPerItem: 5);
+        var dict = pool.Rent(minimumCapacity: 1_000);
+        Assert.That(dict.Capacity, Is.GreaterThan(5));
+
+        pool.Return(dict);
+
+        var reused = pool.Rent();
+        Assert.That(reused.Capacity, Is.LessThanOrEqualTo(5), "The empty dictionary must not retain its oversized backing arrays.");
+    }
+
+    [Test]
+    public void Caller_cleared_return_trims_capacity()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4, maxRetainedCapacityPerItem: 5);
+        var dict = pool.Rent();
+        for (var i = 0; i < 100; i++)
+        {
+            dict[$"key{i}"] = $"value{i}";
+        }
+        dict.Clear();
+
+        pool.Return(dict, clearDictionary: false);
+
+        var reused = pool.Rent();
+        Assert.That(reused.Capacity, Is.LessThanOrEqualTo(5), "Returning an already cleared dictionary must not bypass trimming.");
     }
 
     [Test]
@@ -231,6 +261,8 @@ public class DictionaryPoolTests
         }
         var dropped = pool.Rent();
 
+        var oversizedCapacity = oversized.Capacity;
+
         using var events = new EventListenerScope("NServiceBus.DictionaryPool", EventLevel.Verbose);
 
         // The oversized dictionary is trimmed and retained; the pool is then full,
@@ -244,8 +276,8 @@ public class DictionaryPoolTests
             Assert.That(events.Count(e => e.EventId == 4), Is.EqualTo(1), "Expected a single DictionaryTrimmed event.");
             Assert.That(events.Count(e => e.EventId == 3), Is.EqualTo(1), "Expected a single DictionaryReturned event.");
             Assert.That(events.Count(e => e.EventId == 5), Is.EqualTo(1), "Expected a single DictionaryDropped event.");
-            Assert.That(events.First(e => e.EventId == 4).Payload, Is.EqualTo(new object[] { pool.PoolId, 10, 5 }),
-                "DictionaryTrimmed: poolId, entry count, maxRetainedCapacity.");
+            Assert.That(events.First(e => e.EventId == 4).Payload, Is.EqualTo(new object[] { pool.PoolId, oversizedCapacity, 5 }),
+                "DictionaryTrimmed: poolId, capacity, maxRetainedCapacity.");
             Assert.That(events.First(e => e.EventId == 3).Payload, Is.EqualTo(new object[] { pool.PoolId, 10 }),
                 "DictionaryReturned: poolId, entry count.");
             Assert.That(events.First(e => e.EventId == 5).Payload, Is.EqualTo(new object[] { pool.PoolId, 0, 0 }),
