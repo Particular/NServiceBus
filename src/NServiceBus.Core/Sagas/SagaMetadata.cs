@@ -249,13 +249,17 @@ public partial class SagaMetadata
     readonly CorrelationPropertyMetadata? correlationProperty;
     readonly Dictionary<string, SagaFinderDefinition> sagaFinders;
 
+    static readonly MethodInfo CreateSagaOfTSagaMethod = GetCreateSagaOfTSagaMethod();
+    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = GetCreateSagaOfTSagaTEntityMethod();
+
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
-        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
-    static readonly MethodInfo CreateSagaOfTSagaMethod = typeof(SagaMetadata)
+        Justification = "The returned method is only invoked on code paths that are annotated with RequiresUnreferencedCode")]
+    static MethodInfo GetCreateSagaOfTSagaMethod() => typeof(SagaMetadata)
         .GetMethod(nameof(Create), 1, BindingFlags.Public | BindingFlags.Static, []) ?? throw new MissingMethodException(nameof(Create));
+
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
-        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
-    static readonly MethodInfo CreateSagaOfTSagaTEntityMethod = typeof(SagaMetadata)
+        Justification = "The returned method is only invoked on code paths that are annotated with RequiresUnreferencedCode")]
+    static MethodInfo GetCreateSagaOfTSagaTEntityMethod() => typeof(SagaMetadata)
         .GetMethod(nameof(Create), 2, BindingFlags.Public | BindingFlags.Static, [typeof(IReadOnlyCollection<SagaMessage>), typeof(CorrelationPropertyAccessor), typeof(IReadOnlyCollection<MessagePropertyAccessor>)]) ?? throw new MissingMethodException(nameof(Create));
 
     internal const string TrimmingMessage = "Saga discovery using assembly scanning might require access to unreferenced code.";

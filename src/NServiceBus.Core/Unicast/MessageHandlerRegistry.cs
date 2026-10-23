@@ -196,9 +196,11 @@ public class MessageHandlerRegistry
     void AddHandlerWithReflection(Type handlerType) =>
         AddHandlerWithReflectionMethod.InvokeGeneric(this, [handlerType]);
 
+    static readonly MethodInfo AddHandlerWithReflectionMethod = GetAddHandlerWithReflectionMethod();
+
     [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2026",
-        Justification = "This field is only used on code paths that is annotated with RequiresUnreferencedCode")]
-    static readonly MethodInfo AddHandlerWithReflectionMethod = typeof(MessageHandlerRegistry)
+        Justification = "The returned method is only invoked on code paths that are annotated with RequiresUnreferencedCode")]
+    static MethodInfo GetAddHandlerWithReflectionMethod() => typeof(MessageHandlerRegistry)
         .GetMethod(nameof(AddHandler), BindingFlags.Public | BindingFlags.Instance, []) ?? throw new MissingMethodException(nameof(AddHandler));
 
     static readonly MethodInfo AddMessageHandlerForMessageMethod = typeof(MessageHandlerRegistry)
