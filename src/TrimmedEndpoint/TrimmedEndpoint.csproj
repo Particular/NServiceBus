@@ -12,9 +12,6 @@
     <PublishTrimmed>true</PublishTrimmed>
     <!-- Set by the AOT validation test via -p:RunAotValidation=true; stays project-local so it does not flow to the analyzer project. -->
     <PublishAot Condition="'$(RunAotValidation)' == 'true'">true</PublishAot>
-    <!-- The saga scenario crashes the .NET 10 ILLink trimmer (Mono.Linker MessageOrigin.ToString on generated-method warnings);
-         it is compiled only into the NativeAOT build where the ILC pipeline is unaffected. -->
-    <DefineConstants Condition="'$(RunAotValidation)' == 'true'">$(DefineConstants);INCLUDE_SAGA</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Label="Core Analyzers">
