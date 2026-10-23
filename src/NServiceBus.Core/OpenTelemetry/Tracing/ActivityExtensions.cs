@@ -11,7 +11,7 @@ static class ActivityExtensions
 {
     public const string OutgoingActivityKey = "NServiceBus.Diagnostics.Activity.Outgoing";
     public const string IncomingActivityKey = "NServiceBus.Diagnostics.Activity.Incoming";
-    public const string InnermostActivityKey = "NServiceBus.Diagnostics.Activity.Innermost";
+    public const string WrappingActivityKey = "NServiceBus.Diagnostics.Activity.Innermost";
 
     public static bool TryGetOutgoingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
         => pipelineContext.TryGetPipelineActivity(OutgoingActivityKey, out activity);
@@ -35,24 +35,24 @@ static class ActivityExtensions
     public static void SetOutgoingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(OutgoingActivityKey, activity);
     public static void SetIncomingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(IncomingActivityKey, activity);
 
-    public static bool TryRecordInnermostActivity(this ContextBag pipelineContext, Exception exception, Activity activity)
+    public static bool TryRecordWrappingActivity(this ContextBag pipelineContext, Exception exception, Activity activity)
     {
-        if (pipelineContext.TryGet(InnermostActivityKey, out InnermostActivity? innermostActivity) && ReferenceEquals(innermostActivity.Exception, exception))
+        if (pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? innermostActivity) && ReferenceEquals(innermostActivity.Exception, exception))
         {
             return false;
         }
 
-        pipelineContext.SetOnRoot(InnermostActivityKey, new InnermostActivity(exception, activity.Context));
+        pipelineContext.SetOnRoot(WrappingActivityKey, new WrappingActivity(exception, activity.Context));
         return true;
     }
 
-    public static bool TryGetInnermostActivityContext(this ContextBag pipelineContext, Exception exception, out ActivityContext activityContext)
+    public static bool TryGetWrappingActivityContext(this ContextBag pipelineContext, Exception exception, out ActivityContext activityContext)
     {
-        activityContext = pipelineContext.TryGet(InnermostActivityKey, out InnermostActivity? innermostActivity) && ReferenceEquals(innermostActivity.Exception, exception)
+        activityContext = pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? innermostActivity) && ReferenceEquals(innermostActivity.Exception, exception)
             ? innermostActivity.Context
             : default;
         return activityContext != default;
     }
 
-    sealed record InnermostActivity(Exception Exception, ActivityContext Context);
+    sealed record WrappingActivity(Exception Exception, ActivityContext Context);
 }

@@ -472,7 +472,7 @@ public class ActivityFactoryTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(root.TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(root.TryGetWrappingActivityContext(exception, out var activityContext), Is.True);
                 Assert.That(activityContext, Is.EqualTo(sendActivity.Context));
             }
         }

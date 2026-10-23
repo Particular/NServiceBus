@@ -129,7 +129,7 @@ public partial class MainPipelineExecutorTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(messageContext.Extensions.TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(messageContext.Extensions.TryGetWrappingActivityContext(exception, out var activityContext), Is.True);
                 Assert.That(activityContext, Is.EqualTo(receivePipeline.PipelineAcitivty.Context));
             }
         }
@@ -164,7 +164,7 @@ public partial class MainPipelineExecutorTests
             handlerActivity.Stop();
             var exception = new Exception("handler failed");
             var messageContext = CreateMessageContext();
-            messageContext.Extensions.TryRecordInnermostActivity(exception, handlerActivity);
+            messageContext.Extensions.TryRecordWrappingActivity(exception, handlerActivity);
 
             var receivePipeline = new ActivityTrackingReceivePipeline { ExceptionToThrow = exception };
             var serviceCollection = new ServiceCollection();
@@ -175,7 +175,7 @@ public partial class MainPipelineExecutorTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(messageContext.Extensions.TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(messageContext.Extensions.TryGetWrappingActivityContext(exception, out var activityContext), Is.True);
                 Assert.That(activityContext, Is.EqualTo(handlerActivity.Context));
             }
         }

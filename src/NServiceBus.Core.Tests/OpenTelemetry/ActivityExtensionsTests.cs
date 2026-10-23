@@ -64,11 +64,11 @@ public class ActivityExtensionsTests
         var child = new ContextBag(root);
         var exception = new InvalidOperationException("boom");
 
-        child.TryRecordInnermostActivity(exception, activity);
+        child.TryRecordWrappingActivity(exception, activity);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(root.TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
+            Assert.That(root.TryGetWrappingActivityContext(exception, out var activityContext), Is.True);
             Assert.That(activityContext, Is.EqualTo(activity.Context));
         }
     }
@@ -84,9 +84,9 @@ public class ActivityExtensionsTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(contextBag.TryRecordInnermostActivity(first, sendActivity), Is.True);
-            Assert.That(contextBag.TryRecordInnermostActivity(first, handlerActivity), Is.False);
-            Assert.That(contextBag.TryRecordInnermostActivity(second, handlerActivity), Is.True, "a different exception instance is a new exception");
+            Assert.That(contextBag.TryRecordWrappingActivity(first, sendActivity), Is.True);
+            Assert.That(contextBag.TryRecordWrappingActivity(first, handlerActivity), Is.False);
+            Assert.That(contextBag.TryRecordWrappingActivity(second, handlerActivity), Is.True, "a different exception instance is a new exception");
         }
     }
 
@@ -98,12 +98,12 @@ public class ActivityExtensionsTests
         var contextBag = new ContextBag();
         var exception = new InvalidOperationException("boom");
 
-        contextBag.TryRecordInnermostActivity(exception, sendActivity);
-        contextBag.TryRecordInnermostActivity(exception, handlerActivity);
+        contextBag.TryRecordWrappingActivity(exception, sendActivity);
+        contextBag.TryRecordWrappingActivity(exception, handlerActivity);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(contextBag.TryGetInnermostActivityContext(exception, out var activityContext), Is.True);
+            Assert.That(contextBag.TryGetWrappingActivityContext(exception, out var activityContext), Is.True);
             Assert.That(activityContext, Is.EqualTo(sendActivity.Context));
         }
     }
@@ -113,8 +113,8 @@ public class ActivityExtensionsTests
     {
         using var activity = new Activity("handler").Start();
         var contextBag = new ContextBag();
-        contextBag.TryRecordInnermostActivity(new InvalidOperationException("previous attempt"), activity);
+        contextBag.TryRecordWrappingActivity(new InvalidOperationException("previous attempt"), activity);
 
-        Assert.That(contextBag.TryGetInnermostActivityContext(new InvalidOperationException("this attempt"), out _), Is.False);
+        Assert.That(contextBag.TryGetWrappingActivityContext(new InvalidOperationException("this attempt"), out _), Is.False);
     }
 }
