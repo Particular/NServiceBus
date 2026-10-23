@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Faults;
@@ -75,5 +76,9 @@ public class ScenarioContext
         public string LoggerName { get; set; } = string.Empty;
         public string? Message { get; set; }
         public LogLevel Level { get; set; }
+        public Exception? Exception { get; set; }
+        // The span that was current when the entry was logged: the one a log record is correlated with.
+        public ActivityTraceId? TraceId { get; set; }
+        public ActivitySpanId? SpanId { get; set; }
     }
 }
