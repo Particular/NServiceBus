@@ -68,6 +68,12 @@ await WaitFor(() => ContributedHandler.Invoked);
 await session.SendLocal<StartOrderCommand>(new StartOrderCommand { OrderId = "order-1" });
 await WaitFor(() => OrderSaga.Started && OrderSaga.TimedOut);
 
+// Saga registered by a contributor: start and complete path.
+await session.SendLocal<StartContributedSagaCommand>(new StartContributedSagaCommand { OrderId = "contributed-1" });
+await WaitFor(() => ContributedSaga.Started);
+await session.SendLocal<CompleteContributedSagaCommand>(new CompleteContributedSagaCommand { OrderId = "contributed-1" });
+await WaitFor(() => ContributedSaga.WasCompleted);
+
 // Saga handle path (correlated via OrderId).
 await session.SendLocal<HandleOrderCommand>(new HandleOrderCommand { OrderId = "order-1" });
 await WaitFor(() => OrderSaga.Handled);
@@ -119,6 +125,12 @@ if (!OrderSaga.Started || !OrderSaga.TimedOut || !OrderSaga.Handled)
 {
     Console.Error.WriteLine($"SagaStarted={OrderSaga.Started} SagaTimedOut={OrderSaga.TimedOut} SagaHandled={OrderSaga.Handled}");
     return 2;
+}
+
+if (!ContributedSaga.Started || !ContributedSaga.WasCompleted)
+{
+    Console.Error.WriteLine($"ContributedSagaStarted={ContributedSaga.Started} ContributedSagaCompleted={ContributedSaga.WasCompleted}");
+    return 8;
 }
 #endif
 
@@ -381,6 +393,8 @@ public sealed class TrimmedScenarioDiagnostics
 [JsonSerializable(typeof(StartOrderCommand))]
 [JsonSerializable(typeof(HandleOrderCommand))]
 [JsonSerializable(typeof(OrderTimeout))]
+[JsonSerializable(typeof(StartContributedSagaCommand))]
+[JsonSerializable(typeof(CompleteContributedSagaCommand))]
 #endif
 public partial class TrimmedEndpointJsonContext : JsonSerializerContext
 {
@@ -393,6 +407,7 @@ public partial class TrimmedScenarioJsonContext : JsonSerializerContext
 
 #if INCLUDE_SAGA
 [JsonSerializable(typeof(OrderSagaData))]
+[JsonSerializable(typeof(ContributedSagaData))]
 public partial class SagaDataJsonContext : JsonSerializerContext
 {
 }
