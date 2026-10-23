@@ -52,6 +52,21 @@ public class HeaderSerializerTests
     }
 
     [Test]
+    public void Can_deserialize_from_utf8_bytes_with_byte_order_mark()
+    {
+        var input = new Dictionary<string, string>
+        {
+            { "key 1", "value 1" },
+            { "key 2", "value 2" }
+        };
+        var serialized = HeaderSerializer.Serialize(input);
+        byte[] bytes = [.. Encoding.UTF8.Preamble, .. Encoding.UTF8.GetBytes(serialized)];
+
+        var deserialized = HeaderSerializer.Deserialize(bytes);
+        Assert.That(deserialized, Is.EquivalentTo(input));
+    }
+
+    [Test]
     public void Deserialize_from_bytes_with_pool_reuses_dictionary()
     {
         var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
