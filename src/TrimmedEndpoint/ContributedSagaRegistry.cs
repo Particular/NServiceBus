@@ -14,7 +14,6 @@ public sealed class ContributedSagaRegistry : IHandlerRegistryContributor<Contri
     {
     }
 
-    // Lives outside Program.cs because SagaMetadata.Create<,> carries the IL2026 that generated saga registrations also produce, and the test only checks Program.cs.
     public void AddSagas(EndpointConfiguration configuration)
     {
         var settings = configuration.GetSettings();
