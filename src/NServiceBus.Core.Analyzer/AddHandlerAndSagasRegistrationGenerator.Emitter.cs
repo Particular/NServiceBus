@@ -16,9 +16,9 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 {
     internal class Emitter(SourceProductionContext context)
     {
-        public void Emit(ImmutableArray<BaseSpec> spec, RootTypeSpec rootTypeSpec)
+        public void Emit(ImmutableArray<BaseSpec> spec, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec, string assemblyName)
         {
-            if (spec.Length == 0)
+            if (spec.Length == 0 && contributors.Count == 0)
             {
                 return;
             }
@@ -27,24 +27,26 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 .PreAmble()
                 .WithOpenNamespace(rootTypeSpec.Namespace);
 
-            EmitHandlers(sourceWriter, spec, rootTypeSpec);
+            EmitHandlers(sourceWriter, spec, contributors, rootTypeSpec, assemblyName);
             sourceWriter.CloseCurlies();
 
             context.AddSource("HandlerRegistrations.g.cs", sourceWriter.ToSourceText());
         }
 
-        public static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
+        public static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec) =>
+            BuildNamespaceTree(baseSpecs, ImmutableEquatableArray<ContributorSpec>.Empty, baseSpecs[0].AssemblyName, rootTypeSpec);
+
+        static NamespaceTree BuildNamespaceTree(IReadOnlyList<BaseSpec> baseSpecs, ImmutableEquatableArray<ContributorSpec> contributors, string assemblyName, RootTypeSpec rootTypeSpec)
         {
-            var assemblyName = baseSpecs[0].AssemblyName;
-            var root = BuildNamespaceNodeTree(baseSpecs, rootTypeSpec);
+            var root = BuildNamespaceNodeTree(baseSpecs, contributors, rootTypeSpec);
             return new NamespaceTree(root, rootTypeSpec.ExtensionTypeName, assemblyName, rootTypeSpec);
         }
 
-        static void EmitHandlers(SourceWriter sourceWriter, ImmutableArray<BaseSpec> baseSpecs, RootTypeSpec rootTypeSpec)
+        static void EmitHandlers(SourceWriter sourceWriter, ImmutableArray<BaseSpec> baseSpecs, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec, string assemblyName)
         {
-            Debug.Assert(baseSpecs.Length > 0);
+            Debug.Assert(baseSpecs.Length > 0 || contributors.Count > 0);
 
-            var namespaceTree = BuildNamespaceTree(baseSpecs, rootTypeSpec);
+            var namespaceTree = BuildNamespaceTree(baseSpecs, contributors, assemblyName, rootTypeSpec);
 
             sourceWriter.WriteLine("/// <summary>");
             sourceWriter.WriteLine($"/// Provides access to handler and saga registries discovered in the <i>{namespaceTree.AssemblyName}</i> assembly.");
@@ -151,6 +153,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     writer.Indentation++;
                     writer.WriteLine("AddAllHandlersCore();");
 
+                    foreach (var contributor in current.Contributors)
+                    {
+                        writer.WriteLine($"{contributor.FullyQualifiedName}.AddHandlers(_configuration);");
+                    }
+
                     foreach (var child in current.Children)
                     {
                         writer.WriteLine($"{child.Name}.AddAllHandlers();");
@@ -167,6 +174,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                     writer.WriteLine("{");
                     writer.Indentation++;
                     writer.WriteLine("AddAllSagasCore();");
+
+                    foreach (var contributor in current.Contributors)
+                    {
+                        writer.WriteLine($"{contributor.FullyQualifiedName}.AddSagas(_configuration);");
+                    }
 
                     foreach (var child in current.Children)
                     {
@@ -321,7 +333,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             return defaultMethodName;
         }
 
-        static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, RootTypeSpec rootTypeSpec)
+        static NamespaceNode BuildNamespaceNodeTree(IReadOnlyList<BaseSpec> handlers, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec)
         {
             var rootName = GetRegistryRootName(rootTypeSpec.ExtensionTypeName);
             var root = new NamespaceNode($"{rootName}", rootTypeSpec, isRoot: true);
@@ -336,6 +348,17 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 }
 
                 current.Specs.Add(handler);
+            }
+
+            foreach (var contributor in contributors)
+            {
+                var current = root;
+                foreach (var part in GetNamespaceParts(contributor.Namespace))
+                {
+                    current = current.GetOrAddChild(part);
+                }
+
+                current.Contributors.Add(contributor);
             }
 
             root.Sort();
@@ -380,6 +403,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
             public List<BaseSpec> Specs { get; } = [];
 
+            public List<ContributorSpec> Contributors { get; } = [];
+
             public string RegistryName => $"{Name}Registry";
 
             public NamespaceNode GetOrAddChild(string childName)
@@ -402,6 +427,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             {
                 Children.Sort((left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
                 Specs.Sort((left, right) => StringComparer.Ordinal.Compare(left.FullyQualifiedName, right.FullyQualifiedName));
+                Contributors.Sort((left, right) => StringComparer.Ordinal.Compare(left.FullyQualifiedName, right.FullyQualifiedName));
 
                 foreach (var child in Children)
                 {

@@ -5,6 +5,7 @@ namespace NServiceBus.Core.Analyzer;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Utility;
 
 [Generator(LanguageNames.CSharp)]
 public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGenerator
@@ -27,6 +28,12 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
             .Select(static (spec, _) => spec!)
             .WithTrackingName(TrackingNames.SagaSpecs);
 
+        var contributors = BuildContributorSpecsPipeline(context);
+
+        var assemblyName = context.CompilationProvider
+            .Select(static (compilation, _) => compilation.Assembly.Name)
+            .WithTrackingName(TrackingNames.AssemblyName);
+
         var collected = addHandlers.Collect()
             .Combine(addSagas.Collect())
             .Select((pair, _) => pair.Left.AddRange(pair.Right))
@@ -34,15 +41,27 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
 
         var rootTypeSpec = BuildRootTypeSpecPipeline(context);
 
-        var combined = collected.Combine(rootTypeSpec);
+        var combined = collected.Combine(rootTypeSpec).Combine(contributors).Combine(assemblyName);
 
         context.RegisterSourceOutput(combined,
             static (productionContext, spec) =>
             {
                 var emitter = new Emitter(productionContext);
-                emitter.Emit(spec.Left, spec.Right);
+                emitter.Emit(spec.Left.Left.Left, spec.Left.Right, spec.Left.Left.Right, spec.Right);
             });
     }
+
+    internal static IncrementalValueProvider<ImmutableEquatableArray<Parser.ContributorSpec>> BuildContributorSpecsPipeline(IncrementalGeneratorInitializationContext context) =>
+        context.SyntaxProvider
+            .ForAttributeWithMetadataName("NServiceBus.HandlerRegistryContributorAttribute",
+                predicate: static (node, _) => node is ClassDeclarationSyntax,
+                transform: static (context, cancellationToken) => Parser.ParseContributor(context, cancellationToken))
+            .Where(static spec => spec.HasValue)
+            .Select(static (spec, _) => spec!.Value)
+            .WithTrackingName(TrackingNames.ContributorSpec)
+            .Collect()
+            .Select(static (contributors, _) => Parser.SelectContributors(contributors))
+            .WithTrackingName(TrackingNames.ContributorSpecs);
 
     internal static IncrementalValueProvider<Parser.RootTypeSpec> BuildRootTypeSpecPipeline(IncrementalGeneratorInitializationContext context)
     {
