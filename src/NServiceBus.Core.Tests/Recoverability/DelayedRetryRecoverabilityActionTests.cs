@@ -83,6 +83,21 @@ public class DelayedRetryRecoverabilityActionTests
         }
     }
 
+    [Test]
+    public void Should_rent_outgoing_headers_from_the_header_pool_in_the_context()
+    {
+        var headerPool = new HeaderPool(maxPoolSize: 4);
+        var recoverabilityContext = CreateRecoverabilityContext();
+        recoverabilityContext.Extensions.Set(headerPool);
+
+        var delayedRetryAction = new DelayedRetry(TimeSpan.Zero);
+        var outgoingMessageHeaders = delayedRetryAction.GetRoutingContexts(recoverabilityContext).Single().Message.Headers;
+
+        headerPool.Return(outgoingMessageHeaders);
+
+        Assert.That(headerPool.Rent(), Is.SameAs(outgoingMessageHeaders), "The outgoing headers must be rented from the header pool registered in the context.");
+    }
+
     static TestableRecoverabilityContext CreateRecoverabilityContext(Dictionary<string, string> headers = null, int delayedDeliveriesPerformed = 0) =>
         new()
         {

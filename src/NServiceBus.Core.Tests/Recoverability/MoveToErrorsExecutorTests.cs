@@ -89,6 +89,21 @@ public class MoveToErrorsExecutorTests
         }
     }
 
+    [Test]
+    public void MoveToErrorQueue_should_rent_outgoing_headers_from_the_header_pool_in_the_context()
+    {
+        var headerPool = new HeaderPool(maxPoolSize: 4);
+        var recoverabilityContext = CreateRecoverabilityContext();
+        recoverabilityContext.Extensions.Set(headerPool);
+
+        var moveToErrorAction = new MoveToError(ErrorQueueAddress);
+        var outgoingMessageHeaders = moveToErrorAction.GetRoutingContexts(recoverabilityContext).Single().Message.Headers;
+
+        headerPool.Return(outgoingMessageHeaders);
+
+        Assert.That(headerPool.Rent(), Is.SameAs(outgoingMessageHeaders), "The outgoing headers must be rented from the header pool registered in the context.");
+    }
+
     static TestableRecoverabilityContext CreateRecoverabilityContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", Dictionary<string, string> messageHeaders = default, Dictionary<string, string> metadata = default)
     {
         var recoverabilityContext = new TestableRecoverabilityContext

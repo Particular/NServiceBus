@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using Extensibility;
 using NServiceBus.Transport;
-using NServiceBus.Utils;
 using Particular.Obsoletes;
 using Pipeline;
 
@@ -24,7 +23,7 @@ sealed class RecoverabilityContext : PipelineRootContext, IRecoverabilityContext
         Dictionary<string, string> metadata,
         RecoverabilityAction recoverabilityAction,
         ContextBag parent,
-        DictionaryPool<string, string> headerPool,
+        HeaderPool headerPool,
         CancellationToken cancellationToken) : base(serviceProvider, messageOperations, pipelineCache, cancellationToken, parent)
     {
         Extensions.Set(headerPool);
