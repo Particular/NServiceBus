@@ -223,7 +223,7 @@ namespace CustomRegistrations
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.RegistrationMethodNamePatternsHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.RegistrationMethodNamePatternsHandlerRegistryEntry_be5d250b2cef46c1))]
 
 namespace NServiceBus.Generated
 {
@@ -232,7 +232,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class RegistrationMethodNamePatternsHandlerRegistryEntry
+    public static class RegistrationMethodNamePatternsHandlerRegistryEntry_be5d250b2cef46c1
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::CustomRegistrations.MyCustomHandlerRegistryExtensions.MyCustomRootRegistry(configuration).AddAll();
 

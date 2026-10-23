@@ -72,7 +72,7 @@ internal static partial class OrdersRegistrations
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.EntryIsPublicWhenTheRegistryIsInternalHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.EntryIsPublicWhenTheRegistryIsInternalHandlerRegistryEntry_93651f4c099478a3))]
 
 namespace NServiceBus.Generated
 {
@@ -81,7 +81,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class EntryIsPublicWhenTheRegistryIsInternalHandlerRegistryEntry
+    public static class EntryIsPublicWhenTheRegistryIsInternalHandlerRegistryEntry_93651f4c099478a3
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::OrdersRegistrations.OrdersRegistrationsRootRegistry(configuration).AddAll();
 

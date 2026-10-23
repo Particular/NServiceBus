@@ -179,7 +179,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.ContributorOnlyAssemblyFromPostInitializationOutputHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.ContributorOnlyAssemblyFromPostInitializationOutputHandlerRegistryEntry_252a0efb65f2440f))]
 
 namespace NServiceBus.Generated
 {
@@ -188,7 +188,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class ContributorOnlyAssemblyFromPostInitializationOutputHandlerRegistryEntry
+    public static class ContributorOnlyAssemblyFromPostInitializationOutputHandlerRegistryEntry_252a0efb65f2440f
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.ContributorOnlyAssemblyFromPostInitializationOutputHandlerRegistryExtensions.ContributorOnlyAssemblyFromPostInitializationOutputRootRegistry(configuration).AddAll();
 

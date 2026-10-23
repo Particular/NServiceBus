@@ -155,7 +155,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.DuplicatePropertyDefinitionsWithCompilationErrorsHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.DuplicatePropertyDefinitionsWithCompilationErrorsHandlerRegistryEntry_48dd52855fda04f5))]
 
 namespace NServiceBus.Generated
 {
@@ -164,7 +164,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class DuplicatePropertyDefinitionsWithCompilationErrorsHandlerRegistryEntry
+    public static class DuplicatePropertyDefinitionsWithCompilationErrorsHandlerRegistryEntry_48dd52855fda04f5
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.DuplicatePropertyDefinitionsWithCompilationErrorsHandlerRegistryExtensions.DuplicatePropertyDefinitionsWithCompilationErrorsRootRegistry(configuration).AddAll();
 

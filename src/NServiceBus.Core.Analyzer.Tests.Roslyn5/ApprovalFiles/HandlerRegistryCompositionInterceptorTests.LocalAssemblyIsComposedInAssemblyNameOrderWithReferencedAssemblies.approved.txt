@@ -32,27 +32,27 @@ namespace NServiceBus
             public void HandlerRegistry_AddAll_72b802001419ea61()
             {
                 System.ArgumentNullException.ThrowIfNull(registry);
-                global::NServiceBus.Generated.AppleHandlerRegistryEntry.AddAll(registry.Configuration);
-                global::NServiceBus.Generated.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry.AddAll(registry.Configuration);
-                global::NServiceBus.Generated.ZebraHandlerRegistryEntry.AddAll(registry.Configuration);
+                global::NServiceBus.Generated.AppleHandlerRegistryEntry_b8f841b49234961f.AddAll(registry.Configuration);
+                global::NServiceBus.Generated.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry_651175ab324ef5db.AddAll(registry.Configuration);
+                global::NServiceBus.Generated.ZebraHandlerRegistryEntry_0d5e5a92f0a8290f.AddAll(registry.Configuration);
             }
 
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(11,22)
             public void HandlerRegistry_AddAllHandlers_c77efc263c59a45c()
             {
                 System.ArgumentNullException.ThrowIfNull(registry);
-                global::NServiceBus.Generated.AppleHandlerRegistryEntry.AddAllHandlers(registry.Configuration);
-                global::NServiceBus.Generated.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry.AddAllHandlers(registry.Configuration);
-                global::NServiceBus.Generated.ZebraHandlerRegistryEntry.AddAllHandlers(registry.Configuration);
+                global::NServiceBus.Generated.AppleHandlerRegistryEntry_b8f841b49234961f.AddAllHandlers(registry.Configuration);
+                global::NServiceBus.Generated.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry_651175ab324ef5db.AddAllHandlers(registry.Configuration);
+                global::NServiceBus.Generated.ZebraHandlerRegistryEntry_0d5e5a92f0a8290f.AddAllHandlers(registry.Configuration);
             }
 
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(12,22)
             public void HandlerRegistry_AddAllSagas_cab63ad1fb21c812()
             {
                 System.ArgumentNullException.ThrowIfNull(registry);
-                global::NServiceBus.Generated.AppleHandlerRegistryEntry.AddAllSagas(registry.Configuration);
-                global::NServiceBus.Generated.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry.AddAllSagas(registry.Configuration);
-                global::NServiceBus.Generated.ZebraHandlerRegistryEntry.AddAllSagas(registry.Configuration);
+                global::NServiceBus.Generated.AppleHandlerRegistryEntry_b8f841b49234961f.AddAllSagas(registry.Configuration);
+                global::NServiceBus.Generated.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry_651175ab324ef5db.AddAllSagas(registry.Configuration);
+                global::NServiceBus.Generated.ZebraHandlerRegistryEntry_0d5e5a92f0a8290f.AddAllSagas(registry.Configuration);
             }
         }
     }
@@ -249,7 +249,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry_651175ab324ef5db))]
 
 namespace NServiceBus.Generated
 {
@@ -258,7 +258,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry
+    public static class LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryEntry_651175ab324ef5db
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesHandlerRegistryExtensions.LocalAssemblyIsComposedInAssemblyNameOrderWithReferencedAssembliesRootRegistry(configuration).AddAll();
 

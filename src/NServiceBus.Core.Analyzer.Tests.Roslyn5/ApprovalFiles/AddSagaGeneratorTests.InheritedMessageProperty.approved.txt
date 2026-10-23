@@ -165,7 +165,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.InheritedMessagePropertyHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.InheritedMessagePropertyHandlerRegistryEntry_633aa48f70d84221))]
 
 namespace NServiceBus.Generated
 {
@@ -174,7 +174,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class InheritedMessagePropertyHandlerRegistryEntry
+    public static class InheritedMessagePropertyHandlerRegistryEntry_633aa48f70d84221
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.InheritedMessagePropertyHandlerRegistryExtensions.InheritedMessagePropertyRootRegistry(configuration).AddAll();
 

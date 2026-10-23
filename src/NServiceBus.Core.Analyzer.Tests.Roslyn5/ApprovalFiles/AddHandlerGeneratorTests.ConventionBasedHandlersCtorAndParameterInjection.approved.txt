@@ -191,7 +191,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryEntry_3c933f42774466f3))]
 
 namespace NServiceBus.Generated
 {
@@ -200,7 +200,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryEntry
+    public static class ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryEntry_3c933f42774466f3
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.ConventionBasedHandlersCtorAndParameterInjectionHandlerRegistryExtensions.ConventionBasedHandlersCtorAndParameterInjectionRootRegistry(configuration).AddAll();
 

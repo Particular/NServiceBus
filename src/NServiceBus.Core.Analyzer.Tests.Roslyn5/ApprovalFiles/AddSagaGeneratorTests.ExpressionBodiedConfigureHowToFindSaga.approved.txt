@@ -150,7 +150,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.ExpressionBodiedConfigureHowToFindSagaHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.ExpressionBodiedConfigureHowToFindSagaHandlerRegistryEntry_2b47d9bd529d9e86))]
 
 namespace NServiceBus.Generated
 {
@@ -159,7 +159,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class ExpressionBodiedConfigureHowToFindSagaHandlerRegistryEntry
+    public static class ExpressionBodiedConfigureHowToFindSagaHandlerRegistryEntry_2b47d9bd529d9e86
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.ExpressionBodiedConfigureHowToFindSagaHandlerRegistryExtensions.ExpressionBodiedConfigureHowToFindSagaRootRegistry(configuration).AddAll();
 

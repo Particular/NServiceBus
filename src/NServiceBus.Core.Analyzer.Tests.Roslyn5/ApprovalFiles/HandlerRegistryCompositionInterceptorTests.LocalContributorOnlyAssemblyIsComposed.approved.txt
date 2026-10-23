@@ -32,7 +32,7 @@ namespace NServiceBus
             public void HandlerRegistry_AddAll_72b802001419ea61()
             {
                 System.ArgumentNullException.ThrowIfNull(registry);
-                global::NServiceBus.Generated.LocalContributorOnlyAssemblyIsComposedHandlerRegistryEntry.AddAll(registry.Configuration);
+                global::NServiceBus.Generated.LocalContributorOnlyAssemblyIsComposedHandlerRegistryEntry_b5bf215cb12fe003.AddAll(registry.Configuration);
             }
         }
     }
@@ -115,7 +115,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.LocalContributorOnlyAssemblyIsComposedHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.LocalContributorOnlyAssemblyIsComposedHandlerRegistryEntry_b5bf215cb12fe003))]
 
 namespace NServiceBus.Generated
 {
@@ -124,7 +124,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class LocalContributorOnlyAssemblyIsComposedHandlerRegistryEntry
+    public static class LocalContributorOnlyAssemblyIsComposedHandlerRegistryEntry_b5bf215cb12fe003
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.LocalContributorOnlyAssemblyIsComposedHandlerRegistryExtensions.LocalContributorOnlyAssemblyIsComposedRootRegistry(configuration).AddAll();
 

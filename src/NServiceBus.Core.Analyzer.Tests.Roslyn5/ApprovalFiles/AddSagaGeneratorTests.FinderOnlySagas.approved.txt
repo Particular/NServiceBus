@@ -180,7 +180,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.FinderOnlySagasHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.FinderOnlySagasHandlerRegistryEntry_8714cc3955b10f68))]
 
 namespace NServiceBus.Generated
 {
@@ -189,7 +189,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class FinderOnlySagasHandlerRegistryEntry
+    public static class FinderOnlySagasHandlerRegistryEntry_8714cc3955b10f68
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.FinderOnlySagasHandlerRegistryExtensions.FinderOnlySagasRootRegistry(configuration).AddAll();
 

@@ -176,7 +176,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.MultipleContributorsAreOrderedDeterministicallyHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.MultipleContributorsAreOrderedDeterministicallyHandlerRegistryEntry_ca7dee701f50f2f8))]
 
 namespace NServiceBus.Generated
 {
@@ -185,7 +185,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class MultipleContributorsAreOrderedDeterministicallyHandlerRegistryEntry
+    public static class MultipleContributorsAreOrderedDeterministicallyHandlerRegistryEntry_ca7dee701f50f2f8
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.MultipleContributorsAreOrderedDeterministicallyHandlerRegistryExtensions.MultipleContributorsAreOrderedDeterministicallyRootRegistry(configuration).AddAll();
 

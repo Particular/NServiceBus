@@ -72,7 +72,7 @@ public static partial class OrdersRegistrations
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.EntryReferencesRootClassInTheGlobalNamespaceHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.EntryReferencesRootClassInTheGlobalNamespaceHandlerRegistryEntry_695f512e305d9adf))]
 
 namespace NServiceBus.Generated
 {
@@ -81,7 +81,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class EntryReferencesRootClassInTheGlobalNamespaceHandlerRegistryEntry
+    public static class EntryReferencesRootClassInTheGlobalNamespaceHandlerRegistryEntry_695f512e305d9adf
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::OrdersRegistrations.OrdersRegistrationsRootRegistry(configuration).AddAll();
 

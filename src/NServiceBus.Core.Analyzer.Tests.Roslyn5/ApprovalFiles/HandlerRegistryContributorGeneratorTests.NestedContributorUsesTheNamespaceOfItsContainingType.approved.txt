@@ -127,7 +127,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.NestedContributorUsesTheNamespaceOfItsContainingTypeHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.NestedContributorUsesTheNamespaceOfItsContainingTypeHandlerRegistryEntry_84d6221b7d78eef2))]
 
 namespace NServiceBus.Generated
 {
@@ -136,7 +136,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class NestedContributorUsesTheNamespaceOfItsContainingTypeHandlerRegistryEntry
+    public static class NestedContributorUsesTheNamespaceOfItsContainingTypeHandlerRegistryEntry_84d6221b7d78eef2
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.NestedContributorUsesTheNamespaceOfItsContainingTypeHandlerRegistryExtensions.NestedContributorUsesTheNamespaceOfItsContainingTypeRootRegistry(configuration).AddAll();
 

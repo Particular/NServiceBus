@@ -264,7 +264,7 @@ namespace NServiceBus
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.UnrelatedCompilationErrorHandlerRegistryEntry))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.UnrelatedCompilationErrorHandlerRegistryEntry_8d42981778b4d21a))]
 
 namespace NServiceBus.Generated
 {
@@ -273,7 +273,7 @@ namespace NServiceBus.Generated
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class UnrelatedCompilationErrorHandlerRegistryEntry
+    public static class UnrelatedCompilationErrorHandlerRegistryEntry_8d42981778b4d21a
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::NServiceBus.UnrelatedCompilationErrorHandlerRegistryExtensions.UnrelatedCompilationErrorRootRegistry(configuration).AddAll();
 

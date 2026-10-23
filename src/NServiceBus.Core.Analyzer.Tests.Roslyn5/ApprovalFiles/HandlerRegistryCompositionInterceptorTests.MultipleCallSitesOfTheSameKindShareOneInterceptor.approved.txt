@@ -33,7 +33,7 @@ namespace NServiceBus
             public void HandlerRegistry_AddAll_72b802001419ea61()
             {
                 System.ArgumentNullException.ThrowIfNull(registry);
-                global::NServiceBus.Generated.AcmeLibraryHandlerRegistryEntry.AddAll(registry.Configuration);
+                global::NServiceBus.Generated.AcmeLibraryHandlerRegistryEntry_0767d82c53d54512.AddAll(registry.Configuration);
             }
         }
     }
