@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Extensibility;
-using Utils;
 using MessageInterfaces;
 using Pipeline;
 using Transport;
+using Utils;
 
 class MessageOperations(
     IMessageMapper messageMapper,

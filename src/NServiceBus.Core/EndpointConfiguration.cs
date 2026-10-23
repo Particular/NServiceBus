@@ -6,15 +6,15 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Transactions;
+using Configuration.AdvancedExtensibility;
+using Features;
+using MessageInterfaces;
+using MessageInterfaces.MessageMapper.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Configuration.AdvancedExtensibility;
-using NServiceBus.Features;
-using NServiceBus.MessageInterfaces;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Pipeline;
-using NServiceBus.Settings;
-using NServiceBus.Transport;
 using Particular.Obsoletes;
+using Pipeline;
+using Settings;
+using Transport;
 
 /// <summary>
 /// Configuration used to create an endpoint instance.

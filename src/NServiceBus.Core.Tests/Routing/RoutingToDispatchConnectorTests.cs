@@ -15,6 +15,7 @@ using Transport;
 public class RoutingToDispatchConnectorTests
 {
     static RoutingToDispatchConnector NewHeaderPoolAwareConnector() => new(new HeaderPool(maxPoolSize: 8));
+
     [Test]
     public async Task Should_preserve_message_state_for_one_routing_strategy_for_allocation_reasons()
     {
