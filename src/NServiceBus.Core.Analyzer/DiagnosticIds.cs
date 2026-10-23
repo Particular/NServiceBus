@@ -62,4 +62,7 @@ public static class DiagnosticIds
 
     // HandlerRegistryContributorAttributeAnalyzer
     public const string InvalidHandlerRegistryContributor = "NSB0043";
+
+    // HandlerRegistryAddAllAnalyzer
+    public const string HandlerRegistryAddAllMustBeCalledDirectly = "NSB0044";
 }

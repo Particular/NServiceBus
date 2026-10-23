@@ -65,6 +65,8 @@ public sealed partial class HandlerRegistryCompositionInterceptor
             return new CallSpec(InterceptLocationSpec.From(location), kind);
         }
 
+        public static bool IsCompositionMethod(IMethodSymbol method) => IsHandlerRegistryMethod(method) && GetKind(method.Name) is not null;
+
         static bool IsHandlerRegistryMethod(IMethodSymbol method) => method is
         {
             IsStatic: false,
