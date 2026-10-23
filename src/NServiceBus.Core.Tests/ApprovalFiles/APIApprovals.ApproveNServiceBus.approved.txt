@@ -2687,7 +2687,7 @@ namespace NServiceBus.Transport
     }
     public class HeaderPool : NServiceBus.Utils.DictionaryPool<string, string>
     {
-        public HeaderPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 64) { }
+        public HeaderPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 128) { }
         public new static NServiceBus.Transport.HeaderPool AlwaysAllocate { get; }
         public new static NServiceBus.Transport.HeaderPool Shared { get; }
     }
