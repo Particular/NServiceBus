@@ -7,12 +7,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
 [TestFixture]
-public class TrimmedEndpointTests
+public partial class TrimmedEndpointTests
 {
     [Test]
     [CancelAfter(600_000)]
@@ -37,10 +38,8 @@ public class TrimmedEndpointTests
             // were not intercepted, the RequiresUnreferencedCode fallback would surface as IL2026 trim warnings at
             // the sample's own call sites. Trim warnings inside NServiceBus.Core itself fail the Core build via
             // EnableTrimAnalyzer.
-            var sampleTrimWarnings = publishResult.Output.Split(Environment.NewLine)
-                .Where(line => line.Contains("Program.cs") && line.Contains("IL2026"))
-                .ToArray();
-            Assert.That(sampleTrimWarnings, Is.Empty, "Interception of AddMessageType/AddHandler failed, IL2026 warnings were emitted for the sample source.");
+            var sampleTrimWarnings = FindSampleWarnings(publishResult.Output, sampleProject, "IL2026");
+            Assert.That(sampleTrimWarnings, Is.Empty, "IL2026 warnings were emitted for the sample source, including generated code. Interception of AddMessageType/AddHandler may have failed, or generated registrations keep members annotated with RequiresUnreferencedCode.");
 
             var executable = Path.Combine(publishOutput, OperatingSystem.IsWindows() ? "TrimmedEndpoint.exe" : "TrimmedEndpoint");
             var runResult = await RunProcess(executable, "", cancellationToken);
@@ -92,11 +91,10 @@ public class TrimmedEndpointTests
             Assert.That(publishResult.ExitCode, Is.Zero, $"NativeAOT publish failed:{Environment.NewLine}{publishResult.Output}");
 
             // The sample source must not rely on dynamic code: any IL2026/IL3050 at the sample's own call sites
-            // would indicate an intercepted registration fell back to reflection.
-            var sampleAotWarnings = publishResult.Output.Split(Environment.NewLine)
-                .Where(line => line.Contains("Program.cs") && (line.Contains("IL2026") || line.Contains("IL3050")))
-                .ToArray();
-            Assert.That(sampleAotWarnings, Is.Empty, "Interception of AddMessageType/AddHandler failed, AOT warnings were emitted for the sample source.");
+            // or in the code generated into it would indicate an intercepted registration fell back to reflection
+            // or keeps members annotated with RequiresUnreferencedCode.
+            var sampleAotWarnings = FindSampleWarnings(publishResult.Output, sampleProject, "IL2026", "IL3050");
+            Assert.That(sampleAotWarnings, Is.Empty, "IL2026/IL3050 warnings were emitted for the sample source, including generated code. Interception of AddMessageType/AddHandler/AddSaga may have failed, or generated registrations keep members annotated with RequiresUnreferencedCode.");
 
             var executable = Path.Combine(publishOutput, OperatingSystem.IsWindows() ? "TrimmedEndpoint.exe" : "TrimmedEndpoint");
             var runResult = await RunProcess(executable, "", cancellationToken);
@@ -119,6 +117,26 @@ public class TrimmedEndpointTests
             }
         }
     }
+
+    // Warnings carry the path of the file they are attributed to, for example Program.cs or a generated file under
+    // the project's obj folder. Warnings attributed to files outside the sample project, such as NServiceBus.Core
+    // sources, are ignored.
+    static string[] FindSampleWarnings(string publishOutput, string sampleProject, params string[] warningCodes)
+    {
+        var sampleDirectory = Path.GetDirectoryName(sampleProject)! + Path.DirectorySeparatorChar;
+
+        return [.. publishOutput.Split(Environment.NewLine)
+            .Where(line => warningCodes.Any(line.Contains))
+            .Where(line =>
+            {
+                var match = WarningFilePath().Match(line);
+                return match.Success && match.Groups["path"].Value.StartsWith(sampleDirectory, StringComparison.OrdinalIgnoreCase);
+            })
+            .Distinct()];
+    }
+
+    [GeneratedRegex(@"^\s*(?<path>.+?)\(\d+(,\d+)*\): ")]
+    private static partial Regex WarningFilePath();
 
     static string? RuntimeIdentifierForCurrentPlatform()
     {
