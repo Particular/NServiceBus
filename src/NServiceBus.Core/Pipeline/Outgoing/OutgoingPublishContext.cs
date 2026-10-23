@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Extensibility;
 using Pipeline;
 
-class OutgoingPublishContext : OutgoingContext, IOutgoingPublishContext
+class OutgoingPublishContext : OutgoingRootContext, IOutgoingPublishContext
 {
     public OutgoingPublishContext(OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, ContextBag extensions, IBehaviorContext parentContext)
         : base(messageId, headers, parentContext)

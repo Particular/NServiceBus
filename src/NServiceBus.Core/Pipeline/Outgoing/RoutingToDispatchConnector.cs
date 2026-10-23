@@ -62,16 +62,26 @@ class RoutingToDispatchConnector(HeaderPool headerPool) : StageConnector<IRoutin
             ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
         }
 
+        // A send, publish or reply pipeline returns the headers it rented once all of its behaviors have completed,
+        // since they may still read them after next().
+        var owner = OutgoingRootContext.FindOwner(context, outgoingMessage.Headers);
+
         // When copies were made for multicast, the original headers dictionary is no longer
-        // needed by any transport operation. Return it to the pool. When copies were NOT made
-        // (unicast), the original is in the transport operations and will be returned after dispatch.
-        if (copySharedMutableMessageState)
+        // needed by any transport operation. When copies were NOT made (unicast), the original
+        // is in the transport operations and will be returned after dispatch.
+        if (copySharedMutableMessageState && owner is null)
         {
             headerPool.Return(outgoingMessage.Headers);
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))
         {
+            if (!copySharedMutableMessageState && owner is not null)
+            {
+                // The pending operation now owns the original headers and returns them after it has been dispatched.
+                owner.HeadersHandedToPendingOperations = true;
+            }
+
             pendingOperations.AddRange(operations);
             return Task.CompletedTask;
         }

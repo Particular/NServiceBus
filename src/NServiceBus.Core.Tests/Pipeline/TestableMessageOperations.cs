@@ -14,7 +14,8 @@ class TestableMessageOperations : MessageOperations
     public Pipeline<ISubscribeContext> SubscribePipeline => (Pipeline<ISubscribeContext>)subscribePipeline;
     public Pipeline<IUnsubscribeContext> UnsubscribePipeline => (Pipeline<IUnsubscribeContext>)unsubscribePipeline;
 
-    public TestableMessageOperations() : base(new MessageMapper(), new Pipeline<IOutgoingPublishContext>(), new Pipeline<IOutgoingSendContext>(), new Pipeline<IOutgoingReplyContext>(), new Pipeline<ISubscribeContext>(), new Pipeline<IUnsubscribeContext>(), new ActivityFactory(), new HeaderPool(maxPoolSize: 4))
+    // Tests inspect the captured contexts after the operation has completed, which pooled headers do not allow.
+    public TestableMessageOperations(HeaderPool headerPool = null) : base(new MessageMapper(), new Pipeline<IOutgoingPublishContext>(), new Pipeline<IOutgoingSendContext>(), new Pipeline<IOutgoingReplyContext>(), new Pipeline<ISubscribeContext>(), new Pipeline<IUnsubscribeContext>(), new ActivityFactory(), headerPool ?? HeaderPool.AlwaysAllocate)
     {
     }
 

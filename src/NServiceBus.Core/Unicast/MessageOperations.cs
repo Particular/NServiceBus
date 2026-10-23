@@ -68,6 +68,8 @@ class MessageOperations(
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, ActivityDisplayNames.PublishEvent, publishContext);
 
         await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
+
+        ReturnOutgoingHeaders(publishContext);
     }
 
     public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options) => Subscribe(context, [eventType], options);
@@ -141,6 +143,8 @@ class MessageOperations(
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
 
         await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+
+        ReturnOutgoingHeaders(outgoingContext);
     }
 
     public Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, ReplyOptions options)
@@ -181,6 +185,8 @@ class MessageOperations(
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
 
         await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+
+        ReturnOutgoingHeaders(outgoingContext);
     }
 
     internal const string RuntimeTypeRoutingTrimmingMessage = "When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.";
@@ -196,5 +202,14 @@ class MessageOperations(
         outgoingHeaders.CopyTo(headers);
         headers[Headers.MessageId] = messageId;
         return headers;
+    }
+
+    // Deliberately not in a finally: as with a failed dispatch, the headers are left to the GC when the pipeline fails.
+    void ReturnOutgoingHeaders(OutgoingRootContext context)
+    {
+        if (!context.HeadersHandedToPendingOperations)
+        {
+            headerPool.Return(context.Headers);
+        }
     }
 }

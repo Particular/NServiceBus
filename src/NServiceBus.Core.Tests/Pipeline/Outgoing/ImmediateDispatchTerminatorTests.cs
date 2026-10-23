@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using NServiceBus.Extensibility;
+using NServiceBus.Pipeline;
 using NServiceBus.Routing;
 using NServiceBus.Transport;
 
@@ -78,6 +80,26 @@ public class ImmediateDispatchTerminatorTests
             Assert.That(pool.Count, Is.Zero, "Only the pool-owned dictionary may enter the pool.");
             Assert.That(foreign["NServiceBus.MessageId"], Is.EqualTo("message-2"),
                 "Foreign dictionaries must not be cleared.");
+        }
+    }
+
+    [Test]
+    public async Task Should_leave_headers_owned_by_the_dispatching_send_pipeline_to_it()
+    {
+        var pool = NewPool();
+        var owned = RentHeaders(pool, "message-1");
+        var other = RentHeaders(pool, "message-2");
+        var sendContext = new OutgoingSendContext(new OutgoingLogicalMessage(typeof(object), new object()), "message-1", owned, new ContextBag(), new FakeRootContext());
+
+        var terminator = new ImmediateDispatchTerminator(new FakeDispatcher(), pool);
+
+        await terminator.Invoke(new DispatchContext([Operation(owned), Operation(other)], sendContext), _ => Task.CompletedTask);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(owned["NServiceBus.MessageId"], Is.EqualTo("message-1"), "Behaviors of the send pipeline may still read its headers after next().");
+            Assert.That(pool.Rent(), Is.SameAs(other), "Headers not owned by the send pipeline must be recycled.");
+            Assert.That(pool.Count, Is.Zero, "Headers owned by the send pipeline must not be pooled by the terminator.");
         }
     }
 

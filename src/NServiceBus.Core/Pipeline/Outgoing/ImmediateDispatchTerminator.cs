@@ -18,9 +18,16 @@ class ImmediateDispatchTerminator(IMessageDispatcher dispatcher, HeaderPool head
         // (partial transport consumption, observers), so they leak to the GC instead of being pooled.
         await dispatcher.Dispatch(new TransportOperations(operations), transaction, context.CancellationToken).ConfigureAwait(false);
 
+        // Headers of a message dispatched from within its own send, publish or reply pipeline are still
+        // visible to that pipeline's behaviors, so the pipeline returns them once it has completed.
+        _ = context.Extensions.TryGet(out OutgoingRootContext? owner);
+
         foreach (var operation in operations)
         {
-            headerPool.Return(operation.Message.Headers);
+            if (!ReferenceEquals(operation.Message.Headers, owner?.Headers))
+            {
+                headerPool.Return(operation.Message.Headers);
+            }
         }
     }
 }

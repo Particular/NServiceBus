@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Extensibility;
 using Pipeline;
 
-class OutgoingReplyContext : OutgoingContext, IOutgoingReplyContext
+class OutgoingReplyContext : OutgoingRootContext, IOutgoingReplyContext
 {
     public OutgoingReplyContext(OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, ContextBag extensions, IBehaviorContext parentContext)
         : base(messageId, headers, parentContext)

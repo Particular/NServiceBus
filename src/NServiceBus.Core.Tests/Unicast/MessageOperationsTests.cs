@@ -2,6 +2,7 @@
 
 using System.Threading.Tasks;
 using Core.Tests.Pipeline;
+using NServiceBus.Transport;
 using NUnit.Framework;
 
 [TestFixture]
@@ -335,6 +336,62 @@ public class MessageOperationsTests
         await messageOperations.Publish(new FakeRootContext(), message, new PublishOptions());
 
         Assert.That(messageOperations.PublishPipeline.LastContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
+    }
+
+    [Test]
+    public async Task When_sending_with_header_pooling_should_return_headers_once_the_pipeline_completed()
+    {
+        var headerPool = new HeaderPool(maxPoolSize: 4);
+        var messageOperations = new TestableMessageOperations(headerPool);
+        string messageIdDuringPipeline = null;
+        messageOperations.SendPipeline.OnInvoke = context => messageIdDuringPipeline = context.Headers[Headers.MessageId];
+
+        await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, new SendOptions());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messageIdDuringPipeline, Is.Not.Null, "The headers must be intact while the pipeline runs.");
+            Assert.That(headerPool.Rent(), Is.SameAs(messageOperations.SendPipeline.LastContext.Headers), "The headers must be returned once the pipeline completed.");
+        }
+    }
+
+    [Test]
+    public async Task When_publishing_with_header_pooling_should_return_headers_once_the_pipeline_completed()
+    {
+        var headerPool = new HeaderPool(maxPoolSize: 4);
+        var messageOperations = new TestableMessageOperations(headerPool);
+
+        await messageOperations.Publish<MyMessage>(new FakeRootContext(), m => { }, new PublishOptions());
+
+        Assert.That(headerPool.Rent(), Is.SameAs(messageOperations.PublishPipeline.LastContext.Headers), "The headers must be returned once the pipeline completed.");
+    }
+
+    [Test]
+    public async Task When_replying_with_header_pooling_should_return_headers_once_the_pipeline_completed()
+    {
+        var headerPool = new HeaderPool(maxPoolSize: 4);
+        var messageOperations = new TestableMessageOperations(headerPool);
+
+        await messageOperations.Reply<MyMessage>(new FakeRootContext(), m => { }, new ReplyOptions());
+
+        Assert.That(headerPool.Rent(), Is.SameAs(messageOperations.ReplyPipeline.LastContext.Headers), "The headers must be returned once the pipeline completed.");
+    }
+
+    [Test]
+    public async Task When_sending_with_header_pooling_should_not_return_headers_handed_to_pending_operations()
+    {
+        var headerPool = new HeaderPool(maxPoolSize: 4);
+        var messageOperations = new TestableMessageOperations(headerPool);
+        messageOperations.SendPipeline.OnInvoke = context => ((OutgoingRootContext)context).HeadersHandedToPendingOperations = true;
+
+        await messageOperations.Send<MyMessage>(new FakeRootContext(), m => { }, new SendOptions());
+
+        var headers = messageOperations.SendPipeline.LastContext.Headers;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(headers, Does.ContainKey(Headers.MessageId), "Headers handed to a pending operation must not be cleared.");
+            Assert.That(headerPool.Rent(), Is.Not.SameAs(headers), "Headers handed to a pending operation must not be pooled.");
+        }
     }
 
     public interface IMyMessage

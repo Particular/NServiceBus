@@ -225,10 +225,53 @@ public class RoutingToDispatchConnectorTests
         }
     }
 
-    static OutgoingSendContext CreateContext(SendOptions options, bool fromHandler)
+    [Test]
+    public async Task Should_hand_headers_owned_by_the_send_pipeline_to_pending_operations()
+    {
+        var behavior = NewHeaderPoolAwareConnector();
+        var sendContext = CreateContext(new SendOptions(), true);
+        var message = new OutgoingMessage("ID", sendContext.Headers, Array.Empty<byte>());
+
+        await behavior.Invoke(new RoutingContext(message, new UnicastRoutingStrategy("Destination"), sendContext), _ => Task.CompletedTask);
+
+        Assert.That(sendContext.HeadersHandedToPendingOperations, Is.True, "The pending operation must take over the headers so the send pipeline does not return them.");
+    }
+
+    [Test]
+    public async Task Should_leave_headers_owned_by_the_send_pipeline_with_it_when_dispatching_immediately()
+    {
+        var behavior = NewHeaderPoolAwareConnector();
+        var sendContext = CreateContext(new SendOptions(), false);
+        var message = new OutgoingMessage("ID", sendContext.Headers, Array.Empty<byte>());
+
+        await behavior.Invoke(new RoutingContext(message, new UnicastRoutingStrategy("Destination"), sendContext), _ => Task.CompletedTask);
+
+        Assert.That(sendContext.HeadersHandedToPendingOperations, Is.False, "The send pipeline must return the headers once all of its behaviors have completed.");
+    }
+
+    [Test]
+    public async Task Should_not_return_multicast_headers_owned_by_the_send_pipeline()
+    {
+        var headerPool = new HeaderPool(maxPoolSize: 8);
+        var behavior = new RoutingToDispatchConnector(headerPool);
+        var headers = headerPool.Rent();
+        headers["SomeHeaderKey"] = "SomeHeaderValue";
+        var sendContext = CreateContext(new SendOptions(), true, headers);
+        var message = new OutgoingMessage("ID", headers, Array.Empty<byte>());
+
+        await behavior.Invoke(new RoutingContext(message, [new UnicastRoutingStrategy("Destination1"), new UnicastRoutingStrategy("Destination2")], sendContext), _ => Task.CompletedTask);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(headers, Does.ContainKey("SomeHeaderKey"), "Behaviors of the send pipeline may still read the headers after next().");
+            Assert.That(sendContext.HeadersHandedToPendingOperations, Is.False, "The pending operations own copies, so the send pipeline still owns the original headers.");
+        }
+    }
+
+    static OutgoingSendContext CreateContext(SendOptions options, bool fromHandler, Dictionary<string, string> headers = null)
     {
         var message = new MyMessage();
-        var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), options.OutgoingHeaders, options.Context, new FakeRootContext());
+        var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), headers ?? options.OutgoingHeaders, options.Context, new FakeRootContext());
         if (fromHandler)
         {
             context.Extensions.Set(new PendingTransportOperations());
