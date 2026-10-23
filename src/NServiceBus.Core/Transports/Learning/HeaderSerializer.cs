@@ -71,6 +71,8 @@ static partial class HeaderSerializer
         {
             if (reader.TokenType == JsonTokenType.EndObject)
             {
+                // Throws a JsonException with the reader position for anything but trailing whitespace.
+                _ = reader.Read();
                 return;
             }
 
