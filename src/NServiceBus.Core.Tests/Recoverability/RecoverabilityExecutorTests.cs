@@ -131,9 +131,10 @@ public class RecoverabilityExecutorTests
         Activity recoverabilityActivity = null;
         var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
         {
-            OnInvoke = _ =>
+            OnInvoke = context =>
             {
                 recoverabilityActivity = Activity.Current;
+                CarryOutAction(context);
             }
         };
 
@@ -146,6 +147,28 @@ public class RecoverabilityExecutorTests
         var decisionLog = entries.Single(e => e.Exception == errorContext.Exception);
         Assert.That(decisionLog.Activity, Is.SameAs(recoverabilityActivity));
     }
+
+    [Test]
+    public async Task Should_log_only_the_action_that_is_carried_out()
+    {
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = context =>
+            {
+                context.RecoverabilityAction = RecoverabilityAction.MoveToError("error");
+                CarryOutAction(context);
+            }
+        };
+
+        var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, serviceProvider: serviceProvider);
+
+        await executor.Invoke(CreateErrorContext());
+
+        Assert.That(entries.Select(e => e.Category), Is.EqualTo(["NServiceBus.MoveToError"]), "a behavior replaced the policy's decision");
+    }
+
+    static void CarryOutAction(IRecoverabilityContext context) => context.RecoverabilityAction.GetRoutingContexts((IRecoverabilityActionContext)context);
 
     [Test]
     public async Task Should_not_link_recoverability_activity_to_an_activity_that_failed_with_another_exception()

@@ -34,8 +34,6 @@ class RecoverabilityPipelineExecutor<TState>(
                 activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
             }
 
-            recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext);
-
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
             var recoverabilityContext = new RecoverabilityContext(
@@ -64,6 +62,4 @@ class RecoverabilityPipelineExecutor<TState>(
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
         }
     }
-
-    readonly RecoverabilityActionLogger recoverabilityActionLogger = new(serviceProvider);
 }

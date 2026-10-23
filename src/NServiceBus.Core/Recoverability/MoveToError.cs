@@ -2,7 +2,10 @@
 
 namespace NServiceBus;
 
+using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Recoverability;
 using Routing;
@@ -34,6 +37,8 @@ public class MoveToError : RecoverabilityAction
         var metadata = context.Metadata;
         var exception = context.Exception;
 
+        context.Builder.GetService<ILogger<MoveToError>>()?.MoveToErrorLogged(exception, context.MessageId, ErrorQueue);
+
         if (context is IRecoverabilityActionContextNotifications notifications)
         {
             notifications.Add(new MessageFaulted(ErrorQueue, context.NativeMessageId, context.MessageId, context.Headers, context.Body, context.ReceiveProperties, exception));
@@ -53,4 +58,10 @@ public class MoveToError : RecoverabilityAction
             context.CreateRoutingContext(outgoingMessage, new UnicastRoutingStrategy(ErrorQueue))
         ];
     }
+}
+
+static partial class MoveToErrorLoggerMessages
+{
+    [LoggerMessage(Level = LogLevel.Error, Message = "Moving message '{MessageId}' to the error queue '{ErrorQueue}' because processing failed due to an exception:")]
+    public static partial void MoveToErrorLogged(this ILogger logger, Exception exception, string messageId, string errorQueue);
 }
