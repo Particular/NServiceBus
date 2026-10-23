@@ -693,6 +693,47 @@ public class DictionaryPoolTests
     }
 
     [Test]
+    public void Return_of_dictionary_rented_from_another_pool_is_a_no_op()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var otherPool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var rentedFromOtherPool = otherPool.Rent();
+        rentedFromOtherPool["a"] = "1";
+
+        pool.Return(rentedFromOtherPool);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pool.Count, Is.Zero, "A dictionary rented from another pool must not be pooled.");
+            Assert.That(rentedFromOtherPool, Does.ContainKey("a"), "A dictionary rented from another pool must not be cleared.");
+        }
+
+        otherPool.Return(rentedFromOtherPool);
+
+        Assert.That(otherPool.Count, Is.EqualTo(1), "The owning pool must still accept the dictionary.");
+    }
+
+    [Test]
+    public void TryDefer_of_dictionary_rented_from_another_pool_is_rejected()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var otherPool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var rentedFromOtherPool = otherPool.Rent();
+        rentedFromOtherPool["a"] = "1";
+        Dictionary<string, string>? head = null;
+
+        var deferred = pool.TryDefer(rentedFromOtherPool, ref head);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(deferred, Is.False);
+            Assert.That(head, Is.Null);
+            Assert.That(rentedFromOtherPool, Does.ContainKey("a"));
+            Assert.That(otherPool.TryDefer(rentedFromOtherPool, ref head), Is.True, "The owning pool must still accept the dictionary.");
+        }
+    }
+
+    [Test]
     public void Always_allocate_rejects_dictionaries_rented_from_another_pool()
     {
         var sharedLike = new HeaderPool(maxPoolSize: 4);

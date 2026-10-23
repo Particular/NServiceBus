@@ -50,8 +50,5 @@ public class HeaderPool : DictionaryPool<string, string>
         // Discarding without clearing: the caller may still legitimately read the
         // dictionary after a no-op return, and the next rent never sees this instance.
         public override void Return(Dictionary<string, string> dictionary, bool clearDictionary = true) { }
-
-        // A dictionary rented from another pool must not end up parked in this never-rented one.
-        internal override bool TryDefer(Dictionary<string, string> dictionary, ref Dictionary<string, string>? head) => false;
     }
 }
