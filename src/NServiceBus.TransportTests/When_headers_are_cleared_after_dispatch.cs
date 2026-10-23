@@ -13,8 +13,8 @@ public class When_headers_are_cleared_after_dispatch : NServiceBusTransportTest
         var messageProcessed = CreateTaskCompletionSource<MessageContext>();
 
         await StartPump(
-            // Snapshot inside the invocation — never hold the raw context. Headers are owned by the
-            // pipeline and are returned to the pool once Dispatch completes.
+            // Snapshot inside the invocation — never hold the raw context. Incoming headers are owned by
+            // the transport, which may return them to its pool once onMessage completes.
             (context, _) => messageProcessed.SetCompleted(new MessageContext(
                 context.NativeMessageId,
                 new Dictionary<string, string>(context.Headers),
@@ -25,19 +25,20 @@ public class When_headers_are_cleared_after_dispatch : NServiceBusTransportTest
             (_, __) => Task.FromResult(ErrorHandleResult.Handled),
             TransportTransactionMode.None);
 
-        var headers = new Dictionary<string, string>
-        {
-            { "HeaderPooling.Key1", "value1" },
-            { "HeaderPooling.Key2", "value2" },
-        };
+        // The pool only clears dictionaries it rented out, so the headers must come from it.
+        var headerPool = new HeaderPool();
+        var headers = headerPool.Rent();
+        headers["HeaderPooling.Key1"] = "value1";
+        headers["HeaderPooling.Key2"] = "value2";
 
         await SendMessage(InputQueueName, headers);
 
-        // Emulates ImmediateDispatchTerminator: after Dispatch completes, the dispatched operation's
-        // header dictionary is returned to HeaderPool.Shared, which clears it. A compliant transport has
-        // already copied/serialized the headers during Dispatch, before its first await, so the received
-        // message is unaffected.
-        HeaderPool.Shared.Return(headers);
+        // Emulates ImmediateDispatchTerminator: once the Dispatch task completes, the dispatched operation's
+        // header dictionary is returned to the pool, which clears it. A compliant transport has already
+        // copied or serialized the headers by then, so the received message is unaffected.
+        headerPool.Return(headers);
+
+        Assert.That(headers, Is.Empty, "Returning the headers to the pool must clear them, otherwise this test verifies nothing.");
 
         var messageContext = await messageProcessed.Task;
 
@@ -45,6 +46,6 @@ public class When_headers_are_cleared_after_dispatch : NServiceBusTransportTest
         {
             { "HeaderPooling.Key1", "value1" },
             { "HeaderPooling.Key2", "value2" },
-        }), "Transports must consume headers synchronously during Dispatch; the framework returns the header dictionary to the pool once Dispatch completes.");
+        }), "Transports must consume headers during Dispatch; the framework returns the header dictionary to the pool once the Dispatch task completes.");
     }
 }
