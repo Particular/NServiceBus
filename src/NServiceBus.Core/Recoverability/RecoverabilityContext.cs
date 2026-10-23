@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using Extensibility;
 using NServiceBus.Transport;
-using NServiceBus.Utils;
 using Particular.Obsoletes;
 using Pipeline;
 
