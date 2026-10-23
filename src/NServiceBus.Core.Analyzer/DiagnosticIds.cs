@@ -66,6 +66,6 @@ public static class DiagnosticIds
     // HandlerRegistryAddAllAnalyzer
     public const string HandlerRegistryAddAllMustBeCalledDirectly = "NSB0044";
 
-    // HandlerRegistryCompositionInterceptor
+    // HandlerRegistryAvailabilityAnalyzer
     public const string NoHandlerRegistryFound = "NSB0045";
 }

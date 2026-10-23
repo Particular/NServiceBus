@@ -9,7 +9,6 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.Operations;
 using Utility;
 
@@ -22,12 +21,7 @@ public sealed partial class HandlerRegistryCompositionInterceptor
         Sagas
     }
 
-    internal readonly record struct CallLocation(string FilePath, TextSpan TextSpan, LinePositionSpan LineSpan)
-    {
-        public Location ToLocation() => Location.Create(FilePath, TextSpan, LineSpan);
-    }
-
-    internal readonly record struct CallSpec(InterceptLocationSpec LocationSpec, CompositionKind Kind, CallLocation Location);
+    internal readonly record struct CallSpec(InterceptLocationSpec LocationSpec, CompositionKind Kind);
 
     internal readonly record struct EntrySpec(string AssemblyName, string EntryTypeName);
 
@@ -69,8 +63,7 @@ public sealed partial class HandlerRegistryCompositionInterceptor
                 return null;
             }
 
-            var invocationLocation = invocation.GetLocation();
-            return new CallSpec(InterceptLocationSpec.From(location), kind, new CallLocation(invocationLocation.SourceTree?.FilePath ?? string.Empty, invocationLocation.SourceSpan, invocationLocation.GetLineSpan().Span));
+            return new CallSpec(InterceptLocationSpec.From(location), kind);
         }
 
         public static bool IsCompositionMethod(IMethodSymbol method) => IsHandlerRegistryMethod(method) && GetKind(method.Name) is not null;
