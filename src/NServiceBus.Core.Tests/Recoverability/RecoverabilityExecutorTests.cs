@@ -168,6 +168,28 @@ public class RecoverabilityExecutorTests
         Assert.That(entries.Select(e => e.Category), Is.EqualTo(["NServiceBus.MoveToError"]), "a behavior replaced the policy's decision");
     }
 
+    [Test]
+    public async Task Should_tag_the_recoverability_activity_with_the_action_that_is_carried_out()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        Activity recoverabilityActivity = null;
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = context =>
+            {
+                recoverabilityActivity = Activity.Current;
+                context.RecoverabilityAction = RecoverabilityAction.MoveToError("error");
+            }
+        };
+
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ActivityFactory(new InstrumentationOptions()));
+
+        await executor.Invoke(CreateErrorContext());
+
+        Assert.That(recoverabilityActivity.TagObjects.Where(t => t.Key == ActivityTags.RecoverabilityAction).Select(t => t.Value), Is.EqualTo(["move_to_error"]), "a behavior replaced the policy's decision");
+    }
+
     static void CarryOutAction(IRecoverabilityContext context) => context.RecoverabilityAction.GetRoutingContexts((IRecoverabilityActionContext)context);
 
     [Test]

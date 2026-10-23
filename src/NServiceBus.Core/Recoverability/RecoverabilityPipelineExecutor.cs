@@ -29,11 +29,6 @@ class RecoverabilityPipelineExecutor<TState>(
         {
             var recoverabilityAction = recoverabilityPolicy(errorContext, state);
 
-            if (activity is not null)
-            {
-                activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
-            }
-
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
             var recoverabilityContext = new RecoverabilityContext(
@@ -57,6 +52,13 @@ class RecoverabilityPipelineExecutor<TState>(
             {
                 activityFactory.RecordError(activity, ex, recoverabilityContext.Extensions);
                 throw;
+            }
+            finally
+            {
+                if (activity is not null)
+                {
+                    activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityContext.RecoverabilityAction, errorContext.ReceiveAddress);
+                }
             }
 
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
