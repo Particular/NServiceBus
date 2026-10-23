@@ -108,7 +108,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
         }
         else
         {
-            item = [];
+            item = new Pooled(this);
             allocated = true;
         }
 
@@ -160,7 +160,7 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     {
         ArgumentNullException.ThrowIfNull(dictionary);
 
-        if (dictionary is not Pooled pooled || !pooled.TryMarkInPool())
+        if (dictionary is not Pooled pooled || pooled.Owner != this || !pooled.TryMarkInPool())
         {
             return;
         }
@@ -212,16 +212,19 @@ public class DictionaryPool<TKey, TValue> where TKey : notnull
     int count; // approximate size, maintained via Interlocked
 
     /// <summary>
-    /// A dictionary created by this pool. The type itself is the ownership marker:
-    /// <see cref="Return(Dictionary{TKey, TValue}, bool)"/> only pools instances of this
-    /// class, and the state tracked inside it guards against returning the same instance twice.
+    /// A dictionary created by a pool. <see cref="Owner"/> is the ownership marker:
+    /// <see cref="Return(Dictionary{TKey, TValue}, bool)"/> only pools instances it created itself,
+    /// so a dictionary rented from another pool of the same key and value types is ignored, and
+    /// the state tracked inside it guards against returning the same instance twice.
     /// </summary>
-    sealed class Pooled : Dictionary<TKey, TValue>
+    sealed class Pooled(DictionaryPool<TKey, TValue> owner) : Dictionary<TKey, TValue>
     {
         const int RentedOut = 0;
         const int InPool = 1;
 
         int state = RentedOut;
+
+        internal DictionaryPool<TKey, TValue> Owner { get; } = owner;
 
         internal bool TryMarkInPool() => Interlocked.Exchange(ref state, InPool) == RentedOut;
 

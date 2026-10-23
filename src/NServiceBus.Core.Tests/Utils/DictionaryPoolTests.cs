@@ -321,6 +321,27 @@ public class DictionaryPoolTests
     }
 
     [Test]
+    public void Return_of_dictionary_rented_from_another_pool_is_a_no_op()
+    {
+        var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var otherPool = new DictionaryPool<string, string>(maxPoolSize: 4);
+        var rentedFromOtherPool = otherPool.Rent();
+        rentedFromOtherPool["a"] = "1";
+
+        pool.Return(rentedFromOtherPool);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pool.Count, Is.Zero, "A dictionary rented from another pool must not be pooled.");
+            Assert.That(rentedFromOtherPool, Does.ContainKey("a"), "A dictionary rented from another pool must not be cleared.");
+        }
+
+        otherPool.Return(rentedFromOtherPool);
+
+        Assert.That(otherPool.Count, Is.EqualTo(1), "The owning pool must still accept the dictionary.");
+    }
+
+    [Test]
     public void Double_return_is_a_no_op()
     {
         var pool = new DictionaryPool<string, string>(maxPoolSize: 4);
