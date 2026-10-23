@@ -59,4 +59,7 @@ public static class DiagnosticIds
 
     // SagaAnalyzer
     public const string ToSagaMappingMustAccessSagaDataPropertyDirectly = "NSB0042";
+
+    // HandlerRegistryContributorAttributeAnalyzer
+    public const string InvalidHandlerRegistryContributor = "NSB0043";
 }
