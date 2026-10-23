@@ -38,6 +38,7 @@ public sealed partial class HandlerRegistryCompositionInterceptor
         const string AddAllMethodName = "AddAll";
         const string AddAllHandlersMethodName = "AddAllHandlers";
         const string AddAllSagasMethodName = "AddAllSagas";
+        const string NServiceBusCoreAssemblyName = "NServiceBus.Core";
         const string GeneratedHandlerRegistryAttributeName = "NServiceBus.GeneratedHandlerRegistryAttribute";
 
         public static bool SyntaxLooksLikeCompositionCall(SyntaxNode node) => node is InvocationExpressionSyntax { ArgumentList.Arguments.Count: 0 } invocation &&
@@ -103,13 +104,23 @@ public sealed partial class HandlerRegistryCompositionInterceptor
         {
             var entries = new HashSet<EntrySpec>();
 
+            if (compilation.GetTypeByMetadataName(GeneratedHandlerRegistryAttributeName) is not { } attributeType)
+            {
+                return ImmutableEquatableArray<EntrySpec>.Empty;
+            }
+
             foreach (var referencedAssembly in compilation.SourceModule.ReferencedAssemblySymbols)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
+                if (!ReferencesNServiceBusCore(referencedAssembly))
+                {
+                    continue;
+                }
+
                 foreach (var attribute in referencedAssembly.GetAttributes())
                 {
-                    if (attribute.AttributeClass?.ToDisplayString() == GeneratedHandlerRegistryAttributeName &&
+                    if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType) &&
                         attribute.ConstructorArguments is [{ Value: INamedTypeSymbol { DeclaredAccessibility: Accessibility.Public, IsStatic: true } entryType }])
                     {
                         entries.Add(new EntrySpec(referencedAssembly.Name, entryType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
@@ -118,6 +129,22 @@ public sealed partial class HandlerRegistryCompositionInterceptor
             }
 
             return Order(entries);
+        }
+
+        static bool ReferencesNServiceBusCore(IAssemblySymbol assembly)
+        {
+            foreach (var module in assembly.Modules)
+            {
+                foreach (var reference in module.ReferencedAssemblies)
+                {
+                    if (reference.Name == NServiceBusCoreAssemblyName)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public static EntrySpec CreateLocalEntry(string assemblyName) =>
