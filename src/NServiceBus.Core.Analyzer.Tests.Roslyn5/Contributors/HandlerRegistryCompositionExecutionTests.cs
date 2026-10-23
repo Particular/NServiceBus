@@ -73,6 +73,16 @@ public class HandlerRegistryCompositionExecutionTests
         Assert.That(Sagas(configuration), Is.EqualTo("Acme.Apple.ApplePolicy, Acme.Host.HostPolicy, Acme.Zebra.ZebraPolicy"));
     }
 
+    [TestCase("cfg?.Handlers.AddAll();")]
+    [TestCase("cfg.Handlers?.AddAll();")]
+    [TestCase("cfg?.Handlers?.AddAll();")]
+    public void ConditionalAccessCallsAreIntercepted(string statement)
+    {
+        var configuration = Configure("ConditionalAccess" + Math.Abs(statement.GetHashCode()), statement);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Apple.AddHandlers, Apple.AddSagas, Host.AddHandlers, Host.AddSagas, Zebra.AddHandlers, Zebra.AddSagas"));
+    }
+
     [Test]
     public void AddAllHandlersRegistersNoSagas()
     {

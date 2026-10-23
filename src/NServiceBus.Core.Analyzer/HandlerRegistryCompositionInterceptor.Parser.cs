@@ -34,14 +34,15 @@ public sealed partial class HandlerRegistryCompositionInterceptor
         const string AddAllSagasMethodName = "AddAllSagas";
         const string GeneratedHandlerRegistryAttributeName = "NServiceBus.GeneratedHandlerRegistryAttribute";
 
-        public static bool SyntaxLooksLikeCompositionCall(SyntaxNode node) => node is InvocationExpressionSyntax
-        {
-            Expression: MemberAccessExpressionSyntax
+        public static bool SyntaxLooksLikeCompositionCall(SyntaxNode node) => node is InvocationExpressionSyntax { ArgumentList.Arguments.Count: 0 } invocation &&
+            invocation.Expression switch
             {
-                Name: IdentifierNameSyntax { Identifier.ValueText: AddAllMethodName or AddAllHandlersMethodName or AddAllSagasMethodName }
-            },
-            ArgumentList.Arguments.Count: 0
-        };
+                MemberAccessExpressionSyntax memberAccess => IsCompositionMethodName(memberAccess.Name),
+                MemberBindingExpressionSyntax memberBinding => IsCompositionMethodName(memberBinding.Name),
+                _ => false
+            };
+
+        static bool IsCompositionMethodName(SimpleNameSyntax name) => name is IdentifierNameSyntax { Identifier.ValueText: AddAllMethodName or AddAllHandlersMethodName or AddAllSagasMethodName };
 
         public static CallSpec? ParseCall(InvocationExpressionSyntax invocation, SemanticModel semanticModel, CancellationToken cancellationToken = default)
         {
