@@ -28,6 +28,21 @@ public static class HeaderPoolingConfigExtensions
         }
 
         /// <summary>
+        /// Enables pooling of outgoing message header dictionaries using the given pool instead of
+        /// <see cref="HeaderPool.Shared" />, for example to raise the number of retained dictionaries
+        /// on an endpoint with high processing concurrency, or to keep endpoints hosted in the same
+        /// process from sharing a pool. The same lifetime contract as the parameterless overload applies.
+        /// </summary>
+        /// <param name="pool">The pool to rent header dictionaries from.</param>
+        public void EnableHeaderPooling(HeaderPool pool)
+        {
+            ArgumentNullException.ThrowIfNull(config);
+            ArgumentNullException.ThrowIfNull(pool);
+
+            config.Settings.Set(pool);
+        }
+
+        /// <summary>
         /// Disables pooling of outgoing message header dictionaries. When disabled, header
         /// dictionaries are allocated and garbage collected as before.
         /// </summary>

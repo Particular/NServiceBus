@@ -2,6 +2,7 @@
 
 namespace NServiceBus.Settings;
 
+using System;
 using NServiceBus.Transport;
 using NUnit.Framework;
 
@@ -36,6 +37,25 @@ public class HeaderPoolingConfigTests
 
         endpointConfiguration.DisableHeaderPooling();
         Assert.That(endpointConfiguration.Settings.GetHeaderPool(), Is.SameAs(HeaderPool.AlwaysAllocate));
+    }
+
+    [Test]
+    public void Enable_with_a_pool_uses_that_pool()
+    {
+        var endpointConfiguration = new EndpointConfiguration("HeaderPoolingCustomPool");
+        var pool = new HeaderPool(maxPoolSize: 512, maxRetainedCapacityPerItem: 128);
+
+        endpointConfiguration.EnableHeaderPooling(pool);
+
+        Assert.That(endpointConfiguration.Settings.GetHeaderPool(), Is.SameAs(pool));
+    }
+
+    [Test]
+    public void Enable_with_null_pool_throws()
+    {
+        var endpointConfiguration = new EndpointConfiguration("HeaderPoolingNullPool");
+
+        Assert.Throws<ArgumentNullException>(() => endpointConfiguration.EnableHeaderPooling(null!));
     }
 
     [Test]
