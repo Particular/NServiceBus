@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.PersistenceTesting.Outbox;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus.Outbox;
 using NUnit.Framework;
@@ -151,6 +152,49 @@ public class OutboxStorageTests(TestVariant param)
 
         var message = await storage.Get(messageId, configuration.GetContextBagForOutbox());
         Assert.That(message, Is.Not.Null);
+    }
+
+    [Test]
+    public async Task Should_not_retain_header_dictionaries_passed_to_store()
+    {
+        configuration.RequiresOutboxSupport();
+
+        var storage = configuration.OutboxStorage;
+        var ctx = configuration.GetContextBagForOutbox();
+
+        var messageId = Guid.NewGuid().ToString();
+        _ = await storage.Get(messageId, ctx);
+
+        // The pool clears and reuses only dictionaries it created, so the headers must come from a pool.
+        var pool = new NServiceBus.Transport.HeaderPool(maxPoolSize: 1);
+        var headers = pool.Rent();
+        headers["HeaderPooling.Key1"] = "value1";
+        headers["HeaderPooling.Key2"] = "value2";
+        var messageToStore = new OutboxMessage(messageId,
+            [new TransportOperation(Guid.NewGuid().ToString(), null, new byte[] { 1, 2, 3 }, headers)]);
+
+        await using (var transaction = await storage.BeginTransaction(ctx))
+        {
+            await storage.Store(messageToStore, transaction, ctx);
+
+            await transaction.Commit();
+        }
+
+        // Emulates the dispatch that follows a commit under header pooling: the dictionary passed to Store is
+        // returned to the pool and rented again by the next outgoing message, which writes its own values.
+        pool.Return(headers);
+        var reused = pool.Rent();
+        Assert.That(reused, Is.SameAs(headers), "The pool must hand out the returned dictionary again.");
+        reused["HeaderPooling.Key1"] = "reused-by-another-message";
+
+        var storedMessage = await storage.Get(messageId, configuration.GetContextBagForOutbox());
+
+        Assert.That(storedMessage, Is.Not.Null);
+        Assert.That(storedMessage.TransportOperations[0].Headers, Is.SupersetOf(new Dictionary<string, string>
+        {
+            { "HeaderPooling.Key1", "value1" },
+            { "HeaderPooling.Key2", "value2" },
+        }), "IOutboxStorage.Store must not keep the header dictionaries it receives; they are cleared and reused after dispatch.");
     }
 
     PersistenceTestsConfiguration configuration;

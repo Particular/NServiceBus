@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Transport;
 
 [TestFixture]
 public class MessageSessionTests
@@ -32,7 +33,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), HeaderPool.AlwaysAllocate);
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
         await session.Send(new object());
@@ -40,6 +41,69 @@ public class MessageSessionTests
         await session.Send(new object());
 
         Assert.That(readValues, Is.Empty, "writes should not leak to other pipeline invocations");
+    }
+
+    [Test]
+    public async Task Should_return_deferred_headers_once_the_operation_completes()
+    {
+        var pool = new HeaderPool(maxPoolSize: 4);
+        var headers = pool.Rent();
+        headers["key"] = "value";
+        string valueSeenWhileInOperation = null;
+        var messageOperations = new TestableMessageOperations
+        {
+            SendPipeline =
+            {
+                OnInvoke = context =>
+                {
+                    PipelineRootContext.FindOwner(context.Extensions).DeferHeaderReturn(headers);
+                    valueSeenWhileInOperation = headers["key"];
+                }
+            }
+        };
+
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), pool);
+        session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
+
+        await session.Send(new object());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(valueSeenWhileInOperation, Is.EqualTo("value"));
+            Assert.That(headers, Is.Empty, "The session must drain deferred headers when the operation completes.");
+            Assert.That(pool.Count, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task Should_return_deferred_headers_when_the_operation_throws()
+    {
+        var pool = new HeaderPool(maxPoolSize: 4);
+        var headers = pool.Rent();
+        headers["key"] = "value";
+        var messageOperations = new TestableMessageOperations
+        {
+            SendPipeline =
+            {
+                OnInvoke = context =>
+                {
+                    // Emulates a dispatch that completed before a later behavior failed.
+                    PipelineRootContext.FindOwner(context.Extensions).DeferHeaderReturn(headers);
+                    throw new InvalidOperationException("behavior failed after dispatch");
+                }
+            }
+        };
+
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), pool);
+        session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => session.Send(new object()));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(headers, Is.Empty, "Headers of a dispatched message are returned even when the operation fails later.");
+            Assert.That(pool.Count, Is.EqualTo(1));
+        }
     }
 
     [Test]
@@ -56,7 +120,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), HeaderPool.AlwaysAllocate);
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), new CancellationToken(true));
 
         await Assert.ThrowsAsync<OperationCanceledException>(async () =>
@@ -77,7 +141,7 @@ public class MessageSessionTests
             }
         };
 
-        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
+        var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), HeaderPool.AlwaysAllocate);
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
         await Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken(true)));
@@ -86,7 +150,7 @@ public class MessageSessionTests
     [Test]
     public async Task Deferred_session_should_wait_until_initialized()
     {
-        var deferredSession = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
+        var deferredSession = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), HeaderPool.AlwaysAllocate);
         var messageOperations = new TestableMessageOperations();
 
         var sendTask = deferredSession.Send(new object(), new SendOptions());

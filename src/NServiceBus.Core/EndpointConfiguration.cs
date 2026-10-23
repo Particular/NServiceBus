@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Particular.Obsoletes;
 using Pipeline;
 using Settings;
+using Transport;
 
 /// <summary>
 /// Configuration used to create an endpoint instance.
@@ -37,6 +38,7 @@ public class EndpointConfiguration : ExposeSettings
         Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
         Settings.SetDefault<IMessageMapper>(RuntimeFeature.IsDynamicCodeSupported ? CreateDynamicCodeMessageMapper() : new TrimmingSafeMessageMapper());
+        Settings.SetDefault(HeaderPool.AlwaysAllocate);
 
         Settings.Set(new AssemblyScanningComponent.Configuration(Settings));
         Settings.Set(new HostingComponent.Settings(Settings));

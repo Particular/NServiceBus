@@ -8,6 +8,10 @@
     "Lifecycle": "Singleton"
   },
   {
+    "Type": "NServiceBus.Transport.HeaderPool",
+    "Lifecycle": "Singleton"
+  },
+  {
     "Type": "NServiceBus.Transport.IMessageDispatcher",
     "Lifecycle": "Singleton"
   },

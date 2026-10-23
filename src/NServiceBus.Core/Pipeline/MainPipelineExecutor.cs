@@ -17,7 +17,8 @@ class MainPipelineExecutor(
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
     IncomingPipelineMetrics incomingPipelineMetrics,
-    EnvelopeUnwrapper envelopeUnwrapper)
+    EnvelopeUnwrapper envelopeUnwrapper,
+    HeaderPool headerPool)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -39,10 +40,13 @@ class MainPipelineExecutor(
                 childScope.ServiceProvider,
                 messageOperations,
                 pipelineCache,
+                headerPool,
                 message,
                 messageContext.TransportTransaction,
                 messageContext.Extensions,
                 cancellationToken);
+
+            using var headerScope = transportReceiveContext.TrackHeaderReturns();
 
             if (activity != null)
             {

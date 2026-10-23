@@ -14,10 +14,12 @@ using Transport;
 [TestFixture]
 public class RoutingToDispatchConnectorTests
 {
+    static RoutingToDispatchConnector NewHeaderPoolAwareConnector() => new(new HeaderPool(maxPoolSize: 8));
+
     [Test]
     public async Task Should_preserve_message_state_for_one_routing_strategy_for_allocation_reasons()
     {
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
         IEnumerable<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
@@ -59,7 +61,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_copy_message_state_for_multiple_routing_strategies()
     {
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
         List<TransportOperation> operations = null;
         var testableRoutingContext = new TestableRoutingContext
         {
@@ -135,7 +137,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_preserve_headers_generated_by_custom_routing_strategy()
     {
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
         Dictionary<string, string> headers = null;
         await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = [new HeaderModifyingRoutingStrategy()] }, context =>
             {
@@ -153,7 +155,7 @@ public class RoutingToDispatchConnectorTests
         options.RequireImmediateDispatch();
 
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -170,7 +172,7 @@ public class RoutingToDispatchConnectorTests
     public async Task Should_dispatch_immediately_if_not_sending_from_a_handler()
     {
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -187,7 +189,7 @@ public class RoutingToDispatchConnectorTests
     public async Task Should_not_dispatch_by_default()
     {
         var dispatched = false;
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
         var message = new OutgoingMessage("ID", [], Array.Empty<byte>());
 
         await behavior.Invoke(new RoutingContext(message,
@@ -201,9 +203,102 @@ public class RoutingToDispatchConnectorTests
     }
 
     [Test]
+    public async Task Should_keep_original_headers_intact_for_multiple_routing_strategies_until_the_owner_drains()
+    {
+        var pool = new HeaderPool(maxPoolSize: 8);
+        var behavior = new RoutingToDispatchConnector(pool);
+        var owner = new FakeRootContext(pool);
+        var originalHeaders = pool.Rent();
+        originalHeaders["SomeHeaderKey"] = "SomeHeaderValue";
+        var routingContext = new RoutingContext(
+            new OutgoingMessage("ID", originalHeaders, Array.Empty<byte>()),
+            [new DestinationRoutingStrategy("destination1", "Key1", "Value1"), new DestinationRoutingStrategy("destination2", "Key2", "Value2")],
+            owner);
+
+        await behavior.Invoke(routingContext, _ => Task.CompletedTask);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(originalHeaders["SomeHeaderKey"], Is.EqualTo("SomeHeaderValue"), "The original headers must stay readable after the connector returns.");
+            Assert.That(pool.Count, Is.Zero, "The original headers must not be pooled before the owner drains.");
+        }
+
+        owner.ReturnDeferredHeaders();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(originalHeaders, Is.Empty, "The owner drain must clear the original headers.");
+            Assert.That(pool.Count, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task Should_keep_original_headers_readable_for_multiple_routing_strategies_when_dispatch_fails()
+    {
+        var pool = new HeaderPool(maxPoolSize: 8);
+        var behavior = new RoutingToDispatchConnector(pool);
+        var owner = new FakeRootContext(pool);
+        var originalHeaders = pool.Rent();
+        originalHeaders["SomeHeaderKey"] = "SomeHeaderValue";
+        var routingContext = new RoutingContext(
+            new OutgoingMessage("ID", originalHeaders, Array.Empty<byte>()),
+            [new DestinationRoutingStrategy("destination1", "Key1", "Value1"), new DestinationRoutingStrategy("destination2", "Key2", "Value2")],
+            owner);
+        Dictionary<string, string>[] copies = null;
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => behavior.Invoke(routingContext, context =>
+        {
+            copies = context.Operations.Select(o => o.Message.Headers).ToArray();
+            throw new InvalidOperationException("dispatch failed");
+        }));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(originalHeaders["SomeHeaderKey"], Is.EqualTo("SomeHeaderValue"), "Behaviors unwinding from the failure can still read the original headers.");
+            Assert.That(pool.Count, Is.Zero);
+        }
+
+        owner.ReturnDeferredHeaders();
+
+        using (Assert.EnterMultipleScope())
+        {
+            // The original was never handed to the transport, so the failed dispatch does not keep it alive.
+            Assert.That(originalHeaders, Is.Empty);
+            Assert.That(pool.Count, Is.EqualTo(1));
+            Assert.That(copies, Has.All.ContainKey("SomeHeaderKey"), "Copies handed to the failed dispatch are left intact for the GC.");
+        }
+    }
+
+    [Test]
+    public async Task Should_not_return_original_headers_for_multiple_routing_strategies_when_there_is_no_owner()
+    {
+        var pool = new HeaderPool(maxPoolSize: 8);
+        var behavior = new RoutingToDispatchConnector(pool);
+        var originalHeaders = pool.Rent();
+        originalHeaders["SomeHeaderKey"] = "SomeHeaderValue";
+        var routingContext = new TestableRoutingContext
+        {
+            Message = new OutgoingMessage("ID", originalHeaders, Array.Empty<byte>()),
+            RoutingStrategies =
+            [
+                new DestinationRoutingStrategy("destination1", "Key1", "Value1"),
+                new DestinationRoutingStrategy("destination2", "Key2", "Value2")
+            ]
+        };
+
+        await behavior.Invoke(routingContext, _ => Task.CompletedTask);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(originalHeaders["SomeHeaderKey"], Is.EqualTo("SomeHeaderValue"));
+            Assert.That(pool.Count, Is.Zero);
+        }
+    }
+
+    [Test]
     public async Task Should_promote_message_headers_to_pipeline_activity()
     {
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
         var routingContext = new TestableRoutingContext();
         routingContext.Message.Headers[Headers.ContentType] = "test content type"; // one of the headers that will be mapped to tags
 
@@ -257,7 +352,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_merge_receive_properties_when_declared_by_transport()
     {
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
@@ -290,7 +385,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_not_override_user_set_dispatch_property()
     {
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {
@@ -324,7 +419,7 @@ public class RoutingToDispatchConnectorTests
     [Test]
     public async Task Should_preserve_user_dispatch_properties_even_with_receive_properties()
     {
-        var behavior = new RoutingToDispatchConnector();
+        var behavior = NewHeaderPoolAwareConnector();
 
         var receiveProperties = new ReceiveProperties(new Dictionary<string, string>
         {

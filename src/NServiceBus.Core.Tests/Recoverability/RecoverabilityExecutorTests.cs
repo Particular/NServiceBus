@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Recoverability;
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Pipeline;
@@ -65,6 +64,7 @@ public class RecoverabilityExecutorTests
     {
         var executor = new RecoverabilityPipelineExecutor<object>(
             new ServiceCollection().BuildServiceProvider(), // TODO: Does not get disposed
+            new HeaderPool(maxPoolSize: 8),
             new ThrowingPipelineCache(),
             new TestableMessageOperations(),
             null, (_, _) => RecoverabilityAction.Discard("test"),
