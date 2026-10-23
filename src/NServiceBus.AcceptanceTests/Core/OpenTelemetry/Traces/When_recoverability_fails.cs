@@ -66,7 +66,7 @@ public class When_recoverability_fails : OpenTelemetryAcceptanceTest
             {
                 if (Interlocked.Increment(ref testContext.RecoverabilityAttempts) == 1)
                 {
-                    testContext.RecoverabilityException = new SimulatedException(RecoverabilityErrorMessage);
+                    testContext.RecoverabilityException = new SimulatedException();
                     throw testContext.RecoverabilityException;
                 }
 
@@ -76,6 +76,4 @@ public class When_recoverability_fails : OpenTelemetryAcceptanceTest
     }
 
     public class FailingMessage : IMessage;
-
-    const string RecoverabilityErrorMessage = "recoverability failed!";
 }

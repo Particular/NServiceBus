@@ -16,6 +16,7 @@ public class When_an_exception_passes_through_several_spans : OpenTelemetryAccep
     [TestCase(ExceptionRecordingMode.SpanAndLogs)]
     public async Task Should_record_the_exception_once_mark_every_span_as_failed_and_log_it_once(ExceptionRecordingMode exceptionRecordingMode)
     {
+        //The scenario is: send->receive->handle->publish->throw
         var context = await Scenario.Define<Context>()
             .WithEndpoint<PublishingEndpoint>(e => e
                 .CustomConfig(c =>
