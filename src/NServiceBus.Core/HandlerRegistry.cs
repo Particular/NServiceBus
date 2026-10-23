@@ -1,6 +1,7 @@
 #nullable enable
 namespace NServiceBus;
 
+using System;
 using System.ComponentModel;
 
 /// <summary>
@@ -22,4 +23,28 @@ public sealed class HandlerRegistry(EndpointConfiguration configuration)
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public EndpointConfiguration Configuration { get; } = configuration;
+
+    /// <summary>
+    /// Registers all handlers and sagas of this assembly and of every referenced assembly that has a generated handler registry.
+    /// </summary>
+    /// <remarks>
+    /// The NServiceBus source generator replaces calls to this method at compile time. The call throws when the generator did not run,
+    /// for example in projects that do not use C#.
+    /// </remarks>
+    public void AddAll() => throw NotIntercepted(nameof(AddAll));
+
+    /// <summary>
+    /// Registers all handlers of this assembly and of every referenced assembly that has a generated handler registry.
+    /// </summary>
+    /// <inheritdoc cref="AddAll" path="/remarks" />
+    public void AddAllHandlers() => throw NotIntercepted(nameof(AddAllHandlers));
+
+    /// <summary>
+    /// Registers all sagas of this assembly and of every referenced assembly that has a generated handler registry.
+    /// </summary>
+    /// <inheritdoc cref="AddAll" path="/remarks" />
+    public void AddAllSagas() => throw NotIntercepted(nameof(AddAllSagas));
+
+    static InvalidOperationException NotIntercepted(string methodName) =>
+        new($"{nameof(HandlerRegistry)}.{methodName}() was not replaced by the NServiceBus source generator. Use a C# project that references the NServiceBus package with analyzers enabled, or call the registry of each assembly, for example endpointConfiguration.Handlers.<AssemblyName>Assembly.{methodName}().");
 }

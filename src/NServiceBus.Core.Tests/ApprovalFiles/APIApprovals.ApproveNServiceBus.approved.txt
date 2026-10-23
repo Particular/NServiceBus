@@ -356,6 +356,9 @@ namespace NServiceBus
     {
         public HandlerRegistry(NServiceBus.EndpointConfiguration configuration) { }
         public NServiceBus.EndpointConfiguration Configuration { get; }
+        public void AddAll() { }
+        public void AddAllHandlers() { }
+        public void AddAllSagas() { }
     }
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HandlerRegistryContributorAttribute : System.Attribute
