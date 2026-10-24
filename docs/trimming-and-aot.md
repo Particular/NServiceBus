@@ -77,6 +77,18 @@ An assembly with only contributors still gets a generated registry. An endpoint 
 
 Each assembly with a generated registry also declares a hidden entry type. `endpointConfiguration.Handlers.AddAll()`, `AddAllHandlers()`, and `AddAllSagas()` call the entry of the endpoint assembly and of every referenced assembly that declares one. A contribution can run more than once, for example when an endpoint calls `Handlers.<AssemblyName>Assembly.AddAll()` and then `Handlers.AddAll()`, so `AddHandlers` and `AddSagas` must be idempotent. Handler and saga registrations are already deduplicated.
 
+The entry has the same visibility as the generated registry. A registry declared with `[HandlerRegistryExtensions]` on an internal class gets an internal entry. `Handlers.AddAll()` composes an internal entry only in assemblies that the declaring assembly grants access with `[assembly: InternalsVisibleTo("...")]`. Other assemblies skip it.
+
+A library that should not take part in composition, or should not expose the entry, sets the `NServiceBusHandlerRegistryComposition` MSBuild property to `false`:
+
+```xml
+<PropertyGroup>
+  <NServiceBusHandlerRegistryComposition>false</NServiceBusHandlerRegistryComposition>
+</PropertyGroup>
+```
+
+The generator then emits no entry and no assembly attribute. The assembly registry stays available through `Handlers.<AssemblyName>Assembly`. In an endpoint project the property excludes the endpoint's own registrations from `Handlers.AddAll()`, which still composes the referenced assemblies.
+
 `Handlers.AddAll()` is replaced at compile time and throws when it is not, for example in a non-C# project or when it is used as a method group.
 
 ## General trimming and AOT guidance
