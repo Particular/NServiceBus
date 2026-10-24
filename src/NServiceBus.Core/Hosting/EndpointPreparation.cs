@@ -26,7 +26,7 @@ static class EndpointPreparation
         using var _ = LogManager.BeginSlotScope(creationStrategy.EndpointLogSlot);
         var endpoint = creationStrategy.CreateStartableEndpoint(serviceProvider);
         await endpoint.RunInstallers(forceInstallers, cancellationToken).ConfigureAwait(false);
-        await endpoint.Setup(cancellationToken).ConfigureAwait(false);
+        await endpoint.Setup(forceInstallers, cancellationToken).ConfigureAwait(false);
         return endpoint;
     }
 }

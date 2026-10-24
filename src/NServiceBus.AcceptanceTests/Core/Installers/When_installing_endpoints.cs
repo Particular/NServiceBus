@@ -20,10 +20,12 @@ public class When_installing_endpoints : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_only_execute_setup_and_complete()
     {
-        var transport1 = new FakeTransport();
+        bool? setupInfrastructure1 = null;
+        var transport1 = new FakeTransport { OnTransportInitialize = t => setupInfrastructure1 = t.setupInfrastructure };
         var endpointConfiguration1 = CreateEndpointConfiguration(transport1, "EndpointWithInstaller1");
 
-        var transport2 = new FakeTransport();
+        bool? setupInfrastructure2 = null;
+        var transport2 = new FakeTransport { OnTransportInitialize = t => setupInfrastructure2 = t.setupInfrastructure };
         var endpointConfiguration2 = CreateEndpointConfiguration(transport2, "EndpointWithInstaller2");
 
         var context = await Scenario.Define<Context>(ctx =>
@@ -45,6 +47,8 @@ public class When_installing_endpoints : NServiceBusAcceptanceTest
         {
             Assert.That(context.InstallerCalled.All(x => x.Value), Is.True, "Should run installers");
             Assert.That(context.FeatureSetupCalled.All(x => x.Value), Is.True, "Should initialize Features");
+            Assert.That(setupInfrastructure1, Is.True, "Should set up transport infrastructure for the first endpoint");
+            Assert.That(setupInfrastructure2, Is.True, "Should set up transport infrastructure for the second endpoint");
         }
 
         using (Assert.EnterMultipleScope())
