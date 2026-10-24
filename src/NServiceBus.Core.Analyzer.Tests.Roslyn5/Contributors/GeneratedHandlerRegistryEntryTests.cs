@@ -14,7 +14,7 @@ using Particular.AnalyzerTesting;
 public class GeneratedHandlerRegistryEntryTests
 {
     [Test]
-    public void EntryIsPublicWhenTheRegistryIsInternal()
+    public void EntryIsInternalWhenTheRegistryIsInternal()
     {
         var source = """
                      using NServiceBus;
@@ -89,9 +89,9 @@ public class GeneratedHandlerRegistryEntryTests
     }
 
     [Test]
-    public void EntryForwardsToTheRootRegistryEvenWhenItIsInternal()
+    public void EntryForwardsToTheRootRegistryWhenItIsInternal()
     {
-        var output = GeneratedCompilation.Run(nameof(EntryForwardsToTheRootRegistryEvenWhenItIsInternal), InternalRegistrySource, [new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()]);
+        var output = GeneratedCompilation.Run(nameof(EntryForwardsToTheRootRegistryWhenItIsInternal), InternalRegistrySource, [new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()]);
         Assert.That(output.CompilationErrors, Is.Empty);
 
         var assembly = GeneratedCompilation.Load(output.Compilation);
@@ -99,7 +99,7 @@ public class GeneratedHandlerRegistryEntryTests
 
         Assert.That(attribute, Is.Not.Null);
         var entryType = attribute.EntryType;
-        Assert.That(entryType.IsPublic && entryType.IsAbstract && entryType.IsSealed, Is.True, "The entry must be a public static class.");
+        Assert.That(!entryType.IsPublic && entryType.IsAbstract && entryType.IsSealed, Is.True, "The entry must be an internal static class.");
         Assert.That(entryType.Namespace, Is.EqualTo("NServiceBus.Generated"));
         Assert.That(entryType.GetCustomAttribute<EditorBrowsableAttribute>()?.State, Is.EqualTo(EditorBrowsableState.Never));
 

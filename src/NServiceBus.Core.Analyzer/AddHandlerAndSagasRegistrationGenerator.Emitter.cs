@@ -61,7 +61,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("/// </summary>");
             sourceWriter.WithGeneratedCodeAttribute();
             sourceWriter.WriteLine("[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]");
-            sourceWriter.WriteLine($"public static class {entryTypeName}");
+            sourceWriter.WriteLine($"{rootSpec.Visibility} static class {entryTypeName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 

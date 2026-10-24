@@ -8,7 +8,7 @@
 #pragma warning disable CS0612, CS0618
 
 /// <summary>
-/// Provides access to handler and saga registries discovered in the <i>EntryIsPublicWhenTheRegistryIsInternal</i> assembly.
+/// Provides access to handler and saga registries discovered in the <i>EntryIsInternalWhenTheRegistryIsInternal</i> assembly.
 /// </summary>
 [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
 internal static partial class OrdersRegistrations
@@ -16,7 +16,7 @@ internal static partial class OrdersRegistrations
     extension (global::NServiceBus.HandlerRegistry registry)
     {
         /// <summary>
-        /// Gets the root registry for handler and saga types in the <i>EntryIsPublicWhenTheRegistryIsInternal</i> assembly.
+        /// Gets the root registry for handler and saga types in the <i>EntryIsInternalWhenTheRegistryIsInternal</i> assembly.
         /// </summary>
         /// <remarks>
         /// Use the returned registry to access namespace-specific registries and add-all methods for this assembly.
@@ -72,16 +72,16 @@ internal static partial class OrdersRegistrations
 // Suppress warnings about [Obsolete] member usage in generated code.
 #pragma warning disable CS0612, CS0618
 
-[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.EntryIsPublicWhenTheRegistryIsInternalHandlerRegistryEntry_93651f4c099478a3))]
+[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::NServiceBus.Generated.EntryIsInternalWhenTheRegistryIsInternalHandlerRegistryEntry_9b9433fd227ee61f))]
 
 namespace NServiceBus.Generated
 {
     /// <summary>
-    /// Registers the handlers and sagas discovered in the <i>EntryIsPublicWhenTheRegistryIsInternal</i> assembly. Used by the composed <c>Handlers.AddAll</c> methods.
+    /// Registers the handlers and sagas discovered in the <i>EntryIsInternalWhenTheRegistryIsInternal</i> assembly. Used by the composed <c>Handlers.AddAll</c> methods.
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
-    public static class EntryIsPublicWhenTheRegistryIsInternalHandlerRegistryEntry_93651f4c099478a3
+    internal static class EntryIsInternalWhenTheRegistryIsInternalHandlerRegistryEntry_9b9433fd227ee61f
     {
         public static void AddAll(global::NServiceBus.EndpointConfiguration configuration) => new global::OrdersRegistrations.OrdersRegistrationsRootRegistry(configuration).AddAll();
 
