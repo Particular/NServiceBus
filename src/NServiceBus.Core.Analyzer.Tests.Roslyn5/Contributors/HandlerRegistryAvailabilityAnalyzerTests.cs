@@ -205,6 +205,56 @@ public class HandlerRegistryAvailabilityAnalyzerTests
     }
 
     [Test]
+    public Task DoesNotReportWhenAnInternalRegistryOfAReferencedAssemblyIsAccessible()
+    {
+        var library = GeneratedCompilation.BuildLibrary("AcmeInternalLibrary", InternalRegistryLibrary("Host"));
+
+        return Run(CallsWithoutMarkup, outputAssemblyName: "Host")
+            .AddReferences(MetadataReference.CreateFromImage(library))
+            .AssertDiagnostics();
+    }
+
+    [Test]
+    public Task ReportsWhenTheOnlyReferencedRegistryIsInaccessible()
+    {
+        var library = GeneratedCompilation.BuildLibrary("AcmeClosedLibrary", InternalRegistryLibrary("SomeoneElse"));
+
+        var source = """
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg) => [|cfg.Handlers.AddAll()|];
+                     }
+                     """;
+
+        return Run(source)
+            .AddReferences(MetadataReference.CreateFromImage(library))
+            .AssertDiagnostics(DiagnosticIds.NoHandlerRegistryFound);
+    }
+
+    static string InternalRegistryLibrary(string friendAssembly) => $$"""
+                                                                     using System.Runtime.CompilerServices;
+                                                                     using System.Threading.Tasks;
+                                                                     using NServiceBus;
+
+                                                                     [assembly: InternalsVisibleTo("{{friendAssembly}}")]
+
+                                                                     [HandlerRegistryExtensions(EntryPointName = "Internal")]
+                                                                     internal static partial class InternalRegistrations
+                                                                     {
+                                                                     }
+
+                                                                     [Handler]
+                                                                     public class LibraryHandler : IHandleMessages<LibraryMessage>
+                                                                     {
+                                                                         public Task Handle(LibraryMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                                                                     }
+
+                                                                     public class LibraryMessage : IMessage { }
+                                                                     """;
+
+    [Test]
     public Task DoesNotReportCallsInGeneratedCode()
     {
         var source = """
@@ -220,5 +270,5 @@ public class HandlerRegistryAvailabilityAnalyzerTests
         return Run(source).AssertDiagnostics();
     }
 
-    static AnalyzerTest Run(string source) => AnalyzerTest.ForAnalyzer<HandlerRegistryAvailabilityAnalyzer>().WithSource(source, "Test.cs");
+    static AnalyzerTest Run(string source, string outputAssemblyName = null) => AnalyzerTest.ForAnalyzer<HandlerRegistryAvailabilityAnalyzer>(outputAssemblyName).WithSource(source, "Test.cs");
 }

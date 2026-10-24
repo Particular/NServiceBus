@@ -114,7 +114,8 @@ public sealed partial class HandlerRegistryCompositionInterceptor
                 foreach (var attribute in referencedAssembly.GetAttributes())
                 {
                     if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, attributeType) &&
-                        attribute.ConstructorArguments is [{ Value: INamedTypeSymbol { DeclaredAccessibility: Accessibility.Public, IsStatic: true } entryType }])
+                        attribute.ConstructorArguments is [{ Value: INamedTypeSymbol { IsStatic: true } entryType }] &&
+                        compilation.IsSymbolAccessibleWithin(entryType, compilation.Assembly))
                     {
                         entries.Add(new EntrySpec(referencedAssembly.Name, entryType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)));
                     }

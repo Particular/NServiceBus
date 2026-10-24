@@ -145,13 +145,64 @@ public class HandlerRegistryCompositionExecutionTests
         Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas, One.AddHandlers, One.AddSagas, Three.AddHandlers, Three.AddSagas, Two.AddHandlers, Two.AddSagas"));
     }
 
+    [Test]
+    public void InternalRegistryIsComposedWhenTheLibraryGrantsInternalsVisibleToTheHost()
+    {
+        var hostName = nameof(InternalRegistryIsComposedWhenTheLibraryGrantsInternalsVisibleToTheHost);
+        var library = GeneratedCompilation.BuildLibrary("Granting", InternalLibrary("Granting", hostName));
+
+        var configuration = ConfigureHost(hostName, "cfg.Handlers.AddAll();", library);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Granting.AddHandlers, Granting.AddSagas, Host.AddHandlers, Host.AddSagas"));
+        Assert.That(Sagas(configuration), Is.EqualTo("Acme.Granting.GrantingPolicy, Acme.Host.HostPolicy"));
+    }
+
+    [Test]
+    public void InternalRegistryIsSkippedWhenTheLibraryDoesNotGrantInternalsVisibleToTheHost()
+    {
+        var library = GeneratedCompilation.BuildLibrary("Closed", InternalLibrary("Closed", friendAssembly: null));
+
+        var configuration = ConfigureHost(nameof(InternalRegistryIsSkippedWhenTheLibraryDoesNotGrantInternalsVisibleToTheHost), "cfg.Handlers.AddAll();", library);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas"));
+        Assert.That(Sagas(configuration), Is.EqualTo("Acme.Host.HostPolicy"));
+    }
+
+    [Test]
+    public void InternalRegistryIsSkippedWhenTheLibraryGrantsInternalsVisibleToAnotherAssembly()
+    {
+        var library = GeneratedCompilation.BuildLibrary("Other", InternalLibrary("Other", "SomeoneElse"));
+
+        var configuration = ConfigureHost(nameof(InternalRegistryIsSkippedWhenTheLibraryGrantsInternalsVisibleToAnotherAssembly), "cfg.Handlers.AddAll();", library);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas"));
+    }
+
     static readonly IIncrementalGenerator[] Generators = [new HandlerRegistryCompositionInterceptor(), new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()];
+
+    static string InternalLibrary(string name, string friendAssembly) => $$"""
+                                                                        {{Usings}}
+                                                                        using System.Runtime.CompilerServices;
+                                                                        {{(friendAssembly is null ? string.Empty : $"[assembly: InternalsVisibleTo(\"{friendAssembly}\")]")}}
+
+                                                                        {{Body(name)}}
+
+                                                                        [HandlerRegistryExtensions(EntryPointName = "{{name}}")]
+                                                                        internal static partial class {{name}}Registrations
+                                                                        {
+                                                                        }
+                                                                        """;
 
     static EndpointConfiguration Configure(string assemblyName, string statements)
     {
         var apple = GeneratedCompilation.BuildLibrary("Apple", $"{Usings}\n\n{Body("Apple")}");
         var zebra = GeneratedCompilation.BuildLibrary("Zebra", $"{Usings}\n\n{Body("Zebra")}");
 
+        return ConfigureHost(assemblyName, statements, apple, zebra);
+    }
+
+    static EndpointConfiguration ConfigureHost(string assemblyName, string statements, params byte[][] libraries)
+    {
         var host = $$"""
                      {{Usings}}
 
@@ -163,10 +214,10 @@ public class HandlerRegistryCompositionExecutionTests
                      {{Body("Host")}}
                      """;
 
-        var output = GeneratedCompilation.Run(assemblyName, host, Generators, apple, zebra);
+        var output = GeneratedCompilation.Run(assemblyName, host, Generators, libraries);
         Assert.That(output.CompilationErrors, Is.Empty);
 
-        var assembly = GeneratedCompilation.Load(output.Compilation, apple, zebra);
+        var assembly = GeneratedCompilation.Load(output.Compilation, libraries);
         var configuration = new EndpointConfiguration("Composition");
         var test = assembly.GetType("Test")!;
         test.GetMethod("Configure")!.Invoke(Activator.CreateInstance(test), [configuration]);
