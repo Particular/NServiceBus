@@ -31,9 +31,7 @@ The array does not contain:
 
 When `SetupInfrastructure` is `true`, a transport should create a complete queue for each sending address. A complete queue includes every native resource the transport needs to accept a message for that address and keep it until a receiver reads it. Error and audit messages then stay in their queues until a consumer, such as ServiceControl, starts.
 
-A queue that has only some of those resources can accept a send and lose the message without an error. Google Pub/Sub, for example, discards a message published to a topic that has no subscriptions. Before [NServiceBus.Transport.GooglePubSub#30](https://github.com/Particular/NServiceBus.Transport.GooglePubSub/pull/30), that transport created only a topic for each sending address, so audit messages were lost until something else created the subscription.
-
-The SQS, Azure Service Bus, RabbitMQ, SQL Server, PostgreSQL, MSMQ, and Google Pub/Sub transports create a complete queue for each sending address. The RabbitMQ conventional routing topology, for example, declares the queue, an exchange with the same name, and the binding between them.
+A queue that has only some of those resources can accept a send and lose the message without an error. For example, a broker can discard a message published to a topic that has no subscriptions.
 
 ## Subscriptions
 
@@ -48,11 +46,6 @@ When the broker or the publisher delivers events to the endpoint's input queue, 
 
 Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions.
 
-Core does not define which native resources `SubscribeAll` may create, or which resources `Unsubscribe` may delete, when `SetupInfrastructure` is `false`. Current transports handle it in different ways:
-
-- SQS creates the SNS topic only when `SetupInfrastructure` is `true`. Otherwise it throws when the topic does not exist. It always creates the SNS subscription and always removes it on unsubscribe.
-- Azure Service Bus, with the topic-per-event topology, creates the topic only when `SetupInfrastructure` is `true`. It always creates the subscription and its rules. On unsubscribe it always deletes the subscription, or the rule when the topic uses filter-based routing. When the credentials lack the required rights, creating a subscription throws, and deleting a subscription logs the failure at `Info`.
-- RabbitMQ always declares the event exchanges and always binds the endpoint's queue or exchange to them. It always removes the binding on unsubscribe.
-- Google Pub/Sub creates the topic and the subscription for an event only when `SetupInfrastructure` is `true`, and deletes the subscription on unsubscribe only then. Otherwise it expects them to exist and only starts or stops receiving from them.
+Core does not define which native resources `SubscribeAll` may create, or which resources `Unsubscribe` may delete, when `SetupInfrastructure` is `false`.
 
 The user-facing documentation also says that [auto-subscribe is not part of installers](https://docs.particular.net/nservicebus/operations/installers#auto-subscribe-is-not-part-of-installers).
