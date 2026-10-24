@@ -255,16 +255,13 @@ public class HandlerRegistryAvailabilityAnalyzerTests
                                                                      """;
 
     [Test]
-    public Task ReportsWhenTheAssemblyHasAHandlerButOptsOutAndNoReferencedRegistryExists()
+    public Task DoesNotReportWhenTheAssemblyOptsOutAndHasAHandler()
     {
         var source = $$"""
                        using System.Threading.Tasks;
                        using NServiceBus;
 
-                       public class Test
-                       {
-                           public void Configure(EndpointConfiguration cfg) => [|cfg.Handlers.AddAll()|];
-                       }
+                       {{CallsWithoutMarkup.Replace("using NServiceBus;", "")}}
 
                        [Handler]
                        public class MyHandler : IHandleMessages<MyMessage>
@@ -277,28 +274,6 @@ public class HandlerRegistryAvailabilityAnalyzerTests
 
         return Run(source)
             .WithProperty("build_property.NServiceBusHandlerRegistryComposition", "false")
-            .AssertDiagnostics(DiagnosticIds.NoHandlerRegistryFound);
-    }
-
-    [Test]
-    public Task DoesNotReportWhenTheAssemblyOptsOutButAReferencedAssemblyHasARegistry()
-    {
-        var library = GeneratedCompilation.BuildLibrary("AcmeLibrary", """
-                                                                       using System.Threading.Tasks;
-                                                                       using NServiceBus;
-
-                                                                       [Handler]
-                                                                       public class LibraryHandler : IHandleMessages<LibraryMessage>
-                                                                       {
-                                                                           public Task Handle(LibraryMessage message, IMessageHandlerContext context) => Task.CompletedTask;
-                                                                       }
-
-                                                                       public class LibraryMessage : IMessage { }
-                                                                       """);
-
-        return Run(CallsWithoutMarkup)
-            .WithProperty("build_property.NServiceBusHandlerRegistryComposition", "false")
-            .AddReferences(MetadataReference.CreateFromImage(library))
             .AssertDiagnostics();
     }
 

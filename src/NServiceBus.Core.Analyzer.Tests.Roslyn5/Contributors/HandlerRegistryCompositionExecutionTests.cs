@@ -201,15 +201,26 @@ public class HandlerRegistryCompositionExecutionTests
     }
 
     [Test]
-    public void HostThatOptsOutComposesReferencedLibrariesButNotItself()
+    public void LibraryThatOptsOutIsNotComposedEvenWhenItGrantsInternalsVisibleToTheHost()
+    {
+        var hostName = nameof(LibraryThatOptsOutIsNotComposedEvenWhenItGrantsInternalsVisibleToTheHost);
+        var library = GeneratedCompilation.BuildLibrary("OptedOutGranting", InternalLibrary("OptedOutGranting", hostName), GeneratedCompilation.OptOutOfComposition);
+
+        var configuration = ConfigureHost(hostName, "cfg.Handlers.AddAll();", library);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas"));
+    }
+
+    [Test]
+    public void HostThatOptsOutComposesItselfAndReferencedLibraries()
     {
         var apple = GeneratedCompilation.BuildLibrary("Apple", $"{Usings}\n\n{Body("Apple")}");
         var zebra = GeneratedCompilation.BuildLibrary("Zebra", $"{Usings}\n\n{Body("Zebra")}");
 
-        var configuration = ConfigureHost(nameof(HostThatOptsOutComposesReferencedLibrariesButNotItself), "cfg.Handlers.AddAll();", GeneratedCompilation.OptOutOfComposition, apple, zebra);
+        var configuration = ConfigureHost(nameof(HostThatOptsOutComposesItselfAndReferencedLibraries), "cfg.Handlers.AddAll();", GeneratedCompilation.OptOutOfComposition, apple, zebra);
 
-        Assert.That(Calls(configuration), Is.EqualTo("Apple.AddHandlers, Apple.AddSagas, Zebra.AddHandlers, Zebra.AddSagas"));
-        Assert.That(Sagas(configuration), Is.EqualTo("Acme.Apple.ApplePolicy, Acme.Zebra.ZebraPolicy"));
+        Assert.That(Calls(configuration), Is.EqualTo("Apple.AddHandlers, Apple.AddSagas, Host.AddHandlers, Host.AddSagas, Zebra.AddHandlers, Zebra.AddSagas"));
+        Assert.That(Sagas(configuration), Is.EqualTo("Acme.Apple.ApplePolicy, Acme.Host.HostPolicy, Acme.Zebra.ZebraPolicy"));
     }
 
     [Test]
@@ -220,15 +231,15 @@ public class HandlerRegistryCompositionExecutionTests
 
         var configuration = ConfigureHost(assemblyName, $"cfg.Handlers.{assemblyName}Assembly.AddAll(); cfg.Handlers.AddAll();", GeneratedCompilation.OptOutOfComposition, apple);
 
-        Assert.That(Calls(configuration), Is.EqualTo("Apple.AddHandlers, Apple.AddSagas, Host.AddHandlers, Host.AddSagas"));
+        Assert.That(Calls(configuration), Is.EqualTo("Apple.AddHandlers, Apple.AddSagas, Host.AddHandlers, Host.AddHandlers, Host.AddSagas, Host.AddSagas"));
     }
 
     [Test]
-    public void HostThatOptsOutWithoutReferencedLibrariesCompilesAndRegistersNothing()
+    public void HostThatOptsOutWithoutReferencedLibrariesComposesItself()
     {
-        var configuration = ConfigureHost(nameof(HostThatOptsOutWithoutReferencedLibrariesCompilesAndRegistersNothing), "cfg.Handlers.AddAll();", GeneratedCompilation.OptOutOfComposition);
+        var configuration = ConfigureHost(nameof(HostThatOptsOutWithoutReferencedLibrariesComposesItself), "cfg.Handlers.AddAll();", GeneratedCompilation.OptOutOfComposition);
 
-        Assert.That(Calls(configuration), Is.Empty);
+        Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas"));
     }
 
     static readonly IIncrementalGenerator[] Generators = [new HandlerRegistryCompositionInterceptor(), new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()];

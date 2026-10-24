@@ -18,7 +18,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
     {
         internal const string EntryNamespace = "NServiceBus.Generated";
 
-        public void Emit(ImmutableArray<BaseSpec> spec, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec, string assemblyName, bool emitEntry)
+        public void Emit(ImmutableArray<BaseSpec> spec, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec, string assemblyName, bool participatesInComposition)
         {
             if (spec.Length == 0 && contributors.Count == 0)
             {
@@ -36,19 +36,14 @@ public partial class AddHandlerAndSagasRegistrationGenerator
 
             context.AddSource("HandlerRegistrations.g.cs", sourceWriter.ToSourceText());
 
-            if (!emitEntry)
-            {
-                return;
-            }
-
             var entryWriter = new SourceWriter().PreAmble();
-            EmitEntry(entryWriter, namespaceTree);
+            EmitEntry(entryWriter, namespaceTree, participatesInComposition);
             context.AddSource("HandlerRegistryEntry.g.cs", entryWriter.ToSourceText());
         }
 
         internal static string GetEntryTypeName(string assemblyName) => $"{SanitizeIdentifier(assemblyName)}HandlerRegistryEntry_{NonCryptographicHash.GetHash(assemblyName):x16}";
 
-        static void EmitEntry(SourceWriter sourceWriter, NamespaceTree namespaceTree)
+        static void EmitEntry(SourceWriter sourceWriter, NamespaceTree namespaceTree, bool participatesInComposition)
         {
             var entryTypeName = GetEntryTypeName(namespaceTree.AssemblyName);
             var rootSpec = namespaceTree.RootTypeSpec;
@@ -56,8 +51,14 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 ? $"global::{namespaceTree.ExtensionTypeName}.{namespaceTree.Root.RegistryName}"
                 : $"global::{rootSpec.Namespace}.{namespaceTree.ExtensionTypeName}.{namespaceTree.Root.RegistryName}";
 
-            sourceWriter.WriteLine($"[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::{EntryNamespace}.{entryTypeName}))]");
-            sourceWriter.WriteLine();
+            var entryVisibility = participatesInComposition ? rootSpec.Visibility : "internal";
+
+            if (participatesInComposition)
+            {
+                sourceWriter.WriteLine($"[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute(typeof(global::{EntryNamespace}.{entryTypeName}))]");
+                sourceWriter.WriteLine();
+            }
+
             sourceWriter.WriteLine($"namespace {EntryNamespace}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
@@ -66,7 +67,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.WriteLine("/// </summary>");
             sourceWriter.WithGeneratedCodeAttribute();
             sourceWriter.WriteLine("[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]");
-            sourceWriter.WriteLine($"{rootSpec.Visibility} static class {entryTypeName}");
+            sourceWriter.WriteLine($"{entryVisibility} static class {entryTypeName}");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
 

@@ -31,9 +31,8 @@ public sealed partial class HandlerRegistryCompositionInterceptor : IIncremental
             .WithTrackingName(TrackingNames.ReferencedEntries);
 
         var localEntry = AddHandlerAndSagasRegistrationGenerator.BuildHasRegistryPipeline(context)
-            .Combine(HandlerRegistryCompositionOptions.ParticipatesProvider(context))
             .Combine(context.CompilationProvider.Select(static (compilation, _) => compilation.Assembly.Name))
-            .Select(static (pair, _) => pair.Left.Left && pair.Left.Right ? (EntrySpec?)Parser.CreateLocalEntry(pair.Right) : null)
+            .Select(static (pair, _) => pair.Left ? (EntrySpec?)Parser.CreateLocalEntry(pair.Right) : null)
             .WithTrackingName(TrackingNames.LocalEntry);
 
         var composition = collectedCalls

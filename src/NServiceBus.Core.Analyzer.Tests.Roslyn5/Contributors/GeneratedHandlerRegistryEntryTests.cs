@@ -80,7 +80,7 @@ public class GeneratedHandlerRegistryEntryTests
     }
 
     [Test]
-    public void NoEntryOrAssemblyAttributeIsEmittedWhenTheAssemblyOptsOutOfComposition()
+    public void InternalEntryWithoutAssemblyAttributeIsEmittedWhenTheAssemblyOptsOutOfComposition()
     {
         var source = """
                      using NServiceBus;
@@ -111,7 +111,8 @@ public class GeneratedHandlerRegistryEntryTests
         var output = GeneratedCompilation.Run("OptOut", ContributorOnlySource, [new AddHandlerAndSagasRegistrationGenerator()],
             new Dictionary<string, string> { ["build_property.NServiceBusHandlerRegistryComposition"] = value });
 
-        Assert.That(output.Sources.Select(s => s.HintName), Is.EqualTo(["HandlerRegistrations.g.cs"]));
+        var entry = output.SourceOf("HandlerRegistryEntry.g.cs");
+        Assert.That(entry, Does.Match(@"internal static class OptOutHandlerRegistryEntry_[0-9a-f]{16}\b").And.Not.Contain("GeneratedHandlerRegistryAttribute"));
     }
 
     [TestCase("true")]
@@ -123,18 +124,25 @@ public class GeneratedHandlerRegistryEntryTests
             new Dictionary<string, string> { ["build_property.NServiceBusHandlerRegistryComposition"] = value });
 
         Assert.That(output.Sources.Select(s => s.HintName), Is.EqualTo(["HandlerRegistrations.g.cs", "HandlerRegistryEntry.g.cs"]));
+        Assert.That(output.SourceOf("HandlerRegistryEntry.g.cs"), Does.Contain("public static class").And.Contain("[assembly: global::NServiceBus.GeneratedHandlerRegistryAttribute("));
     }
 
     [Test]
-    public void OptingOutKeepsTheAssemblyRegistry()
+    public void OptingOutKeepsTheAssemblyRegistryAndAnInternalEntryThatForwardsToIt()
     {
-        var output = GeneratedCompilation.Run(nameof(OptingOutKeepsTheAssemblyRegistry), InternalRegistrySource, [new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()], GeneratedCompilation.OptOutOfComposition);
+        var output = GeneratedCompilation.Run(nameof(OptingOutKeepsTheAssemblyRegistryAndAnInternalEntryThatForwardsToIt), InternalRegistrySource, [new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()], GeneratedCompilation.OptOutOfComposition);
         Assert.That(output.CompilationErrors, Is.Empty);
 
         var assembly = GeneratedCompilation.Load(output.Compilation);
         Assert.That(assembly.GetCustomAttribute<GeneratedHandlerRegistryAttribute>(), Is.Null);
-        Assert.That(assembly.GetType("NServiceBus.Generated." + nameof(OptingOutKeepsTheAssemblyRegistry) + "HandlerRegistryEntry"), Is.Null);
         Assert.That(output.SourceOf("HandlerRegistrations.g.cs"), Does.Contain("OrdersRegistrations"));
+
+        var entryType = assembly.GetTypes().Single(type => type.Namespace == "NServiceBus.Generated");
+        Assert.That(!entryType.IsPublic && entryType.IsAbstract && entryType.IsSealed, Is.True, "The entry must be an internal static class.");
+
+        var recorded = (List<string>)assembly.GetType("Calls")!.GetField("Recorded")!.GetValue(null)!;
+        entryType.GetMethod("AddAll")!.Invoke(null, [new EndpointConfiguration("OptOut")]);
+        Assert.That(string.Join(", ", recorded), Is.EqualTo("AddHandlers, AddSagas"));
     }
 
     [Test]

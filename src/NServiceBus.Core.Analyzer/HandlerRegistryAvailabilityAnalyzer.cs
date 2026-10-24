@@ -32,7 +32,6 @@ public class HandlerRegistryAvailabilityAnalyzer : DiagnosticAnalyzer
             var contributorInterface = compilation.GetTypeByMetadataName(AddHandlerAndSagasRegistrationGenerator.Parser.ContributorInterfaceMetadataName);
 
             var calls = new ConcurrentBag<(Location Location, string MethodName)>();
-            var participates = HandlerRegistryCompositionOptions.Participates(compilationContext.Options.AnalyzerConfigOptionsProvider.GlobalOptions);
             var hasLocalRegistry = false;
 
             compilationContext.RegisterOperationAction(context =>
@@ -46,7 +45,7 @@ public class HandlerRegistryAvailabilityAnalyzer : DiagnosticAnalyzer
 
             compilationContext.RegisterSymbolAction(context =>
             {
-                if (!participates || hasLocalRegistry || context.Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Class } type)
+                if (hasLocalRegistry || context.Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Class } type)
                 {
                     return;
                 }

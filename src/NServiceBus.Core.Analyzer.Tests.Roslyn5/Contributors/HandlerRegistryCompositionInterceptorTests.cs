@@ -118,7 +118,7 @@ public class HandlerRegistryCompositionInterceptorTests
     }
 
     [Test]
-    public void LocalAssemblyThatOptsOutIsNotComposed()
+    public void LocalAssemblyThatOptsOutIsComposedWithoutTheOptedOutReference()
     {
         var apple = GeneratedCompilation.BuildLibrary("Apple", Library("Apple"));
         var optedOut = GeneratedCompilation.BuildLibrary("OptedOut", Library("OptedOut"), GeneratedCompilation.OptOutOfComposition);

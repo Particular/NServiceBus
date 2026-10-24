@@ -87,7 +87,7 @@ A library that should not take part in composition, or should not expose the ent
 </PropertyGroup>
 ```
 
-The generator then emits no entry and no assembly attribute. The assembly registry stays available through `Handlers.<AssemblyName>Assembly`. In an endpoint project the property excludes the endpoint's own registrations from `Handlers.AddAll()`, which still composes the referenced assemblies.
+The generator then emits an internal entry without the assembly attribute, so other assemblies never discover it, even with `InternalsVisibleTo`. The assembly's own `Handlers.AddAll()` still registers its handlers and sagas, and the assembly registry stays available through `Handlers.<AssemblyName>Assembly`.
 
 `Handlers.AddAll()` is replaced at compile time and throws when it is not, for example in a non-C# project or when it is used as a method group.
 
