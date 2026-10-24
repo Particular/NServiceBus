@@ -41,13 +41,16 @@ public partial class AddHandlerAndSagasRegistrationGenerator : IIncrementalGener
 
         var rootTypeSpec = BuildRootTypeSpecPipeline(context);
 
-        var combined = collected.Combine(rootTypeSpec).Combine(contributors).Combine(assemblyName);
+        var participatesInComposition = HandlerRegistryCompositionOptions.ParticipatesProvider(context)
+            .WithTrackingName(TrackingNames.ParticipatesInComposition);
+
+        var combined = collected.Combine(rootTypeSpec).Combine(contributors).Combine(assemblyName).Combine(participatesInComposition);
 
         context.RegisterSourceOutput(combined,
             static (productionContext, spec) =>
             {
                 var emitter = new Emitter(productionContext);
-                emitter.Emit(spec.Left.Left.Left, spec.Left.Right, spec.Left.Left.Right, spec.Right);
+                emitter.Emit(spec.Left.Left.Left.Left, spec.Left.Left.Right, spec.Left.Left.Left.Right, spec.Left.Right, spec.Right);
             });
     }
 

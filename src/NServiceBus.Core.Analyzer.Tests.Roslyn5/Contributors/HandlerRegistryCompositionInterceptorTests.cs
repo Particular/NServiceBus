@@ -118,6 +118,33 @@ public class HandlerRegistryCompositionInterceptorTests
     }
 
     [Test]
+    public void LocalAssemblyThatOptsOutIsNotComposed()
+    {
+        var apple = GeneratedCompilation.BuildLibrary("Apple", Library("Apple"));
+        var optedOut = GeneratedCompilation.BuildLibrary("OptedOut", Library("OptedOut"), GeneratedCompilation.OptOutOfComposition);
+
+        var host = $$"""
+                     {{Usings}}
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg) => cfg.Handlers.AddAll();
+                     }
+
+                     {{LibraryBody("Host")}}
+                     """;
+
+        SourceGeneratorTest.ForIncrementalGenerator<HandlerRegistryCompositionInterceptor>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithProperty("build_property.NServiceBusHandlerRegistryComposition", "false")
+            .AddReferences(MetadataReference.CreateFromImage(apple), MetadataReference.CreateFromImage(optedOut))
+            .WithSource(host, "test.cs")
+            .Run()
+            .Approve()
+            .AssertRunsAreEqual();
+    }
+
+    [Test]
     public void LocalContributorOnlyAssemblyIsComposed()
     {
         var host = """

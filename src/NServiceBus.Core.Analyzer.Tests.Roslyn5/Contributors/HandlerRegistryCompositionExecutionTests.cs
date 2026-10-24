@@ -178,6 +178,59 @@ public class HandlerRegistryCompositionExecutionTests
         Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas"));
     }
 
+    [Test]
+    public void LibraryThatOptsOutIsNotComposed()
+    {
+        var participating = GeneratedCompilation.BuildLibrary("Participating", $"{Usings}\n\n{Body("Participating")}");
+        var optedOut = GeneratedCompilation.BuildLibrary("OptedOut", $"{Usings}\n\n{Body("OptedOut")}", GeneratedCompilation.OptOutOfComposition);
+
+        var configuration = ConfigureHost(nameof(LibraryThatOptsOutIsNotComposed), "cfg.Handlers.AddAll();", participating, optedOut);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas, Participating.AddHandlers, Participating.AddSagas"));
+        Assert.That(Sagas(configuration), Is.EqualTo("Acme.Host.HostPolicy, Acme.Participating.ParticipatingPolicy"));
+    }
+
+    [Test]
+    public void LibraryThatOptsOutCanStillBeRegisteredThroughItsAssemblyRegistry()
+    {
+        var optedOut = GeneratedCompilation.BuildLibrary("OptedOutExplicit", $"{Usings}\n\n{Body("OptedOutExplicit")}", GeneratedCompilation.OptOutOfComposition);
+
+        var configuration = ConfigureHost(nameof(LibraryThatOptsOutCanStillBeRegisteredThroughItsAssemblyRegistry), "cfg.Handlers.OptedOutExplicitAssembly.AddAll(); cfg.Handlers.AddAll();", optedOut);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Host.AddHandlers, Host.AddSagas, OptedOutExplicit.AddHandlers, OptedOutExplicit.AddSagas"));
+    }
+
+    [Test]
+    public void HostThatOptsOutComposesReferencedLibrariesButNotItself()
+    {
+        var apple = GeneratedCompilation.BuildLibrary("Apple", $"{Usings}\n\n{Body("Apple")}");
+        var zebra = GeneratedCompilation.BuildLibrary("Zebra", $"{Usings}\n\n{Body("Zebra")}");
+
+        var configuration = ConfigureHost(nameof(HostThatOptsOutComposesReferencedLibrariesButNotItself), "cfg.Handlers.AddAll();", GeneratedCompilation.OptOutOfComposition, apple, zebra);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Apple.AddHandlers, Apple.AddSagas, Zebra.AddHandlers, Zebra.AddSagas"));
+        Assert.That(Sagas(configuration), Is.EqualTo("Acme.Apple.ApplePolicy, Acme.Zebra.ZebraPolicy"));
+    }
+
+    [Test]
+    public void HostThatOptsOutKeepsItsOwnAssemblyRegistry()
+    {
+        var apple = GeneratedCompilation.BuildLibrary("Apple", $"{Usings}\n\n{Body("Apple")}");
+        var assemblyName = nameof(HostThatOptsOutKeepsItsOwnAssemblyRegistry);
+
+        var configuration = ConfigureHost(assemblyName, $"cfg.Handlers.{assemblyName}Assembly.AddAll(); cfg.Handlers.AddAll();", GeneratedCompilation.OptOutOfComposition, apple);
+
+        Assert.That(Calls(configuration), Is.EqualTo("Apple.AddHandlers, Apple.AddSagas, Host.AddHandlers, Host.AddSagas"));
+    }
+
+    [Test]
+    public void HostThatOptsOutWithoutReferencedLibrariesCompilesAndRegistersNothing()
+    {
+        var configuration = ConfigureHost(nameof(HostThatOptsOutWithoutReferencedLibrariesCompilesAndRegistersNothing), "cfg.Handlers.AddAll();", GeneratedCompilation.OptOutOfComposition);
+
+        Assert.That(Calls(configuration), Is.Empty);
+    }
+
     static readonly IIncrementalGenerator[] Generators = [new HandlerRegistryCompositionInterceptor(), new AddHandlerGenerator(), new AddSagaGenerator(), new AddHandlerAndSagasRegistrationGenerator()];
 
     static string InternalLibrary(string name, string friendAssembly) => $$"""
@@ -201,7 +254,10 @@ public class HandlerRegistryCompositionExecutionTests
         return ConfigureHost(assemblyName, statements, apple, zebra);
     }
 
-    static EndpointConfiguration ConfigureHost(string assemblyName, string statements, params byte[][] libraries)
+    static EndpointConfiguration ConfigureHost(string assemblyName, string statements, params byte[][] libraries) =>
+        ConfigureHost(assemblyName, statements, globalOptions: null, libraries);
+
+    static EndpointConfiguration ConfigureHost(string assemblyName, string statements, IReadOnlyDictionary<string, string> globalOptions, params byte[][] libraries)
     {
         var host = $$"""
                      {{Usings}}
@@ -214,7 +270,7 @@ public class HandlerRegistryCompositionExecutionTests
                      {{Body("Host")}}
                      """;
 
-        var output = GeneratedCompilation.Run(assemblyName, host, Generators, libraries);
+        var output = GeneratedCompilation.Run(assemblyName, host, Generators, globalOptions, libraries);
         Assert.That(output.CompilationErrors, Is.Empty);
 
         var assembly = GeneratedCompilation.Load(output.Compilation, libraries);

@@ -18,7 +18,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
     {
         internal const string EntryNamespace = "NServiceBus.Generated";
 
-        public void Emit(ImmutableArray<BaseSpec> spec, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec, string assemblyName)
+        public void Emit(ImmutableArray<BaseSpec> spec, ImmutableEquatableArray<ContributorSpec> contributors, RootTypeSpec rootTypeSpec, string assemblyName, bool emitEntry)
         {
             if (spec.Length == 0 && contributors.Count == 0)
             {
@@ -35,6 +35,11 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             sourceWriter.CloseCurlies();
 
             context.AddSource("HandlerRegistrations.g.cs", sourceWriter.ToSourceText());
+
+            if (!emitEntry)
+            {
+                return;
+            }
 
             var entryWriter = new SourceWriter().PreAmble();
             EmitEntry(entryWriter, namespaceTree);

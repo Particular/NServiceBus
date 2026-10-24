@@ -255,6 +255,84 @@ public class HandlerRegistryAvailabilityAnalyzerTests
                                                                      """;
 
     [Test]
+    public Task ReportsWhenTheAssemblyHasAHandlerButOptsOutAndNoReferencedRegistryExists()
+    {
+        var source = $$"""
+                       using System.Threading.Tasks;
+                       using NServiceBus;
+
+                       public class Test
+                       {
+                           public void Configure(EndpointConfiguration cfg) => [|cfg.Handlers.AddAll()|];
+                       }
+
+                       [Handler]
+                       public class MyHandler : IHandleMessages<MyMessage>
+                       {
+                           public Task Handle(MyMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                       }
+
+                       public class MyMessage : IMessage { }
+                       """;
+
+        return Run(source)
+            .WithProperty("build_property.NServiceBusHandlerRegistryComposition", "false")
+            .AssertDiagnostics(DiagnosticIds.NoHandlerRegistryFound);
+    }
+
+    [Test]
+    public Task DoesNotReportWhenTheAssemblyOptsOutButAReferencedAssemblyHasARegistry()
+    {
+        var library = GeneratedCompilation.BuildLibrary("AcmeLibrary", """
+                                                                       using System.Threading.Tasks;
+                                                                       using NServiceBus;
+
+                                                                       [Handler]
+                                                                       public class LibraryHandler : IHandleMessages<LibraryMessage>
+                                                                       {
+                                                                           public Task Handle(LibraryMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                                                                       }
+
+                                                                       public class LibraryMessage : IMessage { }
+                                                                       """);
+
+        return Run(CallsWithoutMarkup)
+            .WithProperty("build_property.NServiceBusHandlerRegistryComposition", "false")
+            .AddReferences(MetadataReference.CreateFromImage(library))
+            .AssertDiagnostics();
+    }
+
+    [Test]
+    public Task ReportsWhenTheOnlyReferencedRegistryOptedOut()
+    {
+        var library = GeneratedCompilation.BuildLibrary("AcmeOptedOutLibrary", """
+                                                                               using System.Threading.Tasks;
+                                                                               using NServiceBus;
+
+                                                                               [Handler]
+                                                                               public class LibraryHandler : IHandleMessages<LibraryMessage>
+                                                                               {
+                                                                                   public Task Handle(LibraryMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+                                                                               }
+
+                                                                               public class LibraryMessage : IMessage { }
+                                                                               """, GeneratedCompilation.OptOutOfComposition);
+
+        var source = """
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg) => [|cfg.Handlers.AddAll()|];
+                     }
+                     """;
+
+        return Run(source)
+            .AddReferences(MetadataReference.CreateFromImage(library))
+            .AssertDiagnostics(DiagnosticIds.NoHandlerRegistryFound);
+    }
+
+    [Test]
     public Task DoesNotReportCallsInGeneratedCode()
     {
         var source = """

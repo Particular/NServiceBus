@@ -14,6 +14,7 @@ public sealed partial class AddHandlerAndSagasRegistrationGenerator
         public const string ContributorSpec = nameof(ContributorSpec);
         public const string ContributorSpecs = nameof(ContributorSpecs);
         public const string AssemblyName = nameof(AssemblyName);
+        public const string ParticipatesInComposition = nameof(ParticipatesInComposition);
 
         public static readonly string[] All =
         [
@@ -26,7 +27,8 @@ public sealed partial class AddHandlerAndSagasRegistrationGenerator
             HandlerKnownTypes,
             ContributorSpec,
             ContributorSpecs,
-            AssemblyName
+            AssemblyName,
+            ParticipatesInComposition
         ];
     }
 }
