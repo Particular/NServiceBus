@@ -46,5 +46,5 @@ public sealed class HandlerRegistry(EndpointConfiguration configuration)
     public void AddAllSagas() => throw NotIntercepted(nameof(AddAllSagas));
 
     static InvalidOperationException NotIntercepted(string methodName) =>
-        new($"{nameof(HandlerRegistry)}.{methodName}() was not replaced by the NServiceBus source generator. Use a C# project that references the NServiceBus package with analyzers enabled, or call the registry of each assembly, for example endpointConfiguration.Handlers.<AssemblyName>Assembly.{methodName}().");
+        new($"{nameof(HandlerRegistry)}.{methodName}() was not replaced by the NServiceBus source generator, which only runs in C# projects that reference the NServiceBus package with analyzers enabled. Keep assembly scanning enabled, or register each assembly with endpointConfiguration.Handlers.<AssemblyName>Assembly.{methodName}().");
 }

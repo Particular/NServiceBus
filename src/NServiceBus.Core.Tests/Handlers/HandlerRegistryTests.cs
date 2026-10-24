@@ -13,7 +13,7 @@ public class HandlerRegistryTests
 
         var exception = Assert.Throws<InvalidOperationException>(registry.AddAll);
 
-        Assert.That(exception.Message, Does.Contain("HandlerRegistry.AddAll()").And.Contain("source generator"));
+        Assert.That(exception.Message, Does.Contain("HandlerRegistry.AddAll()").And.Contain("source generator").And.Contain("assembly scanning").And.Contain("Handlers.<AssemblyName>Assembly.AddAll()"));
     }
 
     [Test]
@@ -23,7 +23,7 @@ public class HandlerRegistryTests
 
         var exception = Assert.Throws<InvalidOperationException>(registry.AddAllHandlers);
 
-        Assert.That(exception.Message, Does.Contain("HandlerRegistry.AddAllHandlers()").And.Contain("source generator"));
+        Assert.That(exception.Message, Does.Contain("HandlerRegistry.AddAllHandlers()").And.Contain("source generator").And.Contain("assembly scanning").And.Contain("Handlers.<AssemblyName>Assembly.AddAllHandlers()"));
     }
 
     [Test]
@@ -33,6 +33,6 @@ public class HandlerRegistryTests
 
         var exception = Assert.Throws<InvalidOperationException>(registry.AddAllSagas);
 
-        Assert.That(exception.Message, Does.Contain("HandlerRegistry.AddAllSagas()").And.Contain("source generator"));
+        Assert.That(exception.Message, Does.Contain("HandlerRegistry.AddAllSagas()").And.Contain("source generator").And.Contain("assembly scanning").And.Contain("Handlers.<AssemblyName>Assembly.AddAllSagas()"));
     }
 }
