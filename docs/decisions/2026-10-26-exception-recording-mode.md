@@ -1,7 +1,6 @@
 # An exception is recorded once, on the innermost span, and logged once, by whoever knows the outcome
 
-**Date:** 2026-08-04
-**Revised:** 2026-10-23
+**Date:** 2026-10-26
 **Pull requests:** [#7899](https://github.com/Particular/NServiceBus/pull/7899) introduced the recording mode;
 [#8005](https://github.com/Particular/NServiceBus/pull/8005) moved the log to recoverability and holds the full rule set
 **Related:**
@@ -71,6 +70,21 @@ Constraints:
 9. **A failed operation started outside message processing is logged once, at Warning**, by
    `MessageOperations` under the operation span. It is logged in both modes and with tracing off.
 
+### Where this departs from the conventions
+
+The conventions place the log at the failure. NServiceBus places it at the outcome, because the
+failure happens before anyone knows the outcome. Quotes are from semantic conventions v1.44.0.
+
+| Convention | NServiceBus | Why |
+| --- | --- | --- |
+| "Exception events emitted by instrumentations that also record spans for the same operation MUST be associated with the corresponding span context." ([exceptions as logs](https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/#recording-an-exception)) | Associated with the recoverability span, which links to the innermost failed span (decision 7) | The failed span has ended before the severity is known. `ILogger` correlates with `Activity.Current`, has no API that takes a span context, and an ended span cannot be made current again. |
+| Severity "SHOULD be set based on the context in which the exception occurs": `ERROR` for unhandled exceptions, `WARN` for exceptions that are expected to be handled ([severity](https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/#severity), status Development) | Set by the action that is carried out (decision 6) | Retries handle most exceptions. Error stays reserved for a message that needs a person. |
+| "It's NOT RECOMMENDED to record exceptions that are handled by the instrumented library." ([recording errors](https://opentelemetry.io/docs/specs/semconv/general/recording-errors/#recording-exceptions)) | A retried exception is logged at Information or Warning | Operators use these lines to see failing messages before they reach the error queue. |
+
+Where no recoverability follows, NServiceBus follows the conventions: a failed session operation is
+logged under its own span (decision 9), once, as "Exceptions which are propagated to the caller should be
+recorded (or logged) once" asks.
+
 ## Consequences
 
 - An explicit `ExceptionRecordingMode` in code is overridden by the environment variable without a
@@ -81,6 +95,15 @@ Constraints:
   which in `SpanAndLogs` mode carries the exception event. A trace backend that follows span links gets
   from the log to the failure in one step. When the innermost span is sampled out or has no listener, the
   link goes to the next span out that was recorded.
+- **When the failed message started a new trace, the log line is in a different trace from the failure.**
+  The recoverability span is parented with the same rules as the processing span, so with
+  `StartNewTrace=True` it starts its own trace. On v10 that applies by default to published events,
+  delayed sends, saga timeouts and delayed retries. A query by trace id then does not find the log line
+  under the processing span. Accepted: the span link is the only connection, and the log line carries the
+  message id and the stack trace.
+- **The link is best effort.** It needs a listener on `NServiceBus.Core.Recoverability`. Without one, the
+  log line correlates with an ambient span, or with nothing, and there is no link. Mitigation: the
+  documentation tells users to subscribe to `NServiceBus.Core.*`.
 - **Severity follows the action, not the convention's WARN for handled exceptions.** Accepted: the levels
   are the v10 contract. A move to the error queue stays an Error.
 - In `Logs` mode the stack trace is in the logs, not in the trace backend. Correlation needs a logging
@@ -114,6 +137,34 @@ and the recoverability line dropped the exception object and its trailing colon.
 convention's correlation rule. Replaced in #8005 for two reasons. The severity was Error for every
 attempt, including immediate retries that then succeed. And the recoverability line changed form between
 modes, which broke the log contract. The span link keeps the path from the log to the failed span.
+
+This alternative matches a literal reading of the conventions, so it is the one most likely to return.
+
+### Log twice: at a low level where the exception is thrown, and again by the action
+
+For example Debug under the failed span, then the v10 line under the recoverability span. Each line is
+correlated with its own span. Rejected: every exception is logged twice, against "It's NOT RECOMMENDED to
+record the same exception more than once", and the number of exception records doubles.
+
+### Log under a new child span of the innermost failed span
+
+Recoverability would start a short span parented on the stored context and log under it, so the log line
+shares the trace of the failure. Rejected: each failure adds a span that starts after its parent has
+ended, which some backends show as broken timing. And the line is still not associated with the failed
+span itself. This is a point of leverage: if .NET logging gets an API to write a record with an explicit
+span context, the line can carry the context of the failed span directly, and the link becomes optional.
+
+### Keep the processing span open until recoverability has acted
+
+Rejected. The transport calls recoverability after the processing pipeline returns, so this changes the
+seam between the core and every transport, each in its own repository. It also does not help when the
+innermost span is a handler or operation span, which ends as the exception leaves it.
+
+### Log when the policy decides
+
+The first version of #8005 logged in the recoverability executor, right after the policy. Rejected: a
+recoverability behavior can replace the action, so the line could name an action that was not carried
+out, and satellite receivers do not run that executor, so their failures were not logged.
 
 ### Mark the exception with a flag in `Exception.Data`
 
