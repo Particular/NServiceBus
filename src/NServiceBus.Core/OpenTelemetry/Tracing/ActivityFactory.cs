@@ -271,12 +271,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
         if (isWrappingActivity)
         {
-            LegacyAddExceptionEvent(activity, exception);
+            LegacyAddExceptionEvent(activity, exception); // Removed in v11, see obsoletes-v10.cs
         }
     }
-
-    static void AddExceptionEvent(Activity activity, Exception exception)
-        => activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList);
-
-
 }
