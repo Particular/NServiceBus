@@ -20,7 +20,7 @@ sealed class NoOpActivityFactory : IActivityFactory
 
     public Activity? StartHandlerActivity(MessageHandler messageHandler) => null;
     public Activity? StartRecoverabilityActivity(ErrorContext context) => null;
-    public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    public void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
     {
     }
 

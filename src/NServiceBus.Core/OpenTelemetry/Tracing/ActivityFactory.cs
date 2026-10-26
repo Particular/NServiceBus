@@ -209,7 +209,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         return activity;
     }
 
-    public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    public void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
     {
         if (recoverabilityAction is ImmediateRetry)
         {

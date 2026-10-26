@@ -57,7 +57,7 @@ class RecoverabilityPipelineExecutor<TState>(
             {
                 if (activity is not null)
                 {
-                    activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityContext.RecoverabilityAction, errorContext.ReceiveAddress);
+                    activityFactory.EnrichActivityWithRecoverabilityActionData(activity, recoverabilityContext.RecoverabilityAction, errorContext.ReceiveAddress);
                 }
             }
 
