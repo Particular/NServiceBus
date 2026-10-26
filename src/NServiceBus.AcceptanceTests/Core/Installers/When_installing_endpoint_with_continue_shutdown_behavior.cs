@@ -13,7 +13,8 @@ public class When_installing_endpoint_with_continue_shutdown_behavior : NService
     [Test]
     public async Task Should_run_installers_without_stopping_host()
     {
-        var fakeTransport = new FakeTransport();
+        bool? setupInfrastructure = null;
+        var fakeTransport = new FakeTransport { OnTransportInitialize = t => setupInfrastructure = t.setupInfrastructure };
         var endpointConfiguration = InstallerTestHelpers.CreateEndpointConfiguration(fakeTransport, "EndpointWithInstallerContinue");
 
         var context = await Scenario.Define<Context>(endpointConfiguration.RegisterScenarioContext)
@@ -34,6 +35,7 @@ public class When_installing_endpoint_with_continue_shutdown_behavior : NService
         {
             Assert.That(context.InstallerCalled, Is.True, "Should run installers");
             Assert.That(context.FeatureSetupCalled, Is.True, "Should initialize Features");
+            Assert.That(setupInfrastructure, Is.True, "Should set up transport infrastructure");
             Assert.That(context.HostShutdownTriggered, Is.False, "Should not trigger host shutdown");
         }
 
