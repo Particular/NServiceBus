@@ -2,10 +2,7 @@
 
 namespace NServiceBus;
 
-using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Pipeline;
 using Transport;
 
@@ -30,15 +27,5 @@ public class Discard : RecoverabilityAction
     public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
 
     /// <inheritdoc />
-    public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
-    {
-        context.Builder.GetRequiredService<ILogger<Discard>>().DiscardLogged(context.Exception, context.MessageId, Reason);
-        return [];
-    }
-}
-
-static partial class DiscardLoggerMessages
-{
-    [LoggerMessage(Level = LogLevel.Information, Message = "Discarding message with id '{MessageId}'. Reason: {Reason}")]
-    public static partial void DiscardLogged(this ILogger logger, Exception exception, string messageId, string reason);
+    public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context) => [];
 }

@@ -2,11 +2,11 @@ namespace NServiceBus.Core.Tests.Recoverability;
 
 using System;
 using System.Linq;
+using Extensibility;
 using Logging;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
-using Testing;
+using Transport;
 
 [TestFixture]
 public class RecoverabilityActionLoggingTests
@@ -14,48 +14,36 @@ public class RecoverabilityActionLoggingTests
     [Test]
     public void Should_log_the_exception_with_the_decision()
     {
-        var (context, provider) = CreateContext();
+        var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+        var errorContext = CreateErrorContext();
 
-        RecoverabilityAction.MoveToError("error").GetRoutingContexts(context);
+        RecoverabilityActionLogger.LogRecoverabilityAction(serviceProvider, RecoverabilityAction.MoveToError("error"), errorContext);
 
-        var entry = provider.Entries.Single();
+        var entry = entries.Single();
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(entry.Exception, Is.SameAs(context.Exception));
-            Assert.That(entry.Message, Does.StartWith($"Moving message '{context.MessageId}' to the error queue 'error' because processing failed due to an exception:"));
+            Assert.That(entry.Exception, Is.SameAs(errorContext.Exception));
+            Assert.That(entry.Message, Does.StartWith($"Moving message '{errorContext.MessageId}' to the error queue 'error' because processing failed due to an exception:"));
         }
     }
 
     [Test]
     public void Should_log_at_the_level_of_the_decision()
     {
-        var (context, provider) = CreateContext();
+        var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+        var errorContext = CreateErrorContext();
 
-        RecoverabilityAction.ImmediateRetry().GetRoutingContexts(context);
-        RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(1)).GetRoutingContexts(context);
-        RecoverabilityAction.MoveToError("error").GetRoutingContexts(context);
-        RecoverabilityAction.Discard("reason").GetRoutingContexts(context);
+        RecoverabilityActionLogger.LogRecoverabilityAction(serviceProvider, RecoverabilityAction.ImmediateRetry(), errorContext);
+        RecoverabilityActionLogger.LogRecoverabilityAction(serviceProvider, RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(1)), errorContext);
+        RecoverabilityActionLogger.LogRecoverabilityAction(serviceProvider, RecoverabilityAction.MoveToError("error"), errorContext);
+        RecoverabilityActionLogger.LogRecoverabilityAction(serviceProvider, RecoverabilityAction.Discard("reason"), errorContext);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(provider.Entries.Select(e => e.Level), Is.EqualTo([LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Information]));
-            Assert.That(provider.Entries.Select(e => e.Exception), Is.All.SameAs(context.Exception));
+            Assert.That(entries.Select(e => e.Level), Is.EqualTo([LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Information]));
+            Assert.That(entries.Select(e => e.Exception), Is.All.SameAs(errorContext.Exception));
         }
     }
 
-    [Test]
-    public void Should_resolve_the_logger_from_the_default_services_of_a_testable_context()
-    {
-        var context = new TestableRecoverabilityContext();
-
-        Assert.DoesNotThrow(() => RecoverabilityAction.MoveToError("error").GetRoutingContexts(context));
-    }
-
-    static (TestableRecoverabilityContext context, CapturingLoggerProvider provider) CreateContext()
-    {
-        var provider = new CapturingLoggerProvider();
-        var context = new TestableRecoverabilityContext { Exception = new InvalidOperationException("boom") };
-        context.Services.AddLogging(b => b.AddProvider(provider));
-        return (context, provider);
-    }
+    static ErrorContext CreateErrorContext() => new(new InvalidOperationException("boom"), [], Guid.NewGuid().ToString(), Array.Empty<byte>(), new TransportTransaction(), 1, "receive address", new ContextBag());
 }

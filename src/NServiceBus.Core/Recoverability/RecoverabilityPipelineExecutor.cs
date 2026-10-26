@@ -46,6 +46,8 @@ class RecoverabilityPipelineExecutor<TState>(
             try
             {
                 await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
+
+                RecoverabilityActionLogger.LogRecoverabilityAction(serviceProvider, recoverabilityContext.RecoverabilityAction, errorContext);
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - recording and rethrowing
             catch (Exception ex)
