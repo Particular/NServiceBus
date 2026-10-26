@@ -2,6 +2,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -85,11 +86,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
-            if (context is not IIncomingContext)
-            {
-                logger.OperationFailed(ex, displayName);
-            }
+            RecordFailure(context, activity, ex, displayName);
             throw;
         }
     }
@@ -122,11 +119,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
-            if (context is not IIncomingContext)
-            {
-                logger.OperationFailed(ex, displayName);
-            }
+            RecordFailure(context, activity, ex, displayName);
             throw;
         }
     }
@@ -156,11 +149,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
-            if (context is not IIncomingContext)
-            {
-                logger.OperationFailed(ex, displayName);
-            }
+            RecordFailure(context, activity, ex, displayName);
             throw;
         }
     }
@@ -220,11 +209,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
-            if (context is not IIncomingContext)
-            {
-                logger.OperationFailed(ex, displayName);
-            }
+            RecordFailure(context, activity, ex, displayName);
             throw;
         }
     }
@@ -284,17 +269,31 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
-            if (context is not IIncomingContext)
-            {
-                logger.OperationFailed(ex, displayName);
-            }
+            RecordFailure(context, activity, ex, displayName);
             throw;
         }
     }
 
     internal const string RuntimeTypeRoutingTrimmingMessage = "When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.";
     internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
+
+    void RecordFailure(IBehaviorContext context, Activity activity, Exception exception, string displayName)
+    {
+        activityFactory.RecordError(activity, exception, context.Extensions);
+
+        // Inside message processing recoverability logs the exception with its decision, and a failure of
+        // recoverability itself is raised as a critical error. Outside of it no one else sees the exception.
+        if (!IsInsideMessageProcessing(context))
+        {
+            logger.OperationFailed(exception, displayName);
+        }
+    }
+
+    // An outgoing context created while a message is processed is not an incoming context, but its context bag
+    // chain holds the incoming message that the transport receive context set.
+    static bool IsInsideMessageProcessing(IBehaviorContext context) =>
+        context is IIncomingContext or ITransportReceiveContext or IRecoverabilityContext
+        || context.Extensions.TryGet<IncomingMessage>(out _);
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
     {

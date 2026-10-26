@@ -5,12 +5,15 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Extensibility;
 using Helpers;
 using Logging;
 using Microsoft.Extensions.Logging;
+using NServiceBus.Pipeline;
 using NUnit.Framework;
 using Pipeline;
 using Testing;
+using Transport;
 
 [TestFixture]
 public class MessageOperationsTests
@@ -282,6 +285,37 @@ public class MessageOperationsTests
         Assert.ThrowsAsync<Exception>(async () => await operations.Send(new TestableInvokeHandlerContext(), new object(), new SendOptions()));
 
         Assert.That(entries, Is.Empty);
+    }
+
+    [TestCase("transport receive context")]
+    [TestCase("recoverability context")]
+    [TestCase("outgoing context created while processing a message")]
+    public void Should_not_log_the_exception_on_failure_from_other_contexts_inside_message_processing(string contextKind)
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions()), logger);
+        operations.SendPipeline.OnInvoke = _ => throw new Exception("processing exception");
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(CreateContextInsideMessageProcessing(contextKind), new object(), new SendOptions()));
+
+        Assert.That(entries, Is.Empty);
+    }
+
+    static IBehaviorContext CreateContextInsideMessageProcessing(string contextKind)
+    {
+        switch (contextKind)
+        {
+            case "transport receive context":
+                return new TestableTransportReceiveContext();
+            case "recoverability context":
+                return new TestableRecoverabilityContext();
+            default:
+                // An outgoing behavior that sends while a message is processed: the context is not an incoming context,
+                // but it descends from the transport receive context, which set the incoming message on its bag.
+                var transportReceiveExtensions = new ContextBag();
+                transportReceiveExtensions.Set(new IncomingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()));
+                return new TestableOutgoingLogicalMessageContext { Extensions = new ContextBag(transportReceiveExtensions) };
+        }
     }
 
     [Test]
