@@ -240,6 +240,48 @@ public class RecoverabilityExecutorTests
         Assert.That(pipelineActivity.Links, Is.Empty);
     }
 
+    [Test]
+    public async Task Should_not_fail_when_enriching_the_activity_fails()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>();
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ThrowingEnricherActivityFactory());
+
+        var result = await executor.Invoke(CreateErrorContext());
+
+        Assert.That(result, Is.EqualTo(ErrorHandleResult.Handled));
+    }
+
+    [Test]
+    public void Should_rethrow_the_pipeline_exception_when_enriching_the_activity_fails()
+    {
+        using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
+
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = _ => throw new InvalidOperationException("dispatch failed")
+        };
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, new ThrowingEnricherActivityFactory());
+
+        var exception = Assert.ThrowsAsync<InvalidOperationException>(async () => await executor.Invoke(CreateErrorContext()));
+
+        Assert.That(exception.Message, Is.EqualTo("dispatch failed"));
+    }
+
+    sealed class ThrowingEnricherActivityFactory : IActivityFactory
+    {
+        readonly ActivityFactory inner = new(new InstrumentationOptions());
+
+        public InstrumentationOptions Options => inner.Options;
+        public Activity StartIncomingPipelineActivity(MessageContext context) => inner.StartIncomingPipelineActivity(context);
+        public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext) => inner.StartOutgoingPipelineActivity(activityName, displayName, outgoingContext);
+        public Activity StartHandlerActivity(MessageHandler messageHandler) => inner.StartHandlerActivity(messageHandler);
+        public Activity StartRecoverabilityActivity(ErrorContext context) => inner.StartRecoverabilityActivity(context);
+        public void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress) => throw new NotSupportedException("enricher failed");
+        public void RecordError(Activity activity, Exception exception, ContextBag contextBag) => inner.RecordError(activity, exception, contextBag);
+    }
+
     static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline, IActivityFactory activityFactory = null, IServiceProvider serviceProvider = null)
     {
         var executor = new RecoverabilityPipelineExecutor<object>(

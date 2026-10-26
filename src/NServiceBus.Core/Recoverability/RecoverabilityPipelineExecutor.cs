@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,13 +56,29 @@ class RecoverabilityPipelineExecutor<TState>(
             }
             finally
             {
-                if (activity is not null)
-                {
-                    activityFactory.EnrichActivityWithRecoverabilityActionData(activity, recoverabilityContext.RecoverabilityAction, errorContext.ReceiveAddress);
-                }
+                EnrichActivity(activity, recoverabilityContext.RecoverabilityAction, errorContext.ReceiveAddress);
             }
 
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
+        }
+    }
+
+    void EnrichActivity(Activity? activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    {
+        if (activity is null)
+        {
+            return;
+        }
+
+        try
+        {
+            activityFactory.EnrichActivityWithRecoverabilityActionData(activity, recoverabilityAction, receiveAddress);
+        }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - tracing must not change the recoverability outcome
+        catch (Exception)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
+        {
+            // A failure to enrich the activity must neither fail recoverability nor replace the exception of the recoverability pipeline.
         }
     }
 }
