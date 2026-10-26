@@ -46,7 +46,7 @@ When the broker or the publisher delivers events to the endpoint's input queue, 
 
 Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions.
 
-Calling `SubscribeAll` independently of installers does not mean that every resource needed for subscribing must be created independently of installers. A transport may create the endpoint’s native subscription while requiring a shared topic to exist when `SetupInfrastructure` is `false`. Core does not prescribe that resource boundary.
+A transport may still require some resources to exist when `SetupInfrastructure` is `false`. For example, it may create the endpoint's native subscription but require the shared topic to exist. Core does not prescribe where that boundary lies.
 
 Each transport must document which resources subscribing creates with installers enabled and disabled, which resources deployment must provide, and the permissions required in each case. If a required resource is missing, `SubscribeAll` should throw; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 
