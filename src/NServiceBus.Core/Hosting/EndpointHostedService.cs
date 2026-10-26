@@ -9,11 +9,7 @@ using Microsoft.Extensions.Hosting;
 
 sealed class EndpointHostedService(IEndpointLifecycle endpointLifecycle, InstallersOptions? installersOptions) : IHostedLifecycleService, IAsyncDisposable
 {
-    public async Task StartingAsync(CancellationToken cancellationToken = default)
-    {
-        var forceInstallers = installersOptions?.Enabled ?? false;
-        await endpointLifecycle.Create(forceInstallers, cancellationToken).ConfigureAwait(false);
-    }
+    public async Task StartingAsync(CancellationToken cancellationToken = default) => await endpointLifecycle.Create(cancellationToken).ConfigureAwait(false);
 
     public Task StartedAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
@@ -33,13 +29,5 @@ sealed class EndpointHostedService(IEndpointLifecycle endpointLifecycle, Install
         await endpointLifecycle.Start(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken = default)
-    {
-        if (installersOptions?.Enabled ?? false)
-        {
-            return;
-        }
-
-        await endpointLifecycle.Stop(cancellationToken).ConfigureAwait(false);
-    }
+    public async Task StopAsync(CancellationToken cancellationToken = default) => await endpointLifecycle.Stop(cancellationToken).ConfigureAwait(false);
 }
