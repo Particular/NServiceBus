@@ -64,11 +64,12 @@ partial class HostingComponent(HostingComponent.Configuration configuration, Ins
         return new HostingComponent(configuration, configuration.InstallerComponent);
     }
 
-    public bool ShouldRunInstallers(bool forceInstallers) => configuration.ShouldRunInstallers || forceInstallers;
+    public bool ShouldRunInstallers(IServiceProvider serviceProvider) =>
+        configuration.ShouldRunInstallers || serviceProvider.GetService<InstallersOptions>()?.Enabled == true;
 
-    public async Task RunInstallers(IServiceProvider serviceProvider, bool forceInstallers = false, CancellationToken cancellationToken = default)
+    public async Task RunInstallers(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
-        if (!ShouldRunInstallers(forceInstallers))
+        if (!ShouldRunInstallers(serviceProvider))
         {
             return;
         }

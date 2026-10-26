@@ -34,7 +34,7 @@ public class EndpointHostedServiceTests
 
     sealed class RecordingEndpointLifecycle : IEndpointLifecycle
     {
-        public ValueTask Create(bool forceInstallers = false, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
+        public ValueTask Create(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 
         public ValueTask Start(CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
 

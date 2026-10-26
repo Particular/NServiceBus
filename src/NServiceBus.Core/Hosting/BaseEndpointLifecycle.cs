@@ -10,7 +10,7 @@ class BaseEndpointLifecycle(
     ExternallyManagedContainerHost externallyManagedContainerHost,
     IServiceProvider serviceProvider) : IEndpointLifecycle
 {
-    public async ValueTask Create(bool forceInstallers = false, CancellationToken cancellationToken = default)
+    public async ValueTask Create(CancellationToken cancellationToken = default)
     {
         if (startableEndpoint != null)
         {
@@ -26,7 +26,7 @@ class BaseEndpointLifecycle(
                 return;
             }
 
-            startableEndpoint = await externallyManagedContainerHost.Create(AdaptProvider(serviceProvider, out providerLease), forceInstallers, cancellationToken)
+            startableEndpoint = await externallyManagedContainerHost.Create(AdaptProvider(serviceProvider, out providerLease), cancellationToken)
                 .ConfigureAwait(false);
         }
         finally
