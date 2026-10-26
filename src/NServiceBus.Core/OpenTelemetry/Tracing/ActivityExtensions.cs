@@ -11,7 +11,7 @@ static class ActivityExtensions
 {
     public const string OutgoingActivityKey = "NServiceBus.Diagnostics.Activity.Outgoing";
     public const string IncomingActivityKey = "NServiceBus.Diagnostics.Activity.Incoming";
-    public const string WrappingActivityKey = "NServiceBus.Diagnostics.Activity.Innermost";
+    public const string WrappingActivityKey = "NServiceBus.Diagnostics.Activity.Wrapping";
 
     public static bool TryGetOutgoingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
         => pipelineContext.TryGetPipelineActivity(OutgoingActivityKey, out activity);
@@ -37,7 +37,7 @@ static class ActivityExtensions
 
     public static bool TryRecordWrappingActivity(this ContextBag pipelineContext, Exception exception, Activity activity)
     {
-        if (pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? innermostActivity) && ReferenceEquals(innermostActivity.Exception, exception))
+        if (pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? wrappingActivity) && ReferenceEquals(wrappingActivity.Exception, exception))
         {
             return false;
         }
@@ -48,8 +48,8 @@ static class ActivityExtensions
 
     public static bool TryGetWrappingActivityContext(this ContextBag pipelineContext, Exception exception, out ActivityContext activityContext)
     {
-        activityContext = pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? innermostActivity) && ReferenceEquals(innermostActivity.Exception, exception)
-            ? innermostActivity.Context
+        activityContext = pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? wrappingActivity) && ReferenceEquals(wrappingActivity.Exception, exception)
+            ? wrappingActivity.Context
             : default;
         return activityContext != default;
     }

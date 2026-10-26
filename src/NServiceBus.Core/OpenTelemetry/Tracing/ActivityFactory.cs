@@ -199,9 +199,9 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
-        if (context.Extensions.TryGetWrappingActivityContext(context.Exception, out var innermostActivityContext))
+        if (context.Extensions.TryGetWrappingActivityContext(context.Exception, out var wrappingActivityContext))
         {
-            activity.AddLink(new ActivityLink(innermostActivityContext));
+            activity.AddLink(new ActivityLink(wrappingActivityContext));
         }
 
         activity.DisplayName = ActivityDisplayNames.Recoverability;
@@ -253,7 +253,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return;
         }
 
-        var isInnermostActivity = contextBag.TryRecordWrappingActivity(exception, activity);
+        var isWrappingActivity = contextBag.TryRecordWrappingActivity(exception, activity);
 
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
@@ -269,7 +269,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
 
-        if (isInnermostActivity)
+        if (isWrappingActivity)
         {
             LegacyAddExceptionEvent(activity, exception);
         }
