@@ -15,6 +15,7 @@
     <CompilerVisibleProperty Include="IsAotCompatible" />
     <CompilerVisibleProperty Include="IsTrimmable" />
     <CompilerVisibleProperty Include="EnableTrimAnalyzer" />
+    <CompilerVisibleProperty Include="NServiceBusHandlerRegistryComposition" />
   </ItemGroup>
 
 </Project>

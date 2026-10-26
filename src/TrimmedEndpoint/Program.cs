@@ -1,13 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Features;
 using NServiceBus.Installation;
 using NServiceBus.MessageMutator;
 using NServiceBus.Pipeline;
-
-#if INCLUDE_SAGA
-using NServiceBus.Configuration.AdvancedExtensibility;
-#endif
+using NServiceBus.Unicast;
+using NServiceBus.Unicast.Messages;
 
 var configuration = new EndpointConfiguration("TrimmedEndpoint");
 string? startupDiagnostics = null;
@@ -44,6 +43,8 @@ configuration.Conventions().DefiningCommandsAs(type =>
 configuration.EnableFeature<TrimmedScenarioFeature>();
 configuration.EnableInstallers();
 configuration.AddHandler<MyHandler>();
+// Registers MyHandler again, which must be harmless, and calls the hand-written contributor below.
+configuration.Handlers.AddAll();
 // Exercise the typed replacement APIs so their trimming-sensitive, annotated paths are covered.
 configuration.RegisterMessageMutator(new ReplacesIncomingMessageInstance());
 configuration.RegisterMessageMutator(new ReplacesOutgoingMessage());
@@ -58,10 +59,20 @@ IMessageSession session = endpoint;
 await session.SendLocal<MyCommand>(new MyCommand { SomeValue = "hello" });
 await WaitFor(() => MyHandler.Invoked);
 
+// Handler registered by a contributor through the generator-facing APIs.
+await session.SendLocal<ContributedCommand>(new ContributedCommand { SomeValue = "contributed" });
+await WaitFor(() => ContributedHandler.Invoked);
+
 #if INCLUDE_SAGA
 // Saga start + timeout path.
 await session.SendLocal<StartOrderCommand>(new StartOrderCommand { OrderId = "order-1" });
 await WaitFor(() => OrderSaga.Started && OrderSaga.TimedOut);
+
+// Saga registered by a contributor: start and complete path.
+await session.SendLocal<StartContributedSagaCommand>(new StartContributedSagaCommand { OrderId = "contributed-1" });
+await WaitFor(() => ContributedSaga.Started);
+await session.SendLocal<CompleteContributedSagaCommand>(new CompleteContributedSagaCommand { OrderId = "contributed-1" });
+await WaitFor(() => ContributedSaga.WasCompleted);
 
 // Saga handle path (correlated via OrderId).
 await session.SendLocal<HandleOrderCommand>(new HandleOrderCommand { OrderId = "order-1" });
@@ -115,6 +126,12 @@ if (!OrderSaga.Started || !OrderSaga.TimedOut || !OrderSaga.Handled)
     Console.Error.WriteLine($"SagaStarted={OrderSaga.Started} SagaTimedOut={OrderSaga.TimedOut} SagaHandled={OrderSaga.Handled}");
     return 2;
 }
+
+if (!ContributedSaga.Started || !ContributedSaga.WasCompleted)
+{
+    Console.Error.WriteLine($"ContributedSagaStarted={ContributedSaga.Started} ContributedSagaCompleted={ContributedSaga.WasCompleted}");
+    return 8;
+}
 #endif
 
 if (!strictModeVerified)
@@ -139,6 +156,12 @@ if (!ReplacesIncomingMessageInstance.Replaced || !MyHandler.ReceivedReplacedInst
 {
     Console.Error.WriteLine($"IncomingReplaced={ReplacesIncomingMessageInstance.Replaced} HandlerReceivedReplacedInstance={MyHandler.ReceivedReplacedInstance} OutgoingReplaced={ReplacesOutgoingMessage.Replaced}");
     return 6;
+}
+
+if (!ContributedHandler.Invoked)
+{
+    Console.Error.WriteLine("Handler registered by the contributor was not invoked.");
+    return 7;
 }
 
 Console.WriteLine("TRIM-VALIDATION-SUCCESS");
@@ -176,6 +199,39 @@ public class MyHandler : IHandleMessages<MyCommand>
         Invoked = true;
         ReceivedReplacedInstance = message.SomeValue == "replaced";
         return Task.CompletedTask;
+    }
+}
+
+public class ContributedCommand : ICommand
+{
+    public string SomeValue { get; set; } = string.Empty;
+}
+
+public class ContributedHandler : IHandleMessages<ContributedCommand>
+{
+    public static bool Invoked;
+
+    public Task Handle(ContributedCommand message, IMessageHandlerContext context)
+    {
+        Invoked = true;
+        return Task.CompletedTask;
+    }
+}
+
+[HandlerRegistryContributor]
+public sealed class TrimmedEndpointContributor : IHandlerRegistryContributor<TrimmedEndpointContributor>
+{
+    public static TrimmedEndpointContributor Instance { get; } = new();
+
+    public void AddHandlers(EndpointConfiguration configuration)
+    {
+        var settings = configuration.GetSettings();
+        settings.GetOrCreate<MessageHandlerRegistry>().AddMessageHandlerForMessage<ContributedHandler, ContributedCommand>();
+        settings.GetOrCreate<MessageMetadataRegistry>().RegisterMessageTypeWithHierarchy(typeof(ContributedCommand), []);
+    }
+
+    public void AddSagas(EndpointConfiguration configuration)
+    {
     }
 }
 
@@ -329,6 +385,7 @@ public sealed class TrimmedScenarioDiagnostics
 }
 
 [JsonSerializable(typeof(MyCommand))]
+[JsonSerializable(typeof(ContributedCommand))]
 [JsonSerializable(typeof(OutgoingCommand))]
 [JsonSerializable(typeof(UnobtrusiveCommand))]
 [JsonSerializable(typeof(UnregisteredMessage))]
@@ -336,6 +393,8 @@ public sealed class TrimmedScenarioDiagnostics
 [JsonSerializable(typeof(StartOrderCommand))]
 [JsonSerializable(typeof(HandleOrderCommand))]
 [JsonSerializable(typeof(OrderTimeout))]
+[JsonSerializable(typeof(StartContributedSagaCommand))]
+[JsonSerializable(typeof(CompleteContributedSagaCommand))]
 #endif
 public partial class TrimmedEndpointJsonContext : JsonSerializerContext
 {
@@ -348,6 +407,7 @@ public partial class TrimmedScenarioJsonContext : JsonSerializerContext
 
 #if INCLUDE_SAGA
 [JsonSerializable(typeof(OrderSagaData))]
+[JsonSerializable(typeof(ContributedSagaData))]
 public partial class SagaDataJsonContext : JsonSerializerContext
 {
 }

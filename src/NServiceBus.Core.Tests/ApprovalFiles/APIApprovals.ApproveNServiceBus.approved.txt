@@ -341,6 +341,12 @@ namespace NServiceBus
             "heck\'. Will be removed in version 11.0.0.", true)]
         protected override System.Type ProvidedByFeature() { }
     }
+    [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple=false, Inherited=false)]
+    public sealed class GeneratedHandlerRegistryAttribute : System.Attribute
+    {
+        public GeneratedHandlerRegistryAttribute(System.Type entryType) { }
+        public System.Type EntryType { get; }
+    }
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HandlerAttribute : System.Attribute
     {
@@ -350,6 +356,21 @@ namespace NServiceBus
     {
         public HandlerRegistry(NServiceBus.EndpointConfiguration configuration) { }
         public NServiceBus.EndpointConfiguration Configuration { get; }
+        public void AddAll() { }
+        public void AddAllHandlers() { }
+        public void AddAllSagas() { }
+    }
+    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
+    public sealed class HandlerRegistryContributorAttribute : System.Attribute
+    {
+        public HandlerRegistryContributorAttribute() { }
+    }
+    public static class HandlerRegistryContributors
+    {
+        public static void AddHandlers<TContributor>(NServiceBus.EndpointConfiguration configuration)
+            where TContributor : NServiceBus.IHandlerRegistryContributor { }
+        public static void AddSagas<TContributor>(NServiceBus.EndpointConfiguration configuration)
+            where TContributor : NServiceBus.IHandlerRegistryContributor { }
     }
     [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple=false, Inherited=false)]
     public sealed class HandlerRegistryExtensionsAttribute : System.Attribute
@@ -507,6 +528,17 @@ namespace NServiceBus
     public interface IHandleTimeouts<T>
     {
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
+    }
+    public interface IHandlerRegistryContributor
+    {
+        NServiceBus.IHandlerRegistryContributor Instance { get; }
+        void AddHandlers(NServiceBus.EndpointConfiguration configuration);
+        void AddSagas(NServiceBus.EndpointConfiguration configuration);
+    }
+    public interface IHandlerRegistryContributor<TSelf> : NServiceBus.IHandlerRegistryContributor
+        where TSelf : NServiceBus.IHandlerRegistryContributor<TSelf>
+    {
+        TSelf Instance { get; }
     }
     public interface IMessageConvention
     {

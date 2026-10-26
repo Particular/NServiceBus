@@ -17,6 +17,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
     public static class Parser
     {
         const string HandlerRegistryExtensionsSuffix = "HandlerRegistryExtensions";
+        public const string ContributorInterfaceMetadataName = "NServiceBus.IHandlerRegistryContributor";
 
         public enum SpecKind
         {
@@ -40,6 +41,8 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             }
         }
 
+        public readonly record struct ContributorSpec(string FullyQualifiedName, string Namespace);
+
         public readonly record struct RootTypeSpec(string Namespace, string Visibility, string RootName, string ExtensionTypeName, ImmutableEquatableArray<ReplacementSpec> RegistrationMethodNamePatterns, bool IsExplicit)
         {
             public static RootTypeSpec CreateDefault(string assemblyId)
@@ -59,6 +62,55 @@ public partial class AddHandlerAndSagasRegistrationGenerator
             var handlerOrSagaNamespace = GetNamespace(displayParts);
             var assemblyName = namedTypeSymbol.ContainingAssembly?.Name ?? "Assembly";
             return new BaseSpec(Name: handlerOrSagaName, Namespace: handlerOrSagaNamespace, AssemblyName: assemblyName, FullyQualifiedName: fullyQualifiedName, Kind: kind);
+        }
+
+        public static ContributorSpec? ParseContributor(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var compilation = context.SemanticModel.Compilation;
+            if (context.TargetSymbol is not INamedTypeSymbol contributorType ||
+                compilation.GetTypeByMetadataName(ContributorInterfaceMetadataName) is not { } contributorInterface ||
+                GetContributorProblems(contributorType, contributorInterface, compilation).Count > 0)
+            {
+                return null;
+            }
+
+            var containingNamespace = contributorType.ContainingNamespace;
+            var namespaceName = containingNamespace is null || containingNamespace.IsGlobalNamespace ? string.Empty : containingNamespace.ToDisplayString();
+            return new ContributorSpec(contributorType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), namespaceName);
+        }
+
+        public static ImmutableEquatableArray<ContributorSpec> SelectContributors(ImmutableArray<ContributorSpec> contributors) =>
+            contributors
+                .Distinct()
+                .OrderBy(static spec => spec.FullyQualifiedName, StringComparer.Ordinal)
+                .ToImmutableEquatableArray();
+
+        public static List<string> GetContributorProblems(INamedTypeSymbol contributorType, INamedTypeSymbol contributorInterface, Compilation compilation)
+        {
+            var problems = new List<string>();
+
+            for (var current = contributorType; current is not null; current = current.ContainingType)
+            {
+                if (current.IsGenericType)
+                {
+                    problems.Add("must not be generic");
+                    break;
+                }
+            }
+
+            if (!compilation.IsSymbolAccessibleWithin(contributorType, compilation.Assembly))
+            {
+                problems.Add("must be accessible from the generated registry");
+            }
+
+            if (!contributorType.AllInterfaces.Contains(contributorInterface, SymbolEqualityComparer.Default))
+            {
+                problems.Add($"must implement {contributorInterface.Name}");
+            }
+
+            return problems;
         }
 
         public static RootTypeSpec? ParseRootTypeSpec(GeneratorAttributeSyntaxContext context, CancellationToken cancellationToken = default)
