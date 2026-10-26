@@ -98,7 +98,7 @@ public class SagaTimeoutManagementSatelliteTests
         var notifier = new SagaTimeoutPlatformNotifier(connection, "Endpoint", hostInformation, "Endpoint.SagaTimeouts");
         var serializer = new TestSerializer();
 
-        return new SagaTimeoutManagementSatellite(persister, sagas, registry, new TimeoutSerializer(serializer, new MessageDeserializerResolver(serializer, [])), dispatcher, outboxStorage, notifier, "Endpoint", hostInformation, "Endpoint", NullLogger<SagaTimeoutManagementSatellite>.Instance);
+        return new SagaTimeoutManagementSatellite(persister, persister, sagas, registry, new TimeoutSerializer(serializer, new MessageDeserializerResolver(serializer, [])), dispatcher, outboxStorage, notifier, "Endpoint", hostInformation, "Endpoint", NullLogger<SagaTimeoutManagementSatellite>.Instance);
     }
 
     MessageContext CreateRequest(string messageId, int expectedVersion)
@@ -161,7 +161,7 @@ public class SagaTimeoutManagementSatelliteTests
         public object[] Deserialize(ReadOnlyMemory<byte> body, IList<Type> messageTypes = null) => [JsonSerializer.Deserialize(body.Span, messageTypes[0])];
     }
 
-    class TestPersister : ISagaPersister
+    class TestPersister : ISagaPersister, ITimeoutPersister
     {
         public TimeoutSaga.TimeoutSagaData Data { get; } = new() { Id = Guid.NewGuid(), Originator = "origin", OriginalMessageId = "id", Key = "key" };
 
@@ -185,14 +185,36 @@ public class SagaTimeoutManagementSatelliteTests
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default) where TSagaData : class, IContainSagaData
         {
             GetCalls++;
-            context.SetSagaTimeouts(Data, Timeouts);
             return Task.FromResult((TSagaData)(object)Data);
         }
 
         public Task Update(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
         {
             UpdateCalls++;
-            Timeouts = [.. context.GetSagaTimeouts(sagaData)];
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyList<StoredSagaTimeout>> Get(IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<StoredSagaTimeout>>([.. Timeouts]);
+
+        public Task Request(IContainSagaData sagaData, StoredSagaTimeout timeout, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
+        {
+            Timeouts.Add(timeout);
+            return Task.CompletedTask;
+        }
+
+        public Task Reschedule(IContainSagaData sagaData, StoredSagaTimeout timeout, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
+        {
+            Timeouts[Timeouts.FindIndex(t => t.TimeoutId == timeout.TimeoutId)] = timeout;
+            return Task.CompletedTask;
+        }
+
+        public Task MarkFired(IContainSagaData sagaData, string timeoutId, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default) =>
+            Cancel(sagaData, timeoutId, session, context, cancellationToken);
+
+        public Task Cancel(IContainSagaData sagaData, string timeoutId, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
+        {
+            _ = Timeouts.RemoveAll(t => t.TimeoutId == timeoutId);
             return Task.CompletedTask;
         }
 

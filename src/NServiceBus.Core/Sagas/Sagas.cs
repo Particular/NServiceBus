@@ -33,10 +33,11 @@ public sealed class Sagas : Feature
         context.Pipeline.Register("InvokeSaga", b =>
         {
             var persister = b.GetRequiredService<ISagaPersister>();
+            var timeoutPersister = supportsTimeoutManagement ? b.GetRequiredService<ITimeoutPersister>() : null;
             // Timeout changes are reported only when reporting is enabled and the saga persistence supports timeout management
             var platformNotifier = supportsTimeoutManagement ? b.GetService<SagaTimeoutPlatformNotifier>() : null;
 
-            return new SagaPersistenceBehavior(persister, sagaIdGenerator, sagaMetaModel, b.GetRequiredService<TimeoutSerializer>(), b.GetRequiredService<MessageMetadataRegistry>(), platformNotifier!, supportsTimeoutManagement, b);
+            return new SagaPersistenceBehavior(persister, sagaIdGenerator, sagaMetaModel, b.GetRequiredService<TimeoutSerializer>(), b.GetRequiredService<MessageMetadataRegistry>(), platformNotifier!, timeoutPersister!, b);
         }, "Invokes the saga logic");
         context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
     }

@@ -130,6 +130,7 @@ class EndpointCreator
         var featureConfigurationContext = new FeatureConfigurationContext(settings, services, pipelineSettings, routingConfiguration, receiveConfiguration, hostingConfiguration.PersistenceConfiguration);
         featureComponent.Initialize(featureConfigurationContext, settings);
 
+        SagaComponent.AssertTimeoutPersisterIsRegistered(sagaSettings, hostingConfiguration.PersistenceConfiguration, services);
         hostingConfiguration.PersistenceConfiguration.AssertSagaAndOutboxUseSamePersistence();
 
         recoverabilityComponent.Initialize(

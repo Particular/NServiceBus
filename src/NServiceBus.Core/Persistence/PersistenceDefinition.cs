@@ -49,6 +49,15 @@ public abstract partial class PersistenceDefinition
     /// </summary>
     public bool HasSupportFor<T>() where T : StorageType, new() => HasSupportFor(new T());
 
+    /// <summary>
+    /// True if the saga storage of this persistence supports saga timeout management. A persistence whose saga storage registers an <see cref="NServiceBus.Sagas.ITimeoutPersister" /> overrides this to return true.
+    /// </summary>
+    /// <remarks>
+    /// Declared on the persistence definition so that the NServiceBus analyzers can detect at compile time
+    /// that sagas using timeout management, or saga timeout reporting, are configured with a persistence that doesn't support it.
+    /// </remarks>
+    public virtual bool SupportsTimeoutManagement => false;
+
     internal string Name => GetType().Name;
     internal string FullName => GetType().FullName ?? Name;
 

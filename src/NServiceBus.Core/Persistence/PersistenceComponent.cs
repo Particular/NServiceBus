@@ -9,7 +9,6 @@ using System.Linq;
 using Features;
 using Logging;
 using Persistence;
-using Sagas;
 using Settings;
 
 sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSettings)
@@ -86,7 +85,7 @@ sealed class PersistenceComponent(PersistenceComponent.Settings persistenceSetti
 
         public PersistenceDefinition? SagaPersistenceDefinition { get; } = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains<StorageType.Sagas>())?.Definition;
 
-        public bool SagaStorageSupportsTimeoutManagement => SagaPersistenceDefinition is ISupportTimeoutManagement;
+        public bool SagaStorageSupportsTimeoutManagement => SagaPersistenceDefinition?.SupportsTimeoutManagement == true;
 
         public void AssertSagaAndOutboxUseSamePersistence()
         {

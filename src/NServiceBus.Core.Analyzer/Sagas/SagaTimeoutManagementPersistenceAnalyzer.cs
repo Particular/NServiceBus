@@ -163,8 +163,21 @@ public sealed class SagaTimeoutManagementPersistenceAnalyzer : DiagnosticAnalyze
             _ => null
         };
 
-    static bool SupportsTimeoutManagement(INamedTypeSymbol persistenceDefinition, KnownTypes knownTypes) =>
-        persistenceDefinition.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, knownTypes.SupportTimeoutManagement));
+    // The analyzer can't evaluate the property, so an override in the definition or one of its base types counts as support
+    static bool SupportsTimeoutManagement(INamedTypeSymbol persistenceDefinition, KnownTypes knownTypes)
+    {
+        var baseProperty = knownTypes.SupportsTimeoutManagementProperty;
+
+        for (var type = persistenceDefinition; type is not null && !SymbolEqualityComparer.Default.Equals(type, baseProperty.ContainingType); type = type.BaseType)
+        {
+            if (type.GetMembers(baseProperty.Name).OfType<IPropertySymbol>().Any(p => p.IsOverride))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     static ImmutableArray<string> GetFlaggedSagas(Compilation compilation, INamedTypeSymbol attribute)
     {
@@ -196,7 +209,7 @@ public sealed class SagaTimeoutManagementPersistenceAnalyzer : DiagnosticAnalyze
     readonly record struct KnownTypes(
         INamedTypeSymbol PersistenceConfig,
         INamedTypeSymbol SagasStorageType,
-        INamedTypeSymbol SupportTimeoutManagement,
+        IPropertySymbol SupportsTimeoutManagementProperty,
         INamedTypeSymbol SagaUsesTimeoutManagementAttribute,
         INamedTypeSymbol ReportingExtensions)
     {
@@ -204,17 +217,17 @@ public sealed class SagaTimeoutManagementPersistenceAnalyzer : DiagnosticAnalyze
         {
             var persistenceConfig = compilation.GetTypeByMetadataName("NServiceBus.PersistenceConfig");
             var sagasStorageType = compilation.GetTypeByMetadataName("NServiceBus.StorageType+Sagas");
-            var supportTimeoutManagement = compilation.GetTypeByMetadataName("NServiceBus.Sagas.ISupportTimeoutManagement");
+            var supportsTimeoutManagementProperty = compilation.GetTypeByMetadataName("NServiceBus.Persistence.PersistenceDefinition")?.GetMembers("SupportsTimeoutManagement").OfType<IPropertySymbol>().FirstOrDefault();
             var attribute = compilation.GetTypeByMetadataName(SagaTimeoutManagementUsageGenerator.SagaUsesTimeoutManagementAttributeMetadataName);
             var reportingExtensions = compilation.GetTypeByMetadataName("NServiceBus.SagaTimeoutReportingConfigurationExtensions");
 
-            if (persistenceConfig is null || sagasStorageType is null || supportTimeoutManagement is null || attribute is null || reportingExtensions is null)
+            if (persistenceConfig is null || sagasStorageType is null || supportsTimeoutManagementProperty is null || attribute is null || reportingExtensions is null)
             {
                 knownTypes = default;
                 return false;
             }
 
-            knownTypes = new KnownTypes(persistenceConfig, sagasStorageType, supportTimeoutManagement, attribute, reportingExtensions);
+            knownTypes = new KnownTypes(persistenceConfig, sagasStorageType, supportsTimeoutManagementProperty, attribute, reportingExtensions);
             return true;
         }
     }
@@ -228,7 +241,7 @@ public sealed class SagaTimeoutManagementPersistenceAnalyzer : DiagnosticAnalyze
         "NServiceBus.Code",
         DiagnosticSeverity.Error,
         true,
-        "Reporting saga timeouts to ServiceControl and accepting operator changes from ServicePulse need the saga persistence to store timeouts with the saga. Use a persistence whose definition implements ISupportTimeoutManagement, or remove the call.");
+        "Reporting saga timeouts to ServiceControl and accepting operator changes from ServicePulse need the saga persistence to store timeouts with the saga. Use a persistence whose definition overrides PersistenceDefinition.SupportsTimeoutManagement, or remove the call.");
 
     static readonly DiagnosticDescriptor SagasRequireSupport = new(
         DiagnosticIds.SagaTimeoutManagementRequiresSupportingPersistence,

@@ -23,6 +23,7 @@ using TransportOperation = Transport.TransportOperation;
 // so the saga is loaded and saved directly, and the outbox is used the same way TransportReceiveToPhysicalMessageConnector uses it.
 sealed partial class SagaTimeoutManagementSatellite(
     ISagaPersister persister,
+    ITimeoutPersister timeoutPersister,
     SagaMetadataCollection sagaMetadataCollection,
     MessageMetadataRegistry messageMetadataRegistry,
     TimeoutSerializer timeoutSerializer,
@@ -114,7 +115,8 @@ sealed partial class SagaTimeoutManagementSatellite(
             return;
         }
 
-        var timeouts = new SagaTimeouts(contextBag.GetOrCreateSagaTimeouts(sagaData), timeoutSerializer, messageMetadataRegistry);
+        var storedTimeouts = await timeoutPersister.Get(sagaData, storageSession, contextBag, cancellationToken).ConfigureAwait(false);
+        var timeouts = new SagaTimeouts(storedTimeouts, timeoutSerializer, messageMetadataRegistry);
         var stored = timeouts.Get(request.TimeoutId);
         var rejectedKind = request.IsReschedule ? SagaTimeoutChangeKind.RescheduleRejected : SagaTimeoutChangeKind.CancelRejected;
 
@@ -137,7 +139,9 @@ sealed partial class SagaTimeoutManagementSatellite(
             timeouts.Cancel(request.TimeoutId, request.OperationId);
         }
 
+        // Updating the unchanged saga data makes the saga's optimistic concurrency check conflict with a handler that changes the same timeouts
         await persister.Update(sagaData, storageSession, contextBag, cancellationToken).ConfigureAwait(false);
+        await timeouts.Persist(timeoutPersister, sagaData, storageSession, contextBag, cancellationToken).ConfigureAwait(false);
         await platformNotifier.NotifyChanges(metadata, sagaData, timeouts.Changes, operations, cancellationToken).ConfigureAwait(false);
     }
 

@@ -5,10 +5,14 @@ namespace NServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Extensibility;
+using Persistence;
 using Sagas;
 using Unicast.Messages;
 
-class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer serializer, MessageMetadataRegistry messageMetadataRegistry)
+class SagaTimeouts(IReadOnlyList<StoredSagaTimeout> loadedTimeouts, TimeoutSerializer serializer, MessageMetadataRegistry messageMetadataRegistry)
 {
     public const string TimeoutIdHeader = "NServiceBus.SagaTimeoutId";
 
@@ -17,7 +21,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
     public IReadOnlyList<SagaTimeoutChange> Changes => changes;
 
     // Captured before any change, so a handler that removes the last timeout and completes the saga still reports the completion
-    public bool HadStoredTimeoutsWhenLoaded { get; } = storedTimeouts.Count > 0;
+    public bool HadStoredTimeoutsWhenLoaded { get; } = loadedTimeouts.Count > 0;
 
     public StoredSagaTimeout Add<TTimeoutMessageType>(TTimeoutMessageType payload, DateTimeOffset dueTime)
     {
@@ -34,6 +38,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
 
         storedTimeouts.Add(timeout);
         pendingTimeouts[timeout.TimeoutId] = new PendingSagaTimeout(timeout, typeof(TTimeoutMessageType));
+        operations.Add(new TimeoutOperation(TimeoutOperationKind.Request, timeout.TimeoutId, Snapshot(timeout)));
         changes.Add(new SagaTimeoutChange(SagaTimeoutChangeKind.Requested, timeout.TimeoutId, Snapshot(timeout), null));
         return timeout;
     }
@@ -85,6 +90,7 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
         stored.TriggerId = Guid.NewGuid().ToString();
         stored.Version++;
         pendingTimeouts[timeoutId] = new PendingSagaTimeout(stored, payloadType);
+        operations.Add(new TimeoutOperation(TimeoutOperationKind.Reschedule, timeoutId, Snapshot(stored)));
         changes.Add(new SagaTimeoutChange(SagaTimeoutChangeKind.Rescheduled, timeoutId, Snapshot(stored), null));
     }
 
@@ -101,13 +107,14 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
         stored.TriggerId = Guid.NewGuid().ToString();
         stored.Version++;
         _ = foundPayloads.Remove(stored.TimeoutId);
+        operations.Add(new TimeoutOperation(TimeoutOperationKind.Reschedule, stored.TimeoutId, Snapshot(stored)));
         changes.Add(new SagaTimeoutChange(SagaTimeoutChangeKind.Rescheduled, stored.TimeoutId, Snapshot(stored), null, operationId));
         return stored;
     }
 
     public void Cancel(string timeoutId, Guid? operationId = null)
     {
-        var stored = Remove(timeoutId);
+        var stored = Remove(timeoutId, TimeoutOperationKind.Cancel);
         changes.Add(stored is null
             ? new SagaTimeoutChange(SagaTimeoutChangeKind.CancelRejected, timeoutId, null, null, operationId)
             : new SagaTimeoutChange(SagaTimeoutChangeKind.Canceled, timeoutId, Snapshot(stored), null, operationId));
@@ -116,12 +123,15 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
     public void Reject(SagaTimeoutChangeKind kind, string timeoutId, DateTimeOffset? requestedDueTime, string reason, Guid operationId) =>
         changes.Add(new SagaTimeoutChange(kind, timeoutId, null, requestedDueTime, operationId, reason));
 
-    public StoredSagaTimeout? Remove(string timeoutId)
+    public void MarkFired(string timeoutId) => _ = Remove(timeoutId, TimeoutOperationKind.MarkFired);
+
+    StoredSagaTimeout? Remove(string timeoutId, TimeoutOperationKind operationKind)
     {
         var stored = storedTimeouts.Find(t => t.TimeoutId == timeoutId);
         if (stored is not null)
         {
             _ = storedTimeouts.Remove(stored);
+            operations.Add(new TimeoutOperation(operationKind, timeoutId, null));
         }
 
         _ = pendingTimeouts.Remove(timeoutId);
@@ -141,6 +151,25 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
         return serializer.Deserialize(stored.Payload, stored.ContentType, messageType);
     }
 
+    // Applied in the order the changes were made, after the saga itself is saved or updated
+    public async Task Persist(ITimeoutPersister persister, IContainSagaData sagaData, ISynchronizedStorageSession session, ContextBag context, CancellationToken cancellationToken = default)
+    {
+        foreach (var operation in operations)
+        {
+            var task = operation.Kind switch
+            {
+                TimeoutOperationKind.Request => persister.Request(sagaData, operation.Timeout!, session, context, cancellationToken),
+                TimeoutOperationKind.Reschedule => persister.Reschedule(sagaData, operation.Timeout!, session, context, cancellationToken),
+                TimeoutOperationKind.Cancel => persister.Cancel(sagaData, operation.TimeoutId, session, context, cancellationToken),
+                TimeoutOperationKind.MarkFired => persister.MarkFired(sagaData, operation.TimeoutId, session, context, cancellationToken),
+                _ => throw new InvalidOperationException($"Unknown saga timeout operation '{operation.Kind}'.")
+            };
+            await task.ConfigureAwait(false);
+        }
+
+        operations.Clear();
+    }
+
     public static string MessageTypeName(Type messageType) => messageType.FullName!;
 
     byte[] Serialize(object payload) => serializer.Serialize(payload);
@@ -156,12 +185,25 @@ class SagaTimeouts(List<StoredSagaTimeout> storedTimeouts, TimeoutSerializer ser
         Payload = stored.Payload
     };
 
+    readonly List<StoredSagaTimeout> storedTimeouts = [.. loadedTimeouts];
+    readonly List<TimeoutOperation> operations = [];
     readonly List<SagaTimeoutChange> changes = [];
     readonly Dictionary<string, PendingSagaTimeout> pendingTimeouts = [];
     readonly Dictionary<string, (object Payload, Type PayloadType)> foundPayloads = [];
 }
 
 record PendingSagaTimeout(StoredSagaTimeout Stored, Type PayloadType);
+
+enum TimeoutOperationKind
+{
+    Request,
+    Reschedule,
+    Cancel,
+    MarkFired
+}
+
+// Timeout is a snapshot taken when the operation was recorded; it's null for Cancel and MarkFired.
+sealed record TimeoutOperation(TimeoutOperationKind Kind, string TimeoutId, StoredSagaTimeout? Timeout);
 
 enum SagaTimeoutChangeKind
 {
