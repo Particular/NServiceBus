@@ -33,9 +33,9 @@ The array does not contain:
 - Destinations of commands, replies, or other routed messages. A sender does not create the input queues of the endpoints it sends to.
 - The ServiceControl queues that the Heartbeat, CustomChecks, SagaAudit, and Metrics.ServiceControl packages send to. These packages dispatch without calling `BindSending`, so installers do not create those queues on any transport.
 
-## Creating queues for sending addresses
+## Creating queues
 
-When `SetupInfrastructure` is `true`, a transport should create a complete queue for each sending address. A complete queue includes every native resource the transport needs to accept a message for that address and keep it until a receiver reads it. Error and audit messages then stay in their queues until a consumer, such as ServiceControl, starts.
+When `SetupInfrastructure` is `true`, a transport should create a complete queue for each receive address and each sending address. A complete queue includes every native resource the transport needs to accept a message for that address and keep it until a receiver reads it. Error and audit messages then stay in their queues until a consumer, such as ServiceControl, starts.
 
 A queue that has only some of those resources can accept a send and lose the message without an error. For example, a broker can discard a message published to a topic that has no subscriptions.
 
