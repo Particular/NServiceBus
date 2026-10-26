@@ -71,7 +71,7 @@ public class HostSettings(string name, string hostDisplayName, StartupDiagnostic
     /// A flag that indicates whether the transport should automatically setup necessary infrastructure.
     /// </summary>
     /// <remarks>
-    /// When hosted in an NServiceBus endpoint, this flag reflects whether <see cref="InstallConfigExtensions.EnableInstallers"/> was called.
+    /// When hosted in an NServiceBus endpoint, this flag reflects whether <see cref="InstallConfigExtensions.EnableInstallers"/> or <see cref="ServiceCollectionExtensions.AddNServiceBusInstallers"/> was called.
     /// It does not cover subscriptions. Core calls <see cref="ISubscriptionManager"/> whether or not this flag is set.
     /// </remarks>
     public bool SetupInfrastructure { get; } = setupInfrastructure;

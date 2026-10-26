@@ -14,10 +14,9 @@ Each transport must document which of its native resources belong to each kind, 
 
 ## SetupInfrastructure
 
-`HostSettings.SetupInfrastructure` is `true` when the endpoint configuration calls `EnableInstallers()`, and `false` otherwise. Core reads the setting when it creates the endpoint and passes the flag to the transport. Core does not read the flag anywhere else, so only the transport acts on it; see [Native resources](#native-resources).
+`HostSettings.SetupInfrastructure` is `true` when the endpoint configuration calls `EnableInstallers()` or the host calls `AddNServiceBusInstallers()`, and `false` otherwise. Core decides this after installers run and passes the flag to the transport. Core does not read the flag anywhere else, so only the transport acts on it; see [Native resources](#native-resources).
 
 - `Installer.Setup` and `Installer.CreateInstallerWithExternallyManagedContainer` call `EnableInstallers()`, so the transport gets `true`.
-- `AddNServiceBusInstallers()` runs the endpoint's installers without calling `EnableInstallers()`. When the endpoint configuration does not call `EnableInstallers()` either, the transport gets `false`.
 - When a transport runs without an endpoint, the caller sets the flag through the `HostSettings` constructor.
 
 The flag covers endpoint infrastructure and shared infrastructure. It does not cover subscriptions; see [Subscriptions](#subscriptions).
