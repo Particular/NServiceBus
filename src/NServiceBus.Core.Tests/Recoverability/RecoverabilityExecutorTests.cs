@@ -134,7 +134,6 @@ public class RecoverabilityExecutorTests
             OnInvoke = context =>
             {
                 recoverabilityActivity = Activity.Current;
-                CarryOutAction(context);
             }
         };
 
@@ -156,7 +155,6 @@ public class RecoverabilityExecutorTests
             OnInvoke = context =>
             {
                 context.RecoverabilityAction = RecoverabilityAction.MoveToError("error");
-                CarryOutAction(context);
             }
         };
 
@@ -166,6 +164,39 @@ public class RecoverabilityExecutorTests
         await executor.Invoke(CreateErrorContext());
 
         Assert.That(entries.Select(e => e.Category), Is.EqualTo(["NServiceBus.MoveToError"]), "a behavior replaced the policy's decision");
+    }
+
+    [Test]
+    public async Task Should_log_a_custom_action_as_a_warning()
+    {
+        var recoverabilityPipeline = new TestableMessageOperations.Pipeline<IRecoverabilityContext>
+        {
+            OnInvoke = context =>
+            {
+                context.RecoverabilityAction = new CustomAction();
+            }
+        };
+
+        var (serviceProvider, entries) = CapturingLoggerProvider.CreateServiceProvider();
+        var executor = CreateRecoverabilityExecutor(recoverabilityPipeline, serviceProvider: serviceProvider);
+        var errorContext = CreateErrorContext();
+
+        await executor.Invoke(errorContext);
+
+        var entry = entries.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(entry.Category, Is.EqualTo("NServiceBus.RecoverabilityAction"));
+            Assert.That(entry.Level, Is.EqualTo(LogLevel.Warning));
+            Assert.That(entry.Exception, Is.SameAs(errorContext.Exception));
+            Assert.That(entry.Message, Does.StartWith($"Recoverability action 'CustomAction' invoked for message '{errorContext.MessageId}'"));
+        }
+    }
+
+    sealed class CustomAction : RecoverabilityAction
+    {
+        public override ErrorHandleResult ErrorHandleResult => ErrorHandleResult.Handled;
+        public override System.Collections.Generic.IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context) => [];
     }
 
     [Test]
@@ -189,8 +220,6 @@ public class RecoverabilityExecutorTests
 
         Assert.That(recoverabilityActivity.TagObjects.Where(t => t.Key == ActivityTags.RecoverabilityAction).Select(t => t.Value), Is.EqualTo(["move_to_error"]), "a behavior replaced the policy's decision");
     }
-
-    static void CarryOutAction(IRecoverabilityContext context) => context.RecoverabilityAction.GetRoutingContexts((IRecoverabilityActionContext)context);
 
     [Test]
     public async Task Should_not_link_recoverability_activity_to_an_activity_that_failed_with_another_exception()

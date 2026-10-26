@@ -4,10 +4,8 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Pipeline;
 using Transport;
+using Pipeline;
 
 /// <summary>
 /// Indicates recoverability is required to immediately retry the current message.
@@ -31,8 +29,6 @@ public class ImmediateRetry : RecoverabilityAction
     {
         var exception = context.Exception;
 
-        context.Builder.GetRequiredService<ILogger<ImmediateRetry>>().ImmediateRetryLogged(exception, context.MessageId);
-
         if (context is IRecoverabilityActionContextNotifications notifications)
         {
             notifications.Add(new MessageToBeRetried(
@@ -48,10 +44,4 @@ public class ImmediateRetry : RecoverabilityAction
         }
         return [];
     }
-}
-
-static partial class ImmediateRetryLoggerMessages
-{
-    [LoggerMessage(Level = LogLevel.Information, Message = "Immediate Retry is going to retry message '{MessageId}' because of an exception:")]
-    public static partial void ImmediateRetryLogged(this ILogger logger, Exception exception, string messageId);
 }
