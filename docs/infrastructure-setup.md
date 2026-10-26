@@ -31,7 +31,7 @@ The array does not contain:
 
 Core runs subscription operations independently of installers. It calls `ISubscriptionManager` whether or not `SetupInfrastructure` is set:
 
-- The `AutoSubscribe` feature is enabled by default. Each time an endpoint that is not send-only starts, it calls `ISubscriptionManager.SubscribeAll` with the event types the endpoint handles. Only a `QueueNotFoundException` stops the endpoint from starting; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
+- The `AutoSubscribe` feature is enabled by default. Each time an endpoint that is not send-only starts, it calls `ISubscriptionManager.SubscribeAll` with the event types the endpoint handles. A failure does not stop the endpoint from starting; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 - `NativeSubscribeTerminator` and `NativeUnsubscribeTerminator` pass `Subscribe` and `Unsubscribe` calls from `IMessageSession` to `ISubscriptionManager`. A `Subscribe` call reaches the transport as `SubscribeAll` with one event type. In subscription migration mode, `MigrationSubscribeTerminator` and `MigrationUnsubscribeTerminator` call it as well.
 
 A subscription lasts until `Unsubscribe` removes it. It survives endpoint restarts, and the endpoint receives the events published to it whether or not the current run subscribes again. The user-facing documentation states this for [stopped subscribers and decommissioned handlers](https://docs.particular.net/nservicebus/messaging/publish-subscribe/controlling-what-is-subscribed). Scripts, infrastructure-as-code, or earlier runs may have created subscriptions that the current run never requests. An endpoint that disables `AutoSubscribe` usually relies on subscriptions created this way, so core might not call `ISubscriptionManager.SubscribeAll` during a run. A transport must therefore treat the native subscriptions that exist for an endpoint as authoritative. The event types passed to `SubscribeAll` are not the endpoint's complete set of subscriptions, so a transport must not delete a subscription because it is missing from that list or because the transport does not recognize it.
@@ -50,11 +50,11 @@ The user-facing documentation also says that [auto-subscribe is not part of inst
 
 A transport should throw when it cannot establish the requested subscription instead of logging or swallowing the failure. Core decides what the failure means for the caller:
 
-- `AutoSubscribe` logs the exception at `Error`, and the endpoint keeps starting. For an `AggregateException`, it logs each inner exception. It rethrows a `QueueNotFoundException`, including one inside an `AggregateException`, and the endpoint does not start.
+- `AutoSubscribe` logs the exception at `Error`, and the endpoint keeps starting. For an `AggregateException`, it logs each inner exception.
 - For a `Subscribe` call from `IMessageSession`, `NativeSubscribeTerminator` rethrows the exception to the caller. It unwraps an `AggregateException` to its first inner exception. A `Subscribe` call in a feature startup task or a hosted service fails startup only if that code lets the exception escape.
 
 Core does not retry a failed subscription. When the transport swallows a failure, the endpoint runs without the subscription and nothing is logged.
 
 Core does not require a transport to attempt every event type before it throws. A transport that stops at the first failure leaves the remaining event types in that call unsubscribed, and `AutoSubscribe` logs only the exception it receives.
 
-A transport should throw `QueueNotFoundException` only when a missing queue should stop the endpoint from starting. When the token passed to `SubscribeAll` is canceled, the transport should throw `OperationCanceledException` without wrapping it. When startup is canceled, `AutoSubscribe` lets that exception propagate. It logs a wrapped one as a failed subscription.
+When the token passed to `SubscribeAll` is canceled, the transport should throw `OperationCanceledException` without wrapping it. When startup is canceled, `AutoSubscribe` lets that exception propagate. It logs a wrapped one as a failed subscription.
