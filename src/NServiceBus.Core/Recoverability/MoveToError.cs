@@ -37,7 +37,7 @@ public class MoveToError : RecoverabilityAction
         var metadata = context.Metadata;
         var exception = context.Exception;
 
-        context.Builder.GetService<ILogger<MoveToError>>()?.MoveToErrorLogged(exception, context.MessageId, ErrorQueue);
+        context.Builder.GetRequiredService<ILogger<MoveToError>>().MoveToErrorLogged(exception, context.MessageId, ErrorQueue);
 
         if (context is IRecoverabilityActionContextNotifications notifications)
         {

@@ -31,7 +31,7 @@ public class ImmediateRetry : RecoverabilityAction
     {
         var exception = context.Exception;
 
-        context.Builder.GetService<ILogger<ImmediateRetry>>()?.ImmediateRetryLogged(exception, context.MessageId);
+        context.Builder.GetRequiredService<ILogger<ImmediateRetry>>().ImmediateRetryLogged(exception, context.MessageId);
 
         if (context is IRecoverabilityActionContextNotifications notifications)
         {

@@ -32,7 +32,7 @@ public class Discard : RecoverabilityAction
     /// <inheritdoc />
     public override IReadOnlyCollection<IRoutingContext> GetRoutingContexts(IRecoverabilityActionContext context)
     {
-        context.Builder.GetService<ILogger<Discard>>()?.DiscardLogged(context.Exception, context.MessageId, Reason);
+        context.Builder.GetRequiredService<ILogger<Discard>>().DiscardLogged(context.Exception, context.MessageId, Reason);
         return [];
     }
 }

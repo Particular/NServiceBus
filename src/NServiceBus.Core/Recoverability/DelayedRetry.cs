@@ -41,7 +41,7 @@ public class DelayedRetry : RecoverabilityAction
 
         var currentDelayedRetriesAttempt = context.DelayedDeliveriesPerformed + 1;
 
-        context.Builder.GetService<ILogger<DelayedRetry>>()?.DelayedRetryLogged(exception, context.MessageId, Delay);
+        context.Builder.GetRequiredService<ILogger<DelayedRetry>>().DelayedRetryLogged(exception, context.MessageId, Delay);
 
         if (context is IRecoverabilityActionContextNotifications notifications)
         {

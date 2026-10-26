@@ -44,7 +44,7 @@ public class RecoverabilityActionLoggingTests
     }
 
     [Test]
-    public void Should_not_require_a_logger()
+    public void Should_resolve_the_logger_from_the_default_services_of_a_testable_context()
     {
         var context = new TestableRecoverabilityContext();
 
