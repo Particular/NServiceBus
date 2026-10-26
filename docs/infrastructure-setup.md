@@ -1,6 +1,6 @@
 # Infrastructure setup
 
-`HostSettings.SetupInfrastructure` tells a transport whether to create infrastructure. The `receivers` and `sendingAddresses` arguments of `TransportDefinition.Initialize` list the queues that core expects it to create. The transport decides what else it needs, based on how it maps queues and events to native resources. An example is a topic or exchange that several endpoints share. This page describes what core puts in these inputs and what it expects the transport to create. For the user-facing side, see [Installers](https://docs.particular.net/nservicebus/operations/installers).
+`HostSettings.SetupInfrastructure` tells a transport whether to create infrastructure. When an endpoint hosts the transport, the flag is `true` if the endpoint configuration calls `EnableInstallers()` or the host calls `AddNServiceBusInstallers()`. The `receivers` and `sendingAddresses` arguments of `TransportDefinition.Initialize` list the queues that core expects it to create. The transport decides what else it needs, based on how it maps queues and events to native resources. An example is a topic or exchange that several endpoints share. This page describes what core puts in these inputs and what it expects the transport to create. For the user-facing side, see [Installers](https://docs.particular.net/nservicebus/operations/installers).
 
 ## Native resources
 
@@ -11,12 +11,6 @@ Core distinguishes three kinds of native resources:
 - Subscriptions: the resources that make one endpoint receive one event type, such as a native subscription, a binding, a filter rule, a subscription row, or a queue policy that lets a topic deliver to the endpoint's queue. A transport creates and deletes them whether or not `SetupInfrastructure` is set; see [Subscriptions](#subscriptions).
 
 Each transport must document which of its native resources belong to each kind, and the permissions that subscribing and unsubscribing need.
-
-## SetupInfrastructure
-
-When an endpoint hosts the transport, `HostSettings.SetupInfrastructure` is `true` if the endpoint configuration calls `EnableInstallers()` or the host calls `AddNServiceBusInstallers()`, and `false` otherwise.
-
-The flag covers endpoint infrastructure and shared infrastructure. It does not cover subscriptions; see [Subscriptions](#subscriptions).
 
 ## Sending addresses
 
