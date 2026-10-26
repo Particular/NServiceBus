@@ -7,7 +7,7 @@
 Core distinguishes three kinds of native resources:
 
 - Endpoint infrastructure: the queues the endpoint receives from. Core passes the main, instance-specific, and satellite queues in `receivers`. A transport creates them when `SetupInfrastructure` is `true`.
-- Shared infrastructure: resources that several endpoints use and no single endpoint owns. Examples are the [sending addresses](#sending-addresses), which are usually the system-wide error queue and audit queue, and event topics, exchanges, or a subscription table. A transport creates them only when `SetupInfrastructure` is `true`.
+- Shared infrastructure: resources that several endpoints use and no single endpoint owns. Examples are the [sending addresses](#sending-addresses), which are usually the system-wide error queue and audit queue, and event topics, exchanges, or a subscription table. A transport creates them when `SetupInfrastructure` is `true`.
 - Subscriptions: the resources that make one endpoint receive one event type, such as a native subscription, a binding, a filter rule, a subscription row, or a queue policy that lets a topic deliver to the endpoint's queue. A transport creates and deletes them whether or not `SetupInfrastructure` is set; see [Subscriptions](#subscriptions).
 
 Each transport must document which of its native resources belong to each kind, and the permissions that subscribing and unsubscribing need.
