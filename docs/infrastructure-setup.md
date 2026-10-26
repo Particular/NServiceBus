@@ -2,15 +2,25 @@
 
 `TransportDefinition.Initialize` receives two inputs that decide what a transport creates: the `HostSettings.SetupInfrastructure` flag and the `sendingAddresses` array. This page describes what core puts in each and what it expects the transport to create. For the user-facing side, see [Installers](https://docs.particular.net/nservicebus/operations/installers).
 
+## Native resources
+
+Core distinguishes three kinds of native resources:
+
+- Endpoint infrastructure: the queues the endpoint receives from. Core passes the main, instance-specific, and satellite queues in `receivers`. A transport creates them when `SetupInfrastructure` is `true`.
+- Shared infrastructure: resources that several endpoints use and no single endpoint owns. Examples are the [sending addresses](#sending-addresses), which are usually the system-wide error queue and audit queue, and event topics, exchanges, or a subscription table. A transport creates them only when `SetupInfrastructure` is `true`.
+- Subscriptions: the resources that make one endpoint receive one event type, such as a native subscription, a binding, a filter rule, a subscription row, or a queue policy that lets a topic deliver to the endpoint's queue. A transport creates and deletes them whether or not `SetupInfrastructure` is set; see [Subscriptions](#subscriptions).
+
+Each transport must document which of its native resources belong to each kind, and the permissions that subscribing and unsubscribing need.
+
 ## SetupInfrastructure
 
-`HostSettings.SetupInfrastructure` is `true` when the endpoint configuration calls `EnableInstallers()`, and `false` otherwise. Core reads the setting when it creates the endpoint and passes the flag to the transport. Core does not read the flag anywhere else, so the transport decides what to create when it is set.
+`HostSettings.SetupInfrastructure` is `true` when the endpoint configuration calls `EnableInstallers()`, and `false` otherwise. Core reads the setting when it creates the endpoint and passes the flag to the transport. Core does not read the flag anywhere else, so only the transport acts on it; see [Native resources](#native-resources).
 
 - `Installer.Setup` and `Installer.CreateInstallerWithExternallyManagedContainer` call `EnableInstallers()`, so the transport gets `true`.
 - `AddNServiceBusInstallers()` runs the endpoint's installers without calling `EnableInstallers()`. When the endpoint configuration does not call `EnableInstallers()` either, the transport gets `false`.
 - When a transport runs without an endpoint, the caller sets the flag through the `HostSettings` constructor.
 
-The flag covers the queues described below. It does not cover subscriptions; see [Subscriptions](#subscriptions).
+The flag covers endpoint infrastructure and shared infrastructure. It does not cover subscriptions; see [Subscriptions](#subscriptions).
 
 ## Sending addresses
 
@@ -46,11 +56,9 @@ When the broker or the publisher delivers events to the endpoint's input queue, 
 
 Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions.
 
-A transport may still require some resources to exist when `SetupInfrastructure` is `false`. For example, it may create the endpoint's native subscription but require the shared topic to exist. Core does not prescribe where that boundary lies.
+`SubscribeAll` creates the endpoint's subscriptions whether or not `SetupInfrastructure` is set. It creates the shared infrastructure that a subscription needs only when `SetupInfrastructure` is `true`. Otherwise that infrastructure must already exist, and `SubscribeAll` throws when it does not; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 
-Each transport must document which resources subscribing creates with installers enabled and disabled, which resources deployment must provide, and the permissions required in each case. If a required resource is missing, `SubscribeAll` should throw; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
-
-Core also does not define which native resources `Unsubscribe` may delete when `SetupInfrastructure` is `false`.
+`Unsubscribe` deletes the endpoint's subscription for the event type whether or not `SetupInfrastructure` is set. It does not delete shared infrastructure, because other endpoints may use it.
 
 The user-facing documentation also says that [auto-subscribe is not part of installers](https://docs.particular.net/nservicebus/operations/installers#auto-subscribe-is-not-part-of-installers).
 

@@ -24,7 +24,7 @@ This section points to sources that explain why the repository is designed the w
 
 These pages describe what core expects from, and guarantees to, transports, persisters, and serializers. Downstream repositories link to this section from their own `docs/README.md`, so add each new contract page here.
 
-- [Infrastructure setup](infrastructure-setup.md) — what `HostSettings.SetupInfrastructure` and `sendingAddresses` contain, which queues core expects a transport to create when installers are enabled, and where core leaves subscription setup to the transport
+- [Infrastructure setup](infrastructure-setup.md) — what `HostSettings.SetupInfrastructure` and `sendingAddresses` contain, which native resources a transport creates when installers are enabled, and what subscribing and unsubscribing create and delete
 - [Logging](logging.md) — why components can rely on a `Microsoft.Extensions.Logging.ILoggerFactory` being registered for every endpoint, and where that guarantee does not hold
 - [Message receivers](message-receivers.md) — what core expects from an `IMessageReceiver` for concurrency, changing concurrency, stopping, cancellation, and long-running handlers
 - [Recoverability](recoverability.md) — what core expects from a transport when `OnMessage` fails: building the `ErrorContext`, counting failures, acting on `ErrorHandleResult`, dispatching from `OnError`, and handling an `OnError` failure
