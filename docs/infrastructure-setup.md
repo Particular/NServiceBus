@@ -58,3 +58,6 @@ Core does not retry a failed subscription. When the transport swallows a failure
 Core does not require a transport to attempt every event type before it throws. A transport that stops at the first failure leaves the remaining event types in that call unsubscribed, and `AutoSubscribe` logs only the exception it receives.
 
 When the token passed to `SubscribeAll` is canceled, the transport should throw `OperationCanceledException` without wrapping it. When startup is canceled, `AutoSubscribe` lets that exception propagate. It logs a wrapped one as a failed subscription.
+
+> [!NOTE]
+> An `ISubscriptionManager` should not throw `QueueNotFoundException`. `AutoSubscribe` rethrows it, so the endpoint does not start. Core reserves it for message-driven publish/subscribe, where a subscribe message is sent to the publisher's queue and a missing queue should stop the endpoint.
