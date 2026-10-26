@@ -35,7 +35,7 @@ A queue that has only some of those resources can accept a send and lose the mes
 
 ## Subscriptions
 
-Subscriptions are not part of installers. Core calls `ISubscriptionManager` whether or not `SetupInfrastructure` is set:
+Core runs subscription operations independently of installers. It calls `ISubscriptionManager` whether or not `SetupInfrastructure` is set:
 
 - The `AutoSubscribe` feature is enabled by default. Each time an endpoint that is not send-only starts, it calls `ISubscriptionManager.SubscribeAll` with the event types the endpoint handles. Only a `QueueNotFoundException` stops the endpoint from starting; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 - `NativeSubscribeTerminator` and `NativeUnsubscribeTerminator` pass `Subscribe` and `Unsubscribe` calls from `IMessageSession` to `ISubscriptionManager`. A `Subscribe` call reaches the transport as `SubscribeAll` with one event type. In subscription migration mode, `MigrationSubscribeTerminator` and `MigrationUnsubscribeTerminator` call it as well.
@@ -46,13 +46,17 @@ When the broker or the publisher delivers events to the endpoint's input queue, 
 
 Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions.
 
-Core does not define which native resources `SubscribeAll` may create, or which resources `Unsubscribe` may delete, when `SetupInfrastructure` is `false`.
+Calling `SubscribeAll` independently of installers does not mean that every resource needed for subscribing must be created independently of installers. A transport may create the endpoint’s native subscription while requiring a shared topic to exist when `SetupInfrastructure` is `false`. Core does not prescribe that resource boundary.
+
+Each transport must document which resources subscribing creates with installers enabled and disabled, which resources deployment must provide, and the permissions required in each case. If a required resource is missing, `SubscribeAll` should throw; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
+
+Core also does not define which native resources `Unsubscribe` may delete when `SetupInfrastructure` is `false`.
 
 The user-facing documentation also says that [auto-subscribe is not part of installers](https://docs.particular.net/nservicebus/operations/installers#auto-subscribe-is-not-part-of-installers).
 
 ### Failures in `SubscribeAll`
 
-A transport should throw when it cannot create a subscription instead of logging or swallowing the failure. Core decides what the failure means for the caller:
+A transport should throw when it cannot establish the requested subscription instead of logging or swallowing the failure. Core decides what the failure means for the caller:
 
 - `AutoSubscribe` logs the exception at `Error`, and the endpoint keeps starting. For an `AggregateException`, it logs each inner exception. It rethrows a `QueueNotFoundException`, including one inside an `AggregateException`, and the endpoint does not start.
 - For a `Subscribe` call from `IMessageSession`, `NativeSubscribeTerminator` rethrows the exception to the caller. It unwraps an `AggregateException` to its first inner exception. A `Subscribe` call in a feature startup task or a hosted service fails startup only if that code lets the exception escape.
