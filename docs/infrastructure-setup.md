@@ -59,8 +59,6 @@ A transport should throw when it cannot create a subscription instead of logging
 
 Core does not retry a failed subscription. When the transport swallows a failure, the endpoint runs without the subscription and nothing is logged.
 
-A transport should:
+Core does not require a transport to attempt every event type before it throws. A transport that stops at the first failure leaves the remaining event types in that call unsubscribed, and `AutoSubscribe` logs only the exception it receives.
 
-- Attempt every event type before it throws, then throw an `AggregateException` with one inner exception for each failed event type. If it stops at the first failure, the remaining event types are not subscribed and core logs only that failure.
-- Throw `QueueNotFoundException` only when a missing queue should stop the endpoint from starting.
-- Throw `OperationCanceledException` without wrapping it when the token passed to `SubscribeAll` is canceled. When startup is canceled, `AutoSubscribe` lets that exception propagate. It logs a wrapped one as a failed subscription.
+A transport should throw `QueueNotFoundException` only when a missing queue should stop the endpoint from starting. When the token passed to `SubscribeAll` is canceled, the transport should throw `OperationCanceledException` without wrapping it. When startup is canceled, `AutoSubscribe` lets that exception propagate. It logs a wrapped one as a failed subscription.
