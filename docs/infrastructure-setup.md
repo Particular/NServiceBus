@@ -1,6 +1,6 @@
 # Infrastructure setup
 
-`HostSettings.SetupInfrastructure` tells a transport whether to create infrastructure. The `receivers` and `sendingAddresses` arguments of `TransportDefinition.Initialize` list the queues that core expects it to create. The transport's topology decides what else it needs, such as shared topics or exchanges. This page describes what core puts in these inputs and what it expects the transport to create. For the user-facing side, see [Installers](https://docs.particular.net/nservicebus/operations/installers).
+`HostSettings.SetupInfrastructure` tells a transport whether to create infrastructure. The `receivers` and `sendingAddresses` arguments of `TransportDefinition.Initialize` list the queues that core expects it to create. The transport decides what else it needs, based on how it maps queues and events to native resources. An example is a topic or exchange that several endpoints share. This page describes what core puts in these inputs and what it expects the transport to create. For the user-facing side, see [Installers](https://docs.particular.net/nservicebus/operations/installers).
 
 ## Native resources
 
