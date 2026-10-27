@@ -58,3 +58,9 @@ When the token passed to `SubscribeAll` is canceled, the transport should throw 
 
 > [!NOTE]
 > An `ISubscriptionManager` should not throw `QueueNotFoundException`. `AutoSubscribe` rethrows it, so the endpoint does not start. Core reserves it for message-driven publish/subscribe, where a subscribe message is sent to the publisher's queue and a missing queue should stop the endpoint.
+
+### Failures in `Unsubscribe`
+
+When `Unsubscribe` cannot remove the subscription, for example because the credentials lack the required rights, the transport should throw. Core passes the exception to the caller of `IMessageSession.Unsubscribe`. When the transport swallows the failure, the subscription remains and the endpoint keeps receiving the event.
+
+When the subscription does not exist, `Unsubscribe` should succeed.
