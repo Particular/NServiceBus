@@ -27,10 +27,10 @@ jobs:
       - name: Sign NuGet packages
         uses: Particular/sign-nuget-packages-action@v1.0.0
         with:
-         client-id: ${{ secrets.AZURE_KEY_VAULT_CLIENT_ID }}
-         tenant-id: ${{ secrets.AZURE_KEY_VAULT_TENANT_ID }}
-         client-secret: ${{ secrets.AZURE_KEY_VAULT_CLIENT_SECRET }}
-         certificate-name: ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
+          client-id: ${{ secrets.AZURE_KEY_VAULT_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_KEY_VAULT_TENANT_ID }}
+          client-secret: ${{ secrets.AZURE_KEY_VAULT_CLIENT_SECRET }}
+          certificate-name: ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
       - name: Publish NuGet packages to the workflow
         uses: actions/upload-artifact@v7.0.2
         with:
