@@ -50,7 +50,7 @@ A transport should throw when it cannot establish the requested subscription ins
 - `AutoSubscribe` logs the exception at `Error`, and the endpoint keeps starting. For an `AggregateException`, it logs each inner exception.
 - For a `Subscribe` call from `IMessageSession`, core rethrows the exception to the caller. It unwraps an `AggregateException` to its first inner exception.
 
-Core does not retry a failed subscription. When the transport swallows a failure, the endpoint runs without the subscription and nothing is logged.
+Core does not retry a failed subscription. With `AutoSubscribe`, the next attempt happens when the endpoint starts again.
 
 Core does not require a transport to attempt every event type before it throws. A transport that stops at the first failure leaves the remaining event types in that call unsubscribed, and `AutoSubscribe` logs only the exception it receives.
 
