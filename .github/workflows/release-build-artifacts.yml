@@ -1,4 +1,4 @@
-name: Release
+name: Release - build and store artifacts
 on:
   push:
     tags:
@@ -11,15 +11,15 @@ defaults:
   run:
     shell: pwsh
 jobs:
-  release:
+  build-and-store-artifacts:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v6.0.0
         with:
           global-json-file: global.json
       - name: Build
@@ -31,8 +31,8 @@ jobs:
           tenant-id: ${{ secrets.AZURE_KEY_VAULT_TENANT_ID }}
           client-secret: ${{ secrets.AZURE_KEY_VAULT_CLIENT_SECRET }}
           certificate-name: ${{ secrets.AZURE_KEY_VAULT_CERTIFICATE_NAME }}
-      - name: Publish artifacts
-        uses: actions/upload-artifact@v7.0.1
+      - name: Publish NuGet packages to the workflow
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: nugets
           path: nugets/*
@@ -40,10 +40,8 @@ jobs:
       - name: Push packages to testing feed
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: dotnet nuget push nugets\*.nupkg --api-key ${{ secrets.FEEDZIO_PUBLISH_API_KEY }} --source "${{ vars.PARTICULAR_TESTING_FEED_URL }}"
-      - name: Deploy
+      - name: Create draft release and attach artifacts
         if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
-        # Does not follow standard practice of targeting explicit versions because configuration is tightly coupled to Octopus Deploy configuration
-        uses: Particular/push-octopus-package-action@main
+        uses: particular/deployment-workflows/.github/actions/create-draft-release-with-assets@1.0.0
         with:
-          octopus-deploy-api-key: ${{ secrets.OCTOPUS_DEPLOY_API_KEY }}
-
+          asset-paths: "nugets/"
