@@ -45,7 +45,7 @@ Running only the installers, for example with `AddNServiceBusInstallers()`, does
 
 ### Failures in `SubscribeAll`
 
-A transport should throw when it cannot establish the requested subscription instead of logging or swallowing the failure. Core decides what the failure means for the caller:
+A transport should throw when it cannot establish the requested subscription, so that core can decide what the failure means for the caller:
 
 - `AutoSubscribe` logs the exception at `Error`, and the endpoint keeps starting. For an `AggregateException`, it logs each inner exception.
 - For a `Subscribe` call from `IMessageSession`, core rethrows the exception to the caller. It unwraps an `AggregateException` to its first inner exception.
@@ -53,7 +53,7 @@ A transport should throw when it cannot establish the requested subscription ins
 Core does not retry a failed subscription. With `AutoSubscribe`, the next attempt happens when the endpoint starts again.
 
 > [!NOTE]
-> An `ISubscriptionManager` should not throw `QueueNotFoundException`. `AutoSubscribe` rethrows it, so the endpoint does not start. Core reserves it for message-driven publish/subscribe, where a subscribe message is sent to the publisher's queue and a missing queue should stop the endpoint.
+> An `ISubscriptionManager` should not throw `QueueNotFoundException`. Core reserves it for message-driven publish/subscribe, where `AutoSubscribe` rethrows it so that a missing publisher queue stops the endpoint from starting.
 
 ### Failures in `Unsubscribe`
 
