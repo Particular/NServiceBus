@@ -9,8 +9,11 @@ using System.Collections.Generic;
 public partial class QueueBindings
 {
     /// <summary>
-    /// Returns the collection of all transport addresses of queues this endpoint is sending to.
+    /// Returns the transport addresses registered with <see cref="BindSending"/>, such as the error and audit queues.
     /// </summary>
+    /// <remarks>
+    /// The collection does not contain every destination the endpoint sends to. Routed destinations, such as the input queues of other endpoints, are not included.
+    /// </remarks>
     public IReadOnlyCollection<string> SendingAddresses => sendingAddresses;
 
     /// <summary>
