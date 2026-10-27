@@ -52,8 +52,6 @@ A transport should throw when it cannot establish the requested subscription ins
 
 Core does not retry a failed subscription. With `AutoSubscribe`, the next attempt happens when the endpoint starts again.
 
-Core does not require a transport to attempt every event type before it throws. A transport that stops at the first failure leaves the remaining event types in that call unsubscribed, and `AutoSubscribe` logs only the exception it receives.
-
 > [!NOTE]
 > An `ISubscriptionManager` should not throw `QueueNotFoundException`. `AutoSubscribe` rethrows it, so the endpoint does not start. Core reserves it for message-driven publish/subscribe, where a subscribe message is sent to the publisher's queue and a missing queue should stop the endpoint.
 
