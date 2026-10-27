@@ -57,6 +57,6 @@ Core does not retry a failed subscription. With `AutoSubscribe`, the next attemp
 
 ### Failures in `Unsubscribe`
 
-When `Unsubscribe` cannot remove the subscription, for example because the credentials lack the required rights, the transport should throw. Core passes the exception to the caller of `IMessageSession.Unsubscribe`. When the transport swallows the failure, the subscription remains and the endpoint keeps receiving the event.
+When `Unsubscribe` cannot remove the subscription, for example because the credentials lack the required rights, the transport should throw. Core passes the exception to the caller of `IMessageSession.Unsubscribe`, which otherwise cannot tell that the endpoint still receives the event.
 
 When the subscription does not exist, `Unsubscribe` should succeed.
