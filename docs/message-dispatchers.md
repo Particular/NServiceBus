@@ -51,7 +51,12 @@ A `MulticastTransportOperation` requires `TransportDefinition.SupportsPublishSub
 
 A transport must read `RequiredDispatchConsistency` per operation, not once for the whole call: nothing in `TransportOperations` guarantees that every operation passed to one `Dispatch` call shares the same value. In practice, every batch core assembles today is uniform, but the dispatcher is also the entry point for raw, non-hosted use of a transport, where a caller is free to mix `Default` and `Isolated` operations in one `TransportOperations`.
 
-[Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes the per-`TransportTransactionMode` atomicity rules a transport must follow for `Default` and `Isolated` dispatches; those rules are not specific to recoverability, they describe what each transaction mode means for every dispatch made while a message is being processed.
+For `Default` operations dispatched while a message is being processed, `TransportTransactionMode` sets the atomicity rules:
+
+- In `TransportTransactionMode.SendsAtomicWithReceive` and `TransportTransactionMode.TransactionScope`, the operations must commit atomically with completing the receive. When the attempt fails, they are rolled back with it and must never reach their destination.
+- In `TransportTransactionMode.ReceiveOnly` and `TransportTransactionMode.None`, sends are not atomic with the receive. An operation can reach its destination even when completing the receive later fails.
+
+[Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes how these rules apply to dispatches made from `OnError`.
 
 The `TransportTransaction` instance passed to `Dispatch` is the same instance used for the current receive, when one exists, or an empty one created on demand otherwise. A transport that reads a native transaction object out of it to enlist an operation must do so only when `RequiredDispatchConsistency` is `Default`.
 
