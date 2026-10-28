@@ -25,7 +25,7 @@ One `Send` or `Publish` call can resolve to several `TransportOperation`s. Each 
 
 ### Batching
 
-While a handler processes an incoming message, core collects the operations raised with `DispatchConsistency.Default` in a batch for that message. When the handler pipeline completes, core passes the whole batch to one `Dispatch` call before the receive is completed. [Outbox interaction](#outbox-interaction) describes how the outbox changes this batch. A transport can treat the operations passed to one call as eligible to be sent together. Core does not limit the size of a batch or split it. A transport whose broker limits how many operations it can send together must split the batch itself or reject it.
+While a handler processes an incoming message, core collects the operations raised with `DispatchConsistency.Default` in a batch for that message. When the handler pipeline completes, core passes the whole batch to one `Dispatch` call before the receive is completed. A transport can treat the operations passed to one call as eligible to be sent together. Core does not limit the size of a batch or split it. A transport whose broker limits how many operations it can send together must split the batch itself or reject it.
 
 Core does not preserve the order in which a handler raised the operations in a batch; the batch currently arrives newest first. A transport that must send them in order has to record the order itself, for example in a `DispatchProperties` key set by a pipeline behavior.
 
@@ -61,13 +61,7 @@ The `TransportTransaction` passed to `Dispatch` is usually the current receive's
 
 A transport may add its own keys to `DispatchProperties` to carry transport-specific data from a receive to a later dispatch of the same message, for example to recreate a native property on a delayed retry. When the outgoing message ID matches the incoming one, core copies each [`ReceiveProperties`](recoverability.md#reporting-a-failure) entry into `DispatchProperties` unless the key is already set. This covers audit, error, and retry dispatches.
 
-## Outbox interaction
-
-When the outbox is enabled, core dispatches the batch only after the outbox transaction that recorded its operations has committed. Core then changes every operation in the batch to `DispatchConsistency.Isolated`, because the message is already durably recorded and the send must not depend on, or roll back with, the receive.
-
-The outbox record stores the operations. When the outbox detects that a message was already processed, it rebuilds the operations from that record and dispatches them again with `DispatchConsistency.Isolated`. A transport must therefore be able to send an operation using only its `OutgoingMessage` and `DispatchProperties`, with no state from the original dispatch call.
-
-The outbox requires `TransportTransactionMode.ReceiveOnly`, and core refuses to start otherwise.
+Core can dispatch an operation again later from stored data, for example when the outbox finds a message that was already processed. The replay skips the earlier pipeline stages, as listed under [Call sequence](#call-sequence), and passes a different `TransportTransaction`. Put anything the dispatcher needs in `DispatchProperties` as string values, not in the `TransportTransaction` or other in-memory state.
 
 ## Message-driven publish/subscribe
 
