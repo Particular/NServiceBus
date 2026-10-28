@@ -18,7 +18,7 @@ A single logical operation, such as one `Send` or `Publish` call, can resolve to
 
 ### Batching
 
-Core does not call `Dispatch` once per outgoing message. While a handler processes an incoming message, operations raised with `DispatchConsistency.Default` are collected in a `PendingTransportOperations` instance attached to the message's context instead of being dispatched immediately. Once the handler pipeline for that message completes (after the outbox transaction commits, when the outbox is enabled), core calls `Dispatch` once with every operation collected for that message, as a single `TransportOperations` batch, before the receive is completed. A transport can treat the operations passed to one call as eligible to be sent together.
+Core does not call `Dispatch` once per outgoing message. While a handler processes an incoming message, operations raised with `DispatchConsistency.Default` are collected in a `PendingTransportOperations` instance attached to the message's context instead of being dispatched immediately. Once the handler pipeline for that message completes, core calls `Dispatch` once with every operation collected for that message, as a single `TransportOperations` batch, before the receive is completed. [Outbox interaction](#outbox-interaction) describes how the outbox changes this batch. A transport can treat the operations passed to one call as eligible to be sent together.
 
 Operations bypass batching and reach `Dispatch` immediately, on their own, when:
 
@@ -51,7 +51,7 @@ A `MulticastTransportOperation` requires `TransportDefinition.SupportsPublishSub
 
 A transport must read `RequiredDispatchConsistency` per operation, not once for the whole call: nothing in `TransportOperations` guarantees that every operation passed to one `Dispatch` call shares the same value. In practice, every batch core assembles today is uniform, but the dispatcher is also the entry point for raw, non-hosted use of a transport, where a caller is free to mix `Default` and `Isolated` operations in one `TransportOperations`.
 
-A batch of operations collected through `PendingTransportOperations` always carries `DispatchConsistency.Default`, because operations created with `RequireImmediateDispatch()` never enter that batch. When the outbox is enabled, a pipeline behavior rewrites every operation in the batch to `Isolated` before it reaches the dispatcher, immediately after the outbox transaction commits: the message is already durably recorded, so the send must not depend on, or roll back with, the receive that is about to be acknowledged. [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes the per-`TransportTransactionMode` atomicity rules a transport must follow for `Default` and `Isolated` dispatches; those rules are not specific to recoverability, they describe what each transaction mode means for every dispatch made while a message is being processed.
+[Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes the per-`TransportTransactionMode` atomicity rules a transport must follow for `Default` and `Isolated` dispatches; those rules are not specific to recoverability, they describe what each transaction mode means for every dispatch made while a message is being processed.
 
 The `TransportTransaction` instance passed to `Dispatch` is the same instance used for the current receive, when one exists, or an empty one created on demand otherwise. A transport that reads a native transaction object out of it to enlist an operation must do so only when `RequiredDispatchConsistency` is `Default`.
 
@@ -69,6 +69,6 @@ A transport may also read and write its own keys on the same `DispatchProperties
 
 ## Outbox interaction
 
-When the outbox is enabled, `TransportReceiveToPhysicalMessageConnector` does not fork into the batched dispatch stage until the outbox transaction that recorded the outgoing operations has committed. The operations are also persisted as part of the outbox record.
+When the outbox is enabled, core dispatches the batch only after the outbox transaction that recorded its operations has committed. Core then changes every operation in the batch to `DispatchConsistency.Isolated`, because the message is already durably recorded and the send must not depend on, or roll back with, the receive.
 
 When the outbox detects that a message has already been processed, it rebuilds the same operations from that record and dispatches them again with `DispatchConsistency.Isolated`, so a transport must be able to reconstruct and resend an operation purely from the `OutgoingMessage` and `DispatchProperties` it is given, without relying on anything from the original dispatch call. The outbox requires `TransportTransactionMode.ReceiveOnly`; core refuses to start otherwise.
