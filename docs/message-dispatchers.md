@@ -14,6 +14,13 @@ Core calls `Dispatch(TransportOperations outgoingMessages, TransportTransaction 
 - Recoverability, for the error queue copy, a delayed retry, or any other message a custom recoverability action produces. See [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability).
 - Subscribing and unsubscribing, to send the `Subscribe` and `Unsubscribe` control messages that message-driven publish/subscribe and subscription migration mode use. See [Subscriptions](infrastructure-setup.md#subscriptions).
 
+A transport that adds outgoing pipeline behaviors sees only the dispatches that pass through their stage:
+
+- Sends, publishes, and replies pass through every outgoing stage.
+- Recoverability on the main receiver passes through the routing and dispatch stages, but not the logical message stage.
+- Operations replayed by the outbox pass through the batch dispatch and dispatch stages only.
+- Satellite recoverability and subscribing and unsubscribing call `Dispatch` directly, without any pipeline.
+
 One `Send` or `Publish` call can resolve to several `TransportOperation`s, for example a `Publish` with several subscribers. Each of those operations gets its own copy of the headers and dispatch properties, so a transport can mutate one without affecting the others. When the call resolves to a single operation, core does not copy them.
 
 ### Batching
