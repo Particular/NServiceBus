@@ -12,16 +12,16 @@ Core calls `Dispatch(TransportOperations outgoingMessages, TransportTransaction 
 
 - The send, publish, and reply pipelines, once their routing and serialization stages have produced one or more `TransportOperation`s.
 - Recoverability, for the error queue copy, a delayed retry, or any other message a custom recoverability action produces. See [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability).
-- Subscribing and unsubscribing, to send the `Subscribe` and `Unsubscribe` control messages that message-driven publish/subscribe and subscription migration mode use. See [Subscriptions](infrastructure-setup.md#subscriptions).
+- Message-driven subscribing and unsubscribing; see [Message-driven publish/subscribe](#message-driven-publishsubscribe).
 
 A transport that adds outgoing pipeline behaviors sees only the dispatches that pass through their stage:
 
 - Sends, publishes, and replies pass through every outgoing stage.
 - Recoverability on the main receiver passes through the routing and dispatch stages, but not the logical message stage.
 - Operations replayed by the outbox pass through the batch dispatch and dispatch stages only.
-- Satellite recoverability and subscribing and unsubscribing call `Dispatch` directly, without any pipeline.
+- Satellite recoverability calls `Dispatch` directly, without any pipeline.
 
-One `Send` or `Publish` call can resolve to several `TransportOperation`s, for example a `Publish` with several subscribers. Each of those operations gets its own copy of the headers and dispatch properties, so a transport can mutate one without affecting the others. When the call resolves to a single operation, core does not copy them.
+One `Send` or `Publish` call can resolve to several `TransportOperation`s. Each of those operations gets its own copy of the headers and dispatch properties, so a transport can mutate one without affecting the others. When the call resolves to a single operation, core does not copy them.
 
 ### Batching
 
@@ -34,7 +34,7 @@ Operations reach `Dispatch` immediately, outside any batch, when:
 - The caller used `RequireImmediateDispatch()`, which sets `DispatchConsistency.Isolated` on the operation.
 - The send, publish, or reply is made outside of handling an incoming message, for example from a timer or a hosted service.
 
-Dispatches from recoverability and from subscribing and unsubscribing are never batched either, because they do not run inside a message's handler pipeline.
+Dispatches from recoverability are never batched either, because they do not run inside a message's handler pipeline.
 
 ## Transport operations
 
@@ -49,9 +49,7 @@ Both operation types implement `IOutgoingTransportOperation` and expose:
 - `Properties`, a `DispatchProperties` instance; see [Delivery properties](#delivery-properties).
 - `RequiredDispatchConsistency`; see [Dispatch consistency](#dispatch-consistency).
 
-Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. Otherwise, message-driven publish/subscribe turns a publish into one `UnicastTransportOperation` per known subscriber. Core does not define what happens when a multicast event has no subscribers or its native topic does not exist; the transport may skip the publish or throw.
-
-In subscription migration mode, core does both. One publish becomes a `MulticastTransportOperation` plus one `UnicastTransportOperation` per message-driven subscriber, all with the same message ID and in the same `Dispatch` call. A subscriber can be reachable both ways, so the transport must make sure it receives the event once, for example by skipping a unicast operation whose destination already receives the multicast one.
+Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. [Message-driven publish/subscribe](#message-driven-publishsubscribe) describes what core sends otherwise, and during subscription migration mode. Core does not define what happens when a multicast event has no subscribers or its native topic does not exist; the transport may skip the publish or throw.
 
 ## Dispatch consistency
 
@@ -90,3 +88,11 @@ When the outbox is enabled, core dispatches the batch only after the outbox tran
 The outbox record stores the operations. When the outbox detects that a message was already processed, it rebuilds the operations from that record and dispatches them again with `DispatchConsistency.Isolated`. A transport must therefore be able to send an operation using only its `OutgoingMessage` and `DispatchProperties`, with no state from the original dispatch call.
 
 The outbox requires `TransportTransactionMode.ReceiveOnly`, and core refuses to start otherwise.
+
+## Message-driven publish/subscribe
+
+This section applies only to transports that set `TransportDefinition.SupportsPublishSubscribe` to `false` or that support subscription migration mode.
+
+Without native publish/subscribe, core turns a publish into one `UnicastTransportOperation` per known subscriber. To subscribe or unsubscribe, it sends a `Subscribe` or `Unsubscribe` control message to the publisher as a unicast operation. Core dispatches these control messages directly, without any pipeline, and never batches them. See [Subscriptions](infrastructure-setup.md#subscriptions).
+
+In subscription migration mode, core does both. It sends the control messages, and one publish becomes a `MulticastTransportOperation` plus one `UnicastTransportOperation` per message-driven subscriber, all with the same message ID and in the same `Dispatch` call. A subscriber can be reachable both ways, so the transport must make sure it receives the event once, for example by skipping a unicast operation whose destination already receives the multicast one.
