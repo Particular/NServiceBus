@@ -51,6 +51,8 @@ Both operation types implement `IOutgoingTransportOperation` and expose:
 
 Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. Otherwise, message-driven publish/subscribe turns a publish into one `UnicastTransportOperation` per known subscriber.
 
+In subscription migration mode, core does both. One publish becomes a `MulticastTransportOperation` plus one `UnicastTransportOperation` per message-driven subscriber, all with the same message ID and in the same `Dispatch` call. A subscriber can be reachable both ways, so the transport must make sure it receives the event once, for example by skipping a unicast operation whose destination already receives the multicast one.
+
 ## Dispatch consistency
 
 `DispatchConsistency` tells the transport whether the operation may be tied to the current receive:
