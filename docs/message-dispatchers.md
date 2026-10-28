@@ -53,7 +53,7 @@ For `Default` operations dispatched while a message is being processed, `Transpo
 
 [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes how these rules apply to dispatches made from `OnError`.
 
-The `TransportTransaction` passed to `Dispatch` is usually the current receive's instance, or an empty one when there is no receive. A caller can also set its own `TransportTransaction` in the extensions of `SendOptions` or `PublishOptions`. Core passes that instance to `Dispatch` when the operation is not batched. A transport may enlist an `Isolated` operation in a transaction the caller supplied this way.
+The `TransportTransaction` passed to `Dispatch` is usually the current receive's instance, or an empty one when there is no receive. A transport may offer a send option that lets the caller supply its own transaction, as SQL Server does with `UseCustomSqlTransaction`. The option should also require immediate dispatch, because core passes a caller-supplied `TransportTransaction` to `Dispatch` only for operations that are not batched. The `Isolated` rule applies to the receive transaction, so the transport may send the operation in the caller's transaction.
 
 ## Delivery properties
 
