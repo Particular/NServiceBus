@@ -11,21 +11,21 @@ A transport must support concurrent calls to `Dispatch`: several messages can be
 Core calls `Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)` from several places:
 
 - The send, publish, and reply pipelines, once their routing and serialization stages have produced one or more `TransportOperation`s.
-- The main receiver's recoverability pipeline, which routes the recoverability action's own outgoing messages (the error queue copy, a delayed retry, or any other message a custom recoverability action produces) through the same routing and dispatch stages as a regular send. `SatelliteRecoverabilityExecutor` does the same for satellites, calling `IMessageDispatcher.Dispatch` directly instead of going through the pipeline. See [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability).
-- `MessageDrivenSubscribeTerminator`, `MessageDrivenUnsubscribeTerminator`, `MigrationSubscribeTerminator`, and `MigrationUnsubscribeTerminator`, to send the `Subscribe` and `Unsubscribe` control messages that message-driven publish/subscribe and subscription migration mode use. See [Subscriptions](infrastructure-setup.md#subscriptions).
+- The main receiver's recoverability pipeline, which routes the recoverability action's own outgoing messages (the error queue copy, a delayed retry, or any other message a custom recoverability action produces) through the same routing and dispatch stages as a regular send. Satellite recoverability dispatches the same messages directly, without a pipeline. See [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability).
+- Subscribing and unsubscribing, to send the `Subscribe` and `Unsubscribe` control messages that message-driven publish/subscribe and subscription migration mode use. See [Subscriptions](infrastructure-setup.md#subscriptions).
 
 A single logical operation, such as one `Send` or `Publish` call, can resolve to more than one `TransportOperation` when it has more than one routing strategy, for example a `Publish` with several subscribers. When that happens, core gives each resulting operation its own copy of the message headers and of the dispatch properties, so a transport that mutates one operation's headers or properties does not affect another operation produced by the same logical call. With a single routing strategy, the headers and properties are passed through by reference instead of copied.
 
 ### Batching
 
-Core does not call `Dispatch` once per outgoing message. While a handler processes an incoming message, operations raised with `DispatchConsistency.Default` are collected in a `PendingTransportOperations` instance attached to the message's context instead of being dispatched immediately. Once the handler pipeline for that message completes, core calls `Dispatch` once with every operation collected for that message, as a single `TransportOperations` batch, before the receive is completed. [Outbox interaction](#outbox-interaction) describes how the outbox changes this batch. A transport can treat the operations passed to one call as eligible to be sent together.
+Core does not call `Dispatch` once per outgoing message. While a handler processes an incoming message, operations raised with `DispatchConsistency.Default` are collected in a batch for that message instead of being dispatched immediately. Once the handler pipeline for that message completes, core calls `Dispatch` once with every operation collected for that message, as a single `TransportOperations` batch, before the receive is completed. [Outbox interaction](#outbox-interaction) describes how the outbox changes this batch. A transport can treat the operations passed to one call as eligible to be sent together.
 
 Operations bypass batching and reach `Dispatch` immediately, on their own, when:
 
 - The caller used `RequireImmediateDispatch()`, which sets `DispatchConsistency.Isolated` on the operation.
-- There is no `PendingTransportOperations` in the current context, which is the case for any send, publish, or reply made outside of handling an incoming message, for example from a timer or a hosted service.
+- The send, publish, or reply is made outside of handling an incoming message, for example from a timer or a hosted service.
 
-Dispatches made from recoverability and from message-driven subscribe/unsubscribe are never collected into a batch either, because they do not run inside the `PendingTransportOperations` scope that a message's own handler pipeline uses.
+Dispatches made from recoverability and from message-driven subscribe/unsubscribe are never collected into a batch either, because they do not run inside a message's handler pipeline.
 
 ## Transport operations
 
