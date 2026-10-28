@@ -8,9 +8,9 @@ A transport must support concurrent calls to `Dispatch`, because several message
 
 ## Call sequence
 
-Core calls `Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)` from several places:
+Core calls `Dispatch` from:
 
-- The send, publish, and reply pipelines, once their routing and serialization stages have produced one or more `TransportOperation`s.
+- The send, publish, and reply pipelines.
 - Recoverability, for the error queue copy, a delayed retry, or any other message a custom recoverability action produces. See [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability).
 - Message-driven subscribing and unsubscribing; see [Message-driven publish/subscribe](#message-driven-publishsubscribe).
 
@@ -42,10 +42,7 @@ Core produces a `MulticastTransportOperation` only when `TransportDefinition.Sup
 
 ## Dispatch consistency
 
-`DispatchConsistency` tells the transport whether the operation may be tied to the current receive:
-
-- `Default`: the transport may enlist the operation in the ongoing receive transaction when `TransportTransactionMode` and the current `TransportTransaction` allow it.
-- `Isolated`: the transport must send the operation outside any ongoing receive transaction, in every transaction mode, so it reaches its destination even when the attempt that produced it later fails.
+A transport must send an `Isolated` operation outside any ongoing receive transaction, in every transaction mode, so it reaches its destination even when the attempt that produced it later fails.
 
 A transport must read `RequiredDispatchConsistency` per operation, because one `Dispatch` call can mix `Default` and `Isolated` operations. Batches that core assembles are uniform today, but a caller that uses the transport without an endpoint can mix them.
 
@@ -56,19 +53,13 @@ For `Default` operations dispatched while a message is being processed, `Transpo
 
 [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes how these rules apply to dispatches made from `OnError`.
 
-The `TransportTransaction` passed to `Dispatch` is usually the current receive's instance, or an empty one when there is no receive. A caller can also set its own `TransportTransaction` in the extensions of `SendOptions` or `PublishOptions`. Core passes that instance to `Dispatch` when the operation is not batched. A transport must not enlist an `Isolated` operation in the receive transaction, but it may enlist one in a transaction the caller supplied this way.
+The `TransportTransaction` passed to `Dispatch` is usually the current receive's instance, or an empty one when there is no receive. A caller can also set its own `TransportTransaction` in the extensions of `SendOptions` or `PublishOptions`. Core passes that instance to `Dispatch` when the operation is not batched. A transport may enlist an `Isolated` operation in a transaction the caller supplied this way.
 
 ## Delivery properties
 
-`DispatchProperties` holds per-operation delivery constraints as string key/value pairs. Three well-known ones have typed properties:
+`DoNotDeliverBefore` and `DelayDeliveryWith` require `TransportDefinition.SupportsDelayedDelivery`, and `DiscardIfNotReceivedBefore` requires `TransportDefinition.SupportsTTBR`. Core enforces these flags before an operation reaches the dispatcher. It does not prevent one operation from carrying both a delay (`DoNotDeliverBefore` or `DelayDeliveryWith`) and `DiscardIfNotReceivedBefore`. The transport decides what that combination means and may reject it.
 
-- `DoNotDeliverBefore`: deliver the message no earlier than a specific `DateTimeOffset`. Requires `TransportDefinition.SupportsDelayedDelivery`.
-- `DelayDeliveryWith`: deliver the message no earlier than after a `TimeSpan`. Also requires `TransportDefinition.SupportsDelayedDelivery`.
-- `DiscardIfNotReceivedBefore`: discard the message if it has not been received within a `TimeSpan`. Requires `TransportDefinition.SupportsTTBR`.
-
-Core enforces these capability flags before an operation reaches the dispatcher. It does not prevent one operation from carrying both a delay (`DoNotDeliverBefore` or `DelayDeliveryWith`) and `DiscardIfNotReceivedBefore`. The transport decides what that combination means and may reject it.
-
-A transport may add its own keys to carry transport-specific data from a receive to a later dispatch of the same message, for example to recreate a native property on a delayed retry. When the outgoing message ID matches the incoming one, core copies each [`ReceiveProperties`](recoverability.md#reporting-a-failure) entry into `DispatchProperties` unless the key is already set. This covers audit, error, and retry dispatches.
+A transport may add its own keys to `DispatchProperties` to carry transport-specific data from a receive to a later dispatch of the same message, for example to recreate a native property on a delayed retry. When the outgoing message ID matches the incoming one, core copies each [`ReceiveProperties`](recoverability.md#reporting-a-failure) entry into `DispatchProperties` unless the key is already set. This covers audit, error, and retry dispatches.
 
 ## Outbox interaction
 
