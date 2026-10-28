@@ -36,18 +36,7 @@ Operations reach `Dispatch` immediately, outside any batch, when:
 
 Dispatches from recoverability are never batched either, because they do not run inside a message's handler pipeline.
 
-## Transport operations
-
-`TransportOperations` contains two lists:
-
-- `UnicastTransportOperations`, each with a `Destination` naming a single receiving queue.
-- `MulticastTransportOperations`, each with a `MessageType` naming the event to deliver to every current subscriber.
-
-Both operation types implement `IOutgoingTransportOperation` and expose:
-
-- `Message`, the `OutgoingMessage` to send: a `MessageId`, the `Headers` dictionary, and the `Body`.
-- `Properties`, a `DispatchProperties` instance; see [Delivery properties](#delivery-properties).
-- `RequiredDispatchConsistency`; see [Dispatch consistency](#dispatch-consistency).
+## Multicast operations
 
 Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. [Message-driven publish/subscribe](#message-driven-publishsubscribe) describes what core sends otherwise, and during subscription migration mode. Core does not define what happens when a multicast event has no subscribers or its native topic does not exist; the transport may skip the publish or throw.
 
