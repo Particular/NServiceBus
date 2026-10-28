@@ -20,6 +20,8 @@ One `Send` or `Publish` call can resolve to several `TransportOperation`s, for e
 
 While a handler processes an incoming message, core collects the operations raised with `DispatchConsistency.Default` in a batch for that message. When the handler pipeline completes, core passes the whole batch to one `Dispatch` call before the receive is completed. [Outbox interaction](#outbox-interaction) describes how the outbox changes this batch. A transport can treat the operations passed to one call as eligible to be sent together.
 
+Core does not preserve the order in which a handler raised the operations in a batch; the batch currently arrives newest first. A transport that must send them in order has to record the order itself, for example in a `DispatchProperties` key set by a pipeline behavior.
+
 Operations reach `Dispatch` immediately, outside any batch, when:
 
 - The caller used `RequireImmediateDispatch()`, which sets `DispatchConsistency.Isolated` on the operation.
