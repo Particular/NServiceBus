@@ -1,38 +1,38 @@
 # Message dispatchers
 
-Transports implement `IMessageDispatcher` to send messages for core. A transport has exactly one dispatcher instance for the lifetime of the endpoint; core registers `TransportInfrastructure.Dispatcher` in the container as a singleton and shares it across the send/publish/reply pipeline, recoverability, satellite recoverability, and message-driven subscribe/unsubscribe.
+Transports implement `IMessageDispatcher` to send messages for core. Core registers `TransportInfrastructure.Dispatcher` as a singleton, so one dispatcher instance serves sends, publishes, replies, recoverability, and subscriptions for the lifetime of the endpoint.
 
-Core issues no corresponding `Initialize`, start, or stop call for the dispatcher: it must be ready to dispatch as soon as `TransportDefinition.Initialize` returns, and must keep working until `TransportInfrastructure.Shutdown` is called, including while receivers are stopping, because `StopReceive` waits for in-flight `OnMessage` and `OnError` invocations that may still dispatch.
+Core does not initialize, start, or stop the dispatcher. It must be ready to dispatch when `TransportDefinition.Initialize` returns and keep working until `TransportInfrastructure.Shutdown` is called. This includes the time while receivers are stopping, because `StopReceive` waits for in-flight `OnMessage` and `OnError` invocations that may still dispatch.
 
-A transport must support concurrent calls to `Dispatch`: several messages can be mid-processing at once, each able to reach the dispatcher independently, and a send made outside message processing can happen at the same time.
+A transport must support concurrent calls to `Dispatch`, because several messages can be processed at once and sends can also happen outside message processing.
 
 ## Call sequence
 
 Core calls `Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, CancellationToken cancellationToken)` from several places:
 
 - The send, publish, and reply pipelines, once their routing and serialization stages have produced one or more `TransportOperation`s.
-- The main receiver's recoverability pipeline, which routes the recoverability action's own outgoing messages (the error queue copy, a delayed retry, or any other message a custom recoverability action produces) through the same routing and dispatch stages as a regular send. Satellite recoverability dispatches the same messages directly, without a pipeline. See [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability).
+- Recoverability, for the error queue copy, a delayed retry, or any other message a custom recoverability action produces. See [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability).
 - Subscribing and unsubscribing, to send the `Subscribe` and `Unsubscribe` control messages that message-driven publish/subscribe and subscription migration mode use. See [Subscriptions](infrastructure-setup.md#subscriptions).
 
-A single logical operation, such as one `Send` or `Publish` call, can resolve to more than one `TransportOperation` when it has more than one routing strategy, for example a `Publish` with several subscribers. When that happens, core gives each resulting operation its own copy of the message headers and of the dispatch properties, so a transport that mutates one operation's headers or properties does not affect another operation produced by the same logical call. With a single routing strategy, the headers and properties are passed through by reference instead of copied.
+One `Send` or `Publish` call can resolve to several `TransportOperation`s, for example a `Publish` with several subscribers. Each of those operations gets its own copy of the headers and dispatch properties, so a transport can mutate one without affecting the others. When the call resolves to a single operation, core does not copy them.
 
 ### Batching
 
-Core does not call `Dispatch` once per outgoing message. While a handler processes an incoming message, operations raised with `DispatchConsistency.Default` are collected in a batch for that message instead of being dispatched immediately. Once the handler pipeline for that message completes, core calls `Dispatch` once with every operation collected for that message, as a single `TransportOperations` batch, before the receive is completed. [Outbox interaction](#outbox-interaction) describes how the outbox changes this batch. A transport can treat the operations passed to one call as eligible to be sent together.
+While a handler processes an incoming message, core collects the operations raised with `DispatchConsistency.Default` in a batch for that message. When the handler pipeline completes, core passes the whole batch to one `Dispatch` call before the receive is completed. [Outbox interaction](#outbox-interaction) describes how the outbox changes this batch. A transport can treat the operations passed to one call as eligible to be sent together.
 
-Operations bypass batching and reach `Dispatch` immediately, on their own, when:
+Operations reach `Dispatch` immediately, outside any batch, when:
 
 - The caller used `RequireImmediateDispatch()`, which sets `DispatchConsistency.Isolated` on the operation.
 - The send, publish, or reply is made outside of handling an incoming message, for example from a timer or a hosted service.
 
-Dispatches made from recoverability and from message-driven subscribe/unsubscribe are never collected into a batch either, because they do not run inside a message's handler pipeline.
+Dispatches from recoverability and from subscribing and unsubscribing are never batched either, because they do not run inside a message's handler pipeline.
 
 ## Transport operations
 
-`TransportOperations` splits what core asks a transport to send into two lists:
+`TransportOperations` contains two lists:
 
-- `UnicastTransportOperations`, a `List<UnicastTransportOperation>`, each with a `Destination` naming a single receiving queue.
-- `MulticastTransportOperations`, a `List<MulticastTransportOperation>`, each with a `MessageType` naming the event to deliver to every current subscriber.
+- `UnicastTransportOperations`, each with a `Destination` naming a single receiving queue.
+- `MulticastTransportOperations`, each with a `MessageType` naming the event to deliver to every current subscriber.
 
 Both operation types implement `IOutgoingTransportOperation` and expose:
 
@@ -40,16 +40,16 @@ Both operation types implement `IOutgoingTransportOperation` and expose:
 - `Properties`, a `DispatchProperties` instance; see [Delivery properties](#delivery-properties).
 - `RequiredDispatchConsistency`; see [Dispatch consistency](#dispatch-consistency).
 
-A `MulticastTransportOperation` requires `TransportDefinition.SupportsPublishSubscribe` to be `true`. When it is `false`, core instead routes publishes through message-driven publish/subscribe, which turns a publish into one `UnicastTransportOperation` per known subscriber.
+Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. Otherwise, message-driven publish/subscribe turns a publish into one `UnicastTransportOperation` per known subscriber.
 
 ## Dispatch consistency
 
 `DispatchConsistency` tells the transport whether the operation may be tied to the current receive:
 
-- `Default`: the transport may enlist the operation in the ongoing receive transaction when `TransportTransactionMode` and the current `TransportTransaction` allow it. Outside of message processing, or when nothing is being received, there is no receive transaction to enlist in, and the operation is simply sent.
+- `Default`: the transport may enlist the operation in the ongoing receive transaction when `TransportTransactionMode` and the current `TransportTransaction` allow it.
 - `Isolated`: the transport must send the operation outside any ongoing receive transaction, in every transaction mode, so it reaches its destination even when the attempt that produced it later fails.
 
-A transport must read `RequiredDispatchConsistency` per operation, not once for the whole call: nothing in `TransportOperations` guarantees that every operation passed to one `Dispatch` call shares the same value. In practice, every batch core assembles today is uniform, but the dispatcher is also the entry point for raw, non-hosted use of a transport, where a caller is free to mix `Default` and `Isolated` operations in one `TransportOperations`.
+A transport must read `RequiredDispatchConsistency` per operation, because one `Dispatch` call can mix `Default` and `Isolated` operations. Batches that core assembles are uniform today, but a caller that uses the transport without an endpoint can mix them.
 
 For `Default` operations dispatched while a message is being processed, `TransportTransactionMode` sets the atomicity rules:
 
@@ -58,22 +58,24 @@ For `Default` operations dispatched while a message is being processed, `Transpo
 
 [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes how these rules apply to dispatches made from `OnError`.
 
-The `TransportTransaction` instance passed to `Dispatch` is the same instance used for the current receive, when one exists, or an empty one created on demand otherwise. A transport that reads a native transaction object out of it to enlist an operation must do so only when `RequiredDispatchConsistency` is `Default`.
+The `TransportTransaction` passed to `Dispatch` is the current receive's instance, or an empty one when there is no receive. A transport must enlist an operation in a native transaction from it only when `RequiredDispatchConsistency` is `Default`.
 
 ## Delivery properties
 
-`DispatchProperties` carries per-operation delivery constraints as string key/value pairs, with three well-known ones exposed as typed properties:
+`DispatchProperties` holds per-operation delivery constraints as string key/value pairs. Three well-known ones have typed properties:
 
 - `DoNotDeliverBefore`: deliver the message no earlier than a specific `DateTimeOffset`. Requires `TransportDefinition.SupportsDelayedDelivery`.
 - `DelayDeliveryWith`: deliver the message no earlier than after a `TimeSpan`. Also requires `TransportDefinition.SupportsDelayedDelivery`.
 - `DiscardIfNotReceivedBefore`: discard the message if it has not been received within a `TimeSpan`. Requires `TransportDefinition.SupportsTTBR`.
 
-Core checks these capability flags before an operation reaches the dispatcher: it throws at startup when a message is attributed with `[TimeToBeReceived]` but the transport's `SupportsTTBR` is `false`, and it throws when a handler tries to defer a message but the transport's `SupportsDelayedDelivery` is `false`. Core does not prevent an operation from carrying both a delay (`DoNotDeliverBefore` or `DelayDeliveryWith`) and `DiscardIfNotReceivedBefore` at the same time, even though the transport supports both independently; a transport must decide what that combination means, including rejecting it outright.
+Core enforces these capability flags before an operation reaches the dispatcher. It does not prevent one operation from carrying both a delay (`DoNotDeliverBefore` or `DelayDeliveryWith`) and `DiscardIfNotReceivedBefore`. The transport decides what that combination means and may reject it.
 
-A transport may also read and write its own keys on the same `DispatchProperties` bag to round-trip transport-specific data between receiving and a later dispatch of the same logical message, for example to recreate a native property on a delayed retry. Properties set in `ReceiveProperties` on the incoming message are copied into the outgoing operation's `DispatchProperties` whenever the outgoing message's ID matches the incoming message's ID and the property is not already set, which covers audit, error, and retry dispatches; see [`ReceiveProperties`](recoverability.md#reporting-a-failure).
+A transport may add its own keys to carry transport-specific data from a receive to a later dispatch of the same message, for example to recreate a native property on a delayed retry. When the outgoing message ID matches the incoming one, core copies each [`ReceiveProperties`](recoverability.md#reporting-a-failure) entry into `DispatchProperties` unless the key is already set. This covers audit, error, and retry dispatches.
 
 ## Outbox interaction
 
 When the outbox is enabled, core dispatches the batch only after the outbox transaction that recorded its operations has committed. Core then changes every operation in the batch to `DispatchConsistency.Isolated`, because the message is already durably recorded and the send must not depend on, or roll back with, the receive.
 
-When the outbox detects that a message has already been processed, it rebuilds the same operations from that record and dispatches them again with `DispatchConsistency.Isolated`, so a transport must be able to reconstruct and resend an operation purely from the `OutgoingMessage` and `DispatchProperties` it is given, without relying on anything from the original dispatch call. The outbox requires `TransportTransactionMode.ReceiveOnly`; core refuses to start otherwise.
+The outbox record stores the operations. When the outbox detects that a message was already processed, it rebuilds the operations from that record and dispatches them again with `DispatchConsistency.Isolated`. A transport must therefore be able to send an operation using only its `OutgoingMessage` and `DispatchProperties`, with no state from the original dispatch call.
+
+The outbox requires `TransportTransactionMode.ReceiveOnly`, and core refuses to start otherwise.
