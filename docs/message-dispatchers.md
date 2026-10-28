@@ -6,13 +6,7 @@ Core does not initialize, start, or stop the dispatcher. It must be ready to dis
 
 A transport must support concurrent calls to `Dispatch`, because several messages can be processed at once and sends can also happen outside message processing.
 
-## Call sequence
-
-Core calls `Dispatch` from:
-
-- The send, publish, and reply pipelines.
-- Recoverability, for the error queue copy, a delayed retry, or any other message a custom recoverability action produces. See [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability).
-- Message-driven subscribing and unsubscribing; see [Message-driven publish/subscribe](#message-driven-publishsubscribe).
+## Dispatch paths
 
 A transport that adds outgoing pipeline behaviors sees only the dispatches that pass through their stage:
 
@@ -25,9 +19,9 @@ One `Send` or `Publish` call can resolve to several `TransportOperation`s. Each 
 
 ### Batching
 
-While a handler processes an incoming message, core collects the operations raised with `DispatchConsistency.Default` in a batch for that message. When the handler pipeline completes, core passes the whole batch to one `Dispatch` call before the receive is completed. A transport can treat the operations passed to one call as eligible to be sent together. Core does not limit the size of a batch or split it. A transport whose broker limits how many operations it can send together must split the batch itself or reject it.
+Core does not limit the size of a batch, split it, or preserve the order in which a handler raised its operations. A transport whose broker limits how many operations it can send together must split the batch itself or reject it. A transport that must send operations in order has to record the order itself, for example in a `DispatchProperties` key set by a pipeline behavior; the batch currently arrives newest first.
 
-Core does not preserve the order in which a handler raised the operations in a batch; the batch currently arrives newest first. A transport that must send them in order has to record the order itself, for example in a `DispatchProperties` key set by a pipeline behavior.
+While a handler processes an incoming message, core collects the operations raised with `DispatchConsistency.Default` in a batch for that message. When the handler pipeline completes, core passes the whole batch to one `Dispatch` call before the receive is completed. A transport can treat the operations passed to one call as eligible to be sent together.
 
 Operations reach `Dispatch` immediately, outside any batch, when:
 
@@ -57,11 +51,11 @@ The `TransportTransaction` passed to `Dispatch` is usually the current receive's
 
 ## Delivery properties
 
-`DoNotDeliverBefore` and `DelayDeliveryWith` require `TransportDefinition.SupportsDelayedDelivery`, and `DiscardIfNotReceivedBefore` requires `TransportDefinition.SupportsTTBR`. Core enforces these flags before an operation reaches the dispatcher. It does not prevent one operation from carrying both a delay (`DoNotDeliverBefore` or `DelayDeliveryWith`) and `DiscardIfNotReceivedBefore`. The transport decides what that combination means and may reject it.
+Core does not prevent one operation from carrying both a delay (`DoNotDeliverBefore` or `DelayDeliveryWith`) and `DiscardIfNotReceivedBefore`. The transport decides what that combination means and may reject it.
+
+A transport must be able to send an operation using only its `OutgoingMessage` and `DispatchProperties`. Core can dispatch an operation again later from stored data, for example when the outbox finds a message that was already processed. The replay skips the earlier pipeline stages, as listed under [Dispatch paths](#dispatch-paths), and passes a different `TransportTransaction`. Keep anything the dispatcher needs in `DispatchProperties` as string values, not in the `TransportTransaction` or other in-memory state.
 
 A transport may add its own keys to `DispatchProperties` to carry transport-specific data from a receive to a later dispatch of the same message, for example to recreate a native property on a delayed retry. When the outgoing message ID matches the incoming one, core copies each [`ReceiveProperties`](recoverability.md#reporting-a-failure) entry into `DispatchProperties` unless the key is already set. This covers audit, error, and retry dispatches.
-
-Core can dispatch an operation again later from stored data, for example when the outbox finds a message that was already processed. The replay skips the earlier pipeline stages, as listed under [Call sequence](#call-sequence), and passes a different `TransportTransaction`. Put anything the dispatcher needs in `DispatchProperties` as string values, not in the `TransportTransaction` or other in-memory state.
 
 ## Message-driven publish/subscribe
 
