@@ -1,14 +1,14 @@
 # Message dispatchers
 
-Transports implement `IMessageDispatcher` to send messages for core. Core registers `TransportInfrastructure.Dispatcher` as a singleton, so one dispatcher instance serves sends, publishes, replies, recoverability, and subscriptions for the lifetime of the endpoint.
+A transport must support concurrent calls to `Dispatch`. Core registers `TransportInfrastructure.Dispatcher` as a singleton, so one instance serves sends, publishes, replies, recoverability, and subscriptions for the lifetime of the endpoint. Several messages can be processed at once, and sends can also happen outside message processing.
 
 Core does not initialize, start, or stop the dispatcher. It must be ready to dispatch when `TransportDefinition.Initialize` returns and keep working until `TransportInfrastructure.Shutdown` is called. This includes the time while receivers are stopping, because `StopReceive` waits for in-flight `OnMessage` and `OnError` invocations that may still dispatch.
 
-A transport must support concurrent calls to `Dispatch`, because several messages can be processed at once and sends can also happen outside message processing.
+The Learning transport's [dispatcher](../src/NServiceBus.Core/Transports/Learning/LearningTransportDispatcher.cs) is a reference implementation for dispatch consistency, delivery properties, and multicast operations. It does not show how to handle batch size limits, operation order, or the duplicate operations of subscription migration mode.
 
 ## Dispatch paths
 
-A transport that adds outgoing pipeline behaviors sees only the dispatches that pass through their stage:
+Core does not run every outgoing pipeline stage for every dispatch. A transport that adds outgoing pipeline behaviors must handle dispatches that skip their stage:
 
 - Sends, publishes, and replies pass through every outgoing stage.
 - Recoverability on the main receiver passes through the routing and dispatch stages, but not the logical message stage.
@@ -32,7 +32,7 @@ Dispatches from recoverability are never batched either, because they do not run
 
 ## Multicast operations
 
-Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. [Message-driven publish/subscribe](#message-driven-publishsubscribe) describes what core sends otherwise, and during subscription migration mode. Core does not define what happens when a multicast event has no subscribers or its native topic does not exist; the transport may skip the publish or throw.
+Core does not define what happens when a multicast event has no subscribers or its native topic does not exist; the transport may skip the publish or throw. Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. [Message-driven publish/subscribe](#message-driven-publishsubscribe) describes what core sends otherwise, and during subscription migration mode.
 
 ## Dispatch consistency
 
@@ -47,7 +47,7 @@ For `Default` operations dispatched while a message is being processed, `Transpo
 
 [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes how these rules apply to dispatches made from `OnError`.
 
-The `TransportTransaction` passed to `Dispatch` is usually the current receive's instance, or an empty one when there is no receive. A transport may offer a send option that lets the caller supply its own transaction, as SQL Server does with `UseCustomSqlTransaction`. The option should also require immediate dispatch, because core passes a caller-supplied `TransportTransaction` to `Dispatch` only for operations that are not batched. The `Isolated` rule applies to the receive transaction, so the transport may send the operation in the caller's transaction.
+A transport may offer a send option that lets the caller supply its own transaction, as SQL Server does with `UseCustomSqlTransaction`. The `Isolated` rule applies to the receive transaction, so the transport may send the operation in the caller's transaction. The option should also require immediate dispatch, because core passes a caller-supplied `TransportTransaction` to `Dispatch` only for operations that are not batched. Otherwise, the `TransportTransaction` passed to `Dispatch` is the current receive's instance, or an empty one when there is no receive.
 
 ## Delivery properties
 
@@ -61,6 +61,6 @@ A transport may add its own keys to `DispatchProperties` to carry transport-spec
 
 This section applies only to transports that set `TransportDefinition.SupportsPublishSubscribe` to `false` or that support subscription migration mode.
 
-Without native publish/subscribe, core turns a publish into one `UnicastTransportOperation` per known subscriber. To subscribe or unsubscribe, it sends a `Subscribe` or `Unsubscribe` control message to the publisher as a unicast operation. Core dispatches these control messages directly, without any pipeline, and never batches them. See [Subscriptions](infrastructure-setup.md#subscriptions).
+A transport that supports subscription migration mode must deliver each event to a subscriber once. In that mode, one publish becomes a `MulticastTransportOperation` plus one `UnicastTransportOperation` per message-driven subscriber, all with the same message ID and in the same `Dispatch` call, so a subscriber can be reachable both ways. One way to handle this is to skip a unicast operation whose destination already receives the multicast one.
 
-In subscription migration mode, core does both. It sends the control messages, and one publish becomes a `MulticastTransportOperation` plus one `UnicastTransportOperation` per message-driven subscriber, all with the same message ID and in the same `Dispatch` call. A subscriber can be reachable both ways, so the transport must make sure it receives the event once, for example by skipping a unicast operation whose destination already receives the multicast one.
+Without native publish/subscribe, core turns a publish into one `UnicastTransportOperation` per known subscriber. Without native publish/subscribe and in migration mode, core subscribes and unsubscribes by sending a `Subscribe` or `Unsubscribe` control message to the publisher as a unicast operation. It dispatches these control messages directly, without any pipeline, and never batches them. See [Subscriptions](infrastructure-setup.md#subscriptions).
