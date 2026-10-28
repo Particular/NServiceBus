@@ -69,6 +69,6 @@ A transport may also read and write its own keys on the same `DispatchProperties
 
 ## Outbox interaction
 
-When the outbox is enabled, `TransportReceiveToPhysicalMessageConnector` does not fork into the batched dispatch stage until the outbox transaction that recorded the outgoing operations has committed. The operations are also persisted as part of the outbox record, serialized with their routing folded into `DispatchProperties` (`Destination` for a unicast operation, `EventType` for a multicast one).
+When the outbox is enabled, `TransportReceiveToPhysicalMessageConnector` does not fork into the batched dispatch stage until the outbox transaction that recorded the outgoing operations has committed. The operations are also persisted as part of the outbox record.
 
 When the outbox detects that a message has already been processed, it rebuilds the same operations from that record and dispatches them again with `DispatchConsistency.Isolated`, so a transport must be able to reconstruct and resend an operation purely from the `OutgoingMessage` and `DispatchProperties` it is given, without relying on anything from the original dispatch call. The outbox requires `TransportTransactionMode.ReceiveOnly`; core refuses to start otherwise.
