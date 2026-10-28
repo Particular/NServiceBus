@@ -58,7 +58,7 @@ For `Default` operations dispatched while a message is being processed, `Transpo
 
 [Dispatching from recoverability](recoverability.md#dispatching-from-recoverability) describes how these rules apply to dispatches made from `OnError`.
 
-The `TransportTransaction` passed to `Dispatch` is the current receive's instance, or an empty one when there is no receive. A transport must enlist an operation in a native transaction from it only when `RequiredDispatchConsistency` is `Default`.
+The `TransportTransaction` passed to `Dispatch` is usually the current receive's instance, or an empty one when there is no receive. A caller can also set its own `TransportTransaction` in the extensions of `SendOptions` or `PublishOptions`. Core passes that instance to `Dispatch` when the operation is not batched. A transport must not enlist an `Isolated` operation in the receive transaction, but it may enlist one in a transaction the caller supplied this way.
 
 ## Delivery properties
 
