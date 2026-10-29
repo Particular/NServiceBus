@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,22 +23,12 @@ class RecoverabilityPipelineExecutor<TState>(
 {
     public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
     {
+        using var activity = activityFactory.StartRecoverabilityActivity(errorContext);
+
         var childScope = serviceProvider.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
-            RecoverabilityAction? recoverabilityAction;
-
-            using (var activity = activityFactory.StartRecoverabilityActivity(errorContext))
-            {
-                recoverabilityAction = recoverabilityPolicy(errorContext, state);
-
-                if (activity is not null)
-                {
-                    activityFactory.UpdateActivityFromRecoverabilityAction(activity, recoverabilityAction, errorContext.ReceiveAddress);
-                }
-
-                recoverabilityActionLogger.LogRecoverabilityAction(recoverabilityAction, errorContext, activityFactory.Options.ExceptionRecordingMode);
-            }
+            var recoverabilityAction = recoverabilityPolicy(errorContext, state);
 
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
@@ -52,11 +43,42 @@ class RecoverabilityPipelineExecutor<TState>(
                     errorContext.Extensions,
                     cancellationToken);
 
-            await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
+            try
+            {
+                await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
+            }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - recording and rethrowing
+            catch (Exception ex)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
+            {
+                activityFactory.RecordError(activity, ex, recoverabilityContext.Extensions);
+                throw;
+            }
+            finally
+            {
+                EnrichActivity(activity, recoverabilityContext.RecoverabilityAction, errorContext.ReceiveAddress);
+            }
 
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
         }
     }
 
-    readonly RecoverabilityActionLogger recoverabilityActionLogger = new(serviceProvider);
+    void EnrichActivity(Activity? activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    {
+        if (activity is null)
+        {
+            return;
+        }
+
+        try
+        {
+            activityFactory.EnrichActivityWithRecoverabilityActionData(activity, recoverabilityAction, receiveAddress);
+        }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - tracing must not change the recoverability outcome
+        catch (Exception)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
+        {
+            // A failure to enrich the activity must neither fail recoverability nor replace the exception of the recoverability pipeline.
+        }
+    }
 }

@@ -6,8 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Extensibility;
 using Pipeline;
 using Transport;
 
@@ -200,12 +199,17 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
+        if (context.Extensions.TryGetWrappingActivityContext(context.Exception, out var wrappingActivityContext))
+        {
+            activity.AddLink(new ActivityLink(wrappingActivityContext));
+        }
+
         activity.DisplayName = ActivityDisplayNames.Recoverability;
 
         return activity;
     }
 
-    public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    public void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
     {
         if (recoverabilityAction is ImmediateRetry)
         {
@@ -242,12 +246,14 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
     }
 
-    public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider)
+    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag)
     {
         if (activity == null)
         {
             return;
         }
+
+        var isWrappingActivity = contextBag.TryRecordWrappingActivity(exception, activity);
 
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
@@ -258,32 +264,14 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
         }
 
-        if (!exception.Data.Contains(ExceptionRecordedFlag))
-        {
-            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
-            {
-                // The factory is created before the container exists, so the logger is resolved on first use.
-                logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
-                LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
-            }
-            else
-            {
-                activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
-            }
-
-            exception.Data[ExceptionRecordedFlag] = true;
-        }
-
         if (exception is TaskCanceledException)
         {
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
+
+        if (isWrappingActivity)
+        {
+            LegacyAddExceptionEvent(activity, exception); // Removed in v11, see obsoletes-v10.cs
+        }
     }
-
-    const string ExceptionRecordedFlag = "otel.exception.recorded";
-
-    ILogger? logger;
-
-    [LoggerMessage(LogLevel.Error, "An exception occurred while executing '{DisplayName}'.")]
-    static partial void LogExceptionWhileExecuting(ILogger logger, Exception exception, string displayName);
 }

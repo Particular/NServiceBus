@@ -33,7 +33,8 @@ public abstract partial class TestableBehaviorContext : IBehaviorContext
     /// </summary>
     protected virtual IServiceProvider GetBuilder()
     {
-        builder ??= Services.BuildServiceProvider(); // TODO: When will this be disposed?
+        // Register logging when the test did not, so that code resolving an ILogger<T> from the builder works by default.
+        builder ??= Services.AddLogging().BuildServiceProvider(); // TODO: When will this be disposed?
         return builder;
     }
 
