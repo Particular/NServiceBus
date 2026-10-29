@@ -29,6 +29,17 @@ Prefer public records close to the implementation. Keep `docs/README.md` current
 5. If sources conflict, do not resolve the conflict by inference. Use the current implementation and public contract for external behavior, report the conflict, and ask the record owner when it affects the decision.
 6. In the response or pull request, cite the records consulted, distinguish evidence from inference, and state when relevant private context was unavailable or unauthorized. Keep private locations, quotations, customer names, and other confidential details out of public artifacts such as pull request descriptions, code comments, and `docs/`; say that internal context was consulted instead.
 
+## Code changes
+
+Every change to code under `src/` keeps `docs/` accurate. This applies to changes written by people and by coding agents.
+
+1. Before you change code, read `docs/README.md`. Then read the `docs/` pages, ADRs, and upstream contracts it links for the area you change.
+2. After you change code, review each `docs/` page and ADR that describes the changed behavior, configuration, or constraints.
+3. Update a `docs/` page in the same change when the code makes it inaccurate or incomplete.
+4. Update `docs/README.md` when you add, replace, or retire a canonical source.
+5. When the change conflicts with an ADR, flag the conflict in the pull request and ask the owner before you change the ADR or the code.
+6. In the pull request description, or in the response for unpublished work, list the `docs/` pages you reviewed and what you changed. When no update is needed, say so and give the reason.
+
 ## Writing
 
 These rules apply to everything written for a reader: pull request descriptions, commit messages, `docs/`, ADRs, code comments, and review replies. Write in en-US.
