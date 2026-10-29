@@ -63,16 +63,14 @@ public class When_pending_transport_operations_passed_in_options : NServiceBusAc
     public async Task Should_dispatch_instead_of_collecting_when_immediate_dispatch_is_required()
     {
         var context = await Scenario.Define<Context>()
-            .WithEndpoint<Endpoint>(b => RecordDispatches(b).When(async (session, c) =>
+            .WithEndpoint<Endpoint>(b => RecordDispatches(b).When((session, c) =>
             {
                 var options = new SendOptions();
                 options.GetExtensions().Set(c.CallerPendingOperations);
                 options.RequireImmediateDispatch();
                 options.RouteToThisEndpoint();
 
-                await session.Send(new CapturedMessage(), options);
-
-                c.MarkAsCompleted();
+                return session.Send(new CapturedMessage(), options);
             }))
             .Run();
 
@@ -124,11 +122,14 @@ public class When_pending_transport_operations_passed_in_options : NServiceBusAc
         public Endpoint() =>
             EndpointSetup(new DefaultServer { TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(true, true) }, (_, _) => { });
 
-        // Handles a dispatched message that arrives before the endpoint stops
         [Handler]
-        public class CapturedMessageHandler : IHandleMessages<CapturedMessage>
+        public class CapturedMessageHandler(Context testContext) : IHandleMessages<CapturedMessage>
         {
-            public Task Handle(CapturedMessage message, IMessageHandlerContext context) => Task.CompletedTask;
+            public Task Handle(CapturedMessage message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
         }
     }
 
