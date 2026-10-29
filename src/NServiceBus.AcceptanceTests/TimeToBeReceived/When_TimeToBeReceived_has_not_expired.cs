@@ -11,6 +11,8 @@ public class When_TimeToBeReceived_has_not_expired : NServiceBusAcceptanceTest
     [Test]
     public async Task Message_should_be_received()
     {
+        Requires.TTBRSupport();
+
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
             .Run();
