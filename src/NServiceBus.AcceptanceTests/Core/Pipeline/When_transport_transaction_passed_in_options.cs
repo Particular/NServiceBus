@@ -22,7 +22,6 @@ public class When_transport_transaction_passed_in_options : NServiceBusAcceptanc
             {
                 var options = new SendOptions();
                 options.GetExtensions().Set(c.CallerTransportTransaction);
-                options.RequireImmediateDispatch();
                 options.RouteToThisEndpoint();
 
                 return session.Send(new CapturedMessage(), options);
@@ -40,7 +39,6 @@ public class When_transport_transaction_passed_in_options : NServiceBusAcceptanc
             {
                 var options = new PublishOptions();
                 options.GetExtensions().Set(c.CallerTransportTransaction);
-                options.RequireImmediateDispatch();
 
                 return session.Publish(new CapturedEvent(), options);
             }))
