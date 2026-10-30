@@ -106,6 +106,13 @@ partial class ReceiveComponent
                 errorQueue));
         }
 
+        receiveSettings.AddRange(configuration.MainPipelineReceiverDefinitions.Select(definition => new ReceiveSettings(
+            definition.Name,
+            definition.ReceiveAddress,
+            false,
+            configuration.PurgeOnStartup,
+            errorQueue)));
+
         receiveSettings.AddRange(configuration.SatelliteDefinitions.Select(definition => new ReceiveSettings(
             definition.Name,
             definition.ReceiveAddress,
@@ -217,6 +224,21 @@ partial class ReceiveComponent
                 cancellationToken).ConfigureAwait(false);
 
             receivers.Add(instancePump);
+        }
+
+        foreach (var definition in configuration.MainPipelineReceiverDefinitions)
+        {
+            var receiverLogSlot = new EndpointSatelliteLogSlot(endpointLogSlot, definition.Name);
+            var pump = CreateReceiver(consecutiveFailuresConfiguration, transportInfrastructure.Receivers[definition.Name], receiverLogSlot, slotFactory, manageSlotLifecycle: true);
+            var pipelineExecutor = new MainPipelineExecutor(builder, pipelineCache, messageOperations, configuration.PipelineCompletedSubscribers, receivePipeline, activityFactory, pipelineMetrics, envelopeUnwrapper, definition.Name);
+
+            await pump.Initialize(
+                definition.RuntimeSettings,
+                pipelineExecutor.Invoke,
+                recoverabilityPipelineExecutor.Invoke,
+                cancellationToken).ConfigureAwait(false);
+
+            receivers.Add(pump);
         }
 
         foreach (var satellite in configuration.SatelliteDefinitions)

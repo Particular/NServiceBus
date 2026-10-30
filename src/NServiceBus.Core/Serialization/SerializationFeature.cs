@@ -47,6 +47,9 @@ sealed class SerializationFeature : Feature
             });
         }
 
+        // Control messages from ServiceControl must be readable whichever serializer the endpoint uses
+        additionalDeserializers.Add(new ControlMessageSerializer());
+
         var allowMessageTypeInference = settings.IsMessageTypeInferenceEnabled();
         var resolver = new MessageDeserializerResolver(mainSerializer, additionalDeserializers);
         var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);

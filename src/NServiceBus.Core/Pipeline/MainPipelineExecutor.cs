@@ -17,7 +17,8 @@ class MainPipelineExecutor(
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
     IncomingPipelineMetrics incomingPipelineMetrics,
-    EnvelopeUnwrapper envelopeUnwrapper)
+    EnvelopeUnwrapper envelopeUnwrapper,
+    string? additionalReceiverName = null)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
@@ -47,6 +48,11 @@ class MainPipelineExecutor(
             if (activity != null)
             {
                 transportReceiveContext.SetIncomingPipelineActivity(activity);
+            }
+
+            if (additionalReceiverName != null)
+            {
+                transportReceiveContext.Extensions.Set(new AdditionalPipelineReceiver(additionalReceiverName));
             }
 
             try
@@ -82,3 +88,6 @@ class MainPipelineExecutor(
         }
     }
 }
+
+// Tells behaviors that the message was received by an additional receiver running the main pipeline, such as the control queue
+sealed record AdditionalPipelineReceiver(string Name);

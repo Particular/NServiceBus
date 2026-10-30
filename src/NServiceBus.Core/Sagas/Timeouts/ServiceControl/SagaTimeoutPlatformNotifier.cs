@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Hosting;
 using Sagas;
 using ServicePlatform;
-using Transport;
 
 // Reports timeout changes to the ServiceControl primary instance as outgoing operations of the message being handled,
 // so a rolled back saga save doesn't report changes that never happened.
@@ -47,8 +46,8 @@ sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, s
         }, sagaInstance.Metadata, sagaInstance.Instance.Entity));
 
     // Used when the saga can't be loaded, so there is no saga data to read the correlation property from
-    public Task NotifyRejected(string sagaType, Guid sagaId, string timeoutId, string requestedChange, DateTimeOffset? requestedDueTime, string reason, Guid operationId, ICollection<TransportOperation> operations, CancellationToken cancellationToken = default) =>
-        new TransportOperationsReportSink(operations).Send(rejected, new SagaTimeoutChangeRejected
+    public Task NotifyRejected(string sagaType, Guid sagaId, string timeoutId, string requestedChange, DateTimeOffset? requestedDueTime, string reason, Guid operationId, IPipelineContext context) =>
+        new PipelineReportSink(context).Send(rejected, new SagaTimeoutChangeRejected
         {
             EndpointName = endpointName,
             SagaType = sagaType,
@@ -62,10 +61,10 @@ sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, s
             RequestedChange = requestedChange,
             RequestedDueTime = requestedDueTime,
             Reason = reason
-        }, cancellationToken);
+        }, context.CancellationToken);
 
-    public Task NotifyChanges(SagaMetadata metadata, IContainSagaData sagaData, IReadOnlyList<SagaTimeoutChange> changes, ICollection<TransportOperation> operations, CancellationToken cancellationToken = default) =>
-        NotifyChanges(metadata, sagaData, changes, new TransportOperationsReportSink(operations), cancellationToken);
+    public Task NotifyChanges(SagaMetadata metadata, IContainSagaData sagaData, IReadOnlyList<SagaTimeoutChange> changes, IPipelineContext context) =>
+        NotifyChanges(metadata, sagaData, changes, new PipelineReportSink(context), context.CancellationToken);
 
     async Task NotifyChanges(SagaMetadata metadata, IContainSagaData sagaData, IReadOnlyList<SagaTimeoutChange> changes, ReportSink sink, CancellationToken cancellationToken)
     {
@@ -175,19 +174,5 @@ sealed class SagaTimeoutPlatformNotifier(ServicePlatformConnection connection, s
         // The pipeline context carries its own cancellation token
         public override Task Send<TMessage>(ServicePlatformSender<TMessage> sender, TMessage message, CancellationToken cancellationToken = default) => sender.Send(message, context);
     }
-
-    // Satellites have no pipeline, so reports join the satellite's own transport operations
-    sealed class TransportOperationsReportSink(ICollection<TransportOperation> operations) : ReportSink
-    {
-        public override Task Send<TMessage>(ServicePlatformSender<TMessage> sender, TMessage message, CancellationToken cancellationToken = default)
-        {
-            if (sender is MessagingBasedServicePlatformSender<TMessage> messagingSender)
-            {
-                operations.Add(messagingSender.CreateTransportOperation(message));
-                return Task.CompletedTask;
-            }
-
-            return sender.Send(message, cancellationToken);
-        }
-    }
 }
+
