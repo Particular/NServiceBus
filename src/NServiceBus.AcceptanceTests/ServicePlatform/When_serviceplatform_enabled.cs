@@ -49,7 +49,11 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
                 {
                     endpointConfig.ServiceControlErrorInstanceQueue(CustomServiceControlName);
                 }
-            }))
+            }).ServiceResolve((serviceProvider, ctx, cancellationToken) =>
+            {
+                ctx.ExpectedReplyToAddress = serviceProvider.GetService<ReceiveAddresses>()?.MainReceiveAddress;
+                return Task.CompletedTask;
+            }, afterStart: true))
             .Done(ctx => ctx.Done)
             .Run();
 
@@ -58,8 +62,7 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
             Assert.That(context.BusinessId, Is.EqualTo(BusinessId));
             if (!sendOnly)
             {
-                var expectedName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(EndpointThatSendsMessagesToThePlatform));
-                Assert.That(context.ReplyToAddress, Is.EqualTo(expectedName));
+                Assert.That(context.ReplyToAddress, Is.EqualTo(context.ExpectedReplyToAddress));
             }
         }
     }
@@ -68,6 +71,7 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
     {
         public Guid BusinessId { get; set; }
         public string ReplyToAddress { get; set; }
+        public string ExpectedReplyToAddress { get; set; }
         public bool Done { get; set; }
     }
 
