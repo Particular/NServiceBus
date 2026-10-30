@@ -11,7 +11,8 @@ using Pipeline;
 
 class IncomingPipelineMetrics
 {
-    const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
+    public const string MeterName = "NServiceBus.Core.Pipeline.Incoming";
+    public const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
     const string TotalFetched = "nservicebus.messaging.fetches";
     const string TotalFailures = "nservicebus.messaging.failures";
     const string MessageHandlerTime = "nservicebus.messaging.handler_time";
@@ -24,7 +25,7 @@ class IncomingPipelineMetrics
 
     public IncomingPipelineMetrics(IMeterFactory meterFactory, string queueName, string discriminator)
     {
-        var meter = meterFactory.Create("NServiceBus.Core.Pipeline.Incoming", "0.2.0");
+        var meter = meterFactory.Create(MeterName, "0.2.0");
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
             description: "Total number of messages processed successfully by the endpoint.");
         totalFetched = meter.CreateCounter<long>(TotalFetched,
