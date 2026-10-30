@@ -91,17 +91,33 @@ public partial class When_serviceplatform_enabled : NServiceBusAcceptanceTest
             => context.RegisterStartupTask(serviceProvider =>
             {
                 var servicePlatform = serviceProvider.GetRequiredService<ServicePlatformConnection>();
-                return new SendMessageToPlatformFeatureStartupTask(servicePlatform.PrimaryInstance);
+                var scenarioContext = context.Settings.Get<Context>();
+                return new SendMessageToPlatformFeatureStartupTask(servicePlatform.PrimaryInstance, scenarioContext);
             });
 
-        class SendMessageToPlatformFeatureStartupTask(ServicePlatformChannel channel) : FeatureStartupTask
+        class SendMessageToPlatformFeatureStartupTask(ServicePlatformChannel channel, Context scenarioContext) : FeatureStartupTask
         {
             readonly ServicePlatformSender<PlatformMessage> sender = channel.CreateSender(PlatformMessageJsonContext.Default.PlatformMessage);
+            CancellationTokenSource cancellationSource;
+            Task task;
 
-            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
-                => sender.Send(new PlatformMessage { BusinessId = BusinessId }, cancellationToken);
+            protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+            {
+                cancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                task = SendPlatformMessageOncePlatformStarts(cancellationSource.Token);
+            }
+
+            async Task SendPlatformMessageOncePlatformStarts(CancellationToken cancellationToken)
+            {
+                await scenarioContext.EndpointsStarted.Task;
+                await sender.Send(new PlatformMessage { BusinessId = BusinessId }, cancellationToken);
+            }
+
             protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
-                => Task.CompletedTask;
+            {
+                cancellationSource?.Cancel();
+                return task ?? Task.CompletedTask;
+            }
         }
     }
 
