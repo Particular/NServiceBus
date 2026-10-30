@@ -26,6 +26,19 @@ The array does not contain:
 - Receive addresses, which core passes in `receivers`. Each `ReceiveSettings.ErrorQueue` also contains the error queue.
 - Destinations of commands, replies, or other routed messages. A sender does not create the input queues of the endpoints it sends to.
 
+### Resolved addresses
+
+The entries in `sendingAddresses` and each `ReceiveSettings.ErrorQueue` are transport addresses. Core uses them as given and never passes them through `TransportInfrastructure.ToTransportAddress`.
+
+Core sends failed and audited messages to these transport addresses. A transport that changes names, for example by adding a prefix or a namespace, must apply that change to these addresses itself: when it creates the queues, when its dispatcher sends to them, and when it moves a message to `ReceiveSettings.ErrorQueue` without going through core. This keeps the queue the installer creates the same as the queue that receives failed and audited messages.
+
+The dispatcher cannot tell whether core resolved a destination through `ToTransportAddress`:
+
+- Resolved: a command routed by message type, an event sent to a message-driven subscriber, a reply to the sender's default `ReplyTo` address, and a delayed retry.
+- Used as given: failed and audited messages, and addresses passed to `SetDestination`, `RouteReplyTo`, `OverridePublicReturnAddress`, or `ForwardCurrentMessageTo`.
+
+The dispatcher must therefore not apply the change a second time to an address that already includes it.
+
 ## Subscriptions
 
 Core runs subscription operations independently of installers. It calls `ISubscriptionManager` whether or not `SetupInfrastructure` is set:
