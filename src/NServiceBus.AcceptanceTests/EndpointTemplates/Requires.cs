@@ -59,4 +59,12 @@ static partial class Requires
             Assert.Ignore("Ignoring this tests because it requires a transport able to purge queues at startup.");
         }
     }
+
+    public static void TTBRSupport()
+    {
+        if (!TestSuiteConstraints.Current.SupportsTTBR)
+        {
+            Assert.Ignore("Ignoring this test because it requires TTBR support from the transport.");
+        }
+    }
 }

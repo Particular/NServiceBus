@@ -13,6 +13,8 @@ public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTes
     [Test]
     public async Task Should_not_honor_TimeToBeReceived_for_error_message()
     {
+        Requires.TTBRSupport();
+
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatThrows>(b => b
                 .When(session => session.SendLocal(new MessageThatFails()))
