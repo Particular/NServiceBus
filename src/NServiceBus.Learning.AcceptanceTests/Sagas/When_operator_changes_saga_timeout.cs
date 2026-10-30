@@ -19,7 +19,7 @@ using NUnit.Framework;
 public class When_operator_changes_saga_timeout : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_apply_the_change_through_the_management_satellite()
+    public async Task Should_apply_the_change_through_the_control_queue()
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ServiceControlSpy>()
@@ -138,33 +138,37 @@ public class When_operator_changes_saga_timeout : NServiceBusAcceptanceTest
                 }
             }
 
-            static Task Request(IMessageDispatcher dispatcher, JsonElement requested, Guid operationId, string change, int expectedVersion, DateTimeOffset? dueTime = null, byte[] payload = null)
-            {
-                var headers = new Dictionary<string, string>
+            static Task Request(IMessageDispatcher dispatcher, JsonElement requested, Guid operationId, string change, int expectedVersion, DateTimeOffset? dueTime = null, byte[] payload = null) =>
+                SendControlMessage(dispatcher, requested, new Dictionary<string, object>
                 {
-                    ["NServiceBus.SagaTimeoutManagement.OperationId"] = operationId.ToString(),
-                    ["NServiceBus.SagaTimeoutManagement.SagaType"] = requested.GetProperty("SagaType").GetString(),
-                    ["NServiceBus.SagaTimeoutManagement.SagaId"] = requested.GetProperty("SagaId").GetString(),
-                    ["NServiceBus.SagaTimeoutManagement.TimeoutId"] = requested.GetProperty("TimeoutId").GetString(),
-                    ["NServiceBus.SagaTimeoutManagement.ExpectedVersion"] = expectedVersion.ToString(),
-                    ["NServiceBus.SagaTimeoutManagement.Change"] = change
-                };
-
-                if (dueTime is not null)
-                {
-                    headers["NServiceBus.SagaTimeoutManagement.DueTime"] = DateTimeOffsetHelper.ToWireFormattedString(dueTime.Value);
-                }
-
-                if (payload is not null)
-                {
-                    headers[Headers.ContentType] = "application/json";
-                }
-
-                var request = new OutgoingMessage(Guid.NewGuid().ToString(), headers, payload ?? []);
-                var destination = new UnicastAddressTag(requested.GetProperty("ManagementAddress").GetString());
-                return dispatcher.Dispatch(new TransportOperations(new TransportOperation(request, destination)), new TransportTransaction());
-            }
+                    ["OperationId"] = operationId,
+                    ["SagaType"] = requested.GetProperty("SagaType").GetString(),
+                    ["SagaId"] = requested.GetProperty("SagaId").GetGuid(),
+                    ["TimeoutId"] = requested.GetProperty("TimeoutId").GetString(),
+                    ["ExpectedVersion"] = expectedVersion,
+                    ["Change"] = change,
+                    ["DueTime"] = dueTime,
+                    ["Payload"] = payload,
+                    ["PayloadContentType"] = payload is null ? null : "application/json"
+                });
         }
+    }
+
+    // Sends a control message the way ServiceControl does: a JSON body with a content type of its own, and the saga
+    // repeated in headers for behaviors that run before deserialization
+    public static Task SendControlMessage(IMessageDispatcher dispatcher, JsonElement requested, Dictionary<string, object> body)
+    {
+        var headers = new Dictionary<string, string>
+        {
+            [Headers.ContentType] = "application/vnd.particular.control+json",
+            [Headers.EnclosedMessageTypes] = "NServiceBus.SagaTimeoutChangeRequest",
+            ["NServiceBus.SagaTimeoutManagement.SagaType"] = requested.GetProperty("SagaType").GetString(),
+            ["NServiceBus.SagaTimeoutManagement.SagaId"] = requested.GetProperty("SagaId").GetString()
+        };
+
+        var request = new OutgoingMessage(Guid.NewGuid().ToString(), headers, JsonSerializer.SerializeToUtf8Bytes(body));
+        var destination = new UnicastAddressTag(requested.GetProperty("ManagementAddress").GetString());
+        return dispatcher.Dispatch(new TransportOperations(new TransportOperation(request, destination)), new TransportTransaction());
     }
 
     public class StartSaga : ICommand

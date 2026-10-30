@@ -3,11 +3,11 @@
 namespace NServiceBus;
 
 using System;
+using System.Threading.Tasks;
 using Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NServiceBus.Features;
-using Outbox;
+using Pipeline;
 using NServiceBus.ServicePlatform;
 using Sagas;
 using Transport;
@@ -29,39 +29,39 @@ class ReportSagaTimeoutsToPlatform : Feature
         }
 
         var endpointName = context.Settings.EndpointName();
-        var managementQueue = new QueueAddress(context.Receiving.LocalQueueAddress.BaseAddress, qualifier: ManagementQueueQualifier);
+        var controlQueue = new QueueAddress(context.Receiving.LocalQueueAddress.BaseAddress, qualifier: ControlQueueQualifier);
 
         context.Services.AddSingleton(serviceProvider => new SagaTimeoutPlatformNotifier(
             serviceProvider.GetRequiredService<ServicePlatformConnection>(),
             endpointName,
             serviceProvider.GetRequiredService<HostInformation>(),
-            serviceProvider.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(managementQueue)));
+            serviceProvider.GetRequiredService<ITransportAddressResolver>().ToTransportAddress(controlQueue)));
 
-        context.Services.AddSingleton(serviceProvider => new SagaTimeoutManagementSatellite(
-            serviceProvider.GetRequiredService<ISagaPersister>(),
-            serviceProvider.GetRequiredService<ITimeoutPersister>(),
-            context.Settings.Get<SagaMetadataCollection>(),
-            serviceProvider.GetRequiredService<MessageMetadataRegistry>(),
-            serviceProvider.GetRequiredService<TimeoutSerializer>(),
-            serviceProvider.GetRequiredService<IMessageDispatcher>(),
-            // Without the outbox enabled the storage is a no-op, as in the receive pipeline
-            serviceProvider.GetService<IOutboxStorage>() ?? new NoOpOutboxStorage(),
-            serviceProvider.GetRequiredService<SagaTimeoutPlatformNotifier>(),
+        var sagas = context.Settings.Get<SagaMetadataCollection>();
+        context.Services.AddSingleton(serviceProvider => new SagaTimeoutChangeRequestHandler.EndpointInfo(
             endpointName,
-            serviceProvider.GetRequiredService<HostInformation>(),
             serviceProvider.GetRequiredService<ReceiveAddresses>().MainReceiveAddress,
-            serviceProvider.GetRequiredService<ILogger<SagaTimeoutManagementSatellite>>()));
+            sagas));
 
-        context.AddSatelliteReceiver(
-            "Saga timeout management",
-            managementQueue,
-            PushRuntimeSettings.Default,
-            static (config, errorContext) => errorContext.Exception is InvalidSagaTimeoutManagementRequestException
-                ? RecoverabilityAction.MoveToError(config.Failed.ErrorQueue)
-                : DefaultRecoverabilityPolicy.Invoke(config, errorContext),
-            static (serviceProvider, messageContext, cancellationToken) =>
-                serviceProvider.GetRequiredService<SagaTimeoutManagementSatellite>().Handle(serviceProvider, messageContext, cancellationToken));
+        // Control messages are handled by Core's own handler, and their type is known even when it isn't a message by convention
+        context.Settings.Get<MessageMetadataRegistry>().RegisterMessageTypesBypassingChecks([typeof(SagaTimeoutChangeRequest)]);
+        context.Settings.Get<ReceiveComponent.Settings>().MessageHandlerRegistry.AddMessageHandlerForMessage<SagaTimeoutChangeRequestHandler, SagaTimeoutChangeRequest>();
+
+        // The control queue runs the main receive pipeline, unlike a satellite, with a low concurrency limit of its own
+        context.Receiving.AddMainPipelineReceiver(ControlReceiverName, controlQueue, new PushRuntimeSettings(ControlQueueMaxConcurrency));
+        context.Pipeline.Register(new RejectNonControlMessagesBehavior(), "Rejects messages other than control messages received on the control queue");
     }
 
-    public const string ManagementQueueQualifier = "SagaTimeouts";
+    // The control queue runs the main pipeline, so without this, any handler of the endpoint would process a business message sent there by mistake
+    sealed class RejectNonControlMessagesBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
+    {
+        public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next) =>
+            context.Extensions.TryGet<AdditionalPipelineReceiver>(out var receiver) && receiver.Name == ControlReceiverName && context.Message.MessageType != typeof(SagaTimeoutChangeRequest)
+                ? throw new Exception($"The control queue only accepts control messages, but received '{context.Message.MessageType.FullName}'.")
+                : next(context);
+    }
+
+    public const string ControlQueueQualifier = "control";
+    const string ControlReceiverName = "Control";
+    const int ControlQueueMaxConcurrency = 1;
 }

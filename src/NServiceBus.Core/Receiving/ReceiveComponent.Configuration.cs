@@ -116,6 +116,8 @@ partial class ReceiveComponent
 
         public IReadOnlyList<SatelliteDefinition> SatelliteDefinitions => satelliteDefinitions;
 
+        public IReadOnlyList<MainPipelineReceiverDefinition> MainPipelineReceiverDefinitions => mainPipelineReceiverDefinitions;
+
         public bool PurgeOnStartup { get; } = purgeOnStartup;
 
         public bool IsSendOnlyEndpoint { get; } = isSendOnlyEndpoint;
@@ -133,6 +135,13 @@ partial class ReceiveComponent
             satelliteDefinitions.Add(satelliteDefinition);
         }
 
+        // Unlike a satellite, the receiver runs the main receive pipeline, as the instance-specific receiver does
+        public void AddMainPipelineReceiver(string name, QueueAddress transportAddress, PushRuntimeSettings runtimeSettings) =>
+            mainPipelineReceiverDefinitions.Add(new MainPipelineReceiverDefinition(name, transportAddress, runtimeSettings));
+
         readonly List<SatelliteDefinition> satelliteDefinitions = [];
+        readonly List<MainPipelineReceiverDefinition> mainPipelineReceiverDefinitions = [];
     }
 }
+
+sealed record MainPipelineReceiverDefinition(string Name, QueueAddress ReceiveAddress, PushRuntimeSettings RuntimeSettings);
