@@ -17,6 +17,8 @@ public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptance
     [Test]
     public async Task Should_not_honor_TimeToBeReceived_for_audit_message()
     {
+        Requires.TTBRSupport();
+
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
