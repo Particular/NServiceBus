@@ -1,16 +1,15 @@
 namespace NServiceBus.AcceptanceTests.Core.ScenarioTimeout;
 
 using System;
-using System.Threading.Tasks;
 using NServiceBus.AcceptanceTesting;
 using NUnit.Framework;
 
 public class When_scenario_exceeds_the_test_timeout : NServiceBusAcceptanceTest
 {
     [Test, CancelAfter(250)]
-    public async Task Should_fail_with_the_test_timeout_budget()
+    public void Should_fail_with_the_test_timeout_budget()
     {
-        var exception = await Assert.ThrowsAsync<TimeoutException>(() => Scenario.Define<Context>()
+        var exception = Assert.ThrowsAsync<TimeoutException>(() => Scenario.Define<Context>()
             .Run());
 
         Assert.That(exception.Message, Does.Contain("timeout budget of 250 ms"));

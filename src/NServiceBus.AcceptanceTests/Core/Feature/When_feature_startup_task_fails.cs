@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Feature;
+﻿namespace NServiceBus.AcceptanceTests.Core.Feature;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,9 +10,9 @@ using NUnit.Framework;
 public class When_feature_startup_task_fails : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_not_start_endpoint()
+    public void Should_not_start_endpoint()
     {
-        await Assert.ThrowsAsync<SimulatedException>(() =>
+        Assert.ThrowsAsync<SimulatedException>(() =>
             Scenario.Define<ScenarioContext>()
                 .WithEndpoint<EndpointWithStartupTask>()
                 .Run());

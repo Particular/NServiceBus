@@ -25,7 +25,6 @@ public class When_logging_outside_slot_scope : NServiceBusAcceptanceTest
             .Run();
 
         Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
-            l is not null &&
             l.LoggerName == "OutOfSlotLoggerViaWithServiceResolve" &&
             (l.Message ?? string.Empty).Contains("Out-of-slot log via WithServiceResolve")));
     }
@@ -45,7 +44,6 @@ public class When_logging_outside_slot_scope : NServiceBusAcceptanceTest
             .Run();
 
         Assert.That(context.Logs, Has.One.Matches<ScenarioContext.LogItem>(l =>
-            l is not null &&
             l.LoggerName == "OutOfSlotLoggerViaEndpointServiceResolve" &&
             (l.Message ?? string.Empty).Contains("Out-of-slot log via endpoint ServiceResolve")));
     }
