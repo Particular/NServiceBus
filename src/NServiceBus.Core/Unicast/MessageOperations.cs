@@ -2,10 +2,12 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Transport;
 
@@ -16,7 +18,8 @@ class MessageOperations(
     IPipeline<IOutgoingReplyContext> replyPipeline,
     IPipeline<ISubscribeContext> subscribePipeline,
     IPipeline<IUnsubscribeContext> unsubscribePipeline,
-    IActivityFactory activityFactory)
+    IActivityFactory activityFactory,
+    ILogger<MessageOperations> logger)
 {
     protected readonly IPipeline<IOutgoingPublishContext> publishPipeline = publishPipeline;
     protected readonly IPipeline<IOutgoingSendContext> sendPipeline = sendPipeline;
@@ -76,7 +79,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.PublishEvent, ActivityDisplayNames.PublishOperation, messageType));
             throw;
         }
     }
@@ -105,7 +108,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.SubscribeEvent, ActivityDisplayNames.SubscribeEvent, eventTypes));
             throw;
         }
     }
@@ -131,7 +134,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.UnsubscribeEvent, ActivityDisplayNames.UnsubscribeEvent, eventType));
             throw;
         }
     }
@@ -187,7 +190,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.SendMessage, ActivityDisplayNames.SendMessage, messageType));
             throw;
         }
     }
@@ -243,7 +246,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            activityFactory.RecordError(activity, ex, context.Extensions);
+            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.ReplyMessage, ActivityDisplayNames.ReplyMessage, messageType));
             throw;
         }
     }
@@ -251,9 +254,34 @@ class MessageOperations(
     internal const string RuntimeTypeRoutingTrimmingMessage = "When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.";
     internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
 
+    // The span name is only built when a span is recorded, so the caller builds it for the log entry when there is no span.
+    void RecordFailure(IBehaviorContext context, Activity activity, Exception exception, string displayName)
+    {
+        activityFactory.RecordError(activity, exception, context.Extensions);
+
+        // Inside message processing recoverability logs the exception with its decision, and a failure of
+        // recoverability itself is raised as a critical error. Outside of it no one else sees the exception.
+        if (!IsInsideMessageProcessing(context))
+        {
+            logger.OperationFailed(exception, displayName);
+        }
+    }
+
+    // An outgoing context created while a message is processed is not an incoming context, but its context bag
+    // chain holds the incoming message that the transport receive context set.
+    static bool IsInsideMessageProcessing(IBehaviorContext context) =>
+        context is IIncomingContext or ITransportReceiveContext or IRecoverabilityContext
+        || context.Extensions.TryGet<IncomingMessage>(out _);
+
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
     {
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
         context.Set(new DispatchProperties(dispatchProperties));
     }
+}
+
+static partial class MessageOperationsLoggerMessages
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "An exception occurred while executing '{Operation}'.")]
+    public static partial void OperationFailed(this ILogger logger, Exception exception, string operation);
 }

@@ -172,13 +172,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
-        // Span names follow the OTel messaging convention "{operation} {message type}" with the v11 behavior.
-        // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
-        var displayName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{operation} {messageType.Name}"
-            : legacyDisplayName;
-
-        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+        return StartOutgoingPipelineActivity(activity, OutgoingDisplayName(legacyDisplayName, operation, messageType), outgoingContext);
     }
 
     public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type[] messageTypes, IBehaviorContext outgoingContext)
@@ -189,13 +183,16 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
-        // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
-        var displayName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{operation} {string.Join(' ', messageTypes.Select(x => x.Name))}"
-            : legacyDisplayName;
-
-        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+        return StartOutgoingPipelineActivity(activity, OutgoingDisplayName(legacyDisplayName, operation, messageTypes), outgoingContext);
     }
+
+    // Span names follow the OTel messaging convention "{operation} {message type}" with the v11 behavior.
+    // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
+    internal static string OutgoingDisplayName(string legacyDisplayName, string operation, Type messageType) =>
+        V11BehaviorSwitch.UseV11Behavior ? $"{operation} {messageType.Name}" : legacyDisplayName;
+
+    internal static string OutgoingDisplayName(string legacyDisplayName, string operation, Type[] messageTypes) =>
+        V11BehaviorSwitch.UseV11Behavior ? $"{operation} {string.Join(' ', messageTypes.Select(x => x.Name))}" : legacyDisplayName;
 
     static Activity StartOutgoingPipelineActivity(Activity activity, string displayName, IBehaviorContext outgoingContext)
     {

@@ -1,18 +1,21 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline;
 
 using System;
-using NServiceBus.Pipeline;
 using System.Threading.Tasks;
 using MessageInterfaces.MessageMapper.Reflection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using NServiceBus.Pipeline;
 
-class TestableMessageOperations() : MessageOperations(
+class TestableMessageOperations(IActivityFactory activityFactory = null, ILogger<MessageOperations> logger = null) : MessageOperations(
     new MessageMapper(),
     new Pipeline<IOutgoingPublishContext>(),
     new Pipeline<IOutgoingSendContext>(),
     new Pipeline<IOutgoingReplyContext>(),
     new Pipeline<ISubscribeContext>(),
     new Pipeline<IUnsubscribeContext>(),
-    new ActivityFactory(new InstrumentationOptions())
+    activityFactory ?? new ActivityFactory(new InstrumentationOptions()),
+    logger ?? NullLogger<MessageOperations>.Instance
     )
 {
     public Pipeline<IOutgoingPublishContext> PublishPipeline => (Pipeline<IOutgoingPublishContext>)publishPipeline;
