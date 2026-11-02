@@ -3,7 +3,6 @@
 namespace NServiceBus.Core.Tests.Host;
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
@@ -25,7 +24,7 @@ public class ExternallyManagedContainerMessageSessionIntegrationTests
     }
 
     [Test]
-    public async Task Deferred_message_session_should_honor_cancellation_before_start()
+    public void Deferred_message_session_should_honor_cancellation_before_start()
     {
         var services = new ServiceCollection();
         var endpointConfiguration = CreateEndpointConfiguration();
@@ -37,7 +36,7 @@ public class ExternallyManagedContainerMessageSessionIntegrationTests
         using var cts = new System.Threading.CancellationTokenSource();
         cts.Cancel();
 
-        await Assert.ThrowsAsync(Is.InstanceOf<OperationCanceledException>(), async () => await messageSession.Send(new object(), new SendOptions(), cts.Token));
+        Assert.ThrowsAsync(Is.InstanceOf<OperationCanceledException>(), async () => await messageSession.Send(new object(), new SendOptions(), cts.Token));
     }
 
     static EndpointConfiguration CreateEndpointConfiguration()

@@ -43,7 +43,7 @@ public class MessageSessionTests
     }
 
     [Test]
-    public async Task Should_propagate_endpoint_cancellation_status_to_context()
+    public void Should_propagate_endpoint_cancellation_status_to_context()
     {
         var messageOperations = new TestableMessageOperations
         {
@@ -59,12 +59,12 @@ public class MessageSessionTests
         var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), new CancellationToken(true));
 
-        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        Assert.ThrowsAsync<OperationCanceledException>(async () =>
             await session.Send(new object(), CancellationToken.None));
     }
 
     [Test]
-    public async Task Should_propagate_request_cancellation_status_to_context()
+    public void Should_propagate_request_cancellation_status_to_context()
     {
         var messageOperations = new TestableMessageOperations
         {
@@ -80,7 +80,7 @@ public class MessageSessionTests
         var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null));
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
-        await Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken(true)));
+        Assert.ThrowsAsync<OperationCanceledException>(async () => await session.Send(new object(), new CancellationToken(true)));
     }
 
     [Test]

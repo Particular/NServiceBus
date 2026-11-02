@@ -1,9 +1,8 @@
-#nullable enable
+﻿#nullable enable
 
 namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope;
 
 using System;
-using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using FakeTransport;
@@ -12,9 +11,9 @@ using NUnit.Framework;
 public class When_used_with_transport_scopes : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_blow_up()
+    public void Should_blow_up()
     {
-        var exception = await Assert.ThrowsAsync<Exception>(async () =>
+        var exception = Assert.ThrowsAsync<Exception>(async () =>
         {
             await Scenario.Define<ScenarioContext>()
                 .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>

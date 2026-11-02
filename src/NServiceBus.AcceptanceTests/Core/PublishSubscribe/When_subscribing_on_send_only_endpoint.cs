@@ -1,7 +1,6 @@
-namespace NServiceBus.AcceptanceTests.PublishSubscribe;
+﻿namespace NServiceBus.AcceptanceTests.PublishSubscribe;
 
 using System;
-using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using NUnit.Framework;
@@ -9,9 +8,9 @@ using NUnit.Framework;
 public class When_subscribing_on_send_only_endpoint : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_throw_InvalidOperationException_on_native_pubsub()
+    public void Should_throw_InvalidOperationException_on_native_pubsub()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
+        var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<NativePubSubSendOnlyEndpoint>(e => e
                 .When(s => s.Subscribe<SomeEvent>()))
             .Done(c => c.EndpointsStarted)
@@ -21,9 +20,9 @@ public class When_subscribing_on_send_only_endpoint : NServiceBusAcceptanceTest
     }
 
     [Test]
-    public async Task Should_throw_InvalidOperationException_on_message_driven_pubsub()
+    public void Should_throw_InvalidOperationException_on_message_driven_pubsub()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
+        var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<MessageDrivenPubSubSendOnlyEndpoint>(e => e
                 .When(s => s.Subscribe<SomeEvent>()))
             .Done(c => c.EndpointsStarted)

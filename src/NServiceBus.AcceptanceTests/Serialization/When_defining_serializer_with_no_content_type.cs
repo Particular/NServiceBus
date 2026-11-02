@@ -1,9 +1,8 @@
-namespace NServiceBus.AcceptanceTests.Serialization;
+﻿namespace NServiceBus.AcceptanceTests.Serialization;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using MessageInterfaces;
@@ -14,9 +13,9 @@ using Settings;
 public class When_defining_serializer_with_no_content_type : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_fail_endpoint_startup_for_main_serializer()
+    public void Should_fail_endpoint_startup_for_main_serializer()
     {
-        var exception = await Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
+        var exception = Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<EndpointWithInvalidSerializer>(e => e
                 .CustomConfig(c => c.UseSerialization<InvalidSerializer>()))
             .Done(c => c.EndpointsStarted)
@@ -26,9 +25,9 @@ public class When_defining_serializer_with_no_content_type : NServiceBusAcceptan
     }
 
     [Test]
-    public async Task Should_fail_endpoint_startup_for_additional_deserializer()
+    public void Should_fail_endpoint_startup_for_additional_deserializer()
     {
-        var exception = await Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
+        var exception = Assert.ThrowsAsync<ArgumentException>(() => Scenario.Define<ScenarioContext>()
             .WithEndpoint<EndpointWithInvalidSerializer>(e => e
                 .CustomConfig(c => c.AddDeserializer<InvalidSerializer>()))
             .Done(c => c.EndpointsStarted)

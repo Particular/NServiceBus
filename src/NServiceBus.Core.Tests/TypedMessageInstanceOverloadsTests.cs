@@ -593,108 +593,108 @@ public class TypedMessageInstanceOverloadsTests
     }
 
     [Test]
-    public async Task Send_explicit_type_with_unrelated_type_throws()
+    public void Send_explicit_type_with_unrelated_type_throws()
     {
         var session = new TestableMessageSession();
         object message = new MyMessage();
-        var ex = await Assert.ThrowsAsync<ArgumentException>(async () =>
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
             await session.Send(message, typeof(MyOtherMessage), new SendOptions()));
         Assert.That(ex!.ParamName, Is.EqualTo("message"));
     }
 
     [Test]
-    public async Task Send_explicit_type_with_null_type_throws()
+    public void Send_explicit_type_with_null_type_throws()
     {
         var session = new TestableMessageSession();
         object message = new MyMessage();
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
             await session.Send(message, null!, new SendOptions()));
     }
 
     [Test]
-    public async Task Send_explicit_type_with_null_message_throws()
+    public void Send_explicit_type_with_null_message_throws()
     {
         var session = new TestableMessageSession();
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
             await session.Send(null!, typeof(IMyMessage), new SendOptions()));
     }
 
     [Test]
-    public async Task Default_interface_fallback_Send_explicit_type_with_null_message_throws()
+    public void Default_interface_fallback_Send_explicit_type_with_null_message_throws()
     {
         var legacy = new LegacyMessageSession();
         IMessageSession session = legacy;
-        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
             await session.Send(null!, typeof(IMyMessage), new SendOptions()));
     }
 
     [Test]
-    public async Task Publish_explicit_type_with_unrelated_type_throws()
+    public void Publish_explicit_type_with_unrelated_type_throws()
     {
         var session = new TestableMessageSession();
         object message = new MyMessage();
-        var ex = await Assert.ThrowsAsync<ArgumentException>(async () =>
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
             await session.Publish(message, typeof(MyOtherMessage), new PublishOptions()));
         Assert.That(ex!.ParamName, Is.EqualTo("message"));
     }
 
     [Test]
-    public async Task Reply_explicit_type_with_unrelated_type_throws()
+    public void Reply_explicit_type_with_unrelated_type_throws()
     {
         var context = new TestableMessageProcessingContext();
         object message = new MyMessage();
-        var ex = await Assert.ThrowsAsync<ArgumentException>(async () =>
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
             await context.Reply(message, typeof(MyOtherMessage), new ReplyOptions()));
         Assert.That(ex!.ParamName, Is.EqualTo("message"));
     }
 
     [Test]
-    public async Task PipelineContext_Send_explicit_type_with_unrelated_type_throws()
+    public void PipelineContext_Send_explicit_type_with_unrelated_type_throws()
     {
         var context = new TestablePipelineContext();
         object message = new MyMessage();
-        var ex = await Assert.ThrowsAsync<ArgumentException>(async () =>
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
             await context.Send(message, typeof(MyOtherMessage), new SendOptions()));
         Assert.That(ex!.ParamName, Is.EqualTo("message"));
     }
 
     [Test]
-    public async Task PipelineContext_Publish_explicit_type_with_unrelated_type_throws()
+    public void PipelineContext_Publish_explicit_type_with_unrelated_type_throws()
     {
         var context = new TestablePipelineContext();
         object message = new MyMessage();
-        var ex = await Assert.ThrowsAsync<ArgumentException>(async () =>
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
             await context.Publish(message, typeof(MyOtherMessage), new PublishOptions()));
         Assert.That(ex!.ParamName, Is.EqualTo("message"));
     }
 
     [Test]
-    public async Task Default_interface_fallback_Send_explicit_type_with_unrelated_type_throws()
+    public void Default_interface_fallback_Send_explicit_type_with_unrelated_type_throws()
     {
         var legacy = new LegacyMessageSession();
         IMessageSession session = legacy;
         object message = new MyMessage();
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        Assert.ThrowsAsync<ArgumentException>(async () =>
             await session.Send(message, typeof(MyOtherMessage), new SendOptions()));
     }
 
     [Test]
-    public async Task Default_interface_fallback_Publish_explicit_type_with_unrelated_type_throws()
+    public void Default_interface_fallback_Publish_explicit_type_with_unrelated_type_throws()
     {
         var legacy = new LegacyMessageSession();
         IMessageSession session = legacy;
         object message = new MyMessage();
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        Assert.ThrowsAsync<ArgumentException>(async () =>
             await session.Publish(message, typeof(MyOtherMessage), new PublishOptions()));
     }
 
     [Test]
-    public async Task Default_interface_fallback_Reply_explicit_type_with_unrelated_type_throws()
+    public void Default_interface_fallback_Reply_explicit_type_with_unrelated_type_throws()
     {
         var legacy = new LegacyMessageProcessingContext();
         IMessageProcessingContext context = legacy;
         object message = new MyMessage();
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        Assert.ThrowsAsync<ArgumentException>(async () =>
             await context.Reply(message, typeof(MyOtherMessage), new ReplyOptions()));
     }
 

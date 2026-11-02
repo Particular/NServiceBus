@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Persistence
+﻿namespace NServiceBus.AcceptanceTests.Core.Persistence
 {
     using System;
     using System.Threading.Tasks;
@@ -11,8 +11,8 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
     public class When_different_persistence_used_for_outbox_but_no_sagas : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_throw() =>
-            await Assert.DoesNotThrowAsync(async () =>
+        public void Should_not_throw() =>
+            Assert.DoesNotThrowAsync(async () =>
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(e => e.When(b => b.SendLocal(new MyMessage())))

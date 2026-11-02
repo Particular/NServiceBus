@@ -1,7 +1,6 @@
-namespace NServiceBus.AcceptanceTests.Outbox;
+﻿namespace NServiceBus.AcceptanceTests.Outbox;
 
 using System;
-using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
 using Features;
@@ -11,9 +10,9 @@ using Persistence;
 public class When_outbox_enabled_without_persister_supporting_it : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Should_fail_to_start()
+    public void Should_fail_to_start()
     {
-        var exception = await Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
+        var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
             .Done(c => c.EndpointsStarted)
             .Run());
