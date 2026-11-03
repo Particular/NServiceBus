@@ -22,34 +22,34 @@ public class When_processing_fails : OpenTelemetryAcceptanceTest
 
         Assert.That(context.FailedMessages, Has.Count.EqualTo(1), "the message should have failed");
 
-        Activity failedPipelineActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
+        var failedPipelineActivity = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities().Single();
+        var pipelineActivityTags = failedPipelineActivity.Tags.ToImmutableDictionary();
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(failedPipelineActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
             Assert.That(failedPipelineActivity.StatusDescription, Is.EqualTo(ErrorMessage));
+
+            pipelineActivityTags.VerifyTag("otel.status_code", "ERROR");
+            pipelineActivityTags.VerifyTag("otel.status_description", ErrorMessage);
+
+            Assert.That(failedPipelineActivity.Events, Is.Empty,
+                "the outer span should not duplicate the exception details already recorded on the inner span");
         }
 
-        var pipelineActivityTags = failedPipelineActivity.Tags.ToImmutableDictionary();
-        pipelineActivityTags.VerifyTag("otel.status_code", "ERROR");
-        pipelineActivityTags.VerifyTag("otel.status_description", ErrorMessage);
+        var failedHandlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
+        var handlerActivityTags = failedHandlerActivity.Tags.ToImmutableDictionary();
 
-        Activity failedHandlerActivity = NServiceBusActivityListener.CompletedActivities.GetInvokedHandlerActivities().Single();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(failedHandlerActivity.Status, Is.EqualTo(ActivityStatusCode.Error));
             Assert.That(failedHandlerActivity.StatusDescription, Is.EqualTo(ErrorMessage));
-        }
 
-        var handlerActivityTags = failedHandlerActivity.Tags.ToImmutableDictionary();
-        handlerActivityTags.VerifyTag("otel.status_code", "ERROR");
-        handlerActivityTags.VerifyTag("otel.status_description", ErrorMessage);
+            handlerActivityTags.VerifyTag("otel.status_code", "ERROR");
+            handlerActivityTags.VerifyTag("otel.status_description", ErrorMessage);
 
-        using (Assert.EnterMultipleScope())
-        {
             Assert.That(failedHandlerActivity.Events, Has.Exactly(1).Items,
                 "the innermost span (the handler invocation) should record the exception details");
-            Assert.That(failedPipelineActivity.Events, Is.Empty,
-                "the outer span should not duplicate the exception details already recorded on the inner span");
         }
     }
 

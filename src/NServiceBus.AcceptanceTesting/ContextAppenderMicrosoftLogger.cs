@@ -1,6 +1,7 @@
 namespace NServiceBus.AcceptanceTesting;
 
 using System;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
@@ -37,36 +38,39 @@ class ContextAppenderMicrosoftLogger(string name, ScenarioContext scenarioContex
             Endpoint = ScenarioContext.CurrentEndpoint,
             LoggerName = name,
             Level = messageSeverity,
-            Message = message
+            Message = message,
+            Exception = exception,
+            TraceId = Activity.Current?.TraceId,
+            SpanId = Activity.Current?.SpanId
         });
     }
 
     public bool IsEnabled(LogLevel logLevel) => IsEnabled(logLevel, out _);
 
-    bool IsEnabled(LogLevel logLevel, out NServiceBus.Logging.LogLevel nserviceBusLogLevel)
+    bool IsEnabled(LogLevel logLevel, out Logging.LogLevel nserviceBusLogLevel)
     {
         var context = ScenarioContext.Current ?? scenarioContext;
         switch (logLevel)
         {
             case LogLevel.Debug:
-                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Debug;
-                return context.LogLevel <= NServiceBus.Logging.LogLevel.Debug;
+                nserviceBusLogLevel = Logging.LogLevel.Debug;
+                return context.LogLevel <= Logging.LogLevel.Debug;
             case LogLevel.Information:
-                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Info;
-                return context.LogLevel <= NServiceBus.Logging.LogLevel.Info;
+                nserviceBusLogLevel = Logging.LogLevel.Info;
+                return context.LogLevel <= Logging.LogLevel.Info;
             case LogLevel.Warning:
-                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Warn;
-                return context.LogLevel <= NServiceBus.Logging.LogLevel.Warn;
+                nserviceBusLogLevel = Logging.LogLevel.Warn;
+                return context.LogLevel <= Logging.LogLevel.Warn;
             case LogLevel.Error:
-                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Error;
-                return context.LogLevel <= NServiceBus.Logging.LogLevel.Error;
+                nserviceBusLogLevel = Logging.LogLevel.Error;
+                return context.LogLevel <= Logging.LogLevel.Error;
             case LogLevel.Critical:
-                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Fatal;
-                return context.LogLevel <= NServiceBus.Logging.LogLevel.Fatal;
+                nserviceBusLogLevel = Logging.LogLevel.Fatal;
+                return context.LogLevel <= Logging.LogLevel.Fatal;
             case LogLevel.Trace:
             case LogLevel.None:
             default:
-                nserviceBusLogLevel = NServiceBus.Logging.LogLevel.Debug;
+                nserviceBusLogLevel = Logging.LogLevel.Debug;
                 return false;
         }
     }

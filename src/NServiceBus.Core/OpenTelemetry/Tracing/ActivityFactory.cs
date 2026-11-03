@@ -6,10 +6,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Extensibility;
 using Pipeline;
 using Transport;
 
@@ -165,39 +163,6 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
     }
 
-    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type messageType, IBehaviorContext outgoingContext)
-    {
-        var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
-        if (activity == null)
-        {
-            return activity;
-        }
-
-        // Span names follow the OTel messaging convention "{operation} {message type}" with the v11 behavior.
-        // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
-        var displayName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{operation} {messageType.Name}"
-            : legacyDisplayName;
-
-        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
-    }
-
-    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type[] messageTypes, IBehaviorContext outgoingContext)
-    {
-        var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
-        if (activity == null)
-        {
-            return activity;
-        }
-
-        // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
-        var displayName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{operation} {string.Join(' ', messageTypes.Select(x => x.Name))}"
-            : legacyDisplayName;
-
-        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
-    }
-
     static Activity StartOutgoingPipelineActivity(Activity activity, string displayName, IBehaviorContext outgoingContext)
     {
         activity.SetIdFormat(ActivityIdFormat.W3C);
@@ -249,12 +214,17 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
+        if (context.Extensions.TryGetWrappingActivityContext(context.Exception, out var wrappingActivityContext))
+        {
+            activity.AddLink(new ActivityLink(wrappingActivityContext));
+        }
+
         activity.DisplayName = ActivityDisplayNames.Recoverability;
 
         return activity;
     }
 
-    public void UpdateActivityFromRecoverabilityAction(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    public void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
     {
         // Nothing below is read unless a listener asked for full data (IsAllDataRequested), so bail out early
         // rather than building tags and DisplayName strings for an activity nobody will inspect.
@@ -298,12 +268,14 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
     }
 
-    public void RecordError(Activity? activity, Exception exception, IServiceProvider serviceProvider)
+    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag)
     {
         if (activity == null)
         {
             return;
         }
+
+        var isWrappingActivity = contextBag.TryRecordWrappingActivity(exception, activity);
 
         activity.SetStatus(ActivityStatusCode.Error, exception.Message);
         activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
@@ -316,35 +288,16 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
         }
 
-        if (!exception.Data.Contains(ExceptionRecordedFlag))
-        {
-            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs)
-            {
-                // The factory is created before the container exists, so the logger is resolved on first use.
-                logger ??= serviceProvider.GetRequiredService<ILogger<ActivityFactory>>();
-                LogExceptionWhileExecuting(logger, exception, activity.DisplayName);
-            }
-            else if (activity.IsAllDataRequested)
-            {
-                // Building the exception event (stack trace) is wasted work when nothing downstream will read it.
-                activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList); // drop the tag list in v11, see obsoletes-v10.cs
-            }
-
-            exception.Data[ExceptionRecordedFlag] = true;
-        }
-
         if (exception is TaskCanceledException)
         {
             activity.SetTag(ActivityTags.CancelledTask, true);
         }
+
+        if (isWrappingActivity)
+        {
+            LegacyAddExceptionEvent(activity, exception); // Removed in v11, see obsoletes-v10.cs
+        }
     }
 
-    const string ExceptionRecordedFlag = "otel.exception.recorded";
-
     readonly ConcurrentDictionary<string, string> processDisplayNames = new();
-
-    ILogger? logger;
-
-    [LoggerMessage(LogLevel.Error, "An exception occurred while executing '{DisplayName}'.")]
-    static partial void LogExceptionWhileExecuting(ILogger logger, Exception exception, string displayName);
 }

@@ -7,11 +7,24 @@
 
 - [#7911](https://github.com/Particular/NServiceBus/pull/7911) the recorded flag moved to `Exception.Data`, replaced in #8005
 - [#7914](https://github.com/Particular/NServiceBus/pull/7914) `InstrumentationOptions` must be one instance
+- [#7983](https://github.com/Particular/NServiceBus/pull/7983) closed in favor of #8005; its review rejected a shared span
 - [2026-10-02 single switch for the v11 behaviors](2026-10-02-single-switch-for-v11-opentelemetry-behaviors.md) removes the legacy tags
 - [OpenTelemetry: recording errors](https://opentelemetry.io/docs/specs/semconv/general/recording-errors/)
 - [OpenTelemetry: exceptions as logs](https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/)
 
 ## Context
+
+### Terms
+
+- Span: a traced operation. NServiceBus creates a processing span for each incoming message, a handler
+  span for each handler it invokes, an operation span for each send, publish, reply, subscribe and
+  unsubscribe, and a recoverability span when processing fails.
+- Marked as failed: the span has status Error and an `error.type` tag.
+- Exception event: the exception details (type, message, stack trace) attached to a span.
+- Innermost span: of the spans an exception passes through, the one closest to where it was thrown.
+- Exception recording mode: an endpoint setting. `Logs`: the exception details go to logs only.
+  `SpanAndLogs`: they also go to the innermost span as an exception event.
+- Critical error: how a transport reports a failure it cannot handle. NServiceBus logs it at Fatal.
 
 The OpenTelemetry semantic conventions move exception details from span events to log records. The
 migration convention defines the environment variable `OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN` with the
@@ -46,8 +59,22 @@ Constraints:
   user code.
 - `InstrumentationOptions` must be one instance. #7914 found that a second instance ignored the
   environment variable when the user did not call `Tracing()`.
+- **An `Activity` has an owner that ends it.** The context bag floats from processing to error handling,
+  but the transport decides when, and whether, error handling runs: SQL Server, PostgreSQL, MSMQ and
+  IBM MQ call `onError` on a later delivery in some transaction modes, and a message that is lost or a
+  process that stops never reaches it. An `Activity` stored in the bag has no owner that is guaranteed to
+  end it.
 
 ## Decision
+
+In every case the spans the exception passes through are marked as failed, and in `SpanAndLogs` mode the
+innermost one gets the exception event. What differs is the log entry:
+
+| Failure | Logged by | Severity | Log entry correlated with |
+| --- | --- | --- | --- |
+| An operation started outside of message processing | The operation | Warning | The operation span |
+| Processing an incoming message | The recoverability action that is carried out | Information, Warning or Error, per action | The recoverability span, which links to the innermost failed span |
+| Recoverability itself | The critical error | Fatal | Nothing |
 
 1. **`ExceptionRecordingMode`** on `InstrumentationOptions`: `SpanAndLogs` (default, the v10 behavior) and
    `Logs`. The mode controls only the exception event on the span. The exception is logged in both modes.
@@ -55,20 +82,30 @@ Constraints:
    other value leaves the configured value. An operator switches a deployment without a code change.
    The scaffold lives in `obsoletes-v11.cs`.
 3. **Every span an exception passes through is marked as failed:** status Error and the `error.type` tag.
-   The legacy tags and `exception.escaped` apply only without the v11 behavior.
+   The legacy tags and `exception.escaped` apply only without the v11 behavior. Status and error type are
+   not exception details, so marking every span does not record the exception more than once.
 4. **The exception event is added once, on the innermost span**, and only in `SpanAndLogs` mode. An
-   exception thrown while another was handled is a new exception and gets its own event.
+   exception thrown while another was handled is a new exception and gets its own event. The conventions
+   say: "It's NOT RECOMMENDED to record the same exception more than once."
 5. **Which span is innermost is tracked on the root context bag**, keyed by exception instance, through
    `ActivityExtensions`. The record holds the exception and the context of the innermost failed span.
 6. **A failure while processing a message is logged once, by the recoverability action that is carried
    out**, with the exception, at the level and with the text of the v10 line. Each action logs through its
-   own `ILogger<T>`. Nothing logs where the exception was thrown.
+   own `ILogger<T>`. Nothing logs where the exception was thrown. A satellite receiver has no spans; its
+   recoverability writes the same log entry. On v10 it wrote none.
 7. **One recoverability span covers the decision and carrying it out.** The action logs under it, and it
    links to the innermost failed span. Without such a span there is no link.
 8. **A failure of recoverability itself is not logged by recoverability.** The recoverability span is marked
-   as failed, and the critical error logs it once.
+   as failed, and the critical error logs it once. The message is not lost in most transaction modes: the
+   transport rolls back the receive, and the message is processed again.
 9. **A failed operation started outside message processing is logged once, at Warning**, by
-   `MessageOperations` under the operation span. It is logged in both modes and with tracing off.
+   `MessageOperations` under the operation span. It is logged in both modes and with tracing off. The
+   conventions say an instrumentation "SHOULD record this exception as a log record" and that "Exceptions
+   that are expected to be handled by application code SHOULD be reported with severity WARN".
+10. **The processing span and the recoverability span are two spans, and no `Activity` travels through
+    the context bag.** The processing span ends when the processing pipeline returns, in the scope that
+    started it. What processing hands to recoverability is an `ActivityContext`, a value with no owner,
+    which recoverability uses for the link of decision 7. Added on 2026-11-02 after the review of #7983.
 
 ### Where this departs from the conventions
 
@@ -153,6 +190,26 @@ shares the trace of the failure. Rejected: each failure adds a span that starts 
 ended, which some backends show as broken timing. And the line is still not associated with the failed
 span itself. This is a point of leverage: if .NET logging gets an API to write a record with an explicit
 span context, the line can carry the context of the failed span directly, and the link becomes optional.
+
+### One span for processing and recoverability, passed through the context bag
+
+Proposed in the review of #7983: the processing span is not ended by the processing pipeline but put on
+the context bag; recoverability takes it, tags it with the action, logs the exception under it after the
+decision, and ends it. One span then covers the attempt and its outcome, and the log line is correlated
+with the span that failed, as the convention asks. Rejected: the span has no owner that is guaranteed to
+end it (see the constraint on `Activity` ownership). When `onError` runs on a later delivery, the span
+stays open across deliveries; when it never runs, the span is never ended; and a second attempt on a
+reused bag finds the span of the previous one. Decision 10 records this.
+
+### Parent the recoverability span on the failed processing span
+
+Implemented in #7983: processing stores the `ActivityContext` of the processing span on the bag, and
+recoverability starts its span as a child of it instead of from the incoming headers, with the link to
+the innermost failed span kept. A message with `StartNewTrace=True` then keeps processing and
+recoverability in one trace, which removes the "different trace" consequence above. It is compatible
+with decision 10, because only an `ActivityContext` is stored. Not taken in #8005, which keeps the
+parenting rule of decision 2 of the [2026-07-06 ADR](2026-07-06-activity-source-per-concern.md); #7983 was
+closed as superseded for everything else. The parenting change remains available as a follow-up.
 
 ### Keep the processing span open until recoverability has acted
 

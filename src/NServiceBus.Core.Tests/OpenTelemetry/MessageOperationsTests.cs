@@ -3,10 +3,17 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using Extensibility;
 using Helpers;
+using Logging;
+using Microsoft.Extensions.Logging;
+using NServiceBus.Pipeline;
 using NUnit.Framework;
 using Pipeline;
+using Testing;
+using Transport;
 
 [TestFixture]
 public class MessageOperationsTests
@@ -194,6 +201,134 @@ public class MessageOperationsTests
             Assert.That(tags["otel.status_code"], Is.EqualTo("ERROR"));
             Assert.That(tags["otel.status_description"], Is.EqualTo(ex.Message));
         }
+    }
+
+    [TestCase(ExceptionRecordingMode.Logs)]
+    [TestCase(ExceptionRecordingMode.SpanAndLogs)]
+    public void Should_log_the_exception_as_a_warning_on_failure(ExceptionRecordingMode exceptionRecordingMode)
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode }), logger);
+        var exception = new Exception("processing exception");
+        Activity activity = null;
+        operations.SendPipeline.OnInvoke = _ =>
+        {
+            activity = Activity.Current;
+            throw exception;
+        };
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
+
+        var entry = entries.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(entry.Level, Is.EqualTo(LogLevel.Warning));
+            Assert.That(entry.Exception, Is.SameAs(exception));
+            Assert.That(entry.Message, Is.EqualTo("An exception occurred while executing 'send message'."));
+            string[] expectedEvents = exceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs ? ["exception"] : [];
+            Assert.That(activity.Events.Select(e => e.Name), Is.EqualTo(expectedEvents));
+        }
+    }
+
+    [TestCase("send")]
+    [TestCase("publish")]
+    [TestCase("reply")]
+    [TestCase("subscribe")]
+    [TestCase("unsubscribe")]
+    public void Should_log_the_exception_correlated_with_the_operation_span_on_failure(string operation)
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions()), logger);
+        var exception = new Exception("processing exception");
+        Activity operationActivity = null;
+
+        void Fail()
+        {
+            operationActivity = Activity.Current;
+            throw exception;
+        }
+
+        Func<Task> invoke = operation switch
+        {
+            "send" => () => { operations.SendPipeline.OnInvoke = _ => Fail(); return operations.Send(new FakeRootContext(), new object(), new SendOptions()); }
+            ,
+            "publish" => () => { operations.PublishPipeline.OnInvoke = _ => Fail(); return operations.Publish(new FakeRootContext(), new object(), new PublishOptions()); }
+            ,
+            "reply" => () => { operations.ReplyPipeline.OnInvoke = _ => Fail(); return operations.Reply(new FakeRootContext(), new object(), new ReplyOptions()); }
+            ,
+            "subscribe" => () => { operations.SubscribePipeline.OnInvoke = _ => Fail(); return operations.Subscribe(new FakeRootContext(), typeof(object), new SubscribeOptions()); }
+            ,
+            "unsubscribe" => () => { operations.UnsubscribePipeline.OnInvoke = _ => Fail(); return operations.Unsubscribe(new FakeRootContext(), typeof(object), new UnsubscribeOptions()); }
+            ,
+            _ => throw new ArgumentOutOfRangeException(nameof(operation))
+        };
+
+        Assert.ThrowsAsync<Exception>(async () => await invoke());
+
+        var entry = entries.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(operationActivity, Is.Not.Null, "the operation should have started a span");
+            Assert.That(entry.Level, Is.EqualTo(LogLevel.Warning));
+            Assert.That(entry.Exception, Is.SameAs(exception));
+            Assert.That(entry.Activity, Is.SameAs(operationActivity), "the log record should be correlated with the operation span");
+        }
+    }
+
+    [Test]
+    public void Should_not_log_the_exception_on_failure_inside_message_processing()
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions()), logger);
+        operations.SendPipeline.OnInvoke = _ => throw new Exception("processing exception");
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(new TestableInvokeHandlerContext(), new object(), new SendOptions()));
+
+        Assert.That(entries, Is.Empty);
+    }
+
+    [TestCase("transport receive context")]
+    [TestCase("recoverability context")]
+    [TestCase("outgoing context created while processing a message")]
+    public void Should_not_log_the_exception_on_failure_from_other_contexts_inside_message_processing(string contextKind)
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions()), logger);
+        operations.SendPipeline.OnInvoke = _ => throw new Exception("processing exception");
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(CreateContextInsideMessageProcessing(contextKind), new object(), new SendOptions()));
+
+        Assert.That(entries, Is.Empty);
+    }
+
+    static IBehaviorContext CreateContextInsideMessageProcessing(string contextKind)
+    {
+        switch (contextKind)
+        {
+            case "transport receive context":
+                return new TestableTransportReceiveContext();
+            case "recoverability context":
+                return new TestableRecoverabilityContext();
+            default:
+                // An outgoing behavior that sends while a message is processed: the context is not an incoming context,
+                // but it descends from the transport receive context, which set the incoming message on its bag.
+                var transportReceiveExtensions = new ContextBag();
+                transportReceiveExtensions.Set(new IncomingMessage(Guid.NewGuid().ToString(), [], Array.Empty<byte>()));
+                return new TestableOutgoingLogicalMessageContext { Extensions = new ContextBag(transportReceiveExtensions) };
+        }
+    }
+
+    [Test]
+    public void Should_log_the_exception_on_failure_without_an_activity()
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(NoOpActivityFactory.Instance, logger);
+        var exception = new Exception("processing exception");
+        operations.SendPipeline.OnInvoke = _ => throw exception;
+
+        Assert.ThrowsAsync<Exception>(async () => await operations.Send(new FakeRootContext(), new object(), new SendOptions()));
+
+        Assert.That(entries.Single().Exception, Is.SameAs(exception));
     }
 
     [Test]
