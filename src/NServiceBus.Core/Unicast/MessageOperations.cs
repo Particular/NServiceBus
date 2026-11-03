@@ -84,7 +84,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, operationName);
+            HandleException(context, activity, ex, operationName);
             throw;
         }
     }
@@ -117,7 +117,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, operationName);
+            HandleException(context, activity, ex, operationName);
             throw;
         }
     }
@@ -147,7 +147,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, operationName);
+            HandleException(context, activity, ex, operationName);
             throw;
         }
     }
@@ -207,7 +207,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, operationName);
+            HandleException(context, activity, ex, operationName);
             throw;
         }
     }
@@ -267,7 +267,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, operationName);
+            HandleException(context, activity, ex, operationName);
             throw;
         }
     }
@@ -276,12 +276,12 @@ class MessageOperations(
     internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
 
     // The span name is only built when a span is recorded, so the caller builds it for the log entry when there is no span.
-    void RecordFailure(IBehaviorContext context, Activity activity, Exception exception, string displayName)
+    void HandleException(IBehaviorContext context, Activity activity, Exception exception, string displayName)
     {
         activityFactory.RecordError(activity, exception, context.Extensions);
 
         // Inside message processing recoverability logs the exception with its decision, and a failure of
-        // recoverability itself is raised as a critical error. Outside of it no one else sees the exception.
+        // recoverability itself is raised as a critical error. Outside of it, no one else sees the exception.
         if (!IsInsideMessageProcessing(context))
         {
             logger.OperationFailed(exception, displayName);

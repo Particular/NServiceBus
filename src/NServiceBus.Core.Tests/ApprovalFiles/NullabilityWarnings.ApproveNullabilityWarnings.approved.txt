@@ -240,7 +240,7 @@ src/NServiceBus.Core/Transports/TransportSeam.cs
   CS8618: Non-nullable field 'transportInfrastructure' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable.
 
 src/NServiceBus.Core/Unicast/MessageOperations.cs
-  CS8604: Possible null reference argument for parameter 'activity' in 'void MessageOperations.RecordFailure(IBehaviorContext context, Activity activity, Exception exception, string displayName)'.
+  CS8604: Possible null reference argument for parameter 'activity' in 'void MessageOperations.HandleException(IBehaviorContext context, Activity activity, Exception exception, string displayName)'.
   CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.PublishMessage(IBehaviorContext context, Type messageType, object message, PublishOptions options)'.
   CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.ReplyMessage(IBehaviorContext context, Type messageType, object message, ReplyOptions options)'.
   CS8604: Possible null reference argument for parameter 'message' in 'Task MessageOperations.SendMessage(IBehaviorContext context, Type messageType, object message, SendOptions options)'.
