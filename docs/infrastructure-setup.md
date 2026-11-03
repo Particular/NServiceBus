@@ -7,7 +7,7 @@
 Core distinguishes three kinds of native resources:
 
 - Endpoint infrastructure: the queues the endpoint receives from. Core passes the main, instance-specific, and satellite queues in `receivers`. A transport creates them when `SetupInfrastructure` is `true`.
-- Shared infrastructure: resources that several endpoints use and no single endpoint owns. Examples are the [sending addresses](#sending-addresses), which are usually the system-wide error queue and audit queue, and event topics, exchanges, or a subscription table. A transport creates them when `SetupInfrastructure` is `true`.
+- Shared infrastructure: resources that several endpoints use and no single endpoint owns. Examples are the [sending addresses](#sending-addresses), which are usually the system-wide error queue and audit queue, and event topics, exchanges, or a subscription table. A transport creates them when `SetupInfrastructure` is `true`. Core does not list the event types that an endpoint publishes, so a transport usually creates event topics when an endpoint subscribes; see [Event topics](#event-topics).
 - Subscriptions: the resources that make one endpoint receive one event type, such as a native subscription, a binding, a filter rule, a subscription row, or a queue policy that lets a topic deliver to the endpoint's queue. A transport creates and deletes them whether or not `SetupInfrastructure` is set; see [Subscriptions](#subscriptions).
 
 Each transport must document which of its native resources belong to each kind, and the permissions that subscribing and unsubscribing need.
@@ -50,11 +50,23 @@ A subscription lasts until `Unsubscribe` removes it. It survives endpoint restar
 
 When the broker or the publisher delivers events to the endpoint's input queue, receiving from the input queue is enough. When the transport receives from each native subscription separately, the receiver must find the endpoint's existing subscriptions itself; see [Message receivers](message-receivers.md#subscriptions).
 
-Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions.
+Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so core does not call `SubscribeAll`. It creates no subscriptions, and no event topics that the transport creates when subscribing; see [Event topics](#event-topics).
 
 `SubscribeAll` creates the endpoint's subscriptions whether or not `SetupInfrastructure` is set. It creates the shared infrastructure that a subscription needs only when `SetupInfrastructure` is `true`. Otherwise that infrastructure must already exist, and `SubscribeAll` throws when it does not; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 
 `Unsubscribe` deletes the endpoint's subscription for the event type whether or not `SetupInfrastructure` is set. It does not delete shared infrastructure, because other endpoints may use it.
+
+### Event topics
+
+Core does not tell a transport which event types an endpoint publishes. `Initialize` receives only queues, and an endpoint can publish any event type at runtime, so no complete list exists at startup. A transport that maps event types to native topics or exchanges learns about event types in three places:
+
+- In a subscribing endpoint, `SubscribeAll` receives the event types that the endpoint handles. When `SetupInfrastructure` is `true`, the transport creates the topics that the subscription needs here.
+- In a publishing endpoint, the dispatcher receives the event type in each `MulticastTransportOperation`, when the endpoint publishes the event.
+- In either endpoint, the transport's own topology configuration, such as a `PublishTo` mapping in a publisher or a `SubscribeTo` mapping in a subscriber. A mapping covers only the event types that the user configured, so it does not replace subscribing as the way to create the other topics.
+
+Without a mapping, a publishing endpoint learns an event type only when it publishes it, while a subscribing endpoint learns it when it subscribes: at startup through `AutoSubscribe` for the events it handles, or later through `IMessageSession.Subscribe`; see [Subscriptions](#subscriptions).
+
+A publisher can publish an event before any subscriber has created its topic.
 
 ### Failures in `SubscribeAll`
 
