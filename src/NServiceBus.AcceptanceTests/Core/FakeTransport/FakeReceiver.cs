@@ -39,6 +39,11 @@ class FakeReceiver : IMessageReceiver
                 transportSettings.ErrorOnReceiverStart, cancellationToken);
         }
 
+        if (transportSettings.ExceptionsOnReceiverStart.TryGetValue(Id, out var exception))
+        {
+            throw exception;
+        }
+
         return Task.CompletedTask;
     }
 
