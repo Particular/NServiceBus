@@ -50,7 +50,7 @@ A subscription lasts until `Unsubscribe` removes it. It survives endpoint restar
 
 When the broker or the publisher delivers events to the endpoint's input queue, receiving from the input queue is enough. When the transport receives from each native subscription separately, the receiver must find the endpoint's existing subscriptions itself; see [Message receivers](message-receivers.md#subscriptions).
 
-Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions. It creates only the [event topics](#event-topics) that the transport creates in `Initialize`.
+Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so core does not call `SubscribeAll`. It creates no subscriptions, and no event topics that the transport creates when subscribing; see [Event topics](#event-topics).
 
 `SubscribeAll` creates the endpoint's subscriptions whether or not `SetupInfrastructure` is set. It creates the shared infrastructure that a subscription needs only when `SetupInfrastructure` is `true`. Otherwise that infrastructure must already exist, and `SubscribeAll` throws when it does not; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 
@@ -63,8 +63,6 @@ Core does not tell a transport which event types an endpoint publishes. `Initial
 - `SubscribeAll` receives the event types that the subscriber handles. When `SetupInfrastructure` is `true`, the transport creates the topics that the subscription needs here.
 - The dispatcher receives the event type in each `MulticastTransportOperation`.
 - The transport's own topology configuration, such as a `PublishTo` or `SubscribeTo` mapping, is available in `Initialize`. When `SetupInfrastructure` is `true`, a transport may create the topics of mapped event types there. A mapping covers only the event types that the user configured, so it does not replace subscribing as the way to create the other topics.
-
-Unless the transport created a topic in `Initialize`, the first subscriber that starts with installers enabled creates it. When installers are disabled, the deployment must create the event topics before subscribers start.
 
 A publisher can publish an event before any subscriber has created its topic. Without a topic, no subscription exists that could receive the event. The dispatcher should skip the operation, log that it skipped it, and not create the topic. Skipping lets the publisher run before its subscribers are deployed. A transport may offer a setting that makes the dispatcher throw instead, for deployments that create every event topic in advance and treat a missing topic as a configuration error.
 
