@@ -60,9 +60,11 @@ Running only the installers, for example with `AddNServiceBusInstallers()`, does
 
 Core does not tell a transport which event types an endpoint publishes. `Initialize` receives only queues, and an endpoint can publish any event type at runtime, so no complete list exists at startup. A transport that maps event types to native topics or exchanges learns about event types in three places:
 
-- `SubscribeAll` receives the event types that the subscriber handles. When `SetupInfrastructure` is `true`, the transport creates the topics that the subscription needs here.
-- The dispatcher receives the event type in each `MulticastTransportOperation`.
-- The transport's own topology configuration, such as a `PublishTo` or `SubscribeTo` mapping. A mapping covers only the event types that the user configured, so it does not replace subscribing as the way to create the other topics.
+- In a subscribing endpoint, `SubscribeAll` receives the event types that the endpoint handles. When `SetupInfrastructure` is `true`, the transport creates the topics that the subscription needs here.
+- In a publishing endpoint, the dispatcher receives the event type in each `MulticastTransportOperation`, when the endpoint publishes the event.
+- In either endpoint, the transport's own topology configuration, such as a `PublishTo` mapping in a publisher or a `SubscribeTo` mapping in a subscriber. A mapping covers only the event types that the user configured, so it does not replace subscribing as the way to create the other topics.
+
+A publishing endpoint therefore learns an event type only when it publishes it, while a subscribing endpoint learns it at startup.
 
 A publisher can publish an event before any subscriber has created its topic. No subscription can exist without the topic, so the dispatcher should log and skip the operation, without creating the topic.
 
