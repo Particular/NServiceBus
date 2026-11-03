@@ -32,7 +32,7 @@ Dispatches from recoverability are never batched either, because they do not run
 
 ## Multicast operations
 
-When the native topic of a multicast event does not exist, the dispatcher skips the publish by default; see [Event topics](infrastructure-setup.md#event-topics). Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. [Message-driven publish/subscribe](#message-driven-publishsubscribe) describes what core sends otherwise, and during subscription migration mode.
+When the native topic of a multicast event does not exist, the dispatcher should skip the publish; see [Event topics](infrastructure-setup.md#event-topics). Core produces a `MulticastTransportOperation` only when `TransportDefinition.SupportsPublishSubscribe` is `true`. [Message-driven publish/subscribe](#message-driven-publishsubscribe) describes what core sends otherwise, and during subscription migration mode.
 
 ## Dispatch consistency
 
