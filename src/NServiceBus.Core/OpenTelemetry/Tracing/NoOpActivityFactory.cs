@@ -12,15 +12,10 @@ sealed class NoOpActivityFactory : IActivityFactory
 {
     NoOpActivityFactory() { }
     public static readonly NoOpActivityFactory Instance = new();
-    public InstrumentationOptions Options { get; } = new();
 
     public Activity? StartIncomingPipelineActivity(MessageContext context) => null;
 
     public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext) => null;
-
-    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type messageType, IBehaviorContext outgoingContext) => null;
-
-    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type[] messageTypes, IBehaviorContext outgoingContext) => null;
 
     public Activity? StartHandlerActivity(MessageHandler messageHandler) => null;
     public Activity? StartRecoverabilityActivity(ErrorContext context) => null;

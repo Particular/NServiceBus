@@ -6,7 +6,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using Pipeline;
@@ -163,36 +162,6 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
 
         return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
     }
-
-    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type messageType, IBehaviorContext outgoingContext)
-    {
-        var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
-        if (activity == null)
-        {
-            return activity;
-        }
-
-        return StartOutgoingPipelineActivity(activity, OutgoingDisplayName(legacyDisplayName, operation, messageType), outgoingContext);
-    }
-
-    public Activity? StartOutgoingPipelineActivity(string activityName, string legacyDisplayName, string operation, Type[] messageTypes, IBehaviorContext outgoingContext)
-    {
-        var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
-        if (activity == null)
-        {
-            return activity;
-        }
-
-        return StartOutgoingPipelineActivity(activity, OutgoingDisplayName(legacyDisplayName, operation, messageTypes), outgoingContext);
-    }
-
-    // Span names follow the OTel messaging convention "{operation} {message type}" with the v11 behavior.
-    // Remove the switch check and legacyDisplayName in v11, see obsoletes-v10.cs.
-    internal static string OutgoingDisplayName(string legacyDisplayName, string operation, Type messageType) =>
-        V11BehaviorSwitch.UseV11Behavior ? $"{operation} {messageType.Name}" : legacyDisplayName;
-
-    internal static string OutgoingDisplayName(string legacyDisplayName, string operation, Type[] messageTypes) =>
-        V11BehaviorSwitch.UseV11Behavior ? $"{operation} {string.Join(' ', messageTypes.Select(x => x.Name))}" : legacyDisplayName;
 
     static Activity StartOutgoingPipelineActivity(Activity activity, string displayName, IBehaviorContext outgoingContext)
     {

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
@@ -68,7 +69,11 @@ class MessageOperations(
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, ActivityDisplayNames.PublishEvent, ActivityDisplayNames.PublishOperation, messageType, publishContext);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
+            : ActivityDisplayNames.PublishEvent;
+
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, operationName, publishContext);
 
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
         try
@@ -79,14 +84,14 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.PublishEvent, ActivityDisplayNames.PublishOperation, messageType));
+            RecordFailure(context, activity, ex, operationName);
             throw;
         }
     }
 
     public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
     {
-        return Subscribe(context, new Type[] { eventType }, options);
+        return Subscribe(context, [eventType], options);
     }
 
     public async Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
@@ -98,7 +103,11 @@ class MessageOperations(
 
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, ActivityDisplayNames.SubscribeEvent, eventTypes, context);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.SubscribeEvent} {string.Join(' ', eventTypes.Select(x => x.Name))}"
+            : ActivityDisplayNames.SubscribeEvent;
+
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, operationName, context);
 
         try
         {
@@ -108,7 +117,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.SubscribeEvent, ActivityDisplayNames.SubscribeEvent, eventTypes));
+            RecordFailure(context, activity, ex, operationName);
             throw;
         }
     }
@@ -123,7 +132,11 @@ class MessageOperations(
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, ActivityDisplayNames.UnsubscribeEvent, eventType, context);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.UnsubscribeEvent} {eventType.Name}"
+            : ActivityDisplayNames.UnsubscribeEvent;
+
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, operationName, context);
 
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
         try
@@ -134,7 +147,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.UnsubscribeEvent, ActivityDisplayNames.UnsubscribeEvent, eventType));
+            RecordFailure(context, activity, ex, operationName);
             throw;
         }
     }
@@ -180,7 +193,11 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, ActivityDisplayNames.SendMessage, messageType, outgoingContext);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.SendMessage} {messageType.Name}"
+            : ActivityDisplayNames.SendMessage;
+
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, operationName, outgoingContext);
 
         try
         {
@@ -190,7 +207,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.SendMessage, ActivityDisplayNames.SendMessage, messageType));
+            RecordFailure(context, activity, ex, operationName);
             throw;
         }
     }
@@ -236,7 +253,11 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, ActivityDisplayNames.ReplyMessage, messageType, context);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.ReplyMessage} {messageType.Name}"
+            : ActivityDisplayNames.ReplyMessage;
+
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, operationName, context);
 
         try
         {
@@ -246,7 +267,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            RecordFailure(context, activity, ex, activity?.DisplayName ?? ActivityFactory.OutgoingDisplayName(ActivityDisplayNames.ReplyMessage, ActivityDisplayNames.ReplyMessage, messageType));
+            RecordFailure(context, activity, ex, operationName);
             throw;
         }
     }
