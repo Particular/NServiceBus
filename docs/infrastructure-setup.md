@@ -64,7 +64,7 @@ Core does not tell a transport which event types an endpoint publishes. `Initial
 - In a publishing endpoint, the dispatcher receives the event type in each `MulticastTransportOperation`, when the endpoint publishes the event.
 - In either endpoint, the transport's own topology configuration, such as a `PublishTo` mapping in a publisher or a `SubscribeTo` mapping in a subscriber. A mapping covers only the event types that the user configured, so it does not replace subscribing as the way to create the other topics.
 
-Without a mapping, a publishing endpoint learns an event type only when it publishes it, while a subscribing endpoint learns it when it subscribes, usually at startup.
+Without a mapping, a publishing endpoint learns an event type only when it publishes it, while a subscribing endpoint learns it when it subscribes: at startup through `AutoSubscribe` for the events it handles, or later through `IMessageSession.Subscribe`; see [Subscriptions](#subscriptions).
 
 A publisher can publish an event before any subscriber has created its topic.
 
