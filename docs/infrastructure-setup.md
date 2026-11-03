@@ -7,7 +7,7 @@
 Core distinguishes three kinds of native resources:
 
 - Endpoint infrastructure: the queues the endpoint receives from. Core passes the main, instance-specific, and satellite queues in `receivers`. A transport creates them when `SetupInfrastructure` is `true`.
-- Shared infrastructure: resources that several endpoints use and no single endpoint owns. Examples are the [sending addresses](#sending-addresses), which are usually the system-wide error queue and audit queue, and event topics, exchanges, or a subscription table. A transport creates them when `SetupInfrastructure` is `true`. It creates event topics when an endpoint subscribes, not in `Initialize`; see [Event topics](#event-topics).
+- Shared infrastructure: resources that several endpoints use and no single endpoint owns. Examples are the [sending addresses](#sending-addresses), which are usually the system-wide error queue and audit queue, and event topics, exchanges, or a subscription table. A transport creates them when `SetupInfrastructure` is `true`. Core does not list the event types that an endpoint publishes, so a transport usually creates event topics when an endpoint subscribes; see [Event topics](#event-topics).
 - Subscriptions: the resources that make one endpoint receive one event type, such as a native subscription, a binding, a filter rule, a subscription row, or a queue policy that lets a topic deliver to the endpoint's queue. A transport creates and deletes them whether or not `SetupInfrastructure` is set; see [Subscriptions](#subscriptions).
 
 Each transport must document which of its native resources belong to each kind, and the permissions that subscribing and unsubscribing need.
@@ -50,7 +50,7 @@ A subscription lasts until `Unsubscribe` removes it. It survives endpoint restar
 
 When the broker or the publisher delivers events to the endpoint's input queue, receiving from the input queue is enough. When the transport receives from each native subscription separately, the receiver must find the endpoint's existing subscriptions itself; see [Message receivers](message-receivers.md#subscriptions).
 
-Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions or [event topics](#event-topics).
+Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so it does not create subscriptions. It creates only the [event topics](#event-topics) that the transport creates in `Initialize`.
 
 `SubscribeAll` creates the endpoint's subscriptions whether or not `SetupInfrastructure` is set. It creates the shared infrastructure that a subscription needs only when `SetupInfrastructure` is `true`. Otherwise that infrastructure must already exist, and `SubscribeAll` throws when it does not; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 
@@ -58,12 +58,13 @@ Running only the installers, for example with `AddNServiceBusInstallers()`, does
 
 ### Event topics
 
-Core does not tell a transport which event types an endpoint publishes. `Initialize` receives only queues, and an endpoint can publish any event type at runtime, so no complete list exists at startup. A transport that maps event types to native topics or exchanges learns an event type in two places:
+Core does not tell a transport which event types an endpoint publishes. `Initialize` receives only queues, and an endpoint can publish any event type at runtime, so no complete list exists at startup. A transport that maps event types to native topics or exchanges learns about event types in three places:
 
 - `SubscribeAll` receives the event types that the subscriber handles. When `SetupInfrastructure` is `true`, the transport creates the topics that the subscription needs here.
 - The dispatcher receives the event type in each `MulticastTransportOperation`.
+- The transport's own topology configuration, such as a `PublishTo` or `SubscribeTo` mapping, is available in `Initialize`. When `SetupInfrastructure` is `true`, a transport may create the topics of mapped event types there. A mapping covers only the event types that the user configured, so it does not replace subscribing as the way to create the other topics.
 
-The first subscriber that starts with installers enabled therefore creates the topics for the events it handles. When installers are disabled, the deployment must create the event topics before subscribers start.
+Unless the transport created a topic in `Initialize`, the first subscriber that starts with installers enabled creates it. When installers are disabled, the deployment must create the event topics before subscribers start.
 
 A publisher can publish an event before any subscriber has created its topic. Without a topic, no subscription exists that could receive the event. The dispatcher should skip the operation, log that it skipped it, and not create the topic. Skipping lets the publisher run before its subscribers are deployed. A transport may offer a setting that makes the dispatcher throw instead, for deployments that create every event topic in advance and treat a missing topic as a configuration error.
 
