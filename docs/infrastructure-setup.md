@@ -62,7 +62,7 @@ Core does not tell a transport which event types an endpoint publishes. `Initial
 
 - `SubscribeAll` receives the event types that the subscriber handles. When `SetupInfrastructure` is `true`, the transport creates the topics that the subscription needs here.
 - The dispatcher receives the event type in each `MulticastTransportOperation`.
-- The transport's own topology configuration, such as a `PublishTo` or `SubscribeTo` mapping, is available in `Initialize`. When `SetupInfrastructure` is `true`, a transport may create the topics of mapped event types there. A mapping covers only the event types that the user configured, so it does not replace subscribing as the way to create the other topics.
+- The transport's own topology configuration, such as a `PublishTo` or `SubscribeTo` mapping. A mapping covers only the event types that the user configured, so it does not replace subscribing as the way to create the other topics.
 
 A publisher can publish an event before any subscriber has created its topic. Without a topic, no subscription exists that could receive the event. The dispatcher should skip the operation, log that it skipped it, and not create the topic. Skipping lets the publisher run before its subscribers are deployed.
 
