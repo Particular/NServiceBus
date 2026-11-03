@@ -66,7 +66,7 @@ Core does not tell a transport which event types an endpoint publishes. `Initial
 
 Without a mapping, a publishing endpoint learns an event type only when it publishes it, while a subscribing endpoint learns it when it subscribes, usually at startup.
 
-A publisher can publish an event before any subscriber has created its topic. No subscription can exist without the topic, so the dispatcher should log and skip the operation, without creating the topic.
+A publisher can publish an event before any subscriber has created its topic.
 
 ### Failures in `SubscribeAll`
 
