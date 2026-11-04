@@ -45,7 +45,7 @@ Every change to code under `src/` keeps `docs/` accurate. This applies to change
 These rules apply to everything written for a reader: pull request descriptions, commit messages, `docs/`, ADRs, code comments, and review replies. Write in en-US.
 
 - Start with the main point: the decision, the change, or the answer. Add only the background the reader needs to act on it or to agree with it.
-- Every sentence adds something the reader does not already have from the code, the diff, the title, or earlier text in the same document. Cut sentences that announce, summarize, or repeat.
+- Every sentence adds something the reader does not already have from the code, the diff, the title, or earlier text in the same document. Cut sentences that announce, summarize, or repeat. In a pull request description that means no preamble, no heading or bold line that repeats the title, no walk through the diff file by file, and no closing summary.
 - State facts plainly. Do not add weight with a contrast against a claim nobody made, a one-line closer, inflated significance, or words such as pivotal, seamless, or robust used figuratively. Keep a contrast that corrects something a reader would likely assume.
 - Write short, direct sentences, under 25 words where possible, with a named actor and an active verb. Keep the passive when the source does not say who acts. Keep should and must where the text sets a rule. Qualify a claim only when the evidence is uncertain, and say what is uncertain.
 - Use one term for one concept, and use the term the code uses. Define a term on first use when the audience may not know it. Avoid idioms and phrasal verbs that a non-native reader or a translation tool can misread.
