@@ -73,6 +73,8 @@ Running only the installers, for example with `AddNServiceBusInstallers()`, does
 
 `SubscribeAll` creates the endpoint's subscriptions. It creates the event topics that a subscription needs only when `SetupInfrastructure` is `true`. Otherwise they must already exist, and `SubscribeAll` throws when they do not; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 
+A transport may require that its runtime credentials can always create broker resources. Such a transport may create event topics whenever it needs them, whether or not `SetupInfrastructure` is `true`, and must document that requirement with its permissions; see [Native resources](#native-resources). Disabling installers then does not stop the transport from creating event topics.
+
 `Unsubscribe` deletes the endpoint's subscription for the event type. It does not delete event topics, because other endpoints may use them.
 
 #### Failures in `SubscribeAll`
