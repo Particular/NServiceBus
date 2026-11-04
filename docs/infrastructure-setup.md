@@ -65,7 +65,7 @@ A publisher can publish an event before any subscriber has created its topic.
 Core runs subscription operations independently of installers. It calls `ISubscriptionManager` whether or not `SetupInfrastructure` is set:
 
 - The `AutoSubscribe` feature is enabled by default. Each time an endpoint that is not send-only starts, it calls `ISubscriptionManager.SubscribeAll` with the event types the endpoint handles. A failure does not stop the endpoint from starting; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
-- `Subscribe` and `Unsubscribe` calls from `IMessageSession` reach `ISubscriptionManager`, also in subscription migration mode. A `Subscribe` call reaches the transport as `SubscribeAll` with one event type.
+- `Subscribe` and `Unsubscribe` calls from `IMessageSession` reach `ISubscriptionManager`. A `Subscribe` call reaches the transport as `SubscribeAll` with one event type.
 
 A subscription lasts until `Unsubscribe` removes it. It survives endpoint restarts, and the endpoint receives the events published to it whether or not the current run subscribes again. Scripts, infrastructure-as-code, or earlier runs may have created subscriptions that the current run never requests. An endpoint that disables `AutoSubscribe` usually relies on subscriptions created this way, so core might not call `ISubscriptionManager.SubscribeAll` during a run. A transport must therefore treat the native subscriptions that exist for an endpoint as authoritative. The event types passed to `SubscribeAll` are not the endpoint's complete set of subscriptions, so a transport must not delete a subscription because it is missing from that list or because the transport does not recognize it.
 
