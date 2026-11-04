@@ -71,9 +71,9 @@ A subscription lasts until `Unsubscribe` removes it. It survives endpoint restar
 
 Running only the installers, for example with `AddNServiceBusInstallers()`, does not start the endpoint, so core does not call `SubscribeAll`. It creates no subscriptions, and no event topics that the transport creates when subscribing; see [Event topics](#event-topics).
 
-`SubscribeAll` creates the endpoint's subscriptions whether or not `SetupInfrastructure` is set. It creates the event topics that a subscription needs only when `SetupInfrastructure` is `true`. Otherwise they must already exist, and `SubscribeAll` throws when they do not; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
+`SubscribeAll` creates the endpoint's subscriptions. It creates the event topics that a subscription needs only when `SetupInfrastructure` is `true`. Otherwise they must already exist, and `SubscribeAll` throws when they do not; see [Failures in `SubscribeAll`](#failures-in-subscribeall).
 
-`Unsubscribe` deletes the endpoint's subscription for the event type whether or not `SetupInfrastructure` is set. It does not delete event topics, because other endpoints may use them.
+`Unsubscribe` deletes the endpoint's subscription for the event type. It does not delete event topics, because other endpoints may use them.
 
 #### Failures in `SubscribeAll`
 
