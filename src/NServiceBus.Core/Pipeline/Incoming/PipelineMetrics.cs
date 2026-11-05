@@ -4,11 +4,12 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Metrics;
 using Transport;
 using Pipeline;
 
-class PipelineMetrics
+partial class PipelineMetrics
 {
     public const string MeterName = "NServiceBus.Core";
     public const string MeterVersion = "1.0.0";
@@ -35,45 +36,14 @@ class PipelineMetrics
     // queueName and discriminator are null for send-only endpoints, which have no receive queue to report.
     public PipelineMetrics(IMeterFactory meterFactory, string? queueName, string? discriminator)
     {
-        var meter = V11BehaviorSwitch.UseV11Behavior // pre-v11 name removed in v11, see obsoletes-v10.cs
-            ? meterFactory.Create(MeterName, MeterVersion)
-            : meterFactory.Create(LegacyMeter.Name, LegacyMeter.Version);
-        totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
-            description: "Total number of messages processed successfully by the endpoint.");
-        totalFetched = meter.CreateCounter<long>(TotalFetched,
-            description: "Total number of messages fetched from the queue by the endpoint.");
-        totalFailures = meter.CreateCounter<long>(TotalFailures,
-            description: "Total number of messages processed unsuccessfully by the endpoint.");
-        totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
-            description: "Total number of duplicate messages detected by the Outbox.");
-        messageHandlerTime = meter.CreateHistogram<double>(MessageHandlerTime, "s",
-            "The time in seconds for the execution of the business code.");
-        criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
-            "The time in seconds between when the message was sent until processed by the endpoint.");
-        processingTime = meter.CreateHistogram<double>(ProcessingTime, "s",
-            "The time in seconds between when the message was fetched from the input queue until successfully processed by the endpoint.");
-        totalImmediateRetries = meter.CreateCounter<long>(RecoverabilityImmediate,
-            description: "Total number of immediate retries requested.");
-        totalDelayedRetries = meter.CreateCounter<long>(RecoverabilityDelayed,
-            description: "Total number of delayed retries requested.");
-        totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
-            description: "Total number of messages sent to the error queue.");
-        totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
-            description: "Total number of unwrapping attempts by the endpoint.");
-        activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
-            description: "Number of messages currently being processed by the endpoint.");
-        sagaFetchTime = meter.CreateHistogram<double>(SagaFetchTime, "s",
-            "The time in seconds for loading saga data from the persister.");
-        messageDeserializeTime = meter.CreateHistogram<double>(MessageDeserializeTime, "s",
-            "The time in seconds for deserializing an incoming message.");
-        messageSerializeTime = meter.CreateHistogram<double>(MessageSerializeTime, "s",
-            "The time in seconds for serializing an outgoing message.");
-        outboxFetchTime = meter.CreateHistogram<double>(OutboxFetchTime, "s",
-            "The time in seconds for querying the outbox storage for deduplication.");
-        outboxStoreTime = meter.CreateHistogram<double>(OutboxStoreTime, "s",
-            "The time in seconds for storing a message in the outbox storage.");
-        persistenceTime = meter.CreateHistogram<double>(CommitTime, "s",
-            "The time in seconds for completing the synchronized storage session.");
+        if (V11BehaviorSwitch.UseV11Behavior) // removed in v11, keep only the v11 branch, see obsoletes-v10.cs
+        {
+            CreateInstruments(meterFactory.Create(MeterName, MeterVersion));
+        }
+        else
+        {
+            CreateLegacyInstruments(meterFactory.Create(LegacyMeter.Name, LegacyMeter.Version));
+        }
 
         // queueName and discriminator can be null (e.g., for a send-only endpoint)
         // in such cases we don't want to report these tags
@@ -87,6 +57,82 @@ class PipelineMetrics
             DefaultMetricTags.Add(MeterTags.EndpointDiscriminator, discriminator);
         }
     }
+
+    // Without advice the OpenTelemetry .NET SDK applies its default explicit bucket boundaries (0, 5, 10, 25, ... 10000),
+    // which are meant for milliseconds. All duration histograms record seconds, so they advise the boundaries the
+    // OpenTelemetry semantic conventions recommend for durations in seconds. A user-configured View or the base2
+    // exponential histogram aggregation still takes precedence over the advice.
+    // https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-advisory-parameters
+    [MemberNotNull(
+        nameof(totalProcessedSuccessfully), nameof(totalFetched), nameof(totalFailures), nameof(totalDeduplicated),
+        nameof(messageHandlerTime), nameof(criticalTime), nameof(processingTime), nameof(totalImmediateRetries),
+        nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(totalEnvelopeUnwrapping), nameof(activeMessages),
+        nameof(sagaFetchTime), nameof(messageDeserializeTime), nameof(messageSerializeTime), nameof(outboxFetchTime),
+        nameof(outboxStoreTime), nameof(persistenceTime))]
+    void CreateInstruments(Meter meter)
+    {
+        totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
+            description: "Total number of messages processed successfully by the endpoint.");
+        totalFetched = meter.CreateCounter<long>(TotalFetched,
+            description: "Total number of messages fetched from the queue by the endpoint.");
+        totalFailures = meter.CreateCounter<long>(TotalFailures,
+            description: "Total number of messages processed unsuccessfully by the endpoint.");
+        totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
+            description: "Total number of duplicate messages detected by the Outbox.");
+        messageHandlerTime = meter.CreateHistogram(MessageHandlerTime, "s",
+            "The time in seconds for the execution of the business code.",
+            advice: LongDurationAdvice);
+        criticalTime = meter.CreateHistogram(CriticalTime, "s",
+            "The time in seconds between when the message was sent until processed by the endpoint.",
+            advice: LongDurationAdvice);
+        processingTime = meter.CreateHistogram(ProcessingTime, "s",
+            "The time in seconds between when the message was fetched from the input queue until successfully processed by the endpoint.",
+            advice: LongDurationAdvice);
+        totalImmediateRetries = meter.CreateCounter<long>(RecoverabilityImmediate,
+            description: "Total number of immediate retries requested.");
+        totalDelayedRetries = meter.CreateCounter<long>(RecoverabilityDelayed,
+            description: "Total number of delayed retries requested.");
+        totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
+            description: "Total number of messages sent to the error queue.");
+        totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
+            description: "Total number of unwrapping attempts by the endpoint.");
+        activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
+            description: "Number of messages currently being processed by the endpoint.");
+        sagaFetchTime = meter.CreateHistogram(SagaFetchTime, "s",
+            "The time in seconds for loading saga data from the persister.",
+            advice: ShortDurationAdvice);
+        messageDeserializeTime = meter.CreateHistogram(MessageDeserializeTime, "s",
+            "The time in seconds for deserializing an incoming message.",
+            advice: ShortDurationAdvice);
+        messageSerializeTime = meter.CreateHistogram(MessageSerializeTime, "s",
+            "The time in seconds for serializing an outgoing message.",
+            advice: ShortDurationAdvice);
+        outboxFetchTime = meter.CreateHistogram(OutboxFetchTime, "s",
+            "The time in seconds for querying the outbox storage for deduplication.",
+            advice: ShortDurationAdvice);
+        outboxStoreTime = meter.CreateHistogram(OutboxStoreTime, "s",
+            "The time in seconds for storing a message in the outbox storage.",
+            advice: ShortDurationAdvice);
+        persistenceTime = meter.CreateHistogram(CommitTime, "s",
+            "The time in seconds for completing the synchronized storage session.",
+            advice: ShortDurationAdvice);
+    }
+
+    // Short operations (serialization, persistence and outbox calls). The boundaries of http.server.request.duration
+    // and http.client.request.duration.
+    // https://opentelemetry.io/docs/specs/semconv/http/http-metrics/#metric-httpserverrequestduration
+    static readonly InstrumentAdvice<double> ShortDurationAdvice = new()
+    {
+        HistogramBucketBoundaries = [0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10]
+    };
+
+    // Operations that can take minutes: handler execution, processing and critical time. The boundaries of
+    // kestrel.connection.duration.
+    // https://opentelemetry.io/docs/specs/semconv/dotnet/dotnet-kestrel-metrics/#metric-kestrelconnectionduration
+    static readonly InstrumentAdvice<double> LongDurationAdvice = new()
+    {
+        HistogramBucketBoundaries = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 30, 60, 120, 300]
+    };
 
     public void RecordProcessingTime(ITransportReceiveContext context, TimeSpan elapsed)
     {
@@ -493,24 +539,24 @@ class PipelineMetrics
         public void Dispose() => counter?.Add(-1, tags);
     }
 
-    readonly Counter<long> totalProcessedSuccessfully;
-    readonly Counter<long> totalFetched;
-    readonly Counter<long> totalFailures;
-    readonly Counter<long> totalDeduplicated;
-    readonly Histogram<double> messageHandlerTime;
-    readonly Histogram<double> criticalTime;
-    readonly Histogram<double> processingTime;
-    readonly Counter<long> totalImmediateRetries;
-    readonly Counter<long> totalDelayedRetries;
-    readonly Counter<long> totalSentToErrorQueue;
-    readonly Counter<long> totalEnvelopeUnwrapping;
-    readonly UpDownCounter<long> activeMessages;
-    readonly Histogram<double> sagaFetchTime;
-    readonly Histogram<double> messageDeserializeTime;
-    readonly Histogram<double> messageSerializeTime;
-    readonly Histogram<double> outboxFetchTime;
-    readonly Histogram<double> outboxStoreTime;
-    readonly Histogram<double> persistenceTime;
+    Counter<long> totalProcessedSuccessfully;
+    Counter<long> totalFetched;
+    Counter<long> totalFailures;
+    Counter<long> totalDeduplicated;
+    Histogram<double> messageHandlerTime;
+    Histogram<double> criticalTime;
+    Histogram<double> processingTime;
+    Counter<long> totalImmediateRetries;
+    Counter<long> totalDelayedRetries;
+    Counter<long> totalSentToErrorQueue;
+    Counter<long> totalEnvelopeUnwrapping;
+    UpDownCounter<long> activeMessages;
+    Histogram<double> sagaFetchTime;
+    Histogram<double> messageDeserializeTime;
+    Histogram<double> messageSerializeTime;
+    Histogram<double> outboxFetchTime;
+    Histogram<double> outboxStoreTime;
+    Histogram<double> persistenceTime;
 
     readonly TagList DefaultMetricTags;
 }

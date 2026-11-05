@@ -627,6 +627,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Diagnostics.Metrics;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
@@ -677,6 +679,10 @@ namespace NServiceBus
     //   switch, which is why this is an opt-in rather than a straight rename. Only one meter is emitted at a
     //   time: emitting both would double every series, so a MeterProvider must subscribe to the name that
     //   matches the switch.
+    // - The duration histograms specify the ExplicitBucketBoundaries advisory parameter with the boundaries the
+    //   OpenTelemetry semantic conventions recommend for durations in seconds, instead of falling back to the SDK
+    //   defaults (0, 5, 10, 25, ... 10000) that are meant for milliseconds. This changes the exported buckets.
+    //   https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-advisory-parameters
     // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
     //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
     //   (snake_case within a dot-delimited component, no hyphens).
@@ -879,6 +885,57 @@ namespace NServiceBus
     {
         public const string Name = "NServiceBus.Core.Pipeline.Incoming";
         public const string Version = "0.4.0";
+    }
+
+    // The pre-v11 instruments, identical to PipelineMetrics.CreateInstruments except that the duration histograms
+    // carry no bucket boundary advice. PipelineMetrics creates these while V11BehaviorSwitch.UseV11Behavior is off.
+    partial class PipelineMetrics
+    {
+        [MemberNotNull(
+            nameof(totalProcessedSuccessfully), nameof(totalFetched), nameof(totalFailures), nameof(totalDeduplicated),
+            nameof(messageHandlerTime), nameof(criticalTime), nameof(processingTime), nameof(totalImmediateRetries),
+            nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(totalEnvelopeUnwrapping), nameof(activeMessages),
+            nameof(sagaFetchTime), nameof(messageDeserializeTime), nameof(messageSerializeTime), nameof(outboxFetchTime),
+            nameof(outboxStoreTime), nameof(persistenceTime))]
+        void CreateLegacyInstruments(Meter meter)
+        {
+            totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
+                description: "Total number of messages processed successfully by the endpoint.");
+            totalFetched = meter.CreateCounter<long>(TotalFetched,
+                description: "Total number of messages fetched from the queue by the endpoint.");
+            totalFailures = meter.CreateCounter<long>(TotalFailures,
+                description: "Total number of messages processed unsuccessfully by the endpoint.");
+            totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
+                description: "Total number of duplicate messages detected by the Outbox.");
+            messageHandlerTime = meter.CreateHistogram<double>(MessageHandlerTime, "s",
+                "The time in seconds for the execution of the business code.");
+            criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
+                "The time in seconds between when the message was sent until processed by the endpoint.");
+            processingTime = meter.CreateHistogram<double>(ProcessingTime, "s",
+                "The time in seconds between when the message was fetched from the input queue until successfully processed by the endpoint.");
+            totalImmediateRetries = meter.CreateCounter<long>(RecoverabilityImmediate,
+                description: "Total number of immediate retries requested.");
+            totalDelayedRetries = meter.CreateCounter<long>(RecoverabilityDelayed,
+                description: "Total number of delayed retries requested.");
+            totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
+                description: "Total number of messages sent to the error queue.");
+            totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
+                description: "Total number of unwrapping attempts by the endpoint.");
+            activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
+                description: "Number of messages currently being processed by the endpoint.");
+            sagaFetchTime = meter.CreateHistogram<double>(SagaFetchTime, "s",
+                "The time in seconds for loading saga data from the persister.");
+            messageDeserializeTime = meter.CreateHistogram<double>(MessageDeserializeTime, "s",
+                "The time in seconds for deserializing an incoming message.");
+            messageSerializeTime = meter.CreateHistogram<double>(MessageSerializeTime, "s",
+                "The time in seconds for serializing an outgoing message.");
+            outboxFetchTime = meter.CreateHistogram<double>(OutboxFetchTime, "s",
+                "The time in seconds for querying the outbox storage for deduplication.");
+            outboxStoreTime = meter.CreateHistogram<double>(OutboxStoreTime, "s",
+                "The time in seconds for storing a message in the outbox storage.");
+            persistenceTime = meter.CreateHistogram<double>(CommitTime, "s",
+                "The time in seconds for completing the synchronized storage session.");
+        }
     }
 
     // The pre-v11 "Start dispatching"/"Finished dispatching" events on the incoming span.
