@@ -15,23 +15,21 @@
     "nservicebus.saga_type"
   ],
   "Metrics": [
-    "nservicebus.envelope.unwrapped => Counter",
-    "nservicebus.messaging.active_messages => UpDownCounter",
+    "nservicebus.envelope.unwrap_attempts => Counter, Unit: {attempt}",
+    "nservicebus.messaging.active_messages => UpDownCounter, Unit: {message}",
     "nservicebus.messaging.critical_time => Histogram, Unit: s",
     "nservicebus.messaging.deserialize_time => Histogram, Unit: s",
-    "nservicebus.messaging.failures => Counter",
-    "nservicebus.messaging.fetches => Counter",
     "nservicebus.messaging.handler_time => Histogram, Unit: s",
+    "nservicebus.messaging.processing_attempts => Counter, Unit: {attempt}",
     "nservicebus.messaging.processing_time => Histogram, Unit: s",
     "nservicebus.messaging.serialize_time => Histogram, Unit: s",
-    "nservicebus.messaging.successes => Counter",
-    "nservicebus.outbox.duplicates => Counter",
+    "nservicebus.outbox.duplicates => Counter, Unit: {message}",
     "nservicebus.outbox.fetch_time => Histogram, Unit: s",
     "nservicebus.outbox.store_time => Histogram, Unit: s",
     "nservicebus.persistence.commit_time => Histogram, Unit: s",
-    "nservicebus.recoverability.delayed => Counter",
-    "nservicebus.recoverability.error => Counter",
-    "nservicebus.recoverability.immediate => Counter",
+    "nservicebus.recoverability.delayed => Counter, Unit: {retry}",
+    "nservicebus.recoverability.error => Counter, Unit: {message}",
+    "nservicebus.recoverability.immediate => Counter, Unit: {retry}",
     "nservicebus.sagas.fetch_time => Histogram, Unit: s"
   ]
 }

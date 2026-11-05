@@ -55,6 +55,7 @@ class MainPipelineExecutor(
             {
 
                 await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
+                pipelineMetrics.RecordProcessingAttempt(metricTags);
                 LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
@@ -71,15 +72,20 @@ class MainPipelineExecutor(
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
-                if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
+                if (ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
-                    pipelineMetrics.RecordMessageProcessingFailure(metricTags, ex);
+                    pipelineMetrics.RecordCanceledProcessingAttempt(metricTags);
+                }
+                else
+                {
+                    pipelineMetrics.RecordProcessingAttempt(metricTags, ex);
+                    pipelineMetrics.RecordMessageProcessingFailure(metricTags, ex); // pre-v11 counter, removed in v11, see obsoletes-v10.cs
                 }
                 throw;
             }
             finally
             {
-                pipelineMetrics.RecordFetchedMessage(metricTags);
+                pipelineMetrics.RecordFetchedMessage(metricTags); // pre-v11 counter, removed in v11, see obsoletes-v10.cs
             }
 
             var completedAt = DateTimeOffset.UtcNow;

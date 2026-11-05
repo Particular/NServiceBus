@@ -627,6 +627,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Diagnostics.Metrics;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
@@ -677,6 +679,25 @@ namespace NServiceBus
     //   switch, which is why this is an opt-in rather than a straight rename. Only one meter is emitted at a
     //   time: emitting both would double every series, so a MeterProvider must subscribe to the name that
     //   matches the switch.
+    // - The duration histograms specify the ExplicitBucketBoundaries advisory parameter with the boundaries the
+    //   OpenTelemetry semantic conventions recommend for durations in seconds, instead of falling back to the SDK
+    //   defaults (0, 5, 10, 25, ... 10000) that are meant for milliseconds. This changes the exported buckets.
+    //   https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-advisory-parameters
+    // - The counters declare count units ({message}, {retry} for the retry counters, {attempt} for envelope
+    //   unwrapping) instead of none.
+    // - `nservicebus.envelope.unwrapped` becomes `nservicebus.envelope.unwrap_attempts` and counts every envelope handler
+    //   invocation, with `error.type` on the failed ones, instead of adding 0 on success and 1 on failure.
+    //   https://opentelemetry.io/docs/specs/semconv/general/recording-errors/#recording-errors-on-metrics
+    // - `nservicebus.messaging.successes` and `nservicebus.messaging.failures` are replaced by
+    //   `nservicebus.messaging.processing_attempts`, recorded once per attempt when the receive pipeline completes or
+    //   fails, with `error.type` on the failed ones. Deduplicated outbox messages count as attempts without error.type,
+    //   and attempts canceled through the receive cancellation token (typically at shutdown) count with
+    //   `error.type` System.OperationCanceledException.
+    // - `nservicebus.messaging.fetches` is no longer emitted: it counted the same attempts as
+    //   `nservicebus.messaging.processing_attempts`, recorded at the same point, with fewer tags.
+    // - Every counter records 0 once at endpoint start, with only the queue and discriminator tags, so it can be
+    //   discovered in metrics backends before its first real measurement. Histograms are not seeded.
+    //   https://opentelemetry.io/docs/specs/semconv/general/metrics/#instrument-units
     // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
     //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
     //   (snake_case within a dot-delimited component, no hyphens).
@@ -691,7 +712,10 @@ namespace NServiceBus
     // RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector and
     // PipelineMetrics are the production call sites. Delete the pre-v11 default tests
     // (ContextPropagationDefaultBehaviorTests, LegacyContextPropagationTests, TransportParentSpanDefaultBehaviorTests,
-    // the "Default_..." tests in HandlerActivitySourceTests) and the switch SetUp/TearDown pairs in the
+    // the "Default_..." tests in HandlerActivitySourceTests, PipelineMetricsTests.Should_not_advise_bucket_boundaries,
+    // the "Should_report_..._unwrapping_metric" tests in When_envelope_handler_succeeds/_fails, the tests without
+    // OpenTelemetryV11Defaults in When_message_is_processed_successfully/When_message_processing_fails; move
+    // When_customizing_metric_tags off nservicebus.messaging.fetches) and the switch SetUp/TearDown pairs in the
     // remaining unit and acceptance tests, together with the OpenTelemetryV11Defaults attribute in the
     // obsoletes-v10.cs of NServiceBus.Core.Tests and NServiceBus.AcceptanceTests.
     // =============================================================================
@@ -879,6 +903,109 @@ namespace NServiceBus
     {
         public const string Name = "NServiceBus.Core.Pipeline.Incoming";
         public const string Version = "0.4.0";
+    }
+
+    // The pre-v11 instruments: no units or bucket advice, the envelope counter under its old name, and the successes and
+    // failures counters that v11 replaces with processing attempts (see the list above). PipelineMetrics creates these
+    // while V11BehaviorSwitch.UseV11Behavior is off.
+    partial class PipelineMetrics
+    {
+        const string LegacyEnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
+        const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
+        const string TotalFailures = "nservicebus.messaging.failures";
+        const string TotalFetched = "nservicebus.messaging.fetches";
+
+        // Replaced by processingAttempts with V11BehaviorSwitch on, where they are null.
+        Counter<long>? totalProcessedSuccessfully;
+        Counter<long>? totalFailures;
+        Counter<long>? totalFetched;
+
+        [MemberNotNull(
+            nameof(totalDeduplicated),
+            nameof(messageHandlerTime), nameof(criticalTime), nameof(processingTime), nameof(totalImmediateRetries),
+            nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(envelopeUnwrapAttempts), nameof(activeMessages),
+            nameof(sagaFetchTime), nameof(messageDeserializeTime), nameof(messageSerializeTime), nameof(outboxFetchTime),
+            nameof(outboxStoreTime), nameof(persistenceTime))]
+        void CreateLegacyInstruments(Meter meter)
+        {
+            totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
+                description: "Total number of messages processed successfully by the endpoint.");
+            totalFetched = meter.CreateCounter<long>(TotalFetched,
+                description: "Total number of messages fetched from the queue by the endpoint.");
+            totalFailures = meter.CreateCounter<long>(TotalFailures,
+                description: "Total number of messages processed unsuccessfully by the endpoint.");
+            totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
+                description: "Total number of duplicate messages detected by the Outbox.");
+            messageHandlerTime = meter.CreateHistogram<double>(MessageHandlerTime, "s",
+                "The time in seconds for the execution of the business code.");
+            criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
+                "The time in seconds between when the message was sent until processed by the endpoint.");
+            processingTime = meter.CreateHistogram<double>(ProcessingTime, "s",
+                "The time in seconds between when the message was fetched from the input queue until successfully processed by the endpoint.");
+            totalImmediateRetries = meter.CreateCounter<long>(RecoverabilityImmediate,
+                description: "Total number of immediate retries requested.");
+            totalDelayedRetries = meter.CreateCounter<long>(RecoverabilityDelayed,
+                description: "Total number of delayed retries requested.");
+            totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
+                description: "Total number of messages sent to the error queue.");
+            envelopeUnwrapAttempts = meter.CreateCounter<long>(LegacyEnvelopeUnwrapping,
+                description: "Total number of unwrapping attempts by the endpoint.");
+            activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
+                description: "Number of messages currently being processed by the endpoint.");
+            sagaFetchTime = meter.CreateHistogram<double>(SagaFetchTime, "s",
+                "The time in seconds for loading saga data from the persister.");
+            messageDeserializeTime = meter.CreateHistogram<double>(MessageDeserializeTime, "s",
+                "The time in seconds for deserializing an incoming message.");
+            messageSerializeTime = meter.CreateHistogram<double>(MessageSerializeTime, "s",
+                "The time in seconds for serializing an outgoing message.");
+            outboxFetchTime = meter.CreateHistogram<double>(OutboxFetchTime, "s",
+                "The time in seconds for querying the outbox storage for deduplication.");
+            outboxStoreTime = meter.CreateHistogram<double>(OutboxStoreTime, "s",
+                "The time in seconds for storing a message in the outbox storage.");
+            persistenceTime = meter.CreateHistogram<double>(CommitTime, "s",
+                "The time in seconds for completing the synchronized storage session.");
+        }
+
+        public void RecordMessageProcessingFailure(PipelineMetricTags pipelineMetricTags, Exception error)
+        {
+            if (totalFailures is not { Enabled: true })
+            {
+                return;
+            }
+
+            var tags = DefaultMetricTags;
+            LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
+
+            tags.Add(MeterTags.ErrorType, error.GetType().FullName);
+
+            pipelineMetricTags.ApplyTags(ref tags, [
+                MeterTags.QueueName,
+                MeterTags.EndpointDiscriminator,
+                MeterTags.MessageType,
+                MeterTags.MessageHandlerTypes,
+                MeterTags.ErrorType],
+                totalFailures.Name);
+            totalFailures.Add(1, tags);
+
+            // the processing and critical time are intentionally not recorded in case of failure
+        }
+
+        public void RecordFetchedMessage(PipelineMetricTags pipelineMetricTags)
+        {
+            if (totalFetched is not { Enabled: true })
+            {
+                return;
+            }
+
+            var tags = DefaultMetricTags;
+            pipelineMetricTags.ApplyTags(ref tags, [
+                MeterTags.EndpointDiscriminator,
+                MeterTags.QueueName,
+                MeterTags.MessageType],
+                totalFetched.Name);
+
+            totalFetched.Add(1, tags);
+        }
     }
 
     // The pre-v11 "Start dispatching"/"Finished dispatching" events on the incoming span.
