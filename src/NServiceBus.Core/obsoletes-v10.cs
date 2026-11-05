@@ -683,6 +683,9 @@ namespace NServiceBus
     //   OpenTelemetry semantic conventions recommend for durations in seconds, instead of falling back to the SDK
     //   defaults (0, 5, 10, 25, ... 10000) that are meant for milliseconds. This changes the exported buckets.
     //   https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-advisory-parameters
+    // - The counters declare count units ({message}, {retry} for the retry counters, {attempt} for envelope
+    //   unwrapping) instead of none.
+    //   https://opentelemetry.io/docs/specs/semconv/general/metrics/#instrument-units
     // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
     //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
     //   (snake_case within a dot-delimited component, no hyphens).

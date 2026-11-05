@@ -67,13 +67,13 @@ partial class PipelineMetrics
     void CreateInstruments(Meter meter)
     {
         totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
-            description: "Total number of messages processed successfully by the endpoint.");
+            "{message}", "Total number of messages processed successfully by the endpoint.");
         totalFetched = meter.CreateCounter<long>(TotalFetched,
-            description: "Total number of messages fetched from the queue by the endpoint.");
+            "{message}", "Total number of messages fetched from the queue by the endpoint.");
         totalFailures = meter.CreateCounter<long>(TotalFailures,
-            description: "Total number of messages processed unsuccessfully by the endpoint.");
+            "{message}", "Total number of messages processed unsuccessfully by the endpoint.");
         totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
-            description: "Total number of duplicate messages detected by the Outbox.");
+            "{message}", "Total number of duplicate messages detected by the Outbox.");
         messageHandlerTime = meter.CreateHistogram(MessageHandlerTime, "s",
             "The time in seconds for the execution of the business code.",
             advice: LongDurationAdvice);
@@ -84,15 +84,15 @@ partial class PipelineMetrics
             "The time in seconds between when the message was fetched from the input queue until successfully processed by the endpoint.",
             advice: LongDurationAdvice);
         totalImmediateRetries = meter.CreateCounter<long>(RecoverabilityImmediate,
-            description: "Total number of immediate retries requested.");
+            "{retry}", "Total number of immediate retries requested.");
         totalDelayedRetries = meter.CreateCounter<long>(RecoverabilityDelayed,
-            description: "Total number of delayed retries requested.");
+            "{retry}", "Total number of delayed retries requested.");
         totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
-            description: "Total number of messages sent to the error queue.");
+            "{message}", "Total number of messages sent to the error queue.");
         totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
-            description: "Total number of unwrapping attempts by the endpoint.");
+            "{attempt}", "Total number of unwrapping attempts by the endpoint.");
         activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
-            description: "Number of messages currently being processed by the endpoint.");
+            "{message}", "Number of messages currently being processed by the endpoint.");
         sagaFetchTime = meter.CreateHistogram(SagaFetchTime, "s",
             "The time in seconds for loading saga data from the persister.",
             advice: ShortDurationAdvice);
