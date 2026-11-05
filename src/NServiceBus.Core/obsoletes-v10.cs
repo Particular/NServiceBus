@@ -695,6 +695,8 @@ namespace NServiceBus
     //   `error.type` System.OperationCanceledException.
     // - `nservicebus.messaging.fetches` is no longer emitted: it counted the same attempts as
     //   `nservicebus.messaging.processing_attempts`, recorded at the same point, with fewer tags.
+    // - Every counter records 0 once at endpoint start, with only the queue and discriminator tags, so it can be
+    //   discovered in metrics backends before its first real measurement. Histograms are not seeded.
     //   https://opentelemetry.io/docs/specs/semconv/general/metrics/#instrument-units
     // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
     //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules

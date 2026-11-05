@@ -32,9 +32,10 @@ public class PipelineMetricsExecutionResultTagTests
     static KeyValuePair<string, object>[] RecordFailure()
     {
         using var meterFactory = new TestMeterFactory();
+        // Created before the listener subscribes, so the counters seeded with the version 11 behavior are not observed.
+        var metrics = new PipelineMetrics(meterFactory, "queue", "disc");
         using var listener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
-        var metrics = new PipelineMetrics(meterFactory, "queue", "disc");
         // As MainPipelineExecutor does: each mode creates only one of the two instruments.
         var error = new InvalidOperationException("boom");
         metrics.RecordProcessingAttempt(new PipelineMetricTags(), error);
