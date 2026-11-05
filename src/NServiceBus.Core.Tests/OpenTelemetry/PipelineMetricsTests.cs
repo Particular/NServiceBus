@@ -38,6 +38,50 @@ public class PipelineMetricsTests
         Assert.That(instruments.Where(i => string.IsNullOrEmpty(i.Unit)).Select(i => i.Name), Is.Empty);
     }
 
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public void Should_seed_every_counter_with_the_endpoint_tags_only()
+    {
+        using var listener = TestingMetricListener.SetupNServiceBusMetricsListener();
+        using var meterFactory = new TestMeterFactory();
+        _ = new PipelineMetrics(meterFactory, "queue", "disc");
+
+        var counters = listener.metrics.Where(i => i is Counter<long> or UpDownCounter<long>).Select(i => i.Name).ToList();
+
+        Assert.That(counters, Is.Not.Empty);
+        Assert.That(listener.ReportedMeters.Keys, Is.EquivalentTo(counters), "only counters are seeded, never histograms");
+        using (Assert.EnterMultipleScope())
+        {
+            foreach (var counter in counters)
+            {
+                Assert.That(listener.ReportedMeters[counter], Is.Zero, counter);
+                Assert.That(listener.Tags[counter].Select(t => t.Key), Is.EquivalentTo(["nservicebus.queue", "nservicebus.discriminator"]), counter);
+            }
+        }
+    }
+
+    // In v11 seeding is the only behavior: delete this test together with the V11BehaviorSwitch block in obsoletes-v10.cs.
+    [Test]
+    public void Should_not_seed_counters()
+    {
+        using var listener = TestingMetricListener.SetupNServiceBusMetricsListener();
+        using var meterFactory = new TestMeterFactory();
+        _ = new PipelineMetrics(meterFactory, "queue", "disc");
+
+        Assert.That(listener.ReportedMeters, Is.Empty);
+    }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public void Should_not_seed_counters_on_send_only_endpoints()
+    {
+        using var listener = TestingMetricListener.SetupNServiceBusMetricsListener();
+        using var meterFactory = new TestMeterFactory();
+        _ = new PipelineMetrics(meterFactory, null, null);
+
+        Assert.That(listener.ReportedMeters, Is.Empty);
+    }
+
     static List<Instrument> CreateInstruments()
     {
         using var meterFactory = new TestMeterFactory();

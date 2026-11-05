@@ -54,6 +54,29 @@ partial class PipelineMetrics
         {
             DefaultMetricTags.Add(MeterTags.EndpointDiscriminator, discriminator);
         }
+
+        // Send-only endpoints have no receive pipeline and never record the seeded counters.
+        if (queueName != null && V11BehaviorSwitch.UseV11Behavior) // removed in v11, keep the queueName check, see obsoletes-v10.cs
+        {
+            SeedCounters();
+        }
+    }
+
+    // Records 0 once on every counter, with only the endpoint tags, so each counter exists in a metrics backend before
+    // its first real measurement: it can be discovered and used in dashboards and alerts, and counters that rarely fire,
+    // such as nservicebus.recoverability.error, report 0 instead of no data. Real measurements carry more tags and form
+    // their own series. Histograms are not seeded, because a 0 would be a real observation, and error.type is not seeded,
+    // because any value would be invented. A MeterProvider that subscribes after the endpoint started misses the seed.
+    void SeedCounters()
+    {
+        var tags = DefaultMetricTags;
+        processingAttempts?.Add(0, tags);
+        activeMessages.Add(0, tags);
+        totalImmediateRetries.Add(0, tags);
+        totalDelayedRetries.Add(0, tags);
+        totalSentToErrorQueue.Add(0, tags);
+        totalDeduplicated.Add(0, tags);
+        envelopeUnwrapAttempts.Add(0, tags);
     }
 
     [MemberNotNull(
