@@ -12,6 +12,7 @@ using Conventions = AcceptanceTesting.Customization.Conventions;
 public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTest
 {
     const string SuccessesMetric = "nservicebus.messaging.successes";
+    const string ProcessingAttemptsMetric = "nservicebus.messaging.processing_attempts";
     const string FetchesMetric = "nservicebus.messaging.fetches";
     const string CriticalTimeMetric = "nservicebus.messaging.critical_time";
     const string ProcessingTimeMetric = "nservicebus.messaging.processing_time";
@@ -20,21 +21,13 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
     const string DiscriminatorTag = "nservicebus.discriminator";
     const string MessageTypeTag = "nservicebus.message_type";
 
+    // Remove in v11 together with the V11BehaviorSwitch block in NServiceBus.Core/obsoletes-v10.cs.
     [Test]
     public async Task Should_report_successful_message_metric()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
-        _ = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithMetrics>(b => b.CustomConfig(x => x.MakeInstanceUniquelyAddressable("disc"))
-                .When(async (session, ctx) =>
-                {
-                    for (var x = 0; x < 5; x++)
-                    {
-                        await session.SendLocal(new OutgoingMessage());
-                    }
-                }))
-            .Run();
+        await SendFiveMessages();
 
         metricsListener.AssertMetric(SuccessesMetric, 5);
         metricsListener.AssertMetric(FetchesMetric, 5);
@@ -86,21 +79,13 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
             });
     }
 
+    // Remove in v11 together with the V11BehaviorSwitch block in NServiceBus.Core/obsoletes-v10.cs.
     [Test]
     public async Task Should_only_tag_most_concrete_type_on_metric()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
-        _ = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithMetrics>(b => b
-                .When(async (session, ctx) =>
-                {
-                    for (var x = 0; x < 5; x++)
-                    {
-                        await session.SendLocal(new OutgoingWithComplexHierarchyMessage());
-                    }
-                }))
-            .Run();
+        await SendFiveComplexHierarchyMessages();
 
         metricsListener.AssertMetric(SuccessesMetric, 5);
         metricsListener.AssertMetric(FetchesMetric, 5);
@@ -123,6 +108,64 @@ public class When_message_is_processed_successfully : OpenTelemetryAcceptanceTes
             Assert.That(successHandlerType, Is.EqualTo(typeof(EndpointWithMetrics.ComplexMessageHandler).FullName));
         }
     }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_report_processing_attempts_without_error_type()
+    {
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
+        await SendFiveMessages();
+
+        metricsListener.AssertMetric(ProcessingAttemptsMetric, 5);
+        metricsListener.AssertTags(ProcessingAttemptsMetric,
+            new Dictionary<string, object>
+            {
+                [QueueTag] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                [DiscriminatorTag] = "disc",
+                [MessageTypeTag] = typeof(OutgoingMessage).FullName,
+                ["nservicebus.message_handler_types"] = typeof(EndpointWithMetrics.MessageHandler).FullName
+            });
+        metricsListener.AssertTagKeyDoesNotExist(ProcessingAttemptsMetric, "error.type");
+    }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_only_tag_most_concrete_type_on_processing_attempts()
+    {
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
+        await SendFiveComplexHierarchyMessages();
+
+        metricsListener.AssertTags(ProcessingAttemptsMetric,
+            new Dictionary<string, object>
+            {
+                [MessageTypeTag] = typeof(OutgoingWithComplexHierarchyMessage).FullName,
+                ["nservicebus.message_handler_types"] = typeof(EndpointWithMetrics.ComplexMessageHandler).FullName
+            });
+    }
+
+    static Task<Context> SendFiveMessages() => Scenario.Define<Context>()
+        .WithEndpoint<EndpointWithMetrics>(b => b.CustomConfig(x => x.MakeInstanceUniquelyAddressable("disc"))
+            .When(async (session, ctx) =>
+            {
+                for (var x = 0; x < 5; x++)
+                {
+                    await session.SendLocal(new OutgoingMessage());
+                }
+            }))
+        .Run();
+
+    static Task<Context> SendFiveComplexHierarchyMessages() => Scenario.Define<Context>()
+        .WithEndpoint<EndpointWithMetrics>(b => b
+            .When(async (session, ctx) =>
+            {
+                for (var x = 0; x < 5; x++)
+                {
+                    await session.SendLocal(new OutgoingWithComplexHierarchyMessage());
+                }
+            }))
+        .Run();
 
     public class Context : ScenarioContext
     {

@@ -14,9 +14,7 @@ partial class PipelineMetrics
     public const string MeterName = "NServiceBus.Core";
     public const string MeterVersion = "1.0.0";
 
-    const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
-    const string TotalFetched = "nservicebus.messaging.fetches";
-    const string TotalFailures = "nservicebus.messaging.failures";
+    const string ProcessingAttempts = "nservicebus.messaging.processing_attempts";
     const string MessageHandlerTime = "nservicebus.messaging.handler_time";
     const string CriticalTime = "nservicebus.messaging.critical_time";
     const string ProcessingTime = "nservicebus.messaging.processing_time";
@@ -59,19 +57,15 @@ partial class PipelineMetrics
     }
 
     [MemberNotNull(
-        nameof(totalProcessedSuccessfully), nameof(totalFetched), nameof(totalFailures), nameof(totalDeduplicated),
+        nameof(totalDeduplicated),
         nameof(messageHandlerTime), nameof(criticalTime), nameof(processingTime), nameof(totalImmediateRetries),
         nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(envelopeUnwrapAttempts), nameof(activeMessages),
         nameof(sagaFetchTime), nameof(messageDeserializeTime), nameof(messageSerializeTime), nameof(outboxFetchTime),
         nameof(outboxStoreTime), nameof(persistenceTime))]
     void CreateInstruments(Meter meter)
     {
-        totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
-            "{message}", "Total number of messages processed successfully by the endpoint.");
-        totalFetched = meter.CreateCounter<long>(TotalFetched,
-            "{message}", "Total number of messages fetched from the queue by the endpoint.");
-        totalFailures = meter.CreateCounter<long>(TotalFailures,
-            "{message}", "Total number of messages processed unsuccessfully by the endpoint.");
+        processingAttempts = meter.CreateCounter<long>(ProcessingAttempts,
+            "{attempt}", "Total number of message processing attempts by the endpoint.");
         totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
             "{message}", "Total number of duplicate messages detected by the Outbox.");
         messageHandlerTime = meter.CreateHistogram(MessageHandlerTime, "s",
@@ -148,7 +142,9 @@ partial class PipelineMetrics
 
     public void RecordCriticalTimeAndTotalProcessed(ITransportReceiveContext context)
     {
-        if (!totalProcessedSuccessfully.Enabled && !criticalTime.Enabled)
+        // The successes counter only exists while V11BehaviorSwitch is off: removed in v11, see obsoletes-v10.cs.
+        var countSuccess = totalProcessedSuccessfully is { Enabled: true };
+        if (!countSuccess && !criticalTime.Enabled)
         {
             return;
         }
@@ -165,9 +161,9 @@ partial class PipelineMetrics
             MeterTags.MessageHandlerTypes],
             criticalTime.Name);
 
-        if (totalProcessedSuccessfully.Enabled)
+        if (countSuccess)
         {
-            totalProcessedSuccessfully.Add(1, tags);
+            totalProcessedSuccessfully!.Add(1, tags);
         }
         if (criticalTime.Enabled)
         {
@@ -182,17 +178,28 @@ partial class PipelineMetrics
         }
     }
 
-    public void RecordMessageProcessingFailure(PipelineMetricTags pipelineMetricTags, Exception error)
+    // Called once per processing attempt, after the receive pipeline completed, failed or was canceled. A deduplicated
+    // outbox message completes the pipeline, so it counts as an attempt without error.type.
+    public void RecordProcessingAttempt(PipelineMetricTags pipelineMetricTags, Exception? error = null) =>
+        RecordProcessingAttemptCore(pipelineMetricTags, error?.GetType().FullName);
+
+    // An attempt canceled through the receive cancellation token, typically at shutdown. Recorded under a single
+    // error.type whichever OperationCanceledException subtype surfaced, so it can be filtered out with one value.
+    public void RecordCanceledProcessingAttempt(PipelineMetricTags pipelineMetricTags) =>
+        RecordProcessingAttemptCore(pipelineMetricTags, typeof(OperationCanceledException).FullName);
+
+    void RecordProcessingAttemptCore(PipelineMetricTags pipelineMetricTags, string? errorType)
     {
-        if (!totalFailures.Enabled)
+        if (processingAttempts is not { Enabled: true })
         {
             return;
         }
 
         var tags = DefaultMetricTags;
-        LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
-
-        tags.Add(MeterTags.ErrorType, error.GetType().FullName);
+        if (errorType != null)
+        {
+            tags.Add(MeterTags.ErrorType, errorType);
+        }
 
         pipelineMetricTags.ApplyTags(ref tags, [
             MeterTags.QueueName,
@@ -200,27 +207,8 @@ partial class PipelineMetrics
             MeterTags.MessageType,
             MeterTags.MessageHandlerTypes,
             MeterTags.ErrorType],
-            totalFailures.Name);
-        totalFailures.Add(1, tags);
-
-        // the processing and critical time are intentionally not recorded in case of failure
-    }
-
-    public void RecordFetchedMessage(PipelineMetricTags pipelineMetricTags)
-    {
-        if (!totalFetched.Enabled)
-        {
-            return;
-        }
-
-        var tags = DefaultMetricTags;
-        pipelineMetricTags.ApplyTags(ref tags, [
-            MeterTags.EndpointDiscriminator,
-            MeterTags.QueueName,
-            MeterTags.MessageType],
-            totalFetched.Name);
-
-        totalFetched.Add(1, tags);
+            processingAttempts.Name);
+        processingAttempts.Add(1, tags);
     }
 
     public void RecordDeduplicatedMessage(ITransportReceiveContext context)
@@ -531,9 +519,8 @@ partial class PipelineMetrics
         public void Dispose() => counter?.Add(-1, tags);
     }
 
-    Counter<long> totalProcessedSuccessfully;
-    Counter<long> totalFetched;
-    Counter<long> totalFailures;
+    // Null while V11BehaviorSwitch is off. In v11 make it non-nullable and add it to the MemberNotNull list.
+    Counter<long>? processingAttempts;
     Counter<long> totalDeduplicated;
     Histogram<double> messageHandlerTime;
     Histogram<double> criticalTime;
