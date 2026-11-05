@@ -15,7 +15,7 @@
     "nservicebus.saga_type"
   ],
   "Metrics": [
-    "nservicebus.envelope.unwrapped => Counter, Unit: {attempt}",
+    "nservicebus.envelope.unwrap_attempts => Counter, Unit: {attempt}",
     "nservicebus.messaging.active_messages => UpDownCounter, Unit: {message}",
     "nservicebus.messaging.critical_time => Histogram, Unit: s",
     "nservicebus.messaging.deserialize_time => Histogram, Unit: s",
