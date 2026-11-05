@@ -1,0 +1,6 @@
+{{
+    if issue.is_pull_request
+}}- [__#{{ issue.public_number }}__]({{ issue.html_url }}) {{ issue.title }}
+{{  else
+}}- [__#{{ issue.public_number }}__]({{ issue.html_url }}) {{ issue.title }}
+{{  end -}}

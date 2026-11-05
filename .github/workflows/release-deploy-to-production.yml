@@ -1,0 +1,38 @@
+name: Deploy To Production
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+env:
+  DOTNET_NOLOGO: true
+jobs:
+  check-authorized-user:
+    uses: Particular/deployment-workflows/.github/workflows/verify-authorized-user.yml@1.0.0
+  publish-release-notes:
+    needs: check-authorized-user
+    uses: Particular/deployment-workflows/.github/workflows/publish-release-notes.yml@1.0.0
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+  virus-scan:
+    needs: publish-release-notes
+    permissions:
+      contents: write
+    uses: Particular/deployment-workflows/.github/workflows/virus-scan.yml@1.0.0
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+  push-nuget-packages:
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    needs: publish-release-notes
+    steps:
+        - name: Push NuGet packages
+          uses: particular/deployment-workflows/.github/actions/push-nuget-packages@1.0.0
+          with:
+            version: ${{ inputs.version }}
+            deploy-environment: production
