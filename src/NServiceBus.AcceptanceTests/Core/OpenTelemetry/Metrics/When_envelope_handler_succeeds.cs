@@ -17,19 +17,13 @@ using Conventions = AcceptanceTesting.Customization.Conventions;
 
 public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
 {
+    // Remove in v11 together with the V11BehaviorSwitch block in NServiceBus.Core/obsoletes-v10.cs.
     [Test]
     public async Task Should_report_successful_unwrapping_metric()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 
-        _ = await Scenario.Define<Context>()
-            .WithEndpoint<EndpointWithMetrics>(b => b.CustomConfig(x =>
-                {
-                    x.MakeInstanceUniquelyAddressable("discriminator");
-                    x.EnableFeature<TestEnvelopeFeature>();
-                })
-                .When(session => session.SendLocal(new OutgoingMessage())))
-            .Run();
+        await ReceiveEnvelopedMessage();
 
         // The metric should be explicitly emitted with a value of 0 to indicate no errors occurred
         Assert.That(metricsListener.ReportedMeters["nservicebus.envelope.unwrapped"], Is.EqualTo(0));
@@ -42,6 +36,34 @@ public class When_envelope_handler_succeeds : OpenTelemetryAcceptanceTest
                 ["nservicebus.envelope.unwrapper_type"] = typeof(SuccessfulCloudEventHandler).FullName
             });
     }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_count_the_unwrap_attempt_without_error_type()
+    {
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+
+        await ReceiveEnvelopedMessage();
+
+        metricsListener.AssertMetric("nservicebus.envelope.unwrap_attempts", 1);
+        metricsListener.AssertTags("nservicebus.envelope.unwrap_attempts",
+            new Dictionary<string, object>
+            {
+                ["nservicebus.queue"] = Conventions.EndpointNamingConvention(typeof(EndpointWithMetrics)),
+                ["nservicebus.discriminator"] = "discriminator",
+                ["nservicebus.envelope.unwrapper_type"] = typeof(SuccessfulCloudEventHandler).FullName
+            });
+        metricsListener.AssertTagKeyDoesNotExist("nservicebus.envelope.unwrap_attempts", "error.type");
+    }
+
+    static Task<Context> ReceiveEnvelopedMessage() => Scenario.Define<Context>()
+        .WithEndpoint<EndpointWithMetrics>(b => b.CustomConfig(x =>
+            {
+                x.MakeInstanceUniquelyAddressable("discriminator");
+                x.EnableFeature<TestEnvelopeFeature>();
+            })
+            .When(session => session.SendLocal(new OutgoingMessage())))
+        .Run();
 
     class SuccessfulCloudEventHandler : IEnvelopeHandler
     {

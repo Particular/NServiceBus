@@ -685,6 +685,9 @@ namespace NServiceBus
     //   https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-advisory-parameters
     // - The counters declare count units ({message}, {retry} for the retry counters, {attempt} for envelope
     //   unwrapping) instead of none.
+    // - `nservicebus.envelope.unwrapped` becomes `nservicebus.envelope.unwrap_attempts` and counts every envelope handler
+    //   invocation, with `error.type` on the failed ones, instead of adding 0 on success and 1 on failure.
+    //   https://opentelemetry.io/docs/specs/semconv/general/recording-errors/#recording-errors-on-metrics
     //   https://opentelemetry.io/docs/specs/semconv/general/metrics/#instrument-units
     // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
     //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
@@ -700,7 +703,8 @@ namespace NServiceBus
     // RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector and
     // PipelineMetrics are the production call sites. Delete the pre-v11 default tests
     // (ContextPropagationDefaultBehaviorTests, LegacyContextPropagationTests, TransportParentSpanDefaultBehaviorTests,
-    // the "Default_..." tests in HandlerActivitySourceTests) and the switch SetUp/TearDown pairs in the
+    // the "Default_..." tests in HandlerActivitySourceTests, PipelineMetricsTests.Should_not_advise_bucket_boundaries,
+    // the "Should_report_..._unwrapping_metric" tests in When_envelope_handler_succeeds/_fails) and the switch SetUp/TearDown pairs in the
     // remaining unit and acceptance tests, together with the OpenTelemetryV11Defaults attribute in the
     // obsoletes-v10.cs of NServiceBus.Core.Tests and NServiceBus.AcceptanceTests.
     // =============================================================================
@@ -894,10 +898,12 @@ namespace NServiceBus
     // carry no bucket boundary advice. PipelineMetrics creates these while V11BehaviorSwitch.UseV11Behavior is off.
     partial class PipelineMetrics
     {
+        const string LegacyEnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
+
         [MemberNotNull(
             nameof(totalProcessedSuccessfully), nameof(totalFetched), nameof(totalFailures), nameof(totalDeduplicated),
             nameof(messageHandlerTime), nameof(criticalTime), nameof(processingTime), nameof(totalImmediateRetries),
-            nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(totalEnvelopeUnwrapping), nameof(activeMessages),
+            nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(envelopeUnwrapAttempts), nameof(activeMessages),
             nameof(sagaFetchTime), nameof(messageDeserializeTime), nameof(messageSerializeTime), nameof(outboxFetchTime),
             nameof(outboxStoreTime), nameof(persistenceTime))]
         void CreateLegacyInstruments(Meter meter)
@@ -922,7 +928,7 @@ namespace NServiceBus
                 description: "Total number of delayed retries requested.");
             totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
                 description: "Total number of messages sent to the error queue.");
-            totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
+            envelopeUnwrapAttempts = meter.CreateCounter<long>(LegacyEnvelopeUnwrapping,
                 description: "Total number of unwrapping attempts by the endpoint.");
             activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
                 description: "Number of messages currently being processed by the endpoint.");

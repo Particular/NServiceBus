@@ -23,7 +23,7 @@ partial class PipelineMetrics
     const string RecoverabilityImmediate = "nservicebus.recoverability.immediate";
     const string RecoverabilityDelayed = "nservicebus.recoverability.delayed";
     const string RecoverabilityError = "nservicebus.recoverability.error";
-    const string EnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
+    const string EnvelopeUnwrapAttempts = "nservicebus.envelope.unwrap_attempts";
     const string ActiveMessages = "nservicebus.messaging.active_messages";
     const string TotalDeduplicated = "nservicebus.outbox.duplicates";
     const string SagaFetchTime = "nservicebus.sagas.fetch_time";
@@ -61,7 +61,7 @@ partial class PipelineMetrics
     [MemberNotNull(
         nameof(totalProcessedSuccessfully), nameof(totalFetched), nameof(totalFailures), nameof(totalDeduplicated),
         nameof(messageHandlerTime), nameof(criticalTime), nameof(processingTime), nameof(totalImmediateRetries),
-        nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(totalEnvelopeUnwrapping), nameof(activeMessages),
+        nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(envelopeUnwrapAttempts), nameof(activeMessages),
         nameof(sagaFetchTime), nameof(messageDeserializeTime), nameof(messageSerializeTime), nameof(outboxFetchTime),
         nameof(outboxStoreTime), nameof(persistenceTime))]
     void CreateInstruments(Meter meter)
@@ -89,7 +89,7 @@ partial class PipelineMetrics
             "{retry}", "Total number of delayed retries requested.");
         totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
             "{message}", "Total number of messages sent to the error queue.");
-        totalEnvelopeUnwrapping = meter.CreateCounter<long>(EnvelopeUnwrapping,
+        envelopeUnwrapAttempts = meter.CreateCounter<long>(EnvelopeUnwrapAttempts,
             "{attempt}", "Total number of unwrapping attempts by the endpoint.");
         activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
             "{message}", "Number of messages currently being processed by the endpoint.");
@@ -502,7 +502,7 @@ partial class PipelineMetrics
     public void EnvelopeUnwrappingFailed(MessageContext messageContext, IEnvelopeHandler type, Exception? exception) => RecordEnvelopeUnwrapping(messageContext, type, false, exception);
     void RecordEnvelopeUnwrapping(MessageContext messageContext, IEnvelopeHandler type, bool succeeded, Exception? exception)
     {
-        if (!totalEnvelopeUnwrapping.Enabled)
+        if (!envelopeUnwrapAttempts.Enabled)
         {
             return;
         }
@@ -520,9 +520,10 @@ partial class PipelineMetrics
             MeterTags.EndpointDiscriminator,
             MeterTags.EnvelopeUnwrapperType,
             MeterTags.ErrorType],
-            totalEnvelopeUnwrapping.Name);
+            envelopeUnwrapAttempts.Name);
 
-        totalEnvelopeUnwrapping.Add(succeeded ? 0 : 1, tags);
+        // Every attempt counts, error.type marks the failed ones. Pre-v11 adds 0 on success: removed in v11, see obsoletes-v10.cs.
+        envelopeUnwrapAttempts.Add(V11BehaviorSwitch.UseV11Behavior || !succeeded ? 1 : 0, tags);
     }
 
     public readonly struct ActiveMessageScope(UpDownCounter<long>? counter, TagList tags) : IDisposable
@@ -540,7 +541,7 @@ partial class PipelineMetrics
     Counter<long> totalImmediateRetries;
     Counter<long> totalDelayedRetries;
     Counter<long> totalSentToErrorQueue;
-    Counter<long> totalEnvelopeUnwrapping;
+    Counter<long> envelopeUnwrapAttempts;
     UpDownCounter<long> activeMessages;
     Histogram<double> sagaFetchTime;
     Histogram<double> messageDeserializeTime;
