@@ -58,11 +58,6 @@ partial class PipelineMetrics
         }
     }
 
-    // Without advice the OpenTelemetry .NET SDK applies its default explicit bucket boundaries (0, 5, 10, 25, ... 10000),
-    // which are meant for milliseconds. All duration histograms record seconds, so they advise the boundaries the
-    // OpenTelemetry semantic conventions recommend for durations in seconds. A user-configured View or the base2
-    // exponential histogram aggregation still takes precedence over the advice.
-    // https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-advisory-parameters
     [MemberNotNull(
         nameof(totalProcessedSuccessfully), nameof(totalFetched), nameof(totalFailures), nameof(totalDeduplicated),
         nameof(messageHandlerTime), nameof(criticalTime), nameof(processingTime), nameof(totalImmediateRetries),
@@ -118,17 +113,13 @@ partial class PipelineMetrics
             advice: ShortDurationAdvice);
     }
 
-    // Short operations (serialization, persistence and outbox calls). The boundaries of http.server.request.duration
-    // and http.client.request.duration.
-    // https://opentelemetry.io/docs/specs/semconv/http/http-metrics/#metric-httpserverrequestduration
+    // Values based on: https://opentelemetry.io/docs/specs/semconv/http/http-metrics/#metric-httpserverrequestduration
     static readonly InstrumentAdvice<double> ShortDurationAdvice = new()
     {
         HistogramBucketBoundaries = [0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10]
     };
 
-    // Operations that can take minutes: handler execution, processing and critical time. The boundaries of
-    // kestrel.connection.duration.
-    // https://opentelemetry.io/docs/specs/semconv/dotnet/dotnet-kestrel-metrics/#metric-kestrelconnectionduration
+    // Values based on: https://opentelemetry.io/docs/specs/semconv/dotnet/dotnet-kestrel-metrics/#metric-kestrelconnectionduration
     static readonly InstrumentAdvice<double> LongDurationAdvice = new()
     {
         HistogramBucketBoundaries = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 30, 60, 120, 300]
