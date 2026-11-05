@@ -36,12 +36,18 @@ sealed class EndpointStartupRunner(IEndpointCreationStrategy creationStrategy)
         }
     }
 
-    public async Task<RunningEndpointInstance> Start(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
+    public async Task<SelfHostedEndpointInstance> Start(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
         var endpoint = await Create(serviceProvider, cancellationToken).ConfigureAwait(false);
-        return await endpoint.Start(cancellationToken).ConfigureAwait(false);
+        var runningInstance = await endpoint.Start(cancellationToken).ConfigureAwait(false);
+        lock (instanceLock)
+        {
+            return instance ??= new SelfHostedEndpointInstance(runningInstance);
+        }
     }
 
+    SelfHostedEndpointInstance? instance;
+    readonly object instanceLock = new();
     readonly SemaphoreSlim createSemaphore = new(1, 1);
     volatile StartableEndpoint? startableEndpoint;
 }

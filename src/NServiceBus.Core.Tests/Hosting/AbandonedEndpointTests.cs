@@ -18,9 +18,10 @@ using NUnit.Framework;
 [NonParallelizable]
 public class AbandonedEndpointTests
 {
-    [TestCase(false, TestName = "Abandoned_endpoint_should_stop_and_release_resources_after_gc")]
-    [TestCase(true, TestName = "Explicitly_stopped_endpoint_should_release_resources_control")]
-    public async Task Should_release_abandoned_endpoint(bool stopBeforeDroppingReference)
+    [TestCase(false, false, TestName = "Abandoned_endpoint_should_stop_and_release_resources_after_gc")]
+    [TestCase(true, false, TestName = "Explicitly_stopped_endpoint_should_release_resources_control")]
+    [TestCase(false, true, TestName = "Referenced_endpoint_should_continue_processing_control")]
+    public async Task Should_release_abandoned_endpoint(bool stopBeforeDroppingReference, bool keepReference)
     {
         var directory = Path.Combine(Path.GetTempPath(), "nsb-7066-" + Guid.NewGuid().ToString("N"));
         var receiverName = "Receiver-" + Guid.NewGuid().ToString("N");
@@ -29,9 +30,14 @@ public class AbandonedEndpointTests
         senderConfiguration.SendOnly();
         var sender = await Endpoint.Start(senderConfiguration);
         WeakReference<IEndpointInstance>? receiver = null;
+        IEndpointInstance? retainedEndpoint = null;
         try
         {
             receiver = StartAndDropReference(receiverName, directory, probe);
+            if (keepReference)
+            {
+                Assert.That(receiver.TryGetTarget(out retainedEndpoint), Is.True);
+            }
             Assert.That(probe.Started, Is.True, "The real endpoint must successfully start before testing collection.");
 
             await SendProbe(sender, receiverName);
@@ -68,13 +74,15 @@ public class AbandonedEndpointTests
             TestContext.Out.WriteLine($"After 20 GC cycles: endpoint retained={retained}, feature stopped={probe.Stopped}, resource disposed={probe.Disposed}, processed message after GC={stillProcessing}");
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(probe.Stopped, Is.True, "Abandoning the endpoint should stop its feature startup task (#7066).");
-                Assert.That(probe.Disposed, Is.True, "Abandoning the endpoint should dispose its feature resource (#7066).");
-                Assert.That(stillProcessing, Is.False, "The abandoned endpoint still processes messages after forced GC (#7066).");
+                Assert.That(retained, Is.EqualTo(keepReference), "Only an endpoint with a live application reference should remain alive after GC.");
+                Assert.That(probe.Stopped, Is.EqualTo(!keepReference), "Abandoning the endpoint should stop its feature startup task (#7066).");
+                Assert.That(probe.Disposed, Is.EqualTo(!keepReference), "Abandoning the endpoint should dispose its feature resource (#7066).");
+                Assert.That(stillProcessing, Is.EqualTo(keepReference), "The abandoned endpoint still processes messages after forced GC (#7066).");
             }
         }
         finally
         {
+            GC.KeepAlive(retainedEndpoint);
             if (receiver is not null)
             {
                 StopThroughWeakReference(receiver);
@@ -128,9 +136,9 @@ public class AbandonedEndpointTests
 
     public class Probe
     {
-        public bool Started;
-        public bool Stopped;
-        public bool Disposed;
+        public volatile bool Started;
+        public volatile bool Stopped;
+        public volatile bool Disposed;
         public Channel<bool> Messages { get; } = Channel.CreateUnbounded<bool>();
     }
 

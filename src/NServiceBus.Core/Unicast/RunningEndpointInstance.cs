@@ -41,6 +41,22 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
     }
 
+    internal async Task StopAfterAbandonment(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await Stop(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Abandoned endpoints bypass graceful shutdown and request immediate handler cancellation.
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Shutdown of an abandoned endpoint failed.", ex);
+        }
+    }
+
     public async Task StopCore(CancellationToken cancellationToken = default)
     {
         if (status >= Status.Stopping)
