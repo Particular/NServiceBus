@@ -72,14 +72,25 @@ class RunningEndpointInstance(SettingsHolder settings,
 
             await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
 
+            // Receivers and features swallow their own failures but throw when they honor a canceled token.
+            // Each step still runs, so that the transport always gets Shutdown to release its resources.
             try
             {
-                // Cannot throw by design
-                await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
-
-                // Can throw
-                await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
+                }
+                finally
+                {
+                    try
+                    {
+                        await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
+                    }
+                }
             }
             catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
             {
