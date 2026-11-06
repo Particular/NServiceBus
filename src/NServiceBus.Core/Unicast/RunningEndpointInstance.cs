@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
@@ -72,29 +73,51 @@ class RunningEndpointInstance(SettingsHolder settings,
 
             await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
 
-            // Receivers and features swallow their own failures but throw when they honor a canceled token.
-            // Each step still runs, so that the transport always gets Shutdown to release its resources.
+            // Every step runs even when an earlier one is canceled, so the transport always gets Shutdown.
+            Exception? cancellation = null;
+
             try
             {
-                try
-                {
-                    await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-                }
-                finally
-                {
-                    try
-                    {
-                        await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
-                    }
-                    finally
-                    {
-                        await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
-                    }
-                }
+                await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+                cancellation ??= ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stopping the receivers failed.", ex);
+            }
+
+            try
+            {
+                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+                cancellation ??= ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stopping the features failed.", ex);
+            }
+
+            try
+            {
+                await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+                cancellation ??= ex;
+            }
+            catch (Exception ex)
             {
                 Log.Error("Shutdown of the transport infrastructure failed.", ex);
+            }
+
+            if (cancellation is not null)
+            {
+                ExceptionDispatchInfo.Throw(cancellation);
             }
 
             Log.Info("Shutdown complete.");
