@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Features;
@@ -72,18 +73,51 @@ class RunningEndpointInstance(SettingsHolder settings,
 
             await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
 
+            // Every step runs even when an earlier one is canceled, so the transport always gets Shutdown.
+            Exception? cancellation = null;
+
             try
             {
-                // Cannot throw by design
                 await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+                cancellation ??= ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stopping the receivers failed.", ex);
+            }
 
-                // Can throw
+            try
+            {
+                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+                cancellation ??= ex;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stopping the features failed.", ex);
+            }
+
+            try
+            {
                 await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+                cancellation ??= ex;
+            }
+            catch (Exception ex)
             {
                 Log.Error("Shutdown of the transport infrastructure failed.", ex);
+            }
+
+            if (cancellation is not null)
+            {
+                ExceptionDispatchInfo.Throw(cancellation);
             }
 
             Log.Info("Shutdown complete.");
