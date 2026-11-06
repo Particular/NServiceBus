@@ -95,27 +95,30 @@ partial class StartableEndpoint(
 
     async Task ShutdownTransport(CancellationToken cancellationToken)
     {
+        // Both steps run even when the first is canceled, so the transport always gets Shutdown.
+        // A canceled step is not reported, because the caller canceled and any original exception stays more relevant.
         try
         {
-            try
-            {
-                await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-            }
-            finally
-            {
-                // A receiver that honors a canceled token throws, and the transport still needs Shutdown to release its resources.
-                await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
-            }
+            await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+        {
+            LogStoppingReceiversFailed(logger, ex);
+        }
+        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+        {
+        }
+
+        try
+        {
+            await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
             LogTransportShutdownFailed(logger, ex);
         }
-#pragma warning disable PS0019
-        catch (Exception)
-#pragma warning restore PS0019
+        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
         {
-            // The caller canceled, so an aborted shutdown is expected. Any original exception stays more relevant to the caller.
         }
     }
 
@@ -210,6 +213,9 @@ partial class StartableEndpoint(
     bool transportShutDown;
     readonly SemaphoreSlim startSemaphore = new(1, 1);
     ILogger logger = null!;
+
+    [LoggerMessage(LogLevel.Error, "Stopping the receivers failed.")]
+    static partial void LogStoppingReceiversFailed(ILogger logger, Exception exception);
 
     [LoggerMessage(LogLevel.Error, "Shutdown of the transport infrastructure failed.")]
     static partial void LogTransportShutdownFailed(ILogger logger, Exception exception);
