@@ -16,7 +16,7 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
 {
     public string Name { get; } = name;
 
-    public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
+    public async Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
         if (Log.IsDebugEnabled)
         {
@@ -24,15 +24,20 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
         }
 
         instance = factory(builder, state);
-        return instance.PerformStartup(messageSession, cancellationToken);
+        await instance.PerformStartup(messageSession, cancellationToken).ConfigureAwait(false);
+        started = true;
     }
 
     public async Task Stop(IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
-        if (instance == null)
+        // An endpoint that fails to start stops its features after StartFeatures has already rolled back,
+        // so a task that never started or was already stopped must not be stopped again.
+        if (instance == null || !started)
         {
             return;
         }
+
+        started = false;
 
         try
         {
@@ -46,6 +51,7 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
     }
 
     FeatureStartupTask? instance;
+    bool started;
 
     static readonly ILog Log = LogManager.GetLogger("FeatureStartupTaskController");
 }
