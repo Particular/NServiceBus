@@ -97,8 +97,15 @@ partial class StartableEndpoint(
     {
         try
         {
-            await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-            await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                // A receiver that honors a canceled token throws, and the transport still needs Shutdown to release its resources.
+                await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
+            }
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {

@@ -95,6 +95,53 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
     }
 
     [Test]
+    [CancelAfter(30_000)]
+    public void Should_shut_down_the_transport_when_a_receiver_stop_is_canceled_after_start_was_canceled(CancellationToken cancellationToken = default)
+    {
+        using var startTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var fakeTransport = new FakeTransport();
+        fakeTransport.RaiseExceptionOnReceiverStop(new OperationCanceledException());
+
+        var builder = Host.CreateApplicationBuilder();
+        builder.Services.AddNServiceBusEndpoint(Create(fakeTransport, "CanceledStartCanceledStop", cancelInStartupTask: startTokenSource));
+        using var host = builder.Build();
+
+        Assert.CatchAsync<OperationCanceledException>(async () => await host.StartAsync(startTokenSource.Token));
+
+        Assert.That(fakeTransport.StartupSequence, Does.Contain(TransportShutdown), "Sequence: " + Describe(fakeTransport.StartupSequence));
+    }
+
+    [Test]
+    [CancelAfter(30_000)]
+    public void Should_shut_down_the_transport_when_a_receiver_stop_is_canceled_while_disposing_an_endpoint_that_never_started(CancellationToken cancellationToken = default)
+    {
+        var fakeTransport = new FakeTransport();
+        fakeTransport.RaiseExceptionOnReceiverStop(new OperationCanceledException());
+
+        var builder = Host.CreateApplicationBuilder();
+        // Registered first so that its StartAsync fails before the endpoint starts, and the host only disposes the endpoint.
+        builder.Services.AddHostedService<FailingHostedService>();
+        builder.Services.AddNServiceBusEndpoint(Create(fakeTransport, "NeverStartedCanceledStop"));
+        using var host = builder.Build();
+
+        Assert.CatchAsync<SimulatedException>(async () => await host.RunAsync(cancellationToken));
+
+        var sequence = fakeTransport.StartupSequence;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence, Does.Not.Contain(StartMain));
+            Assert.That(sequence, Does.Contain(TransportShutdown), "Sequence: " + Describe(sequence));
+        }
+    }
+
+    class FailingHostedService : IHostedService
+    {
+        public Task StartAsync(CancellationToken cancellationToken = default) => throw new SimulatedException("Another hosted service failed to start");
+
+        public Task StopAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
+    [Test]
     public async Task Should_not_start_again()
     {
         var fakeTransport = new FakeTransport();
