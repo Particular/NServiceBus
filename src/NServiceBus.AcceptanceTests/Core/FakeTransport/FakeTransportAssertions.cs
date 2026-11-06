@@ -12,6 +12,8 @@ static class FakeTransportAssertions
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
                 $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.Initialize)} for receiver Main",
-            }, Is.EqualTo(fakeTransport.StartupSequence).AsCollection, "Should not start the receivers");
+                $"{nameof(IMessageReceiver)}.{nameof(IMessageReceiver.StopReceive)} for receiver Main",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Shutdown)}",
+            }, Is.EqualTo(fakeTransport.StartupSequence).AsCollection, "Should not start the receivers, and should shut down the transport");
     }
 }

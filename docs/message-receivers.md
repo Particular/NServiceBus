@@ -15,6 +15,17 @@ After every receiver has stopped, core stops features and then calls `TransportI
 
 A receiver must support `StartReceive` after `StopReceive`.
 
+### When the endpoint does not run
+
+Core also stops the receivers and calls `Shutdown` when an endpoint never reaches the running state:
+
+- Installers-only runs, through `AddNServiceBusInstallers()` or the obsolete `Installer` API. Core never calls `StartReceive`. After setup, it calls `StopReceive` on every receiver and then `Shutdown`.
+- A failed start. When a feature startup task, writing the startup diagnostics file, or a `StartReceive` call throws, core stops the endpoint in the same order as a normal stop and then rethrows the original exception. Core passes the token it received for starting. The endpoint cannot be started again.
+- A failed setup. When anything after `TransportDefinition.Initialize` throws, core calls `StopReceive` on the receivers it initialized and then `Shutdown`.
+- A hosted endpoint that is disposed without being started, for example because another hosted service failed to start. Core passes a token that is already canceled.
+
+On these paths, core calls `StopReceive` on receivers whose `StartReceive` was never called or threw. `StopReceive` must return without error for such a receiver. After a failed setup, `Shutdown` must also tolerate receivers that were never initialized.
+
 ### Subscriptions
 
 Core uses the main receiver's `Subscriptions` property for endpoint subscription operations. Instance-specific and satellite receivers have publish/subscribe disabled.

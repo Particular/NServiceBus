@@ -2,12 +2,15 @@
 namespace NServiceBus.AcceptanceTests.Core.TransportSeam;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using FakeTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using static LifecycleRecordingEndpoint;
 
@@ -37,7 +40,8 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
             Assert.That(exception.ToString(), Does.Contain("Startup task failed"), "The start exception should reach the caller");
             Assert.That(sequence, Does.Contain(StartThrowingTask));
             Assert.That(sequence, Does.Not.Contain(StartMain), "Receivers should not start after a feature fails");
-            Assert.That(sequence, Does.Contain(StopWorkingTask), "Started startup tasks should be stopped. Sequence: " + Describe(sequence));
+            Assert.That(sequence, Does.Not.Contain(StopThrowingTask), "A startup task that failed to start should not be stopped");
+            Assert.That(sequence, Has.Exactly(1).EqualTo(StopWorkingTask), "Started startup tasks should be stopped once. Sequence: " + Describe(sequence));
             Assert.That(sequence, Does.Contain(TransportShutdown), "The transport should be shut down. Sequence: " + Describe(sequence));
         }
     }
@@ -61,9 +65,46 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
             Assert.That(sequence, Does.Contain(StartMain));
             Assert.That(sequence, Does.Contain(StartSatellite));
             Assert.That(sequence, Does.Contain(StopMain), "The started main receiver should be stopped. Sequence: " + Describe(sequence));
-            Assert.That(sequence, Does.Contain(StopWorkingTask), "Started startup tasks should be stopped. Sequence: " + Describe(sequence));
+            Assert.That(sequence, Has.Exactly(1).EqualTo(StopWorkingTask), "Started startup tasks should be stopped once. Sequence: " + Describe(sequence));
             Assert.That(sequence, Does.Contain(TransportShutdown), "The transport should be shut down. Sequence: " + Describe(sequence));
         }
+    }
+
+    [Test]
+    [CancelAfter(30_000)]
+    public void Should_not_log_an_error_when_cleanup_aborts_because_start_was_canceled(CancellationToken cancellationToken = default)
+    {
+        using var startTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var fakeTransport = new FakeTransport();
+        fakeTransport.RaiseExceptionOnReceiverStop(new OperationCanceledException());
+
+        var builder = Host.CreateApplicationBuilder();
+        builder.Logging.ClearProviders();
+        builder.Logging.AddFakeLogging();
+        builder.Services.AddNServiceBusEndpoint(Create(fakeTransport, "CanceledStart", cancelInStartupTask: startTokenSource));
+        using var host = builder.Build();
+
+        Assert.CatchAsync<OperationCanceledException>(async () => await host.StartAsync(startTokenSource.Token), "The start cancellation should reach the caller");
+
+        var sequence = fakeTransport.StartupSequence;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence, Does.Contain(StopMain), "Cleanup should run. Sequence: " + Describe(sequence));
+            Assert.That(ErrorsFrom(host, "NServiceBus.StartableEndpoint"), Is.Empty, "Cleanup that aborts because the caller canceled should not be logged as an error");
+        }
+    }
+
+    [Test]
+    public async Task Should_not_start_again()
+    {
+        var fakeTransport = new FakeTransport();
+        fakeTransport.ThrowOnReceiverStart("Satellite", new SimulatedException("Satellite failed to start"));
+        var startableEndpoint = await Endpoint.Create(Create(fakeTransport, "FailingSatelliteStartedAgain"));
+
+        Assert.ThrowsAsync<SimulatedException>(async () => await startableEndpoint.Start());
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await startableEndpoint.Start());
+
+        Assert.That(fakeTransport.StartupSequence, Has.Exactly(1).EqualTo(StartMain), "Should not start the receivers again");
     }
 
     // Each branch does what an application can do with that API after a failed start.
@@ -94,4 +135,9 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
     }
 
     static string Describe(FakeTransport.StartUpSequence sequence) => string.Join(" -> ", sequence);
+
+    static IEnumerable<string> ErrorsFrom(IHost host, string category) =>
+        host.Services.GetFakeLogCollector().GetSnapshot()
+            .Where(record => record.Category == category && record.Level >= LogLevel.Error)
+            .Select(record => record.Message);
 }

@@ -89,6 +89,11 @@ class BaseEndpointLifecycle(
         {
             if (endpointInstance is null)
             {
+                if (startableEndpoint is not null)
+                {
+                    await startableEndpoint.ShutdownWithoutRunning(cancellationToken).ConfigureAwait(false);
+                }
+
                 return;
             }
 
@@ -115,6 +120,20 @@ class BaseEndpointLifecycle(
         if (instance is not null)
         {
             await instance.DisposeAsync().ConfigureAwait(false);
+        }
+        else if (startableEndpoint is not null)
+        {
+            try
+            {
+                // Like RunningEndpointInstance.DisposeAsync, disposing means the graceful period has already elapsed.
+                await startableEndpoint.ShutdownWithoutRunning(new CancellationToken(true)).ConfigureAwait(false);
+            }
+#pragma warning disable PS0019
+            catch (Exception)
+#pragma warning restore PS0019
+            {
+                // ShutdownWithoutRunning logs failures, and DisposeAsync must not throw.
+            }
         }
 
         if (providerLease is not null)

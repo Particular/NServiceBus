@@ -49,7 +49,7 @@ public class EndpointHostedServiceTests
     }
 
     [Test]
-    public async Task Should_create_but_not_start_endpoint_when_installers_enabled()
+    public async Task Should_create_and_stop_but_not_start_endpoint_when_installers_enabled()
     {
         var lifecycle = new RecordingEndpointLifecycle();
         var hostedService = new EndpointHostedService(lifecycle, new InstallersOptions { Enabled = true });
@@ -61,6 +61,7 @@ public class EndpointHostedServiceTests
         {
             Assert.That(lifecycle.CreateCalls, Is.EqualTo(1));
             Assert.That(lifecycle.StartCalls, Is.Zero);
+            Assert.That(lifecycle.StopCalls, Is.EqualTo(1), "Should stop the endpoint to shut down the transport");
         }
     }
 
