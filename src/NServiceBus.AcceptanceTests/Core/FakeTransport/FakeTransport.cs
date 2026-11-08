@@ -64,6 +64,12 @@ public class FakeTransport : TransportDefinition
         ErrorOnReceiverStart = exception;
     }
 
+    internal Dictionary<string, Exception> ExceptionsOnReceiverInitialize { get; } = [];
+    public void ThrowOnReceiverInitialize(string receiverId, Exception exception)
+    {
+        ExceptionsOnReceiverInitialize[receiverId] = exception;
+    }
+
     internal Dictionary<string, Exception> ExceptionsOnReceiverStart { get; } = [];
     public void ThrowOnReceiverStart(string receiverId, Exception exception)
     {
