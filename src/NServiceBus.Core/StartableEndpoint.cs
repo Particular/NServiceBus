@@ -43,22 +43,9 @@ partial class StartableEndpoint(
 
         transportInfrastructure = await transportSeam.CreateTransportInfrastructure(serviceProvider, hostingComponent.ShouldRunInstallers(serviceProvider), cancellationToken).ConfigureAwait(false);
 
-        // The message session keeps the stopping token for later operations; setup itself only uses cancellationToken.
-#pragma warning disable PS0021
         try
-#pragma warning restore PS0021
         {
-            var pipelineCache = pipelineComponent.BuildPipelineCache(serviceProvider);
-            var messageOperations = sendComponent.CreateMessageOperations(serviceProvider, pipelineComponent);
-            stoppingTokenSource = new CancellationTokenSource();
-
-            messageSession.Initialize(serviceProvider, messageOperations, pipelineCache, stoppingTokenSource.Token);
-
-            var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
-
-            await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, envelopeComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
-
-            AddSendingQueueManifest();
+            await InitializeComponents(cancellationToken).ConfigureAwait(false);
         }
 #pragma warning disable PS0019 // Cleanup runs for cancellation too; the exception is rethrown
         catch (Exception)
@@ -70,56 +57,19 @@ partial class StartableEndpoint(
         }
     }
 
-    // Once Start has created the running instance, that instance owns shutdown, so this method does nothing.
-    public async Task ShutdownWithoutRunning(CancellationToken cancellationToken = default)
+    async Task InitializeComponents(CancellationToken cancellationToken)
     {
-        await startSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+        var pipelineCache = pipelineComponent.BuildPipelineCache(serviceProvider);
+        var messageOperations = sendComponent.CreateMessageOperations(serviceProvider, pipelineComponent);
+        stoppingTokenSource = new CancellationTokenSource();
 
-        try
-        {
-            if (lifecycle != Lifecycle.NotStarted || transportInfrastructure is null)
-            {
-                return;
-            }
+        messageSession.Initialize(serviceProvider, messageOperations, pipelineCache, stoppingTokenSource.Token);
 
-            lifecycle = Lifecycle.ShutdownInitiated;
+        var consecutiveFailuresConfig = settings.Get<ConsecutiveFailuresConfiguration>();
 
-            using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
-            await ShutdownTransport(cancellationToken).ConfigureAwait(false);
-        }
-        finally
-        {
-            startSemaphore.Release();
-        }
-    }
+        await receiveComponent.Initialize(serviceProvider, recoverabilityComponent, envelopeComponent, messageOperations, pipelineComponent, pipelineCache, transportInfrastructure, consecutiveFailuresConfig, cancellationToken).ConfigureAwait(false);
 
-    async Task ShutdownTransport(CancellationToken cancellationToken)
-    {
-        // Both steps run even when the first is canceled, so the transport always gets Shutdown.
-        // A canceled step is not reported, because the caller canceled and any original exception stays more relevant.
-        try
-        {
-            await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
-        {
-            LogStoppingReceiversFailed(logger, ex);
-        }
-        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
-        {
-        }
-
-        try
-        {
-            await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
-        {
-            LogTransportShutdownFailed(logger, ex);
-        }
-        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
-        {
-        }
+        AddSendingQueueManifest();
     }
 
     void AddSendingQueueManifest()
@@ -185,6 +135,58 @@ partial class StartableEndpoint(
         finally
         {
             startSemaphore.Release();
+        }
+    }
+
+    // Once Start has created the running instance, that instance owns shutdown, so this method does nothing.
+    public async Task ShutdownWithoutRunning(CancellationToken cancellationToken = default)
+    {
+        await startSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+
+        try
+        {
+            if (lifecycle != Lifecycle.NotStarted || transportInfrastructure is null)
+            {
+                return;
+            }
+
+            lifecycle = Lifecycle.ShutdownInitiated;
+
+            using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
+            await ShutdownTransport(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            startSemaphore.Release();
+        }
+    }
+
+    async Task ShutdownTransport(CancellationToken cancellationToken)
+    {
+        // Both steps run even when the first is canceled, so the transport always gets Shutdown.
+        // A canceled step is not reported, because the caller canceled and any original exception stays more relevant.
+        try
+        {
+            await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+        {
+            LogStoppingReceiversFailed(logger, ex);
+        }
+        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+        {
+        }
+
+        try
+        {
+            await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+        {
+            LogTransportShutdownFailed(logger, ex);
+        }
+        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+        {
         }
     }
 
