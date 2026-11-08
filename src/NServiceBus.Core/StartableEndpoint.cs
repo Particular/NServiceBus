@@ -38,7 +38,7 @@ partial class StartableEndpoint(
     {
         using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
 
-        // Resolved here because the shutdown paths can run while the service provider is being disposed.
+        // Resolved during setup because the DisposeAsync path runs while the container is being disposed and can no longer resolve services.
         logger = serviceProvider.GetRequiredService<ILogger<StartableEndpoint>>();
 
         transportInfrastructure = await transportSeam.CreateTransportInfrastructure(serviceProvider, hostingComponent.ShouldRunInstallers(serviceProvider), cancellationToken).ConfigureAwait(false);
@@ -190,19 +190,22 @@ partial class StartableEndpoint(
 
     static async Task StopAfterFailedStart(RunningEndpointInstance runningInstance, ILogger logger, CancellationToken cancellationToken)
     {
+        // StopCore and DisposeAsync are called separately so that logging happens before a self-hosted endpoint disposes the container that owns the logger factory.
         try
         {
-            await runningInstance.Stop(cancellationToken).ConfigureAwait(false);
+            await runningInstance.StopCore(cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
         {
             LogStopAfterFailedStartFailed(logger, ex);
         }
-#pragma warning disable PS0019
-        catch (Exception)
-#pragma warning restore PS0019
+        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
         {
             // The caller canceled the start, so an aborted cleanup is expected. The start exception stays more relevant to the caller.
+        }
+        finally
+        {
+            await runningInstance.DisposeAsync().ConfigureAwait(false);
         }
     }
 
