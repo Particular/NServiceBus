@@ -64,7 +64,7 @@ partial class StartableEndpoint(
         catch (Exception)
 #pragma warning restore PS0019
         {
-            transportShutDown = true;
+            lifecycle = Lifecycle.ShutdownInitiated;
             await ShutdownTransport(cancellationToken).ConfigureAwait(false);
             throw;
         }
@@ -77,12 +77,12 @@ partial class StartableEndpoint(
 
         try
         {
-            if (runningInstanceCreated || transportShutDown || transportInfrastructure is null)
+            if (lifecycle != Lifecycle.NotStarted || transportInfrastructure is null)
             {
                 return;
             }
 
-            transportShutDown = true;
+            lifecycle = Lifecycle.ShutdownInitiated;
 
             using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
             await ShutdownTransport(cancellationToken).ConfigureAwait(false);
@@ -144,7 +144,7 @@ partial class StartableEndpoint(
                 return endpointInstance;
             }
 
-            if (runningInstanceCreated || transportShutDown)
+            if (lifecycle != Lifecycle.NotStarted)
             {
                 throw new InvalidOperationException("The endpoint failed to start or was shut down without running, and cannot be started.");
             }
@@ -159,7 +159,7 @@ partial class StartableEndpoint(
             // Created before anything starts so that a failed start, and a critical error raised while starting,
             // both stop the endpoint through the same StopCore sequence.
             var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, serviceProviderLease, hostingComponent.Config.EndpointLogSlot);
-            runningInstanceCreated = true;
+            lifecycle = Lifecycle.RunningInstanceCreated;
 
             hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 
@@ -209,10 +209,17 @@ partial class StartableEndpoint(
     TransportInfrastructure transportInfrastructure;
     CancellationTokenSource stoppingTokenSource;
     volatile RunningEndpointInstance endpointInstance = null!;
-    bool runningInstanceCreated;
-    bool transportShutDown;
+    Lifecycle lifecycle = Lifecycle.NotStarted;
     readonly SemaphoreSlim startSemaphore = new(1, 1);
     ILogger logger = null!;
+
+    // Start and ShutdownWithoutRunning act only from NotStarted. ShutdownInitiated stays set when Shutdown fails.
+    enum Lifecycle
+    {
+        NotStarted,
+        RunningInstanceCreated,
+        ShutdownInitiated
+    }
 
     [LoggerMessage(LogLevel.Error, "Stopping the receivers failed.")]
     static partial void LogStoppingReceiversFailed(ILogger logger, Exception exception);
