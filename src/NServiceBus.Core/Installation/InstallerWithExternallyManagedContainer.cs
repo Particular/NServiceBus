@@ -22,8 +22,7 @@ public class InstallerWithExternallyManagedContainer
     public async Task Setup(IServiceProvider builder, CancellationToken cancellationToken = default)
     {
         var creationStrategy = new ExternalContainerEndpointCreationStrategy(endpointCreator);
-        var endpoint = await EndpointPreparation.Prepare(creationStrategy, builder, cancellationToken)
+        await EndpointPreparation.RunInstallersWithoutStartingTheEndpoint(creationStrategy, builder, cancellationToken)
             .ConfigureAwait(false);
-        await endpoint.ShutdownWithoutRunning(cancellationToken).ConfigureAwait(false);
     }
 }
