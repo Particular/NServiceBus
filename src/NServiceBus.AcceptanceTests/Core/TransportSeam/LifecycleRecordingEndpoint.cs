@@ -68,7 +68,7 @@ static class LifecycleRecordingEndpoint
         }
     }
 
-    // Cancels the token the caller passed to start, the way a host does when start takes too long.
+    // Simulates a host that cancels a start that takes too long.
     class CancelingStartupTask(CancellationTokenSource tokenSource) : FeatureStartupTask
     {
         protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)

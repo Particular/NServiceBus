@@ -154,7 +154,6 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
         Assert.That(fakeTransport.StartupSequence, Has.Exactly(1).EqualTo(StartMain), "Should not start the receivers again");
     }
 
-    // Each branch does what an application can do with that API after a failed start.
     static async Task<Exception> StartExpectingFailure(HostingApi hostingApi, EndpointConfiguration endpointConfiguration, CancellationToken cancellationToken)
     {
         switch (hostingApi)

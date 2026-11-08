@@ -190,7 +190,7 @@ partial class StartableEndpoint(
 
     static async Task StopAfterFailedStart(RunningEndpointInstance runningInstance, ILogger logger, CancellationToken cancellationToken)
     {
-        // StopCore and DisposeAsync are called separately so that logging happens before a self-hosted endpoint disposes the container that owns the logger factory.
+        // Logs before DisposeAsync, because a self-hosted endpoint disposes the container that owns the logger factory.
         try
         {
             await runningInstance.StopCore(cancellationToken).ConfigureAwait(false);
@@ -216,7 +216,7 @@ partial class StartableEndpoint(
     readonly SemaphoreSlim startSemaphore = new(1, 1);
     ILogger logger = null!;
 
-    // Start and ShutdownWithoutRunning act only from NotStarted. ShutdownInitiated stays set when Shutdown fails.
+    // ShutdownInitiated stays set when Shutdown fails.
     enum Lifecycle
     {
         NotStarted,
