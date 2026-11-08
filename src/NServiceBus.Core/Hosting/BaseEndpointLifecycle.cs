@@ -87,13 +87,14 @@ class BaseEndpointLifecycle(
 
         try
         {
+            if (startableEndpoint is null)
+            {
+                return;
+            }
+
             if (endpointInstance is null)
             {
-                if (startableEndpoint is not null)
-                {
-                    await startableEndpoint.ShutdownWithoutRunning(cancellationToken).ConfigureAwait(false);
-                }
-
+                await startableEndpoint.ShutdownWithoutRunning(cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -112,21 +113,30 @@ class BaseEndpointLifecycle(
             return;
         }
 
+        // Like RunningEndpointInstance.DisposeAsync, disposing means the graceful period has already elapsed.
+        await DisposeEndpoint(new CancellationToken(true)).ConfigureAwait(false);
+
+        if (providerLease is not null)
+        {
+            await providerLease.DisposeAsync().ConfigureAwait(false);
+        }
+    }
+
+    async ValueTask DisposeEndpoint(CancellationToken cancellationToken)
+    {
+        if (startableEndpoint is null)
+        {
+            return;
+        }
+
         var instance = endpointInstance;
         endpointInstance = null;
 
-        // DisposeAsync calls Stop internally, which is idempotent. This ensures
-        // cleanup runs even if Stop was never called or threw.
-        if (instance is not null)
-        {
-            await instance.DisposeAsync().ConfigureAwait(false);
-        }
-        else if (startableEndpoint is not null)
+        if (instance is null)
         {
             try
             {
-                // Like RunningEndpointInstance.DisposeAsync, disposing means the graceful period has already elapsed.
-                await startableEndpoint.ShutdownWithoutRunning(new CancellationToken(true)).ConfigureAwait(false);
+                await startableEndpoint.ShutdownWithoutRunning(cancellationToken).ConfigureAwait(false);
             }
 #pragma warning disable PS0019
             catch (Exception)
@@ -134,12 +144,13 @@ class BaseEndpointLifecycle(
             {
                 // ShutdownWithoutRunning logs failures, and DisposeAsync must not throw.
             }
+
+            return;
         }
 
-        if (providerLease is not null)
-        {
-            await providerLease.DisposeAsync().ConfigureAwait(false);
-        }
+        // DisposeAsync calls Stop internally, which is idempotent. This ensures
+        // cleanup runs even if Stop was never called or threw.
+        await instance.DisposeAsync().ConfigureAwait(false);
     }
 
     readonly SemaphoreSlim lifeCycleSemaphore = new(1, 1);
