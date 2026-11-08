@@ -11,7 +11,7 @@ Transports implement `IMessageReceiver` to receive messages for core. Transport 
 3. `ChangeConcurrency` any number of times while the receiver runs, only when consecutive-failure rate limiting is configured. See [Changing concurrency](#changing-concurrency).
 4. `StopReceive` once, when the endpoint stops. Core passes the endpoint's stop token. Under the generic host, this is the token that `IHostedService.StopAsync` receives, which is canceled when the host's shutdown timeout expires. When an endpoint is disposed without being stopped, core passes a token that is already canceled.
 
-After every receiver has stopped, core stops features and then calls `TransportInfrastructure.Shutdown`. `Shutdown` may call `StopReceive` again, so `StopReceive` must be safe to call on a receiver that has already stopped. When a transport is used without an endpoint, the caller should stop every receiver before calling `Shutdown`.
+After every receiver has stopped, core stops features and then calls `TransportInfrastructure.Shutdown`. Core also calls `Shutdown` when a `StopReceive` call throws because the stop token was canceled. `Shutdown` may call `StopReceive` again, so `StopReceive` must be safe to call on a receiver that has already stopped. When a transport is used without an endpoint, the caller should stop every receiver before calling `Shutdown`.
 
 A receiver must support `StartReceive` after `StopReceive`.
 
