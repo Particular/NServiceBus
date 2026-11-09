@@ -66,22 +66,46 @@ class RunningEndpointInstance(SettingsHolder settings,
             status = Status.Stopping;
 
             using var _ = LogManager.BeginSlotScope(endpointLogSlot);
-            await using var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."))
+            await using var tokenRegistration = cancellationToken.Register(() => Log.Warn("Aborting graceful shutdown."))
                 .ConfigureAwait(false);
             Log.Info("Initiating shutdown.");
 
             await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
 
+            // Every step runs even when an earlier one is canceled, so the transport always gets Shutdown.
+            // Cancellation only ends graceful shutdown, so it is not rethrown.
             try
             {
-                // Cannot throw by design
                 await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stopping the receivers failed.", ex);
+            }
 
-                // Can throw
+            try
+            {
+                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stopping the features failed.", ex);
+            }
+
+            try
+            {
                 await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+            }
+            catch (Exception ex)
             {
                 Log.Error("Shutdown of the transport infrastructure failed.", ex);
             }

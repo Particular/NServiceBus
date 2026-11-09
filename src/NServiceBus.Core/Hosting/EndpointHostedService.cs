@@ -23,6 +23,8 @@ sealed class EndpointHostedService(IEndpointLifecycle endpointLifecycle, Install
     {
         if (installersOptions?.Enabled ?? false)
         {
+            // The endpoint never starts in an installers-only host, so stopping it now shuts down the transport.
+            await endpointLifecycle.Stop(cancellationToken).ConfigureAwait(false);
             return;
         }
 

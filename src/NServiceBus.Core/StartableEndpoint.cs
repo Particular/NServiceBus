@@ -8,10 +8,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Features;
 using Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Settings;
 using Transport;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-class StartableEndpoint(
+partial class StartableEndpoint(
     SettingsHolder settings,
     FeatureComponent featureComponent,
     EnvelopeComponent envelopeComponent,
@@ -35,8 +38,27 @@ class StartableEndpoint(
     {
         using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
 
+        // Resolved during setup because the DisposeAsync path runs while the container is being disposed and can no longer resolve services.
+        logger = serviceProvider.GetRequiredService<ILogger<StartableEndpoint>>();
+
         transportInfrastructure = await transportSeam.CreateTransportInfrastructure(serviceProvider, hostingComponent.ShouldRunInstallers(serviceProvider), cancellationToken).ConfigureAwait(false);
 
+        try
+        {
+            await InitializeComponents(cancellationToken).ConfigureAwait(false);
+        }
+#pragma warning disable PS0019 // Cleanup runs for cancellation too; the exception is rethrown
+        catch (Exception)
+#pragma warning restore PS0019
+        {
+            lifecycle = Lifecycle.ShutdownInitiated;
+            await ShutdownTransport(cancellationToken).ConfigureAwait(false);
+            throw;
+        }
+    }
+
+    async Task InitializeComponents(CancellationToken cancellationToken)
+    {
         var pipelineCache = pipelineComponent.BuildPipelineCache(serviceProvider);
         var messageOperations = sendComponent.CreateMessageOperations(serviceProvider, pipelineComponent);
         stoppingTokenSource = new CancellationTokenSource();
@@ -72,6 +94,11 @@ class StartableEndpoint(
                 return endpointInstance;
             }
 
+            if (lifecycle != Lifecycle.NotStarted)
+            {
+                throw new InvalidOperationException("The endpoint failed to start or was shut down without running, and cannot be started.");
+            }
+
             using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -79,15 +106,28 @@ class StartableEndpoint(
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             }
 
-            await featureComponent.StartFeatures(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
-
-            await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
-
+            // Created before anything starts so that a failed start, and a critical error raised while starting,
+            // both stop the endpoint through the same StopCore sequence.
             var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, serviceProviderLease, hostingComponent.Config.EndpointLogSlot);
+            lifecycle = Lifecycle.RunningInstanceCreated;
 
             hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 
-            await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await featureComponent.StartFeatures(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
+
+                await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);
+
+                await receiveComponent.Start(cancellationToken).ConfigureAwait(false);
+            }
+#pragma warning disable PS0019 // Cleanup runs for cancellation too; the exception is rethrown
+            catch (Exception)
+#pragma warning restore PS0019
+            {
+                await StopAfterFailedStart(runningInstance, logger, cancellationToken).ConfigureAwait(false);
+                throw;
+            }
 
             endpointInstance = runningInstance;
             return endpointInstance;
@@ -98,8 +138,96 @@ class StartableEndpoint(
         }
     }
 
+    // Once Start has created the running instance, that instance owns shutdown, so this method does nothing.
+    public async Task ShutdownWithoutRunning(CancellationToken cancellationToken = default)
+    {
+        await startSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+
+        try
+        {
+            if (lifecycle != Lifecycle.NotStarted || transportInfrastructure is null)
+            {
+                return;
+            }
+
+            lifecycle = Lifecycle.ShutdownInitiated;
+
+            using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
+            await ShutdownTransport(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            startSemaphore.Release();
+        }
+    }
+
+    async Task ShutdownTransport(CancellationToken cancellationToken)
+    {
+        // Both steps run even when the first is canceled, so the transport always gets Shutdown.
+        // A canceled step is not reported, because the caller canceled and any original exception stays more relevant.
+        try
+        {
+            await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+        {
+            LogStoppingReceiversFailed(logger, ex);
+        }
+        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+        {
+        }
+
+        try
+        {
+            await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+        {
+            LogTransportShutdownFailed(logger, ex);
+        }
+        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+        {
+        }
+    }
+
+    static async Task StopAfterFailedStart(RunningEndpointInstance runningInstance, ILogger logger, CancellationToken cancellationToken)
+    {
+        // Logs before DisposeAsync, because a self-hosted endpoint disposes the container that owns the logger factory.
+        try
+        {
+            await runningInstance.StopCore(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+        {
+            LogStopAfterFailedStartFailed(logger, ex);
+        }
+        finally
+        {
+            await runningInstance.DisposeAsync().ConfigureAwait(false);
+        }
+    }
+
     TransportInfrastructure transportInfrastructure;
     CancellationTokenSource stoppingTokenSource;
     volatile RunningEndpointInstance endpointInstance = null!;
+    Lifecycle lifecycle = Lifecycle.NotStarted;
     readonly SemaphoreSlim startSemaphore = new(1, 1);
+    ILogger logger = null!;
+
+    // ShutdownInitiated stays set when Shutdown fails.
+    enum Lifecycle
+    {
+        NotStarted,
+        RunningInstanceCreated,
+        ShutdownInitiated
+    }
+
+    [LoggerMessage(LogLevel.Error, "Stopping the receivers failed.")]
+    static partial void LogStoppingReceiversFailed(ILogger logger, Exception exception);
+
+    [LoggerMessage(LogLevel.Error, "Shutdown of the transport infrastructure failed.")]
+    static partial void LogTransportShutdownFailed(ILogger logger, Exception exception);
+
+    [LoggerMessage(LogLevel.Error, "Stopping the endpoint after it failed to start failed.")]
+    static partial void LogStopAfterFailedStartFailed(ILogger logger, Exception exception);
 }

@@ -11,9 +11,20 @@ Transports implement `IMessageReceiver` to receive messages for core. Transport 
 3. `ChangeConcurrency` any number of times while the receiver runs, only when consecutive-failure rate limiting is configured. See [Changing concurrency](#changing-concurrency).
 4. `StopReceive` once, when the endpoint stops. Core passes the endpoint's stop token. Under the generic host, this is the token that `IHostedService.StopAsync` receives, which is canceled when the host's shutdown timeout expires. When an endpoint is disposed without being stopped, core passes a token that is already canceled.
 
-After every receiver has stopped, core stops features and then calls `TransportInfrastructure.Shutdown`. `Shutdown` may call `StopReceive` again, so `StopReceive` must be safe to call on a receiver that has already stopped. When a transport is used without an endpoint, the caller should stop every receiver before calling `Shutdown`.
+After every receiver has stopped, core stops features and then calls `TransportInfrastructure.Shutdown`. Core also calls `Shutdown` when a `StopReceive` call throws because the stop token was canceled. `Shutdown` may call `StopReceive` again, so `StopReceive` must be safe to call on a receiver that has already stopped. When a transport is used without an endpoint, the caller should stop every receiver before calling `Shutdown`.
 
 A receiver must support `StartReceive` after `StopReceive`.
+
+### When the endpoint does not run
+
+Core also stops the receivers and calls `Shutdown` when an endpoint never reaches the running state:
+
+- Installers-only runs, through `AddNServiceBusInstallers()` or the obsolete `Installer` API. Core never calls `StartReceive`. After setup, it calls `StopReceive` on every receiver and then `Shutdown`.
+- A failed start. When a feature startup task, writing the startup diagnostics file, or a `StartReceive` call throws, core stops the endpoint in the same order as a normal stop and then rethrows the original exception. Core passes the token it received for starting. The endpoint cannot be started again.
+- A failed setup. When anything after `TransportDefinition.Initialize` throws, core calls `StopReceive` on the receivers it initialized and then `Shutdown`.
+- A hosted endpoint that is disposed without being started, for example because another hosted service failed to start. Core passes a token that is already canceled.
+
+On these paths, core calls `StopReceive` on receivers whose `StartReceive` was never called or threw. `StopReceive` must return without error for such a receiver. After a failed setup, `Shutdown` must also tolerate receivers that were never initialized.
 
 ### Subscriptions
 
