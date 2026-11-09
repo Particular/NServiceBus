@@ -16,7 +16,7 @@ public class When_stop_is_canceled_and_shutdown_fails : NServiceBusAcceptanceTes
 {
     [Test]
     [CancelAfter(30_000)]
-    public async Task Should_report_both_the_cancellation_and_the_shutdown_failure(CancellationToken cancellationToken = default)
+    public async Task Should_complete_the_stop_and_log_the_shutdown_failure(CancellationToken cancellationToken = default)
     {
         var fakeTransport = new FakeTransport();
         fakeTransport.RaiseExceptionOnReceiverStop(new OperationCanceledException());
@@ -32,7 +32,7 @@ public class When_stop_is_canceled_and_shutdown_fails : NServiceBusAcceptanceTes
         using var stopTokenSource = new CancellationTokenSource();
         await stopTokenSource.CancelAsync();
 
-        Assert.CatchAsync<OperationCanceledException>(async () => await host.StopAsync(stopTokenSource.Token), "A canceled stop should reach the caller");
+        Assert.DoesNotThrowAsync(async () => await host.StopAsync(stopTokenSource.Token), "A canceled stop only ends graceful shutdown");
 
         var shutdownErrors = host.Services.GetFakeLogCollector().GetSnapshot()
             .Where(record => record.Level == LogLevel.Error && record.Message.Contains("Shutdown of the transport infrastructure failed."))
