@@ -201,10 +201,6 @@ partial class StartableEndpoint(
         {
             LogStopAfterFailedStartFailed(logger, ex);
         }
-        catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
-        {
-            // The caller canceled the start, so an aborted cleanup is expected. The start exception stays more relevant to the caller.
-        }
         finally
         {
             await runningInstance.DisposeAsync().ConfigureAwait(false);
