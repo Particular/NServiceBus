@@ -44,7 +44,8 @@ sealed class ActivityFactory : IActivityFactory
                 ActivityLink[] links = [new ActivityLink(sendSpanContext)];
                 //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
                 Activity.Current = null;
-                activity = ActivitySources.Main.StartActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links);
+                // CreateActivity instead of StartActivity: the activity is started below, and starting it twice makes Activity throw and swallow exceptions
+                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links, idFormat: ActivityIdFormat.W3C);
             }
             else
             {

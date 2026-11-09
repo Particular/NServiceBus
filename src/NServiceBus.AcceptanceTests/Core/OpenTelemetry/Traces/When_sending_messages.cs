@@ -1,9 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
@@ -104,6 +107,41 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         ActivityLink link = receiveRequest.Links.FirstOrDefault();
         Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "Receive has a link");
         Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "receive is linked to send operation");
+    }
+
+    [Test]
+    public async Task Should_not_throw_when_starting_incoming_activity_for_new_trace()
+    {
+        var exceptions = new ConcurrentQueue<Exception>();
+        void OnFirstChanceException(object sender, FirstChanceExceptionEventArgs e)
+        {
+            // Activity swallows invalid usage by throwing and catching, so only the stack tells where it came from
+            if (e.Exception is InvalidOperationException && Environment.StackTrace.Contains("ActivityFactory.StartIncomingPipelineActivity"))
+            {
+                exceptions.Enqueue(e.Exception);
+            }
+        }
+
+        AppDomain.CurrentDomain.FirstChanceException += OnFirstChanceException;
+        try
+        {
+            await Scenario.Define<Context>()
+                .WithEndpoint<TestEndpoint>(b => b
+                    .When(s =>
+                    {
+                        var sendOptions = new SendOptions();
+                        sendOptions.RouteToThisEndpoint();
+                        sendOptions.StartNewTraceOnReceive();
+                        return s.Send(new OutgoingMessage(), sendOptions);
+                    }))
+                .Run();
+        }
+        finally
+        {
+            AppDomain.CurrentDomain.FirstChanceException -= OnFirstChanceException;
+        }
+
+        Assert.That(exceptions, Is.Empty, "starting the incoming activity should not cause Activity to throw");
     }
 
     public class Context : ScenarioContext
