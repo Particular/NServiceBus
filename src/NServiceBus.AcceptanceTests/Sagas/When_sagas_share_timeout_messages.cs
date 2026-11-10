@@ -11,7 +11,7 @@ public class When_sagas_share_timeout_messages : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_invoke_instance_that_requested_the_timeout()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(e => e.When(s => s.SendLocal(new StartSagaMessage

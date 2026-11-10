@@ -20,7 +20,7 @@ public partial class TestSuiteConstraints
 
     public bool SupportsPurgeOnStartup => true;
 
-    public bool SupportsTTBR => true;
+    public bool SupportsDelayedSends => false;
 
     public IConfigureEndpointTestExecution CreateTransportConfiguration()
         => new ConfigureEndpointAcceptanceTestingTransport(SupportsNativePubSub, SupportsDelayedDelivery, enforcePublisherMetadata: EnforcePublisherMetadata);

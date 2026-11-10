@@ -13,7 +13,7 @@ public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_start_the_saga_and_request_a_timeout()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SagaThatPublishesAnEvent>(b =>

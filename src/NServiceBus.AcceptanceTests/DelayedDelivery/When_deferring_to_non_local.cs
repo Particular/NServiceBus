@@ -12,7 +12,7 @@ public class When_deferring_to_non_local : NServiceBusAcceptanceTest
     [Test]
     public async Task Message_should_be_received()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var delay = TimeSpan.FromSeconds(5); // High value needed as most transports have multi second delay latency by default
 

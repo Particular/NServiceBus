@@ -11,7 +11,7 @@ public class When_timeout_hit_not_found_saga : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_not_fire_notfound_for_tm()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga { DataId = Guid.NewGuid() })))

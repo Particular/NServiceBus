@@ -11,14 +11,10 @@ using NUnit.Framework;
 public class When_TimeToBeReceived_has_expired_convention : NServiceBusAcceptanceTest
 {
     [Test]
-    public async Task Message_should_not_be_received()
-    {
-        Requires.TTBRSupport();
-
+    public async Task Message_should_not_be_received() =>
         await Assert.ThatAsync(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>()
             .Run(), Throws.Nothing);
-    }
 
     public class Context : ScenarioContext;
 

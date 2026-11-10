@@ -16,7 +16,7 @@ public partial class TestSuiteConstraints
 
     public bool SupportsPurgeOnStartup => true;
 
-    public bool SupportsTTBR => true;
+    public bool SupportsDelayedSends => true;
 
     public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointLearningTransport();
 

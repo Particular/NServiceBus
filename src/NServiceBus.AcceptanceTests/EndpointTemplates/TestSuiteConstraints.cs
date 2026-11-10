@@ -10,16 +10,17 @@ public interface ITestSuiteConstraints
 
     bool SupportsNativePubSub { get; }
 
+    // Automatic delayed retries that core's recoverability policy requests after a handler
+    // fails. See https://github.com/Particular/NServiceBus/blob/master/docs/recoverability.md#dispatching-from-recoverability
     bool SupportsDelayedDelivery { get; }
 
     bool SupportsOutbox { get; }
 
     bool SupportsPurgeOnStartup { get; }
 
-    // Defaulted to true, so that existing downstream implementations of
-    // TestSuiteConstraints that predate this flag keep compiling when they pick up a newer
-    // NServiceBus.AcceptanceTests.Sources package
-    bool SupportsTTBR => true;
+    // Delayed sends the application requests: a deferred send with DelayDeliveryWith or
+    // DoNotDeliverBefore, and a saga timeout, which core sends to the saga's input queue.
+    bool SupportsDelayedSends => true;
 
     IConfigureEndpointTestExecution CreateTransportConfiguration();
 
@@ -29,8 +30,8 @@ public interface ITestSuiteConstraints
 public partial class TestSuiteConstraints : ITestSuiteConstraints
 {
     // Typed as the interface, not the concrete class, so that a flag with a default
-    // implementation (such as SupportsTTBR above) resolves through interface dispatch for every
-    // caller. A property that exists only on TestSuiteConstraints itself, and not on the
+    // implementation (such as SupportsDelayedSends above) resolves through interface dispatch for
+    // every caller. A property that exists only on TestSuiteConstraints itself, and not on the
     // interface, would not be reachable through Current if it were typed as TestSuiteConstraints.
     public static ITestSuiteConstraints Current { get; } = new TestSuiteConstraints();
 }

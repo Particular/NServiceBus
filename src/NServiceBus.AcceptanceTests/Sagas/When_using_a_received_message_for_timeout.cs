@@ -11,7 +11,7 @@ public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTe
     [Test]
     public async Task Timeout_should_be_received_after_expiration()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<ReceiveMessageForTimeoutEndpoint>(g => g.When(session => session.SendLocal(new StartSagaMessage

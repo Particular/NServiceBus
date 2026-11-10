@@ -60,11 +60,11 @@ static partial class Requires
         }
     }
 
-    public static void TTBRSupport()
+    public static void DelayedSends()
     {
-        if (!TestSuiteConstraints.Current.SupportsTTBR)
+        if (!TestSuiteConstraints.Current.SupportsDelayedSends)
         {
-            Assert.Ignore("Ignoring this test because it requires TTBR support from the transport.");
+            Assert.Ignore("Ignoring this test because it requires a deferred send or a saga timeout, which this transport does not support.");
         }
     }
 }
