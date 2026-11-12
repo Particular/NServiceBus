@@ -59,4 +59,12 @@ static partial class Requires
             Assert.Ignore("Ignoring this tests because it requires a transport able to purge queues at startup.");
         }
     }
+
+    public static void DelayedSends()
+    {
+        if (!TestSuiteConstraints.Current.SupportsDelayedSends)
+        {
+            Assert.Ignore("Ignoring this test because it requires a deferred send or a saga timeout, which this transport does not support.");
+        }
+    }
 }

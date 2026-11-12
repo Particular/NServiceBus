@@ -11,7 +11,7 @@ public class When_deferring_a_message : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_delay_delivery()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var delay = TimeSpan.FromSeconds(5); // High value needed as most transports have multi second delay latency by default
 

@@ -13,7 +13,7 @@ public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
     [Test, CancelAfter(60_000)]
     public async Task It_should_not_invoke_SagaNotFound_handler(CancellationToken cancellationToken = default)
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new StartSaga1 { ContextId = c.Id })))

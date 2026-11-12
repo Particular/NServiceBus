@@ -11,7 +11,7 @@ public class When_using_contain_saga_data : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_handle_timeouts_properly()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<EndpointThatHostsASaga>(

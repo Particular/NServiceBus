@@ -11,7 +11,7 @@ public class When_deferring_a_message_to_the_past : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_deliver_message()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b => b.When((bus, c) =>

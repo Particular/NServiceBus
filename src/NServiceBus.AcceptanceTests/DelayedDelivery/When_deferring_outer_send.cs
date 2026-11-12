@@ -13,7 +13,7 @@ public class When_deferring_outer_send : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_not_defer_inner_send()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SenderWithNestedSend>(e => e

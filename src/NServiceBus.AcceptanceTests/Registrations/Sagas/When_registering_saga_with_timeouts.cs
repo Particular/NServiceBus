@@ -11,7 +11,7 @@ public class When_registering_saga_with_timeouts : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_register_timeout_handler_with_manually_registered_saga([Values] RegistrationApproach approach)
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedSends();
 
         var id = Guid.NewGuid();
 
