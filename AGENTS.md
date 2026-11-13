@@ -33,12 +33,18 @@ Prefer public records close to the implementation. Keep `docs/README.md` current
 
 Every change to code under `src/` keeps `docs/` accurate. This applies to changes written by people and by coding agents.
 
-1. Before you change code, read `docs/README.md`. Then read the `docs/` pages, ADRs, and upstream contracts it links for the area you change.
-2. After you change code, review each `docs/` page and ADR that describes the changed behavior, configuration, or constraints.
-3. Update a `docs/` page in the same change when the code makes it inaccurate or incomplete.
-4. Update `docs/README.md` when you add, replace, or retire a canonical source.
-5. When the change conflicts with an ADR, flag the conflict in the pull request and ask the owner before you change the ADR or the code.
-6. In the pull request description, or in the response for unpublished work, list the `docs/` pages you reviewed and what you changed. When no update is needed, say so and give the reason.
+1. Before you change code, read `docs/README.md`. Then read the `docs/` pages, guidelines, ADRs, and upstream contracts it links for the area you change.
+2. Read `docs/README.md` and each guideline it lists that applies to the change. An entry states when its guideline applies: to every change under its paths, to a kind of change, or to code of a certain shape. Decide from that statement, not from the guideline's subject. Follow each guideline that applies, and load its skill, if it names one, before you change code. The guideline controls: when the skill disagrees with it, follow the guideline and report the difference.
+3. After you change code, review each `docs/` page and ADR that describes the changed behavior, configuration, or constraints.
+4. Update a `docs/` page in the same change when the code makes it inaccurate or incomplete. Write the page as the current design, so it stays true after the next change: no "now", "no longer", "used to", "previously", or "replaces". What changed goes in the pull request description.
+5. Update `docs/README.md` when you add, replace, or retire a canonical source.
+6. When the change conflicts with an ADR, flag the conflict in the pull request and ask the owner before you change the ADR or the code.
+7. In the pull request description, or in the response for unpublished work, list the `docs/` pages you reviewed and what you changed. When no update is needed, say so and give the reason.
+8. In the pull request description, or in the response for unpublished work, add a line that starts with `Guidelines:` and names each guideline that applies to the change and whether you followed it, or says that none applies. Name any rule you did not follow, with the reason.
+
+## Guidelines and skills
+
+`docs/guidelines/` holds rules that a change in this repository must follow. Each guideline states when it applies, and `docs/README.md` lists every guideline with that statement and its main rule in one clause. Skills live under `.agents/skills/`; `.claude/skills/` only links to them, so edit a skill only under `.agents/skills/`. A skill that applies a guideline links to it and does not restate it, and the guideline controls. A skill that sets no rule, such as a procedure for running a test suite, can stand alone. Put a rule that a reviewer would enforce in a guideline, not only in a skill. `docs/guidelines/README.md` describes the structure of both.
 
 ## Writing
 
