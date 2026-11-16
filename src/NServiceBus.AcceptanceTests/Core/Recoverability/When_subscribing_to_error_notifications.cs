@@ -13,7 +13,7 @@ public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
     [Test]
     public async Task Should_retain_exception_details_over_immediate_and_delayed_retries()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<DelayedRetriesEndpoint>(b =>

@@ -14,7 +14,7 @@ public class When_custom_policy_executed : NServiceBusAcceptanceTest
     [Test]
     public void Should_provide_error_context_to_policy()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b =>

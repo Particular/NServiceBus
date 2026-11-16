@@ -44,6 +44,14 @@ static partial class Requires
         }
     }
 
+    public static void DelayedRetries()
+    {
+        if (!TestSuiteConstraints.Current.SupportsDelayedRetries)
+        {
+            Assert.Ignore("Ignoring this test because it requires delayed retries support from the transport.");
+        }
+    }
+
     public static void OutboxPersistence()
     {
         if (!TestSuiteConstraints.Current.SupportsOutbox)

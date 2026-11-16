@@ -12,6 +12,9 @@ public interface ITestSuiteConstraints
 
     bool SupportsDelayedDelivery { get; }
 
+    // Defaults to SupportsDelayedDelivery so existing implementations run the same tests as before.
+    bool SupportsDelayedRetries => SupportsDelayedDelivery;
+
     bool SupportsOutbox { get; }
 
     bool SupportsPurgeOnStartup { get; }
@@ -23,5 +26,6 @@ public interface ITestSuiteConstraints
 
 public partial class TestSuiteConstraints : ITestSuiteConstraints
 {
-    public static TestSuiteConstraints Current { get; } = new TestSuiteConstraints();
+    // Typed as the interface so that callers reach default interface members.
+    public static ITestSuiteConstraints Current { get; } = new TestSuiteConstraints();
 }

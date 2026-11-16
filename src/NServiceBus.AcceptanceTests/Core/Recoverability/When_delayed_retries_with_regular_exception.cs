@@ -14,7 +14,7 @@ public class When_delayed_retries_with_regular_exception : NServiceBusAcceptance
     [Test]
     public void Should_preserve_the_original_body_for_regular_exceptions()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b

@@ -12,7 +12,7 @@ public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusA
     [Test]
     public void Should_reschedule_message_the_configured_number_of_times()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<RetryEndpoint>(b => b
