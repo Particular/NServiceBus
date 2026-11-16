@@ -19,7 +19,7 @@ The split has to work within these constraints:
 
 Add `ITestSuiteConstraints.SupportsDelayedRetries` for delayed retries. `SupportsDelayedDelivery` covers deferred sends and saga timeouts, the same meaning as the `DelayDeliveryWith` API, `DelayedDeliveryFeature`, and the `DelayedDelivery` test folder.
 
-`SupportsDelayedRetries` has a default implementation that returns `SupportsDelayedDelivery`. `TestSuiteConstraints.Current` is typed as `ITestSuiteConstraints`, because callers reach a default interface member only through the interface.
+`SupportsDelayedRetries` has a default implementation that returns `SupportsDelayedDelivery`. A class does not inherit a default interface member, so `Requires.DelayedRetries()` casts `TestSuiteConstraints.Current` to `ITestSuiteConstraints` to read it. `Current` keeps its type, so code that reads members a transport declares only on its partial class keeps compiling.
 
 The 14 tests that exercise delayed retries and no deferred send call `Requires.DelayedRetries()`. The 13 deferred send and saga timeout tests keep calling `Requires.DelayedDelivery()`.
 
@@ -32,7 +32,7 @@ Implemented in [#8049](https://github.com/Particular/NServiceBus/pull/8049).
 - Both flags have the same value for every transport that does not override `SupportsDelayedRetries`, so every transport except Google Pub/Sub runs the same tests after upgrading the package.
 - Google Pub/Sub must override both flags. If it overrides only `SupportsDelayedDelivery`, the default also skips its retry tests. Skipped tests appear in the results with the ignore reason, and the change in the transport that adopts the flags should confirm that the retry tests still run.
 - For Google Pub/Sub, the test flag reports no delayed delivery while `TransportDefinition.SupportsDelayedDelivery` is `true`. This is accepted until core splits the production flag. The names chosen here match that split, so the test contract will not need to change again.
-- Code that reads a member declared only on a transport's partial `TestSuiteConstraints` class through `Current` stops compiling. The transport repositories use `Current` only for interface members. A consumer that does otherwise can declare the member on the interface or use its own instance.
+- Other code that reads `SupportsDelayedRetries` through `Current` needs the same cast, or a compile error points it out.
 
 ## Alternative approaches
 

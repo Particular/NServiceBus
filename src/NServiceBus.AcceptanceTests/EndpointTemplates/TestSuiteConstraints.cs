@@ -26,6 +26,5 @@ public interface ITestSuiteConstraints
 
 public partial class TestSuiteConstraints : ITestSuiteConstraints
 {
-    // Typed as the interface so that callers reach default interface members.
-    public static ITestSuiteConstraints Current { get; } = new TestSuiteConstraints();
+    public static TestSuiteConstraints Current { get; } = new TestSuiteConstraints();
 }
