@@ -25,6 +25,8 @@ The 14 tests that exercise delayed retries and no deferred send call `Requires.D
 
 A transport in the Google Pub/Sub position declares `SupportsDelayedDelivery => false` and `SupportsDelayedRetries => true`.
 
+Implemented in [#8049](https://github.com/Particular/NServiceBus/pull/8049).
+
 ## Consequences
 
 - Both flags have the same value for every transport that does not override `SupportsDelayedRetries`, so every transport except Google Pub/Sub runs the same tests after upgrading the package.
