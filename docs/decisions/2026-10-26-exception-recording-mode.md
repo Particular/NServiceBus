@@ -80,7 +80,8 @@ innermost one gets the exception event. What differs is the log entry:
    `Logs`. The mode controls only the exception event on the span. The exception is logged in both modes.
 2. **The environment variable wins over code.** `logs` sets `Logs`, `logs/dup` sets `SpanAndLogs`, any
    other value leaves the configured value. An operator switches a deployment without a code change.
-   The scaffold lives in `obsoletes-v11.cs`.
+   The scaffold lives in `obsoletes-v10.cs`. When neither code nor a recognized value chooses the mode, the
+   endpoint logs a hint at startup about the opt-in.
 3. **Every span an exception passes through is marked as failed:** status Error and the `error.type` tag.
    The legacy tags and `exception.escaped` apply only without the v11 behavior. Status and error type are
    not exception details, so marking every span does not record the exception more than once.
