@@ -12,7 +12,7 @@ public class When_custom_policy_provided : NServiceBusAcceptanceTest
     [Test]
     public void Should_pass_recoverability_configuration()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<Endpoint>(b =>

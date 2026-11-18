@@ -14,7 +14,7 @@ public class When_failing_mutated_message : NServiceBusAcceptanceTest
     [Test]
     public void Should_preserve_the_original_body()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
             .WithEndpoint<RetryEndpoint>(b => b

@@ -12,7 +12,7 @@ public class When_saga_message_goes_through_delayed_retries : NServiceBusAccepta
     [Test]
     public Task Should_invoke_the_correct_handle_methods_on_the_saga()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         return Scenario.Define<Context>()
             .WithEndpoint<DelayedRetryEndpoint>(b => b

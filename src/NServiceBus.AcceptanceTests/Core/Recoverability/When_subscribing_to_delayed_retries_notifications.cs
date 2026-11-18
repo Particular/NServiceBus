@@ -12,7 +12,7 @@ public class When_subscribing_to_delayed_retries_notifications : NServiceBusAcce
     [Test]
     public async Task Should_trigger_notification_on_delayed_retry()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<DelayedRetriesEndpoint>(b =>

@@ -15,7 +15,7 @@ public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBus
     public void Should_not_commit_distributed_transaction()
     {
         Requires.DtcSupport();
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
             .WithEndpoint<Endpoint>(b => b

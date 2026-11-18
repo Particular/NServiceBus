@@ -13,7 +13,7 @@ public class CustomPolicyDoes1DelayedRetryThenSendsToError : NServiceBusAcceptan
     [Test]
     public void Should_execute_twice_and_send_to_error_queue()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var messageId = Guid.NewGuid().ToString();
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()

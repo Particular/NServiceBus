@@ -39,7 +39,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_correlate_delayed_retry_with_send()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         await Scenario.Define<Context>()
             .WithEndpoint<RetryingEndpoint>(e => e
