@@ -5,128 +5,89 @@
 **Related:**
 
 - [2026-09-23 NServiceBus trace parent header and ambient parent](2026-09-23-trace-parent-header-and-ambient-parent.md) applies this rule on receive
-- [2026-07-15 the sender decides trace continuation](2026-07-15-sender-decides-trace-continuation.md) decides where a trace starts and links back
+- [2026-07-15 the sender decides trace continuation](2026-07-15-sender-decides-trace-continuation.md) starts a new trace and links to the sender
 - [2026-09-28 trace context is injected only in the outgoing pipeline](2026-09-28-trace-context-injected-only-in-outgoing-pipeline.md) keeps the sender context on forwarded copies
-- [2026-10-01 receive-side trace state and baggage propagation](2026-10-01-receive-side-trace-state-and-baggage-propagation.md) prefers the logical send context for baggage
+- [2026-10-01 receive-side trace state and baggage propagation](2026-10-01-receive-side-trace-state-and-baggage-propagation.md) uses the logical send context for baggage
 - [2026-10-21 no messaging semantic convention attributes](2026-10-21-no-messaging-semantic-convention-attributes.md) leaves the physical attributes to the SDK spans
 
 ## Context
 
 ### Terms
 
-- Physical activity: work that runs in a process at a point in time. Examples: a transport SDK receiving a
-  message, NServiceBus processing one attempt of a message, a handler invocation, a dispatch to the broker.
-- Logical relation: a relation that exists in the intent of the code, not in the order of execution.
-  Examples: the `Send` call that produced a message, the original sender of a message that is retried from
-  the error queue, the failed attempt that a recoverability decision is about.
-- Parent: the span a span is a child of. A trace is the tree of parents.
-- Link: a reference from one span to another, in the same trace or another one, without a parent relation.
+- **Physical activity**: work that runs in one process at one time. Examples: an SDK receive, one processing
+  attempt, a handler call, a dispatch to the broker.
+- **Logical relation**: a relation in the intent of the code, not in the sequence of execution. Examples: the
+  `Send` call that made a message, the original sender of a retried message, the failed attempt that a
+  recoverability decision is about.
+- **Parent**: the span that a span is a child of. A trace is a tree of parents.
+- **Link**: a reference to a span in this trace or in a different trace. A link is not a parent.
 
-### The problem
+### Problem
 
-Physical activities and logical relations do not line up in a messaging system:
+In a messaging system, physical activities and logical relations are different:
 
-- **The send is not the dispatch.** Under the outbox, batched dispatch, the messaging bridge and
-  ServiceControl retries, the `Send` call and the dispatch to the broker happen at different times, and
-  can be in different processes.
+- **The send is not the dispatch.** With the outbox, batched dispatch, the messaging bridge and ServiceControl
+  retries, `Send` and the dispatch occur at different times. They can occur in different processes.
 - **Transport SDKs trace the physical work.** Azure Service Bus, RabbitMQ.Client 7 and the AWS contrib
-  instrumentation create their own send and receive spans. On receive, the SDK span is `Activity.Current`
-  when the NServiceBus pipeline starts.
-- **One message, many attempts.** Immediate retries, delayed retries and a ServiceControl retry each process
-  the same logical message again.
+  instrumentation make their own send and receive spans. On receive, the SDK span is `Activity.Current` when
+  the NServiceBus pipeline starts.
+- **One message can have many attempts.** Immediate retries, delayed retries and ServiceControl retries process
+  the same message again.
 
-A trace can follow either structure. Following the logical one makes a span the child of work that already
-ended, or that ran in another process, and puts SDK spans beside the NServiceBus spans instead of above them.
-Each past decision picked a structure for one path. Without a rule, the next path is decided again from
-scratch.
+If NServiceBus uses the outgoing send span as the parent, the trace loses important physical information about
+what occurred. The receive span becomes a child of work that stopped before it, or of work in a different
+process. The SDK spans are then siblings of the NServiceBus spans, not parents.
 
 Constraints:
 
-- **The v10 trace shape stays the default in a minor release.** The incoming span is a child of the sender
-  span until v11 (see the ADR of 2026-10-02).
-- **Backends differ in link support.** A backend without link support shows a trace split at every link.
-- **NServiceBus cannot detect which SDK is instrumented.** It only sees `Activity.Current`.
-- **Sampling follows the parent.** A child inherits the sampling decision of its parent. A link does not.
-
-<!-- TODO: add the reason the platform wants this now, e.g. the problem users reported or the research that
-     triggered it. Keep internal sources out; describe the evidence instead. -->
+- **The v10 trace shape stays the default in minor releases.** Until v11, the incoming span is a child of the
+  sender span (ADR of 2026-10-02).
+- **Not all backends support links.** Such a backend shows the trace as separate parts at each link.
+- **NServiceBus cannot identify the instrumented SDK.** It sees only `Activity.Current`.
+- **Sampling follows the parent.** A child gets the sampling decision of its parent. A link does not.
 
 ## Decision
 
-1. **NServiceBus exposes the physical workings of the platform as they are.** Spans represent activities that
-   ran, at the time and in the process they ran in. NServiceBus does not reshape, merge or hide spans to
-   present a logical view.
-2. **Parent relations follow the physical flow.** The parent of a span is the activity that was running when
-   the work started. On receive, that is the ambient transport SDK span when there is one.
-3. **Logical relations are links.** The span of the `Send` call, the original sender of a retried message and
-   the failed attempt a recoverability decision is about are linked, not parents.
-4. **This rule covers span parents and links only.** What a span is tagged with is covered by the ADR of
-   2026-10-21. Trace state and baggage are covered by the ADR of 2026-10-01.
-
-How the existing decisions map to the rule:
-
-| Path | Parent | Link | Record |
-|---|---|---|---|
-| Receive under an SDK span (v11) | SDK receive span | sender span | 2026-09-23 decision 3 |
-| Receive without an SDK span | sender span | none | 2026-09-23, see open point 1 |
-| Delayed send, saga timeout, delayed retry, publish in v10 | none, new trace | sender span | 2026-07-15 |
-| Recoverability decision | as for receive: the ambient span, else the sender span | innermost failed span | 2026-10-26 decisions 7 and 10 |
-| Move to error, audit, forward | not recorded | original sender context kept on the copy | 2026-09-28, see open point 2 |
-| ServiceControl retry | none, new trace | original sender span | 2026-09-28 |
+1. **NServiceBus shows the physical work of the platform as it is.** A span is an activity that ran, at the time
+   and in the process where it ran. NServiceBus does not change, merge or hide spans to show a logical view.
+2. **Parents follow the physical flow.** The parent of a span is the activity that ran when the work started.
+   On receive, this is the ambient SDK span, if there is one.
+3. **Logical relations are links.** These are links, not parents: the `Send` span, the original sender of a
+   retried message, and the failed attempt of a recoverability decision.
+4. **This rule is only for parents and links.** For tags, see the ADR of 2026-10-21. For trace state and
+   baggage, see the ADR of 2026-10-01.
 
 ## Consequences
 
-- A trace shows what ran, in the order it ran. The SDK spans and the NServiceBus spans form one tree on
-  receive. Queries for a broker operation and the processing it caused need no join across traces.
-- A backend without link support shows the trace split at every logical relation. Accepted, as in the ADR
-  of 2026-09-23: the physical parent is the real parent of the work. A user who wants one trace per message
-  flow can turn the SDK instrumentation off. <!-- TODO: quantify, e.g. which supported backends lack links -->
-- Under the v11 behavior the sampling decision of the SDK span applies to the NServiceBus span, not the
-  decision of the sender. <!-- TODO: accept or mitigate -->
-- New paths are decided by the rule: a new span gets the running activity as parent, and its logical origin
-  as a link.
-
-Open points. These are places where a recorded decision does not follow the rule yet. This record does not
-change them:
-
-1. **No dispatch span.** Without an SDK span the receiver's parent is the NServiceBus send span. Under the
-   outbox, the send span ended before the dispatch ran, so the parent is a logical relation. Following the
-   rule needs a span for the physical dispatch. Not decided.
-2. **Forwarded copies keep the original sender context.** The ADR of 2026-09-28 keeps the received
-   `traceparent` on the error, audit and delayed-retry copies, so a ServiceControl retry links to the original
-   sender. Physically, the copy was dispatched by the processing attempt that failed. That ADR accepts that
-   the forwarding attempt is not recorded. Whether the copy should carry the forwarding attempt as parent and
-   the original sender as link is not decided.
-3. **Baggage follows the logical send context.** The ADR of 2026-10-01 rejects relying on the SDKs, partly
-   because they propagate the context at physical dispatch, not the logical one. That is consistent with
-   decision 4, because baggage is data, not structure. It must stay consistent if a dispatch span is added
-   (open point 1).
-4. **The v10 default is the logical shape.** Until v11, the incoming span is a child of the sender span also
-   when an SDK span is ambient. The rule fully applies only with the v11 behavior.
+- A trace shows what ran, in the sequence that it ran. On receive, the SDK spans and the NServiceBus spans are
+  in one tree. A query for a broker operation and the processing that it caused does not need to join traces.
+- The SDK controls the size of the trace. If the SDK receive span continues the trace of the incoming message,
+  a full [message conversation](https://docs.particular.net/nservicebus/messaging/headers#messaging-interaction-headers-nservicebus-conversationid)
+  becomes a single trace (one span tree).
+- The SDK also controls the sampling decision. If the SDK receive span starts a new trace, the NServiceBus span
+  uses the sampling decision of that new trace, not the decision of the sender. Example: both endpoints use
+  `ParentBased(TraceIdRatioBased(0.1))`. The sender is sampled. The SDK receive span is a new root, so the
+  ratio sampler decides again, and 90% of these receives are not sampled. The NServiceBus processing span is
+  then not recorded, but the sender span is recorded. If the SDK receive span continues the incoming trace, the
+  sampling decision of the sender applies, as in v10.
+- Currently, the SDKs do not propagate baggage. NServiceBus propagates baggage from the logical send context.
+  If the SDKs start to propagate baggage, this behavior can change.
 
 ## Alternative approaches
 
-The point of leverage is the logical trace: one tree per message flow, with the SDK spans to the side. It is
-what users of backends without link support ask for, and it is the v10 shape.
+The logical trace is the point of leverage: one tree for each message flow, with the SDK spans at the side.
+Users of backends without link support ask for it. It is also the v10 shape.
 
 ### Logical parents, physical links
 
-The sender span is always the parent and the SDK span a link or a sibling. This is the v10 default. It gives
-one trace per message flow in every backend. Rejected: the incoming span then becomes the child of a span that
-ended before it started, often in another process, and the SDK span that actually delivered the message sits
-beside it. Under the outbox and the bridge the parent is not where the message came from.
-<!-- TODO: confirm, and add any reason from the review discussion -->
+The sender span is always the parent. The SDK span is a link or a sibling. This is the v10 default. It gives
+one trace for each message flow in all backends. Rejected: the incoming span is then a child of a span that
+stopped before it started, often in a different process. The SDK span that delivered the message is a sibling.
+With the outbox and the bridge, the parent is not the source of the message.
 
 ### A configurable shape, per endpoint or per message
 
-A setting that chooses physical or logical parents. Credible, because both shapes have users. A sender-side
-version was tried as `TraceMode.UseExisting` and rejected in the ADR of 2026-09-23: whether an SDK span
-exists is a fact of the receiver. A receiver-side setting conflicts with the ADR of 2026-07-15, where the
-sender decides the trace shape. <!-- TODO: confirm this is why a receiver-side setting is rejected -->
-
-### Synthetic logical spans
-
-NServiceBus adds a span for the logical message flow, for example from `Send` until the last processing
-attempt ends, and parents physical spans on it. Rejected: the span does not represent work that ran, it can
-stay open across processes and retries, and no process owns ending it. The ADR of 2026-10-26 rejects storing an
-`Activity` in the context bag for the same reason.
+A setting selects physical or logical parents. This is credible because both shapes have users. Rejected: a
+setting adds too many permutations. It also does not agree with this decision, where the SDK decides the shape
+of the trace. The ADR of 2026-09-23 also rejects a sender-side setting, `TraceMode.UseExisting`, because only
+the receiver knows if an SDK span exists.
