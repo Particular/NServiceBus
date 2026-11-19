@@ -10,15 +10,15 @@ using NUnit.Framework;
 
 public class When_processing_fails_and_the_message_is_moved_to_the_error_queue : OpenTelemetryAcceptanceTest
 {
-    [TestCase(ExceptionRecordingMode.Logs)]
-    [TestCase(ExceptionRecordingMode.SpanAndLogs)]
-    public async Task Should_log_the_exception_once_with_the_decision_under_the_recoverability_span(ExceptionRecordingMode exceptionRecordingMode)
+    [TestCase(ExceptionSignalOptIn.Logs)]
+    [TestCase(ExceptionSignalOptIn.SpanAndLogs)]
+    public async Task Should_log_the_exception_once_with_the_decision_under_the_recoverability_span(string exceptionSignalOptIn)
     {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<FailingEndpoint>(e => e
                 .CustomConfig(c =>
                 {
-                    c.Tracing().ExceptionRecordingMode = exceptionRecordingMode;
+                    c.SetExceptionSignalOptIn(exceptionSignalOptIn);
                     c.Recoverability().Immediate(i => i.NumberOfRetries(0)).Delayed(d => d.NumberOfRetries(0));
                 })
                 .DoNotFailOnErrorMessages()

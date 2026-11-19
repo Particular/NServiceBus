@@ -53,12 +53,12 @@ public class When_endpoint_starts_with_instrumentation_options : NServiceBusAcce
             EndpointSetup<DefaultServer>(c =>
             {
                 c.SetDiagnosticsPath(basePath);
+                c.SetExceptionSignalOptIn(ExceptionSignalOptIn.Logs);
 
                 // Flip every option away from its default so the test proves the configured values are written
                 var tracing = c.Tracing();
                 tracing.SendTraceMode = TraceMode.StartNew;
                 tracing.PublishTraceMode = TraceMode.ContinueExisting;
-                tracing.ExceptionRecordingMode = ExceptionRecordingMode.Logs;
                 tracing.Recoverability.DelayedRetryTraceMode = TraceMode.ContinueExisting;
                 tracing.DelayedDelivery.SendOperationTraceMode = TraceMode.ContinueExisting;
                 tracing.DelayedDelivery.SagaTimeoutTraceMode = TraceMode.ContinueExisting;

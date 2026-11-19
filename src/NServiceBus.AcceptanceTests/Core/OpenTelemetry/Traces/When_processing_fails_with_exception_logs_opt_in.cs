@@ -1,11 +1,8 @@
 namespace NServiceBus.AcceptanceTests.Core.OpenTelemetry.Traces;
 
-using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using AcceptanceTesting;
-using Configuration.AdvancedExtensibility;
 using EndpointTemplates;
 using NServiceBus;
 using NUnit.Framework;
@@ -15,8 +12,25 @@ public class When_processing_fails_with_exception_logs_opt_in : OpenTelemetryAcc
     [Test]
     public async Task Should_select_the_logs_mode()
     {
+        var exceptionEvents = await RunWithOptIn(ExceptionSignalOptIn.Logs);
+
+        Assert.That(exceptionEvents, Is.Empty, "the opt-in selects the logs mode, which records no exception events");
+    }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_ignore_the_opt_in_with_v11_behavior()
+    {
+        var exceptionEvents = await RunWithOptIn(ExceptionSignalOptIn.SpanAndLogs);
+
+        Assert.That(exceptionEvents, Is.Empty, "with the v11 behavior exceptions are only logged, whatever the opt-in says");
+    }
+
+    async Task<string[]> RunWithOptIn(string optIn)
+    {
         var context = await Scenario.Define<Context>()
             .WithEndpoint<FailingEndpoint>(e => e
+                .CustomConfig(c => c.SetExceptionSignalOptIn(optIn))
                 .DoNotFailOnErrorMessages()
                 .When(s => s.SendLocal(new FailingMessage())))
             .Run();
@@ -24,17 +38,14 @@ public class When_processing_fails_with_exception_logs_opt_in : OpenTelemetryAcc
         Assert.That(context.FailedMessages, Has.Count.EqualTo(1), "the message should have failed");
 
         var activities = NServiceBusActivityListener.CompletedActivities;
-        var exceptionEvents = activities.GetInvokedHandlerActivities().Concat(activities.GetReceiveMessageActivities()).SelectMany(a => a.Events).Where(e => e.Name == "exception");
-
-        Assert.That(exceptionEvents, Is.Empty, "the opt-in selects the logs mode, which records no exception events");
+        return [.. activities.GetInvokedHandlerActivities().Concat(activities.GetReceiveMessageActivities()).SelectMany(a => a.Events).Where(e => e.Name == "exception").Select(e => e.Name)];
     }
 
     public class Context : ScenarioContext;
 
     public class FailingEndpoint : EndpointConfigurationBuilder
     {
-        // Does not call endpointConfiguration.Tracing(): the instrumentation options only come into existence while the endpoint is being created.
-        public FailingEndpoint() => EndpointSetup<DefaultServer>(c => c.GetSettings().Set($"ACCEPTANCETEST_ENV:{OptInEnvironmentVariable}", "logs"));
+        public FailingEndpoint() => EndpointSetup<DefaultServer>();
 
         [Handler]
         public class FailingMessageHandler(Context testContext) : IHandleMessages<FailingMessage>
@@ -48,10 +59,6 @@ public class When_processing_fails_with_exception_logs_opt_in : OpenTelemetryAcc
     }
 
     public class FailingMessage : IMessage;
-
-    static readonly string OptInEnvironmentVariable = (string)(typeof(InstrumentationOptions)
-        .GetField("ExceptionSignalOptInEnvironmentVariableKey", BindingFlags.Static | BindingFlags.NonPublic)
-        ?? throw new InvalidOperationException("InstrumentationOptions.ExceptionSignalOptInEnvironmentVariableKey not found")).GetValue(null);
 
     const string ErrorMessage = "boom!";
 }

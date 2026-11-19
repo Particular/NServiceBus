@@ -22,8 +22,8 @@
 - Marked as failed: the span has status Error and an `error.type` tag.
 - Exception event: the exception details (type, message, stack trace) attached to a span.
 - Innermost span: of the spans an exception passes through, the one closest to where it was thrown.
-- Exception recording mode: an endpoint setting. `Logs`: the exception details go to logs only.
-  `SpanAndLogs`: they also go to the innermost span as an exception event.
+- Exception recording mode: chosen through an environment variable. `Logs`: the exception details go to
+  logs only. `SpanAndLogs`: they also go to the innermost span as an exception event.
 - Critical error: how a transport reports a failure it cannot handle. NServiceBus logs it at Fatal.
 
 The OpenTelemetry semantic conventions move exception details from span events to log records. The
@@ -76,11 +76,15 @@ innermost one gets the exception event. What differs is the log entry:
 | Processing an incoming message | The recoverability action that is carried out | Information, Warning or Error, per action | The recoverability span, which links to the innermost failed span |
 | Recoverability itself | The critical error | Fatal | Nothing |
 
-1. **`ExceptionRecordingMode`** on `InstrumentationOptions`: `SpanAndLogs` (default, the v10 behavior) and
-   `Logs`. The mode controls only the exception event on the span. The exception is logged in both modes.
-2. **The environment variable wins over code.** `logs` sets `Logs`, `logs/dup` sets `SpanAndLogs`, any
-   other value leaves the configured value. An operator switches a deployment without a code change.
-   The scaffold lives in `obsoletes-v11.cs`.
+1. **Two exception recording modes:** `SpanAndLogs` (default, the v10 behavior) and `Logs`. The mode
+   controls only the exception event on the span. The exception is logged in both modes. With the v11
+   behavior switch on, the mode is always `Logs`.
+2. **The environment variable is the only way to choose the mode.** There is no public API. Per the
+   [convention](https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/#recording-an-exception),
+   `logs` sets `Logs`, `logs/dup` sets `SpanAndLogs`, compared case-insensitively; any other value keeps the default.
+   An operator switches a deployment without a code change. With the v11 behavior switch on, the variable
+   makes no difference. The effective mode is written to the startup diagnostics. The scaffold lives in
+   `obsoletes-v10.cs`.
 3. **Every span an exception passes through is marked as failed:** status Error and the `error.type` tag.
    The legacy tags and `exception.escaped` apply only without the v11 behavior. Status and error type are
    not exception details, so marking every span does not record the exception more than once.
@@ -124,9 +128,9 @@ recorded (or logged) once" asks.
 
 ## Consequences
 
-- An explicit `ExceptionRecordingMode` in code is overridden by the environment variable without a
-  warning. Accepted: the operator needs the override more than the developer needs the guarantee. The
-  property documentation says so.
+- A developer cannot choose the mode in code. Accepted: the mode only exists until v11, and a public
+  option would be added in v10 only to be removed in v11. The environment variable is the OpenTelemetry
+  convention for this choice.
 - **A recoverability log line is correlated with the recoverability span, not with the span that failed.**
   This departs from the convention. Mitigation: the recoverability span links to the innermost failed span,
   which in `SpanAndLogs` mode carries the exception event. A trace backend that follows span links gets
@@ -163,9 +167,14 @@ recorded (or logged) once" asks.
 
 ## Alternative approaches
 
-The points of leverage are which side wins, code or environment, and who logs the exception. The first
-decides who controls the mode in production. The second decides the severity and the span the log is
-correlated with.
+The points of leverage are who chooses the mode, code or environment, and who logs the exception. The
+first decides who controls the mode in production. The second decides the severity and the span the log
+is correlated with.
+
+### A public `ExceptionRecordingMode` option, overridden by the environment variable
+
+An earlier version of this design. Rejected: the option would be added in v10 only to be removed in v11,
+and a value set in code was silently overridden by the environment variable.
 
 ### Log the exception where it is thrown, under the failed span
 

@@ -12,16 +12,16 @@ using NUnit.Framework;
 
 public class When_an_exception_passes_through_several_spans : OpenTelemetryAcceptanceTest
 {
-    [TestCase(ExceptionRecordingMode.Logs)]
-    [TestCase(ExceptionRecordingMode.SpanAndLogs)]
-    public async Task Should_record_the_exception_once_mark_every_span_as_failed_and_log_it_once(ExceptionRecordingMode exceptionRecordingMode)
+    [TestCase(ExceptionSignalOptIn.Logs)]
+    [TestCase(ExceptionSignalOptIn.SpanAndLogs)]
+    public async Task Should_record_the_exception_once_mark_every_span_as_failed_and_log_it_once(string exceptionSignalOptIn)
     {
         //The scenario is: send->receive->handle->publish->throw
         var context = await Scenario.Define<Context>()
             .WithEndpoint<PublishingEndpoint>(e => e
                 .CustomConfig(c =>
                 {
-                    c.Tracing().ExceptionRecordingMode = exceptionRecordingMode;
+                    c.SetExceptionSignalOptIn(exceptionSignalOptIn);
                     c.Recoverability().Immediate(i => i.NumberOfRetries(0)).Delayed(d => d.NumberOfRetries(0));
                 })
                 .DoNotFailOnErrorMessages()
@@ -45,7 +45,7 @@ public class When_an_exception_passes_through_several_spans : OpenTelemetryAccep
 
             Assert.That(spansPassedThrough.Select(a => a.Status), Is.All.EqualTo(ActivityStatusCode.Error), "every span the exception passed through");
 
-            if (exceptionRecordingMode == ExceptionRecordingMode.SpanAndLogs)
+            if (exceptionSignalOptIn == ExceptionSignalOptIn.SpanAndLogs)
             {
                 Assert.That(exceptionEvents, Is.EqualTo([spansPassedThrough[0]]), "one event, on the innermost span");
             }

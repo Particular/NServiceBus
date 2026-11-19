@@ -65,10 +65,11 @@ public class RecoverabilityExecutorTests
         Assert.That(errorContext.Extensions.Get<Guid>("new value"), Is.EqualTo(newValue));
     }
 
-    [TestCase(ExceptionRecordingMode.Logs)]
-    [TestCase(ExceptionRecordingMode.SpanAndLogs)]
-    public void Should_record_error_on_the_recoverability_activity_and_not_log_when_pipeline_throws(ExceptionRecordingMode exceptionRecordingMode)
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Should_record_error_on_the_recoverability_activity_and_not_log_when_pipeline_throws(bool spanAndLogs)
     {
+        var exceptionRecordingMode = spanAndLogs ? ExceptionRecordingMode.SpanAndLogs : ExceptionRecordingMode.Logs;
         using var listener = TestingActivityListener.SetupDiagnosticListener(ActivitySources.Recoverability.Name);
 
         Activity pipelineActivity = null;
