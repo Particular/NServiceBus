@@ -1,7 +1,7 @@
 # Traces show the physical flow of messages; logical relations are links
 
-**Date:** 2026-11-17 <!-- TODO: the date the decision was made -->
-**Pull request:** TODO
+**Date:** 2026-11-19
+**Pull request:** https://github.com/Particular/NServiceBus/pull/8051
 **Related:**
 
 - [2026-09-23 NServiceBus trace parent header and ambient parent](2026-09-23-trace-parent-header-and-ambient-parent.md) applies this rule on receive
