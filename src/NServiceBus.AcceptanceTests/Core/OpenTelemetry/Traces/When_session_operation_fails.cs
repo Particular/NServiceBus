@@ -11,10 +11,10 @@ using NUnit.Framework;
 
 public class When_session_operation_fails : OpenTelemetryAcceptanceTest
 {
-    [TestCase(ExceptionRecordingMode.Logs, true)]
-    [TestCase(ExceptionRecordingMode.SpanAndLogs, true)]
-    [TestCase(ExceptionRecordingMode.Logs, false, TestName = "Should log the exception as a warning without tracing")]
-    public async Task Should_log_the_exception_as_a_warning_correlated_with_the_operation_span(ExceptionRecordingMode exceptionRecordingMode, bool tracingEnabled)
+    [TestCase(ExceptionSignalOptIn.Logs, true)]
+    [TestCase(ExceptionSignalOptIn.SpanAndLogs, true)]
+    [TestCase(ExceptionSignalOptIn.Logs, false, TestName = "Should log the exception as a warning without tracing")]
+    public async Task Should_log_the_exception_as_a_warning_correlated_with_the_operation_span(string exceptionSignalOptIn, bool tracingEnabled)
     {
         if (!tracingEnabled)
         {
@@ -23,7 +23,7 @@ public class When_session_operation_fails : OpenTelemetryAcceptanceTest
 
         var context = await Scenario.Define<Context>()
             .WithEndpoint<SendingEndpoint>(e => e
-                .CustomConfig(c => c.Tracing().ExceptionRecordingMode = exceptionRecordingMode)
+                .CustomConfig(c => c.SetExceptionSignalOptIn(exceptionSignalOptIn))
                 .When(async (session, ctx) =>
                 {
                     try

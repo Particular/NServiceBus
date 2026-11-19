@@ -499,6 +499,18 @@ public class ActivityFactoryTests
         }
 
         [Test]
+        [OpenTelemetryV11Defaults]
+        public void Should_not_add_exception_event_with_v11_behavior()
+        {
+            var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.SpanAndLogs });
+            using var activity = new Activity("send").Start();
+
+            factory.RecordError(activity, new InvalidOperationException("boom"), new ContextBag());
+
+            Assert.That(activity.Events, Is.Empty, "with the v11 behavior exceptions are only logged");
+        }
+
+        [Test]
         public void Should_set_legacy_tags_on_every_activity_even_after_exception_already_recorded()
         {
             // Simulates an exception unwinding through the pipeline: the handler activity records it first,

@@ -203,10 +203,11 @@ public class MessageOperationsTests
         }
     }
 
-    [TestCase(ExceptionRecordingMode.Logs)]
-    [TestCase(ExceptionRecordingMode.SpanAndLogs)]
-    public void Should_log_the_exception_as_a_warning_on_failure(ExceptionRecordingMode exceptionRecordingMode)
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Should_log_the_exception_as_a_warning_on_failure(bool spanAndLogs)
     {
+        var exceptionRecordingMode = spanAndLogs ? ExceptionRecordingMode.SpanAndLogs : ExceptionRecordingMode.Logs;
         var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
         var operations = new TestableMessageOperations(new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode }), logger);
         var exception = new Exception("processing exception");

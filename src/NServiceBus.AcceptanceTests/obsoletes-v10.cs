@@ -38,3 +38,14 @@ public sealed class OpenTelemetryV11DefaultsAttribute : Attribute, ITestAction
         ResetSwitch.Invoke(null, null);
     }
 }
+
+public static class ExceptionSignalOptIn
+{
+    public const string EnvironmentVariable = "OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN";
+    public const string Logs = "logs";
+    public const string SpanAndLogs = "logs/dup";
+
+    public static void SetExceptionSignalOptIn(this EndpointConfiguration endpointConfiguration, string value) =>
+        NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
+            .Set($"ACCEPTANCETEST_ENV:{EnvironmentVariable}", value);
+}

@@ -1035,67 +1035,42 @@ namespace NServiceBus
 
         // The pre-v11 exception recording mode. In v10 the exception details are logged once and, in SpanAndLogs mode,
         // also added as an exception event to the activity the exception was thrown in. In v11 they are only logged.
-        // The environment variable is the highest-priority signal: when it is set to a recognized value it wins over
-        // an explicitly configured ExceptionRecordingMode, so an operator can select the logs behavior without a code
-        // change. https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
-        // In v11: delete this property, SetExceptionRecordingModeDefault, ExceptionSignalOptInEnvironmentVariableKey,
-        // the ExceptionRecordingMode enum (OpenTelemetry/ExceptionRecordingMode.cs), the
-        // `Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault)` call in the OpenTelemetryFeature
-        // constructor, the ActivityFactory partial below and the `if (isWrappingActivity)` block in
-        // ActivityFactory.RecordError. Also delete IsExceptionRecordingModeSet, ExceptionRecordingOptInHint and its logger.
-
-        /// <summary>
-        /// Controls how exception details are recorded when an operation fails.
-        /// Defaults to <see cref="NServiceBus.ExceptionRecordingMode.SpanAndLogs"/>: exceptions are logged when recoverability decides and recorded as an event on the activity.
-        /// </summary>
-        public ExceptionRecordingMode ExceptionRecordingMode
+        // In v11: delete this property, SetExceptionRecordingModeDefault, IsExceptionSignalOptIn, the opt-in constants,
+        // the ExceptionRecordingMode enum below, the `Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault)`
+        // call in the OpenTelemetryFeature constructor, the ExceptionRecordingMode entry in the startup diagnostics,
+        // the ActivityFactory partial below and the `if (isWrappingActivity)` block in ActivityFactory.RecordError.
+        internal ExceptionRecordingMode ExceptionRecordingMode
         {
-            get => exceptionRecordingMode ?? ExceptionRecordingMode.SpanAndLogs;
-            set => exceptionRecordingMode = value;
-        }
-
-        // True when code or a recognized environment variable value chose the mode, false when it is the default.
-        internal bool IsExceptionRecordingModeSet => exceptionRecordingMode.HasValue;
-
-        ExceptionRecordingMode? exceptionRecordingMode;
+            get => V11BehaviorSwitch.UseV11Behavior ? ExceptionRecordingMode.Logs : field;
+            set;
+        } = ExceptionRecordingMode.SpanAndLogs;
 
         internal static void SetExceptionRecordingModeDefault(SettingsHolder settings)
         {
             var options = settings.GetOrCreate<InstrumentationOptions>();
+            var optIn = settings.Get<SystemEnvironment>().GetEnvironmentVariable(ExceptionSignalOptInEnvironmentVariableKey);
 
-            var environment = settings.Get<SystemEnvironment>();
-            var variableValue = environment.GetEnvironmentVariable(ExceptionSignalOptInEnvironmentVariableKey);
-
-            // Recognized values per https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/#recording-an-exception
-            // An unrecognized value leaves the mode as configured and does not count as choosing one.
-            ExceptionRecordingMode? modeFromEnvironment = variableValue switch
+            if (IsExceptionSignalOptIn(optIn, LogsOptIn))
             {
-                "logs" => ExceptionRecordingMode.Logs,
-                "logs/dup" => ExceptionRecordingMode.SpanAndLogs,
-                _ => null
-            };
-
-            if (modeFromEnvironment.HasValue)
-            {
-                options.ExceptionRecordingMode = modeFromEnvironment.Value;
+                options.ExceptionRecordingMode = ExceptionRecordingMode.Logs;
             }
-
-            // Nobody chose a mode: point users at the opt-in so they can move to the v11 behavior ahead of time.
-            if (!options.IsExceptionRecordingModeSet)
+            else if (IsExceptionSignalOptIn(optIn, LogsAndSpanOptIn))
             {
-                ExceptionRecordingModeHintLog.Info(ExceptionRecordingOptInHint);
+                options.ExceptionRecordingMode = ExceptionRecordingMode.SpanAndLogs;
             }
         }
 
+        static bool IsExceptionSignalOptIn(string? value, string optIn) => string.Equals(value, optIn, StringComparison.OrdinalIgnoreCase);
+
         internal static readonly string ExceptionSignalOptInEnvironmentVariableKey = "OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN";
+        const string LogsOptIn = "logs";
+        const string LogsAndSpanOptIn = "logs/dup";
+    }
 
-        internal const string ExceptionRecordingOptInHint =
-            "Exception details of failed operations are logged and also recorded as an event on the span the exception was thrown in (ExceptionRecordingMode.SpanAndLogs). " +
-            "In NServiceBus version 11, exception details are recorded only in the log, and the ExceptionRecordingMode setting and the OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN environment variable are removed. " +
-            "To opt in now, set endpointConfiguration.Tracing().ExceptionRecordingMode to ExceptionRecordingMode.Logs, or set the OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN environment variable to 'logs'. " +
-            "Set the mode explicitly to suppress this message.";
-
-        static readonly Logging.ILog ExceptionRecordingModeHintLog = Logging.LogManager.GetLogger<InstrumentationOptions>();
+    enum ExceptionRecordingMode
+    {
+        Logs,
+        SpanAndLogs
     }
 
     partial class ActivityFactory
@@ -1110,7 +1085,7 @@ namespace NServiceBus
                 return;
             }
 
-            activity.AddException(exception, V11BehaviorSwitch.UseV11Behavior ? default : LegacyExceptionTags.EscapedTagList);
+            activity.AddException(exception, LegacyExceptionTags.EscapedTagList);
         }
     }
 

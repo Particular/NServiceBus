@@ -21,7 +21,6 @@ NServiceBus.Features.LicenseReminder
 NServiceBus.HostStartupDiagnosticsWriter
 NServiceBus.HostStartupDiagnosticsWriterFactory
 NServiceBus.HostingComponent
-NServiceBus.InstrumentationOptions
 NServiceBus.LearningTransportMessagePump
 NServiceBus.LicenseManager
 NServiceBus.LoadHandlersConnector
