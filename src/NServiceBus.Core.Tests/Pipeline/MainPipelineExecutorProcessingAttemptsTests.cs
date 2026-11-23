@@ -42,7 +42,7 @@ public partial class MainPipelineExecutorTests
 
     [Test]
     [OpenTelemetryV11Defaults]
-    public async Task Should_count_a_canceled_processing_attempt_as_operation_canceled()
+    public async Task Should_count_a_canceled_processing_attempt_with_the_actual_error_type()
     {
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
         await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
@@ -54,6 +54,6 @@ public partial class MainPipelineExecutorTests
         Assert.ThrowsAsync<TaskCanceledException>(async () => await executor.Invoke(CreateMessageContext(), cancellationTokenSource.Token));
 
         metricsListener.AssertMetric(ProcessingAttempts, 1);
-        Assert.That(metricsListener.AssertTagKeyExists(ProcessingAttempts, "error.type"), Is.EqualTo(typeof(OperationCanceledException).FullName));
+        Assert.That(metricsListener.AssertTagKeyExists(ProcessingAttempts, "error.type"), Is.EqualTo(typeof(TaskCanceledException).FullName));
     }
 }

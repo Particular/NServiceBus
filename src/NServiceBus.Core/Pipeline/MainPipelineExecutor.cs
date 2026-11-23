@@ -72,13 +72,10 @@ class MainPipelineExecutor(
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
-                if (ex.IsCausedBy(transportReceiveContext.CancellationToken))
+                pipelineMetrics.RecordProcessingAttempt(metricTags, ex);
+
+                if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
-                    pipelineMetrics.RecordCanceledProcessingAttempt(metricTags);
-                }
-                else
-                {
-                    pipelineMetrics.RecordProcessingAttempt(metricTags, ex);
                     pipelineMetrics.RecordMessageProcessingFailure(metricTags, ex); // pre-v11 counter, removed in v11, see obsoletes-v10.cs
                 }
                 throw;
