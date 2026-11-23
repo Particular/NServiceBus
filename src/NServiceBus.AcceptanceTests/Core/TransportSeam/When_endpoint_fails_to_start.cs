@@ -44,6 +44,7 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
             Assert.That(sequence, Does.Not.Contain(StopThrowingTask), "A startup task that failed to start should not be stopped");
             Assert.That(sequence, Has.Exactly(1).EqualTo(DisposeThrowingTask), "A startup task that failed to start should be disposed once. Sequence: " + Describe(sequence));
             Assert.That(sequence, Has.Exactly(1).EqualTo(StopWorkingTask), "Started startup tasks should be stopped once. Sequence: " + Describe(sequence));
+            Assert.That(sequence.ToList().IndexOf(StopMain), Is.LessThan(sequence.ToList().IndexOf(StopWorkingTask)), "Receivers should be stopped before features, as in a normal stop. Sequence: " + Describe(sequence));
             Assert.That(sequence, Does.Contain(TransportShutdown), "The transport should be shut down. Sequence: " + Describe(sequence));
         }
     }

@@ -52,8 +52,7 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
 
     public async Task Stop(IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
-        // An endpoint that fails to start stops its features after StartFeatures has already rolled back,
-        // so a task that never started or was already stopped must not be stopped again.
+        // A failed start stops every feature, including tasks that never started or failed to start.
         if (instance == null || !started)
         {
             return;

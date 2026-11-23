@@ -126,7 +126,7 @@ public class FeatureStartupTests
     }
 
     [Test]
-    public void Should_throw_when_feature_task_fails_on_start_and_should_stop_previously_started_tasks_and_should_abort_starting()
+    public async Task Should_throw_when_feature_task_fails_on_start_and_should_abort_starting_and_leave_stopping_to_StopFeatures()
     {
         var feature1 = new FeatureWithStartupTaskThatThrows(throwOnStop: true, createException: () => new InvalidOperationException("feature1"));
         var feature2 = new FeatureWithStartupTaskThatThrows(throwOnStart: true, createException: () => new InvalidOperationException("feature2"));
@@ -145,9 +145,17 @@ public class FeatureStartupTests
 
             Assert.That(feature1.TaskStarted, Is.True, "Feature 1 should have been started.");
             Assert.That(feature2.TaskStartCalled, Is.True, "An attempt should have been made to start feature 2.");
+            Assert.That(feature1.TaskStopCalled, Is.False, "The endpoint stop sequence, not StartFeatures, should stop feature 1.");
+            Assert.That(feature3.TaskStartCalled, Is.False, "No attempt should have been made to start feature 3.");
+        }
+
+        await featureComponent.StopFeatures(null);
+
+        using (Assert.EnterMultipleScope())
+        {
             Assert.That(feature1.TaskStopCalled, Is.True, "An attempt should have been made to stop feature 1.");
             Assert.That(feature2.TaskStopCalled, Is.False, "No attempt should have been made to stop feature 2.");
-            Assert.That(feature3.TaskStartCalled, Is.False, "No attempt should have been made to start feature 3.");
+            Assert.That(feature3.TaskStopCalled, Is.False, "No attempt should have been made to stop feature 3.");
         }
     }
 
