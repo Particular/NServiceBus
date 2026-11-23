@@ -193,6 +193,58 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
     }
 
     [Test]
+    [CancelAfter(30_000)]
+    public async Task Should_not_let_a_critical_error_raised_while_starting_stop_the_endpoint_before_it_has_started(CancellationToken cancellationToken = default)
+    {
+        var fakeTransport = new FakeTransport();
+        var endpointConfiguration = Create(fakeTransport, "CriticalErrorWhileStarting");
+        endpointConfiguration.EnableFeature<CriticalErrorRaisingFeature>();
+        var stopped = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        endpointConfiguration.DefineCriticalErrorAction(async (context, token) =>
+        {
+            await context.Stop(token);
+            stopped.TrySetResult();
+        });
+
+        _ = await Endpoint.Start(endpointConfiguration, cancellationToken);
+        await stopped.Task.WaitAsync(cancellationToken);
+
+        var sequence = fakeTransport.StartupSequence.ToList();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence, Has.Exactly(1).EqualTo(StopRaisingTask), "The task that raised the critical error should be stopped. Sequence: " + Describe(fakeTransport.StartupSequence));
+            Assert.That(sequence.IndexOf(StartMain), Is.LessThan(sequence.IndexOf(StopMain)), "The endpoint should finish starting before the critical error action stops it. Sequence: " + Describe(fakeTransport.StartupSequence));
+            Assert.That(sequence.IndexOf(StartSatellite), Is.LessThan(sequence.IndexOf(TransportShutdown)), "No receiver should start after the transport is shut down. Sequence: " + Describe(fakeTransport.StartupSequence));
+        }
+    }
+
+    const string StopRaisingTask = "FeatureStartupTask.Stop Raising";
+
+    class CriticalErrorRaisingFeature : Feature
+    {
+        protected override void Setup(FeatureConfigurationContext context)
+        {
+            var sequence = context.Settings.Get<FakeTransport.StartUpSequence>();
+            context.RegisterStartupTask(provider => new CriticalErrorRaisingStartupTask(provider.GetRequiredService<NServiceBus.CriticalError>(), sequence));
+        }
+    }
+
+    class CriticalErrorRaisingStartupTask(NServiceBus.CriticalError criticalError, FakeTransport.StartUpSequence sequence) : FeatureStartupTask
+    {
+        protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+        {
+            criticalError.Raise("Simulated critical error while starting", new SimulatedException(), cancellationToken);
+            return Task.CompletedTask;
+        }
+
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
+        {
+            sequence.Add(StopRaisingTask);
+            return Task.CompletedTask;
+        }
+    }
+
+    [Test]
     public async Task Should_not_start_again()
     {
         var fakeTransport = new FakeTransport();

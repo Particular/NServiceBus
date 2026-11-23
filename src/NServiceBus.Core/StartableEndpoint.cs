@@ -106,12 +106,9 @@ partial class StartableEndpoint(
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
             }
 
-            // Created before anything starts so that a failed start, and a critical error raised while starting,
-            // both stop the endpoint through the same StopCore sequence.
+            // Created before anything starts so that a failed start stops the endpoint through the same StopCore sequence as a normal stop.
             var runningInstance = new RunningEndpointInstance(settings, receiveComponent, featureComponent, messageSession, transportInfrastructure, stoppingTokenSource, serviceProviderLease, hostingComponent.Config.EndpointLogSlot);
             lifecycle = Lifecycle.RunningInstanceCreated;
-
-            hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 
             try
             {
@@ -128,6 +125,9 @@ partial class StartableEndpoint(
                 await StopAfterFailedStart(runningInstance, logger, cancellationToken).ConfigureAwait(false);
                 throw;
             }
+
+            // Critical errors raised while starting are held until now, so a critical error action cannot stop the endpoint halfway through its start.
+            hostingComponent.SetupCriticalErrors(runningInstance, cancellationToken);
 
             endpointInstance = runningInstance;
             return endpointInstance;
