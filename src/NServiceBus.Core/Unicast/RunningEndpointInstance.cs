@@ -144,6 +144,10 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
         finally
         {
+            // StopCore returns early while another caller is still stopping, and that caller still uses these resources.
+            await stopSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+            stopSemaphore.Release();
+
             settings.Clear();
             stoppingTokenSource.Dispose();
             await serviceProviderLease.DisposeAsync().ConfigureAwait(false);

@@ -155,6 +155,38 @@ public class RunningEndpointInstanceTest
     }
 
     [Test]
+    [CancelAfter(10_000)]
+    public async Task DisposeAsync_should_wait_for_a_stop_in_progress_before_disposing_resources(CancellationToken cancellationToken = default)
+    {
+        var blockingTransport = new BlockingTransportInfrastructure();
+        var lease = new TrackingAsyncDisposable();
+
+        var testInstance = new RunningEndpointInstance(
+            new SettingsHolder(),
+            CreateEmptyReceiveComponent(),
+            new FeatureComponent(new FeatureComponent.Settings()),
+            new TestableMessageSession(),
+            blockingTransport,
+            new CancellationTokenSource(),
+            lease,
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+
+        var stop = testInstance.StopCore(CancellationToken.None);
+        await blockingTransport.ShutdownStarted.Task.WaitAsync(cancellationToken);
+
+        var dispose = testInstance.DisposeAsync().AsTask();
+        await Task.WhenAny(dispose, Task.Delay(TimeSpan.FromMilliseconds(200), cancellationToken));
+
+        Assert.That(lease.Disposed, Is.False, "DisposeAsync disposed the service provider while another caller was still stopping the endpoint.");
+
+        blockingTransport.ReleaseShutdown.SetResult();
+        await stop;
+        await dispose;
+
+        Assert.That(lease.Disposed, Is.True);
+    }
+
+    [Test]
     public async Task ShouldThrowExceptionAfterInvokingStop()
     {
         var testInstance = Create();
@@ -206,6 +238,31 @@ public class RunningEndpointInstanceTest
                 parentFeature.StopCalled = true;
                 return Task.Delay(Timeout.Infinite, cancellationToken);
             }
+        }
+    }
+
+    sealed class BlockingTransportInfrastructure : TransportInfrastructure
+    {
+        public TaskCompletionSource ShutdownStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource ReleaseShutdown { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public override async Task Shutdown(CancellationToken cancellationToken = default)
+        {
+            ShutdownStarted.SetResult();
+            await ReleaseShutdown.Task;
+        }
+
+        public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
+    }
+
+    sealed class TrackingAsyncDisposable : IAsyncDisposable
+    {
+        public bool Disposed { get; private set; }
+
+        public ValueTask DisposeAsync()
+        {
+            Disposed = true;
+            return ValueTask.CompletedTask;
         }
     }
 
