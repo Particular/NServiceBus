@@ -211,8 +211,15 @@ partial class StartableEndpoint(
             catch (Exception ex)
 #pragma warning restore PS0019
             {
-                // ILog because the container that owns the ILogger factory is disposed; LogManager then falls back to its default logger.
-                Log.Error("Disposing the endpoint after it failed to start failed.", ex);
+                try
+                {
+                    LogDisposeAfterFailedStartFailed(logger, ex);
+                }
+#pragma warning disable PS0019 // The container that owns the logger factory is disposed, and the start exception must reach the caller
+                catch (Exception)
+#pragma warning restore PS0019
+                {
+                }
             }
         }
     }
@@ -224,7 +231,6 @@ partial class StartableEndpoint(
     readonly SemaphoreSlim startSemaphore = new(1, 1);
     ILogger logger = null!;
 
-    static readonly ILog Log = LogManager.GetLogger<StartableEndpoint>();
 
     // ShutdownInitiated stays set when Shutdown fails.
     enum Lifecycle
@@ -239,6 +245,9 @@ partial class StartableEndpoint(
 
     [LoggerMessage(LogLevel.Error, "Shutdown of the transport infrastructure failed.")]
     static partial void LogTransportShutdownFailed(ILogger logger, Exception exception);
+
+    [LoggerMessage(LogLevel.Error, "Disposing the endpoint after it failed to start failed.")]
+    static partial void LogDisposeAfterFailedStartFailed(ILogger logger, Exception exception);
 
     [LoggerMessage(LogLevel.Error, "Stopping the endpoint after it failed to start failed.")]
     static partial void LogStopAfterFailedStartFailed(ILogger logger, Exception exception);

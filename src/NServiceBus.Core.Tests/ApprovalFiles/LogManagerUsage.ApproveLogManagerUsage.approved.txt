@@ -44,7 +44,6 @@ NServiceBus.SagaPersistenceBehavior
 NServiceBus.SerializationFeature
 NServiceBus.SerializationSettingsExtensions
 NServiceBus.SerializeMessageConnector
-NServiceBus.StartableEndpoint
 NServiceBus.SubscriptionReceiverBehavior
 NServiceBus.Unicast.Messages.MessageMetadataRegistry
 NServiceBus.UnicastPublishRouter
