@@ -278,6 +278,63 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
     }
 
     [Test]
+    [CancelAfter(30_000)]
+    public async Task Should_let_a_canceled_caller_stop_waiting_for_a_concurrent_start(CancellationToken cancellationToken = default)
+    {
+        var fakeTransport = new FakeTransport();
+        var endpointConfiguration = Create(fakeTransport, "CanceledWhileWaitingForConcurrentStart");
+        var gate = new BlockingStartupTaskGate();
+        endpointConfiguration.GetSettings().Set(gate);
+        endpointConfiguration.EnableFeature<BlockingStartupTaskFeature>();
+        var startableEndpoint = await Endpoint.Create(endpointConfiguration, cancellationToken);
+
+        var firstStart = startableEndpoint.Start(cancellationToken);
+        try
+        {
+            await gate.Started.Task.WaitAsync(cancellationToken);
+
+            using var waitingTokenSource = new CancellationTokenSource();
+            var waitingStart = startableEndpoint.Start(waitingTokenSource.Token);
+            await waitingTokenSource.CancelAsync();
+
+            Assert.CatchAsync<OperationCanceledException>(async () => await waitingStart.WaitAsync(TimeSpan.FromSeconds(5), cancellationToken), "A caller waiting for a concurrent start should stop waiting when its token is canceled");
+        }
+        finally
+        {
+            gate.Release.TrySetResult();
+        }
+
+        var instance = await firstStart.WaitAsync(cancellationToken);
+
+        Assert.That(fakeTransport.StartupSequence, Does.Not.Contain(TransportShutdown), "The canceled caller should not roll back the concurrent start");
+
+        await instance.Stop(cancellationToken);
+    }
+
+    class BlockingStartupTaskGate
+    {
+        public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+
+    class BlockingStartupTaskFeature : Feature
+    {
+        protected override void Setup(FeatureConfigurationContext context) =>
+            context.RegisterStartupTask(new BlockingStartupTask(context.Settings.Get<BlockingStartupTaskGate>()));
+    }
+
+    class BlockingStartupTask(BlockingStartupTaskGate gate) : FeatureStartupTask
+    {
+        protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+        {
+            gate.Started.TrySetResult();
+            await gate.Release.Task.WaitAsync(cancellationToken);
+        }
+
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
+    [Test]
     public async Task Should_not_start_again()
     {
         var fakeTransport = new FakeTransport();

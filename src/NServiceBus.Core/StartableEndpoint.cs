@@ -85,8 +85,11 @@ partial class StartableEndpoint(
             return endpointInstance;
         }
 
-        // Not canceled by the start token, so that a canceled start still reaches the rollback below instead of leaving the transport initialized.
-        await startSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+        // An uncontended caller must reach the rollback below even with a canceled token; a waiting caller can stop waiting, because the holder cleans up.
+        if (!startSemaphore.Wait(0, CancellationToken.None))
+        {
+            await startSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         try
         {
