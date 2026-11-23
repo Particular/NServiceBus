@@ -98,6 +98,30 @@ public class ActivityFactoryTests
         }
 
         [Test]
+        public void Should_start_new_trace_linked_to_send_when_start_new_trace_header_is_set()
+        {
+            using var sendActivity = CreateCompletedActivity("send activity");
+
+            var messageHeaders = new Dictionary<string, string>
+            {
+                { Headers.DiagnosticsTraceParent, sendActivity.Id! },
+                { Headers.StartNewTrace, bool.TrueString }
+            };
+
+            var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext(messageHeaders));
+
+            Assert.That(activity, Is.Not.Null, "should create activity for receive pipeline");
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(activity.ParentId, Is.Null, "should create a new trace");
+                Assert.That(activity.IdFormat, Is.EqualTo(ActivityIdFormat.W3C));
+                Assert.That(activity.Links.Count(), Is.EqualTo(1), "should link to logical send span");
+                Assert.That(activity.Links.Single().Context.TraceId, Is.EqualTo(sendActivity.TraceId));
+                Assert.That(activity.Links.Single().Context.SpanId, Is.EqualTo(sendActivity.SpanId));
+            }
+        }
+
+        [Test]
         public void Should_prefer_nservicebus_trace_header_over_w3c_trace_header()
         {
             var sendActivity = CreateCompletedActivity("send activity");

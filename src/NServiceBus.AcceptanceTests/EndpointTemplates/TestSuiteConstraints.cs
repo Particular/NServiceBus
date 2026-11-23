@@ -12,6 +12,9 @@ public interface ITestSuiteConstraints
 
     bool SupportsDelayedDelivery { get; }
 
+    // Defaults to SupportsDelayedDelivery so existing implementations run the same tests as before.
+    bool SupportsDelayedRetries => SupportsDelayedDelivery;
+
     bool SupportsOutbox { get; }
 
     bool SupportsPurgeOnStartup { get; }

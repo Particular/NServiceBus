@@ -10,7 +10,7 @@ public class When_transactions_off_and_delayed_retries_enabled : NServiceBusAcce
     [Test]
     public void Should_throw_on_startup()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
             .WithEndpoint<StartedEndpoint>()

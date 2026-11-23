@@ -32,7 +32,7 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_increment_delayed_meter()
     {
-        //Requires.DelayedDelivery();
+        //Requires.DelayedRetries();
 
         using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
 

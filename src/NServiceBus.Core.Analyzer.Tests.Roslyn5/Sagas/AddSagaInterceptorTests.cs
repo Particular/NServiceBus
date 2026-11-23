@@ -446,7 +446,7 @@ public class AddSagaInterceptorTests
                      {
                          protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderShippingPolicyData> mapper)
                          {
-                             mapper.MapSaga(saga => ((OrderShippingPolicyData)saga).OrderId)
+                             mapper.MapSaga(saga => (object)saga.OrderId)
                                  .ToMessage<OrderPlaced>(msg => ((OrderPlaced)msg).OrderId);
                          }
 

@@ -117,7 +117,9 @@ public static class ServiceCollectionExtensions
     /// <para>
     /// All registered NServiceBus endpoints will run their installers, regardless of whether
     /// <see cref="InstallConfigExtensions.EnableInstallers"/> was called on the endpoint configuration.
-    /// The endpoints will not start processing messages.
+    /// Endpoints added with <see cref="AddNServiceBusEndpoint"/> will not start processing messages.
+    /// Installer mode is a host-level setting, so any other endpoint created from the same service provider, for example through the obsolete
+    /// externally managed container API, also runs its installers and sets up the transport infrastructure.
     /// </para>
     /// <para>
     /// By default, the application is gracefully shut down after installers complete.

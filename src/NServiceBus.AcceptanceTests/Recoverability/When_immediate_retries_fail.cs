@@ -12,7 +12,7 @@ public class When_immediate_retries_fail : NServiceBusAcceptanceTest
     [Test]
     public void Should_do_delayed_retries()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
             .WithEndpoint<DelayedRetryEndpoint>(b => b

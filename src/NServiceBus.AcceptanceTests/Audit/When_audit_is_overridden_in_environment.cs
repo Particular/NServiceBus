@@ -8,6 +8,8 @@ using NUnit.Framework;
 
 public class When_audit_is_overridden_in_environment : NServiceBusAcceptanceTest
 {
+    const string AuditTarget = "audit_target_in_environment";
+
     [Test]
     public async Task Should_audit_to_target_queue()
     {
@@ -23,7 +25,7 @@ public class When_audit_is_overridden_in_environment : NServiceBusAcceptanceTest
     {
         public UserEndpoint() => EndpointSetup<DefaultServer>(c =>
         {
-            c.GetSettings().Set("ACCEPTANCETEST_ENV:NSERVICEBUS__AUDIT__ADDRESS", "audit_with_code_target");
+            c.GetSettings().Set("ACCEPTANCETEST_ENV:NSERVICEBUS__AUDIT__ADDRESS", AuditTarget);
         });
 
         [Handler]
@@ -37,7 +39,7 @@ public class When_audit_is_overridden_in_environment : NServiceBusAcceptanceTest
     {
         public AuditSpy() =>
             EndpointSetup<DefaultServer>()
-                .CustomEndpointName("audit_with_code_target");
+                .CustomEndpointName(AuditTarget);
 
         [Handler]
         public class AuditMessageHandler(Context testContext) : IHandleMessages<MessageToBeAudited>

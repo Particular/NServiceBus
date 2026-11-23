@@ -2,13 +2,16 @@
 
 namespace NServiceBus.Core.Analyzer.Sagas;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using NServiceBus.Core.Analyzer.Handlers;
+using NServiceBus.Core.Analyzer.Utility;
 using static NServiceBus.Core.Analyzer.Handlers.Handlers;
 using BaseParser = AddHandlerAndSagasRegistrationGenerator.Parser;
 
@@ -34,8 +37,10 @@ public static partial class Sagas
         public HandlerSpec Handler { get; }
     }
 
-    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType);
-    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeMetadataName);
+    public record PropertyMappingSpec(string MessageType, string MessageName, string MessagePropertyName, string MessagePropertyType, string? GetterReceiverCastType, ExternAccessorSpec? ExternGetter, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
+    public readonly record struct CorrelationPropertyMappingSpec(string PropertyName, string PropertyType, string PropertyTypeName, ExternAccessorSpec? ExternGetter, ExternAccessorSpec? ExternSetter, ImmutableEquatableArray<string> SuppressedGetterDiagnosticIds, ImmutableEquatableArray<string> SuppressedSetterDiagnosticIds);
+    // An UnsafeAccessor bound by metadata name on the type declaring the accessor; the updated memory safety rules require it to be marked safe.
+    public readonly record struct ExternAccessorSpec(string ReceiverType, string MethodName, bool UsesUpdatedMemorySafetyRules);
 
     public static class Parser
     {
@@ -50,19 +55,17 @@ public static partial class Sagas
                 return null;
             }
 
-            if (sagaType.DeclaringSyntaxReferences.FirstOrDefault()?.SyntaxTree is not { } sagaSyntaxTree)
+            if (sagaType.DeclaringSyntaxReferences.IsEmpty)
             {
                 return null;
             }
-
-            var sagaSemanticModel = compilation.GetSemanticModel(sagaSyntaxTree);
 
             var sagaBaseSpec = Handlers.Parser.Parse(sagaType, BaseParser.SpecKind.Saga, knownTypes, cancellationToken);
             var sagaDataFullyQualifiedName = sagaDataType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
             // Analyze ConfigureHowToFindSaga to extract mappings. Finder-only sagas have no correlation property
             // and no property mappings but are still valid sagas that must be registered.
-            var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, sagaSemanticModel, cancellationToken);
+            var (correlationProperty, propertyMappings) = ExtractPropertyMappings(sagaType, compilation, cancellationToken);
 
             return new SagaSpec(sagaBaseSpec, sagaDataFullyQualifiedName, correlationProperty, propertyMappings);
         }
@@ -86,7 +89,7 @@ public static partial class Sagas
 
         static (CorrelationPropertyMappingSpec?, ImmutableEquatableArray<PropertyMappingSpec>) ExtractPropertyMappings(
             INamedTypeSymbol sagaType,
-            SemanticModel semanticModel,
+            Compilation compilation,
             CancellationToken cancellationToken)
         {
             var configureMethod = FindConfigureHowToFindSagaMethod(sagaType);
@@ -107,10 +110,11 @@ public static partial class Sagas
                 return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
             }
 
-            var walker = new ConfigureMappingWalker(semanticModel, cancellationToken);
+            // A partial saga can declare it in another file.
+            var walker = new ConfigureMappingWalker(compilation.GetSemanticModel(methodDeclaration.SyntaxTree), cancellationToken);
             walker.Visit(methodBody);
 
-            if (walker.CorrelationPropertyMapping is null)
+            if (!walker.MapsCorrelationProperty)
             {
                 return (null, ImmutableEquatableArray<PropertyMappingSpec>.Empty);
             }
@@ -142,6 +146,7 @@ public static partial class Sagas
         {
             public List<PropertyMappingSpec> Mappings { get; } = [];
             public CorrelationPropertyMappingSpec? CorrelationPropertyMapping { get; private set; }
+            public bool MapsCorrelationProperty { get; private set; }
 
             public override void VisitInvocationExpression(InvocationExpressionSyntax node)
             {
@@ -165,18 +170,14 @@ public static partial class Sagas
 
             void AnalyzeToSagaCall(InvocationExpressionSyntax mapSagaCall)
             {
-                if (mapSagaCall.ArgumentList.Arguments.Count <= 0)
+                if (mapSagaCall.ArgumentList.Arguments is not [{ Expression: LambdaExpressionSyntax lambda }, ..])
                 {
                     return;
                 }
 
-                if (mapSagaCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
-                {
-                    return;
-                }
-
-                var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
-                if (memberAccess is null)
+                var memberAccess = TryGetMemberAccess(lambda.Body);
+                // SagaMapper rejects saga data mappings that don't access a property on the lambda parameter, so there's nothing to generate.
+                if (memberAccess is null || !semanticModel.IsMemberAccessOnLambdaParameter(memberAccess, lambda, cancellationToken))
                 {
                     return;
                 }
@@ -191,29 +192,33 @@ public static partial class Sagas
                 var propertySymbol = ResolvePropertySymbol(semanticModel, memberAccess, cancellationToken);
                 if (propertySymbol is null)
                 {
+                    return;
+                }
+
+                MapsCorrelationProperty = true;
+
+                var (externGetter, suppressedGetterDiagnosticIds) = ResolveAccessor(propertySymbol, false);
+                var (externSetter, suppressedSetterDiagnosticIds) = ResolveAccessor(propertySymbol, true);
+                if (TargetsUnsupportedType(externGetter) || TargetsUnsupportedType(externSetter))
+                {
+                    CorrelationPropertyMapping = null;
                     return;
                 }
 
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                // SagaMapper.AllowedCorrelationPropertyTypes only allows primitive types so
-                // using the metadata name is enough to create meaningful accessor names without having to TitleCase things.
-                string propertySymbolMetadataName = propertySymbol.Type.MetadataName;
-                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertySymbolMetadataName);
+                // Not the metadata name: the analyzers accept types like int?, whose metadata name Nullable`1 isn't a valid identifier.
+                var propertyTypeName = propertySymbol.Type.Name;
+                CorrelationPropertyMapping = new CorrelationPropertyMappingSpec(propertyName, propertyType, propertyTypeName, Extern(externGetter), Extern(externSetter), suppressedGetterDiagnosticIds, suppressedSetterDiagnosticIds);
             }
 
             void AnalyzeMapSagaToMessageCall(InvocationExpressionSyntax toMessageCall)
             {
-                if (toMessageCall.ArgumentList.Arguments.Count <= 0)
+                if (toMessageCall.ArgumentList.Arguments is not [{ Expression: LambdaExpressionSyntax lambda }, ..])
                 {
                     return;
                 }
 
-                if (toMessageCall.ArgumentList.Arguments[0].Expression is not LambdaExpressionSyntax lambda)
-                {
-                    return;
-                }
-
-                var memberAccess = TryGetMemberAccess(lambda.Body, cancellationToken);
+                var memberAccess = TryGetValuePreservingMemberAccess(lambda.Body);
                 if (memberAccess is null)
                 {
                     return;
@@ -232,12 +237,7 @@ public static partial class Sagas
                     return;
                 }
 
-                // Message "variable" expression: the left side of "message.Property"
-                var messageExpression = StripSyntaxWrappers(memberAccess.Expression, cancellationToken);
-
-                // Message type (symbol)
-                var messageTypeSymbol = semanticModel.GetTypeInfo(messageExpression, cancellationToken).Type ?? propertySymbol.ContainingType;
-                if (messageTypeSymbol is null)
+                if (ResolveReceiver(memberAccess.Expression, lambda) is not ({ } messageTypeSymbol, var explicitCastType))
                 {
                     return;
                 }
@@ -247,36 +247,333 @@ public static partial class Sagas
 
                 var propertyType = propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType));
+                // Without a member generated code can call, the runtime accessor compiled from the mapping expression is used.
+                if (ResolveMappedRead(propertySymbol, memberAccess.Expression.SpanStart, messageTypeSymbol, explicitCastType) is not { } read || TargetsUnsupportedType(read.ExternGetter))
+                {
+                    return;
+                }
+
+                Mappings.Add(new PropertyMappingSpec(messageType, messageName, propertyName, propertyType, read.ReceiverCastType, Extern(read.ExternGetter), read.AccessedMember, read.SuppressedDiagnosticIds));
             }
 
-            static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node, CancellationToken cancellationToken) =>
-                node is ExpressionSyntax expression
-                    ? StripSyntaxWrappers(expression, cancellationToken) as MemberAccessExpressionSyntax
-                    : null;
-
-            static ExpressionSyntax StripSyntaxWrappers(ExpressionSyntax expression, CancellationToken cancellationToken)
+            // The message, or one identity, reference, boxing or unboxing cast of it; only a cast that can fail is returned for generated code to repeat.
+            (ITypeSymbol MessageType, ITypeSymbol? ExplicitCastType)? ResolveReceiver(ExpressionSyntax receiverExpression, LambdaExpressionSyntax lambda)
             {
-                while (!cancellationToken.IsCancellationRequested)
+                var receiver = receiverExpression.WithoutParenthesesOrSuppressions();
+                ITypeSymbol? explicitCastType = null;
+                if (receiver is CastExpressionSyntax cast)
                 {
-                    switch (expression)
+                    if (semanticModel.GetOperation(cast, cancellationToken) is not IConversionOperation { Type: { } castType } operation)
                     {
-                        case CastExpressionSyntax cast:
-                            expression = cast.Expression;
-                            continue;
-                        case ParenthesizedExpressionSyntax parenthesized:
-                            expression = parenthesized.Expression;
-                            continue;
-                        case PostfixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.SuppressNullableWarningExpression } suppressNullable:
-                            expression = suppressNullable.Operand;
-                            continue;
-                        default:
-                            return expression;
+                        return null;
+                    }
+
+                    var conversion = operation.GetConversion();
+                    if (conversion is not ({ IsIdentity: true } or { IsReference: true } or { IsBoxing: true } or { IsUnboxing: true }))
+                    {
+                        return null;
+                    }
+
+                    explicitCastType = conversion.IsImplicit ? null : castType;
+                    receiver = cast.Expression.WithoutParenthesesOrSuppressions();
+                }
+
+                // Accessors are registered by the type they read, so reading anything but the mapped message could collide with another mapping's accessor.
+                return semanticModel.GetLambdaParameter(receiver, lambda, cancellationToken) is { Type: var messageType }
+                    ? (messageType, explicitCastType)
+                    : null;
+            }
+
+            // A cast that can fail for some messages has to fail the same way in generated code, so the read starts from the cast type.
+            ReadAccess? ResolveMappedRead(IPropertySymbol property, int position, ITypeSymbol messageType, ITypeSymbol? castType)
+            {
+                if (castType is null)
+                {
+                    return ResolveRead(property, position, messageType);
+                }
+
+                var castTypeName = castType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                return IsAccessible(castType) && CanBeNamedWithoutDiagnostics(castType)
+                    && ResolveRead(property, position, castType) is { } read && (read.ReceiverCastType is null || read.ReceiverCastType == castTypeName)
+                    ? read with { ReceiverCastType = castTypeName }
+                    : null;
+            }
+
+            // Generated code can't name a file-local type, and naming an obsolete or experimental one reports what the mapping's suppressions covered.
+            bool CanBeNamedWithoutDiagnostics(ITypeSymbol type)
+            {
+                if (type is IArrayTypeSymbol array)
+                {
+                    return CanBeNamedWithoutDiagnostics(array.ElementType);
+                }
+
+                SortedSet<string>? diagnosticIds = null;
+                for (var namedType = type as INamedTypeSymbol; namedType is not null; namedType = namedType.ContainingType)
+                {
+                    if (namedType.IsFileLocal || !TryAddSuppressibleDiagnosticIdsWithDeclaringAssembly(namedType, ref diagnosticIds) || !namedType.TypeArguments.All(CanBeNamedWithoutDiagnostics))
+                    {
+                        return false;
                     }
                 }
 
-                cancellationToken.ThrowIfCancellationRequested();
-                return expression;
+                // Only what the generated files already suppress, such as a plain obsolete type.
+                return diagnosticIds is null;
+            }
+
+            // Reading through the interface dispatches like the mapping expression; when generated code can't call the interface getter, it falls back to the implementation on the receiver type.
+            ReadAccess? ResolveRead(IPropertySymbol property, int position, ITypeSymbol receiver)
+            {
+                if (property.ContainingType is not { TypeKind: TypeKind.Interface } declaringInterface)
+                {
+                    return ReachableByName(property, position, receiver)
+                        ? DirectOrExternRead(property)
+                        : CastOrExternRead(property);
+                }
+
+                if (property.GetMethod is { } getter && IsAccessible(getter))
+                {
+                    if (SuppressibleDiagnosticIds(property, false) is { } suppressedDiagnosticIds)
+                    {
+                        var interfaceType = declaringInterface.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                        return new ReadAccess(interfaceType, null, $"{interfaceType}.{property.MetadataName}", suppressedDiagnosticIds);
+                    }
+
+                    // The implementation only dispatches like the interface when no derived message can re-implement it.
+                    if (receiver is not { IsSealed: true })
+                    {
+                        return null;
+                    }
+                }
+
+                if (ResolveImplementation(property, position, receiver) is not ({ GetMethod: { } implementationGetter } implementation, var reachableByName))
+                {
+                    return null;
+                }
+
+                return reachableByName
+                    ? DirectOrExternRead(implementation)
+                    : new ReadAccess(null, implementationGetter, AccessedMember(implementation), ImmutableEquatableArray<string>.Empty);
+            }
+
+            ReadAccess DirectOrExternRead(IPropertySymbol property)
+            {
+                var (externGetter, suppressedDiagnosticIds) = ResolveAccessor(property, false);
+                return new ReadAccess(null, externGetter, null, suppressedDiagnosticIds);
+            }
+
+            // The mapping casts the message to read a member that the message type hides, so generated code casts the same way.
+            ReadAccess CastOrExternRead(IPropertySymbol property)
+            {
+                var (externGetter, suppressedDiagnosticIds) = ResolveAccessor(property, false);
+                return new ReadAccess(property.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), externGetter, AccessedMember(property), suppressedDiagnosticIds);
+            }
+
+            (IPropertySymbol Implementation, bool ReachableByName)? ResolveImplementation(IPropertySymbol property, int position, ITypeSymbol receiver)
+            {
+                if (receiver.TypeKind == TypeKind.Interface
+                    || receiver.FindImplementationForInterfaceMember(property) is not IPropertySymbol { ContainingType.TypeKind: not TypeKind.Interface } implementation)
+                {
+                    return null;
+                }
+
+                return (implementation, implementation.ExplicitInterfaceImplementations.IsEmpty && ReachableByName(implementation, position, receiver));
+            }
+
+            // An override found by name dispatches to the same member as the property it overrides.
+            bool ReachableByName(IPropertySymbol property, int position, ITypeSymbol receiver) =>
+                semanticModel.LookupSymbols(position, receiver, property.Name)
+                    .Any(found => found is IPropertySymbol foundProperty && SymbolEqualityComparer.Default.Equals(LeastOverridden(foundProperty), LeastOverridden(property)));
+
+            static IPropertySymbol LeastOverridden(IPropertySymbol property)
+            {
+                while (property.OverriddenProperty is { } overridden)
+                {
+                    property = overridden;
+                }
+
+                return property;
+            }
+
+            static string AccessedMember(IPropertySymbol property) =>
+                $"{property.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.{property.MetadataName}";
+
+            // Generated code doesn't see the mapping's suppressions, so it suppresses what the compiler reports for the accessor, or calls it through an extern when a pragma can't.
+            (IMethodSymbol? ExternAccessor, ImmutableEquatableArray<string> SuppressedDiagnosticIds) ResolveAccessor(IPropertySymbol property, bool setter)
+            {
+                var accessor = OwnOrInheritedAccessor(property, setter);
+                if (NeedsExtern(accessor, setter))
+                {
+                    return (accessor, ImmutableEquatableArray<string>.Empty);
+                }
+
+                return SuppressibleDiagnosticIds(property, setter) is { } suppressedDiagnosticIds
+                    ? (null, suppressedDiagnosticIds)
+                    : (accessor, ImmutableEquatableArray<string>.Empty);
+            }
+
+            static IMethodSymbol? OwnOrInheritedAccessor(IPropertySymbol? property, bool setter)
+            {
+                for (; property is not null; property = property.OverriddenProperty)
+                {
+                    if ((setter ? property.SetMethod : property.GetMethod) is { } accessor)
+                    {
+                        return accessor;
+                    }
+                }
+
+                return null;
+            }
+
+            // Like the compiler, use the attributes of the member an override overrides, on both the property and the accessor. Null when a pragma can't suppress them.
+            ImmutableEquatableArray<string>? SuppressibleDiagnosticIds(IPropertySymbol property, bool setter)
+            {
+                property = LeastOverridden(property);
+
+                SortedSet<string>? diagnosticIds = null;
+                if (!TryAddSuppressibleDiagnosticIdsWithDeclaringAssembly(property, ref diagnosticIds)
+                    || ((setter ? property.SetMethod : property.GetMethod) is { } accessor && !TryAddSuppressibleDiagnosticIds(accessor, ref diagnosticIds)))
+                {
+                    return null;
+                }
+
+                return diagnosticIds is null ? ImmutableEquatableArray<string>.Empty : diagnosticIds.ToImmutableEquatableArray();
+            }
+
+            // The compiler reports an experimental assembly or module on everything declared in it, except to code in that assembly.
+            bool TryAddSuppressibleDiagnosticIdsWithDeclaringAssembly(ISymbol symbol, ref SortedSet<string>? diagnosticIds) =>
+                TryAddSuppressibleDiagnosticIds(symbol, ref diagnosticIds)
+                && (symbol.ContainingAssembly is not { } assembly || SymbolEqualityComparer.Default.Equals(assembly, semanticModel.Compilation.Assembly)
+                    || (TryAddSuppressibleDiagnosticIds(assembly, ref diagnosticIds) && (symbol.ContainingModule is not { } module || TryAddSuppressibleDiagnosticIds(module, ref diagnosticIds))));
+
+            static bool TryAddSuppressibleDiagnosticIds(ISymbol symbol, ref SortedSet<string>? diagnosticIds)
+            {
+                foreach (var attribute in symbol.GetAttributes())
+                {
+                    string? diagnosticId;
+                    if (attribute.AttributeClass is { Name: "ObsoleteAttribute", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } })
+                    {
+                        if (attribute.ConstructorArguments is [_, { Value: true }])
+                        {
+                            return false;
+                        }
+
+                        diagnosticId = attribute.NamedArguments.FirstOrDefault(static argument => argument.Key == "DiagnosticId").Value.Value as string;
+                        // Without a custom ID the compiler reports CS0612 or CS0618, which generated files already suppress.
+                        if (string.IsNullOrEmpty(diagnosticId))
+                        {
+                            continue;
+                        }
+                    }
+                    else if (attribute.AttributeClass is { Name: "ExperimentalAttribute", ContainingNamespace: { Name: "CodeAnalysis", ContainingNamespace: { Name: "Diagnostics", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } } } })
+                    {
+                        diagnosticId = attribute.ConstructorArguments is [{ Value: string experimentalId }] ? experimentalId : null;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    if (diagnosticId is null || !IsPragmaIdentifier(diagnosticId))
+                    {
+                        return false;
+                    }
+
+                    // Restoring an ID that generated files suppress file-wide would end that suppression for the rest of the file.
+                    if (!SourceWriterExtensions.FileWideSuppressedDiagnosticIds.Contains(diagnosticId))
+                    {
+                        (diagnosticIds ??= new SortedSet<string>(StringComparer.Ordinal)).Add(diagnosticId);
+                    }
+                }
+
+                return true;
+            }
+
+            // A pragma matches by the identifier's value text, which drops formatting characters, and keywords like true don't parse as pragma codes.
+            static bool IsPragmaIdentifier(string diagnosticId) =>
+                SyntaxFactory.ParseLeadingTrivia($"#pragma warning disable {diagnosticId}") is [var trivia]
+                && trivia.GetStructure() is PragmaWarningDirectiveTriviaSyntax { ErrorCodes: [IdentifierNameSyntax { Identifier.ValueText: var parsedId }], ContainsDiagnostics: false }
+                && parsedId == diagnosticId;
+
+            // Generated code can't call init-only or inaccessible accessors directly, so they go through an extern accessor on the declaring type.
+            bool NeedsExtern(IMethodSymbol? accessor, bool initOnlyNeedsExtern) =>
+                accessor is not null
+                && ((initOnlyNeedsExtern && accessor.IsInitOnly) || (accessor.DeclaredAccessibility != Accessibility.Public && !IsAccessible(accessor)));
+
+            bool IsAccessible(ISymbol symbol) => semanticModel.Compilation.IsSymbolAccessibleWithin(symbol, semanticModel.Compilation.Assembly);
+
+            ExternAccessorSpec? Extern(IMethodSymbol? accessor) =>
+                accessor is null
+                    ? null
+                    : new ExternAccessorSpec(accessor.ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), accessor.MetadataName, semanticModel.UsesUpdatedMemorySafetyRules);
+
+            // UnsafeAccessor rejects closed generic target types, a value type target would need the receiver by ref, and the extern names its target.
+            bool TargetsUnsupportedType(IMethodSymbol? externAccessor)
+            {
+                if (externAccessor?.ContainingType is not { } targetType)
+                {
+                    return false;
+                }
+
+                if (targetType.IsValueType || !CanBeNamedWithoutDiagnostics(targetType))
+                {
+                    return true;
+                }
+
+                for (var type = targetType; type is not null; type = type.ContainingType)
+                {
+                    if (type.IsGenericType)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            readonly record struct ReadAccess(string? ReceiverCastType, IMethodSymbol? ExternGetter, string? AccessedMember, ImmutableEquatableArray<string> SuppressedDiagnosticIds);
+
+            // The runtime accessor returns the converted value, so generated code can only leave out conversions that box or keep the same value.
+            MemberAccessExpressionSyntax? TryGetValuePreservingMemberAccess(SyntaxNode node)
+            {
+                if (node is not ExpressionSyntax expression)
+                {
+                    return null;
+                }
+
+                expression = expression.WithoutParenthesesOrSuppressions();
+                while (expression is CastExpressionSyntax cast)
+                {
+                    if (semanticModel.GetOperation(cast, cancellationToken) is not IConversionOperation conversion || !PreservesValue(conversion))
+                    {
+                        return null;
+                    }
+
+                    expression = cast.Expression.WithoutParenthesesOrSuppressions();
+                }
+
+                return expression as MemberAccessExpressionSyntax;
+            }
+
+            static bool PreservesValue(IConversionOperation conversion) =>
+                conversion.GetConversion() is { IsImplicit: true, IsUserDefined: false } csharpConversion
+                && (csharpConversion.IsIdentity || csharpConversion.IsReference || csharpConversion.IsBoxing
+                    || (csharpConversion.IsNullable && conversion.Type is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T, TypeArguments: [var underlyingType] }
+                        && SymbolEqualityComparer.Default.Equals(underlyingType, conversion.Operand.Type)));
+
+            static MemberAccessExpressionSyntax? TryGetMemberAccess(SyntaxNode node)
+            {
+                if (node is not ExpressionSyntax expression)
+                {
+                    return null;
+                }
+
+                expression = expression.WithoutParenthesesOrSuppressions();
+                while (expression is CastExpressionSyntax cast)
+                {
+                    expression = cast.Expression.WithoutParenthesesOrSuppressions();
+                }
+
+                return expression as MemberAccessExpressionSyntax;
             }
 
             static IPropertySymbol? ResolvePropertySymbol(SemanticModel model, MemberAccessExpressionSyntax memberAccess, CancellationToken cancellationToken)

@@ -29,6 +29,7 @@
             SagaDiagnostics.SagaShouldNotHaveIntermediateBaseClass,
             SagaDiagnostics.SagaShouldNotImplementNotFoundHandler,
             SagaDiagnostics.ToSagaMappingMustBeToAProperty,
+            SagaDiagnostics.ToSagaMappingMustAccessSagaDataPropertyDirectly,
             SagaDiagnostics.CorrelationPropertyTypeMustMatchMessageMappingExpressions
         ];
 
@@ -202,6 +203,13 @@
                     var toSagaSymbol = context.SemanticModel.GetSymbolInfo(toSagaSyntax.Body, context.CancellationToken).Symbol;
                     if (toSagaSymbol is IPropertySymbol toSagaPropertySymbol)
                     {
+                        // SagaMapper only accepts a property accessed on the lambda parameter. This is also a runtime startup error.
+                        if (toSagaSyntax.Body is ExpressionSyntax toSagaBody && !context.SemanticModel.IsMemberAccessOnLambdaParameter(toSagaBody, toSagaSyntax, context.CancellationToken))
+                        {
+                            var diagnostic = Diagnostic.Create(SagaDiagnostics.ToSagaMappingMustAccessSagaDataPropertyDirectly, toSagaBody.GetLocation());
+                            context.ReportDiagnostic(diagnostic);
+                        }
+
                         foreach (var mapping in toSagaSyntaxGroup.Where(m => !m.IsHeaderMapping))
                         {
                             if (mapping.MessageMappingExpression.Expression is LambdaExpressionSyntax toMessageLambdaSyntax)

@@ -10,21 +10,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Settings;
 using Transport;
 
-class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSettings, QueueBindings queueBindings)
+class TransportSeam(TransportDefinition transportDefinition, HostingComponent.Configuration hostingConfiguration, SettingsHolder coreSettings, QueueBindings queueBindings)
 {
     public void Configure(ReceiveSettings[] receivers) => receiverSettings = receivers;
 
     // The dependency in IServiceProvider ensures that the TransportInfrastructure can't be resolved too early.
     public TransportInfrastructure GetTransportInfrastructure(IServiceProvider _) => transportInfrastructure;
 
-    public async Task<TransportInfrastructure> CreateTransportInfrastructure(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
+    public async Task<TransportInfrastructure> CreateTransportInfrastructure(IServiceProvider serviceProvider, bool setupInfrastructure, CancellationToken cancellationToken = default)
     {
         if (OperatingSystem.IsWindows() && TransportDefinition.TransportTransactionMode == TransportTransactionMode.TransactionScope)
         {
             EnableImplicitDistributedTransactions();
         }
 
-        hostSettings.ServiceProvider = serviceProvider;
+        var hostSettings = new HostSettings(hostingConfiguration.EndpointName,
+            hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
+            hostingConfiguration.CriticalError.Raise, setupInfrastructure, coreSettings)
+        {
+            ServiceProvider = serviceProvider
+        };
         transportInfrastructure = await TransportDefinition.Initialize(hostSettings, receiverSettings, [.. QueueBindings.SendingAddresses], cancellationToken)
             .ConfigureAwait(false);
 
@@ -40,12 +45,7 @@ class TransportSeam(TransportDefinition transportDefinition, HostSettings hostSe
         var transportDefinition = transportSeamSettings.TransportDefinition;
         transportSeamSettings.settings.Set(transportDefinition);
 
-        var settings = new HostSettings(hostingConfiguration.EndpointName,
-            hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
-            hostingConfiguration.CriticalError.Raise, hostingConfiguration.ShouldRunInstallers,
-            transportSeamSettings.settings);
-
-        var transportSeam = new TransportSeam(transportDefinition, settings, transportSeamSettings.QueueBindings);
+        var transportSeam = new TransportSeam(transportDefinition, hostingConfiguration, transportSeamSettings.settings, transportSeamSettings.QueueBindings);
 
         hostingConfiguration.Services.AddSingleton(_ => transportSeam.transportInfrastructure.Dispatcher);
 

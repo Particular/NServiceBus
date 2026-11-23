@@ -10,9 +10,9 @@ public class When_delayed_retries_enabled_with_no_support : NServiceBusAcceptanc
     [Test]
     public void Should_throw_on_startup()
     {
-        if (TestSuiteConstraints.Current.SupportsDelayedDelivery)
+        if (((ITestSuiteConstraints)TestSuiteConstraints.Current).SupportsDelayedRetries)
         {
-            Assert.Ignore("Ignoring this test because it requires the transport to not support delayed delivery.");
+            Assert.Ignore("Ignoring this test because it requires the transport to not support delayed retries.");
         }
 
         var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()

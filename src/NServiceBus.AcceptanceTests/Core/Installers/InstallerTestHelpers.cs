@@ -14,4 +14,15 @@ static class InstallerTestHelpers
         endpointConfiguration.EnableFeature<InstallerFeature>();
         return endpointConfiguration;
     }
+
+    public static EndpointConfiguration CreateStartableEndpointConfiguration(FakeTransport fakeTransport, string endpointName)
+    {
+        var endpointConfiguration = new EndpointConfiguration(endpointName);
+        endpointConfiguration.AssemblyScanner().Disable = true;
+        endpointConfiguration.UsePersistence<AcceptanceTestingPersistence>();
+        endpointConfiguration.UseTransport(fakeTransport);
+        endpointConfiguration.UseSerialization<SystemJsonSerializer>();
+        endpointConfiguration.EnableFeature<RecordingInstallerFeature>();
+        return endpointConfiguration;
+    }
 }

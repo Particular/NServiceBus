@@ -154,16 +154,9 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
 
     public class Context : ScenarioContext
     {
-        public bool ReplyMessageReceived { get; set; }
-        public string IncomingMessageId { get; set; }
-        public string ReplyMessageId { get; set; }
-        public bool IncomingMessageReceived { get; set; }
-        public bool DelayedMessageReceived { get; set; }
 #nullable enable
         public string? DelayedMessageCurrentActivityId { get; set; }
 #nullable disable
-
-        public void MaybeCompleted() => MarkAsCompleted(ReplyMessageReceived || IncomingMessageReceived || DelayedMessageReceived);
     }
 
     public class SagaContext : ScenarioContext
@@ -178,16 +171,9 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         public ReplyingEndpoint() => EndpointSetup<DefaultServer>();
 
         [Handler]
-        public class MessageHandler(Context testContext) : IHandleMessages<IncomingMessage>
+        public class MessageHandler : IHandleMessages<IncomingMessage>
         {
-            public Task Handle(IncomingMessage message, IMessageHandlerContext context)
-            {
-                testContext.IncomingMessageId = context.MessageId;
-                testContext.IncomingMessageReceived = true;
-                //testContext.IncomingMessageCurrentActivityId = Activity.Current?.Id;
-                testContext.MaybeCompleted();
-                return context.Reply(new ReplyMessage());
-            }
+            public Task Handle(IncomingMessage message, IMessageHandlerContext context) => context.Reply(new ReplyMessage());
         }
     }
 
@@ -213,9 +199,7 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         {
             public Task Handle(ReplyMessage message, IMessageHandlerContext context)
             {
-                testContext.ReplyMessageId = context.MessageId;
-                testContext.ReplyMessageReceived = true;
-                testContext.MaybeCompleted();
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }
@@ -225,9 +209,8 @@ public class When_incoming_message_was_delayed : OpenTelemetryAcceptanceTest // 
         {
             public Task Handle(DelayedMessage message, IMessageHandlerContext context)
             {
-                testContext.DelayedMessageReceived = true;
                 testContext.DelayedMessageCurrentActivityId = Activity.Current?.Id;
-                testContext.MaybeCompleted();
+                testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }
         }

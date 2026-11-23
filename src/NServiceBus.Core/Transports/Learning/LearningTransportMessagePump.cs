@@ -59,8 +59,7 @@ class LearningTransportMessagePump : IMessageReceiver
 
         Init();
 
-        // use concurrency 1 if the user hasn't explicitly configured a concurrency value
-        maxConcurrency = limitations == PushRuntimeSettings.Default ? 1 : limitations.MaxConcurrency;
+        maxConcurrency = GetMaxConcurrency(limitations);
 
         return Task.CompletedTask;
     }
@@ -125,9 +124,13 @@ class LearningTransportMessagePump : IMessageReceiver
     public async Task ChangeConcurrency(PushRuntimeSettings limitations, CancellationToken cancellationToken = default)
     {
         await StopReceive(cancellationToken).ConfigureAwait(false);
-        maxConcurrency = limitations.MaxConcurrency;
+        maxConcurrency = GetMaxConcurrency(limitations);
         await StartReceive(cancellationToken).ConfigureAwait(false);
     }
+
+    // use concurrency 1 if the user hasn't explicitly configured a concurrency value
+    static int GetMaxConcurrency(PushRuntimeSettings limitations) =>
+        limitations == PushRuntimeSettings.Default ? 1 : limitations.MaxConcurrency;
 
     public ISubscriptionManager Subscriptions { get; }
 

@@ -25,17 +25,17 @@ class StartableEndpoint(
     MessageSession messageSession,
     IAsyncDisposable serviceProviderLease)
 {
-    public async Task RunInstallers(bool forceInstallers = false, CancellationToken cancellationToken = default)
+    public async Task RunInstallers(CancellationToken cancellationToken = default)
     {
         using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
-        await hostingComponent.RunInstallers(serviceProvider, forceInstallers, cancellationToken).ConfigureAwait(false);
+        await hostingComponent.RunInstallers(serviceProvider, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task Setup(CancellationToken cancellationToken = default)
     {
         using var _ = LogManager.BeginSlotScope(hostingComponent.Config.EndpointLogSlot);
 
-        transportInfrastructure = await transportSeam.CreateTransportInfrastructure(serviceProvider, cancellationToken).ConfigureAwait(false);
+        transportInfrastructure = await transportSeam.CreateTransportInfrastructure(serviceProvider, hostingComponent.ShouldRunInstallers(serviceProvider), cancellationToken).ConfigureAwait(false);
 
         var pipelineCache = pipelineComponent.BuildPipelineCache(serviceProvider);
         var messageOperations = sendComponent.CreateMessageOperations(serviceProvider, pipelineComponent);

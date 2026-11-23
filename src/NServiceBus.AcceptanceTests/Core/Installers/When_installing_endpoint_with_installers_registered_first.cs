@@ -13,7 +13,8 @@ public class When_installing_endpoint_with_installers_registered_first : NServic
     [Test]
     public async Task Should_only_execute_setup_and_complete()
     {
-        var fakeTransport = new FakeTransport();
+        bool? setupInfrastructure = null;
+        var fakeTransport = new FakeTransport { OnTransportInitialize = t => setupInfrastructure = t.setupInfrastructure };
         var endpointConfiguration = InstallerTestHelpers.CreateEndpointConfiguration(fakeTransport, "EndpointWithInstallerFirst");
 
         var context = await Scenario.Define<Context>(endpointConfiguration.RegisterScenarioContext)
@@ -31,6 +32,7 @@ public class When_installing_endpoint_with_installers_registered_first : NServic
         {
             Assert.That(context.InstallerCalled, Is.True, "Should run installers");
             Assert.That(context.FeatureSetupCalled, Is.True, "Should initialize Features");
+            Assert.That(setupInfrastructure, Is.True, "Should set up transport infrastructure");
         }
 
         fakeTransport.AssertDidNotStartReceivers();

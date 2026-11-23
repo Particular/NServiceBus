@@ -12,7 +12,7 @@ public class When_configuring_unrecoverable_exception : NServiceBusAcceptanceTes
     [Test]
     public void Should_move_to_error_queue_without_retries()
     {
-        Requires.DelayedDelivery();
+        Requires.DelayedRetries();
 
         Context context = null;
 

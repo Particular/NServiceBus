@@ -129,5 +129,13 @@ In the ConfigureHowToFindSaga method, after calling mapper.MapSaga(saga => saga.
             category: DiagnosticCategory,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true);
+
+        public static readonly DiagnosticDescriptor ToSagaMappingMustAccessSagaDataPropertyDirectly = new(
+            id: DiagnosticIds.ToSagaMappingMustAccessSagaDataPropertyDirectly,
+            title: "ToSaga mapping must access a saga data property directly",
+            messageFormat: "Mapping expressions for saga members must access a property directly on the saga data parameter, like 'saga => saga.OrderId', without casting the saga data or going through another member.",
+            category: DiagnosticCategory,
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
     }
 }
