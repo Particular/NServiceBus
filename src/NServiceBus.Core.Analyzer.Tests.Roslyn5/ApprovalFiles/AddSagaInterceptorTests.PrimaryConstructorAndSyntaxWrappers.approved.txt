@@ -26,12 +26,12 @@ namespace NServiceBus
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     static file class InterceptionsOfAddSagaMethod
     {
-        extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+        extension (global::NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
             public void AddSaga_PartitionedEndpointSaga_22ccbef745a9af4c()
             {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]

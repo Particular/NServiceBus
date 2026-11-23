@@ -26,12 +26,12 @@ namespace NServiceBus
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     static file class InterceptionsOfAddSagaMethod
     {
-        extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+        extension (global::NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
             public void AddSaga_OrderBillingPolicy_680f45ff5c53afc5()
             {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
@@ -58,7 +58,7 @@ namespace NServiceBus
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
             public void AddSaga_OrderShippingPolicy_f28d5b71c98bdd2b()
             {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
@@ -86,7 +86,7 @@ namespace NServiceBus
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(12,13)
             public void AddSaga_PaymentsPolicy_976a02f978d66f80()
             {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration)
                    .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
                 var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]

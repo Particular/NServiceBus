@@ -26,13 +26,13 @@ namespace NServiceBus
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     static file class InterceptionsOfAddHandlerMethod
     {
-        extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+        extension (global::NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(10,13)
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(12,13)
             public void AddHandler_AnotherOuterClass__InnerClass__OrderShippedHandler_6c706c3ba6c39d8e()
             {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
                 var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
@@ -43,7 +43,7 @@ namespace NServiceBus
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
             public void AddHandler_OuterClass__OrderShippedHandler_19b4f9d8240759ab()
             {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
                 var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();

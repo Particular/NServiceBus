@@ -26,12 +26,12 @@ namespace NServiceBus
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     static file class InterceptionsOfAddHandlerMethod
     {
-        extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+        extension (global::NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(9,13)
             public void AddHandler_OrderHandler_8d4c77e0ce49dca7()
             {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
                 var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
                 var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
                 var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
