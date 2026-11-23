@@ -31,6 +31,10 @@ These pages describe what core expects from, and guarantees to, transports, pers
 - [Recoverability](recoverability.md) — what core expects from a transport when `OnMessage` fails: building the `ErrorContext`, counting failures, acting on `ErrorHandleResult`, dispatching from `OnError`, and handling an `OnError` failure
 - [Trimming and Native AOT](trimming-and-aot.md) — what Core supports under trimming and Native AOT, how CI verifies it, and when downstream components should claim compatibility or only enable the analyzers
 
+## Guidelines
+
+- [Generated code](guidelines/generated-code.md) — applies to every change to source text emitted by the generators and interceptors in `src/NServiceBus.Core.Analyzer`: qualify every type and namespace reference with `global::`
+
 ## Decisions and rationale
 
 - [Architecture and design decisions](decisions/)
