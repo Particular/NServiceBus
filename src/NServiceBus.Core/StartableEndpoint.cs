@@ -85,7 +85,8 @@ partial class StartableEndpoint(
             return endpointInstance;
         }
 
-        await startSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        // Not canceled by the start token, so that a canceled start still reaches the rollback below instead of leaving the transport initialized.
+        await startSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
         try
         {
@@ -112,6 +113,8 @@ partial class StartableEndpoint(
 
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 await featureComponent.StartFeatures(serviceProvider, messageSession, cancellationToken).ConfigureAwait(false);
 
                 await hostingComponent.WriteDiagnosticsFile(cancellationToken).ConfigureAwait(false);

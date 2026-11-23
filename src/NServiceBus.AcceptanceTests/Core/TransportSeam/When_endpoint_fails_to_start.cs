@@ -259,6 +259,25 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
     }
 
     [Test]
+    public async Task Should_shut_down_the_transport_when_start_is_called_with_a_canceled_token()
+    {
+        var fakeTransport = new FakeTransport();
+        var startableEndpoint = await Endpoint.Create(Create(fakeTransport, "PreCanceledStart"));
+
+        Assert.CatchAsync<OperationCanceledException>(async () => await startableEndpoint.Start(new CancellationToken(true)));
+
+        var sequence = fakeTransport.StartupSequence;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence, Does.Not.Contain(StartWorkingTask), "Nothing should start. Sequence: " + Describe(sequence));
+            Assert.That(sequence, Does.Not.Contain(StartMain), "Nothing should start. Sequence: " + Describe(sequence));
+            Assert.That(sequence, Does.Contain(TransportShutdown), "The transport should be shut down. Sequence: " + Describe(sequence));
+        }
+
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await startableEndpoint.Start());
+    }
+
+    [Test]
     public async Task Should_not_start_again()
     {
         var fakeTransport = new FakeTransport();
