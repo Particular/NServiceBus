@@ -95,6 +95,7 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
         {
             Assert.That(sequence, Does.Contain(StopMain), "Cleanup should run. Sequence: " + Describe(sequence));
             Assert.That(ErrorsFrom(host, "NServiceBus.StartableEndpoint"), Is.Empty, "Cleanup that aborts because the caller canceled should not be logged as an error");
+            Assert.That(ErrorsFrom(host, "NServiceBus.RunningEndpointInstance"), Is.Empty, "Canceled cleanup in StopCore should not be logged as an error");
         }
     }
 
