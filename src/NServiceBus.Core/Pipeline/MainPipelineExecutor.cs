@@ -74,6 +74,9 @@ class MainPipelineExecutor(
 
                 pipelineMetrics.RecordProcessingAttempt(metricTags, ex);
 
+                // The guard keeps a canceled attempt out of the v10 failures counter. With the v11 switch on,
+                // totalFailures is null and the call does nothing, so the guard has no effect.
+                // See https://github.com/Particular/NServiceBus/pull/8057
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
                     pipelineMetrics.RecordMessageProcessingFailure(metricTags, ex); // pre-v11 counter, removed in v11, see obsoletes-v10.cs
