@@ -56,14 +56,17 @@ class RunningEndpointInstance(SettingsHolder settings,
         // container that is already torn down.
         await stopSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
+        // Checked outside the try so that only the caller that owns shutdown runs the finally, which may dispose deferred resources.
+        if (status >= Status.Stopping)
+        {
+            stopSemaphore.Release();
+            return;
+        }
+
+        status = Status.Stopping;
+
         try
         {
-            if (status >= Status.Stopping)
-            {
-                return;
-            }
-
-            status = Status.Stopping;
 
             using var _ = LogManager.BeginSlotScope(endpointLogSlot);
             await using var tokenRegistration = cancellationToken.Register(() => Log.Warn("Aborting graceful shutdown."))
@@ -125,7 +128,16 @@ class RunningEndpointInstance(SettingsHolder settings,
 
             if (disposeNow)
             {
-                await DisposeResources().ConfigureAwait(false);
+                try
+                {
+                    await DisposeResources().ConfigureAwait(false);
+                }
+#pragma warning disable PS0019 // The caller that requested disposal has already returned, so the failure must not fail this stop
+                catch (Exception ex)
+#pragma warning restore PS0019
+                {
+                    Log.Error("Disposing the endpoint failed.", ex);
+                }
             }
         }
     }
@@ -156,8 +168,7 @@ class RunningEndpointInstance(SettingsHolder settings,
         finally
         {
             bool disposeNow;
-            // StopCore returns early while another caller is still stopping and using these resources, so that caller disposes them.
-            // Waiting for it instead could deadlock a Stop awaited from within shutdown, or hang on a stop that is never canceled.
+            // Leaves disposal to a stop in progress, because waiting here deadlocks when shutdown awaits a reentrant Stop.
             lock (disposeGate)
             {
                 disposeNow = status == Status.Stopped;

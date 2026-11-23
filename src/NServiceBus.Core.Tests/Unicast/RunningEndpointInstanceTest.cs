@@ -178,7 +178,7 @@ public class RunningEndpointInstanceTest
 
             await testInstance.DisposeAsync().AsTask().WaitAsync(cancellationToken);
 
-            Assert.That(lease.Disposed, Is.False, "DisposeAsync disposed the service provider while another caller was still stopping the endpoint.");
+            Assert.That(lease.DisposeCount, Is.Zero, "DisposeAsync disposed the service provider while another caller was still stopping the endpoint.");
         }
         finally
         {
@@ -187,7 +187,37 @@ public class RunningEndpointInstanceTest
 
         await stop.WaitAsync(cancellationToken);
 
-        Assert.That(lease.Disposed, Is.True, "The stop in progress should dispose the resources when it completes.");
+        Assert.That(lease.DisposeCount, Is.EqualTo(1), "The stop in progress should dispose the resources when it completes.");
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task Stop_in_progress_should_not_throw_when_deferred_disposal_fails(CancellationToken cancellationToken = default)
+    {
+        var blockingTransport = new BlockingTransportInfrastructure();
+
+        var testInstance = new RunningEndpointInstance(
+            new SettingsHolder(),
+            CreateEmptyReceiveComponent(),
+            new FeatureComponent(new FeatureComponent.Settings()),
+            new TestableMessageSession(),
+            blockingTransport,
+            new CancellationTokenSource(),
+            new ThrowingAsyncDisposable(),
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+
+        var stop = testInstance.StopCore(CancellationToken.None);
+        try
+        {
+            await blockingTransport.ShutdownStarted.Task.WaitAsync(cancellationToken);
+            await testInstance.DisposeAsync().AsTask().WaitAsync(cancellationToken);
+        }
+        finally
+        {
+            blockingTransport.ReleaseShutdown.TrySetResult();
+        }
+
+        Assert.DoesNotThrowAsync(() => stop.WaitAsync(cancellationToken), "A disposal requested by another caller should not fail the stop that performs it.");
     }
 
     [Test]
@@ -210,7 +240,7 @@ public class RunningEndpointInstanceTest
 
         await testInstance.Stop(CancellationToken.None).WaitAsync(cancellationToken);
 
-        Assert.That(lease.Disposed, Is.True);
+        Assert.That(lease.DisposeCount, Is.EqualTo(1));
     }
 
     [Test]
@@ -293,13 +323,18 @@ public class RunningEndpointInstanceTest
 
     sealed class TrackingAsyncDisposable : IAsyncDisposable
     {
-        public bool Disposed { get; private set; }
+        public int DisposeCount { get; private set; }
 
         public ValueTask DisposeAsync()
         {
-            Disposed = true;
+            DisposeCount++;
             return ValueTask.CompletedTask;
         }
+    }
+
+    sealed class ThrowingAsyncDisposable : IAsyncDisposable
+    {
+        public ValueTask DisposeAsync() => throw new InvalidOperationException("Disposing failed");
     }
 
     sealed class HangingTransportInfrastructure : TransportInfrastructure
