@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using FakeTransport;
+using Configuration.AdvancedExtensibility;
 using Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -200,9 +201,12 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
         var fakeTransport = new FakeTransport();
         var endpointConfiguration = Create(fakeTransport, "CriticalErrorWhileStarting");
         endpointConfiguration.EnableFeature<CriticalErrorRaisingFeature>();
+        var actionInvoked = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        endpointConfiguration.GetSettings().Set(actionInvoked);
         var stopped = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         endpointConfiguration.DefineCriticalErrorAction(async (context, token) =>
         {
+            actionInvoked.TrySetResult();
             await context.Stop(token);
             stopped.TrySetResult();
         });
@@ -213,6 +217,8 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
         var sequence = fakeTransport.StartupSequence.ToList();
         using (Assert.EnterMultipleScope())
         {
+            Assert.That(sequence, Does.Not.Contain(ActionInvokedWhileStarting), "The critical error action should not run while the endpoint starts. Sequence: " + Describe(fakeTransport.StartupSequence));
+            Assert.That(sequence, Does.Contain(StartSatellite).And.Contain(TransportShutdown), "Sequence: " + Describe(fakeTransport.StartupSequence));
             Assert.That(sequence, Has.Exactly(1).EqualTo(StopRaisingTask), "The task that raised the critical error should be stopped. Sequence: " + Describe(fakeTransport.StartupSequence));
             Assert.That(sequence.IndexOf(StartMain), Is.LessThan(sequence.IndexOf(StopMain)), "The endpoint should finish starting before the critical error action stops it. Sequence: " + Describe(fakeTransport.StartupSequence));
             Assert.That(sequence.IndexOf(StartSatellite), Is.LessThan(sequence.IndexOf(TransportShutdown)), "No receiver should start after the transport is shut down. Sequence: " + Describe(fakeTransport.StartupSequence));
@@ -220,22 +226,29 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
     }
 
     const string StopRaisingTask = "FeatureStartupTask.Stop Raising";
+    const string ActionInvokedWhileStarting = "CriticalErrorAction invoked while starting";
 
     class CriticalErrorRaisingFeature : Feature
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
             var sequence = context.Settings.Get<FakeTransport.StartUpSequence>();
-            context.RegisterStartupTask(provider => new CriticalErrorRaisingStartupTask(provider.GetRequiredService<NServiceBus.CriticalError>(), sequence));
+            var actionInvoked = context.Settings.Get<TaskCompletionSource>();
+            context.RegisterStartupTask(provider => new CriticalErrorRaisingStartupTask(provider.GetRequiredService<NServiceBus.CriticalError>(), sequence, actionInvoked));
         }
     }
 
-    class CriticalErrorRaisingStartupTask(NServiceBus.CriticalError criticalError, FakeTransport.StartUpSequence sequence) : FeatureStartupTask
+    class CriticalErrorRaisingStartupTask(NServiceBus.CriticalError criticalError, FakeTransport.StartUpSequence sequence, TaskCompletionSource actionInvoked) : FeatureStartupTask
     {
-        protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
+        protected override async Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
         {
             criticalError.Raise("Simulated critical error while starting", new SimulatedException(), cancellationToken);
-            return Task.CompletedTask;
+
+            // Gives an action that is dispatched right away time to run, so the test does not depend on scheduling.
+            if (await Task.WhenAny(actionInvoked.Task, Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken)) == actionInvoked.Task)
+            {
+                sequence.Add(ActionInvokedWhileStarting);
+            }
         }
 
         protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)

@@ -24,7 +24,7 @@ Core also stops the receivers and calls `Shutdown` when an endpoint never reache
 - A failed setup. When anything after `TransportDefinition.Initialize` throws, core calls `StopReceive` on the receivers it initialized and then `Shutdown`.
 - A hosted endpoint that is disposed without being started, for example because another hosted service failed to start. Core passes a token that is already canceled.
 
-Core holds critical errors raised while the endpoint starts, including during `StartReceive`. It invokes the critical error action after every receiver has started, so the action cannot stop the endpoint halfway through its start. When the start fails, core does not invoke the action.
+Core holds critical errors raised while the endpoint starts, including during `StartReceive`. It invokes the critical error action after every receiver has started, so the action cannot stop the endpoint halfway through its start. When the start fails, core does not invoke the action. A receiver that cannot start must throw from `StartReceive` instead of relying on the action to end the start.
 
 On these paths, core calls `StopReceive` on receivers whose `StartReceive` was never called or threw. `StopReceive` must return without error for such a receiver. After a failed setup, `Shutdown` must also tolerate receivers that were never initialized.
 
