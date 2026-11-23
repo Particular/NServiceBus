@@ -114,8 +114,19 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
         finally
         {
-            status = Status.Stopped;
+            bool disposeNow;
+            lock (disposeGate)
+            {
+                status = Status.Stopped;
+                disposeNow = disposeDeferred;
+            }
+
             stopSemaphore.Release();
+
+            if (disposeNow)
+            {
+                await DisposeResources().ConfigureAwait(false);
+            }
         }
     }
 
@@ -144,14 +155,28 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
         finally
         {
-            // StopCore returns early while another caller is still stopping, and that caller still uses these resources.
-            await stopSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
-            stopSemaphore.Release();
+            bool disposeNow;
+            // StopCore returns early while another caller is still stopping and using these resources, so that caller disposes them.
+            // Waiting for it instead could deadlock a Stop awaited from within shutdown, or hang on a stop that is never canceled.
+            lock (disposeGate)
+            {
+                disposeNow = status == Status.Stopped;
+                disposeDeferred = !disposeNow;
+            }
 
-            settings.Clear();
-            stoppingTokenSource.Dispose();
-            await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
+            if (disposeNow)
+            {
+                await DisposeResources().ConfigureAwait(false);
+            }
         }
+    }
+
+    [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Disposal has no token.")]
+    async ValueTask DisposeResources()
+    {
+        settings.Clear();
+        stoppingTokenSource.Dispose();
+        await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
     }
 
     [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
@@ -265,6 +290,8 @@ class RunningEndpointInstance(SettingsHolder settings,
     }
 
     int isDisposed;
+    bool disposeDeferred;
+    readonly Lock disposeGate = new();
     volatile Status status = Status.Running;
     readonly SemaphoreSlim stopSemaphore = new(1);
 
