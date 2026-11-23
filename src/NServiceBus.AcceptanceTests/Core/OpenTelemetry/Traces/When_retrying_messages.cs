@@ -40,8 +40,6 @@ public class When_retrying_messages : OpenTelemetryAcceptanceTest
     [Test]
     public async Task Should_start_new_trace_on_receive_by_default()
     {
-        Requires.DelayedRetries();
-
         await Scenario.Define<Context>()
             .WithEndpoint<RetryingEndpoint>(e => e
                 .CustomConfig(c => c.Recoverability().Delayed(i => i.NumberOfRetries(1).TimeIncrease(TimeSpan.FromMilliseconds(1))))
