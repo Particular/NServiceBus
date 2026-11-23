@@ -1,5 +1,6 @@
 namespace NServiceBus.AcceptanceTests.Core.TransportSeam;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
@@ -19,6 +20,7 @@ static class LifecycleRecordingEndpoint
     public const string StopWorkingTask = "FeatureStartupTask.Stop Working";
     public const string StartThrowingTask = "FeatureStartupTask.Start Throwing";
     public const string StopThrowingTask = "FeatureStartupTask.Stop Throwing";
+    public const string DisposeThrowingTask = "FeatureStartupTask.Dispose Throwing";
 
     public static EndpointConfiguration Create(FakeTransport fakeTransport, string endpointName, bool throwInStartupTask = false, CancellationTokenSource cancelInStartupTask = null)
     {
@@ -80,8 +82,10 @@ static class LifecycleRecordingEndpoint
         protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
-    class RecordingStartupTask(string name, FakeTransport.StartUpSequence sequence, bool throwOnStart) : FeatureStartupTask
+    class RecordingStartupTask(string name, FakeTransport.StartUpSequence sequence, bool throwOnStart) : FeatureStartupTask, IDisposable
     {
+        public void Dispose() => sequence.Add($"FeatureStartupTask.Dispose {name}");
+
         protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default)
         {
             sequence.Add($"FeatureStartupTask.Start {name}");

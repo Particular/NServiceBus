@@ -24,7 +24,29 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
         }
 
         instance = factory(builder, state);
-        await instance.PerformStartup(messageSession, cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            await instance.PerformStartup(messageSession, cancellationToken).ConfigureAwait(false);
+        }
+#pragma warning disable PS0019 // Disposal runs for cancellation too; the exception is rethrown
+        catch (Exception)
+#pragma warning restore PS0019
+        {
+            try
+            {
+                await Disposable.Wrap(instance).DisposeAsync().ConfigureAwait(false);
+            }
+#pragma warning disable PS0019 // A disposal failure must not replace the start exception
+            catch (Exception ex)
+#pragma warning restore PS0019
+            {
+                Log.Warn($"Exception occurred during disposal of feature startup task '{Name}' after it failed to start.", ex);
+            }
+
+            throw;
+        }
+
         started = true;
     }
 
