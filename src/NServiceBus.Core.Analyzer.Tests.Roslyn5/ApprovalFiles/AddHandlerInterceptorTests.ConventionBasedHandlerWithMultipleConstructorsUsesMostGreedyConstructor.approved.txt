@@ -32,9 +32,9 @@ namespace NServiceBus
             public void AddHandler_OrderShippedHandler_84e7f53e91caf984()
             {
                 System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
-                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
+                var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_40f827e6c30cb1cb, global::Cmd1, global::Orders.OrderShippedHandler>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
             }

@@ -28,21 +28,21 @@ namespace NServiceBus
             /// </summary>
             public void AddOrderShippingPolicy()
             {
-                var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
-                   .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-                var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
+                   .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
+                var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
                 {
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::OrderPlaced), true, false),
+                    new global::NServiceBus.Sagas.SagaMessage(typeof(global::OrderPlaced), true, false),
                 };
-                NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
+                global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                     OrderPlacedOrderIdAccessor_5f69124e5a7de2e1.Instance,
                 ];
-                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::OrderShippingPolicy, global::OrderShippingPolicyData>(associatedMessages, OrderIdAsStringAccessor_912ea78b27a6e1ec.Instance, propertyAccessors);
+                var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<global::OrderShippingPolicy, global::OrderShippingPolicyData>(associatedMessages, OrderIdAsStringAccessor_912ea78b27a6e1ec.Instance, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
-                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderShippingPolicy, global::OrderPlaced>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderPlaced), []);
             }
@@ -51,26 +51,26 @@ namespace NServiceBus
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderPlacedOrderIdAccessor_5f69124e5a7de2e1 : NServiceBus.Sagas.MessagePropertyAccessor<global::OrderPlaced>
+    file sealed class OrderPlacedOrderIdAccessor_5f69124e5a7de2e1 : global::NServiceBus.Sagas.MessagePropertyAccessor<global::OrderPlaced>
     {
         OrderPlacedOrderIdAccessor_5f69124e5a7de2e1() { }
 
         protected override object? AccessFrom(global::OrderPlaced message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_5f69124e5a7de2e1();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_5f69124e5a7de2e1();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderIdAsStringAccessor_912ea78b27a6e1ec : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class OrderIdAsStringAccessor_912ea78b27a6e1ec : global::NServiceBus.Sagas.CorrelationPropertyAccessor
     {
         OrderIdAsStringAccessor_912ea78b27a6e1ec() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::OrderShippingPolicyData)sagaData).OrderId;
+        public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData) => ((global::OrderShippingPolicyData)sagaData).OrderId;
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::OrderShippingPolicyData)sagaData).OrderId = (string)value;
+        public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value) => ((global::OrderShippingPolicyData)sagaData).OrderId = (string)value;
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_912ea78b27a6e1ec();
+        public static readonly global::NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_912ea78b27a6e1ec();
     }
 }
 

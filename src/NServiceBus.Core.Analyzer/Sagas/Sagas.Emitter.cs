@@ -26,24 +26,24 @@ public static partial class Sagas
 
         static void EmitSagaMetadataCollectionVariables(SourceWriter sourceWriter, string configurationVariable) =>
             sourceWriter.WriteLine($"""
-                                    var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings({configurationVariable})
-                                       .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
+                                    var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings({configurationVariable})
+                                       .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
                                     """);
 
         static void EmitSagaMetadataAdd(SourceWriter sourceWriter, SagaSpec details)
         {
-            sourceWriter.WriteLine("var associatedMessages = new NServiceBus.Sagas.SagaMessage[]");
+            sourceWriter.WriteLine("var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]");
             sourceWriter.WriteLine("{");
             sourceWriter.Indentation++;
             foreach (var message in details.Handler.Registrations)
             {
-                sourceWriter.WriteLine($"new NServiceBus.Sagas.SagaMessage(typeof({message.MessageType}), {(message.RegistrationType == Handlers.RegistrationType.StartMessageHandler ? "true" : "false")}, {(message.RegistrationType == Handlers.RegistrationType.TimeoutHandler ? "true" : "false")}),");
+                sourceWriter.WriteLine($"new global::NServiceBus.Sagas.SagaMessage(typeof({message.MessageType}), {(message.RegistrationType == Handlers.RegistrationType.StartMessageHandler ? "true" : "false")}, {(message.RegistrationType == Handlers.RegistrationType.TimeoutHandler ? "true" : "false")}),");
             }
 
             sourceWriter.Indentation--;
             sourceWriter.WriteLine("};");
 
-            sourceWriter.WriteLine("NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [");
+            sourceWriter.WriteLine("global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [");
             sourceWriter.Indentation++;
             foreach (var mapping in details.PropertyMappings)
             {
@@ -59,7 +59,7 @@ public static partial class Sagas
                 ? $"{CorrelationPropertyAccessorName(details.SagaDataFullyQualifiedName, correlationProperty)}.Instance"
                 : "null";
 
-            sourceWriter.WriteLine($"var metadata = NServiceBus.Sagas.SagaMetadata.Create<{details.FullyQualifiedName}, {details.SagaDataFullyQualifiedName}>(associatedMessages, {correlationPropertyAccessor}, propertyAccessors);");
+            sourceWriter.WriteLine($"var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<{details.FullyQualifiedName}, {details.SagaDataFullyQualifiedName}>(associatedMessages, {correlationPropertyAccessor}, propertyAccessors);");
             sourceWriter.WriteLine("sagaMetadataCollection.Add(metadata);");
         }
 
@@ -88,7 +88,7 @@ public static partial class Sagas
             {
                 var mapping = pair.Value;
                 var accessorClassName = MessagePropertyAccessorName(mapping);
-                BeginAccessorClass(sourceWriter, accessorClassName, $"NServiceBus.Sagas.MessagePropertyAccessor<{mapping.MessageType}>");
+                BeginAccessorClass(sourceWriter, accessorClassName, $"global::NServiceBus.Sagas.MessagePropertyAccessor<{mapping.MessageType}>");
 
                 var member = MemberName(mapping.MessagePropertyName);
                 var read = (mapping.ExternGetter, mapping.GetterReceiverCastType) switch
@@ -104,7 +104,7 @@ public static partial class Sagas
                     WriteExternAccessor(sourceWriter, "AccessFrom_Property", externGetter, mapping.MessagePropertyType, $"{externGetter.ReceiverType} message");
                 }
 
-                EndAccessorClass(sourceWriter, accessorClassName, "NServiceBus.Sagas.MessagePropertyAccessor");
+                EndAccessorClass(sourceWriter, accessorClassName, "global::NServiceBus.Sagas.MessagePropertyAccessor");
             }
         }
 
@@ -130,7 +130,7 @@ public static partial class Sagas
             {
                 var (mapping, sagaDataType) = pair.Value;
                 var accessorClassName = CorrelationPropertyAccessorName(sagaDataType, mapping);
-                BeginAccessorClass(sourceWriter, accessorClassName, "NServiceBus.Sagas.CorrelationPropertyAccessor");
+                BeginAccessorClass(sourceWriter, accessorClassName, "global::NServiceBus.Sagas.CorrelationPropertyAccessor");
 
                 var member = MemberName(mapping.PropertyName);
                 var read = mapping.ExternGetter is { ReceiverType: var getterReceiverType }
@@ -140,20 +140,20 @@ public static partial class Sagas
                     ? $"WriteTo_Property(({setterReceiverType})sagaData, ({mapping.PropertyType})value)"
                     : $"(({sagaDataType})sagaData).{member} = ({mapping.PropertyType})value";
 
-                WriteSuppressingDiagnostics(sourceWriter, $"public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => {read};", mapping.SuppressedGetterDiagnosticIds);
+                WriteSuppressingDiagnostics(sourceWriter, $"public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData) => {read};", mapping.SuppressedGetterDiagnosticIds);
                 if (mapping.ExternGetter is { } externGetter)
                 {
                     WriteExternAccessor(sourceWriter, "AccessFrom_Property", externGetter, mapping.PropertyType, $"{externGetter.ReceiverType} sagaData");
                 }
 
                 sourceWriter.WriteLine();
-                WriteSuppressingDiagnostics(sourceWriter, $"public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => {write};", mapping.SuppressedSetterDiagnosticIds);
+                WriteSuppressingDiagnostics(sourceWriter, $"public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value) => {write};", mapping.SuppressedSetterDiagnosticIds);
                 if (mapping.ExternSetter is { } externSetter)
                 {
                     WriteExternAccessor(sourceWriter, "WriteTo_Property", externSetter, "void", $"{externSetter.ReceiverType} sagaData, {mapping.PropertyType} value");
                 }
 
-                EndAccessorClass(sourceWriter, accessorClassName, "NServiceBus.Sagas.CorrelationPropertyAccessor");
+                EndAccessorClass(sourceWriter, accessorClassName, "global::NServiceBus.Sagas.CorrelationPropertyAccessor");
             }
         }
 
