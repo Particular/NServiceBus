@@ -203,7 +203,17 @@ partial class StartableEndpoint(
         }
         finally
         {
-            await runningInstance.DisposeAsync().ConfigureAwait(false);
+            try
+            {
+                await runningInstance.DisposeAsync().ConfigureAwait(false);
+            }
+#pragma warning disable PS0019 // A disposal failure must not replace the start exception
+            catch (Exception ex)
+#pragma warning restore PS0019
+            {
+                // ILog because the container that owns the ILogger factory is disposed; LogManager then falls back to its default logger.
+                Log.Error("Disposing the endpoint after it failed to start failed.", ex);
+            }
         }
     }
 
@@ -213,6 +223,8 @@ partial class StartableEndpoint(
     Lifecycle lifecycle = Lifecycle.NotStarted;
     readonly SemaphoreSlim startSemaphore = new(1, 1);
     ILogger logger = null!;
+
+    static readonly ILog Log = LogManager.GetLogger<StartableEndpoint>();
 
     // ShutdownInitiated stays set when Shutdown fails.
     enum Lifecycle

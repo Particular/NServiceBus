@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using FakeTransport;
+using Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -140,6 +141,55 @@ public class When_endpoint_fails_to_start : NServiceBusAcceptanceTest
         public Task StartAsync(CancellationToken cancellationToken = default) => throw new SimulatedException("Another hosted service failed to start");
 
         public Task StopAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
+    [Test]
+    [CancelAfter(30_000)]
+    public void Should_rethrow_the_start_exception_when_disposing_the_self_hosted_container_fails(CancellationToken cancellationToken = default)
+    {
+        var fakeTransport = new FakeTransport();
+        var endpointConfiguration = Create(fakeTransport, "FailingStartFailingDispose");
+        endpointConfiguration.EnableFeature<ServiceThatThrowsOnDisposeFeature>();
+
+        var exception = Assert.ThrowsAsync<SimulatedException>(async () => await Endpoint.Start(endpointConfiguration, cancellationToken));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(exception.Message, Is.EqualTo("Startup task failed"), "A container disposal failure should not replace the start exception");
+            Assert.That(fakeTransport.StartupSequence, Does.Contain(ServiceThatThrowsOnDispose.Disposed), "The container should have been disposed. Sequence: " + Describe(fakeTransport.StartupSequence));
+        }
+    }
+
+    class ServiceThatThrowsOnDisposeFeature : Feature
+    {
+        protected override void Setup(FeatureConfigurationContext context)
+        {
+            var sequence = context.Settings.Get<FakeTransport.StartUpSequence>();
+            context.Services.AddSingleton(_ => new ServiceThatThrowsOnDispose(sequence));
+            context.RegisterStartupTask(provider => new ResolvingThrowingStartupTask(provider.GetRequiredService<ServiceThatThrowsOnDispose>()));
+        }
+    }
+
+    sealed class ServiceThatThrowsOnDispose(FakeTransport.StartUpSequence sequence) : IDisposable
+    {
+        public const string Disposed = "ServiceThatThrowsOnDispose.Dispose";
+
+        public void Dispose()
+        {
+            sequence.Add(Disposed);
+            throw new InvalidOperationException("Disposing the service failed");
+        }
+    }
+
+    // Resolves the service so that the container owns and disposes it.
+    class ResolvingThrowingStartupTask(ServiceThatThrowsOnDispose service) : FeatureStartupTask
+    {
+        public ServiceThatThrowsOnDispose Service { get; } = service;
+
+        protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) =>
+            throw new SimulatedException("Startup task failed");
+
+        protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     [Test]
