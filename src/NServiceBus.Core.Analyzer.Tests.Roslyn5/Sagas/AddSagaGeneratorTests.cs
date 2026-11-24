@@ -192,6 +192,55 @@ public class AddSagaGeneratorTests
     }
 
     [Test]
+    public void SagaNamespaceContainsNServiceBusSegment()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.SagaNamespaceContainsNServiceBusSegmentAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Acme.Sales.NServiceBus.Sagas
+                     {
+                         [Saga]
+                         public class OrderSaga : Saga<OrderSagaData>, IAmStartedByMessages<OrderPlaced>
+                         {
+                             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<OrderSagaData> mapper)
+                             {
+                                 mapper.MapSaga(saga => saga.OrderId).ToMessage<OrderPlaced>(message => message.OrderId);
+                             }
+
+                             public Task Handle(OrderPlaced message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+
+                         public class OrderSagaData : ContainSagaData
+                         {
+                             public string OrderId { get; set; }
+                         }
+
+                         public class OrderPlaced : IEvent
+                         {
+                             public string OrderId { get; set; }
+                         }
+                     }
+                     """;
+
+        var result = SourceGeneratorTest.ForIncrementalGenerator<AddSagaGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .SuppressCompilationErrors()
+            .Run();
+
+        Assert.That(result.GetCompilationOutput(), Does.Not.Contain("error CS"));
+    }
+
+    [Test]
     public void NestedSagas()
     {
         var source = """

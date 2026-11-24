@@ -34,7 +34,7 @@ public sealed partial class AddMessageTypeInterceptor
             sourceWriter.Indentation++;
 
             sourceWriter.WriteLine("""
-                                   extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+                                   extension (global::NServiceBus.EndpointConfiguration endpointConfiguration)
                                    {
                                    """);
             sourceWriter.Indentation++;
@@ -67,7 +67,7 @@ public sealed partial class AddMessageTypeInterceptor
                                          """);
                 sourceWriter.Indentation++;
 
-                sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
+                sourceWriter.WriteLine("global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
 
                 EmitMessageTypeRegistration(sourceWriter, interceptableMessageType.MessageTypeSpec);
 
@@ -94,8 +94,8 @@ public sealed partial class AddMessageTypeInterceptor
         static void EmitMessageTypeRegistration(SourceWriter sourceWriter, MessageTypeSpec messageTypeSpec)
         {
             sourceWriter.WriteLine("""
-                                   var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
-                                   var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                                   var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
+                                   var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                                    """);
 
             if (messageTypeSpec.HierarchyTypeNames.Count == 0)

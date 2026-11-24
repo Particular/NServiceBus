@@ -12,9 +12,9 @@ public static partial class Handlers
     {
         public static void EmitHandlerRegistryVariables(SourceWriter sourceWriter, string configurationVariable) =>
             sourceWriter.WriteLine($"""
-                                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings({configurationVariable});
-                                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                                    var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings({configurationVariable});
+                                    var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                                    var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                                     """);
 
         public static void EmitHandlerRegistryCode(SourceWriter sourceWriter, HandlerSpec handlerSpec)

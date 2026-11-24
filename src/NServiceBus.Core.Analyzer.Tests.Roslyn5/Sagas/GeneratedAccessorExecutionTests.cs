@@ -1294,8 +1294,8 @@ public class GeneratedAccessorExecutionTests
     const string Experimental = "[System.Diagnostics.CodeAnalysis.Experimental(\"EXP001\")]";
 
     const string MessageAccessFrom = "protected override object? AccessFrom(global::Start message)";
-    const string CorrelationAccessFrom = "public override object? AccessFrom(NServiceBus.IContainSagaData sagaData)";
-    const string CorrelationWriteTo = "public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value)";
+    const string CorrelationAccessFrom = "public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData)";
+    const string CorrelationWriteTo = "public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value)";
 
     static string AttributedPropertySaga(string sagaDataProperty, string messageDeclarations, string messageMapping = "m.CorrelationId", string mappingSuppression = null, string sagaAttribute = "") =>
         $$"""

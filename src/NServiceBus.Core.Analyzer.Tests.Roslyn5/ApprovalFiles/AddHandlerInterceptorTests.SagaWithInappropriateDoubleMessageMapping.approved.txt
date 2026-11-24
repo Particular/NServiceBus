@@ -26,15 +26,15 @@ namespace NServiceBus
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
     static file class InterceptionsOfAddHandlerMethod
     {
-        extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+        extension (global::NServiceBus.EndpointConfiguration endpointConfiguration)
         {
             [global::System.Runtime.CompilerServices.InterceptsLocationAttribute(1, "{PLATFORM-SPECIFIC-BASE64-DATA}")] // test.cs(8,13)
             public void AddHandler_OrderPolicy_df58223eb7801b4c()
             {
-                System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
-                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
-                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);
+                var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(endpointConfiguration);
+                var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderBilled>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::OrderBilled), []);
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::OrderPolicy, global::OrderPlaced>();

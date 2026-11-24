@@ -25,20 +25,20 @@ namespace NServiceBus
                 /// </summary>
                 public void AddFinderOnlySaga()
                 {
-                    var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
-                       .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-                    var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                    var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
+                       .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
+                    var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
                     {
-                        new NServiceBus.Sagas.SagaMessage(typeof(global::FinderOnly.StartSagaMessage), true, false),
+                        new global::NServiceBus.Sagas.SagaMessage(typeof(global::FinderOnly.StartSagaMessage), true, false),
                     };
-                    NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
+                    global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                     ];
-                    var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::FinderOnly.FinderOnlySaga, global::FinderOnly.FinderOnlySagaData>(associatedMessages, null, propertyAccessors);
+                    var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<global::FinderOnly.FinderOnlySaga, global::FinderOnly.FinderOnlySagaData>(associatedMessages, null, propertyAccessors);
                     sagaMetadataCollection.Add(metadata);
 
-                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                     messageHandlerRegistry.AddMessageHandlerForMessage<global::FinderOnly.FinderOnlySaga, global::FinderOnly.StartSagaMessage>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::FinderOnly.StartSagaMessage), []);
                 }
@@ -80,7 +80,7 @@ namespace NServiceBus
         /// </summary>
         public sealed partial class FinderOnlySagasRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
-            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
             /// <summary>
             /// Gets the registry for the <i>FinderOnly</i> namespace segment under this branch.
@@ -131,7 +131,7 @@ namespace NServiceBus
             /// </summary>
             public sealed partial class FinderOnlyRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                 /// <summary>
                 /// Registers all handlers and sagas for this namespace segment and its child namespaces.
