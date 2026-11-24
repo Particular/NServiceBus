@@ -237,7 +237,6 @@ partial class StartableEndpoint(
     readonly SemaphoreSlim startSemaphore = new(1, 1);
     ILogger logger = null!;
 
-
     // ShutdownInitiated stays set when Shutdown fails.
     enum Lifecycle
     {

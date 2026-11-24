@@ -67,7 +67,6 @@ class RunningEndpointInstance(SettingsHolder settings,
 
         try
         {
-
             using var _ = LogManager.BeginSlotScope(endpointLogSlot);
             await using var tokenRegistration = cancellationToken.Register(() => Log.Warn("Aborting graceful shutdown."))
                 .ConfigureAwait(false);
