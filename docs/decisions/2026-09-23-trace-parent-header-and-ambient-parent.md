@@ -23,7 +23,9 @@ but NServiceBus cannot know which SDK is in use.
 **On receive, the SDK span is ambient but not the parent.** The SDK receive or process span is
 `Activity.Current` when the NServiceBus incoming pipeline starts. NServiceBus created its incoming span as
 a child of the sender span. With Azure Service Bus the NServiceBus span and the SDK process span are then
-siblings under the send span. Users expect the NServiceBus span under the SDK span.
+siblings under the send span. Users expect the NServiceBus span under the SDK span. Amazon SQS has no such
+span: the OpenTelemetry contrib instrumentation creates a client span for each API call only, and none of
+them is current when the incoming pipeline starts (correction of 2026-11-24).
 
 Before this change `ActivityFactory` also looked for a transport-supplied `Activity` in the `ContextBag`
 of the message context. No transport supplies one. The Azure Service Bus, RabbitMQ, SQS, Learning and

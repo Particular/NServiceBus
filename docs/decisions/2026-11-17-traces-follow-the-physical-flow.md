@@ -70,6 +70,21 @@ Constraints:
   ratio sampler decides again, and 90% of these receives are not sampled. The NServiceBus processing span is
   then not recorded, but the sender span is recorded. If the SDK receive span continues the incoming trace, the
   sampling decision of the sender applies, as in v10.
+- The SDK sets the relation between its send span and its receive span. NServiceBus does not change it, and
+  does not enforce the OpenTelemetry recommendation of a link on the SDKs. On 2026-11-24 the relations are:
+
+  | SDK | SDK receive span relation to the send span | NServiceBus incoming span |
+  |---|---|---|
+  | RabbitMQ.Client 7 | Child of the publish span, plus a link. `UsePublisherAsParent = false` gives a link only. | Child of the SDK deliver span |
+  | Azure.Messaging.ServiceBus (with `Azure.Experimental.EnableActivitySource`) | The process span is a child of the message context, plus a link | Child of the SDK process span |
+  | Amazon SQS (OpenTelemetry.Instrumentation.AWS) | No SDK receive span reads the context | Child of the sender span, as in v10 |
+
+  With the current SDKs, a message flow stays in one trace on all three transports. If an SDK changes to
+  links, the trace shape on that transport changes without a change in NServiceBus. Accepted; revisit when an
+  SDK changes its relation or the messaging conventions are stable.
+- The parent of the incoming span depends on the tracer configuration, not only on the transport. On the same
+  transport, the parent is the SDK span when the application subscribes to the SDK ActivitySource, and the
+  sender span when it does not. Accepted; the upgrade guide documents it (docs.particular.net#8443).
 - Currently, the SDKs do not propagate baggage. NServiceBus propagates baggage from the logical send context.
   If the SDKs start to propagate baggage, this behavior can change.
 
