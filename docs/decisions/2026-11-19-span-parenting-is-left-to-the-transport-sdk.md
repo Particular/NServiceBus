@@ -1,7 +1,7 @@
 # Span parenting is left to the transport SDK
 
 **Date:** 2026-11-19
-**Pull request:** TBD
+**Pull request:** https://github.com/Particular/NServiceBus/pull/8060
 **Related:**
 
 - [#7949](https://github.com/Particular/NServiceBus/pull/7949) the incoming span is a child of the ambient transport SDK span
