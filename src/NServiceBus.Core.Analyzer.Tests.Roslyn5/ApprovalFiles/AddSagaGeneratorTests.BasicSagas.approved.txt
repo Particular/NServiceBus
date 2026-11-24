@@ -27,24 +27,24 @@ namespace NServiceBus
                     /// </summary>
                     public void AddOrderBillingPolicy()
                     {
-                        var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
-                           .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-                        var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                        var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
+                           .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
+                        var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
                         {
-                            new NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Billing.OrderBilled), true, false),
-                            new NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Billing.OrderPlaced), true, false),
-                            new NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Billing.OrderPlaced), false, true),
+                            new global::NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Billing.OrderBilled), true, false),
+                            new global::NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Billing.OrderPlaced), true, false),
+                            new global::NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Billing.OrderPlaced), false, true),
                         };
-                        NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
+                        global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                             OrderBilledOrderIdAccessor_f7dc3394c771851e.Instance,
                             OrderPlacedOrderIdAccessor_ae6ad694572b9fcb.Instance,
                         ];
-                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Billing.OrderBillingPolicy, global::Orders.Billing.OrderBillingPolicyData>(associatedMessages, OrderIdAsStringAccessor_5b84242b5a03d625.Instance, propertyAccessors);
+                        var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Billing.OrderBillingPolicy, global::Orders.Billing.OrderBillingPolicyData>(associatedMessages, OrderIdAsStringAccessor_5b84242b5a03d625.Instance, propertyAccessors);
                         sagaMetadataCollection.Add(metadata);
 
-                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                         messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Billing.OrderBillingPolicy, global::Orders.Billing.OrderBilled>();
                         messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Orders.Billing.OrderBilled), []);
                         messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Billing.OrderBillingPolicy, global::Orders.Billing.OrderPlaced>();
@@ -65,24 +65,24 @@ namespace NServiceBus
                     /// </summary>
                     public void AddOrderShippingPolicy()
                     {
-                        var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
-                           .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-                        var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                        var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
+                           .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
+                        var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
                         {
-                            new NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Shipping.OrderBilled), false, false),
-                            new NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Shipping.OrderPlaced), true, false),
-                            new NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Shipping.OrderPlaced), false, true),
+                            new global::NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Shipping.OrderBilled), false, false),
+                            new global::NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Shipping.OrderPlaced), true, false),
+                            new global::NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Shipping.OrderPlaced), false, true),
                         };
-                        NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
+                        global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                             OrderBilledOrderIdAccessor_08b7b00354e1d041.Instance,
                             OrderPlacedOrderIdAccessor_13dea9c2dc628538.Instance,
                         ];
-                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.OrderShippingPolicy, global::Orders.Shipping.OrderShippingPolicyData>(associatedMessages, OrderIdAsStringAccessor_1073497622a938fb.Instance, propertyAccessors);
+                        var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.OrderShippingPolicy, global::Orders.Shipping.OrderShippingPolicyData>(associatedMessages, OrderIdAsStringAccessor_1073497622a938fb.Instance, propertyAccessors);
                         sagaMetadataCollection.Add(metadata);
 
-                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                         messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.OrderShippingPolicy, global::Orders.Shipping.OrderBilled>();
                         messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Orders.Shipping.OrderBilled), []);
                         messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.OrderShippingPolicy, global::Orders.Shipping.OrderPlaced>();
@@ -104,23 +104,23 @@ namespace NServiceBus
                 /// </summary>
                 public void AddPaymentsPolicy()
                 {
-                    var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
-                       .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-                    var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                    var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
+                       .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
+                    var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
                     {
-                        new NServiceBus.Sagas.SagaMessage(typeof(global::Payments.OrderBilled), false, false),
-                        new NServiceBus.Sagas.SagaMessage(typeof(global::Payments.OrderPlaced), true, false),
+                        new global::NServiceBus.Sagas.SagaMessage(typeof(global::Payments.OrderBilled), false, false),
+                        new global::NServiceBus.Sagas.SagaMessage(typeof(global::Payments.OrderPlaced), true, false),
                     };
-                    NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
+                    global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                         OrderBilledOrderIdAccessor_2fd27f5436ef20b9.Instance,
                         OrderPlacedOrderIdAccessor_c561311f0fcc5cf0.Instance,
                     ];
-                    var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Payments.PaymentsPolicy, global::Payments.PaymentsPolicyData>(associatedMessages, OrderIdAsStringAccessor_6d931b1825e0c4ca.Instance, propertyAccessors);
+                    var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<global::Payments.PaymentsPolicy, global::Payments.PaymentsPolicyData>(associatedMessages, OrderIdAsStringAccessor_6d931b1825e0c4ca.Instance, propertyAccessors);
                     sagaMetadataCollection.Add(metadata);
 
-                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                     messageHandlerRegistry.AddMessageHandlerForMessage<global::Payments.PaymentsPolicy, global::Payments.OrderBilled>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Payments.OrderBilled), []);
                     messageHandlerRegistry.AddMessageHandlerForMessage<global::Payments.PaymentsPolicy, global::Payments.OrderPlaced>();
@@ -132,107 +132,107 @@ namespace NServiceBus
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderBilledOrderIdAccessor_f7dc3394c771851e : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Billing.OrderBilled>
+    file sealed class OrderBilledOrderIdAccessor_f7dc3394c771851e : global::NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Billing.OrderBilled>
     {
         OrderBilledOrderIdAccessor_f7dc3394c771851e() { }
 
         protected override object? AccessFrom(global::Orders.Billing.OrderBilled message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_f7dc3394c771851e();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_f7dc3394c771851e();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderPlacedOrderIdAccessor_ae6ad694572b9fcb : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Billing.OrderPlaced>
+    file sealed class OrderPlacedOrderIdAccessor_ae6ad694572b9fcb : global::NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Billing.OrderPlaced>
     {
         OrderPlacedOrderIdAccessor_ae6ad694572b9fcb() { }
 
         protected override object? AccessFrom(global::Orders.Billing.OrderPlaced message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_ae6ad694572b9fcb();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_ae6ad694572b9fcb();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderBilledOrderIdAccessor_08b7b00354e1d041 : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Shipping.OrderBilled>
+    file sealed class OrderBilledOrderIdAccessor_08b7b00354e1d041 : global::NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Shipping.OrderBilled>
     {
         OrderBilledOrderIdAccessor_08b7b00354e1d041() { }
 
         protected override object? AccessFrom(global::Orders.Shipping.OrderBilled message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_08b7b00354e1d041();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_08b7b00354e1d041();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderPlacedOrderIdAccessor_13dea9c2dc628538 : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Shipping.OrderPlaced>
+    file sealed class OrderPlacedOrderIdAccessor_13dea9c2dc628538 : global::NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Shipping.OrderPlaced>
     {
         OrderPlacedOrderIdAccessor_13dea9c2dc628538() { }
 
         protected override object? AccessFrom(global::Orders.Shipping.OrderPlaced message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_13dea9c2dc628538();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_13dea9c2dc628538();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderBilledOrderIdAccessor_2fd27f5436ef20b9 : NServiceBus.Sagas.MessagePropertyAccessor<global::Payments.OrderBilled>
+    file sealed class OrderBilledOrderIdAccessor_2fd27f5436ef20b9 : global::NServiceBus.Sagas.MessagePropertyAccessor<global::Payments.OrderBilled>
     {
         OrderBilledOrderIdAccessor_2fd27f5436ef20b9() { }
 
         protected override object? AccessFrom(global::Payments.OrderBilled message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_2fd27f5436ef20b9();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderBilledOrderIdAccessor_2fd27f5436ef20b9();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderPlacedOrderIdAccessor_c561311f0fcc5cf0 : NServiceBus.Sagas.MessagePropertyAccessor<global::Payments.OrderPlaced>
+    file sealed class OrderPlacedOrderIdAccessor_c561311f0fcc5cf0 : global::NServiceBus.Sagas.MessagePropertyAccessor<global::Payments.OrderPlaced>
     {
         OrderPlacedOrderIdAccessor_c561311f0fcc5cf0() { }
 
         protected override object? AccessFrom(global::Payments.OrderPlaced message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_c561311f0fcc5cf0();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new OrderPlacedOrderIdAccessor_c561311f0fcc5cf0();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderIdAsStringAccessor_5b84242b5a03d625 : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class OrderIdAsStringAccessor_5b84242b5a03d625 : global::NServiceBus.Sagas.CorrelationPropertyAccessor
     {
         OrderIdAsStringAccessor_5b84242b5a03d625() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::Orders.Billing.OrderBillingPolicyData)sagaData).OrderId;
+        public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData) => ((global::Orders.Billing.OrderBillingPolicyData)sagaData).OrderId;
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.Billing.OrderBillingPolicyData)sagaData).OrderId = (string)value;
+        public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.Billing.OrderBillingPolicyData)sagaData).OrderId = (string)value;
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_5b84242b5a03d625();
+        public static readonly global::NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_5b84242b5a03d625();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderIdAsStringAccessor_1073497622a938fb : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class OrderIdAsStringAccessor_1073497622a938fb : global::NServiceBus.Sagas.CorrelationPropertyAccessor
     {
         OrderIdAsStringAccessor_1073497622a938fb() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::Orders.Shipping.OrderShippingPolicyData)sagaData).OrderId;
+        public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData) => ((global::Orders.Shipping.OrderShippingPolicyData)sagaData).OrderId;
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.Shipping.OrderShippingPolicyData)sagaData).OrderId = (string)value;
+        public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.Shipping.OrderShippingPolicyData)sagaData).OrderId = (string)value;
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_1073497622a938fb();
+        public static readonly global::NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_1073497622a938fb();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderIdAsStringAccessor_6d931b1825e0c4ca : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class OrderIdAsStringAccessor_6d931b1825e0c4ca : global::NServiceBus.Sagas.CorrelationPropertyAccessor
     {
         OrderIdAsStringAccessor_6d931b1825e0c4ca() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::Payments.PaymentsPolicyData)sagaData).OrderId;
+        public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData) => ((global::Payments.PaymentsPolicyData)sagaData).OrderId;
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::Payments.PaymentsPolicyData)sagaData).OrderId = (string)value;
+        public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value) => ((global::Payments.PaymentsPolicyData)sagaData).OrderId = (string)value;
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_6d931b1825e0c4ca();
+        public static readonly global::NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_6d931b1825e0c4ca();
     }
 }
 
@@ -269,7 +269,7 @@ namespace NServiceBus
         /// </summary>
         public sealed partial class BasicSagasRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
-            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
             /// <summary>
             /// Gets the registry for the <i>Orders</i> namespace segment under this branch.
@@ -327,7 +327,7 @@ namespace NServiceBus
             /// </summary>
             public sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                 /// <summary>
                 /// Gets the registry for the <i>Billing</i> namespace segment under this branch.
@@ -385,7 +385,7 @@ namespace NServiceBus
                 /// </summary>
                 public sealed partial class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
-                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
@@ -427,7 +427,7 @@ namespace NServiceBus
                 /// </summary>
                 public sealed partial class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
-                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
@@ -470,7 +470,7 @@ namespace NServiceBus
             /// </summary>
             public sealed partial class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                 /// <summary>
                 /// Registers all handlers and sagas for this namespace segment and its child namespaces.

@@ -33,7 +33,7 @@ public sealed partial class AddHandlerInterceptor
             sourceWriter.Indentation++;
 
             sourceWriter.WriteLine("""
-                                   extension (NServiceBus.EndpointConfiguration endpointConfiguration)
+                                   extension (global::NServiceBus.EndpointConfiguration endpointConfiguration)
                                    {
                                    """);
             sourceWriter.Indentation++;
@@ -67,7 +67,7 @@ public sealed partial class AddHandlerInterceptor
                                          """);
                 sourceWriter.Indentation++;
 
-                sourceWriter.WriteLine("System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
+                sourceWriter.WriteLine("global::System.ArgumentNullException.ThrowIfNull(endpointConfiguration);");
 
                 Handlers.Emitter.EmitHandlerRegistryVariables(sourceWriter, "endpointConfiguration");
                 Handlers.Emitter.EmitHandlerRegistryCode(sourceWriter, interceptableHandlerSpec.HandlerSpec);

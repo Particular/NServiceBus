@@ -26,6 +26,12 @@ class FakeReceiver : IMessageReceiver
     public Task Initialize(PushRuntimeSettings limitations, OnMessage onMessage, OnError onError, CancellationToken cancellationToken = default)
     {
         startupSequence.Add($"{nameof(IMessageReceiver)}.{nameof(Initialize)} for receiver {Id}");
+
+        if (transportSettings.ExceptionsOnReceiverInitialize.TryGetValue(Id, out var exception))
+        {
+            throw exception;
+        }
+
         return Task.CompletedTask;
     }
 
@@ -37,6 +43,11 @@ class FakeReceiver : IMessageReceiver
         {
             criticalErrorAction(transportSettings.ErrorOnReceiverStart.Message,
                 transportSettings.ErrorOnReceiverStart, cancellationToken);
+        }
+
+        if (transportSettings.ExceptionsOnReceiverStart.TryGetValue(Id, out var exception))
+        {
+            throw exception;
         }
 
         return Task.CompletedTask;

@@ -27,9 +27,9 @@ namespace NServiceBus
                 /// </summary>
                 public void AddOrderAcceptedHandler()
                 {
-                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                     messageHandlerRegistry.AddMessageHandlerForMessage<OrderAcceptedHandler__Handle__Cmd1_da7a5fd2452aa3d8, global::Cmd1, global::Orders.OrderAcceptedHandler>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
                     messageHandlerRegistry.AddMessageHandlerForMessage<OrderAcceptedHandler__Handle__Cmd2_5a8c95a05fa2edc7, global::Cmd2, global::Orders.OrderAcceptedHandler>();
@@ -41,9 +41,9 @@ namespace NServiceBus
                 /// </summary>
                 public void AddOrderPlacedHandler()
                 {
-                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                     messageHandlerRegistry.AddMessageHandlerForMessage<OrderPlacedHandler__Handle__Cmd2_bced5e5e9570a48a, global::Cmd2, global::Orders.OrderPlacedHandler>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
                 }
@@ -53,9 +53,9 @@ namespace NServiceBus
                 /// </summary>
                 public void AddOrderShippedHandler()
                 {
-                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                     messageHandlerRegistry.AddMessageHandlerForMessage<OrderShippedHandler__Handle__Cmd1_abf6ab59fa4378ea, global::Cmd1, global::Orders.OrderShippedHandler>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), []);
                 }
@@ -170,7 +170,7 @@ namespace NServiceBus
         /// </summary>
         public sealed partial class ConventionBasedHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
-            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
             /// <summary>
             /// Gets the registry for the <i>Orders</i> namespace segment under this branch.
@@ -221,7 +221,7 @@ namespace NServiceBus
             /// </summary>
             public sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                 /// <summary>
                 /// Registers all handlers and sagas for this namespace segment and its child namespaces.

@@ -14,7 +14,7 @@ partial class PipelineMetrics
     public const string MeterName = "NServiceBus.Core";
     public const string MeterVersion = "1.0.0";
 
-    const string ProcessingAttempts = "nservicebus.messaging.processing_attempts";
+    public const string ProcessingAttempts = "nservicebus.messaging.processing_attempts";
     const string MessageHandlerTime = "nservicebus.messaging.handler_time";
     const string CriticalTime = "nservicebus.messaging.critical_time";
     const string ProcessingTime = "nservicebus.messaging.processing_time";

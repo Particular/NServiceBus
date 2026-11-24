@@ -28,4 +28,13 @@ static class EndpointPreparation
         await endpoint.Setup(cancellationToken).ConfigureAwait(false);
         return endpoint;
     }
+
+    public static async Task RunInstallersWithoutStartingTheEndpoint(
+        IEndpointCreationStrategy creationStrategy,
+        IServiceProvider serviceProvider,
+        CancellationToken cancellationToken = default)
+    {
+        var endpoint = await Prepare(creationStrategy, serviceProvider, cancellationToken).ConfigureAwait(false);
+        await endpoint.ShutdownWithoutRunning(cancellationToken).ConfigureAwait(false);
+    }
 }

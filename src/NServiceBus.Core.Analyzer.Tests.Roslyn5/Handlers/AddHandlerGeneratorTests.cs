@@ -70,6 +70,42 @@ public class AddHandlerGeneratorTests
     }
 
     [Test]
+    public void HandlerNamespaceContainsNServiceBusSegment()
+    {
+        var source = """
+                     using System.Threading.Tasks;
+                     using NServiceBus;
+
+                     public class Test
+                     {
+                         public void Configure(EndpointConfiguration cfg)
+                         {
+                             cfg.Handlers.HandlerNamespaceContainsNServiceBusSegmentAssembly.AddAll();
+                         }
+                     }
+
+                     namespace Acme.Sales.NServiceBus.Handlers
+                     {
+                         [Handler]
+                         public class OrderPlacedHandler : IHandleMessages<OrderPlaced>
+                         {
+                             public Task Handle(OrderPlaced message, IMessageHandlerContext context) => Task.CompletedTask;
+                         }
+                     }
+
+                     public class OrderPlaced : IEvent;
+                     """;
+
+        var result = SourceGeneratorTest.ForIncrementalGenerator<AddHandlerGenerator>()
+            .WithIncrementalGenerator<AddHandlerAndSagasRegistrationGenerator>()
+            .WithSource(source, "test.cs")
+            .SuppressCompilationErrors()
+            .Run();
+
+        Assert.That(result.GetCompilationOutput(), Does.Not.Contain("error CS"));
+    }
+
+    [Test]
     public void NestedHandler()
     {
         var source = """

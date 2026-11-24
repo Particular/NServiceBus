@@ -709,8 +709,8 @@ namespace NServiceBus
     //
     // In v11: delete this entire namespace block, search the code base for `V11BehaviorSwitch` and keep
     // only the branch each check guards for the enabled case. ActivityFactory, ActivitySources, ContextPropagation,
-    // RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector and
-    // PipelineMetrics are the production call sites. Delete the pre-v11 default tests
+    // RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector,
+    // PipelineMetrics and UsageReporter are the production call sites. Delete the pre-v11 default tests
     // (ContextPropagationDefaultBehaviorTests, LegacyContextPropagationTests, TransportParentSpanDefaultBehaviorTests,
     // the "Default_..." tests in HandlerActivitySourceTests, PipelineMetricsTests.Should_not_advise_bucket_boundaries,
     // the "Should_report_..._unwrapping_metric" tests in When_envelope_handler_succeeds/_fails, the tests without
@@ -911,7 +911,7 @@ namespace NServiceBus
     partial class PipelineMetrics
     {
         const string LegacyEnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
-        const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
+        public const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
         const string TotalFailures = "nservicebus.messaging.failures";
         const string TotalFetched = "nservicebus.messaging.fetches";
 

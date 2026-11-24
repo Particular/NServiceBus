@@ -27,9 +27,9 @@ namespace NServiceBus
                     /// </summary>
                     public void AddInvoiceCreatedHandler()
                     {
-                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                         messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Billing.InvoiceCreatedHandler, global::Evt1>();
                         messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Evt1), []);
                     }
@@ -47,9 +47,9 @@ namespace NServiceBus
                     /// </summary>
                     public void AddOrderShippedHandler()
                     {
-                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                         messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.OrderShippedHandler, global::Cmd1>();
                         messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
                     }
@@ -59,9 +59,9 @@ namespace NServiceBus
                     /// </summary>
                     public void AddShipmentDelayedHandler()
                     {
-                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                         messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.ShipmentDelayedHandler, global::Cmd2>();
                         messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd2), []);
                     }
@@ -79,9 +79,9 @@ namespace NServiceBus
                 /// </summary>
                 public void AddPaymentCapturedHandler()
                 {
-                    var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                    var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                    var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                    var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                    var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                    var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                     messageHandlerRegistry.AddMessageHandlerForMessage<global::Payments.PaymentCapturedHandler, global::Cmd1>();
                     messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Cmd1), [typeof(global::CmdBase)]);
                 }
@@ -123,7 +123,7 @@ namespace NServiceBus
         /// </summary>
         public sealed partial class BasicHandlersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
-            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
             /// <summary>
             /// Gets the registry for the <i>Orders</i> namespace segment under this branch.
@@ -181,7 +181,7 @@ namespace NServiceBus
             /// </summary>
             public sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                 /// <summary>
                 /// Gets the registry for the <i>Billing</i> namespace segment under this branch.
@@ -239,7 +239,7 @@ namespace NServiceBus
                 /// </summary>
                 public sealed partial class BillingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
-                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
@@ -281,7 +281,7 @@ namespace NServiceBus
                 /// </summary>
                 public sealed partial class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
-                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.
@@ -324,7 +324,7 @@ namespace NServiceBus
             /// </summary>
             public sealed partial class PaymentsRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                 /// <summary>
                 /// Registers all handlers and sagas for this namespace segment and its child namespaces.

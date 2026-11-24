@@ -106,7 +106,7 @@ public partial class AddHandlerAndSagasRegistrationGenerator
                 },
                 static (writer, current) =>
                 {
-                    writer.WriteLine("readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));");
+                    writer.WriteLine("readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));");
 
                     if (current.Children.Count > 0)
                     {

@@ -27,21 +27,21 @@ namespace NServiceBus
                     /// </summary>
                     public void AddPartitionedEndpointSaga()
                     {
-                        var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
-                           .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-                        var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                        var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
+                           .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
+                        var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
                         {
-                            new NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Shipping.StartPartitionSagaCommand), true, false),
+                            new global::NServiceBus.Sagas.SagaMessage(typeof(global::Orders.Shipping.StartPartitionSagaCommand), true, false),
                         };
-                        NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
+                        global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                             StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6.Instance,
                         ];
-                        var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.PartitionedEndpointSaga, global::Orders.Shipping.PartitionedEndpointSagaData>(associatedMessages, CorrelationIdAsStringAccessor_90ab90feac5d44a9.Instance, propertyAccessors);
+                        var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<global::Orders.Shipping.PartitionedEndpointSaga, global::Orders.Shipping.PartitionedEndpointSagaData>(associatedMessages, CorrelationIdAsStringAccessor_90ab90feac5d44a9.Instance, propertyAccessors);
                         sagaMetadataCollection.Add(metadata);
 
-                        var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                        var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                        var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                        var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                        var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                        var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                         messageHandlerRegistry.AddMessageHandlerForMessage<global::Orders.Shipping.PartitionedEndpointSaga, global::Orders.Shipping.StartPartitionSagaCommand>();
                         messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::Orders.Shipping.StartPartitionSagaCommand), []);
                     }
@@ -52,26 +52,26 @@ namespace NServiceBus
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6 : NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Shipping.StartPartitionSagaCommand>
+    file sealed class StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6 : global::NServiceBus.Sagas.MessagePropertyAccessor<global::Orders.Shipping.StartPartitionSagaCommand>
     {
         StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6() { }
 
         protected override object? AccessFrom(global::Orders.Shipping.StartPartitionSagaCommand message) => message.CorrelationId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new StartPartitionSagaCommandCorrelationIdAccessor_64596642731407e6();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class CorrelationIdAsStringAccessor_90ab90feac5d44a9 : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class CorrelationIdAsStringAccessor_90ab90feac5d44a9 : global::NServiceBus.Sagas.CorrelationPropertyAccessor
     {
         CorrelationIdAsStringAccessor_90ab90feac5d44a9() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData).CorrelationId;
+        public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData) => ((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData).CorrelationId;
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData).CorrelationId = (string)value;
+        public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value) => ((global::Orders.Shipping.PartitionedEndpointSagaData)sagaData).CorrelationId = (string)value;
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new CorrelationIdAsStringAccessor_90ab90feac5d44a9();
+        public static readonly global::NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new CorrelationIdAsStringAccessor_90ab90feac5d44a9();
     }
 }
 
@@ -108,7 +108,7 @@ namespace NServiceBus
         /// </summary>
         public sealed partial class PrimaryConstructorAndSyntaxWrappersRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
-            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
             /// <summary>
             /// Gets the registry for the <i>Orders</i> namespace segment under this branch.
@@ -159,7 +159,7 @@ namespace NServiceBus
             /// </summary>
             public sealed partial class OrdersRegistry(global::NServiceBus.EndpointConfiguration configuration)
             {
-                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                 /// <summary>
                 /// Gets the registry for the <i>Shipping</i> namespace segment under this branch.
@@ -210,7 +210,7 @@ namespace NServiceBus
                 /// </summary>
                 public sealed partial class ShippingRegistry(global::NServiceBus.EndpointConfiguration configuration)
                 {
-                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+                    readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
                     /// <summary>
                     /// Registers all handlers and sagas for this namespace segment and its child namespaces.

@@ -56,32 +56,58 @@ class RunningEndpointInstance(SettingsHolder settings,
         // container that is already torn down.
         await stopSemaphore.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
+        // Checked outside the try so that only the caller that owns shutdown runs the finally, which may dispose deferred resources.
+        if (status >= Status.Stopping)
+        {
+            stopSemaphore.Release();
+            return;
+        }
+
+        status = Status.Stopping;
+
         try
         {
-            if (status >= Status.Stopping)
-            {
-                return;
-            }
-
-            status = Status.Stopping;
-
             using var _ = LogManager.BeginSlotScope(endpointLogSlot);
-            await using var tokenRegistration = cancellationToken.Register(() => Log.Info("Aborting graceful shutdown."))
+            await using var tokenRegistration = cancellationToken.Register(() => Log.Warn("Aborting graceful shutdown."))
                 .ConfigureAwait(false);
             Log.Info("Initiating shutdown.");
 
             await stoppingTokenSource.CancelAsync().ConfigureAwait(false);
 
+            // Every step runs even when an earlier one is canceled, so the transport always gets Shutdown.
+            // Cancellation only ends graceful shutdown, so it is not rethrown.
             try
             {
-                // Cannot throw by design
                 await receiveComponent.Stop(cancellationToken).ConfigureAwait(false);
-                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stopping the receivers failed.", ex);
+            }
 
-                // Can throw
+            try
+            {
+                await featureComponent.StopFeatures(messageSession, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Stopping the features failed.", ex);
+            }
+
+            try
+            {
                 await transportInfrastructure.Shutdown(cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex) when (!ex.IsCausedBy(cancellationToken))
+            catch (Exception ex) when (ex.IsCausedBy(cancellationToken))
+            {
+            }
+            catch (Exception ex)
             {
                 Log.Error("Shutdown of the transport infrastructure failed.", ex);
             }
@@ -90,8 +116,28 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
         finally
         {
-            status = Status.Stopped;
+            bool disposeNow;
+            lock (disposeGate)
+            {
+                status = Status.Stopped;
+                disposeNow = disposeDeferred;
+            }
+
             stopSemaphore.Release();
+
+            if (disposeNow)
+            {
+                try
+                {
+                    await DisposeResources().ConfigureAwait(false);
+                }
+#pragma warning disable PS0019 // The caller that requested disposal has already returned, so the failure must not fail this stop
+                catch (Exception ex)
+#pragma warning restore PS0019
+                {
+                    Log.Error("Disposing the endpoint failed.", ex);
+                }
+            }
         }
     }
 
@@ -120,10 +166,27 @@ class RunningEndpointInstance(SettingsHolder settings,
         }
         finally
         {
-            settings.Clear();
-            stoppingTokenSource.Dispose();
-            await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
+            bool disposeNow;
+            // Leaves disposal to a stop in progress, because waiting here deadlocks when shutdown awaits a reentrant Stop.
+            lock (disposeGate)
+            {
+                disposeNow = status == Status.Stopped;
+                disposeDeferred = !disposeNow;
+            }
+
+            if (disposeNow)
+            {
+                await DisposeResources().ConfigureAwait(false);
+            }
         }
+    }
+
+    [SuppressMessage("Code", "PS0018:A task-returning method should have a CancellationToken parameter unless it has a parameter implementing ICancellableContext", Justification = "Disposal has no token.")]
+    async ValueTask DisposeResources()
+    {
+        settings.Clear();
+        stoppingTokenSource.Dispose();
+        await serviceProviderLease.DisposeAsync().ConfigureAwait(false);
     }
 
     [PreObsolete("https://github.com/Particular/NServiceBus/issues/7906",
@@ -237,6 +300,8 @@ class RunningEndpointInstance(SettingsHolder settings,
     }
 
     int isDisposed;
+    bool disposeDeferred;
+    readonly Lock disposeGate = new();
     volatile Status status = Status.Running;
     readonly SemaphoreSlim stopSemaphore = new(1);
 

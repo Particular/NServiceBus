@@ -24,21 +24,21 @@ namespace NServiceBus
             /// </summary>
             public void AddNonNullableSaga()
             {
-                var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
-                   .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-                var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
+                   .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
+                var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
                 {
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::NullableMessage), true, false),
+                    new global::NServiceBus.Sagas.SagaMessage(typeof(global::NullableMessage), true, false),
                 };
-                NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
+                global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                     NullableMessageOrderIdAccessor_9894122651576960.Instance,
                 ];
-                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::NonNullableSaga, global::NonNullableSagaData>(associatedMessages, OrderIdAsStringAccessor_5e4ee6a1b6193efa.Instance, propertyAccessors);
+                var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<global::NonNullableSaga, global::NonNullableSagaData>(associatedMessages, OrderIdAsStringAccessor_5e4ee6a1b6193efa.Instance, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
-                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::NonNullableSaga, global::NullableMessage>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::NullableMessage), []);
             }
@@ -48,21 +48,21 @@ namespace NServiceBus
             /// </summary>
             public void AddNullableSaga()
             {
-                var sagaMetadataCollection = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
-                   .GetOrCreate<NServiceBus.Sagas.SagaMetadataCollection>();
-                var associatedMessages = new NServiceBus.Sagas.SagaMessage[]
+                var sagaMetadataCollection = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration)
+                   .GetOrCreate<global::NServiceBus.Sagas.SagaMetadataCollection>();
+                var associatedMessages = new global::NServiceBus.Sagas.SagaMessage[]
                 {
-                    new NServiceBus.Sagas.SagaMessage(typeof(global::NonNullableMessage), true, false),
+                    new global::NServiceBus.Sagas.SagaMessage(typeof(global::NonNullableMessage), true, false),
                 };
-                NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
+                global::NServiceBus.Sagas.MessagePropertyAccessor[] propertyAccessors = [
                     NonNullableMessageOrderIdAccessor_e023774f080a36b1.Instance,
                 ];
-                var metadata = NServiceBus.Sagas.SagaMetadata.Create<global::NullableSaga, global::NullableSagaData>(associatedMessages, OrderIdAsStringAccessor_acfa87ac0bc7f48b.Instance, propertyAccessors);
+                var metadata = global::NServiceBus.Sagas.SagaMetadata.Create<global::NullableSaga, global::NullableSagaData>(associatedMessages, OrderIdAsStringAccessor_acfa87ac0bc7f48b.Instance, propertyAccessors);
                 sagaMetadataCollection.Add(metadata);
 
-                var settings = NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
-                var messageHandlerRegistry = settings.GetOrCreate<NServiceBus.Unicast.MessageHandlerRegistry>();
-                var messageMetadataRegistry = settings.GetOrCreate<NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
+                var settings = global::NServiceBus.Configuration.AdvancedExtensibility.AdvancedExtensibilityExtensions.GetSettings(_configuration);
+                var messageHandlerRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.MessageHandlerRegistry>();
+                var messageMetadataRegistry = settings.GetOrCreate<global::NServiceBus.Unicast.Messages.MessageMetadataRegistry>();
                 messageHandlerRegistry.AddMessageHandlerForMessage<global::NullableSaga, global::NonNullableMessage>();
                 messageMetadataRegistry.RegisterMessageTypeWithHierarchy(typeof(global::NonNullableMessage), []);
             }
@@ -71,50 +71,50 @@ namespace NServiceBus
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class NonNullableMessageOrderIdAccessor_e023774f080a36b1 : NServiceBus.Sagas.MessagePropertyAccessor<global::NonNullableMessage>
+    file sealed class NonNullableMessageOrderIdAccessor_e023774f080a36b1 : global::NServiceBus.Sagas.MessagePropertyAccessor<global::NonNullableMessage>
     {
         NonNullableMessageOrderIdAccessor_e023774f080a36b1() { }
 
         protected override object? AccessFrom(global::NonNullableMessage message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new NonNullableMessageOrderIdAccessor_e023774f080a36b1();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new NonNullableMessageOrderIdAccessor_e023774f080a36b1();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class NullableMessageOrderIdAccessor_9894122651576960 : NServiceBus.Sagas.MessagePropertyAccessor<global::NullableMessage>
+    file sealed class NullableMessageOrderIdAccessor_9894122651576960 : global::NServiceBus.Sagas.MessagePropertyAccessor<global::NullableMessage>
     {
         NullableMessageOrderIdAccessor_9894122651576960() { }
 
         protected override object? AccessFrom(global::NullableMessage message) => message.OrderId;
 
-        public static readonly NServiceBus.Sagas.MessagePropertyAccessor Instance = new NullableMessageOrderIdAccessor_9894122651576960();
+        public static readonly global::NServiceBus.Sagas.MessagePropertyAccessor Instance = new NullableMessageOrderIdAccessor_9894122651576960();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderIdAsStringAccessor_5e4ee6a1b6193efa : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class OrderIdAsStringAccessor_5e4ee6a1b6193efa : global::NServiceBus.Sagas.CorrelationPropertyAccessor
     {
         OrderIdAsStringAccessor_5e4ee6a1b6193efa() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::NonNullableSagaData)sagaData).OrderId;
+        public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData) => ((global::NonNullableSagaData)sagaData).OrderId;
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::NonNullableSagaData)sagaData).OrderId = (string)value;
+        public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value) => ((global::NonNullableSagaData)sagaData).OrderId = (string)value;
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_5e4ee6a1b6193efa();
+        public static readonly global::NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_5e4ee6a1b6193efa();
     }
 
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("NService.Core.Analyzer.Tests", "1.0.0")]
-    file sealed class OrderIdAsStringAccessor_acfa87ac0bc7f48b : NServiceBus.Sagas.CorrelationPropertyAccessor
+    file sealed class OrderIdAsStringAccessor_acfa87ac0bc7f48b : global::NServiceBus.Sagas.CorrelationPropertyAccessor
     {
         OrderIdAsStringAccessor_acfa87ac0bc7f48b() { }
 
-        public override object? AccessFrom(NServiceBus.IContainSagaData sagaData) => ((global::NullableSagaData)sagaData).OrderId;
+        public override object? AccessFrom(global::NServiceBus.IContainSagaData sagaData) => ((global::NullableSagaData)sagaData).OrderId;
 
-        public override void WriteTo(NServiceBus.IContainSagaData sagaData, object value) => ((global::NullableSagaData)sagaData).OrderId = (string)value;
+        public override void WriteTo(global::NServiceBus.IContainSagaData sagaData, object value) => ((global::NullableSagaData)sagaData).OrderId = (string)value;
 
-        public static readonly NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_acfa87ac0bc7f48b();
+        public static readonly global::NServiceBus.Sagas.CorrelationPropertyAccessor Instance = new OrderIdAsStringAccessor_acfa87ac0bc7f48b();
     }
 }
 
@@ -151,7 +151,7 @@ namespace NServiceBus
         /// </summary>
         public sealed partial class NullableReferenceTypeMixedMappingsRootRegistry(global::NServiceBus.EndpointConfiguration configuration)
         {
-            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            readonly global::NServiceBus.EndpointConfiguration _configuration = configuration ?? throw new global::System.ArgumentNullException(nameof(configuration));
 
             /// <summary>
             /// Registers all handlers and sagas for this namespace segment and its child namespaces.

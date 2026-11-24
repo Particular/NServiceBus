@@ -47,27 +47,13 @@ class FeatureComponent(FeatureComponent.Settings settings)
 
     public async Task StartFeatures(IServiceProvider builder, IMessageSession session, CancellationToken cancellationToken = default)
     {
-        var startedTaskControllers = new List<IFeatureStartupTaskController>();
-
         // sequential starting of startup tasks is intended, introducing concurrency here could break a lot of features.
+        // When a task fails to start, the endpoint's stop sequence stops the tasks that started, after the receivers.
         foreach (var feature in enabledFeatures.Where(f => f.IsActive))
         {
             foreach (var taskController in feature.TaskControllers)
             {
-                try
-                {
-                    await taskController.Start(builder, session, cancellationToken).ConfigureAwait(false);
-                }
-#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - OCE handling is the same
-                catch (Exception)
-#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
-                {
-                    await Task.WhenAll(startedTaskControllers.Select(controller => controller.Stop(session, cancellationToken))).ConfigureAwait(false);
-
-                    throw;
-                }
-
-                startedTaskControllers.Add(taskController);
+                await taskController.Start(builder, session, cancellationToken).ConfigureAwait(false);
             }
         }
     }
