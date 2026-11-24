@@ -32,6 +32,11 @@ queue views or service maps from `messaging.destination.name` count the message 
 1. **All NServiceBus attributes use the `nservicebus.*` namespace**, on spans and on metrics.
 2. **Messaging semantic convention attributes are left to the transport SDK instrumentation.**
 3. **General semantic convention attributes with one meaning are allowed.** Today that is only `error.type`.
+   Its value is `exception.GetType().FullName`, on spans and on metrics. NServiceBus does not map an
+   exception to a shorter string, and does not report a base type in place of the type that occurred.
+   This follows the .NET platform: ASP.NET Core and `HttpClient` use the same expression. A shorter value
+   is correct only where a closed set of outcomes exists, as `HttpRequestError` gives for HTTP. NServiceBus
+   has no such set for message processing.
 4. **Span names keep the `{operation} {target}` format.** A name is not an attribute and does not conflict.
 5. The rule is stated in a comment in `ActivityTags` and `MeterTags`.
 

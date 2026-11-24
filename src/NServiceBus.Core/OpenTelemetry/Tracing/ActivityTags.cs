@@ -2,6 +2,17 @@
 
 namespace NServiceBus;
 
+// Span tag names.
+//
+// All NServiceBus tags use the nservicebus.* namespace. Messaging semantic convention tags, such as
+// messaging.destination.name, are left to the transport SDK instrumentation. An NServiceBus concept does
+// not map one-to-one to the native one, and both spans are in the same trace.
+//
+// A general semantic convention tag is allowed where it has one meaning. Today that is only error.type.
+// Its value is exception.GetType().FullName, as in ASP.NET Core. A base exception type is not a
+// substitute for the type that occurred.
+//
+// See docs/decisions/2026-10-21-no-messaging-semantic-convention-attributes.md
 static class ActivityTags
 {
     public const string SagaId = "nservicebus.saga.saga_id";
@@ -41,7 +52,7 @@ static class ActivityTags
     public const string HandlerSagaId = "nservicebus.handler.saga_id";
     public const string EventTypes = "nservicebus.event_types";
     public const string CancelledTask = "nservicebus.cancelled";
-    public const string ErrorType = "error.type";
+    public const string ErrorType = "error.type"; // exception.GetType().FullName, see the note above
     public const string RecoverabilityAction = "nservicebus.recoverability_action";
     public const string OutboxDeduplicatedMessage = "nservicebus.outbox.deduplicated_message";
 }
