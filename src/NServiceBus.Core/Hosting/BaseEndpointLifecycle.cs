@@ -87,8 +87,14 @@ class BaseEndpointLifecycle(
 
         try
         {
+            if (startableEndpoint is null)
+            {
+                return;
+            }
+
             if (endpointInstance is null)
             {
+                await startableEndpoint.ShutdownWithoutRunning(cancellationToken).ConfigureAwait(false);
                 return;
             }
 
@@ -107,20 +113,44 @@ class BaseEndpointLifecycle(
             return;
         }
 
-        var instance = endpointInstance;
-        endpointInstance = null;
-
-        // DisposeAsync calls Stop internally, which is idempotent. This ensures
-        // cleanup runs even if Stop was never called or threw.
-        if (instance is not null)
-        {
-            await instance.DisposeAsync().ConfigureAwait(false);
-        }
+        // Like RunningEndpointInstance.DisposeAsync, disposing means the graceful period has already elapsed.
+        await DisposeEndpoint(new CancellationToken(true)).ConfigureAwait(false);
 
         if (providerLease is not null)
         {
             await providerLease.DisposeAsync().ConfigureAwait(false);
         }
+    }
+
+    async ValueTask DisposeEndpoint(CancellationToken cancellationToken)
+    {
+        if (startableEndpoint is null)
+        {
+            return;
+        }
+
+        var instance = endpointInstance;
+        endpointInstance = null;
+
+        if (instance is null)
+        {
+            try
+            {
+                await startableEndpoint.ShutdownWithoutRunning(cancellationToken).ConfigureAwait(false);
+            }
+#pragma warning disable PS0019
+            catch (Exception)
+#pragma warning restore PS0019
+            {
+                // ShutdownWithoutRunning logs failures, and DisposeAsync must not throw.
+            }
+
+            return;
+        }
+
+        // DisposeAsync calls Stop internally, which is idempotent. This ensures
+        // cleanup runs even if Stop was never called or threw.
+        await instance.DisposeAsync().ConfigureAwait(false);
     }
 
     readonly SemaphoreSlim lifeCycleSemaphore = new(1, 1);

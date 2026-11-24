@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Core.Tests.Features;
 using Features;
 using NUnit.Framework;
 using Settings;
@@ -102,6 +103,147 @@ public class RunningEndpointInstanceTest
     }
 
     [Test]
+    public async Task Stop_should_not_throw_when_transport_Shutdown_is_canceled()
+    {
+        var testInstance = new RunningEndpointInstance(
+            new SettingsHolder(),
+            CreateEmptyReceiveComponent(),
+            new FeatureComponent(new FeatureComponent.Settings()),
+            new TestableMessageSession(),
+            new HangingTransportInfrastructure(),
+            new CancellationTokenSource(),
+            NoOpAsyncDisposable.Instance,
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+
+        using var stopTokenSource = new CancellationTokenSource();
+        var stop = testInstance.Stop(stopTokenSource.Token);
+        await stopTokenSource.CancelAsync();
+
+        Assert.DoesNotThrowAsync(() => stop);
+    }
+
+    [Test]
+    public async Task Stop_should_shut_down_the_transport_without_throwing_when_stopping_features_is_canceled()
+    {
+        var settings = new SettingsHolder();
+        var featureSettings = new FeatureComponent.Settings(new FakeFeatureFactory());
+        settings.Set(featureSettings);
+        var feature = new FeatureWithStopThatWaitsForCancellation();
+        featureSettings.Add(feature);
+        var featureComponent = new FeatureComponent(featureSettings);
+        featureComponent.SetupFeatures(new FakeFeatureConfigurationContext(), settings);
+        await featureComponent.StartFeatures(null, null);
+
+        var capturingTransport = new TokenCapturingTransportInfrastructure();
+        var testInstance = new RunningEndpointInstance(
+            settings,
+            CreateEmptyReceiveComponent(),
+            featureComponent,
+            new TestableMessageSession(),
+            capturingTransport,
+            new CancellationTokenSource(),
+            NoOpAsyncDisposable.Instance,
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+
+        Assert.DoesNotThrowAsync(async () => await testInstance.Stop(new CancellationToken(true)));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(feature.StopCalled, Is.True, "The feature task should have been stopped.");
+            Assert.That(capturingTransport.ShutdownWasCalled, Is.True, "A canceled feature stop must not skip transport Shutdown.");
+        }
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task DisposeAsync_should_leave_disposal_to_a_stop_in_progress(CancellationToken cancellationToken = default)
+    {
+        var blockingTransport = new BlockingTransportInfrastructure();
+        var lease = new TrackingAsyncDisposable();
+
+        var testInstance = new RunningEndpointInstance(
+            new SettingsHolder(),
+            CreateEmptyReceiveComponent(),
+            new FeatureComponent(new FeatureComponent.Settings()),
+            new TestableMessageSession(),
+            blockingTransport,
+            new CancellationTokenSource(),
+            lease,
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+
+        var stop = testInstance.StopCore(CancellationToken.None);
+        try
+        {
+            await blockingTransport.ShutdownStarted.Task.WaitAsync(cancellationToken);
+
+            await testInstance.DisposeAsync().AsTask().WaitAsync(cancellationToken);
+
+            Assert.That(lease.DisposeCount, Is.Zero, "DisposeAsync disposed the service provider while another caller was still stopping the endpoint.");
+        }
+        finally
+        {
+            blockingTransport.ReleaseShutdown.TrySetResult();
+        }
+
+        await stop.WaitAsync(cancellationToken);
+
+        Assert.That(lease.DisposeCount, Is.EqualTo(1), "The stop in progress should dispose the resources when it completes.");
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task Stop_in_progress_should_not_throw_when_deferred_disposal_fails(CancellationToken cancellationToken = default)
+    {
+        var blockingTransport = new BlockingTransportInfrastructure();
+
+        var testInstance = new RunningEndpointInstance(
+            new SettingsHolder(),
+            CreateEmptyReceiveComponent(),
+            new FeatureComponent(new FeatureComponent.Settings()),
+            new TestableMessageSession(),
+            blockingTransport,
+            new CancellationTokenSource(),
+            new ThrowingAsyncDisposable(),
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+
+        var stop = testInstance.StopCore(CancellationToken.None);
+        try
+        {
+            await blockingTransport.ShutdownStarted.Task.WaitAsync(cancellationToken);
+            await testInstance.DisposeAsync().AsTask().WaitAsync(cancellationToken);
+        }
+        finally
+        {
+            blockingTransport.ReleaseShutdown.TrySetResult();
+        }
+
+        Assert.DoesNotThrowAsync(() => stop.WaitAsync(cancellationToken), "A disposal requested by another caller should not fail the stop that performs it.");
+    }
+
+    [Test]
+    [CancelAfter(10_000)]
+    public async Task Stop_awaited_from_within_shutdown_should_not_deadlock(CancellationToken cancellationToken = default)
+    {
+        var reentrantTransport = new ReentrantStopTransportInfrastructure();
+        var lease = new TrackingAsyncDisposable();
+
+        var testInstance = new RunningEndpointInstance(
+            new SettingsHolder(),
+            CreateEmptyReceiveComponent(),
+            new FeatureComponent(new FeatureComponent.Settings()),
+            new TestableMessageSession(),
+            reentrantTransport,
+            new CancellationTokenSource(),
+            lease,
+            new EndpointLogSlot("RunningEndpointInstanceTest", endpointIdentifier: null));
+        reentrantTransport.Endpoint = testInstance;
+
+        await testInstance.Stop(CancellationToken.None).WaitAsync(cancellationToken);
+
+        Assert.That(lease.DisposeCount, Is.EqualTo(1));
+    }
+
+    [Test]
     public async Task ShouldThrowExceptionAfterInvokingStop()
     {
         var testInstance = Create();
@@ -134,6 +276,65 @@ public class RunningEndpointInstanceTest
         }
 
         public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
+    }
+
+    sealed class FeatureWithStopThatWaitsForCancellation : TestFeature
+    {
+        public FeatureWithStopThatWaitsForCancellation() => IsEnabled = true;
+
+        public bool StopCalled { get; private set; }
+
+        protected override void Setup(FeatureConfigurationContext context) => context.RegisterStartupTask(new Runner(this));
+
+        sealed class Runner(FeatureWithStopThatWaitsForCancellation parentFeature) : FeatureStartupTask
+        {
+            protected override Task OnStart(IMessageSession session, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+            protected override Task OnStop(IMessageSession session, CancellationToken cancellationToken = default)
+            {
+                parentFeature.StopCalled = true;
+                return Task.Delay(Timeout.Infinite, cancellationToken);
+            }
+        }
+    }
+
+    sealed class BlockingTransportInfrastructure : TransportInfrastructure
+    {
+        public TaskCompletionSource ShutdownStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource ReleaseShutdown { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public override async Task Shutdown(CancellationToken cancellationToken = default)
+        {
+            ShutdownStarted.SetResult();
+            await ReleaseShutdown.Task;
+        }
+
+        public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
+    }
+
+    sealed class ReentrantStopTransportInfrastructure : TransportInfrastructure
+    {
+        public RunningEndpointInstance Endpoint { get; set; } = null!;
+
+        public override Task Shutdown(CancellationToken cancellationToken = default) => Endpoint.Stop(cancellationToken);
+
+        public override string ToTransportAddress(QueueAddress address) => address.BaseAddress;
+    }
+
+    sealed class TrackingAsyncDisposable : IAsyncDisposable
+    {
+        public int DisposeCount { get; private set; }
+
+        public ValueTask DisposeAsync()
+        {
+            DisposeCount++;
+            return ValueTask.CompletedTask;
+        }
+    }
+
+    sealed class ThrowingAsyncDisposable : IAsyncDisposable
+    {
+        public ValueTask DisposeAsync() => throw new InvalidOperationException("Disposing failed");
     }
 
     sealed class HangingTransportInfrastructure : TransportInfrastructure

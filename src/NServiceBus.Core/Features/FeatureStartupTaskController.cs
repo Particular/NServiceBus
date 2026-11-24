@@ -16,7 +16,7 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
 {
     public string Name { get; } = name;
 
-    public Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
+    public async Task Start(IServiceProvider builder, IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
         if (Log.IsDebugEnabled)
         {
@@ -24,15 +24,41 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
         }
 
         instance = factory(builder, state);
-        return instance.PerformStartup(messageSession, cancellationToken);
+
+        try
+        {
+            await instance.PerformStartup(messageSession, cancellationToken).ConfigureAwait(false);
+        }
+#pragma warning disable PS0019 // Disposal runs for cancellation too; the exception is rethrown
+        catch (Exception)
+#pragma warning restore PS0019
+        {
+            try
+            {
+                await Disposable.Wrap(instance).DisposeAsync().ConfigureAwait(false);
+            }
+#pragma warning disable PS0019 // A disposal failure must not replace the start exception
+            catch (Exception ex)
+#pragma warning restore PS0019
+            {
+                Log.Warn($"Exception occurred during disposal of feature startup task '{Name}' after it failed to start.", ex);
+            }
+
+            throw;
+        }
+
+        started = true;
     }
 
     public async Task Stop(IMessageSession messageSession, CancellationToken cancellationToken = default)
     {
-        if (instance == null)
+        // A failed start stops every feature, including tasks that never started or failed to start.
+        if (instance == null || !started)
         {
             return;
         }
+
+        started = false;
 
         try
         {
@@ -46,6 +72,7 @@ class FeatureStartupTaskController<TState>(string name, Func<IServiceProvider, T
     }
 
     FeatureStartupTask? instance;
+    bool started;
 
     static readonly ILog Log = LogManager.GetLogger("FeatureStartupTaskController");
 }
