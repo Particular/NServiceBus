@@ -231,6 +231,39 @@ public class MessageOperationsTests
         }
     }
 
+    // In v11 the span name is the only naming: delete the attribute.
+    [TestCase("send", "send message Object")]
+    [TestCase("publish", "publish Object")]
+    [TestCase("reply", "reply Object")]
+    [TestCase("subscribe", "subscribe event Object")]
+    [TestCase("unsubscribe", "unsubscribe event Object")]
+    [OpenTelemetryV11Defaults]
+    public void Should_log_the_span_name_on_failure_when_no_span_was_created(string operation, string expectedSpanName)
+    {
+        var (logger, entries) = CapturingLoggerProvider.CreateLogger<MessageOperations>();
+        var operations = new TestableMessageOperations(NoOpActivityFactory.Instance, logger);
+        var exception = new Exception("processing exception");
+
+        Func<Task> invoke = operation switch
+        {
+            "send" => () => { operations.SendPipeline.OnInvoke = _ => throw exception; return operations.Send(new FakeRootContext(), new object(), new SendOptions()); }
+            ,
+            "publish" => () => { operations.PublishPipeline.OnInvoke = _ => throw exception; return operations.Publish(new FakeRootContext(), new object(), new PublishOptions()); }
+            ,
+            "reply" => () => { operations.ReplyPipeline.OnInvoke = _ => throw exception; return operations.Reply(new FakeRootContext(), new object(), new ReplyOptions()); }
+            ,
+            "subscribe" => () => { operations.SubscribePipeline.OnInvoke = _ => throw exception; return operations.Subscribe(new FakeRootContext(), typeof(object), new SubscribeOptions()); }
+            ,
+            "unsubscribe" => () => { operations.UnsubscribePipeline.OnInvoke = _ => throw exception; return operations.Unsubscribe(new FakeRootContext(), typeof(object), new UnsubscribeOptions()); }
+            ,
+            _ => throw new ArgumentOutOfRangeException(nameof(operation))
+        };
+
+        Assert.ThrowsAsync<Exception>(async () => await invoke());
+
+        Assert.That(entries.Single().Message, Is.EqualTo($"An exception occurred while executing '{expectedSpanName}'."));
+    }
+
     [TestCase("send")]
     [TestCase("publish")]
     [TestCase("reply")]

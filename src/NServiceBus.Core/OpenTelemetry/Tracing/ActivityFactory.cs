@@ -152,7 +152,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         return activity;
     }
 
-    public Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext)
+    public Activity? StartOutgoingPipelineActivity(string activityName, OutgoingSpanName spanName, IBehaviorContext outgoingContext)
     {
         var activity = ActivitySources.Main.CreateActivity(activityName, ActivityKind.Producer);
         if (activity == null)
@@ -160,7 +160,7 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             return activity;
         }
 
-        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+        return StartOutgoingPipelineActivity(activity, spanName.Build(), outgoingContext);
     }
 
     static Activity StartOutgoingPipelineActivity(Activity activity, string displayName, IBehaviorContext outgoingContext)

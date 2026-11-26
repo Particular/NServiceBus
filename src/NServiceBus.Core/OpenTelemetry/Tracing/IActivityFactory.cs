@@ -11,7 +11,7 @@ using Transport;
 interface IActivityFactory
 {
     Activity? StartIncomingPipelineActivity(MessageContext context);
-    Activity? StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext);
+    Activity? StartOutgoingPipelineActivity(string activityName, OutgoingSpanName spanName, IBehaviorContext outgoingContext);
     Activity? StartHandlerActivity(MessageHandler messageHandler);
     Activity? StartRecoverabilityActivity(ErrorContext context);
     void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress);

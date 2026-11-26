@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
@@ -69,11 +68,9 @@ class MessageOperations(
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        var operationName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
-            : ActivityDisplayNames.PublishEvent;
+        var spanName = OutgoingSpanName.For(ActivityDisplayNames.PublishEvent, ActivityDisplayNames.PublishOperation, messageType);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, operationName, publishContext);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, spanName, publishContext);
 
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
         try
@@ -84,7 +81,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            HandleException(context, activity, ex, operationName);
+            HandleException(context, activity, ex, spanName);
             throw;
         }
     }
@@ -103,11 +100,9 @@ class MessageOperations(
 
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-        var operationName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.SubscribeEvent} {string.Join(' ', eventTypes.Select(x => x.Name))}"
-            : ActivityDisplayNames.SubscribeEvent;
+        var spanName = OutgoingSpanName.For(ActivityDisplayNames.SubscribeEvent, ActivityDisplayNames.SubscribeEvent, eventTypes);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, operationName, context);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, spanName, context);
 
         try
         {
@@ -117,7 +112,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            HandleException(context, activity, ex, operationName);
+            HandleException(context, activity, ex, spanName);
             throw;
         }
     }
@@ -132,11 +127,9 @@ class MessageOperations(
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-        var operationName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.UnsubscribeEvent} {eventType.Name}"
-            : ActivityDisplayNames.UnsubscribeEvent;
+        var spanName = OutgoingSpanName.For(ActivityDisplayNames.UnsubscribeEvent, ActivityDisplayNames.UnsubscribeEvent, eventType);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, operationName, context);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, spanName, context);
 
 #pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
         try
@@ -147,7 +140,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            HandleException(context, activity, ex, operationName);
+            HandleException(context, activity, ex, spanName);
             throw;
         }
     }
@@ -193,11 +186,9 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        var operationName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.SendMessage} {messageType.Name}"
-            : ActivityDisplayNames.SendMessage;
+        var spanName = OutgoingSpanName.For(ActivityDisplayNames.SendMessage, ActivityDisplayNames.SendMessage, messageType);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, operationName, outgoingContext);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, spanName, outgoingContext);
 
         try
         {
@@ -207,7 +198,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            HandleException(context, activity, ex, operationName);
+            HandleException(context, activity, ex, spanName);
             throw;
         }
     }
@@ -253,11 +244,9 @@ class MessageOperations(
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        var operationName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.ReplyMessage} {messageType.Name}"
-            : ActivityDisplayNames.ReplyMessage;
+        var spanName = OutgoingSpanName.For(ActivityDisplayNames.ReplyMessage, ActivityDisplayNames.ReplyMessage, messageType);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, operationName, context);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, spanName, context);
 
         try
         {
@@ -267,7 +256,7 @@ class MessageOperations(
         }
         catch (Exception ex)
         {
-            HandleException(context, activity, ex, operationName);
+            HandleException(context, activity, ex, spanName);
             throw;
         }
     }
@@ -276,7 +265,7 @@ class MessageOperations(
     internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
 
     // The span name is only built when a span is recorded, so the caller builds it for the log entry when there is no span.
-    void HandleException(IBehaviorContext context, Activity activity, Exception exception, string displayName)
+    void HandleException(IBehaviorContext context, Activity activity, Exception exception, OutgoingSpanName spanName)
     {
         activityFactory.RecordError(activity, exception, context.Extensions);
 
@@ -284,7 +273,7 @@ class MessageOperations(
         // recoverability itself is raised as a critical error. Outside of it, no one else sees the exception.
         if (!IsInsideMessageProcessing(context))
         {
-            logger.OperationFailed(exception, displayName);
+            logger.OperationFailed(exception, activity?.DisplayName ?? spanName.Build());
         }
     }
 

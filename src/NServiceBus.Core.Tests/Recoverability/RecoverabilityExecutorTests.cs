@@ -304,7 +304,7 @@ public class RecoverabilityExecutorTests
         readonly ActivityFactory inner = new(new InstrumentationOptions());
 
         public Activity StartIncomingPipelineActivity(MessageContext context) => inner.StartIncomingPipelineActivity(context);
-        public Activity StartOutgoingPipelineActivity(string activityName, string displayName, IBehaviorContext outgoingContext) => inner.StartOutgoingPipelineActivity(activityName, displayName, outgoingContext);
+        public Activity StartOutgoingPipelineActivity(string activityName, OutgoingSpanName spanName, IBehaviorContext outgoingContext) => inner.StartOutgoingPipelineActivity(activityName, spanName, outgoingContext);
         public Activity StartHandlerActivity(MessageHandler messageHandler) => inner.StartHandlerActivity(messageHandler);
         public Activity StartRecoverabilityActivity(ErrorContext context) => inner.StartRecoverabilityActivity(context);
         public void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress) => throw new NotSupportedException("enricher failed");
