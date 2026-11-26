@@ -182,8 +182,8 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1));
 
         var sentMessage = outgoingMessageActivities.Single();
-        Assert.That(sentMessage.DisplayName, Does.StartWith("send "));
-        Assert.That(sentMessage.DisplayName, Is.Not.EqualTo("send message"));
+        var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(TestEndpoint));
+        Assert.That(sentMessage.DisplayName, Is.EqualTo($"send {nameof(OutgoingMessage)} to {destination}"));
     }
 
     [Test]

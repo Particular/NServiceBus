@@ -68,7 +68,8 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
         Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are being sent");
         var replyMessage = outgoingMessageActivities[1];
 
-        Assert.That(replyMessage.DisplayName, Does.StartWith("reply "));
+        var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(TestEndpoint));
+        Assert.That(replyMessage.DisplayName, Is.EqualTo($"reply {nameof(OutgoingReply)} to {destination}"));
     }
 
     public class IncomingMessage : IMessage;

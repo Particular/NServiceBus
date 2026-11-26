@@ -194,7 +194,7 @@ class MessageOperations(
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
         var operationName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.SendMessage} {messageType.Name}"
+            ? $"{ActivityDisplayNames.SendOperation} {messageType.Name}"
             : ActivityDisplayNames.SendMessage;
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, operationName, outgoingContext);
