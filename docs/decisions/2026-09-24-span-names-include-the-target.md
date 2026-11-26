@@ -55,9 +55,12 @@ Constraints:
    separated by spaces. The operation is one verb, without the `message` or `event` of the v10 names.
 4. **Send and reply spans also name the destination**: `send {MessageType} to {destination}` and
    `reply {MessageType} to {destination}`. The span starts as `send {MessageType}` or `reply {MessageType}`.
-   After the routing stage resolves the destination, NServiceBus appends `to {destination}`. The destination is
-   the address of the first unicast transport operation. The word `to` separates the two parts of the target, so
-   a reader can tell the type from the queue.
+   After the routing stage resolves the destination, NServiceBus appends `to {destination}`. It does this only
+   when the routing stage produces exactly one unicast transport operation. NServiceBus always routes a send or
+   a reply to one destination. A user behavior can change `IRoutingContext.RoutingStrategies` to route it to
+   several. The span then keeps the name without the destination, because one destination in the name would
+   hide the others. The word `to` separates the two parts of the target, so a reader can tell the type from
+   the queue.
 5. **The type part of the target is `Type.Name`, not the full type name.** It contains no namespace, no
    assembly name, no version and no culture.
 6. **The message type name counts as compile-time data, the destination as configuration-time data.** The
