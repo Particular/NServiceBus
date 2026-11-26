@@ -88,8 +88,8 @@ Constraints:
     closed.
   - The saving is about 96 B for each send, publish, reply, subscribe and unsubscribe without a listener. This
     is small compared to the headers, the contexts and the serialization of the same operation.
-  - This diverges from the Particular OpenTelemetry guidelines, which build a name only after the check for a
-    span.
+  - This diverges from the rule of the OpenTelemetry .NET instrumentation skill to build span names only after
+    the check for a span.
 
 ## Alternative approaches
 
