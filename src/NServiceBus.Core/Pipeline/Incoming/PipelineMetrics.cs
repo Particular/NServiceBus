@@ -206,11 +206,6 @@ partial class PipelineMetrics
     public void RecordProcessingAttempt(PipelineMetricTags pipelineMetricTags, Exception? error = null) =>
         RecordProcessingAttemptCore(pipelineMetricTags, error?.GetType().FullName);
 
-    // An attempt canceled through the receive cancellation token, typically at shutdown. Recorded under a single
-    // error.type whichever OperationCanceledException subtype surfaced, so it can be filtered out with one value.
-    public void RecordCanceledProcessingAttempt(PipelineMetricTags pipelineMetricTags) =>
-        RecordProcessingAttemptCore(pipelineMetricTags, typeof(OperationCanceledException).FullName);
-
     void RecordProcessingAttemptCore(PipelineMetricTags pipelineMetricTags, string? errorType)
     {
         if (processingAttempts is not { Enabled: true })
