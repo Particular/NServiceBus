@@ -78,10 +78,18 @@ Constraints:
 - The span names differ from the `{operation} {destination}` names of the transport SDK spans in the same
   trace. Accepted: the SDK span names the queue of the physical dispatch, the NServiceBus span names the logical
   operation.
-- **Cost:** the outgoing span name is a new string for each operation. The process span names are cached per
-  receive address. Commit 4b1564f2d built the outgoing name only when a span exists. #8005 builds it again for
-  each operation, also without a listener, because the failure log uses it. Follow-up: build the name only when
-  a span exists or a failure is logged.
+- **Cost:** the outgoing span name is a new string for each operation, also when no span exists. The process
+  span names are cached per receive address. This is a trade-off between cost and simplicity, and simplicity
+  was chosen:
+  - Commit 4b1564f2d built the outgoing name only when a span exists. #8005 builds the name once, before the
+    span starts, because the failure log also uses it.
+  - [#8063](https://github.com/Particular/NServiceBus/pull/8063) built the name only when a span exists or a
+    failure is logged. It added a struct for the parts of the name and changed `IActivityFactory`. It was
+    closed.
+  - The saving is about 96 B for each send, publish, reply, subscribe and unsubscribe without a listener. This
+    is small compared to the headers, the contexts and the serialization of the same operation.
+  - This diverges from the Particular OpenTelemetry guidelines, which build a name only after the check for a
+    span.
 
 ## Alternative approaches
 
