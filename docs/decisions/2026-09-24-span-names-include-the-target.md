@@ -51,8 +51,8 @@ Constraints:
    `immediate retry {receiveAddress}`, `delayed retry {receiveAddress}`, `move to {errorQueue}`. The queue is
    configuration-time data.
 3. **Outgoing spans use the message type name as the target**: `publish {EventType}`,
-   `subscribe event {EventType}`, `unsubscribe event {EventType}`. A subscribe for several event types lists the
-   names separated by spaces.
+   `subscribe {EventType}`, `unsubscribe {EventType}`. A subscribe for several event types lists the names
+   separated by spaces. The operation is one verb, without the `message` or `event` of the v10 names.
 4. **Send and reply spans also name the destination**: `send {MessageType} to {destination}` and
    `reply {MessageType} to {destination}`. The span starts as `send {MessageType}` or `reply {MessageType}`.
    After the routing stage resolves the destination, NServiceBus appends `to {destination}`. The destination is
@@ -132,8 +132,13 @@ without opening the span.
 
 The state before decision 4 also appended the destination after routing, as `send message {MessageType}
 {destination}`. Rejected: both parts are free names, so a reader cannot tell where the type ends and the queue
-starts. The word `message` in `send message` also made send differ from `publish` and `reply` without a
-reason.
+starts.
+
+### Keep the noun of the v10 operation
+
+The v10 names are `send message`, `subscribe event` and `unsubscribe event`, but `publish event` became
+`publish`. Rejected: the target already names the type, so the noun adds no information, and the mix made the
+operations differ without a reason.
 
 ### Use the full type name
 

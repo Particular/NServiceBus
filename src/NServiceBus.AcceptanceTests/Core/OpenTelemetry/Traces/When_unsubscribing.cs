@@ -63,6 +63,22 @@ public class When_unsubscribing : OpenTelemetryAcceptanceTest
         Assert.That(subscriptionReceiveActivity, Is.Empty, "native pubsub should not produce a message");
     }
 
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_name_the_event_type_in_the_unsubscribe_span()
+    {
+        Requires.MessageDrivenPubSub();
+
+        await Scenario.Define<Context>()
+            .WithEndpoint<SubscriberEndpoint>(e => e
+                .When(s => s.Unsubscribe<DemoEvent>()))
+            .WithEndpoint<PublishingEndpoint>()
+            .Run();
+
+        var unsubscribeActivity = NServiceBusActivityListener.CompletedActivities.Single(a => a.OperationName == "NServiceBus.Diagnostics.Unsubscribe");
+        Assert.That(unsubscribeActivity.DisplayName, Is.EqualTo($"unsubscribe {nameof(DemoEvent)}"));
+    }
+
     class Context : ScenarioContext;
 
     class SubscriberEndpoint : EndpointConfigurationBuilder

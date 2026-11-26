@@ -77,6 +77,7 @@ public class When_subscribing : OpenTelemetryAcceptanceTest
             .Run();
 
         var subscribeActivity = NServiceBusActivityListener.CompletedActivities.Single(a => a.OperationName == "NServiceBus.Diagnostics.Subscribe");
+        Assert.That(subscribeActivity.DisplayName, Is.EqualTo($"subscribe {nameof(DemoEvent)}"));
 
         // Array-valued tags are only visible through TagObjects, not Tags.
         var eventTypes = subscribeActivity.TagObjects.ToImmutableDictionary()["nservicebus.event_types"];

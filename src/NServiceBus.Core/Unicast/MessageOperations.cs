@@ -104,7 +104,7 @@ class MessageOperations(
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
         var operationName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.SubscribeEvent} {string.Join(' ', eventTypes.Select(x => x.Name))}"
+            ? $"{ActivityDisplayNames.SubscribeOperation} {string.Join(' ', eventTypes.Select(x => x.Name))}"
             : ActivityDisplayNames.SubscribeEvent;
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, operationName, context);
@@ -133,7 +133,7 @@ class MessageOperations(
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
         var operationName = V11BehaviorSwitch.UseV11Behavior
-            ? $"{ActivityDisplayNames.UnsubscribeEvent} {eventType.Name}"
+            ? $"{ActivityDisplayNames.UnsubscribeOperation} {eventType.Name}"
             : ActivityDisplayNames.UnsubscribeEvent;
 
         using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, operationName, context);
