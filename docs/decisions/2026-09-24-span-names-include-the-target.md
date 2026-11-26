@@ -109,11 +109,6 @@ Constraints:
   - This diverges from the rule of the OpenTelemetry .NET instrumentation skill to build span names only after
     the check for a span.
 
-## Alternative approaches
-
-The point of leverage is the target of outgoing spans. It returns whenever someone compares NServiceBus span
-names with the messaging semantic conventions.
-
 ### Keep the generic v10 names
 
 Stable and with the lowest cardinality. Rejected: one group for all work of a kind does not help users find a
@@ -127,9 +122,7 @@ the type for send and reply, and accepts that samplers do not see it.
 
 ### Use only the message type as the target of send and reply spans
 
-The state before decision 4 (`send message {MessageType}`). It names the span once, when it starts. Rejected:
-a message type that goes to several destinations is one group, and a user cannot see where a send went
-without opening the span.
+The state before decision 4 (`send message {MessageType}`). It names the span once, when it starts. Rejected: the destination is an important information the users should see immediatelly when looking at a span.
 
 ### Append the destination without a separator
 
