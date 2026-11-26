@@ -17,6 +17,8 @@ static class ActivityDisplayNames
     internal const string ProcessOperation = "process";
     internal const string PublishOperation = "publish";
     internal const string SendOperation = "send";
+    internal const string SubscribeOperation = "subscribe";
+    internal const string UnsubscribeOperation = "unsubscribe";
     internal const string ImmediateRetryOperation = "immediate retry";
     internal const string DelayedRetryOperation = "delayed retry";
     internal const string MoveToErrorOperation = "move to";

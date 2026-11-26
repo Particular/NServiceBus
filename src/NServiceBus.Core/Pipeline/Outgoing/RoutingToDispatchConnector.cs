@@ -63,15 +63,15 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         {
             ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
 
-            // Append destination to span name per OTel messaging spec: {operation} {destination}
+            // Append the destination to the span name: {operation} {MessageType} to {destination}
             // Only for send/reply (unicast); publish destination is already set at span creation.
             if (V11BehaviorSwitch.UseV11Behavior // removed in v11, see obsoletes-v10.cs
-                && operations.Length > 0
+                && operations.Length == 1
                 && operations[0].AddressTag is UnicastAddressTag unicastTag
                 && outgoingMessage.Headers.TryGetValue(Headers.MessageIntent, out var intentString)
                 && intentString is nameof(MessageIntent.Send) or nameof(MessageIntent.Reply))
             {
-                activity.DisplayName = $"{activity.DisplayName} {unicastTag.Destination}";
+                activity.DisplayName = $"{activity.DisplayName} to {unicastTag.Destination}";
             }
         }
 

@@ -10,6 +10,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
+using NServiceBus.Pipeline;
 using NUnit.Framework;
 
 public class When_sending_messages : OpenTelemetryAcceptanceTest
@@ -182,8 +183,23 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
         Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1));
 
         var sentMessage = outgoingMessageActivities.Single();
-        Assert.That(sentMessage.DisplayName, Does.StartWith("send "));
-        Assert.That(sentMessage.DisplayName, Is.Not.EqualTo("send message"));
+        var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(TestEndpoint));
+        Assert.That(sentMessage.DisplayName, Is.EqualTo($"send {nameof(OutgoingMessage)} to {destination}"));
+    }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_not_include_destination_in_send_span_name_when_routed_to_several_destinations()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpointWithFanOut>(b => b
+                .When(s => s.SendLocal(new OutgoingMessage())))
+            .Run();
+
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1));
+
+        Assert.That(outgoingMessageActivities.Single().DisplayName, Is.EqualTo($"send {nameof(OutgoingMessage)}"));
     }
 
     [Test]
@@ -254,6 +270,32 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
     {
         public TestEndpointWithSpanLinkConnector() =>
             EndpointSetup<DefaultServer>(b => b.Tracing().SendTraceMode = TraceMode.StartNew);
+
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
+        {
+            public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
+    public class TestEndpointWithFanOut : EndpointConfigurationBuilder
+    {
+        public TestEndpointWithFanOut() => EndpointSetup<DefaultServer>(c =>
+            c.Pipeline.Register(new DuplicateRoutingStrategyBehavior(), "Routes each outgoing message twice"));
+
+        class DuplicateRoutingStrategyBehavior : Behavior<IRoutingContext>
+        {
+            public override Task Invoke(IRoutingContext context, Func<Task> next)
+            {
+                var strategy = context.RoutingStrategies.Single();
+                context.RoutingStrategies = [strategy, strategy];
+                return next();
+            }
+        }
 
         [Handler]
         public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
