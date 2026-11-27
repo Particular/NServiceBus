@@ -11,6 +11,7 @@ using NUnit.Framework;
 public partial class MainPipelineExecutorTests
 {
     const string ProcessingAttempts = "nservicebus.messaging.processing_attempts";
+    const string Failures = "nservicebus.messaging.failures"; // pre-v11 counter, removed in v11, see obsoletes-v10.cs
 
     [Test]
     [OpenTelemetryV11Defaults]
@@ -55,5 +56,33 @@ public partial class MainPipelineExecutorTests
 
         metricsListener.AssertMetric(ProcessingAttempts, 1);
         Assert.That(metricsListener.AssertTagKeyExists(ProcessingAttempts, "error.type"), Is.EqualTo(typeof(TaskCanceledException).FullName));
+    }
+
+    // In v11 there is no failures counter. Delete these two tests with the counter, see obsoletes-v10.cs.
+    [Test]
+    public async Task Should_count_a_failed_processing_attempt_as_a_failure()
+    {
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+        await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
+        var executor = CreateMainPipelineExecutor(serviceProvider, new ActivityTrackingReceivePipeline { ExceptionToThrow = new InvalidOperationException() });
+
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await executor.Invoke(CreateMessageContext()));
+
+        metricsListener.AssertMetric(Failures, 1);
+    }
+
+    [Test]
+    public async Task Should_not_count_a_canceled_processing_attempt_as_a_failure()
+    {
+        using var metricsListener = TestingMetricListener.SetupNServiceBusMetricsListener();
+        await using var serviceProvider = new ServiceCollection().BuildServiceProvider();
+        using var cancellationTokenSource = new CancellationTokenSource();
+        await cancellationTokenSource.CancelAsync();
+        var executor = CreateMainPipelineExecutor(serviceProvider,
+            new ActivityTrackingReceivePipeline { ExceptionToThrow = new TaskCanceledException(null, null, cancellationTokenSource.Token) });
+
+        Assert.ThrowsAsync<TaskCanceledException>(async () => await executor.Invoke(CreateMessageContext(), cancellationTokenSource.Token));
+
+        metricsListener.AssertMetric(Failures, 0);
     }
 }
