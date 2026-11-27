@@ -53,7 +53,7 @@ class RecoverabilityPipelineExecutor<TState>(
             catch (Exception ex)
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
             {
-                activityFactory.RecordError(activity, ex, recoverabilityContext.Extensions);
+                activityFactory.RecordError(activity, ex, recoverabilityContext.Extensions, recoverabilityContext.CancellationToken);
                 throw;
             }
             finally

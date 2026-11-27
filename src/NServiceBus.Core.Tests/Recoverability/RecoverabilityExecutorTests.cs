@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
 using Logging;
@@ -308,7 +309,9 @@ public class RecoverabilityExecutorTests
         public Activity StartHandlerActivity(MessageHandler messageHandler) => inner.StartHandlerActivity(messageHandler);
         public Activity StartRecoverabilityActivity(ErrorContext context) => inner.StartRecoverabilityActivity(context);
         public void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress) => throw new NotSupportedException("enricher failed");
-        public void RecordError(Activity activity, Exception exception, ContextBag contextBag) => inner.RecordError(activity, exception, contextBag);
+#pragma warning disable PS0003
+        public void RecordError(Activity activity, Exception exception, ContextBag contextBag, CancellationToken cancellationToken) => inner.RecordError(activity, exception, contextBag, cancellationToken);
+#pragma warning restore PS0003
     }
 
     static RecoverabilityPipelineExecutor<object> CreateRecoverabilityExecutor(TestableMessageOperations.Pipeline<IRecoverabilityContext> recoverabilityPipeline, IActivityFactory activityFactory = null, IServiceProvider serviceProvider = null)

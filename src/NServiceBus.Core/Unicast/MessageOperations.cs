@@ -278,7 +278,7 @@ class MessageOperations(
     // The span name is only built when a span is recorded, so the caller builds it for the log entry when there is no span.
     void HandleException(IBehaviorContext context, Activity activity, Exception exception, string displayName)
     {
-        activityFactory.RecordError(activity, exception, context.Extensions);
+        activityFactory.RecordError(activity, exception, context.Extensions, context.CancellationToken);
 
         // Inside message processing recoverability logs the exception with its decision, and a failure of
         // recoverability itself is raised as a critical error. Outside of it, no one else sees the exception.

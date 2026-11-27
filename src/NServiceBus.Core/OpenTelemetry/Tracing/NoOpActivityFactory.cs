@@ -4,6 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Diagnostics;
+using System.Threading;
 using Extensibility;
 using Pipeline;
 using Transport;
@@ -23,7 +24,9 @@ sealed class NoOpActivityFactory : IActivityFactory
     {
     }
 
-    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag)
+#pragma warning disable PS0003
+    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag, CancellationToken cancellationToken)
+#pragma warning restore PS0003
     {
     }
 }
