@@ -182,11 +182,14 @@ public class UsageReporterTests(bool useV11Behavior)
             }
         }
 
+        // A canceled attempt records a processing attempt with the error type of the exception, and no failure.
+        // The attempt carries error.type, so the usage reporter does not count it.
         public void SimulateCanceledMessages(int n)
         {
             for (var i = 0; i < n; i++)
             {
-                metrics.RecordCanceledProcessingAttempt(new TestableTransportReceiveContext().PipelineMetricTags);
+                var context = new TestableTransportReceiveContext();
+                metrics.RecordProcessingAttempt(context.PipelineMetricTags, new OperationCanceledException());
             }
         }
     }
