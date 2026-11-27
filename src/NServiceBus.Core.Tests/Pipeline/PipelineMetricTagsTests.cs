@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using MessageInterfaces.MessageMapper.Reflection;
+using NServiceBus.Core.Tests.OpenTelemetry;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
 using Serialization;
@@ -13,7 +14,7 @@ using Transport;
 using Unicast.Messages;
 
 [TestFixture]
-public class IncomingPipelineMetricTagsTests
+public class PipelineMetricTagsTests
 {
     [Test]
     public void Should_not_fail_when_handling_more_than_one_logical_message()
@@ -35,11 +36,11 @@ public class IncomingPipelineMetricTagsTests
         };
 
         var messageMapper = new MessageMapper();
-        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false);
+        var behavior = new DeserializeMessageConnector(new MessageDeserializerResolver(new FakeSerializer(), []), new LogicalMessageFactory(registry, messageMapper), registry, messageMapper, false, new PipelineMetrics(new TestMeterFactory(), "queue", "disc"));
 
         Assert.DoesNotThrowAsync(async () => await behavior.Invoke(context, c =>
         {
-            c.Extensions.Get<IncomingPipelineMetricTags>().Add("Same", "Same");
+            c.PipelineMetricTags.Add("Same", "Same");
             return Task.CompletedTask;
         }));
     }

@@ -1,0 +1,35 @@
+{
+  "Note": "Changes to metrics API should result in an update to NServiceBusMeter version.",
+  "MetricsSourceName": "NServiceBus.Core",
+  "MetricsSourceVersion": "1.0.0",
+  "Tags": [
+    "error.type",
+    "execution.result",
+    "nservicebus.discriminator",
+    "nservicebus.enclosed_message_types",
+    "nservicebus.envelope.unwrapper_type",
+    "nservicebus.message_handler_type",
+    "nservicebus.message_handler_types",
+    "nservicebus.message_type",
+    "nservicebus.queue",
+    "nservicebus.saga_type"
+  ],
+  "Metrics": [
+    "nservicebus.envelope.unwrap_attempts => Counter, Unit: {attempt}",
+    "nservicebus.messaging.active_messages => UpDownCounter, Unit: {message}",
+    "nservicebus.messaging.critical_time => Histogram, Unit: s",
+    "nservicebus.messaging.deserialize_time => Histogram, Unit: s",
+    "nservicebus.messaging.handler_time => Histogram, Unit: s",
+    "nservicebus.messaging.processing_attempts => Counter, Unit: {attempt}",
+    "nservicebus.messaging.processing_time => Histogram, Unit: s",
+    "nservicebus.messaging.serialize_time => Histogram, Unit: s",
+    "nservicebus.outbox.duplicates => Counter, Unit: {message}",
+    "nservicebus.outbox.fetch_time => Histogram, Unit: s",
+    "nservicebus.outbox.store_time => Histogram, Unit: s",
+    "nservicebus.persistence.commit_time => Histogram, Unit: s",
+    "nservicebus.recoverability.delayed => Counter, Unit: {retry}",
+    "nservicebus.recoverability.error => Counter, Unit: {message}",
+    "nservicebus.recoverability.immediate => Counter, Unit: {retry}",
+    "nservicebus.sagas.fetch_time => Histogram, Unit: s"
+  ]
+}

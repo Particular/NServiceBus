@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using OpenTelemetry;
 
 [TestFixture]
 public class ConventionEnforcementTests : NServiceBusAcceptanceTest
@@ -51,7 +52,11 @@ public class ConventionEnforcementTests : NServiceBusAcceptanceTest
             diagnosticTests.Where(t => t.GetCustomAttribute<NonParallelizableAttribute>() == null);
 
         Assert.That(diagnosticTests, Is.Not.Empty);
-        Assert.That(diagnosticTestsWithoutNonParallelizableAttribute, Is.Empty, string.Join(",", diagnosticTests));
+
+        var parallelizeTests = new[] { typeof(When_endpoint_starts_with_instrumentation_options) };
+        Assert.That(diagnosticTestsWithoutNonParallelizableAttribute,
+            Is.EquivalentTo(parallelizeTests),
+            string.Join(",", diagnosticTests));
     }
 
     [Test]

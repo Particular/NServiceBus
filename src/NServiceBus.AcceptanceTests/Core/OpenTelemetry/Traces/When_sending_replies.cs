@@ -55,6 +55,23 @@ public class When_sending_replies : OpenTelemetryAcceptanceTest
         }
     }
 
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_include_destination_in_reply_span_name()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpoint>(b => b
+                .When(s => s.SendLocal(new IncomingMessage())))
+            .Run();
+
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(2), "2 messages are being sent");
+        var replyMessage = outgoingMessageActivities[1];
+
+        var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(TestEndpoint));
+        Assert.That(replyMessage.DisplayName, Is.EqualTo($"reply {nameof(OutgoingReply)} to {destination}"));
+    }
+
     public class IncomingMessage : IMessage;
 
     public class OutgoingReply : IMessage;

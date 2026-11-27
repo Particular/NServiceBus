@@ -621,5 +621,476 @@ namespace NServiceBus.Unicast.Messages
     }
 }
 
+namespace NServiceBus
+{
+#nullable enable
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Diagnostics.Metrics;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
+    using NServiceBus.Settings;
+
+    // =============================================================================
+    // OPENTELEMETRY V11 BEHAVIOR OPT-IN. EVERYTHING IN THIS BLOCK IS REMOVED IN v11.
+    //
+    // Several OpenTelemetry behaviors become the one and only behavior in v11, with no
+    // option left to opt in or out. Until then an endpoint can adopt them as a whole on
+    // v10 through a single AppContext switch:
+    //
+    //   AppContext.SetSwitch("NServiceBus.Core.OpenTelemetry.UseV11Behavior", true);
+    //
+    // or in runtimeconfig.template.json / the project file:
+    //
+    //   <ItemGroup>
+    //     <RuntimeHostConfigurationOption Include="NServiceBus.Core.OpenTelemetry.UseV11Behavior" Value="true" />
+    //   </ItemGroup>
+    //
+    // With the switch enabled:
+    // - Trace context and baggage are propagated through System.Diagnostics.DistributedContextPropagator
+    //   (W3C baggage encoding) instead of LegacyContextPropagation below. The baggage wire format changes
+    //   (W3C OWS encoding + whitespace trimming), which is breaking on rolling upgrades.
+    //   https://github.com/Particular/NServiceBus/issues/7825
+    // - Handler spans are emitted from the dedicated "NServiceBus.Core.Handler" ActivitySource instead of
+    //   "NServiceBus.Core" so they can be filtered/sampled independently. Existing OpenTelemetry
+    //   configurations that only subscribe to "NServiceBus.Core" would silently lose handler spans.
+    //   https://github.com/Particular/NServiceBus/issues/7284
+    // - When a transport SDK (Azure Service Bus, RabbitMQ, SQS, ...) has its own OpenTelemetry
+    //   instrumentation, its ambient "receive" span becomes the parent of the incoming message span and
+    //   the NServiceBus sender span is linked instead of being the parent. This changes trace shapes.
+    // - Span names follow the OTel messaging convention `{messaging.operation.name} {destination}`,
+    //   e.g. "process orders", "send Payment", "publish OrderPlaced", "immediate retry orders".
+    // - The "Start dispatching"/"Finished dispatching" events are no longer added to the incoming span
+    //   when outgoing messages are dispatched.
+    // - The legacy `execution.result` tag ("success"/"failure") is no longer emitted on the handler time,
+    //   processing time, saga fetch time, deserialize time, and serialize time metrics.
+    // - The legacy `otel.status_code`/`otel.status_description` tags (redundant with Activity.Status) and
+    //   the deprecated `exception.escaped` exception event attribute are no longer set on failures.
+    //   https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-logs/
+    // - The ActivitySources report version 1.0.0 instead of 0.1.0, so a consumer can tell the two tag and
+    //   span-name sets apart.
+    // - The metrics are emitted from the "NServiceBus.Core" meter at version 1.0.0 instead of
+    //   "NServiceBus.Core.Pipeline.Incoming" at 0.4.0. The instruments also cover outgoing, saga, outbox and
+    //   persistence work, so the incoming-pipeline name was misleading. Anything selecting on the
+    //   instrumentation scope (Grafana dashboards, Prometheus recording rules, alerting) breaks at the
+    //   switch, which is why this is an opt-in rather than a straight rename. Only one meter is emitted at a
+    //   time: emitting both would double every series, so a MeterProvider must subscribe to the name that
+    //   matches the switch.
+    // - The duration histograms specify the ExplicitBucketBoundaries advisory parameter with the boundaries the
+    //   OpenTelemetry semantic conventions recommend for durations in seconds, instead of falling back to the SDK
+    //   defaults (0, 5, 10, 25, ... 10000) that are meant for milliseconds. This changes the exported buckets.
+    //   https://opentelemetry.io/docs/specs/otel/metrics/api/#instrument-advisory-parameters
+    // - The counters declare count units ({message}, {retry} for the retry counters, {attempt} for envelope
+    //   unwrapping) instead of none.
+    // - `nservicebus.envelope.unwrapped` becomes `nservicebus.envelope.unwrap_attempts` and counts every envelope handler
+    //   invocation, with `error.type` on the failed ones, instead of adding 0 on success and 1 on failure.
+    //   https://opentelemetry.io/docs/specs/semconv/general/recording-errors/#recording-errors-on-metrics
+    // - `nservicebus.messaging.successes` and `nservicebus.messaging.failures` are replaced by
+    //   `nservicebus.messaging.processing_attempts`, recorded once per attempt when the receive pipeline completes or
+    //   fails, with `error.type` on the failed ones. Deduplicated outbox messages count as attempts without error.type,
+    //   and attempts canceled through the receive cancellation token (typically at shutdown) count with
+    //   `error.type` System.OperationCanceledException.
+    // - `nservicebus.messaging.fetches` is no longer emitted: it counted the same attempts as
+    //   `nservicebus.messaging.processing_attempts`, recorded at the same point, with fewer tags.
+    // - Every counter records 0 once at endpoint start, with only the queue and discriminator tags, so it can be
+    //   discovered in metrics backends before its first real measurement. Histograms are not seeded.
+    //   https://opentelemetry.io/docs/specs/semconv/general/metrics/#instrument-units
+    // - The outbox deduplication span tag is named `nservicebus.outbox.deduplicated_message` instead of
+    //   `nservicebus.outbox.deduplicate-message`, following the OpenTelemetry attribute naming rules
+    //   (snake_case within a dot-delimited component, no hyphens).
+    //   https://opentelemetry.io/docs/specs/semconv/general/naming/
+    // - The `nservicebus.event_types` tag on subscribe and unsubscribe spans and the
+    //   `nservicebus.enclosed_message_types` tag on message spans are arrays of full type names instead of
+    //   delimited strings. The OpenTelemetry naming rules ask for an array when an attribute holds several
+    //   values. Array-valued tags are only visible through Activity.TagObjects, not Activity.Tags.
+    //
+    // In v11: delete this entire namespace block, search the code base for `V11BehaviorSwitch` and keep
+    // only the branch each check guards for the enabled case. ActivityFactory, ActivitySources, ContextPropagation,
+    // RoutingToDispatchConnector, TransportReceiveToPhysicalMessageConnector,
+    // PipelineMetrics and UsageReporter are the production call sites. Delete the pre-v11 default tests
+    // (ContextPropagationDefaultBehaviorTests, LegacyContextPropagationTests, TransportParentSpanDefaultBehaviorTests,
+    // the "Default_..." tests in HandlerActivitySourceTests, PipelineMetricsTests.Should_not_advise_bucket_boundaries,
+    // the "Should_report_..._unwrapping_metric" tests in When_envelope_handler_succeeds/_fails, the tests without
+    // OpenTelemetryV11Defaults in When_message_is_processed_successfully/When_message_processing_fails; move
+    // When_customizing_metric_tags off nservicebus.messaging.fetches) and the switch SetUp/TearDown pairs in the
+    // remaining unit and acceptance tests, together with the OpenTelemetryV11Defaults attribute in the
+    // obsoletes-v10.cs of NServiceBus.Core.Tests and NServiceBus.AcceptanceTests.
+    // =============================================================================
+    static class V11BehaviorSwitch
+    {
+        enum SwitchState : byte
+        {
+            Unchecked = 0,
+            Enabled = 1,
+            Disabled = 2
+        }
+
+        static SwitchState cachedUseV11Behavior;
+
+        public const string UseV11BehaviorSwitchName = "NServiceBus.Core.OpenTelemetry.UseV11Behavior";
+
+        public static bool UseV11Behavior
+        {
+            get
+            {
+                var state = cachedUseV11Behavior;
+                if (state != SwitchState.Unchecked)
+                {
+                    return state == SwitchState.Enabled;
+                }
+
+                state = AppContext.TryGetSwitch(UseV11BehaviorSwitchName, out var isEnabled) && isEnabled
+                    ? SwitchState.Enabled
+                    : SwitchState.Disabled;
+                cachedUseV11Behavior = state;
+
+                return state == SwitchState.Enabled;
+            }
+        }
+
+        internal static void ResetUseV11Behavior() => cachedUseV11Behavior = SwitchState.Unchecked;
+    }
+
+    // The pre-v11 trace-context/baggage propagator. ContextPropagation.cs delegates here while
+    // V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyContextPropagation
+    {
+        public static void PropagateContextToHeaders(Activity? activity, Dictionary<string, string> headers)
+        {
+            if (activity is null)
+            {
+                return;
+            }
+
+            if (activity.Id is not null)
+            {
+                headers[Headers.DiagnosticsTraceParent] = activity.Id;
+            }
+
+            if (activity.TraceStateString is not null)
+            {
+                headers[Headers.DiagnosticsTraceState] = activity.TraceStateString;
+            }
+
+            var baggage = string.Join(",", activity.Baggage.Select(item => $"{item.Key}={Uri.EscapeDataString(item.Value ?? string.Empty)}"));
+            if (!string.IsNullOrEmpty(baggage))
+            {
+                headers[Headers.DiagnosticsBaggage] = baggage;
+            }
+        }
+
+        public static void PropagateContextFromHeaders(Activity? activity, IDictionary<string, string> headers)
+        {
+            if (activity is null)
+            {
+                return;
+            }
+
+            PropagateTraceStateFromHeaders(activity, headers);
+            PropagateBaggageFromHeaders(activity, headers);
+        }
+
+        public static void PropagateTraceStateFromHeaders(Activity activity, IDictionary<string, string> headers)
+        {
+            if (headers.TryGetValue(Headers.DiagnosticsTraceState, out var traceState))
+            {
+                activity.TraceStateString = traceState;
+            }
+        }
+
+        // parent: the activity whose baggage chain is checked so keys it already carries are not added again,
+        // see ContextPropagation.PropagateBaggageFromHeaders.
+        public static void PropagateBaggageFromHeaders(Activity activity, IDictionary<string, string> headers, Activity? parent = null)
+        {
+            if (!headers.TryGetValue(Headers.DiagnosticsBaggage, out var baggageValue))
+            {
+                return;
+            }
+
+            var baggageSpan = baggageValue.AsSpan();
+            // HINT: Iterate in reverse order because Activity baggage is LIFO
+            while (!baggageSpan.IsEmpty)
+            {
+                var lastComma = baggageSpan.LastIndexOf(',');
+                ReadOnlySpan<char> baggageItem;
+
+                if (lastComma >= 0)
+                {
+                    baggageItem = baggageSpan[(lastComma + 1)..];
+                    baggageSpan = baggageSpan[..lastComma];
+                }
+                else
+                {
+                    baggageItem = baggageSpan;
+                    baggageSpan = [];
+                }
+
+                var firstEquals = baggageItem.IndexOf('=');
+                if (firstEquals < 0 || firstEquals >= baggageItem.Length)
+                {
+                    continue;
+                }
+
+                var key = baggageItem[..firstEquals].Trim().ToString();
+                if (parent?.GetBaggageItem(key) is not null)
+                {
+                    continue;
+                }
+
+                var value = baggageItem[(firstEquals + 1)..];
+                activity.AddBaggage(key, Uri.UnescapeDataString(value));
+            }
+        }
+    }
+
+    // The pre-v11 exception tagging. ActivityFactory.RecordError applies these while
+    // V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyExceptionTags
+    {
+        public static void SetLegacyStatusTags(Activity activity, Exception exception)
+        {
+            activity.SetTag("otel.status_code", "ERROR");
+            activity.SetTag("otel.status_description", exception.Message);
+        }
+
+        public static TagList EscapedTagList { get; } = new() { { "exception.escaped", true } };
+    }
+
+    // The pre-v11 success status. The pipeline calls this after a successful invocation while
+    // V11BehaviorSwitch.UseV11Behavior is off. The OpenTelemetry trace API asks instrumentation libraries to leave
+    // the status unset on success (https://opentelemetry.io/docs/specs/otel/trace/api/#set-status), so in v11
+    // nothing is written: delete this class and the calls to it.
+    static class LegacyStatus
+    {
+        public static void SetOk(Activity? activity)
+        {
+            if (V11BehaviorSwitch.UseV11Behavior)
+            {
+                return;
+            }
+
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+    }
+
+    // The pre-v11 names of span tags that were renamed to follow the OpenTelemetry naming rules.
+    // TransportReceiveToPhysicalMessageConnector writes these while V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyActivityTags
+    {
+        public const string OutboxDeduplicateMessage = "nservicebus.outbox.deduplicate-message";
+    }
+
+    // The pre-v11 execution.result metric tag. PipelineMetrics applies it while
+    // V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyExecutionResultTag
+    {
+        // The tag is going away, so a user cannot override it through IMetricsTags.
+        public static void Add(ref TagList tags, Exception? error = null)
+        {
+            if (!V11BehaviorSwitch.UseV11Behavior)
+            {
+                tags.Add(MeterTags.ExecutionResult, error is null ? "success" : "failure");
+            }
+        }
+    }
+
+    // The pre-v11 meter scope. PipelineMetrics creates its instruments under this name and version while
+    // V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyMeter
+    {
+        public const string Name = "NServiceBus.Core.Pipeline.Incoming";
+        public const string Version = "0.4.0";
+    }
+
+    // The pre-v11 instruments: no units or bucket advice, the envelope counter under its old name, and the successes and
+    // failures counters that v11 replaces with processing attempts (see the list above). PipelineMetrics creates these
+    // while V11BehaviorSwitch.UseV11Behavior is off.
+    partial class PipelineMetrics
+    {
+        const string LegacyEnvelopeUnwrapping = "nservicebus.envelope.unwrapped";
+        public const string TotalProcessedSuccessfully = "nservicebus.messaging.successes";
+        const string TotalFailures = "nservicebus.messaging.failures";
+        const string TotalFetched = "nservicebus.messaging.fetches";
+
+        // Replaced by processingAttempts with V11BehaviorSwitch on, where they are null.
+        Counter<long>? totalProcessedSuccessfully;
+        Counter<long>? totalFailures;
+        Counter<long>? totalFetched;
+
+        [MemberNotNull(
+            nameof(totalDeduplicated),
+            nameof(messageHandlerTime), nameof(criticalTime), nameof(processingTime), nameof(totalImmediateRetries),
+            nameof(totalDelayedRetries), nameof(totalSentToErrorQueue), nameof(envelopeUnwrapAttempts), nameof(activeMessages),
+            nameof(sagaFetchTime), nameof(messageDeserializeTime), nameof(messageSerializeTime), nameof(outboxFetchTime),
+            nameof(outboxStoreTime), nameof(persistenceTime))]
+        void CreateLegacyInstruments(Meter meter)
+        {
+            totalProcessedSuccessfully = meter.CreateCounter<long>(TotalProcessedSuccessfully,
+                description: "Total number of messages processed successfully by the endpoint.");
+            totalFetched = meter.CreateCounter<long>(TotalFetched,
+                description: "Total number of messages fetched from the queue by the endpoint.");
+            totalFailures = meter.CreateCounter<long>(TotalFailures,
+                description: "Total number of messages processed unsuccessfully by the endpoint.");
+            totalDeduplicated = meter.CreateCounter<long>(TotalDeduplicated,
+                description: "Total number of duplicate messages detected by the Outbox.");
+            messageHandlerTime = meter.CreateHistogram<double>(MessageHandlerTime, "s",
+                "The time in seconds for the execution of the business code.");
+            criticalTime = meter.CreateHistogram<double>(CriticalTime, "s",
+                "The time in seconds between when the message was sent until processed by the endpoint.");
+            processingTime = meter.CreateHistogram<double>(ProcessingTime, "s",
+                "The time in seconds between when the message was fetched from the input queue until successfully processed by the endpoint.");
+            totalImmediateRetries = meter.CreateCounter<long>(RecoverabilityImmediate,
+                description: "Total number of immediate retries requested.");
+            totalDelayedRetries = meter.CreateCounter<long>(RecoverabilityDelayed,
+                description: "Total number of delayed retries requested.");
+            totalSentToErrorQueue = meter.CreateCounter<long>(RecoverabilityError,
+                description: "Total number of messages sent to the error queue.");
+            envelopeUnwrapAttempts = meter.CreateCounter<long>(LegacyEnvelopeUnwrapping,
+                description: "Total number of unwrapping attempts by the endpoint.");
+            activeMessages = meter.CreateUpDownCounter<long>(ActiveMessages,
+                description: "Number of messages currently being processed by the endpoint.");
+            sagaFetchTime = meter.CreateHistogram<double>(SagaFetchTime, "s",
+                "The time in seconds for loading saga data from the persister.");
+            messageDeserializeTime = meter.CreateHistogram<double>(MessageDeserializeTime, "s",
+                "The time in seconds for deserializing an incoming message.");
+            messageSerializeTime = meter.CreateHistogram<double>(MessageSerializeTime, "s",
+                "The time in seconds for serializing an outgoing message.");
+            outboxFetchTime = meter.CreateHistogram<double>(OutboxFetchTime, "s",
+                "The time in seconds for querying the outbox storage for deduplication.");
+            outboxStoreTime = meter.CreateHistogram<double>(OutboxStoreTime, "s",
+                "The time in seconds for storing a message in the outbox storage.");
+            persistenceTime = meter.CreateHistogram<double>(CommitTime, "s",
+                "The time in seconds for completing the synchronized storage session.");
+        }
+
+        public void RecordMessageProcessingFailure(PipelineMetricTags pipelineMetricTags, Exception error)
+        {
+            if (totalFailures is not { Enabled: true })
+            {
+                return;
+            }
+
+            var tags = DefaultMetricTags;
+            LegacyExecutionResultTag.Add(ref tags, error); // removed in v11, see obsoletes-v10.cs
+
+            tags.Add(MeterTags.ErrorType, error.GetType().FullName);
+
+            pipelineMetricTags.ApplyTags(ref tags, [
+                MeterTags.QueueName,
+                MeterTags.EndpointDiscriminator,
+                MeterTags.MessageType,
+                MeterTags.MessageHandlerTypes,
+                MeterTags.ErrorType],
+                totalFailures.Name);
+            totalFailures.Add(1, tags);
+
+            // the processing and critical time are intentionally not recorded in case of failure
+        }
+
+        public void RecordFetchedMessage(PipelineMetricTags pipelineMetricTags)
+        {
+            if (totalFetched is not { Enabled: true })
+            {
+                return;
+            }
+
+            var tags = DefaultMetricTags;
+            pipelineMetricTags.ApplyTags(ref tags, [
+                MeterTags.EndpointDiscriminator,
+                MeterTags.QueueName,
+                MeterTags.MessageType],
+                totalFetched.Name);
+
+            totalFetched.Add(1, tags);
+        }
+    }
+
+    // The pre-v11 "Start dispatching"/"Finished dispatching" events on the incoming span.
+    // TransportReceiveToPhysicalMessageConnector dispatches through here while V11BehaviorSwitch.UseV11Behavior is off.
+    static class LegacyDispatchEvents
+    {
+        public static async Task DispatchWithEvents(TransportReceiveToPhysicalMessageConnector connector, IBatchDispatchContext batchDispatchContext, Activity activity)
+        {
+            activity.AddEvent(new(StartDispatching, tags: new() { { MessageCount, batchDispatchContext.Operations.Count } }));
+            await connector.Fork(batchDispatchContext).ConfigureAwait(false);
+            activity.AddEvent(new(FinishedDispatching));
+        }
+
+        const string StartDispatching = "Start dispatching";
+        const string FinishedDispatching = "Finished dispatching";
+        const string MessageCount = "message-count";
+    }
+
+    public partial class InstrumentationOptions
+    {
+        // Publishes start a new linked trace by default in v10 for backward compatibility. This one keeps a
+        // public option (PublishTraceMode) in v11 and is therefore not governed by V11BehaviorSwitch. In v11,
+        // delete this method: PublishTraceMode then defaults to TraceMode.ContinueExisting through its
+        // initializer in InstrumentationOptions.cs, and the empty partial declaration plus the constructor
+        // call there can be removed.
+        partial void ApplyPreV11Defaults() => PublishTraceMode = TraceMode.StartNew;
+
+        // The pre-v11 exception recording mode. In v10 the exception details are logged once and, in SpanAndLogs mode,
+        // also added as an exception event to the activity the exception was thrown in. In v11 they are only logged.
+        // In v11: delete this property, SetExceptionRecordingModeDefault, IsExceptionSignalOptIn, the opt-in constants,
+        // the ExceptionRecordingMode enum below, the `Defaults(InstrumentationOptions.SetExceptionRecordingModeDefault)`
+        // call in the OpenTelemetryFeature constructor, the ExceptionRecordingMode entry in the startup diagnostics,
+        // the ActivityFactory partial below and the `if (isWrappingActivity)` block in ActivityFactory.RecordError.
+        internal ExceptionRecordingMode ExceptionRecordingMode
+        {
+            get => V11BehaviorSwitch.UseV11Behavior ? ExceptionRecordingMode.Logs : field;
+            set;
+        } = ExceptionRecordingMode.SpanAndLogs;
+
+        internal static void SetExceptionRecordingModeDefault(SettingsHolder settings)
+        {
+            var options = settings.GetOrCreate<InstrumentationOptions>();
+            var optIn = settings.Get<SystemEnvironment>().GetEnvironmentVariable(ExceptionSignalOptInEnvironmentVariableKey);
+
+            if (IsExceptionSignalOptIn(optIn, LogsOptIn))
+            {
+                options.ExceptionRecordingMode = ExceptionRecordingMode.Logs;
+            }
+            else if (IsExceptionSignalOptIn(optIn, LogsAndSpanOptIn))
+            {
+                options.ExceptionRecordingMode = ExceptionRecordingMode.SpanAndLogs;
+            }
+        }
+
+        static bool IsExceptionSignalOptIn(string? value, string optIn) => string.Equals(value, optIn, StringComparison.OrdinalIgnoreCase);
+
+        internal static readonly string ExceptionSignalOptInEnvironmentVariableKey = "OTEL_SEMCONV_EXCEPTION_SIGNAL_OPT_IN";
+        const string LogsOptIn = "logs";
+        const string LogsAndSpanOptIn = "logs/dup";
+    }
+
+    enum ExceptionRecordingMode
+    {
+        Logs,
+        SpanAndLogs
+    }
+
+    partial class ActivityFactory
+    {
+        // The pre-v11 exception event. RecordError calls this for the wrapping activity only; the mode decides whether
+        // the event is added. See the InstrumentationOptions partial above for what to delete in v11.
+        void LegacyAddExceptionEvent(Activity activity, Exception exception)
+        {
+            // Building the exception event (stack trace) is wasted work when nothing downstream will read it.
+            if (Options.ExceptionRecordingMode == ExceptionRecordingMode.Logs || !activity.IsAllDataRequested)
+            {
+                return;
+            }
+
+            activity.AddException(exception, LegacyExceptionTags.EscapedTagList);
+        }
+    }
+
+#nullable restore
+}
+
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

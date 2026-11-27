@@ -10,10 +10,8 @@ NServiceBus.AuditInvalidLicenseBehavior
 NServiceBus.ConsecutiveFailuresCircuitBreaker
 NServiceBus.Conventions
 NServiceBus.DelayedMessagePoller
-NServiceBus.DelayedRetry
 NServiceBus.DeserializeMessageConnector
 NServiceBus.DirectoryBasedTransaction
-NServiceBus.Discard
 NServiceBus.EnvelopeUnwrapper
 NServiceBus.ErrorQueueSettings
 NServiceBus.Features.Audit
@@ -23,7 +21,6 @@ NServiceBus.Features.LicenseReminder
 NServiceBus.HostStartupDiagnosticsWriter
 NServiceBus.HostStartupDiagnosticsWriterFactory
 NServiceBus.HostingComponent
-NServiceBus.ImmediateRetry
 NServiceBus.LearningTransportMessagePump
 NServiceBus.LicenseManager
 NServiceBus.LoadHandlersConnector
@@ -32,7 +29,6 @@ NServiceBus.MessageDrivenSubscribeTerminator
 NServiceBus.MessageDrivenUnsubscribeTerminator
 NServiceBus.MigrationSubscribeTerminator
 NServiceBus.MigrationUnsubscribeTerminator
-NServiceBus.MoveToError
 NServiceBus.PersistenceComponent
 NServiceBus.PipelineModelBuilder
 NServiceBus.Pipeline`1

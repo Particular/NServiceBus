@@ -1,21 +1,28 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline;
 
 using System;
-using NServiceBus.Pipeline;
 using System.Threading.Tasks;
 using MessageInterfaces.MessageMapper.Reflection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using NServiceBus.Pipeline;
 
-class TestableMessageOperations : MessageOperations
+class TestableMessageOperations(IActivityFactory activityFactory = null, ILogger<MessageOperations> logger = null) : MessageOperations(
+    new MessageMapper(),
+    new Pipeline<IOutgoingPublishContext>(),
+    new Pipeline<IOutgoingSendContext>(),
+    new Pipeline<IOutgoingReplyContext>(),
+    new Pipeline<ISubscribeContext>(),
+    new Pipeline<IUnsubscribeContext>(),
+    activityFactory ?? new ActivityFactory(new InstrumentationOptions()),
+    logger ?? NullLogger<MessageOperations>.Instance
+    )
 {
     public Pipeline<IOutgoingPublishContext> PublishPipeline => (Pipeline<IOutgoingPublishContext>)publishPipeline;
     public Pipeline<IOutgoingSendContext> SendPipeline => (Pipeline<IOutgoingSendContext>)sendPipeline;
     public Pipeline<IOutgoingReplyContext> ReplyPipeline => (Pipeline<IOutgoingReplyContext>)replyPipeline;
     public Pipeline<ISubscribeContext> SubscribePipeline => (Pipeline<ISubscribeContext>)subscribePipeline;
     public Pipeline<IUnsubscribeContext> UnsubscribePipeline => (Pipeline<IUnsubscribeContext>)unsubscribePipeline;
-
-    public TestableMessageOperations() : base(new MessageMapper(), new Pipeline<IOutgoingPublishContext>(), new Pipeline<IOutgoingSendContext>(), new Pipeline<IOutgoingReplyContext>(), new Pipeline<ISubscribeContext>(), new Pipeline<IUnsubscribeContext>(), new ActivityFactory())
-    {
-    }
 
     public class Pipeline<TContext> : IPipeline<TContext> where TContext : IBehaviorContext
     {

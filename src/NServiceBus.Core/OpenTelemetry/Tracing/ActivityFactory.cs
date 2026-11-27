@@ -2,78 +2,152 @@
 
 namespace NServiceBus;
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Extensibility;
 using Pipeline;
 using Transport;
 
-sealed class ActivityFactory : IActivityFactory
+sealed partial class ActivityFactory(InstrumentationOptions options) : IActivityFactory
 {
-    public Activity? StartIncomingPipelineActivity(MessageContext context)
+    public InstrumentationOptions Options { get; } = options;
+
+    static Activity? StartActivityFromIncomingMessage(ActivitySource activitySource, string activityName, Dictionary<string, string> headers, string nativeMessageId)
     {
         // CreateActivity is a no-op if there are no listeners but we are doing a fast path check
         // here nonetheless to avoid having to parse headers, access the extension bag, etc.
-        if (!ActivitySources.Main.HasListeners())
+        if (!activitySource.HasListeners())
         {
             return null;
         }
 
+        var senderContextExists = TryParseSenderContext(headers, out ActivityContext senderContext);
+        var startNewTrace = false;
+
         Activity? activity;
-        var incomingTraceParentExists = context.Headers.TryGetValue(Headers.DiagnosticsTraceParent, out var sendSpanId);
-        var activityContextCreatedFromIncomingTraceParent = ActivityContext.TryParse(sendSpanId, null, out var sendSpanContext);
 
-        if (context.Extensions.TryGet<Activity>(out var transportActivity)) // attach to transport span but link receive pipeline span to send pipeline span
+        if (senderContextExists) // create a child from a logical send
         {
-            ActivityLink[]? links = null;
-            if (incomingTraceParentExists && sendSpanId != transportActivity.Id)
-            {
-                if (activityContextCreatedFromIncomingTraceParent)
-                {
-                    links = [new ActivityLink(sendSpanContext)];
-                }
-            }
+            startNewTrace = headers.TryGetValue(Headers.StartNewTrace, out var startNewTraceHeaderValue)
+                            && string.Equals(startNewTraceHeaderValue, bool.TrueString, StringComparison.OrdinalIgnoreCase);
 
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName,
-                ActivityKind.Consumer, transportActivity.Context, links: links, idFormat: ActivityIdFormat.W3C);
-        }
-        else if (incomingTraceParentExists && activityContextCreatedFromIncomingTraceParent) // otherwise directly create child from logical send
-        {
-            var isStartNewTraceHeaderAvailable = context.Headers.TryGetValue(Headers.StartNewTrace, out var shouldStartNewTrace);
-            if (isStartNewTraceHeaderAvailable && shouldStartNewTrace?.Equals(bool.TrueString) is true)
+            if (startNewTrace)
             {
-                // create a new trace or root activity
-                ActivityLink[] links = [new ActivityLink(sendSpanContext)];
-                //null the current activity so that the new one is created as root https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
+                // Create a brand-new trace and link the span to the NSB sender span.
+                // An activity without a parent context adopts Activity.Current as its parent when it
+                // starts, so Current has to be cleared. See: https://github.com/dotnet/runtime/issues/65528#issuecomment-2613486896
                 Activity.Current = null;
-                // CreateActivity instead of StartActivity: the activity is started below, and starting it twice makes Activity throw and swallow exceptions
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, parentContext: default, tags: null, links: links, idFormat: ActivityIdFormat.W3C);
+                activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
+            }
+            else if (V11BehaviorSwitch.UseV11Behavior && Activity.Current != null) // remove the switch check in v11, see obsoletes-v10.cs
+            {
+                // A transport SDK receive span is ambient: make it the parent (an activity without
+                // a parent context adopts Activity.Current when it starts) and link to the NSB sender span.
+                activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default, links: [new ActivityLink(senderContext)]);
             }
             else
             {
-                // no new trace was requested, so start a child trace
-                ActivityContext.TryParse(sendSpanId, null, true, out var remoteParentActivityContext);
-                activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer, remoteParentActivityContext);
+                // Create a span that is a child of the NSB sender span
+                activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: senderContext);
             }
         }
-        else // otherwise start new trace
+        else
         {
-            // This will set Activity.Current as parent if available
-            activity = ActivitySources.Main.CreateActivity(name: ActivityNames.IncomingMessageActivityName, ActivityKind.Consumer);
+            // No NServiceBus trace context on the message, so there is nothing for NServiceBus to
+            // propagate from the headers: trace state and baggage are only meaningful together with
+            // a trace parent. The span adopts Activity.Current as parent, if available, and inherits
+            // whatever trace state and baggage that activity carries through the parent chain.
+            activity = activitySource.CreateActivity(activityName, ActivityKind.Consumer, parentContext: default);
         }
+
+        if (activity is null)
+        {
+            return null;
+        }
+
+        // The id format can only be set on an activity that has not started yet. It is forced to W3C
+        // so an ambient hierarchical activity does not leak its format into the trace headers.
+        activity.SetIdFormat(ActivityIdFormat.W3C);
+        activity.AddTag(ActivityTags.NativeMessageId, nativeMessageId);
+
+        // IsAllDataRequested is false when a listener sampled this as PropagationData-only: it wants the
+        // activity to exist for context propagation but won't read anything beyond that, so skip the tag work.
+        // The trace state and baggage propagation after Start() is correctness, not enrichment, and runs regardless.
+        if (activity.IsAllDataRequested)
+        {
+            ActivityDecorator.PromoteHeadersToTags(activity, headers);
+        }
+
+        // Start before reading the headers: Activity.Parent is only assigned by Start(), and the
+        // baggage propagation below skips keys the parent chain already carries.
+        activity.Start();
+
+        if (senderContextExists)
+        {
+            // The message carries NServiceBus trace context, so the trace state and baggage headers
+            // that travel with it are NServiceBus' responsibility.
+            if (!startNewTrace)
+            {
+                // Trace state belongs to the trace it was recorded in, so it is not carried into a new trace.
+                ContextPropagation.PropagateTraceStateFromHeaders(activity, headers);
+            }
+
+            // Baggage is always propagated, also when a transport SDK span is the parent: none of the
+            // supported SDKs propagate baggage yet.
+            ContextPropagation.PropagateBaggageFromHeaders(activity, headers);
+        }
+
+        return activity;
+    }
+
+    static bool TryParseSenderContext(Dictionary<string, string> headers, out ActivityContext senderContext)
+    {
+        senderContext = default;
+
+        // The NServiceBus-specific header takes precedence because a transport SDK may have
+        // overwritten the W3C header with its own context.
+        if (headers.TryGetValue(Headers.NServiceBusDiagnosticsTraceParent, out var senderSpanId))
+        {
+            if (ActivityContext.TryParse(senderSpanId, null, isRemote: true, out senderContext))
+            {
+                return true;
+            }
+        }
+
+        // The W3C header is the fallback, so messages from endpoints on older versions,
+        // which only write that one, still continue the trace.
+        if (headers.TryGetValue(Headers.DiagnosticsTraceParent, out senderSpanId))
+        {
+            if (ActivityContext.TryParse(senderSpanId, null, isRemote: true, out senderContext))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public Activity? StartIncomingPipelineActivity(MessageContext context)
+    {
+        var activity = StartActivityFromIncomingMessage(
+            ActivitySources.Main,
+            ActivityNames.IncomingMessageActivityName,
+            context.Headers,
+            context.NativeMessageId);
 
         if (activity is null)
         {
             return activity;
         }
 
-        ContextPropagation.PropagateContextFromHeaders(activity, context.Headers);
-
-        activity.DisplayName = ActivityDisplayNames.ProcessMessage;
-        activity.SetIdFormat(ActivityIdFormat.W3C);
-        activity.AddTag(ActivityTags.NativeMessageId, context.NativeMessageId);
-
-        ActivityDecorator.PromoteHeadersToTags(activity, context.Headers);
-
-        activity.Start();
+        // An endpoint has a handful of receive addresses (main, instance-specific, satellites), so the name is
+        // built once per address instead of once per message. Remove the switch check in v11, see obsoletes-v10.cs.
+        activity.DisplayName = V11BehaviorSwitch.UseV11Behavior
+            ? processDisplayNames.GetOrAdd(context.ReceiveAddress, static address => $"{ActivityDisplayNames.ProcessOperation} {address}")
+            : ActivityDisplayNames.ProcessMessage;
 
         return activity;
     }
@@ -86,6 +160,11 @@ sealed class ActivityFactory : IActivityFactory
             return activity;
         }
 
+        return StartOutgoingPipelineActivity(activity, displayName, outgoingContext);
+    }
+
+    static Activity StartOutgoingPipelineActivity(Activity activity, string displayName, IBehaviorContext outgoingContext)
+    {
         activity.SetIdFormat(ActivityIdFormat.W3C);
         activity.DisplayName = displayName;
         activity.Start();
@@ -103,7 +182,14 @@ sealed class ActivityFactory : IActivityFactory
             return null;
         }
 
-        var activity = ActivitySources.Main.StartActivity(ActivityNames.InvokeHandlerActivityName);
+        // Until v11 the dedicated handler source is opt-in; existing configurations only
+        // subscribe to the main source and must keep receiving handler spans from it.
+        // Remove the switch check in v11, see obsoletes-v10.cs.
+        var source = V11BehaviorSwitch.UseV11Behavior
+            ? ActivitySources.Handler
+            : ActivitySources.Main;
+
+        var activity = source.StartActivity(ActivityNames.InvokeHandlerActivityName);
 
         if (activity is null)
         {
@@ -114,4 +200,104 @@ sealed class ActivityFactory : IActivityFactory
         activity.AddTag(ActivityTags.HandlerType, messageHandler.HandlerType.FullName);
         return activity;
     }
+
+    public Activity? StartRecoverabilityActivity(ErrorContext context)
+    {
+        var activity = StartActivityFromIncomingMessage(
+            ActivitySources.Recoverability,
+            ActivityNames.RecoverabilityActivityName,
+            context.Headers,
+            context.NativeMessageId);
+
+        if (activity is null)
+        {
+            return activity;
+        }
+
+        if (context.Extensions.TryGetWrappingActivityContext(context.Exception, out var wrappingActivityContext))
+        {
+            activity.AddLink(new ActivityLink(wrappingActivityContext));
+        }
+
+        activity.DisplayName = ActivityDisplayNames.Recoverability;
+
+        return activity;
+    }
+
+    public void EnrichActivityWithRecoverabilityActionData(Activity activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    {
+        // Nothing below is read unless a listener asked for full data (IsAllDataRequested), so bail out early
+        // rather than building tags and DisplayName strings for an activity nobody will inspect.
+        if (!activity.IsAllDataRequested)
+        {
+            return;
+        }
+
+        if (recoverabilityAction is ImmediateRetry)
+        {
+            activity.AddTag(ActivityTags.RecoverabilityAction, ActivityTagValues.ImmediateRetry);
+            activity.DisplayName = ActivityDisplayNames.ImmediateRetryOperation;
+
+            if (V11BehaviorSwitch.UseV11Behavior)
+            {
+                activity.DisplayName += $" {receiveAddress}";
+            }
+        }
+        else if (recoverabilityAction is DelayedRetry)
+        {
+            activity.AddTag(ActivityTags.RecoverabilityAction, ActivityTagValues.DelayedRetry);
+            activity.DisplayName = ActivityDisplayNames.DelayedRetryOperation;
+
+            if (V11BehaviorSwitch.UseV11Behavior)
+            {
+                activity.DisplayName += $" {receiveAddress}";
+            }
+        }
+        else if (recoverabilityAction is MoveToError moveToError)
+        {
+            activity.AddTag(ActivityTags.RecoverabilityAction, ActivityTagValues.MoveToError);
+
+            activity.DisplayName = V11BehaviorSwitch.UseV11Behavior
+                ? $"{ActivityDisplayNames.MoveToErrorOperation} {moveToError.ErrorQueue}"
+                : ActivityDisplayNames.MoveToError;
+        }
+        else if (recoverabilityAction is Discard)
+        {
+            activity.AddTag(ActivityTags.RecoverabilityAction, ActivityTagValues.Discard);
+            activity.DisplayName = ActivityDisplayNames.DiscardOperation;
+        }
+    }
+
+    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag)
+    {
+        if (activity == null)
+        {
+            return;
+        }
+
+        var isWrappingActivity = contextBag.TryRecordWrappingActivity(exception, activity);
+
+        activity.SetStatus(ActivityStatusCode.Error, exception.Message);
+        activity.SetTag(ActivityTags.ErrorType, exception.GetType().FullName);
+
+        // Legacy tags apply per-activity (each activity on the way up the pipeline gets its own),
+        // unlike the exception event below which is deduped once per exception via ExceptionRecordedFlag.
+        // Only the "is this worth computing" part is guarded by IsAllDataRequested.
+        if (activity.IsAllDataRequested && !V11BehaviorSwitch.UseV11Behavior) // Removed in v11, see obsoletes-v10.cs
+        {
+            LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
+        }
+
+        if (exception is TaskCanceledException)
+        {
+            activity.SetTag(ActivityTags.CancelledTask, true);
+        }
+
+        if (isWrappingActivity)
+        {
+            LegacyAddExceptionEvent(activity, exception); // Removed in v11, see obsoletes-v10.cs
+        }
+    }
+
+    readonly ConcurrentDictionary<string, string> processDisplayNames = new();
 }

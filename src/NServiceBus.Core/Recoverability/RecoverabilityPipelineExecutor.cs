@@ -1,38 +1,30 @@
-﻿#nullable enable
+#nullable enable
 
 namespace NServiceBus;
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using NServiceBus.Pipeline;
+using Pipeline;
 using Transport;
 
-class RecoverabilityPipelineExecutor<TState> : IRecoverabilityPipelineExecutor
+class RecoverabilityPipelineExecutor<TState>(
+    IServiceProvider serviceProvider,
+    IPipelineCache pipelineCache,
+    MessageOperations messageOperations,
+    RecoverabilityConfig recoverabilityConfig,
+    Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy,
+    IPipeline<IRecoverabilityContext> recoverabilityPipeline,
+    FaultMetadataExtractor faultMetadataExtractor,
+    TState state,
+    IActivityFactory activityFactory) : IRecoverabilityPipelineExecutor
 {
-    public RecoverabilityPipelineExecutor(
-        IServiceProvider serviceProvider,
-        IPipelineCache pipelineCache,
-        MessageOperations messageOperations,
-        RecoverabilityConfig recoverabilityConfig,
-        Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy,
-        IPipeline<IRecoverabilityContext> recoverabilityPipeline,
-        FaultMetadataExtractor faultMetadataExtractor,
-        TState state)
-    {
-        this.state = state;
-        this.serviceProvider = serviceProvider;
-        this.pipelineCache = pipelineCache;
-        this.messageOperations = messageOperations;
-        this.recoverabilityConfig = recoverabilityConfig;
-        this.recoverabilityPolicy = recoverabilityPolicy;
-        this.recoverabilityPipeline = recoverabilityPipeline;
-        this.faultMetadataExtractor = faultMetadataExtractor;
-    }
-
     public async Task<ErrorHandleResult> Invoke(ErrorContext errorContext, CancellationToken cancellationToken = default)
     {
+        using var activity = activityFactory.StartRecoverabilityActivity(errorContext);
+
         var childScope = serviceProvider.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
@@ -41,28 +33,54 @@ class RecoverabilityPipelineExecutor<TState> : IRecoverabilityPipelineExecutor
             var metadata = faultMetadataExtractor.Extract(errorContext);
 
             var recoverabilityContext = new RecoverabilityContext(
-                childScope.ServiceProvider,
-                messageOperations,
-                pipelineCache,
-                errorContext,
-                recoverabilityConfig,
-                metadata,
-                recoverabilityAction,
-                errorContext.Extensions,
-                cancellationToken);
+                    childScope.ServiceProvider,
+                    messageOperations,
+                    pipelineCache,
+                    errorContext,
+                    recoverabilityConfig,
+                    metadata,
+                    recoverabilityAction,
+                    errorContext.Extensions,
+                    cancellationToken);
 
-            await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
+            try
+            {
+                await recoverabilityPipeline.Invoke(recoverabilityContext).ConfigureAwait(false);
+
+                RecoverabilityActionLogger.LogRecoverabilityAction(serviceProvider, recoverabilityContext.RecoverabilityAction, errorContext);
+            }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - recording and rethrowing
+            catch (Exception ex)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
+            {
+                activityFactory.RecordError(activity, ex, recoverabilityContext.Extensions);
+                throw;
+            }
+            finally
+            {
+                EnrichActivity(activity, recoverabilityContext.RecoverabilityAction, errorContext.ReceiveAddress);
+            }
 
             return recoverabilityContext.RecoverabilityAction.ErrorHandleResult;
         }
     }
 
-    readonly IServiceProvider serviceProvider;
-    readonly IPipelineCache pipelineCache;
-    readonly MessageOperations messageOperations;
-    readonly RecoverabilityConfig recoverabilityConfig;
-    readonly Func<ErrorContext, TState, RecoverabilityAction> recoverabilityPolicy;
-    readonly IPipeline<IRecoverabilityContext> recoverabilityPipeline;
-    readonly FaultMetadataExtractor faultMetadataExtractor;
-    readonly TState state;
+    void EnrichActivity(Activity? activity, RecoverabilityAction recoverabilityAction, string receiveAddress)
+    {
+        if (activity is null)
+        {
+            return;
+        }
+
+        try
+        {
+            activityFactory.EnrichActivityWithRecoverabilityActionData(activity, recoverabilityAction, receiveAddress);
+        }
+#pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - tracing must not change the recoverability outcome
+        catch (Exception)
+#pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
+        {
+            // A failure to enrich the activity must neither fail recoverability nor replace the exception of the recoverability pipeline.
+        }
+    }
 }

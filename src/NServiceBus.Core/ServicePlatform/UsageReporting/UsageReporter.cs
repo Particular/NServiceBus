@@ -68,21 +68,37 @@ partial class UsageReporter(
             }
         };
 
-        meterListener.SetMeasurementEventCallback<long>((instrument, measurement, tags, state) =>
+        meterListener.SetMeasurementEventCallback<long>((_, measurement, tags, state) =>
         {
             var usageReporterState = (UsageReporter)state!;
 
-            if (IsSuccessfulMessageProcessingEvent(instrument) && tags.IndexOf(usageReporterState.queueNameTag) >= 0)
+            if (tags.IndexOf(usageReporterState.queueNameTag) >= 0 && !HasErrorType(tags))
             {
-                // Update the internal counter
-                _ = Interlocked.Add(ref usageReporterState.messagesSuccessfullyProcessed, measurement);
+                Interlocked.Add(ref usageReporterState.messagesSuccessfullyProcessed, measurement);
             }
         });
 
         meterListener.Start();
 
+        // A processing attempt without error.type is a successfully processed message. The pre-v11 successes counter
+        // never carries error.type. In v11 keep only the processing attempts branch, see obsoletes-v10.cs.
         static bool IsSuccessfulMessageProcessingEvent(Instrument instrument)
-            => instrument is { Meter.Name: IncomingPipelineMetrics.MeterName, Name: IncomingPipelineMetrics.TotalProcessedSuccessfully };
+            => V11BehaviorSwitch.UseV11Behavior
+                ? instrument is { Meter.Name: PipelineMetrics.MeterName, Name: PipelineMetrics.ProcessingAttempts }
+                : instrument is { Meter.Name: LegacyMeter.Name, Name: PipelineMetrics.TotalProcessedSuccessfully };
+
+        static bool HasErrorType(ReadOnlySpan<KeyValuePair<string, object?>> tags)
+        {
+            foreach (var tag in tags)
+            {
+                if (tag.Key == MeterTags.ErrorType)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     async Task PeriodicallyReportUsageAndSwallowExceptions(CancellationToken cancellationToken)

@@ -2,40 +2,31 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
 using MessageInterfaces;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Transport;
 
-class MessageOperations
+class MessageOperations(
+    IMessageMapper messageMapper,
+    IPipeline<IOutgoingPublishContext> publishPipeline,
+    IPipeline<IOutgoingSendContext> sendPipeline,
+    IPipeline<IOutgoingReplyContext> replyPipeline,
+    IPipeline<ISubscribeContext> subscribePipeline,
+    IPipeline<IUnsubscribeContext> unsubscribePipeline,
+    IActivityFactory activityFactory,
+    ILogger<MessageOperations> logger)
 {
-    readonly IMessageMapper messageMapper;
-    protected readonly IPipeline<IOutgoingPublishContext> publishPipeline;
-    protected readonly IPipeline<IOutgoingSendContext> sendPipeline;
-    protected readonly IPipeline<IOutgoingReplyContext> replyPipeline;
-    protected readonly IPipeline<ISubscribeContext> subscribePipeline;
-    protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline;
-    protected readonly IActivityFactory activityFactory;
-
-    public MessageOperations(
-        IMessageMapper messageMapper,
-        IPipeline<IOutgoingPublishContext> publishPipeline,
-        IPipeline<IOutgoingSendContext> sendPipeline,
-        IPipeline<IOutgoingReplyContext> replyPipeline,
-        IPipeline<ISubscribeContext> subscribePipeline,
-        IPipeline<IUnsubscribeContext> unsubscribePipeline,
-        IActivityFactory activityFactory)
-    {
-        this.messageMapper = messageMapper;
-        this.publishPipeline = publishPipeline;
-        this.sendPipeline = sendPipeline;
-        this.replyPipeline = replyPipeline;
-        this.subscribePipeline = subscribePipeline;
-        this.unsubscribePipeline = unsubscribePipeline;
-        this.activityFactory = activityFactory;
-    }
+    protected readonly IPipeline<IOutgoingPublishContext> publishPipeline = publishPipeline;
+    protected readonly IPipeline<IOutgoingSendContext> sendPipeline = sendPipeline;
+    protected readonly IPipeline<IOutgoingReplyContext> replyPipeline = replyPipeline;
+    protected readonly IPipeline<ISubscribeContext> subscribePipeline = subscribePipeline;
+    protected readonly IPipeline<IUnsubscribeContext> unsubscribePipeline = unsubscribePipeline;
 
     public Task Publish<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, PublishOptions options)
     {
@@ -78,14 +69,29 @@ class MessageOperations
 
         MergeDispatchProperties(publishContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, ActivityDisplayNames.PublishEvent, publishContext);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.PublishOperation} {messageType.Name}"
+            : ActivityDisplayNames.PublishEvent;
 
-        await publishPipeline.Invoke(publishContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingEventActivityName, operationName, publishContext);
+
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        try
+        {
+            await publishPipeline.Invoke(publishContext)
+                .ConfigureAwait(false);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
+        }
+        catch (Exception ex)
+        {
+            HandleException(context, activity, ex, operationName);
+            throw;
+        }
     }
 
     public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
     {
-        return Subscribe(context, new Type[] { eventType }, options);
+        return Subscribe(context, [eventType], options);
     }
 
     public async Task Subscribe(IBehaviorContext context, Type[] eventTypes, SubscribeOptions options)
@@ -97,9 +103,23 @@ class MessageOperations
 
         MergeDispatchProperties(subscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, ActivityDisplayNames.SubscribeEvent, context);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.SubscribeOperation} {string.Join(' ', eventTypes.Select(x => x.Name))}"
+            : ActivityDisplayNames.SubscribeEvent;
 
-        await subscribePipeline.Invoke(subscribeContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.SubscribeActivityName, operationName, context);
+
+        try
+        {
+            await subscribePipeline.Invoke(subscribeContext)
+                .ConfigureAwait(false);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
+        }
+        catch (Exception ex)
+        {
+            HandleException(context, activity, ex, operationName);
+            throw;
+        }
     }
 
     public async Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
@@ -107,13 +127,29 @@ class MessageOperations
         var unsubscribeContext = new UnsubscribeContext(
             context,
             eventType,
-            options.Context);
+            options.Context
+            );
 
         MergeDispatchProperties(unsubscribeContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, ActivityDisplayNames.UnsubscribeEvent, context);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.UnsubscribeOperation} {eventType.Name}"
+            : ActivityDisplayNames.UnsubscribeEvent;
 
-        await unsubscribePipeline.Invoke(unsubscribeContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.UnsubscribeActivityName, operationName, context);
+
+#pragma warning disable PS0019 // When catching System.Exception, cancellation needs to be properly accounted for - recording and rethrowing
+        try
+        {
+            await unsubscribePipeline.Invoke(unsubscribeContext)
+                .ConfigureAwait(false);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
+        }
+        catch (Exception ex)
+        {
+            HandleException(context, activity, ex, operationName);
+            throw;
+        }
     }
 
     public Task Send<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, SendOptions options)
@@ -157,9 +193,23 @@ class MessageOperations
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.SendMessage, outgoingContext);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.SendOperation} {messageType.Name}"
+            : ActivityDisplayNames.SendMessage;
 
-        await sendPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, operationName, outgoingContext);
+
+        try
+        {
+            await sendPipeline.Invoke(outgoingContext)
+                .ConfigureAwait(false);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
+        }
+        catch (Exception ex)
+        {
+            HandleException(context, activity, ex, operationName);
+            throw;
+        }
     }
 
     public Task Reply<[DynamicallyAccessedMembers(DynamicMemberTypeAccess.Message)] T>(IBehaviorContext context, T message, ReplyOptions options)
@@ -203,17 +253,56 @@ class MessageOperations
 
         MergeDispatchProperties(outgoingContext, options.DispatchProperties);
 
-        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, ActivityDisplayNames.ReplyMessage, outgoingContext);
+        var operationName = V11BehaviorSwitch.UseV11Behavior
+            ? $"{ActivityDisplayNames.ReplyMessage} {messageType.Name}"
+            : ActivityDisplayNames.ReplyMessage;
 
-        await replyPipeline.Invoke(outgoingContext, activity).ConfigureAwait(false);
+        using var activity = activityFactory.StartOutgoingPipelineActivity(ActivityNames.OutgoingMessageActivityName, operationName, context);
+
+        try
+        {
+            await replyPipeline.Invoke(outgoingContext)
+                .ConfigureAwait(false);
+            LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
+        }
+        catch (Exception ex)
+        {
+            HandleException(context, activity, ex, operationName);
+            throw;
+        }
     }
 
     internal const string RuntimeTypeRoutingTrimmingMessage = "When trimming is enabled, routing a message using its runtime type cannot be statically analyzed by the trimmer. Use the generic overload or, when the message type is not known at compile time, the overload accepting an explicit Type.";
     internal const string DefaultInterfaceTrimmingSuppressionJustification = "The default interface implementation preserves compatibility with third-party implementations. Built-in implementations override this method and preserve the declared message type.";
+
+    // The span name is only built when a span is recorded, so the caller builds it for the log entry when there is no span.
+    void HandleException(IBehaviorContext context, Activity activity, Exception exception, string displayName)
+    {
+        activityFactory.RecordError(activity, exception, context.Extensions);
+
+        // Inside message processing recoverability logs the exception with its decision, and a failure of
+        // recoverability itself is raised as a critical error. Outside of it, no one else sees the exception.
+        if (!IsInsideMessageProcessing(context))
+        {
+            logger.OperationFailed(exception, displayName);
+        }
+    }
+
+    // An outgoing context created while a message is processed is not an incoming context, but its context bag
+    // chain holds the incoming message that the transport receive context set.
+    static bool IsInsideMessageProcessing(IBehaviorContext context) =>
+        context is IIncomingContext or ITransportReceiveContext or IRecoverabilityContext
+        || context.Extensions.TryGet<IncomingMessage>(out _);
 
     static void MergeDispatchProperties(ContextBag context, DispatchProperties dispatchProperties)
     {
         // we can't add the constraints directly to the SendOptions ContextBag as the options can be reused
         context.Set(new DispatchProperties(dispatchProperties));
     }
+}
+
+static partial class MessageOperationsLoggerMessages
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "An exception occurred while executing '{Operation}'.")]
+    public static partial void OperationFailed(this ILogger logger, Exception exception, string operation);
 }

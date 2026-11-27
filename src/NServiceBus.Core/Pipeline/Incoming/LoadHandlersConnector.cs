@@ -3,6 +3,7 @@
 namespace NServiceBus;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -16,7 +17,7 @@ using Persistence;
 using Pipeline;
 using Unicast;
 
-class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
+class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActivityFactory activityFactory, PipelineMetrics pipelineMetrics) : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
 {
     public override async Task Invoke(IIncomingLogicalMessageContext context, Func<IInvokeHandlerContext, Task> stage)
     {
@@ -42,9 +43,12 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
                 LogHandlersInvocation(context, handlersToInvoke);
             }
 
-            // capture the message handler types to add them as tags to applicable metrics
-            var availableMetricTags = context.Extensions.Get<IncomingPipelineMetricTags>();
-            availableMetricTags.Add(MeterTags.MessageHandlerTypes, string.Join(';', handlersToInvoke.Select(x => x.HandlerType.FullName)));
+            // capture the message handler types to add them as tags to applicable metrics. The set of handlers for a
+            // message type is fixed after startup, so the joined string is computed once per message type.
+            context.PipelineMetricTags.Add(MeterTags.MessageHandlerTypes, handlerTypesTags.GetOrAdd(
+                context.Message.MessageType,
+                static (_, handlers) => string.Join(';', handlers.Select(x => x.HandlerType.FullName)),
+                handlersToInvoke));
 
             foreach (var messageHandler in handlersToInvoke)
             {
@@ -58,13 +62,16 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
                     {
                         await stage(handlingContext).ConfigureAwait(false);
 
-                        activity?.SetStatus(ActivityStatusCode.Ok);
+                        LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
                     }
 #pragma warning disable PS0019
                     catch (Exception ex)
 #pragma warning restore PS0019
                     {
-                        activity?.SetErrorStatus(ex);
+                        if (activity is not null)
+                        {
+                            activityFactory.RecordError(activity, ex, context.Extensions);
+                        }
                         throw;
                     }
                 }
@@ -77,7 +84,9 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
             }
 
             context.MessageHandled = true;
+            var persistenceStart = Stopwatch.GetTimestamp();
             await storageSession.CompleteAsync(context.CancellationToken).ConfigureAwait(false);
+            pipelineMetrics.RecordPersistenceTime(context, Stopwatch.GetElapsedTime(persistenceStart));
         }
     }
 
@@ -117,6 +126,8 @@ class LoadHandlersConnector(MessageHandlerRegistry messageHandlerRegistry, IActi
 
         logger.Debug(builder.ToString());
     }
+
+    readonly ConcurrentDictionary<Type, string> handlerTypesTags = new();
 
     static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
     static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;

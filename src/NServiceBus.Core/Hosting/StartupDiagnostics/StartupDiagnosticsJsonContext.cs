@@ -23,6 +23,7 @@ using Hosting.Helpers;
 [JsonSerializable(typeof(SatelliteDiagnostics))]
 [JsonSerializable(typeof(RecoverabilityDiagnostics))]
 [JsonSerializable(typeof(AuditDiagnostics))]
+[JsonSerializable(typeof(OpenTelemetryDiagnostics))]
 [JsonSerializable(typeof(Dictionary<string, PersistenceDiagnosticsEntry>))]
 [JsonSerializable(typeof(PersistenceDiagnosticsEntry))]
 [JsonSerializable(typeof(LicensingDiagnostics))]

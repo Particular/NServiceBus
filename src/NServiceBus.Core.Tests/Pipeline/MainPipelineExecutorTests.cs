@@ -2,8 +2,10 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Extensibility;
+using Faults;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Pipeline;
 using NUnit.Framework;
@@ -12,7 +14,7 @@ using OpenTelemetry.Helpers;
 using Transport;
 
 [TestFixture]
-public class MainPipelineExecutorTests
+public partial class MainPipelineExecutorTests
 {
     [Test]
     public async Task Should_share_message_context_extension_values()
@@ -49,7 +51,7 @@ public class MainPipelineExecutorTests
         Assert.That(messageContext.Extensions.Get<Guid>("new value"), Is.EqualTo(newValue));
     }
 
-    class When_activity_listener_registered
+    partial class When_activity_listener_registered
     {
         TestingActivityListener nsbActivityListener;
 
@@ -85,8 +87,11 @@ public class MainPipelineExecutorTests
             }
         }
 
+        // In v11 the status is left unset on success: delete Should_set_ok_status_on_activity_when_pipeline_successful
+        // in obsoletes-v10.cs and the attribute on this one.
         [Test]
-        public async Task Should_set_ok_status_on_activity_when_pipeline_successful()
+        [OpenTelemetryV11Defaults]
+        public async Task Should_leave_status_unset_on_activity_when_pipeline_successful()
         {
             var receivePipeline = new ActivityTrackingReceivePipeline();
             var serviceCollection = new ServiceCollection();
@@ -94,7 +99,7 @@ public class MainPipelineExecutorTests
             var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
             await executor.Invoke(CreateMessageContext());
 
-            Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Ok));
+            Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Unset));
         }
 
         [Test]
@@ -110,6 +115,70 @@ public class MainPipelineExecutorTests
 
             Assert.That(receivePipeline.PipelineAcitivty.Status, Is.EqualTo(ActivityStatusCode.Error));
         }
+
+        [Test]
+        public void Should_record_the_incoming_activity_as_innermost_when_pipeline_throws()
+        {
+            var receivePipeline = new ActivityTrackingReceivePipeline { ThrowsException = true };
+            var serviceCollection = new ServiceCollection();
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
+            var messageContext = CreateMessageContext();
+
+            var exception = Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(messageContext));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(messageContext.Extensions.TryGetWrappingActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(activityContext, Is.EqualTo(receivePipeline.PipelineAcitivty.Context));
+            }
+        }
+
+        [Test]
+        public void Should_record_only_processing_details_with_the_failed_message()
+        {
+            var receivePipeline = new ActivityTrackingReceivePipeline { ThrowsException = true };
+            var serviceCollection = new ServiceCollection();
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
+            var messageContext = CreateMessageContext();
+
+            var exception = Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(messageContext));
+
+            var errorContext = new ErrorContext(exception, messageContext.Headers, messageContext.NativeMessageId, messageContext.Body, messageContext.TransportTransaction, 1, messageContext.ReceiveAddress, messageContext.Extensions);
+            var metadata = new FaultMetadataExtractor([], _ => { }).Extract(errorContext);
+
+            Assert.That(metadata.Keys.Where(k => k.StartsWith(FaultsHeaderKeys.ExceptionInfoDataPrefix)), Is.EquivalentTo(new[]
+            {
+                $"{FaultsHeaderKeys.ExceptionInfoDataPrefix}Message ID",
+                $"{FaultsHeaderKeys.ExceptionInfoDataPrefix}Pipeline canceled"
+            }));
+        }
+
+        [Test]
+        public void Should_keep_the_innermost_activity_recorded_further_in()
+        {
+            using var handlerActivity = new Activity("handler");
+            handlerActivity.SetIdFormat(ActivityIdFormat.W3C);
+            handlerActivity.Start();
+            handlerActivity.Stop();
+            var exception = new Exception("handler failed");
+            var messageContext = CreateMessageContext();
+            messageContext.Extensions.TryRecordWrappingActivity(exception, handlerActivity);
+
+            var receivePipeline = new ActivityTrackingReceivePipeline { ExceptionToThrow = exception };
+            var serviceCollection = new ServiceCollection();
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            var executor = CreateMainPipelineExecutor(serviceProvider, receivePipeline);
+
+            Assert.ThrowsAsync<Exception>(async () => await executor.Invoke(messageContext));
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(messageContext.Extensions.TryGetWrappingActivityContext(exception, out var activityContext), Is.True);
+                Assert.That(activityContext, Is.EqualTo(handlerActivity.Context));
+            }
+        }
     }
 
     static MessageContext CreateMessageContext() =>
@@ -123,14 +192,14 @@ public class MainPipelineExecutorTests
 
     static MainPipelineExecutor CreateMainPipelineExecutor(ServiceProvider serviceProvider, IPipeline<ITransportReceiveContext> receivePipeline)
     {
-        var incomingPipelineMetrics = new IncomingPipelineMetrics(new TestMeterFactory(), "queue", "disc");
+        var incomingPipelineMetrics = new PipelineMetrics(new TestMeterFactory(), "queue", "disc");
         var executor = new MainPipelineExecutor(
             serviceProvider,
             new PipelineCache(serviceProvider, new PipelineModifications()),
             new TestableMessageOperations(),
             new Notification<ReceivePipelineCompleted>(),
             receivePipeline,
-            new ActivityFactory(),
+            new ActivityFactory(new InstrumentationOptions()),
             incomingPipelineMetrics,
             new EnvelopeUnwrapper([], incomingPipelineMetrics));
 
@@ -145,10 +214,17 @@ public class MainPipelineExecutorTests
 
         public bool ThrowsException { get; set; }
 
+        public Exception ExceptionToThrow { get; set; }
+
         public Task Invoke(ITransportReceiveContext context)
         {
             PipelineAcitivty = Activity.Current;
             TransportReceiveContext = context;
+
+            if (ExceptionToThrow is not null)
+            {
+                throw ExceptionToThrow;
+            }
 
             if (ThrowsException)
             {

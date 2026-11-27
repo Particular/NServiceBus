@@ -230,6 +230,15 @@ public static partial class Headers
     public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
 
     /// <summary>
+    /// Carries the trace context of the NServiceBus send or publish operation, in the format of the W3C
+    /// traceparent header. It exists because transport SDKs that instrument themselves write their own
+    /// context to the W3C <see cref="DiagnosticsTraceParent" /> header on the same message, overwriting
+    /// the NServiceBus one. Receivers prefer this header and fall back to the W3C header, and senders
+    /// always write both, so endpoints on versions that only know the W3C header keep interoperating.
+    /// </summary>
+    public const string NServiceBusDiagnosticsTraceParent = "NServiceBus.TraceParent";
+
+    /// <summary>
     /// Traceparent header according to the W3C spec:
     /// https://www.w3.org/TR/trace-context/#traceparent-header
     /// 23 November 2021.

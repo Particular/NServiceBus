@@ -3,28 +3,27 @@
 namespace NServiceBus;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using Extensibility;
 
 static class ActivityExtensions
 {
     public const string OutgoingActivityKey = "NServiceBus.Diagnostics.Activity.Outgoing";
     public const string IncomingActivityKey = "NServiceBus.Diagnostics.Activity.Incoming";
+    public const string WrappingActivityKey = "NServiceBus.Diagnostics.Activity.Wrapping";
 
-    public static bool TryGetRecordingOutgoingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
-        => pipelineContext.TryGetRecordingPipelineActivity(OutgoingActivityKey, out activity);
+    public static bool TryGetOutgoingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
+        => pipelineContext.TryGetPipelineActivity(OutgoingActivityKey, out activity);
 
-    public static bool TryGetRecordingIncomingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
-        => pipelineContext.TryGetRecordingPipelineActivity(IncomingActivityKey, out activity);
+    public static bool TryGetIncomingPipelineActivity(this ContextBag pipelineContext, [NotNullWhen(true)] out Activity? activity)
+        => pipelineContext.TryGetPipelineActivity(IncomingActivityKey, out activity);
 
-    static bool TryGetRecordingPipelineActivity(this ContextBag pipelineContext, string activityKey, [NotNullWhen(true)] out Activity? activity)
+    static bool TryGetPipelineActivity(this ContextBag pipelineContext, string activityKey, [NotNullWhen(true)] out Activity? activity)
     {
         if (Activity.Current is not null // Cheaper to check than searching the pipeline context to start with. If there is no ambient activity, there can't be an activity in the context.
             && pipelineContext.TryGet(activityKey, out activity)  // Search activity in context bag
-            && activity is { IsAllDataRequested: true }) // do not apply "expensive" work on non-recording activities
+            && activity is { IsAllDataRequested: true }) // skip expensive work when no listener asked for full data (IsAllDataRequested, not Recorded/sampled)
         {
             return true;
         }
@@ -36,22 +35,24 @@ static class ActivityExtensions
     public static void SetOutgoingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(OutgoingActivityKey, activity);
     public static void SetIncomingPipelineActivity(this ContextBag pipelineContext, Activity activity) => pipelineContext.Set(IncomingActivityKey, activity);
 
-    public static void SetErrorStatus(this Activity activity, Exception ex)
+    public static bool TryRecordWrappingActivity(this ContextBag pipelineContext, Exception exception, Activity activity)
     {
-        activity.SetStatus(ActivityStatusCode.Error, ex.Message);
-        activity.SetTag("otel.status_code", "ERROR");
-        activity.SetTag("otel.status_description", ex.Message);
-        activity.AddEvent(new ActivityEvent("exception", DateTimeOffset.UtcNow,
-            [
-                new KeyValuePair<string, object?>("exception.escaped", true),
-                new KeyValuePair<string, object?>("exception.type", ex.GetType()),
-                new KeyValuePair<string, object?>("exception.message", ex.Message),
-                new KeyValuePair<string, object?>("exception.stacktrace", ex.ToString())
-            ]));
-
-        if (ex is TaskCanceledException)
+        if (pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? wrappingActivity) && ReferenceEquals(wrappingActivity.Exception, exception))
         {
-            activity.SetTag(ActivityTags.CancelledTask, true);
+            return false;
         }
+
+        pipelineContext.SetOnRoot(WrappingActivityKey, new WrappingActivity(exception, activity.Context));
+        return true;
     }
+
+    public static bool TryGetWrappingActivityContext(this ContextBag pipelineContext, Exception exception, out ActivityContext activityContext)
+    {
+        activityContext = pipelineContext.TryGet(WrappingActivityKey, out WrappingActivity? wrappingActivity) && ReferenceEquals(wrappingActivity.Exception, exception)
+            ? wrappingActivity.Context
+            : default;
+        return activityContext != default;
+    }
+
+    sealed record WrappingActivity(Exception Exception, ActivityContext Context);
 }

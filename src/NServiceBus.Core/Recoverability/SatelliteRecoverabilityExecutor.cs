@@ -48,13 +48,13 @@ class SatelliteRecoverabilityExecutor<TState>(
             }
         }
 
-        if (transportOperations == null)
+        if (transportOperations != null)
         {
-            return recoverabilityAction.ErrorHandleResult;
+            var dispatcher = serviceProvider.GetRequiredService<IMessageDispatcher>();
+            await dispatcher.Dispatch(new TransportOperations([.. transportOperations]), errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
         }
 
-        var dispatcher = serviceProvider.GetRequiredService<IMessageDispatcher>();
-        await dispatcher.Dispatch(new TransportOperations([.. transportOperations]), errorContext.TransportTransaction, cancellationToken).ConfigureAwait(false);
+        RecoverabilityActionLogger.LogRecoverabilityAction(serviceProvider, recoverabilityAction, errorContext);
 
         return recoverabilityAction.ErrorHandleResult;
     }

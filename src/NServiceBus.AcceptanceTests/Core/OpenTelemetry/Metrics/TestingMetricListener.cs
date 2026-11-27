@@ -50,7 +50,14 @@ class TestingMetricListener : IDisposable
     }
 
     public static TestingMetricListener SetupNServiceBusMetricsListener() =>
-        SetupMetricsListener("NServiceBus.Core.Pipeline.Incoming");
+        SetupMetricsListener(NServiceBusMeterName);
+
+    // The meter is renamed by the NServiceBus.Core.OpenTelemetry.UseV11Behavior switch. In v11 only
+    // "NServiceBus.Core" remains: replace this with the constant.
+    public static string NServiceBusMeterName =>
+        AppContext.TryGetSwitch("NServiceBus.Core.OpenTelemetry.UseV11Behavior", out var enabled) && enabled
+            ? "NServiceBus.Core"
+            : "NServiceBus.Core.Pipeline.Incoming";
 
     public static TestingMetricListener SetupMetricsListener(string sourceName)
     {
@@ -94,6 +101,16 @@ class TestingMetricListener : IDisposable
         }
 
         return meterTag.Value;
+    }
+
+    public void AssertTagKeyDoesNotExist(string metricName, string tagKey)
+    {
+        if (!Tags.ContainsKey(metricName))
+        {
+            Assert.Fail($"'{metricName}' metric was not reported");
+        }
+
+        Assert.That(Tags[metricName].Select(t => t.Key), Does.Not.Contain(tagKey));
     }
 
     public void AssertTags(string metricName, Dictionary<string, object> expectedTags)

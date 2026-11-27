@@ -16,7 +16,7 @@ using TransportOperation = Outbox.TransportOperation;
 
 partial class TransportReceiveToPhysicalMessageConnector(
     IOutboxStorage outboxStorage,
-    IncomingPipelineMetrics incomingPipelineMetrics,
+    PipelineMetrics pipelineMetrics,
     ILogger<TransportReceiveToPhysicalMessageConnector> logger)
     : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
 {
@@ -35,7 +35,9 @@ partial class TransportReceiveToPhysicalMessageConnector(
         var messageId = context.Message.MessageId;
         var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 
+        var outboxFetchStart = Stopwatch.GetTimestamp();
         var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+        pipelineMetrics.RecordOutboxFetchTime(context, Stopwatch.GetElapsedTime(outboxFetchStart));
         var pendingTransportOperations = new PendingTransportOperations();
         // Materialized once: PendingTransportOperations.Operations snapshots a ConcurrentStack on every access.
         Transport.TransportOperation[] operations;
@@ -54,7 +56,9 @@ partial class TransportReceiveToPhysicalMessageConnector(
                 operations = pendingTransportOperations.Operations;
 
                 var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(operations));
+                var outboxStoreStart = Stopwatch.GetTimestamp();
                 await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions, context.CancellationToken).ConfigureAwait(false);
+                pipelineMetrics.RecordOutboxStoreTime(context, Stopwatch.GetElapsedTime(outboxStoreStart));
 
                 context.Extensions.Remove<IOutboxTransaction>();
                 await outboxTransaction.Commit(context.CancellationToken).ConfigureAwait(false);
@@ -64,15 +68,16 @@ partial class TransportReceiveToPhysicalMessageConnector(
             // Under some specific configurations the heavy lifting is not done as part of the commit but
             // as part of the transaction scope dispose (e.g., when using SQL with transaction scope and DTC)
             var elapsedTime = Stopwatch.GetElapsedTime(processingStartedAt);
-            incomingPipelineMetrics.RecordProcessingTime(context, elapsedTime);
+            pipelineMetrics.RecordProcessingTime(context, elapsedTime);
 
             physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
         }
         else
         {
             LogOutboxDuplicateDetectedForMessageMessageIdSkippingHandlerExecution(messageId);
-            context.Extensions.TryGetRecordingIncomingPipelineActivity(out var deduplicationActivity);
-            deduplicationActivity?.AddTag("nservicebus.outbox.deduplicate-message", true);
+            context.Extensions.TryGetIncomingPipelineActivity(out var activity);
+            activity?.AddTag(V11BehaviorSwitch.UseV11Behavior ? ActivityTags.OutboxDeduplicatedMessage : LegacyActivityTags.OutboxDeduplicateMessage, true); // keep only the v11 name in v11, see obsoletes-v10.cs
+            pipelineMetrics.RecordDeduplicatedMessage(context);
             ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             operations = pendingTransportOperations.Operations;
         }
@@ -80,16 +85,14 @@ partial class TransportReceiveToPhysicalMessageConnector(
         if (operations.Length > 0)
         {
             var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
-            var dispatchActivity = WriteStartDispatchingEvent(physicalMessageContext, operations.Length);
-            await this.Fork(batchDispatchContext).ConfigureAwait(false);
-            dispatchActivity?.AddEvent(new("Finished dispatching"));
+            await Dispatch(batchDispatchContext).ConfigureAwait(false);
         }
 
         await outboxStorage.SetAsDispatched(messageId, context.Extensions, context.CancellationToken).ConfigureAwait(false);
 
         if (operations.Length > 0 || deduplicationEntry == null)
         {
-            incomingPipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
+            pipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
         }
     }
 
@@ -111,34 +114,32 @@ partial class TransportReceiveToPhysicalMessageConnector(
         var operations = pendingTransportOperations.Operations;
 
         var elapsedTime = Stopwatch.GetElapsedTime(processingStartedAt);
-        incomingPipelineMetrics.RecordProcessingTime(context, elapsedTime);
+        pipelineMetrics.RecordProcessingTime(context, elapsedTime);
 
         physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
 
         if (operations.Length > 0)
         {
             var batchDispatchContext = this.CreateBatchDispatchContext(operations, physicalMessageContext);
-            var dispatchActivity = WriteStartDispatchingEvent(physicalMessageContext, operations.Length);
-            await this.Fork(batchDispatchContext).ConfigureAwait(false);
-            dispatchActivity?.AddEvent(new("Finished dispatching"));
+            await Dispatch(batchDispatchContext).ConfigureAwait(false);
         }
 
-        incomingPipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
+        pipelineMetrics.RecordCriticalTimeAndTotalProcessed(context);
     }
 
-    // Synchronous by design so the dispatch instrumentation lives in one place without adding an async state
-    // machine to either path; the Fork await stays in the callers. The activity is resolved from the physical
-    // message context; child context bags read through to their parent, so this sees the same activity as the
-    // root receive context. Returns the activity (or null) so the caller can emit the finished event after the fork.
-    static Activity? WriteStartDispatchingEvent(IIncomingPhysicalMessageContext physicalMessageContext, int operationCount)
+    // Both paths dispatch through here so the event instrumentation lives in one place. The activity is resolved
+    // from the batch dispatch context; child context bags read through to their parent, so this sees the same
+    // activity as the root receive context. When the events are off (the pre-v11 default) this returns the Fork
+    // task directly and adds no state machine of its own.
+    Task Dispatch(IBatchDispatchContext batchDispatchContext)
     {
-        if (!physicalMessageContext.Extensions.TryGetRecordingIncomingPipelineActivity(out var activity))
+        if (!V11BehaviorSwitch.UseV11Behavior && // removed in v11 together with the events, see obsoletes-v10.cs
+            batchDispatchContext.Extensions.TryGetIncomingPipelineActivity(out var activity))
         {
-            return null;
+            return LegacyDispatchEvents.DispatchWithEvents(this, batchDispatchContext, activity);
         }
 
-        activity.AddEvent(new("Start dispatching", tags: new() { { "message-count", operationCount } }));
-        return activity;
+        return this.Fork(batchDispatchContext);
     }
 
     static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)

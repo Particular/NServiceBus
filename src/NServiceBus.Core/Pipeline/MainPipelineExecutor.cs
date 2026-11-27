@@ -16,24 +16,26 @@ class MainPipelineExecutor(
     INotificationSubscriptions<ReceivePipelineCompleted> receivePipelineNotification,
     IPipeline<ITransportReceiveContext> receivePipeline,
     IActivityFactory activityFactory,
-    IncomingPipelineMetrics incomingPipelineMetrics,
+    PipelineMetrics pipelineMetrics,
     EnvelopeUnwrapper envelopeUnwrapper)
     : IPipelineExecutor
 {
     public async Task Invoke(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         var pipelineStartedAt = DateTimeOffset.UtcNow;
+
         using var activity = activityFactory.StartIncomingPipelineActivity(messageContext);
-
-        var incomingPipelineMetricsTags = messageContext.Extensions.Get<IncomingPipelineMetricTags>();
-
-        incomingPipelineMetrics.AddDefaultIncomingPipelineMetricTags(incomingPipelineMetricsTags);
 
         var childScope = rootBuilder.CreateAsyncScope();
         await using (childScope.ConfigureAwait(false))
         {
             using var incomingMessageHandle = envelopeUnwrapper.UnwrapEnvelope(messageContext);
             IncomingMessage message = incomingMessageHandle;
+
+            var metricTags = messageContext.MetricTags;
+
+            //This needs to happen after envelope unwrapping to ensure the proper value of the EnclosedMessageTypes header
+            using var activeMessageScope = pipelineMetrics.TrackMessageProcessing(metricTags, message);
 
             var transportReceiveContext = new TransportReceiveContext(
                 childScope.ServiceProvider,
@@ -51,12 +53,16 @@ class MainPipelineExecutor(
 
             try
             {
-                await receivePipeline.Invoke(transportReceiveContext, activity).ConfigureAwait(false);
+
+                await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
+                pipelineMetrics.RecordProcessingAttempt(metricTags);
+                LegacyStatus.SetOk(activity); // removed in v11, see obsoletes-v10.cs
             }
 #pragma warning disable PS0019 // Do not catch Exception without considering OperationCanceledException - enriching and rethrowing
             catch (Exception ex)
 #pragma warning restore PS0019 // Do not catch Exception without considering OperationCanceledException
             {
+                activityFactory.RecordError(activity, ex, transportReceiveContext.Extensions);
                 ex.Data["Message ID"] = message.MessageId;
 
                 if (message.NativeMessageId != message.MessageId)
@@ -66,15 +72,20 @@ class MainPipelineExecutor(
 
                 ex.Data["Pipeline canceled"] = transportReceiveContext.CancellationToken.IsCancellationRequested;
 
+                pipelineMetrics.RecordProcessingAttempt(metricTags, ex);
+
+                // The guard keeps a canceled attempt out of the v10 failures counter. With the v11 switch on,
+                // totalFailures is null and the call does nothing, so the guard has no effect.
+                // See https://github.com/Particular/NServiceBus/pull/8057
                 if (!ex.IsCausedBy(transportReceiveContext.CancellationToken))
                 {
-                    incomingPipelineMetrics.RecordMessageProcessingFailure(incomingPipelineMetricsTags, ex);
+                    pipelineMetrics.RecordMessageProcessingFailure(metricTags, ex); // pre-v11 counter, removed in v11, see obsoletes-v10.cs
                 }
                 throw;
             }
             finally
             {
-                incomingPipelineMetrics.RecordFetchedMessage(incomingPipelineMetricsTags);
+                pipelineMetrics.RecordFetchedMessage(metricTags); // pre-v11 counter, removed in v11, see obsoletes-v10.cs
             }
 
             var completedAt = DateTimeOffset.UtcNow;

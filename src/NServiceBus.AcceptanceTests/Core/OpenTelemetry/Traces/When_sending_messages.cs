@@ -10,6 +10,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using AcceptanceTesting;
 using EndpointTemplates;
+using NServiceBus.Pipeline;
 using NUnit.Framework;
 
 public class When_sending_messages : OpenTelemetryAcceptanceTest
@@ -163,6 +164,144 @@ public class When_sending_messages : OpenTelemetryAcceptanceTest
                 testContext.SentMessageId = context.MessageId;
                 testContext.MessageConversationId = context.MessageHeaders[Headers.ConversationId];
                 testContext.SentMessageHeaders = new Dictionary<string, string>((IDictionary<string, string>)context.MessageHeaders);
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_include_destination_in_send_span_name()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpoint>(b => b
+                .When(s => s.SendLocal(new OutgoingMessage())))
+            .Run();
+
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1));
+
+        var sentMessage = outgoingMessageActivities.Single();
+        var destination = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(TestEndpoint));
+        Assert.That(sentMessage.DisplayName, Is.EqualTo($"send {nameof(OutgoingMessage)} to {destination}"));
+    }
+
+    [Test]
+    [OpenTelemetryV11Defaults]
+    public async Task Should_not_include_destination_in_send_span_name_when_routed_to_several_destinations()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpointWithFanOut>(b => b
+                .When(s => s.SendLocal(new OutgoingMessage())))
+            .Run();
+
+        var outgoingMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        Assert.That(outgoingMessageActivities, Has.Count.EqualTo(1));
+
+        Assert.That(outgoingMessageActivities.Single().DisplayName, Is.EqualTo($"send {nameof(OutgoingMessage)}"));
+    }
+
+    [Test]
+    public async Task Should_create_new_linked_trace_on_receive_when_endpoint_defaults_to_span_link()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpointWithSpanLinkConnector>(b => b
+                .When(s => s.SendLocal(new OutgoingMessage())))
+            .Run();
+
+        var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+        }
+
+        var sendRequest = sendMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(receiveRequest.RootId, Is.Not.EqualTo(sendRequest.RootId), "send and receive operations are part of different root activities");
+            Assert.That(receiveRequest.ParentId, Is.Null, "incoming message does not have a parent, it's a root");
+        }
+
+        ActivityLink link = receiveRequest.Links.FirstOrDefault();
+        Assert.That(link, Is.Not.EqualTo(default(ActivityLink)), "Receive has a link");
+        Assert.That(link.Context.TraceId, Is.EqualTo(sendRequest.TraceId), "receive is linked to send operation");
+    }
+
+    [Test]
+    public async Task Should_create_child_on_receive_when_option_overrides_endpoint_connector()
+    {
+        await Scenario.Define<Context>()
+            .WithEndpoint<TestEndpointWithSpanLinkConnector>(b => b
+                .When(s =>
+                {
+                    var sendOptions = new SendOptions();
+                    sendOptions.RouteToThisEndpoint();
+                    sendOptions.ContinueExistingTraceOnReceive();
+                    return s.Send(new OutgoingMessage(), sendOptions);
+                }))
+            .Run();
+
+        var sendMessageActivities = NServiceBusActivityListener.CompletedActivities.GetSendMessageActivities();
+        var receiveMessageActivities = NServiceBusActivityListener.CompletedActivities.GetReceiveMessageActivities();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sendMessageActivities, Has.Count.EqualTo(1), "1 message is sent as part of this test");
+            Assert.That(receiveMessageActivities, Has.Count.EqualTo(1), "1 message is received as part of this test");
+        }
+
+        var sendRequest = sendMessageActivities[0];
+        var receiveRequest = receiveMessageActivities[0];
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(receiveRequest.RootId, Is.EqualTo(sendRequest.RootId), "send and receive operations are part of the same root activity");
+            Assert.That(receiveRequest.ParentId, Is.Not.Null, "incoming message does have a parent");
+        }
+
+        Assert.That(receiveRequest.Links, Is.Empty, "receive does not have links");
+    }
+
+    public class TestEndpointWithSpanLinkConnector : EndpointConfigurationBuilder
+    {
+        public TestEndpointWithSpanLinkConnector() =>
+            EndpointSetup<DefaultServer>(b => b.Tracing().SendTraceMode = TraceMode.StartNew);
+
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
+        {
+            public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
+            {
+                testContext.MarkAsCompleted();
+                return Task.CompletedTask;
+            }
+        }
+    }
+
+    public class TestEndpointWithFanOut : EndpointConfigurationBuilder
+    {
+        public TestEndpointWithFanOut() => EndpointSetup<DefaultServer>(c =>
+            c.Pipeline.Register(new DuplicateRoutingStrategyBehavior(), "Routes each outgoing message twice"));
+
+        class DuplicateRoutingStrategyBehavior : Behavior<IRoutingContext>
+        {
+            public override Task Invoke(IRoutingContext context, Func<Task> next)
+            {
+                var strategy = context.RoutingStrategies.Single();
+                context.RoutingStrategies = [strategy, strategy];
+                return next();
+            }
+        }
+
+        [Handler]
+        public class MessageHandler(Context testContext) : IHandleMessages<OutgoingMessage>
+        {
+            public Task Handle(OutgoingMessage message, IMessageHandlerContext context)
+            {
                 testContext.MarkAsCompleted();
                 return Task.CompletedTask;
             }

@@ -4,8 +4,7 @@ namespace NServiceBus;
 
 using System;
 using System.Collections.Generic;
-using NServiceBus.Logging;
-using NServiceBus.Transport;
+using Transport;
 using Pipeline;
 
 /// <summary>
@@ -30,7 +29,6 @@ public class ImmediateRetry : RecoverabilityAction
     {
         var exception = context.Exception;
 
-        Logger.Info($"Immediate Retry is going to retry message '{context.MessageId}' because of an exception:", exception);
         if (context is IRecoverabilityActionContextNotifications notifications)
         {
             notifications.Add(new MessageToBeRetried(
@@ -46,6 +44,4 @@ public class ImmediateRetry : RecoverabilityAction
         }
         return [];
     }
-
-    static readonly ILog Logger = LogManager.GetLogger<ImmediateRetry>();
 }

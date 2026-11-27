@@ -5,6 +5,7 @@ namespace NServiceBus;
 using System;
 using MessageInterfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Pipeline;
 using Transport;
 
@@ -27,7 +28,7 @@ class SendComponent
 
 
         pipelineSettings.Register(new OutgoingPhysicalToRoutingConnector(), "Starts the message dispatch pipeline");
-        pipelineSettings.Register(new RoutingToDispatchConnector(),
+        pipelineSettings.Register(new RoutingToDispatchConnector(hostingConfiguration.ActivityFactory),
             "Decides if the current message should be batched or immediately be dispatched to the transport");
         pipelineSettings.Register(new BatchToDispatchConnector(), "Passes batched messages over to the immediate dispatch part of the pipeline");
         pipelineSettings.Register(b => new ImmediateDispatchTerminator(b.GetRequiredService<IMessageDispatcher>()), "Hands the outgoing messages over to the transport for immediate delivery");
@@ -45,7 +46,8 @@ class SendComponent
             pipelineComponent.CreatePipeline<IOutgoingReplyContext>(builder),
             pipelineComponent.CreatePipeline<ISubscribeContext>(builder),
             pipelineComponent.CreatePipeline<IUnsubscribeContext>(builder),
-            activityFactory);
+            activityFactory,
+            builder.GetRequiredService<ILogger<MessageOperations>>());
 
     readonly IActivityFactory activityFactory;
     readonly IMessageMapper messageMapper;

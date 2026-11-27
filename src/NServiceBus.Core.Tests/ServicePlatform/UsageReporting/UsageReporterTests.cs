@@ -15,8 +15,11 @@ using NServiceBus.ServicePlatform;
 using NServiceBus.Testing;
 using NUnit.Framework;
 
-[TestFixture]
-public class UsageReporterTests
+// The fixture runs with the pre-v11 metrics and with the v11 metrics. In v11 remove the fixture parameter and the
+// switch calls together with the V11BehaviorSwitch block in NServiceBus.Core/obsoletes-v10.cs.
+[TestFixture(false)]
+[TestFixture(true)]
+public class UsageReporterTests(bool useV11Behavior)
 {
     FakeTimeProvider fakeTimeProvider;
     UsageReporterSettings settings;
@@ -31,6 +34,8 @@ public class UsageReporterTests
     [SetUp]
     public async Task Setup()
     {
+        SetV11Behavior(useV11Behavior);
+
         fakeTimeProvider = new();
         settings = new()
         {
@@ -53,6 +58,14 @@ public class UsageReporterTests
     {
         await usageReporter.PerformStop(null);
         usageReporter.Dispose();
+
+        SetV11Behavior(false);
+    }
+
+    static void SetV11Behavior(bool enabled)
+    {
+        AppContext.SetSwitch(V11BehaviorSwitch.UseV11BehaviorSwitchName, enabled);
+        V11BehaviorSwitch.ResetUseV11Behavior();
     }
 
     [Test]
@@ -92,6 +105,17 @@ public class UsageReporterTests
     }
 
     [Test]
+    public void Should_not_count_failed_or_canceled_messages()
+    {
+        SimulateSuccessfulMessages(2);
+        fakePipeline.SimulateFailedMessages(3);
+        fakePipeline.SimulateCanceledMessages(1);
+        AdvanceToNextReportingInterval();
+
+        Assert.That(TotalReportedUsage, Is.EqualTo(2));
+    }
+
+    [Test]
     public async Task Should_send_usage_report_on_graceful_shutdown()
     {
         SimulateSuccessfulMessages(2);
@@ -122,7 +146,7 @@ public class UsageReporterTests
     void SimulateSuccessfulMessages(int n = 1, FakePipeline pipeline = null) => (pipeline ?? fakePipeline).SimulateSuccessfullyProcessedMessages(n);
     Task GracefulShutdown(CancellationToken cancellationToken = default) => usageReporter.PerformStop(null, cancellationToken);
 
-    class FakePipeline(IncomingPipelineMetrics metrics)
+    class FakePipeline(PipelineMetrics metrics)
     {
         public static FakePipeline Build(string queueName = "QueueName", string discriminator = "Discriminator")
         {
@@ -131,19 +155,41 @@ public class UsageReporterTests
                 .BuildServiceProvider();
             var meterFactory = serviceProvider.GetRequiredService<IMeterFactory>();
 
-            var incomingPipelineMetrics = new IncomingPipelineMetrics(meterFactory, queueName, discriminator);
+            var pipelineMetrics = new PipelineMetrics(meterFactory, queueName, discriminator);
 
-            return new(incomingPipelineMetrics);
+            return new(pipelineMetrics);
         }
 
+        // Records what the receive pipeline records for a message, in both the pre-v11 and the v11 metrics.
         public void SimulateSuccessfullyProcessedMessages(int n)
         {
             for (var i = 0; i < n; i++)
             {
                 var context = new TestableTransportReceiveContext();
-                var metricsTags = context.Extensions.GetOrCreate<IncomingPipelineMetricTags>();
-                metrics.AddDefaultIncomingPipelineMetricTags(metricsTags);
                 metrics.RecordCriticalTimeAndTotalProcessed(context);
+                metrics.RecordProcessingAttempt(context.PipelineMetricTags);
+            }
+        }
+
+        public void SimulateFailedMessages(int n)
+        {
+            for (var i = 0; i < n; i++)
+            {
+                var context = new TestableTransportReceiveContext();
+                var error = new InvalidOperationException("Boom");
+                metrics.RecordProcessingAttempt(context.PipelineMetricTags, error);
+                metrics.RecordMessageProcessingFailure(context.PipelineMetricTags, error);
+            }
+        }
+
+        // A canceled attempt records a processing attempt with the error type of the exception, and no failure.
+        // The attempt carries error.type, so the usage reporter does not count it.
+        public void SimulateCanceledMessages(int n)
+        {
+            for (var i = 0; i < n; i++)
+            {
+                var context = new TestableTransportReceiveContext();
+                metrics.RecordProcessingAttempt(context.PipelineMetricTags, new OperationCanceledException());
             }
         }
     }
