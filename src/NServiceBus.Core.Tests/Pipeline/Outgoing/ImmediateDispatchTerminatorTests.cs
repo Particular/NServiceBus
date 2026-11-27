@@ -73,7 +73,7 @@ public class ImmediateDispatchTerminatorTests
 
         var terminator = new ImmediateDispatchTerminator(new ThrowingDispatcher());
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => terminator.Invoke(NewDispatchContext(new FakeRootContext(pool), Operation(headers)), _ => Task.CompletedTask));
+        Assert.ThrowsAsync<InvalidOperationException>(() => terminator.Invoke(NewDispatchContext(new FakeRootContext(pool), Operation(headers)), _ => Task.CompletedTask));
 
         var rentedAfterFailure = pool.Rent();
         using (Assert.EnterMultipleScope())

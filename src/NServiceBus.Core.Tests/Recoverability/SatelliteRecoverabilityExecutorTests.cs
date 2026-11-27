@@ -37,7 +37,7 @@ public class SatelliteRecoverabilityExecutorTests
         var dispatcher = new RecordingDispatcher { Fail = true };
         var executor = CreateExecutor(pool, dispatcher);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => executor.Invoke(CreateErrorContext()));
+        Assert.ThrowsAsync<InvalidOperationException>(() => executor.Invoke(CreateErrorContext()));
 
         using (Assert.EnterMultipleScope())
         {

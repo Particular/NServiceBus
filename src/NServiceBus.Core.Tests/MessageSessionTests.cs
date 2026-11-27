@@ -97,7 +97,7 @@ public class MessageSessionTests
         var session = new MessageSession(loggingSlot: new EndpointLogSlot("Test", null), pool);
         session.Initialize(new ThrowingServiceProvider(), messageOperations, new ThrowingPipelineCache(), CancellationToken.None);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => session.Send(new object()));
+        Assert.ThrowsAsync<InvalidOperationException>(() => session.Send(new object()));
 
         using (Assert.EnterMultipleScope())
         {

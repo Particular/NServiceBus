@@ -246,7 +246,7 @@ public class RoutingToDispatchConnectorTests
             owner);
         Dictionary<string, string>[] copies = null;
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => behavior.Invoke(routingContext, context =>
+        Assert.ThrowsAsync<InvalidOperationException>(() => behavior.Invoke(routingContext, context =>
         {
             copies = context.Operations.Select(o => o.Message.Headers).ToArray();
             throw new InvalidOperationException("dispatch failed");
