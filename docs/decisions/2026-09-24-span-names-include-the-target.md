@@ -8,7 +8,7 @@
 - [2026-10-21 no messaging semantic convention attributes](2026-10-21-no-messaging-semantic-convention-attributes.md)
 - [OpenTelemetry messaging span names](https://opentelemetry.io/docs/specs/semconv/messaging/messaging-spans/#span-name)
 - [OpenTelemetry span name definition](https://opentelemetry.io/docs/specs/otel/trace/api/#span)
-- [Upgrade guide 10 to 11, span names](https://github.com/Particular/docs.particular.net/blob/61c597df6c09b7bf57253fe697e5ff9f68d2a604/nservicebus/upgrades/10to11/index.md#span-names)
+- [Upgrade guide 10 to 11, span names](https://github.com/Particular/docs.particular.net/pull/8443) (docs pull request)
 
 ## Context
 
@@ -46,7 +46,8 @@ Constraints:
 
 ## Decision
 
-1. **Span names use the format `{operation} {target}`** under the v11 behavior. In v11 this is the only format.
+1. **Span names use the format `{operation} {target}`** under the v11 behavior. In v11 this is the only format
+   for the spans of decisions 2, 3 and 4. The `recover` and `discard` spans keep the operation only.
 2. **Incoming, retry and recoverability spans use the queue as the target**: `process {receiveAddress}`,
    `immediate retry {receiveAddress}`, `delayed retry {receiveAddress}`, `move to {errorQueue}`. The queue is
    configuration-time data.
@@ -86,6 +87,9 @@ Constraints:
   number of instances is bounded by the deployment, not by the traffic. Accepted.
 - Send and reply spans with the same message type and destination differ only in the operation, so a backend
   groups them apart.
+- **The `recover` and `discard` spans have no target.** `ActivityFactory` names them `recover` and `discard`
+  under both behaviors. The receive address is available where both names are set, so the conventions do not
+  force this. Follow-up: name them with the queue, or record why they stay generic.
 - **A generic message type shows the metadata name**, for example ``Envelope`1``, not the type argument.
   Accepted: generic message types are rare.
 - **A rename of a message type changes the span name.** A rename already breaks the wire contract, the
@@ -109,6 +113,11 @@ Constraints:
   - This diverges from the rule of the OpenTelemetry .NET instrumentation skill to build span names only after
     the check for a span.
 
+## Alternative approaches
+
+The point of leverage is the target of outgoing spans. It returns whenever someone compares NServiceBus span
+names with the messaging semantic conventions.
+
 ### Keep the generic v10 names
 
 Stable and with the lowest cardinality. Rejected: one group for all work of a kind does not help users find a
@@ -122,7 +131,8 @@ the type for send and reply, and accepts that samplers do not see it.
 
 ### Use only the message type as the target of send and reply spans
 
-The state before decision 4 (`send message {MessageType}`). It names the span once, when it starts. Rejected: the destination is an important information the users should see immediatelly when looking at a span.
+The state before decision 4 (`send message {MessageType}`). It names the span once, when it starts. Rejected:
+the destination is important information, and a user must see it immediately in the span name.
 
 ### Append the destination without a separator
 
