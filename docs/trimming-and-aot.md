@@ -67,6 +67,7 @@ When enabling the analyzers produces too many warnings to fix at once, record th
 
 - Register features explicitly with `EnableEndpointFeature<T>()`, `EnableFeature<T>()`, or `Enable<T>()` inside a feature. These APIs require a public parameterless constructor. Do not rely on assembly scanning to discover the component's features or installers.
 - Serializers that accept user types should let users supply their own `JsonSerializerContext`, so that user message types are serialized with source-generated metadata.
+- Resolve metadata for those types through `JsonSerializerOptions.TryGetTypeInfo` or `GetTypeInfo`, not `JsonSerializerOptions.TypeInfoResolver.GetTypeInfo`. The resolver creates new metadata on every call, while the options cache it once they are read-only, which happens when they are first used for serialization.
 
 Adding trimming annotations without changing runtime behavior can ship in a minor release. Making an existing API throw when trimming or Native AOT is active is a breaking change.
 

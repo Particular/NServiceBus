@@ -12,8 +12,8 @@ static class JsonSerializerOptionsExtensions
     {
         public JsonTypeInfo? ResolveTypeInfo(Type runtimeType)
         {
-            var typeInfo = options?.TypeInfoResolver?.GetTypeInfo(runtimeType, options);
-            if (typeInfo is not null)
+            // Unlike TypeInfoResolver.GetTypeInfo, this reuses metadata once serialization has made the options read-only
+            if (options is not null && options.TryGetTypeInfo(runtimeType, out var typeInfo))
             {
                 return typeInfo;
             }
