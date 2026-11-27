@@ -1,0 +1,307 @@
+#nullable enable
+
+namespace NServiceBus.Utils;
+
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics.Tracing;
+using System.Threading;
+
+/// <summary>
+/// A thread-safe pool of reusable <see cref="Dictionary{TKey, TValue}"/> instances,
+/// modeled on <see cref="System.Buffers.ArrayPool{T}"/>'s Rent/Return pattern.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Backed by a <see cref="ConcurrentStack{T}"/>, a lock-free (CAS) linked stack:
+/// <see cref="Rent"/> (<c>TryPop</c>) and <see cref="Return"/> (<c>Push</c>) are wait-free
+/// and never take a monitor lock. Header dictionaries are rented and returned across
+/// <c>await</c> boundaries (rent on the pump/handler thread, return on a dispatch
+/// continuation thread), so there is no thread-local locality to exploit; a single
+/// lock-free structure minimizes the unavoidable cross-thread synchronization cost.
+/// </para>
+/// <para>
+/// A soft capacity cap (enforced via an atomic counter) bounds retention: returns
+/// beyond the cap are dropped and left to the GC, so the pool never grows unbounded
+/// under bursty or pathological load. The cap is just an upper bound on retention;
+/// actual retention self-limits to the number of in-flight dictionaries.
+/// </para>
+/// <para>
+/// <see cref="Return"/> calls <see cref="Dictionary{TKey, TValue}.Clear"/> by default,
+/// which preserves the internal bucket/entry arrays (Capacity). For workloads where
+/// successive usages need roughly the same number of entries (e.g. message headers,
+/// which are uniform across a given endpoint), this means the preserved capacity
+/// serves the next rent without any internal resize. <c>TrimExcess</c>
+/// only fires when a returned dictionary's backing <see cref="Dictionary{TKey, TValue}.Capacity"/>
+/// exceeds <c>maxRetainedCapacityPerItem</c>, a safety valve so one anomalously large usage
+/// or a large pre-sized rent doesn't permanently inflate the pool's footprint. This is not the common path.
+/// </para>
+/// </remarks>
+public class DictionaryPool<TKey, TValue> where TKey : notnull
+{
+    /// <param name="maxPoolSize">
+    /// Soft cap on the number of dictionaries retained. Returns beyond this limit
+    /// are dropped rather than growing the pool unbounded. Defaults to a generous
+    /// multiple of processor count so it's never the bottleneck under normal load.
+    /// </param>
+    /// <param name="maxRetainedCapacityPerItem">
+    /// If a returned dictionary's backing <see cref="Dictionary{TKey, TValue}.Capacity"/> exceeds this,
+    /// it is trimmed (<c>Clear</c> + <c>TrimExcess</c>) before being pooled, so one unusually large
+    /// usage doesn't permanently inflate the pool's memory footprint. The capacity is the size of the
+    /// internal arrays, which the dictionary rounds up to a prime, so it can exceed the entry count.
+    /// Defaults to 1024, well above typical header counts, so normal usage always takes the
+    /// no-realloc path.
+    /// </param>
+    public DictionaryPool(int maxPoolSize = -1, int maxRetainedCapacityPerItem = 1024)
+    {
+        PoolId = DictionaryPoolIds.Next();
+        this.maxPoolSize = maxPoolSize > 0 ? maxPoolSize : Math.Max(Environment.ProcessorCount * 4, 64);
+        this.maxRetainedCapacityPerItem = maxRetainedCapacityPerItem;
+
+        if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryPoolCreated(PoolId, typeof(TKey).ToString(), typeof(TValue).ToString());
+        }
+    }
+
+    /// <summary>A shared, process-wide pool instance, analogous to <c>ArrayPool&lt;T&gt;.Shared</c>.</summary>
+    public static DictionaryPool<TKey, TValue> Shared { get; } = new();
+
+    /// <summary>
+    /// A pool instance that never reuses dictionaries: <see cref="Rent"/> always allocates
+    /// a fresh dictionary and <see cref="Return"/> discards it. Used where pooling is disabled,
+    /// so rent and return sites need no branching.
+    /// </summary>
+    public static DictionaryPool<TKey, TValue> AlwaysAllocate { get; } = new AlwaysAllocatePool();
+
+    /// <summary>
+    /// Approximate number of dictionaries currently retained in the pool.
+    /// Thread-safe and safe to read at any time, but may lag behind the actual
+    /// contents under concurrent access. Intended for diagnostics and testing.
+    /// </summary>
+    internal int Count => Interlocked.CompareExchange(ref count, 0, 0);
+
+    /// <summary>
+    /// A stable, process-unique id assigned at construction. Useful for
+    /// distinguishing pool instances in <see cref="DictionaryPoolEventSource"/> traces.
+    /// </summary>
+    internal int PoolId { get; }
+
+    /// <summary>
+    /// Rents a dictionary from the pool, or allocates a new one if the pool is
+    /// currently empty. The returned dictionary is always empty.
+    /// </summary>
+    /// <param name="minimumCapacity">
+    /// Optional capacity hint, mirroring <c>ArrayPool&lt;T&gt;.Rent(minimumLength)</c>.
+    /// When provided, the returned dictionary is pre-sized so you can fill it
+    /// without triggering internal resizes.
+    /// </param>
+    public virtual Dictionary<TKey, TValue> Rent(int minimumCapacity = 0)
+    {
+        Pooled item;
+        var allocated = false;
+        if (stack.TryPop(out var taken))
+        {
+            Interlocked.Decrement(ref count);
+            taken.MarkAsRentedOut();
+            item = taken;
+        }
+        else
+        {
+            item = new Pooled(this);
+            allocated = true;
+        }
+
+        if (minimumCapacity > 0)
+        {
+            item.EnsureCapacity(minimumCapacity);
+        }
+
+        if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryRented(PoolId, minimumCapacity);
+        }
+
+        if (allocated && DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryAllocated(PoolId, minimumCapacity);
+        }
+
+        return item;
+    }
+
+    /// <summary>
+    /// Returns a previously-rented dictionary to the pool for reuse. Dictionaries
+    /// that did not come from <see cref="Rent"/>, or that are returned more than
+    /// once, are ignored and left to the garbage collector.
+    /// </summary>
+    /// <param name="dictionary">The dictionary previously obtained from <see cref="Rent"/>.</param>
+    /// <param name="clearDictionary">
+    /// Whether to clear the dictionary's contents before pooling it. Defaults to true.
+    /// Only pass false if you've already cleared it yourself; otherwise the next
+    /// <see cref="Rent"/> caller sees stale data. A dictionary whose capacity exceeds
+    /// <c>maxRetainedCapacityPerItem</c> is cleared and trimmed regardless.
+    /// </param>
+    /// <remarks>
+    /// <para>
+    /// The pool only retains instances it handed out itself. Returning a dictionary
+    /// that was not rented from this pool, or returning the same instance twice,
+    /// is a no-op: the instance is not pooled, not cleared, and simply left to the
+    /// garbage collector. A dictionary parked with <c>TryDefer</c> is owned by the
+    /// deferral list and is ignored the same way.
+    /// </para>
+    /// <para>
+    /// Not returning a rented dictionary will NOT result in any memory leaks:
+    /// an unreturned dictionary simply becomes unreachable once the caller drops its
+    /// reference and is reclaimed by the garbage collector. The pool itself is
+    /// bounded by <c>maxPoolSize</c>, so even returned dictionaries beyond the cap
+    /// are dropped rather than retained.
+    /// </para>
+    /// </remarks>
+    public virtual void Return(Dictionary<TKey, TValue> dictionary, bool clearDictionary = true)
+    {
+        ArgumentNullException.ThrowIfNull(dictionary);
+
+        if (dictionary is not Pooled pooled || pooled.Owner != this || !pooled.TryMarkInPool())
+        {
+            return;
+        }
+
+        Pool(pooled, clearDictionary);
+    }
+
+    /// <summary>
+    /// Parks a rented dictionary on the lock-free list rooted at <paramref name="head"/> so it can be
+    /// returned later with <see cref="ReturnDeferred"/>. Only a rented instance of this pool can be
+    /// deferred; foreign, already returned, and already deferred instances are rejected. While deferred,
+    /// <see cref="Return"/> ignores the instance and its contents stay intact.
+    /// </summary>
+    internal bool TryDefer(Dictionary<TKey, TValue> dictionary, ref Dictionary<TKey, TValue>? head)
+    {
+        ArgumentNullException.ThrowIfNull(dictionary);
+
+        if (dictionary is not Pooled pooled || pooled.Owner != this || !pooled.TryMarkAsDeferred())
+        {
+            return false;
+        }
+
+        Pooled? current;
+        do
+        {
+            current = (Pooled?)Volatile.Read(ref head);
+            pooled.next = current;
+        } while (!ReferenceEquals(Interlocked.CompareExchange(ref head, pooled, current), current));
+
+        if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryDeferred(PoolId, pooled.Count);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Takes every dictionary parked on <paramref name="head"/> and returns it to the pool.
+    /// Safe to call with an empty list and safe to call more than once.
+    /// </summary>
+    internal void ReturnDeferred(ref Dictionary<TKey, TValue>? head)
+    {
+        var node = (Pooled?)Interlocked.Exchange(ref head, null);
+
+        while (node is not null)
+        {
+            var following = node.next;
+            node.next = null;
+            node.MarkDeferredAsInPool();
+            Pool(node, clearDictionary: true);
+            node = following;
+        }
+    }
+
+    void Pool(Pooled pooled, bool clearDictionary)
+    {
+        var dictionaryEntryCount = pooled.Count; // capture before Clear
+        var dictionaryCapacity = pooled.Capacity;
+        var tooLarge = dictionaryCapacity > maxRetainedCapacityPerItem;
+
+        if (clearDictionary || tooLarge)
+        {
+            pooled.Clear();
+        }
+
+        if (tooLarge)
+        {
+            // Release the oversized backing arrays so one outlier usage
+            // doesn't permanently inflate the pool's memory footprint.
+            pooled.TrimExcess();
+
+            if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
+            {
+                DictionaryPoolEventSource.Log.DictionaryTrimmed(PoolId, dictionaryCapacity, maxRetainedCapacityPerItem);
+            }
+        }
+
+        if (Interlocked.Increment(ref count) > maxPoolSize)
+        {
+            Interlocked.Decrement(ref count);
+
+            // Pool is full: drop the dictionary and let the GC reclaim it.
+            if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Informational, EventKeywords.None))
+            {
+                DictionaryPoolEventSource.Log.DictionaryDropped(PoolId, dictionaryEntryCount, DictionaryPoolEventSource.DictionaryDroppedReason.PoolFull);
+            }
+
+            return;
+        }
+
+        stack.Push(pooled);
+
+        if (DictionaryPoolEventSource.Log.IsEnabled(EventLevel.Verbose, EventKeywords.None))
+        {
+            DictionaryPoolEventSource.Log.DictionaryReturned(PoolId, dictionaryEntryCount);
+        }
+    }
+
+    readonly ConcurrentStack<Pooled> stack = [];
+    readonly int maxPoolSize;
+    readonly int maxRetainedCapacityPerItem;
+    int count; // approximate size, maintained via Interlocked
+
+    /// <summary>
+    /// A dictionary created by a pool. <see cref="Owner"/> is the ownership marker:
+    /// <see cref="Return(Dictionary{TKey, TValue}, bool)"/> and <see cref="TryDefer"/> only accept instances this
+    /// pool created itself, so a dictionary rented from another pool of the same key and value types is ignored,
+    /// and the state tracked inside it guards against returning the same instance twice.
+    /// </summary>
+    sealed class Pooled(DictionaryPool<TKey, TValue> owner) : Dictionary<TKey, TValue>
+    {
+        internal DictionaryPool<TKey, TValue> Owner { get; } = owner;
+
+        const int RentedOut = 0;
+        const int InPool = 1;
+        const int Deferred = 2;
+
+        int state = RentedOut;
+
+        internal Pooled? next;
+
+        internal bool TryMarkInPool() => Interlocked.CompareExchange(ref state, InPool, RentedOut) == RentedOut;
+
+        internal bool TryMarkAsDeferred() => Interlocked.CompareExchange(ref state, Deferred, RentedOut) == RentedOut;
+
+        internal void MarkDeferredAsInPool() => Volatile.Write(ref state, InPool);
+
+        internal void MarkAsRentedOut() => Volatile.Write(ref state, RentedOut);
+    }
+
+    sealed class AlwaysAllocatePool : DictionaryPool<TKey, TValue>
+    {
+        public override Dictionary<TKey, TValue> Rent(int minimumCapacity = 0) =>
+            minimumCapacity > 0 ? new Dictionary<TKey, TValue>(capacity: minimumCapacity) : [];
+
+        // Discarding without clearing: the caller may still legitimately read the
+        // dictionary after a no-op return, and the next rent never sees this instance.
+        public override void Return(Dictionary<TKey, TValue> dictionary, bool clearDictionary = true) { }
+    }
+}

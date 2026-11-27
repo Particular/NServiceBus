@@ -132,7 +132,8 @@ public class MainPipelineExecutorTests
             receivePipeline,
             new ActivityFactory(),
             incomingPipelineMetrics,
-            new EnvelopeUnwrapper([], incomingPipelineMetrics));
+            new EnvelopeUnwrapper([], incomingPipelineMetrics),
+            HeaderPool.AlwaysAllocate);
 
         return executor;
     }

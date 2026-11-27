@@ -16,8 +16,8 @@ partial class TransportReceiveContext : PipelineRootContext, ITransportReceiveCo
     /// <summary>
     /// Creates a new transport receive context.
     /// </summary>
-    public TransportReceiveContext(IServiceProvider serviceProvider, MessageOperations messageOperations, IPipelineCache pipelineCache, IncomingMessage receivedMessage, TransportTransaction transportTransaction, ContextBag parentContext, CancellationToken cancellationToken)
-        : base(serviceProvider, messageOperations, pipelineCache, cancellationToken, parentContext)
+    public TransportReceiveContext(IServiceProvider serviceProvider, MessageOperations messageOperations, IPipelineCache pipelineCache, HeaderPool headerPool, IncomingMessage receivedMessage, TransportTransaction transportTransaction, ContextBag parentContext, CancellationToken cancellationToken)
+        : base(serviceProvider, messageOperations, pipelineCache, headerPool, cancellationToken, parentContext)
     {
         Message = receivedMessage;
         Set(Message);

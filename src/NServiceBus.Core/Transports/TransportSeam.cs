@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Settings;
 using Transport;
 
-class TransportSeam(TransportDefinition transportDefinition, HostingComponent.Configuration hostingConfiguration, SettingsHolder coreSettings, QueueBindings queueBindings)
+class TransportSeam(TransportDefinition transportDefinition, HostingComponent.Configuration hostingConfiguration, SettingsHolder coreSettings, QueueBindings queueBindings, HeaderPool headerPool)
 {
     public void Configure(ReceiveSettings[] receivers) => receiverSettings = receivers;
 
@@ -28,7 +28,8 @@ class TransportSeam(TransportDefinition transportDefinition, HostingComponent.Co
             hostingConfiguration.HostInformation.DisplayName, hostingConfiguration.StartupDiagnostics,
             hostingConfiguration.CriticalError.Raise, setupInfrastructure, coreSettings)
         {
-            ServiceProvider = serviceProvider
+            ServiceProvider = serviceProvider,
+            HeaderPool = headerPool
         };
         transportInfrastructure = await TransportDefinition.Initialize(hostSettings, receiverSettings, [.. QueueBindings.SendingAddresses], cancellationToken)
             .ConfigureAwait(false);
@@ -45,7 +46,11 @@ class TransportSeam(TransportDefinition transportDefinition, HostingComponent.Co
         var transportDefinition = transportSeamSettings.TransportDefinition;
         transportSeamSettings.settings.Set(transportDefinition);
 
-        var transportSeam = new TransportSeam(transportDefinition, hostingConfiguration, transportSeamSettings.settings, transportSeamSettings.QueueBindings);
+        var headerPool = transportSeamSettings.settings.GetHeaderPool();
+
+        hostingConfiguration.Services.AddSingleton(headerPool);
+
+        var transportSeam = new TransportSeam(transportDefinition, hostingConfiguration, transportSeamSettings.settings, transportSeamSettings.QueueBindings, headerPool);
 
         hostingConfiguration.Services.AddSingleton(_ => transportSeam.transportInfrastructure.Dispatcher);
 

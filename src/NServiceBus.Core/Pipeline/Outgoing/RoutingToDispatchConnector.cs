@@ -12,7 +12,7 @@ using Pipeline;
 using Routing;
 using Transport;
 
-class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
+class RoutingToDispatchConnector(HeaderPool headerPool) : StageConnector<IRoutingContext, IDispatchContext>
 {
     public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
     {
@@ -40,7 +40,7 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         var copySharedMutableMessageState = context.RoutingStrategies.Count > 1;
         foreach (var strategy in context.RoutingStrategies)
         {
-            var transportOperation = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState);
+            var transportOperation = context.ToTransportOperation(strategy, dispatchConsistency, copySharedMutableMessageState, headerPool);
 
             foreach (var (propertyName, propertyValue) in receiveProperties)
             {
@@ -60,6 +60,15 @@ class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchCont
         if (context.Extensions.TryGetRecordingOutgoingPipelineActivity(out var activity))
         {
             ActivityDecorator.PromoteHeadersToTags(activity, outgoingMessage.Headers);
+        }
+
+        // When copies were made for multicast, the original headers dictionary is no longer
+        // needed by any transport operation, but outgoing behaviors may still read it while unwinding,
+        // so the owning pipeline invocation returns it. When copies were NOT made (unicast), the
+        // original is in the transport operations and is deferred after dispatch.
+        if (copySharedMutableMessageState)
+        {
+            PipelineRootContext.FindOwner(context.Extensions)?.DeferHeaderReturn(outgoingMessage.Headers);
         }
 
         if (dispatchConsistency == DispatchConsistency.Default && context.Extensions.TryGet<PendingTransportOperations>(out var pendingOperations))
