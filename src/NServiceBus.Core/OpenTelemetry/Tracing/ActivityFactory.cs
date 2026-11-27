@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensibility;
 using Pipeline;
@@ -268,7 +269,9 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
         }
     }
 
-    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag)
+#pragma warning disable PS0003
+    public void RecordError(Activity? activity, Exception exception, ContextBag contextBag, CancellationToken cancellationToken)
+#pragma warning restore PS0003
     {
         if (activity == null)
         {
@@ -288,7 +291,9 @@ sealed partial class ActivityFactory(InstrumentationOptions options) : IActivity
             LegacyExceptionTags.SetLegacyStatusTags(activity, exception);
         }
 
-        if (exception is TaskCanceledException)
+        if (V11BehaviorSwitch.UseV11Behavior
+            ? exception.IsCausedBy(cancellationToken)
+            : exception is TaskCanceledException)
         {
             activity.SetTag(ActivityTags.CancelledTask, true);
         }

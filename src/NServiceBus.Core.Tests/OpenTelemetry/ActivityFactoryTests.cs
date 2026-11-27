@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using NServiceBus.Extensibility;
@@ -454,7 +456,7 @@ public class ActivityFactoryTests
             var activity = activityFactory.StartIncomingPipelineActivity(CreateMessageContext());
             Assert.That(activity, Is.Not.Null);
 
-            activityFactory.RecordError(activity, new Exception("boom"), new ContextBag());
+            activityFactory.RecordError(activity, new Exception("boom"), new ContextBag(), CancellationToken.None);
 
             var tags = activity.Tags.ToImmutableDictionary();
             using (Assert.EnterMultipleScope())
@@ -500,7 +502,7 @@ public class ActivityFactoryTests
             using var activity = new Activity("send").Start();
             var exception = new InvalidOperationException("boom");
 
-            activityFactory.RecordError(activity, exception, new ContextBag());
+            activityFactory.RecordError(activity, exception, new ContextBag(), CancellationToken.None);
 
             using (Assert.EnterMultipleScope())
             {
@@ -517,7 +519,7 @@ public class ActivityFactoryTests
             var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = exceptionRecordingMode });
             using var activity = new Activity("send").Start();
 
-            factory.RecordError(activity, new InvalidOperationException("boom"), new ContextBag());
+            factory.RecordError(activity, new InvalidOperationException("boom"), new ContextBag(), CancellationToken.None);
 
             Assert.That(activity.Events.Select(e => e.Name), Is.EqualTo(eventExpected ? ["exception"] : Array.Empty<string>()));
         }
@@ -529,9 +531,69 @@ public class ActivityFactoryTests
             var factory = new ActivityFactory(new InstrumentationOptions { ExceptionRecordingMode = ExceptionRecordingMode.SpanAndLogs });
             using var activity = new Activity("send").Start();
 
-            factory.RecordError(activity, new InvalidOperationException("boom"), new ContextBag());
+            factory.RecordError(activity, new InvalidOperationException("boom"), new ContextBag(), CancellationToken.None);
 
             Assert.That(activity.Events, Is.Empty, "with the v11 behavior exceptions are only logged");
+        }
+
+        [TestCase(typeof(OperationCanceledException))]
+        [TestCase(typeof(TaskCanceledException))]
+        [OpenTelemetryV11Defaults]
+        public void Should_tag_a_cancellation_of_the_token_of_the_operation(Type exceptionType)
+        {
+            using var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+            using var activity = new Activity("process").Start();
+
+            activityFactory.RecordError(activity, (Exception)Activator.CreateInstance(exceptionType)!, new ContextBag(), cancellationTokenSource.Token);
+
+            Assert.That(activity.TagObjects.ToImmutableDictionary()[ActivityTags.CancelledTask], Is.True);
+        }
+
+        [Test]
+        [OpenTelemetryV11Defaults]
+        public void Should_not_tag_a_cancellation_of_another_token()
+        {
+            using var activity = new Activity("process").Start();
+
+            activityFactory.RecordError(activity, new TaskCanceledException(), new ContextBag(), CancellationToken.None);
+
+            Assert.That(activity.TagObjects.Select(t => t.Key), Does.Not.Contain(ActivityTags.CancelledTask), "a cancellation of another token is a failure");
+        }
+
+        [Test]
+        [OpenTelemetryV11Defaults]
+        public void Should_not_tag_a_failure_while_the_token_of_the_operation_is_canceled()
+        {
+            using var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+            using var activity = new Activity("process").Start();
+
+            activityFactory.RecordError(activity, new InvalidOperationException("boom"), new ContextBag(), cancellationTokenSource.Token);
+
+            Assert.That(activity.TagObjects.Select(t => t.Key), Does.Not.Contain(ActivityTags.CancelledTask));
+        }
+
+        [Test]
+        public void Should_tag_a_task_cancellation_of_any_token_before_v11()
+        {
+            using var activity = new Activity("process").Start();
+
+            activityFactory.RecordError(activity, new TaskCanceledException(), new ContextBag(), CancellationToken.None);
+
+            Assert.That(activity.TagObjects.ToImmutableDictionary()[ActivityTags.CancelledTask], Is.True);
+        }
+
+        [Test]
+        public void Should_not_tag_a_plain_operation_cancellation_before_v11()
+        {
+            using var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+            using var activity = new Activity("process").Start();
+
+            activityFactory.RecordError(activity, new OperationCanceledException(), new ContextBag(), cancellationTokenSource.Token);
+
+            Assert.That(activity.TagObjects.Select(t => t.Key), Does.Not.Contain(ActivityTags.CancelledTask));
         }
 
         [Test]
@@ -546,8 +608,8 @@ public class ActivityFactoryTests
             var exception = new Exception("boom");
             var root = new ContextBag();
 
-            activityFactory.RecordError(handlerActivity!, exception, new ContextBag(root));
-            activityFactory.RecordError(pipelineActivity!, exception, root);
+            activityFactory.RecordError(handlerActivity!, exception, new ContextBag(root), CancellationToken.None);
+            activityFactory.RecordError(pipelineActivity!, exception, root, CancellationToken.None);
 
             var pipelineTags = pipelineActivity!.Tags.ToImmutableDictionary();
             using (Assert.EnterMultipleScope())
@@ -568,8 +630,8 @@ public class ActivityFactoryTests
             var exception = new InvalidOperationException("boom");
             var root = new ContextBag();
 
-            activityFactory.RecordError(handlerActivity, exception, new ContextBag(root));
-            activityFactory.RecordError(incomingActivity, exception, root);
+            activityFactory.RecordError(handlerActivity, exception, new ContextBag(root), CancellationToken.None);
+            activityFactory.RecordError(incomingActivity, exception, root, CancellationToken.None);
 
             using (Assert.EnterMultipleScope())
             {
@@ -586,8 +648,8 @@ public class ActivityFactoryTests
             using var handlerActivity = new Activity("handler").Start();
             var root = new ContextBag();
 
-            activityFactory.RecordError(sendActivity, new InvalidOperationException("send failed"), root);
-            activityFactory.RecordError(handlerActivity, new InvalidOperationException("handler failed"), root);
+            activityFactory.RecordError(sendActivity, new InvalidOperationException("send failed"), root, CancellationToken.None);
+            activityFactory.RecordError(handlerActivity, new InvalidOperationException("handler failed"), root, CancellationToken.None);
 
             using (Assert.EnterMultipleScope())
             {
@@ -604,8 +666,8 @@ public class ActivityFactoryTests
             var exception = new InvalidOperationException("boom");
             var root = new ContextBag();
 
-            activityFactory.RecordError(sendActivity, exception, new ContextBag(root));
-            activityFactory.RecordError(handlerActivity, exception, root);
+            activityFactory.RecordError(sendActivity, exception, new ContextBag(root), CancellationToken.None);
+            activityFactory.RecordError(handlerActivity, exception, root, CancellationToken.None);
 
             using (Assert.EnterMultipleScope())
             {
